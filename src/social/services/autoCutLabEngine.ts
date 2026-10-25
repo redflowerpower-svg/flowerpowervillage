@@ -1,5 +1,5 @@
 import { menuData, MenuItem } from '../../pizza/data/menuData';
-import { ACCOMMODATIONS } from '../../booking/resort/config/accommodations';
+import { ACCOMMODATIONS, findAccommodationIdentity } from '../../booking/resort/config/accommodations';
 import { DEFAULT_PERIODS, DEFAULT_PRICES_MATRIX } from '../../admin/resort/store/useSeasonalRateStore';
 import { fetchCloudMenuOverrides } from '../../pizza/data/pizzaMenuCloudService';
 
@@ -25,6 +25,8 @@ export interface AutoCutScene {
   priceValue?: number;
   lodgingTitle?: string;    // Es. "Green Bungalow"
   lodgingSubtitle?: string; // Es. "Tropical Hideaway"
+  legacySlug?: string;      // Es. "13-green-bungalow"
+  directUrl?: string;       // Es. "https://www.flowerpowervillage.com/13-green-bungalow"
   pizzaSizes?: {
     size8Price: number;
     size12Price: number;

@@ -11,6 +11,7 @@ import DiningTabletSite from './pizza/pages/DiningTabletSite';
 import LegalPage from './pages/LegalPage';
 import SocialStudioPage from './social/pages/SocialStudioPage';
 import AutoCutStudioPage from './social/pages/AutoCutStudioPage';
+import { ACCOMMODATION_IDENTITIES } from './booking/resort/config/accommodations';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -183,6 +184,14 @@ function App() {
           <Route path="/autocut/*" element={<AutoCutStudioPage />} />
           <Route path="/flowerpowerpizzaranong/*" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           <Route path="/flowerpowerpizzaranong" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
+          {/* 🏨 Link Diretti Permanenti ai 18 Alloggi (Legacy & Canonical URLs) */}
+          {ACCOMMODATION_IDENTITIES.map((acc) => (
+            <React.Fragment key={acc.legacySlug}>
+              <Route path={`/${acc.legacySlug}`} element={<Navigate to={`/village?room=${acc.legacySlug}`} replace />} />
+              <Route path={`/${acc.legacySlug}/*`} element={<Navigate to={`/village?room=${acc.legacySlug}`} replace />} />
+              <Route path={`/${acc.canonicalSlug}`} element={<Navigate to={`/village?room=${acc.legacySlug}`} replace />} />
+            </React.Fragment>
+          ))}
           {/* Legacy hash-based admin redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

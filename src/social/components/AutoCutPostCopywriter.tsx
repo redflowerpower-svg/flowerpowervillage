@@ -7,6 +7,7 @@ import {
   Layers, ArrowDown, FileText, Send
 } from 'lucide-react';
 import { AutoCutTestRun } from '../services/autoCutLabEngine';
+import { findAccommodationIdentity } from '../../booking/resort/config/accommodations';
 import { 
   generatePostCopy, 
   ensureLangFlag,
@@ -99,19 +100,31 @@ export function AutoCutPostCopywriter({
   const currentDishKey = testRun.scenes.map(s => `${s.sourceName || s.titlePrimary || ''}_${s.imageUrl}`).join('|');
   const testRunSignature = `${testRun.brand}_${testRun.mode}_${currentDishKey}`;
 
+  // Risoluzione URL diretto univoco per gli alloggi del villaggio (V1, V2, V3, LM1)
+  const villageAccIdent = React.useMemo(() => {
+    if (testRun.brand !== 'village') return undefined;
+    for (const s of testRun.scenes) {
+      const match = findAccommodationIdentity(s.lodgingTitle) || findAccommodationIdentity(s.sourceName) || findAccommodationIdentity(s.titlePrimary);
+      if (match) return match;
+    }
+    return undefined;
+  }, [testRun]);
+
+  const villageTargetUrl = villageAccIdent ? villageAccIdent.directUrl : 'https://www.flowerpowervillage.com';
+
   // Sincronizzazione automatica parametri al cambio modalità o brand
   React.useEffect(() => {
     const isP = testRun.brand === 'pizza';
     setTiktokPoi(isP ? 'Flower Power Pizza Ranong' : 'Flower Power Village Koh Phayam');
-    setIgStickerUrl(isP ? 'https://www.flowerpowerpizza.com/delivery' : 'https://www.flowerpowervillage.com');
+    setIgStickerUrl(isP ? 'https://www.flowerpowerpizza.com/delivery' : villageTargetUrl);
     setIgStickerText(isP ? 'Ordina Online (-10%)' : 'Prenota Bungalow');
     setIgCollaborator(isP ? '@flowerpowerphayam' : '@flowerpowerpizzaranong');
     setFbCtaType(isP ? 'ORDER_NOW' : 'BOOK_NOW');
-    setFbTargetUrl(isP ? 'https://www.flowerpowerpizza.com' : 'https://www.flowerpowervillage.com');
+    setFbTargetUrl(isP ? 'https://www.flowerpowerpizza.com' : villageTargetUrl);
     setFbCheckin(isP ? 'Flower Power Pizza Ranong' : 'Flower Power Village Koh Phayam');
     setGoogleCtaType(isP ? 'ORDER' : 'BOOK');
     setGoogleOfferTitle(isP ? 'Sconto Benvenuto 10% Primo Ordine' : '10% Privilegio Prenotazione Diretta');
-  }, [testRun.brand, testRun.mode]);
+  }, [testRun.brand, testRun.mode, villageTargetUrl]);
 
   // Carica meteo live reale di Ranong / Koh Phayam
   React.useEffect(() => {

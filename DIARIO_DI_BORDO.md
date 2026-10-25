@@ -5,6 +5,27 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 15:15] · FUSIONE PERMANENTE 18 URL LEGACY SITO AGLI ALLOGGI & UX SCHEDA EVIDENZIATA CON SCROLL MORBIDO
+- **Cosa abbiamo fatto:** Completata l'integrazione strutturale e definitiva dei 18 link legacy storici del vecchio sito (`52-jungle-villa`, `11-yellow-bungalow`, `22-villa-penthouse`, ecc.) fondendoli in modo permanente nel codice e nell'identità di ogni singolo alloggio:
+  - 🔗 **Mappatura Canonica Immodificabile (`ACCOMMODATION_IDENTITIES`)**:
+    - Creata in [accommodations.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/resort/config/accommodations.ts) la struttura di identità univoca per tutti i 18 alloggi del villaggio con: `name`, `canonicalSlug`, `legacySlug`, `legacyPath`, `directUrl` (`https://www.flowerpowervillage.com/52-jungle-villa`), alias storici e ID Octorate.
+    - Funzione `findAccommodationIdentity(slugOrName)` capace di riconoscere all'istante qualunque variante (URL vecchio con trattino `52-jungle-villa`, cartella underscore `44_jungle_villa`, slug moderno o nome esteso).
+  - 🌐 **Rotte Root e Redirect Intelligenti in [App.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/App.tsx)**:
+    - Tutte le 18 URL storiche (es. `/52-jungle-villa`, `/11-yellow-bungalow`, `/22-villa-penthouse`, ecc.) mappate direttamente alla radice del router per reindirizzare a `/village?room=[legacySlug]`.
+    - Garantita la compatibilità immediata con qualsiasi link pubblicitario, post passato o brochure che usa i vecchi link.
+  - 🎯 **UX Alloggio Selezionato & Scroll Morbido al Posto Naturale in [RoomGrid.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/resort/components/RoomGrid.tsx)**:
+    - **Zero alterazione dell'ordine naturale del catalogo**: L'alloggio selezionato NON viene spostato in cima arbitrariamente, preservando l'ordine armonico e naturale delle categorie.
+    - **Apertura automatica Zoom/Gallery**: L'accesso da link apre direttamente la modale gallery con foto reali.
+    - **Scroll Morbido Centrato alla Chiusura**: Alla chiusura dello zoom (`closeGallery`), la pagina effettua uno scroll fluido e centra perfettamente sullo schermo la scheda dell'alloggio appena visualizzato.
+    - **Bordo Dorato Luminoso & Badge "✨ ALLOGGIO SELEZIONATO"**: La scheda dell'alloggio scelto resta evidenziata con un elegante bordo ambra/oro pulsante (`border-2 border-amber-400 ring-4 ring-amber-400/25 shadow-[0_0_35px_rgba(245,158,11,0.35)]`) e un badge fluttuante bilingue (*✨ ALLOGGIO SELEZIONATO* / *✨ YOUR SELECTED ROOM* / *✨ ที่พักที่คุณเลือก*).
+  - 📣 **Integrazione Social Studio & Didascalie Post**:
+    - Aggiornati [autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts), [autoCutCopywriterEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutCopywriterEngine.ts) e [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx).
+    - Per tutti i video del Villaggio e Last Minute (`LM1`, `V1`, `V2`, `V3`), il link Instagram Stories Sticker, il link post Facebook e il copy multilingua contengono ora la URL specifica e diretta dell'alloggio in vetrina anziché il generico dominio home.
+- **Effetto reale:** Chiunque clicchi su una delle vecchie URL o sui link diretti inviati nelle campagne Last Minute apre subito le foto dell'alloggio, e quando chiude la foto ritrova l'alloggio al suo posto nella lista evidenziato in oro e con il badge luccicante, pronto per essere prenotato al miglior prezzo.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 14:50] · RISOLUZIONE DEFINITIVA CONFIGURAZIONE XIAOMI MI PAD 4 / PLUS (3 COLONNE IN VERTICALE & TABLET STATION BLINDATA)
 - **Cosa abbiamo fatto:** Risolto alla radice il problema di configurazione dello standard tablet **Xiaomi Mi Pad 4 / Mi Pad 4 Plus** in orientamento verticale in [src/index.css](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/index.css) e [DiningTabletSite.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/pages/DiningTabletSite.tsx):
   - 📐 **Media Query Ibrida Intelligente su Aspect-Ratio**: Aggiunta la regola `@media (min-width: 460px), ((min-width: 380px) and (min-aspect-ratio: 58/100))`. I tablet (16:10 o 4:3, con aspect-ratio portrait $\ge 0.625$) vengono isolati con precisione matematica dai telefoni cellulari moderni (19.5:9 o 20:9, con aspect-ratio portrait $\le 0.46$). Anche se il display zoom di Android riduce i pixel CSS logici del Mi Pad 4 a 400px–436px, scattano sempre le 3 colonne.

@@ -3,7 +3,7 @@ import { Coffee, Wind, Image as ImageIcon, X, ChevronLeft, ChevronRight } from '
 import { fetchAccommodations, EnrichedAccommodation } from '../../data/accommodationsService';
 import { checkAvailability } from '../../lib/octorate';
 import { translations, Language } from '../../lib/translations';
-import { PRICE_CONFIG } from '../config/accommodations';
+import { PRICE_CONFIG, findAccommodationIdentity, ACCOMMODATION_IDENTITIES } from '../config/accommodations';
 import { useResortAdminStore } from '../../../admin/resort/store/useResortAdminStore';
 import RoomFeaturesGrid from './RoomFeaturesGrid';
 
@@ -108,6 +108,8 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
   // Gallery Modal State
   const [activeGalleryRoom, setActiveGalleryRoom] = useState<EnrichedAccommodation | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
+  // Alloggio selezionato evidenziato dopo chiusura zoom/gallery
+  const [highlightedRoomSlug, setHighlightedRoomSlug] = useState<string | null>(null);
 
   const stayDays = calculateStayDays(checkIn, checkOut);
   const lowSeason = isLowSeason(checkIn, checkOut);
@@ -235,7 +237,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
 
   const cleanSlug = (s: string): string => {
     if (!s) return '';
-    return String(s).toLowerCase().replace(/^\d+_/, '').trim();
+    return String(s).toLowerCase().replace(/^\d+[-_]/, '').trim();
   };
 
   const openGallery = (item: any) => {
@@ -246,22 +248,44 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
       if (typeof setActiveImageIndex === 'function') {
         setActiveImageIndex(0);
       }
-      // Gestione sicura dello slug o ID pulito
+      // Risoluzione canonica dello slug tramite identità univoca
       const rawSlug = item?.slug || item?.id || 'room';
-      const slug = cleanSlug(rawSlug) || 'room';
+      const ident = findAccommodationIdentity(rawSlug) || findAccommodationIdentity(item?.name);
+      const targetSlug = ident ? ident.legacySlug : (cleanSlug(rawSlug) || 'room');
+      const canonicalKey = ident ? ident.canonicalSlug : cleanSlug(rawSlug);
+      
+      setHighlightedRoomSlug(canonicalKey);
+
       if (typeof window !== 'undefined') {
         const url = new URL(window.location.href);
-        url.searchParams.set('room', slug);
+        url.searchParams.set('room', targetSlug);
         window.history.pushState(null, '', url.toString());
       }
-      console.log("URL aggiornato con successo con slug pulito:", slug);
+      console.log("URL aggiornato con successo con slug alloggio:", targetSlug);
     } catch (err) {
       console.error("Errore in openGallery:", err);
     }
   };
 
   const closeGallery = () => {
+    const lastActive = activeGalleryRoom;
     setActiveGalleryRoom(null);
+
+    if (lastActive) {
+      const ident = findAccommodationIdentity(lastActive.slug) || findAccommodationIdentity(lastActive.name) || findAccommodationIdentity(lastActive.id);
+      const canonicalKey = ident ? ident.canonicalSlug : cleanSlug(lastActive.slug || lastActive.id);
+      setHighlightedRoomSlug(canonicalKey);
+
+      // Scorri morbidamente alla scheda alloggio al centro della schermata mantenendo l'ordine naturale
+      setTimeout(() => {
+        const cardEl = document.getElementById(`room-card-${canonicalKey}`) || 
+                       document.getElementById(`room-card-${cleanSlug(lastActive.slug || lastActive.id)}`);
+        if (cardEl) {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 150);
+    }
+
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
       if (url.searchParams.has('room')) {
@@ -277,11 +301,26 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
       const urlParams = new URLSearchParams(window.location.search);
       const roomParam = urlParams.get('room');
       if (roomParam) {
+        const ident = findAccommodationIdentity(roomParam);
         const cleanParam = cleanSlug(roomParam);
-        const found = rooms.find(r => r && (cleanSlug(r.slug) === cleanParam || cleanSlug(r.slug).includes(cleanParam) || cleanParam.includes(cleanSlug(r.slug))));
+
+        const found = rooms.find(r => {
+          if (!r) return false;
+          if (ident) {
+            const rIdent = findAccommodationIdentity(r.slug) || findAccommodationIdentity(r.name) || findAccommodationIdentity(r.id);
+            if (rIdent && rIdent.canonicalSlug === ident.canonicalSlug) return true;
+            if (cleanSlug(r.slug) === ident.canonicalSlug || ident.aliases.includes(r.slug) || ident.name.toLowerCase() === (r.name || '').toLowerCase()) return true;
+          }
+          const rClean = cleanSlug(r.slug || r.id);
+          return rClean === cleanParam || rClean.includes(cleanParam) || cleanParam.includes(rClean);
+        });
+
         if (found) {
           setActiveGalleryRoom(found);
           setActiveImageIndex(0);
+          const foundIdent = findAccommodationIdentity(found.slug) || findAccommodationIdentity(found.name) || findAccommodationIdentity(found.id);
+          const canonicalKey = foundIdent ? foundIdent.canonicalSlug : cleanSlug(found.slug || found.id);
+          setHighlightedRoomSlug(canonicalKey);
         }
       }
     }
@@ -634,11 +673,35 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
             }, 300);
           };
 
+          const itemIdent = findAccommodationIdentity(item.slug) || findAccommodationIdentity(item.name) || findAccommodationIdentity(item.id);
+          const cardSlug = itemIdent ? itemIdent.canonicalSlug : cleanSlug(item.slug || item.id);
+          const isHighlighted = highlightedRoomSlug === cardSlug;
+
           return (
             <article
               key={item.id}
-              className="bg-stone-50 rounded-[2rem] border border-stone-300 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col group will-change-transform"
+              id={`room-card-${cardSlug}`}
+              className={`bg-stone-50 rounded-[2rem] transition-all duration-500 flex flex-col group will-change-transform relative ${
+                isHighlighted
+                  ? 'border-2 border-amber-400 ring-4 ring-amber-400/25 shadow-[0_0_35px_rgba(245,158,11,0.35)] scale-[1.01]'
+                  : 'border border-stone-300 shadow-sm hover:shadow-2xl hover:-translate-y-1'
+              }`}
             >
+              {/* ✨ BANNER DI EVIDENZIAZIONE ALLOGGIO SELEZIONATO */}
+              {isHighlighted && (
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-stone-950 font-black text-xs px-4 py-1.5 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1.5 border border-amber-200 animate-pulse pointer-events-none">
+                  <span className="text-sm">✨</span>
+                  <span>
+                    {lang === 'TH'
+                      ? 'ที่พักที่คุณเลือก'
+                      : lang === 'IT'
+                      ? 'Alloggio Selezionato'
+                      : lang === 'DE'
+                      ? 'Ihre Auswahl'
+                      : 'Your Selected Room'}
+                  </span>
+                </div>
+              )}
               {/* IMAGE HEADER - CLICKABLE GALLERY POPUP */}
               <div 
                 onClick={() => openGallery(item)}

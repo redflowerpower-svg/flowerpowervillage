@@ -7,6 +7,7 @@
  */
 
 import { AutoCutTestRun } from './autoCutLabEngine';
+import { findAccommodationIdentity } from '../../booking/resort/config/accommodations';
 
 export interface PostCopyResult {
   brand: 'pizza' | 'village';
@@ -513,6 +514,10 @@ La buona cucina italiana nel cuore dell'isola di Koh Phayam!
 
     const vIdx = Math.abs(proverbIndexSeed) % villageEnHooks.length;
 
+    const roomIdent = findAccommodationIdentity(dishOrRoomName) || 
+      (testRun.scenes[0] && (findAccommodationIdentity(testRun.scenes[0].lodgingTitle) || findAccommodationIdentity(testRun.scenes[0].sourceName)));
+    const roomUrl = roomIdent ? `www.flowerpowervillage.com/${roomIdent.legacySlug}` : `www.flowerpowervillage.com`;
+
     // Inglese: Fresco, tropicale, a capo ariosi
     englishContent = `${villageEnHooks[vIdx]}
 
@@ -523,7 +528,7 @@ Nestled in lush tropical gardens with ocean breeze, birds singing and pure islan
 Remember: ${cleanEnProverb}
 Pack your flip-flops and let nature recharge your soul! 🤙
 
-🎁 Book directly on www.flowerpowervillage.com
+🎁 Book directly on ${roomUrl}
 Best rate guaranteed with an exclusive 10% direct booking privilege! 🥥✨`;
 
     // Thai: Maschile, particelle amichevoli, toponimi esatti, a capo ariosi
@@ -536,7 +541,7 @@ ${dishOrRoomName}
 คนโบราณกล่าวไว้: "${proverb.thai}"
 วันหยุดทั้งที ต้องให้ธรรมชาติบำบัดหัวใจและเติมพลังชีวิตนะครับ!
 
-🎁 จองตรงกับเราที่ www.flowerpowervillage.com
+🎁 จองตรงกับเราที่ ${roomUrl}
 รับราคาดีที่สุด พร้อมส่วนลดพิเศษ 10% สำหรับการจองตรงครับ! 🥥✨`;
 
     // Italiano: Traduzione letterale con proverbio e a capo ariosi
@@ -549,10 +554,10 @@ Bungalow e alloggi in legno immersi nella natura tropicale, tra brezza marina e 
 Come dice un saggio proverbio: "${proverb.it}"
 Una vacanza autentica per rigenerare corpo e spirito nel cuore dell'isola!
 
-🎁 Prenota direttamente su www.flowerpowervillage.com
+🎁 Prenota direttamente su ${roomUrl}
 Miglior tariffa garantita online e 10% di privilegio prenotazione diretta! 🥥✨`;
 
-    fixedLink = `🌴 FLOWER POWER VILLAGE 🌸 - Buffalo Bay, Koh Phayam\n📍 Google Maps: https://maps.app.goo.gl/mugY88Wpuzjeebf56\n🌐 www.flowerpowervillage.com`;
+    fixedLink = `🌴 FLOWER POWER VILLAGE 🌸 - Buffalo Bay, Koh Phayam\n📍 Google Maps: https://maps.app.goo.gl/mugY88Wpuzjeebf56\n🌐 ${roomUrl}`;
     crossTag = `@flowerpowerpizzaranong`;
   }
 
