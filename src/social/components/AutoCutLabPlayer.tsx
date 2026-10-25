@@ -1064,7 +1064,7 @@ export function AutoCutLabPlayer({
         const siteW = oCtx.measureText('flowerpowervillage.com').width;
         let lmExtraW = 0;
         if (mode === 'LM1') {
-          oCtx.font = `900 ${Math.round(19.5 * s)}px "Prompt", sans-serif`;
+          oCtx.font = `900 ${Math.round(21.5 * s)}px "Prompt", sans-serif`;
           lmExtraW = oCtx.measureText('ห้องว่างวันนี้').width;
         }
         maxSubW = Math.max(fpW, dbW, siteW, lmExtraW);
@@ -1299,7 +1299,7 @@ export function AutoCutLabPlayer({
       } else if (mode === 'LM1') {
         // Formato LM1 Stories Last Minute (Koh Phayam)
         // Header sincronizzato 1:1 con il DOM React dell'Editor
-        ty += 14 * s;
+        ty += 12 * s; // Salito di 2 pixel (era 14 * s)
 
         // 🌟 Ciclo pulsazione & luccichio ad alta frequenza per LAST MINUTE
         const pulseFreq = tElapsed * 5.5;
@@ -1307,13 +1307,13 @@ export function AutoCutLabPlayer({
         const textPulseScale = 1.0 + 0.08 * Math.sin(pulseFreq);
 
         const lmPillText = 'LAST MINUTE';
-        const lmPillFontSize = Math.round(12.5 * s);
+        const lmPillFontSize = Math.round(13.8 * s); // Ingrandito del 10% (era 12.5 * s)
         oCtx.font = `900 ${lmPillFontSize}px "Outfit", sans-serif`;
         const lmTextW = oCtx.measureText(lmPillText).width;
-        const dotR = 5 * s;
-        const pillPadX = 10 * s;
-        const pillW = lmTextW + (pillPadX * 2) + (dotR * 2) + (8 * s);
-        const pillH = 24 * s;
+        const dotR = 5.5 * s; // Ingrandito del 10% (era 5 * s)
+        const pillPadX = 11 * s; // Ingrandito del 10% (era 10 * s)
+        const pillW = lmTextW + (pillPadX * 2) + (dotR * 2) + (9 * s);
+        const pillH = 26.5 * s; // Ingrandito del 10% (era 24 * s)
 
         oCtx.save();
         // 🌟 BADGE LAST MINUTE: Vettoriale ad altissima definizione con ombra netta e zero sfocatura rasterizzata
@@ -1441,20 +1441,20 @@ export function AutoCutLabPlayer({
 
         ty += pillH + (11 * s); // Allontanato di 3 pixel in basso rispetto a pillH (era 8 * s)
 
-        // Thai: ห้องว่างวันนี้ (Prompt 900 dorato con ombra protettiva ad alto contrasto)
-        const thaiFontSize = Math.round(19.5 * s);
+        // Thai: ห้องว่างวันนี้ (Prompt 900 dorato con ombra protettiva ad alto contrasto) - Ingrandito del 10%
+        const thaiFontSize = Math.round(21.5 * s); // Ingrandito del 10% (era 19.5 * s)
         oCtx.font = `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
         drawTextWithShadow('ห้องว่างวันนี้', tx, ty, '#fcd34d', 3.6 * s);
         ty += thaiFontSize + (10 * s); // Distanziato di 5 pixel ulteriori (totale 10 * s) dalla scritta sopra in Thai
 
-        // DIRECT BOOKING (verde smeraldo brillante Outfit 900 con ombra protettiva)
-        const dbFontSize = Math.round(18.5 * s);
+        // DIRECT BOOKING (verde smeraldo brillante Outfit 900 con ombra protettiva) - Ingrandito del 10%
+        const dbFontSize = Math.round(20.5 * s); // Ingrandito del 10% (era 18.5 * s)
         oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
         ty += dbFontSize + (5 * s); // Distanziata di 5 pixel dalla scritta sopra DIRECT BOOKING
 
-        // flowerpowervillage.com (Outfit 600)
-        const siteFontSize = Math.round(14.5 * s);
+        // flowerpowervillage.com (Outfit 600) - Ingrandito del 10%
+        const siteFontSize = Math.round(16 * s); // Ingrandito del 10% (era 14.5 * s)
         oCtx.font = `600 ${siteFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('flowerpowervillage.com', tx, ty, 'rgba(255,255,255,0.95)', 2.8 * s);
       } else {
@@ -3048,20 +3048,20 @@ export function AutoCutLabPlayer({
 
           {/* 🔥 FORMATO LM1 STORIES LAST MINUTE (Koh Phayam) */}
           {mode === 'LM1' && (
-            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
+              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 FLOWER POWER
               </span>
-              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 Village
               </span>
-              {/* Last minute su una sola riga con pallino rosso scintillante e testo pulsante */}
-              <div className="pt-[10px]">
-                <span className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-black text-xs shadow-[0_3px_8px_rgba(0,0,0,0.45)] tracking-wider border border-yellow-200/90 whitespace-nowrap">
-                  {/* 💎 🔴 Pallino rosso luccicante con bagliore e stella di diamante rotante */}
-                  <span className="relative flex items-center justify-center h-3.5 w-3.5 shrink-0">
+              {/* Last minute su una sola riga con pallino rosso scintillante e testo pulsante - salito di 2px (pt-[8px]) e ingrandito del 10% */}
+              <div className="pt-[8px]">
+                <span className="inline-flex items-center gap-2.5 px-4 py-[7px] rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-black shadow-[0_3px_8px_rgba(0,0,0,0.45)] tracking-wider border border-yellow-200/90 whitespace-nowrap">
+                  {/* 💎 🔴 Pallino rosso luccicante con bagliore e stella di diamante rotante (+10%) */}
+                  <span className="relative flex items-center justify-center h-4 w-4 shrink-0">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-80" />
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-gradient-to-br from-rose-500 via-red-600 to-rose-700 shadow-[0_0_12px_#ef4444,_0_0_24px_#dc2626] border border-rose-300/80" />
+                    <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-gradient-to-br from-rose-500 via-red-600 to-rose-700 shadow-[0_0_12px_#ef4444,_0_0_24px_#dc2626] border border-rose-300/80" />
                     <span className="absolute top-[2px] left-[2px] w-1 h-1 rounded-full bg-white shadow-[0_0_4px_#ffffff]" />
                     {/* Stella di diamante che ruota e luccica */}
                     <svg
@@ -3072,9 +3072,9 @@ export function AutoCutLabPlayer({
                       <path d="M12 0L13.8 8.5L24 12L13.8 15.5L12 24L10.2 15.5L0 12L10.2 8.5L12 0Z" />
                     </svg>
                   </span>
-                  {/* 🔥 Scritta LAST MINUTE che pulsa in modo molto visibile */}
+                  {/* 🔥 Scritta LAST MINUTE che pulsa in modo molto visibile (+10%: 14.5px / 15.5px) */}
                   <span
-                    className="font-black text-[13px] sm:text-[14px] tracking-widest uppercase text-stone-950 inline-block font-['Outfit',sans-serif]"
+                    className="font-black text-[14.5px] sm:text-[15.5px] tracking-widest uppercase text-stone-950 inline-block font-['Outfit',sans-serif]"
                     style={{
                       animation: 'lastMinutePulse 1.1s ease-in-out infinite alternate',
                       textShadow: '0 0 1px #000000, 0 1px 3px rgba(254, 240, 138, 0.9)'
@@ -3084,16 +3084,16 @@ export function AutoCutLabPlayer({
                   </span>
                 </span>
               </div>
-              {/* Sotto la scritta in Thai allontanata di +3px (mt-[7px]) con ombra scura profonda */}
-              <span className="mt-[7px] text-base sm:text-lg font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.9),_1px_1px_2px_rgba(0,0,0,1)]">
+              {/* Sotto la scritta in Thai allontanata di +3px (mt-[7px]) con ombra scura profonda (+10%: text-[17.5px] sm:text-[20px]) */}
+              <span className="mt-[7px] text-[17.5px] sm:text-[20px] font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 ห้องว่างวันนี้
               </span>
-              {/* Sotto DIRECT BOOKING distanziata 5px ulteriori (totale 10px) dalla scritta Thai sopra */}
-              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap mt-[10px] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              {/* Sotto DIRECT BOOKING distanziata 5px ulteriori (totale 10px) dalla scritta Thai sopra (+10%: text-[20.5px] sm:text-[23px]) */}
+              <span className="text-[20.5px] sm:text-[23px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap mt-[10px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              {/* Sotto flowerpowervillage.com distanziata esattamente 5px dalla scritta DIRECT BOOKING sopra */}
-              <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap mt-[5px] [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
+              {/* Sotto flowerpowervillage.com distanziata esattamente 5px dalla scritta DIRECT BOOKING sopra (+10%: text-[15.5px] sm:text-[17px]) */}
+              <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap mt-[5px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 flowerpowervillage.com
               </span>
             </div>

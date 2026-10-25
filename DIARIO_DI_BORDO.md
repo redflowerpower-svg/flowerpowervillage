@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 18:35] · FORMATO LM1: SALITA BLOCCO -2PX & INGRANDIMENTO +10% (BADGE LAST MINUTE, THAI, DIRECT BOOKING, SITO WEB)
+- **Cosa abbiamo fatto:** Allineato il blocco informativo centrale dell'Header in LM1 sia su Canvas che su DOM in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 📐 **Salita dell'Intero Blocco di 2 Pixel (-2px)**:
+    - *Canvas*: Ridotto il distacco iniziale da `ty += 14 * s` a `ty += 12 * s`, facendo salire il blocco `LAST MINUTE` + Thai + `DIRECT BOOKING` + `flowerpowervillage.com` di 2px esatti.
+    - *DOM*: Ridotto il padding top del contenitore da `pt-[10px]` a `pt-[8px]`.
+  - 🔍 **Ingrandimento del 10% di Tutti e 4 gli Elementi del Blocco**:
+    - **Badge LAST MINUTE**: font salito a `13.8 * s` / `text-[14.5px] sm:text-[15.5px]` (era 12.5*s / 13px), altezza pillola a `26.5 * s` (era 24*s), padding `11 * s` / `px-4 py-[7px]`, gemma rubino e punto luce ingranditi proporzionalmente.
+    - **Scritta Thai `ห้องว่างวันนี้`**: font salito a `21.5 * s` / `text-[17.5px] sm:text-[20px]` (era 19.5*s / 16px).
+    - **DIRECT BOOKING**: font salito a `20.5 * s` / `text-[20.5px] sm:text-[23px]` (era 18.5*s / 18.5px).
+    - **flowerpowervillage.com**: font salito a `16 * s` / `text-[15.5px] sm:text-[17px]` (era 14.5*s / 14px).
+  - 🖤 **Conferma Ombre Nere Profonde Multistrato**:
+    - Esteso su tutti i testi dell'Header LM1 il set di ombre nere multistrato ad altissimo contrasto `[text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]` nel DOM e `drawTextWithShadow` con stroke solido nero `#000000` su Canvas.
+- **Effetto reale:** Nel video esportato e nell'anteprima di LM1, il blocco informativo è più leggibile e visibile (+10%), perfettamente calibrato in altezza (salito di 2px) e con ombre nere scure che staccano da qualsiasi alloggio o tetto nello sfondo.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato nel browser live con subagent e verificato.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 18:30] · LOGHI UFFICIALI BASE64 INCORPORATI A 0MS IN MEMORIA, BLOCCO SITO/BIO DISTANZIATO (+4PX) & OMBRE NERE PROFONDE A 360°
 - **Cosa abbiamo fatto:** Risolto alla radice il problema del logo e allineata la geometria di V3 in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) e [brandLogosBase64.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/brandLogosBase64.ts):
   - 👑 **Loghi Ufficiali HD 512x512 in Base64 (Zero Dipendenza da Rete, Zero Latenza, Impossibile Mancare)**:
