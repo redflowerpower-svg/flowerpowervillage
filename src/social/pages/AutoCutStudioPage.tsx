@@ -16,7 +16,7 @@ import {
   InstagramIcon, 
   FacebookIcon 
 } from '../components/SocialPlatformIcons';
-import { SocialCalendarView } from '../components/SocialCalendarView';
+import { SocialCalendarView, generateOfficialMonthlyRoutine } from '../components/SocialCalendarView';
 import { VisualMotionStudio } from '../components/VisualMotionStudio';
 import { AutoCutLabView } from '../components/AutoCutLabView';
 import { generateFullAutoCutCampaign } from '../services/autoCutIntelligence';
@@ -271,11 +271,10 @@ export default function AutoCutStudioPage() {
   // Top Navigation Tab: AutoCut Motion Studio vs Visual Calendar
   const [activeMainTab, setActiveMainTab] = useState<'lab' | 'visual_motion' | 'calendar'>('lab');
 
-  // Scheduled Posts Queue for Editorial Calendar (Initialized with real dishes and bungalows)
+  // Scheduled Posts Queue for Editorial Calendar (Initialized with official routine: 08:00 TikTok Pizza + Village, 17:00 R1 Gruppi Phayam)
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledSocialPost[]>(() => {
-    return generateFullAutoCutCampaign() as ScheduledSocialPost[];
-
-
+    const now = new Date();
+    return generateOfficialMonthlyRoutine(now.getFullYear(), now.getMonth());
   });
 
   // UI Language Switcher (default EN for TikTok review, toggleable to IT)
