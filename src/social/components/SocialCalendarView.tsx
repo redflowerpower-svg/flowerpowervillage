@@ -121,9 +121,10 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     const villageAsset = villageAssets[(day - 1) % villageAssets.length];
     const pizzaItem = realFoodDatabase[(day - 1) % realFoodDatabase.length];
-    const isAltCapCut = (day % 3 === 0);
+    const pastaItem = realFoodDatabase[((day - 1) % 2 === 0 ? 2 : 3)]; // Spaghetti allo scoglio o Tagliatelle al nero
+    const isAltCapCut = (day % 2 === 0);
 
-    // 1. ORE 08:00 · 🎵 TikTok Story Pizzeria Ranong (✋ Azione Manuale Staff via Telegram - Cerchio Giallo)
+    // 1. ORE 08:00 · 🎵 TikTok Story Pizzeria Ranong (✋ Azione Manuale Staff - Cerchio Giallo)
     routinePosts.push({
       id: `routine_tiktok_pizza_${day}`,
       brand: 'pizza',
@@ -141,7 +142,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       badge: '✋ UPLOAD TIKTOK PIZZA'
     });
 
-    // 2. ORE 08:00 (CONTEMPORANEA) · 🎵 TikTok Story Villaggio Koh Phayam (✋ Azione Manuale Staff via Telegram - Cerchio Giallo)
+    // 2. ORE 08:00 (CONTEMPORANEA) · 🎵 TikTok Story Villaggio Koh Phayam (✋ Azione Manuale Staff - Cerchio Giallo)
     routinePosts.push({
       id: `routine_tiktok_village_${day}`,
       brand: 'village',
@@ -159,12 +160,12 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       badge: '✋ UPLOAD TIKTOK VILLAGE'
     });
 
-    // 3. ORE 08:45 · 👥 Gruppo Facebook Koh Phayam: LM1 Alloggi Liberi Oggi (✋ Azione Manuale Staff - Cerchio Giallo)
+    // 3. ORE 08:45 · 👥 Gruppo Facebook Koh Phayam: REEL Alloggi Liberi Oggi (✋ Azione Manuale Staff - Cerchio Giallo)
     routinePosts.push({
-      id: `routine_fb_group_phayam_${day}`,
+      id: `routine_fb_group_alloggi_${day}`,
       brand: 'village',
       platforms: ['facebook'],
-      format: 'feed',
+      format: 'reel',
       editorial_format: 'video_reel',
       scheduled_for: `${dateStr}T08:45:00`,
       title: `LM1 Alloggi Liberi Oggi a Phayam: ${villageAsset.name}`,
@@ -173,13 +174,33 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       source_item_id: villageAsset.id,
       price: villageAsset.price,
       status: 'scheduled',
-      tags: ['LM1', 'GruppiPhayam', 'Manuale', 'LastMinute'],
+      tags: ['LM1', 'GruppiPhayam', 'Manuale', 'LastMinute', 'reel'],
       cta_url: villageAsset.cta_url || 'https://flowerpowervillage.com',
       title_en: villageAsset.name,
       badge: '🟡 GRUPPO PHAYAM ALLOGGI'
     });
 
-    // 4. ORE 10:00 · 📍 Google Business Novità 4:3 (Martedì P1 Pizza / Venerdì V1 Villaggio)
+    // 4. ORE 09:30 · 📸 Instagram & FB Story: Risveglio & Colazione Tropicale (Alternanza con Filmini Spontanei CC1)
+    routinePosts.push({
+      id: `routine_story_morning_${day}`,
+      brand: 'village',
+      platforms: ['instagram', 'facebook'],
+      format: 'story',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T09:30:00`,
+      title: isAltCapCut ? `CC1 Video Clip: Brezza del Mattino a Phayam` : `V1 Risveglio Tropicale: ${villageAsset.name}`,
+      caption: isAltCapCut 
+        ? `Il suono del vento tra le palme e la quiete del mattino a Koh Phayam. 🌴✨ #KohPhayam #TropicalVibes` 
+        : `Buongiorno da Flower Power Village. Colazione all'aperto circondati dal verde tropicale. #IslandLife`,
+      media_url: villageAsset.image,
+      source_item_id: villageAsset.id,
+      status: 'scheduled',
+      tags: isAltCapCut ? ['CC1', 'CapCut', 'story'] : ['V1', 'story', 'Resort'],
+      cta_url: 'https://flowerpowervillage.com',
+      badge: isAltCapCut ? '🎬 CC1 MORNING CLIP' : '🌿 TROPICAL MORNING'
+    });
+
+    // 5. ORE 10:00 · 📍 Google Business Novità 4:3 (Martedì P1 Pizza / Venerdì V1 Villaggio)
     if (dayOfWeek === 2) {
       routinePosts.push({
         id: `routine_google_pizza_${day}`,
@@ -218,7 +239,27 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       });
     }
 
-    // 5. ORE 12:00 · 📸 LM1 Stories Last Minute Alloggi (Instagram & Facebook Stories)
+    // 6. ORE 11:00 · 🎬 Instagram & FB REEL: Pranzo Pasta Fresca Ranong (Lead time 45m prima del picco 11:45)
+    routinePosts.push({
+      id: `routine_lunch_reel_${day}`,
+      brand: 'pizza',
+      platforms: ['instagram', 'facebook'],
+      format: 'reel',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T11:00:00`,
+      title: `P2 Pranzo Artigianale: ${pastaItem.name}`,
+      caption: `Cosa mangi a pranzo oggi a Ranong? 🍝 Pasta fresca fatta in casa, sughi espressi e piatti caldi fumanti. Consegna rapida a casa o in ufficio su flowerpowerpizza.com! 🛵💨`,
+      media_url: pastaItem.image,
+      source_item_id: pastaItem.id,
+      price: pastaItem.price,
+      status: 'scheduled',
+      tags: ['P2', 'PastaReel', 'Lunch', 'Ranong', 'reel'],
+      cta_url: 'https://flowerpowerpizza.com',
+      title_en: pastaItem.name,
+      badge: '🍝 PRANZO ARTIGIANALE'
+    });
+
+    // 7. ORE 12:00 · 📸 LM1 Stories Last Minute Alloggi (Instagram & Facebook Stories)
     routinePosts.push({
       id: `routine_lm1_${day}`,
       brand: 'village',
@@ -232,17 +273,17 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       source_item_id: villageAsset.id,
       price: villageAsset.price,
       status: 'scheduled',
-      tags: ['LM1', 'LastMinute', 'Stories', 'Resort'],
+      tags: ['LM1', 'LastMinute', 'story', 'Resort'],
       cta_url: villageAsset.cta_url || 'https://flowerpowervillage.com',
       title_en: villageAsset.name,
       badge: '🔥 AVAILABLE TONIGHT'
     });
 
-    // 6. ORE 14:30 · 📸 Instagram Reel: V2 Suite Tour / CC1 Relax Pomeridiano
+    // 8. ORE 14:30 · 🎬 Instagram & FB REEL: V2 Suite Tour / CC1 Relax Pomeridiano (Alternanza 1:1)
     routinePosts.push({
       id: `routine_village_reel_${day}`,
       brand: 'village',
-      platforms: ['instagram'],
+      platforms: ['instagram', 'facebook'],
       format: 'reel',
       editorial_format: 'video_reel',
       scheduled_for: `${dateStr}T14:30:00`,
@@ -254,13 +295,52 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       source_item_id: villageAsset.id,
       price: villageAsset.price,
       status: 'scheduled',
-      tags: isAltCapCut ? ['CC1', 'CapCut', 'Reels'] : ['V2', 'SuiteTour', 'Reels'],
+      tags: isAltCapCut ? ['CC1', 'CapCut', 'reel'] : ['V2', 'SuiteTour', 'reel'],
       cta_url: villageAsset.cta_url || 'https://flowerpowervillage.com',
       title_en: villageAsset.name,
-      badge: isAltCapCut ? '🎬 CAPCUT CLIP' : '🌿 SUITE BREEZY TOUR'
+      badge: isAltCapCut ? '🎬 CC1 CAPCUT CLIP' : '🌿 SUITE BREEZY TOUR'
     });
 
-    // 7. ORE 17:15 (POMERIGGIO/SERA) · 🎵 TikTok Story Cena Pizzeria Ranong (✋ Azione Manuale Staff - Cerchio Giallo)
+    // 9. ORE 15:45 · 📸 Instagram & FB Story: Merenda Dolci & Caffè Italiano (Alternanza con Clip Cucina CC1)
+    routinePosts.push({
+      id: `routine_story_dessert_${day}`,
+      brand: 'pizza',
+      platforms: ['instagram', 'facebook'],
+      format: 'story',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T15:45:00`,
+      title: isAltCapCut ? `CC1 Video Clip: Mani in Pasta & Laboratorio` : `P3 Dolci Artigianali: Tiramisù & Caffè Espresso`,
+      caption: isAltCapCut 
+        ? `Lavorazione artigianale e stesura a mano nel laboratorio di Flower Power Pizza. 🍕✨ #Artigianale` 
+        : `Pausa pomeridiana con autentico caffè espresso italiano e tiramisù della casa. ☕🍰 #Ranong #DolciItaliani`,
+      media_url: isAltCapCut ? pizzaItem.image : 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/01-affogato-al-caffe.webp',
+      source_item_id: isAltCapCut ? pizzaItem.id : 'affogato-caffe',
+      status: 'scheduled',
+      tags: isAltCapCut ? ['CC1', 'CapCut', 'story'] : ['P3', 'Dessert', 'story'],
+      cta_url: 'https://flowerpowerpizza.com',
+      badge: isAltCapCut ? '🎬 CC1 KITCHEN CLIP' : '☕ PAUSA ESPRESSO'
+    });
+
+    // 10. ORE 17:00 (5 DI SERA) · 👥 Gruppo Facebook Koh Phayam: REEL R1 Ristorante & Cena (✋ Azione Manuale Staff - Cerchio Giallo)
+    routinePosts.push({
+      id: `routine_fb_group_dinner_${day}`,
+      brand: 'village',
+      platforms: ['facebook'],
+      format: 'reel',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T17:00:00`,
+      title: `R1 Cena Italiana a Domicilio: ${pizzaItem.name}`,
+      caption: `Stasera a Koh Phayam pizza artigianale italiana, pasta fresca e secondi caldi! Consegna direttamente al tuo bungalow o cena nel giardino tropicale. WhatsApp: +66 095 882 5573. 🍕🛵`,
+      media_url: pizzaItem.image,
+      source_item_id: pizzaItem.id,
+      price: 250,
+      status: 'scheduled',
+      tags: ['R1', 'GruppiPhayam', 'Dinner', 'Facebook', 'Manuale', 'reel'],
+      cta_url: 'https://flowerpowerpizza.com',
+      badge: '🛵 DELIVERY ISOLA'
+    });
+
+    // 11. ORE 17:15 · 🎵 TikTok Story Cena Pizzeria Ranong (✋ Azione Manuale Staff - Cerchio Giallo)
     routinePosts.push({
       id: `routine_tiktok_dinner_${day}`,
       brand: 'pizza',
@@ -278,11 +358,11 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       badge: '✋ UPLOAD TIKTOK CENA'
     });
 
-    // 8. ORE 17:45 · 🍕 Instagram Reel: P1 Pizza Tradizionale Ranong 48h (Cena a Domicilio)
+    // 12. ORE 17:45 · 🍕 Instagram & FB REEL: P1 Pizza Tradizionale Ranong 48h (Cena a Domicilio)
     routinePosts.push({
       id: `routine_dinner_${day}`,
       brand: 'pizza',
-      platforms: ['instagram'],
+      platforms: ['instagram', 'facebook'],
       format: 'reel',
       editorial_format: 'video_reel',
       scheduled_for: `${dateStr}T17:45:00`,
@@ -292,13 +372,31 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       source_item_id: pizzaItem.id,
       price: pizzaItem.price,
       status: 'scheduled',
-      tags: ['P1', 'PizzaReel', 'Ranong'],
+      tags: ['P1', 'PizzaReel', 'Ranong', 'reel'],
       cta_url: 'https://flowerpowerpizza.com',
       title_en: pizzaItem.name,
       badge: '🍕 48H NATURAL PROOFING'
     });
 
-    // 9. ORE 23:00 (NOTTE ASIA = PRIME TIME EUROPA 17:00/18:00 CET) · 🌙 Instagram & Facebook Reel: V3 Tropical Escape Villaggio
+    // 13. ORE 18:30 · 🌅 Instagram & FB Story: Sunset Golden Hour Koh Phayam (CC1 Filmato Reale Tramonto)
+    routinePosts.push({
+      id: `routine_story_sunset_${day}`,
+      brand: 'village',
+      platforms: ['instagram', 'facebook'],
+      format: 'story',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T18:30:00`,
+      title: `CC1 Sunset Golden Hour: Tramonto Tropicale a Phayam`,
+      caption: `Il cielo che si colora di fuoco e la brezza serale sull'oceano. Questo è il tramonto a Koh Phayam. 🌅🌴 #KohPhayam #SunsetLovers`,
+      media_url: villageAsset.image,
+      source_item_id: villageAsset.id,
+      status: 'scheduled',
+      tags: ['CC1', 'Sunset', 'story', 'Resort'],
+      cta_url: 'https://flowerpowervillage.com',
+      badge: '🌅 CC1 SUNSET TROPICALE'
+    });
+
+    // 14. ORE 23:00 (NOTTE ASIA = PRIME TIME EUROPA 17:00/18:00 CET) · 🌙 Instagram & Facebook REEL: V3 Tropical Escape Villaggio
     routinePosts.push({
       id: `routine_europe_night_${day}`,
       brand: 'village',
@@ -312,7 +410,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       source_item_id: villageAsset.id,
       price: villageAsset.price,
       status: 'scheduled',
-      tags: ['V3', 'EuropeNight', 'Reels', 'Automated'],
+      tags: ['V3', 'EuropeNight', 'Reels', 'Automated', 'reel'],
       cta_url: 'https://flowerpowervillage.com',
       title_en: villageAsset.name,
       badge: '🌙 PRIME TIME EUROPA'
@@ -534,10 +632,14 @@ export function SocialCalendarView({
   };
 
   const getContentBadge = (post: ScheduledSocialPost) => {
-    if (post.format === 'story' || post.tags?.includes('story') || post.tags?.includes('LM1')) {
+    // 🛡️ REEL prioritario: formato reel, video reel, o post nei gruppi Facebook di Phayam
+    if (post.format === 'reel' || post.tags?.includes('GruppiPhayam') || post.tags?.includes('R1') || post.tags?.includes('reel')) {
+      return { label: 'REEL', style: 'bg-violet-500/20 text-violet-300' };
+    }
+    if (post.format === 'story' || post.tags?.includes('story') || post.tags?.includes('Stories')) {
       return { label: 'STORY', style: 'bg-fuchsia-500/20 text-fuchsia-300' };
     }
-    if (post.format === 'reel' || post.editorial_format === 'video_reel' || post.tags?.includes('reel')) {
+    if (post.editorial_format === 'video_reel') {
       return { label: 'REEL', style: 'bg-violet-500/20 text-violet-300' };
     }
     return { label: 'POST', style: 'bg-sky-500/20 text-sky-300' };
