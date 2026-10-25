@@ -5,6 +5,16 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 12:05] · SFUMATURA SCURA 340PX, RESPIRO CATEGORIA +16PX & MOTO DELIVERY
+- **Cosa abbiamo fatto:** Allineato il rendering tra l'anteprima del lettore e il video esportato in `AutoCutLabPlayer.tsx`:
+  - 🏍️ **Moto Delivery**: Aggiunta l'icona ufficiale della moto da delivery `🛵` a fianco della parola lampeggiante `DELIVERY`, sia nel DOM che su Canvas con centratura ottica.
+  - 📏 **Stacco Categoria (+16px)**: Portato il margine sotto la categoria bilingue a `mb-4` in DOM e `by += 32 * s` in Canvas (+14px all'altezza complessiva). La categoria funge ora da cappello visivo elegante senza più schiacciare il nome del piatto.
+  - 🌑 **Sfumatura Nera Piena (340px)**: Estesa la Bottom Vignette Fade da 135px a **340px** sia su Canvas che su DOM (`h-96`). La sfumatura sale avvolgendo l'intera card dei testi (prezzo, titoli bilingui e categoria) fino a sfumare dolcemente in alto, eliminando il problema delle scritte che finivano sul legno chiaro privo di contrasto.
+- **Effetto reale:** I video compilati per TikTok, Instagram e Facebook sono ora identici 1:1 all'anteprima del player: leggibilità impeccabile su qualsiasi sfondo luminoso e look da produzione televisiva broadcast.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 11:53] · FAVICON CON SIGLE GIGANTI (SS, AD, DT, KM, PIZ, VLG, WR)
 - **Cosa abbiamo fatto:** Sostituite le parole per esteso (che a 16px nei tab risultavano compresse e poco leggibili) con **sigle giganti ad altissimo contrasto (2-3 lettere) con font extra-bold a 35px**:
   - 🟣 **SS**: Social Studio (`/social`, `/autocut`) — Viola Profondo con scritta SS bianca.
