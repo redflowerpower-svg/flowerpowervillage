@@ -147,7 +147,7 @@ export function AutoCutLabPlayer({
   }, [testRun]);
 
   const { scenes, totalDuration, sceneDuration, audioTrack, brand, mode } = testRun;
-  const isCompanionEligible = mode === 'P1' || mode === 'V1';
+  const isCompanionEligible = mode === 'P1' || mode === 'V1' || mode === 'LM1';
   const sceneCount = scenes.length;
 
   const isSingleHero = mode === 'P1' || mode === 'DS';
@@ -3306,29 +3306,46 @@ export function AutoCutLabPlayer({
                   </div>
                 )}
 
-                {/* Caso ALLOGGI (V1): Categoria, Nome Alloggio, Sottotitolo, Thai */}
+                {/* Caso ALLOGGI (V1, LM1): Categoria, Nome Alloggio, Sottotitolo, Thai + Prezzo Last Minute a destra (se LM1) */}
                 {brand === 'village' && mode !== 'R1' && (
-                  <div className="space-y-1 w-full">
-                    {currentScene.badgeCategory && (
-                      <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wide shadow-md uppercase">
-                        {currentScene.badgeCategory}
-                      </span>
-                    )}
-
-                    <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                      <h3 className="text-[17.5px] sm:text-[20px] font-black text-white leading-tight">
-                        {currentScene.lodgingTitle || currentScene.titlePrimary}
-                      </h3>
-                      {currentScene.lodgingSubtitle && (
-                        <p className="text-[14px] sm:text-[15px] font-bold text-amber-300 leading-tight mt-0.5">
-                          {currentScene.lodgingSubtitle}
-                        </p>
+                  <div className="w-full flex items-end justify-between gap-2">
+                    {/* Blocco Titoli (Sinistra) */}
+                    <div className="flex-1 min-w-0 pr-1 space-y-0.5">
+                      {currentScene.badgeCategory && (
+                        <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wide shadow-md uppercase">
+                          {currentScene.badgeCategory}
+                        </span>
                       )}
+
+                      <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                        <h3 className="text-[17.5px] sm:text-[20px] font-black text-white leading-tight">
+                          {currentScene.lodgingTitle || currentScene.titlePrimary}
+                        </h3>
+                        {currentScene.lodgingSubtitle && (
+                          <p className="text-[14px] sm:text-[15px] font-bold text-amber-300 leading-tight mt-0.5">
+                            {currentScene.lodgingSubtitle}
+                          </p>
+                        )}
+                      </div>
+
+                      <p className="text-[12.5px] sm:text-[14px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
+                        {currentScene.titleSecondary}
+                      </p>
                     </div>
 
-                    <p className="text-[12.5px] sm:text-[14px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
-                      {currentScene.titleSecondary}
-                    </p>
+                    {/* Prezzo Octorate Last Minute a Destra (se LM1) con la stessa impaginazione e stile di P1 */}
+                    {mode === 'LM1' && currentScene.priceLabel && (
+                      <div className="w-fit shrink-0 pb-0.5">
+                        <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                          <span
+                            className="font-['Kanit',sans-serif] text-[17px] sm:text-[19px] font-black leading-none tracking-tight"
+                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.8px #ffffff' }}
+                          >
+                            {currentScene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -5,6 +5,16 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 14:31] · LAST MINUTE LM1: PLAYER COMPANION 4:3 GOOGLE BUSINESS ATTIVATO CON PREZZO REALE
+- **Cosa abbiamo fatto:** Integrato il lettore orizzontale companion **4:3 per Google Business & Facebook** anche per il formato **LM1** (Stories Last Minute Villaggio) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 🖥️ **Abilitato `mode === 'LM1'` in `isCompanionEligible`**: Ora sotto il player 9:16 compare automaticamente la versione orizzontale 4:3 ottimizzata per Google Maps.
+  - 📐 **Impaginazione Perfetta 1:1 con P1 e V1**:
+    - **In alto a sinistra**: Watermark ufficiale con logo a 60px, brand `FLOWER POWER Village` e claim `Direct Booking`.
+    - **In basso a sinistra**: Badge categoria, nome alloggio (`text-[17.5px] sm:text-[20px]`), sottotitolo descrittivo e traduzione Thai.
+    - **In basso a destra**: Cartellino del prezzo giallo con contorno nero solido e scritta bianca `Last Minute: [Prezzo] ฿` (es. `Last Minute: 711 ฿`), allineato a destra come in P1.
+- **Effetto reale:** Nel formato Last Minute del Villaggio ora hai a disposizione sia la storia verticale 9:16 (per TikTok/Instagram/Reels) sia il video orizzontale 4:3 con zoom macro continuo per Google Maps e offerte speciali con scadenza a 5 giorni.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 14:16] · REGOLA IMMODIFICABILE 24: DIVIETO ASSOLUTO "SUNSET" E VILLA PENTHOUSE "BREEZY SUITE"
 - **Cosa abbiamo fatto:** Su indicazione geografica tassativa dell'utente (*il villaggio non vede il tramonto/sunset*), abbiamo bonificato l'intero sistema eliminando qualsiasi uso della parola "sunset", "tramonto" o "พระอาทิตย์ตก" per Flower Power Village:
   - 🌬️ **Villa Penthouse Rinominata "Breezy Suite"**:
