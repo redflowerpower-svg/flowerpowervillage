@@ -3,6 +3,35 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [26/10/2026 - ORE 00:15] · SOCIAL STUDIO SCHEDULER: DOPPIA TIKTOK STORY ORE 08:00 CONTEMPORANEA (PIZZA + VILLAGGIO), R1 GRUPPI ALLE 17:00 & BLINDATURA FASCIA DIURNA (08:00 - 17:00)
+- **Cosa abbiamo fatto:** Riorganizzata la schedulazione manuale e automatica dello Scheduler in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) e [AutoCutStudioPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/pages/AutoCutStudioPage.tsx):
+  - 🌅 **Doppia Story TikTok Contemporanea alle 08:00 del Mattino**:
+    - Addio alternanza: ogni giorno alle **08:00 esatte** ci sono **DUE post pronti per TikTok**, entrambi con cerchio giallo `🟡`:
+      1. 🎵 `🟡` Ore 08:00: Story TikTok **Pizzeria Ranong** 🍕 (farine italiane, impasto naturale 48h).
+      2. 🎵 `🟡` Ore 08:00: Story TikTok **Villaggio Koh Phayam** 🏝️ (risveglio tropicale, giardino, colazione vista mare).
+    - Permette a Marco di pubblicare entrambi i contenuti dallo smartphone in un'unica veloce sessione mattutina, raggiungendo due pubblici distinti (residenti/clienti Ranong vs viaggiatori/turisti Koh Phayam).
+  - 👥 **Post Gruppi Facebook Koh Phayam `R1` alle 17:00 (5 di Sera)**:
+    - 👥 `🟡` Ore 17:00: Post community per i gruppi Facebook di Koh Phayam (Pizzeria & Ristorante cena al bungalow con WhatsApp). Anch'esso contrassegnato con cerchio giallo `🟡`.
+  - 🔒 **Blindatura Rigorosa Fascia Diurna (08:00 - 17:00)**:
+    - Tutti i compiti manuali dello staff (`🟡`) cadono esclusivamente tra le 08:00 e le 17:00. Azzerato qualsiasi post pomeridiano alle 15:00 o serale dopo le 17:00.
+  - ⚡ **Inizializzazione Diretta dello Stato (Addio Post a Mezzanotte in Memoria)**:
+    - Collegata la funzione `generateOfficialMonthlyRoutine(year, month)` direttamente all'inizializzazione dello stato in `AutoCutStudioPage.tsx`. All'apertura della pagina, il calendario si popola all'istante con la routine reale corretta senza caricare vecchi post con fuso orario sballato.
+- **Effetto reale:** Aprendo il Social Studio, il calendario mostra subito la sequenza impeccabile: al mattino alle 08:00 vedi i due cerchi gialli TikTok (Pizza e Villaggio), a mezzogiorno le Stories Last Minute, nel pomeriggio i Reel e alle 17:00 il cerchio giallo dei Gruppi Phayam. Nessun post a mezzanotte e totale chiarezza visiva.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
+### 🟩 [26/10/2026 - ORE 00:10] · SOCIAL STUDIO AUTOCUT: RISOLUZIONE DEFINITIVA LOGO ANTEPRIMA (IN-MEMORY BASE64 IDENTICO ALL'OUTRO, ZERO CHIAMATE HTTP E ZERO 404)
+- **Cosa abbiamo fatto:** Risolto definitivamente il problema del logo di testata in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) uniformando l'anteprima DOM allo stesso infallibile principio che fa funzionare al 100% l'Outro finale:
+  - 🛡️ **Sorgente In-Memory Base64 al 100% (Zero Chiamate HTTP / Zero 404 / Zero Cache)**:
+    - Sostituite tutte le sorgenti relative con le costanti Base64 in RAM: `VILLAGE_LOGO_512_BASE64` (per V1, V2, V3, LM1, R1) e `PIZZA_LOGO_512_BASE64` (per P1, P2, P3, DS), sia nell'anteprima 9:16, sia nel companion 4:3, sia nelle istanze globali di pre-caricamento.
+    - Eliminati tutti i gestori `onError` che rischiavano di ricadere su file enormi non ottimizzati (`/FP_04_-_LOGO_OFFICIAL_HD.png`).
+    - L'immagine è compilata direttamente nel bundle JavaScript: appare all'istante a 0ms, con 0 chiamate di rete verso il server e totale immunità a errori di cache o proxy.
+- **Effetto reale:** Sia durante il video sia nell'outro finale, il logo ufficiale Flower Power Village e Pizza compare sempre perfetto, nitido e con cornice dorata, su qualsiasi formato e senza alcun cerchio vuoto.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 23:42] · SOCIAL STUDIO SCHEDULER: BONIFICA FUSO ORARIO LOCALE (08:00 & 15:00 PER TIKTOK, 17:00 GRUPPI) & CERCHIO GIALLO SU AZIONI MANUALI STAFF
 - **Cosa abbiamo fatto:** Risolto definitivamente il disallineamento di fuso orario e introdotto l'indicatore visivo immediato per le azioni manuali in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) e [autoCutIntelligence.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutIntelligence.ts):
   - ⏰ **Risolto Bug Fuso Orario (Zero Mezzanotte o Orari Sballati)**:
