@@ -5,6 +5,14 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 08:58] · PERFETTA DISTINZIONE SMARTPHONE (2 COLONNE) VS TABLET (3 COLONNE)
+- **Cosa abbiamo fatto:** Rimosso lo stile forzato inline da `MenuGrid.tsx` e `GloriaFoodLanding.tsx`, raffinato `CategoryTabs.tsx` e impostata la soglia esatta e matematica di demarcazione a **460px** in `src/index.css`.
+- **Cosa è cambiato:** Sotto i 460px (tutti i telefoni cellulari: iPhone, Samsung, Pixel) il layout applica automaticamente **2 colonne di prodotti** e il **selettore categorie a scorrimento orizzontale compatto**. Dai 460px in su (Xiaomi Mi Pad 4 a ~533px/600px, tutti i tablet e monitor) restano intatte al 100% le **3 colonne di prodotti** e il **menu a 2 righe fisse**.
+- **Effetto reale:** I cellulari tornano alla loro visualizzazione ordinata a 2 colonne senza immagini compresse, mentre il tablet di riferimento Xiaomi Mi Pad 4 continua a lavorare in modo ideale su 3 colonne con tutte le categorie visibili subito.
+- **Stato:** ✅ Compilato (0 errori TypeScript), certificato sicuro (0 secrets) e pronto per la pubblicazione.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 08:48] · BLINDATURA REGOLA 23 & DIARIO DI BORDO LIVE (SOLUZIONE 1)
 - **Cosa abbiamo fatto:** Aggiunta e blindata la **Regola 23** nel regolamento universale `.agents/AGENTS.md` e sincronizzato il file permanente `DIARIO_DI_BORDO.md` sia nel progetto che nell'IDE.
 - **Cosa è cambiato:** Ogni futuro agente o sessione di lavoro DEVE obbligatoriamente iniziare ogni messaggio con il banner a 3 punti e registrare le operazioni qui dentro senza mai cancellare il passato.

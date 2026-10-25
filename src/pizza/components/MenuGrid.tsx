@@ -1518,10 +1518,6 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
     <>
       <div 
         className="grid gap-2 sm:gap-3 md:gap-4.5 lg:gap-6 product-menu-grid"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-        }}
       >
         {items.map((item) => {
           const isBeer = (item as any).category === 'beers' || item.id === 'chang-beer' || item.id === 'leo-beer' || item.id === 'singha-beer' || item.id.includes('beer');
