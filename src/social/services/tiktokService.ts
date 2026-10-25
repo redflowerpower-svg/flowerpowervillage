@@ -1,7 +1,7 @@
 /**
  * TikTok Content Posting API (v2) Client Service
  * Reparto Stagno: Social Media Studio (/social)
- * Specs reference: documentation_reports/17_docs_tiktok_api.md
+ * Specs reference: documentation_reports/20_docs_tiktok_api.md
  */
 
 import { supabase } from '../../lib/supabase';

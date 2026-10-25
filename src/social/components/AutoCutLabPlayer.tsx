@@ -13,21 +13,21 @@ globalLineQrImg.src = LINE_QR_CODE_BASE64;
 // Loghi Ufficiali precaricati e decodificati all'avvio garantiti al 100% da Data URI Base64 in memoria (zero CORS, zero fetch di rete, zero latenza, mai vuoti)
 const globalPizzaLogoImg = typeof Image !== 'undefined' ? new Image() : ({} as HTMLImageElement);
 if (globalPizzaLogoImg instanceof Image) {
-  globalPizzaLogoImg.src = PIZZA_LOGO_512_BASE64;
+  globalPizzaLogoImg.src = '/flower-power-pizza-logo-512.png';
 }
 
 const globalVillageLogoImg = typeof Image !== 'undefined' ? new Image() : ({} as HTMLImageElement);
 if (globalVillageLogoImg instanceof Image) {
-  globalVillageLogoImg.src = VILLAGE_LOGO_512_BASE64;
+  globalVillageLogoImg.src = '/flower-power-village-logo-512.png';
 }
 
 // 🛡️ Precaricamento sincrono Canvas Buffer per Loghi Ufficiali (Pizza & Village)
-// Creare un canvas 512x512 nativo garantisce che i pixel RGBA siano fisicamente presenti nella memoria RAM/GPU,
-// azzerando qualsiasi rischio di decodifica ritardata o drawImage() a vuoto nel ciclo a 60 fps di Chromium.
 let cachedVillageLogoCanvas: HTMLCanvasElement | null = null;
 let cachedPizzaLogoCanvas: HTMLCanvasElement | null = null;
+let cachedVillageLogoReady = false;
+let cachedPizzaLogoReady = false;
 
-function renderBase64ToCanvas(base64Data: string): HTMLCanvasElement | null {
+function renderBase64ToCanvas(base64Data: string, fallbackUrl?: string, onReady?: () => void): HTMLCanvasElement | null {
   if (typeof document === 'undefined') return null;
   const canvas = document.createElement('canvas');
   canvas.width = 512;
@@ -36,60 +36,88 @@ function renderBase64ToCanvas(base64Data: string): HTMLCanvasElement | null {
   if (!ctx) return null;
 
   const img = new Image();
-  img.crossOrigin = 'anonymous';
   img.onload = () => {
     ctx.clearRect(0, 0, 512, 512);
     ctx.drawImage(img, 0, 0, 512, 512);
+    if (onReady) onReady();
+  };
+  img.onerror = () => {
+    if (fallbackUrl) {
+      const fb = new Image();
+      fb.onload = () => {
+        ctx.clearRect(0, 0, 512, 512);
+        ctx.drawImage(fb, 0, 0, 512, 512);
+        if (onReady) onReady();
+      };
+      fb.src = fallbackUrl;
+    }
   };
   img.src = base64Data;
   if (img.complete && img.naturalWidth > 0) {
     ctx.clearRect(0, 0, 512, 512);
     ctx.drawImage(img, 0, 0, 512, 512);
+    if (onReady) onReady();
   }
   return canvas;
 }
 
 if (typeof document !== 'undefined') {
-  cachedPizzaLogoCanvas = renderBase64ToCanvas(PIZZA_LOGO_512_BASE64);
-  cachedVillageLogoCanvas = renderBase64ToCanvas(VILLAGE_LOGO_512_BASE64);
+  cachedPizzaLogoCanvas = renderBase64ToCanvas(PIZZA_LOGO_512_BASE64, '/flower-power-pizza-logo-512.png', () => { cachedPizzaLogoReady = true; });
+  cachedVillageLogoCanvas = renderBase64ToCanvas(VILLAGE_LOGO_512_BASE64, '/flower-power-village-logo-512.png', () => { cachedVillageLogoReady = true; });
 }
 
 async function ensureBrandLogosReady(): Promise<void> {
   if (typeof document === 'undefined') return;
 
-  const bakeCanvas = (src: string, existing: HTMLCanvasElement | null): Promise<HTMLCanvasElement> => {
+  const bakeCanvas = (src: string, existing: HTMLCanvasElement | null, fallbackUrl?: string): Promise<{ canvas: HTMLCanvasElement; ready: boolean }> => {
     return new Promise((resolve) => {
       const c = existing || document.createElement('canvas');
       c.width = 512;
       c.height = 512;
       const ctx = c.getContext('2d');
       const img = new Image();
-      img.crossOrigin = 'anonymous';
       img.onload = () => {
         if (ctx) {
           ctx.clearRect(0, 0, 512, 512);
           ctx.drawImage(img, 0, 0, 512, 512);
         }
-        resolve(c);
+        resolve({ canvas: c, ready: true });
       };
-      img.onerror = () => resolve(c);
+      img.onerror = () => {
+        if (fallbackUrl) {
+          const fb = new Image();
+          fb.onload = () => {
+            if (ctx) {
+              ctx.clearRect(0, 0, 512, 512);
+              ctx.drawImage(fb, 0, 0, 512, 512);
+            }
+            resolve({ canvas: c, ready: true });
+          };
+          fb.onerror = () => resolve({ canvas: c, ready: false });
+          fb.src = fallbackUrl;
+        } else {
+          resolve({ canvas: c, ready: false });
+        }
+      };
       img.src = src;
       if (img.complete && img.naturalWidth > 0) {
         if (ctx) {
           ctx.clearRect(0, 0, 512, 512);
           ctx.drawImage(img, 0, 0, 512, 512);
         }
-        resolve(c);
+        resolve({ canvas: c, ready: true });
       }
     });
   };
 
-  const [pizzaC, villageC] = await Promise.all([
-    bakeCanvas(PIZZA_LOGO_512_BASE64, cachedPizzaLogoCanvas),
-    bakeCanvas(VILLAGE_LOGO_512_BASE64, cachedVillageLogoCanvas)
+  const [pizzaRes, villageRes] = await Promise.all([
+    bakeCanvas(PIZZA_LOGO_512_BASE64, cachedPizzaLogoCanvas, '/flower-power-pizza-logo-512.png'),
+    bakeCanvas(VILLAGE_LOGO_512_BASE64, cachedVillageLogoCanvas, '/flower-power-village-logo-512.png')
   ]);
-  cachedPizzaLogoCanvas = pizzaC;
-  cachedVillageLogoCanvas = villageC;
+  cachedPizzaLogoCanvas = pizzaRes.canvas;
+  cachedPizzaLogoReady = pizzaRes.ready;
+  cachedVillageLogoCanvas = villageRes.canvas;
+  cachedVillageLogoReady = villageRes.ready;
 }
 
 if (typeof window !== 'undefined') {
@@ -313,10 +341,10 @@ export function AutoCutLabPlayer({
       }
     }
 
-    // Riferimento al logo ufficiale precaricato in Base64 (Pizza / Villaggio)
+    // Riferimento al logo ufficiale (Pizza / Villaggio)
     const logoImg = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
     if (logoImg instanceof Image && !logoImg.src) {
-      logoImg.src = brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64;
+      logoImg.src = brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png';
     }
 
     // QR Code ufficiale LINE della Pizzeria garantito da istanza Base64 in memoria
@@ -544,16 +572,16 @@ export function AutoCutLabPlayer({
       }
 
       // Disegno Logo Centrato con Ombra 3D d'Impatto
-      const outroLogoCanvas = brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas;
       const domOutroLogo = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
       const targetOutroLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
+      const outroLogoCanvas = brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas;
       const effectiveOutroLogo: CanvasImageSource | null =
-        (outroLogoCanvas && outroLogoCanvas.width > 0)
-          ? outroLogoCanvas
-          : (domOutroLogo && domOutroLogo.complete && domOutroLogo.naturalWidth > 0)
-            ? domOutroLogo
-            : (targetOutroLogo && targetOutroLogo.complete && targetOutroLogo.naturalWidth > 0)
-              ? targetOutroLogo
+        (domOutroLogo && domOutroLogo.complete && domOutroLogo.naturalWidth > 0)
+          ? domOutroLogo
+          : (targetOutroLogo && targetOutroLogo.complete && targetOutroLogo.naturalWidth > 0)
+            ? targetOutroLogo
+            : (outroLogoCanvas && outroLogoCanvas.width > 0)
+              ? outroLogoCanvas
               : logoImg;
 
       if (effectiveOutroLogo) {
@@ -1163,20 +1191,32 @@ export function AutoCutLabPlayer({
       const logoX = Math.round((w - totalBlockW) / 2);
       const tx = logoX + logoSize + gap;
 
-      // 🛡️ Selezione logo ultra-robusta: canvas pre-renderizzato > domLogo decodificato > targetLogo > logoImg
-      const brandLogoCanvas = brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas;
-      const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
+      // 🛡️ 1. Sfondo circolare solido di contrasto (nero profondo): elimina al 100% qualsiasi trasparenza o infiltrazione del fogliame video sottostante
+      oCtx.save();
+      oCtx.beginPath();
+      oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+      oCtx.closePath();
+      oCtx.fillStyle = '#0b1120';
+      oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+      oCtx.shadowBlur = 12 * s;
+      oCtx.fill();
+      oCtx.restore();
+
+      // 🛡️ 2. Selezione logo ultra-robusta a 4 livelli (DOM montato > Image cache > Canvas buffer > Fallback)
       const domLogo = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
+      const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
+      const brandLogoCanvas = brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas;
+
       const effectiveLogo: CanvasImageSource | null =
-        (brandLogoCanvas && brandLogoCanvas.width > 0)
-          ? brandLogoCanvas
-          : (domLogo && domLogo.complete && domLogo.naturalWidth > 0)
-            ? domLogo
-            : (targetLogo && targetLogo.complete && targetLogo.naturalWidth > 0)
-              ? targetLogo
+        (domLogo && domLogo.complete && domLogo.naturalWidth > 0)
+          ? domLogo
+          : (targetLogo && targetLogo.complete && targetLogo.naturalWidth > 0)
+            ? targetLogo
+            : (brandLogoCanvas && brandLogoCanvas.width > 0)
+              ? brandLogoCanvas
               : (logoImg && logoImg.complete && logoImg.naturalWidth > 0)
                 ? logoImg
-                : null;
+                : targetLogo;
 
       if (effectiveLogo) {
         oCtx.save();
@@ -1184,28 +1224,24 @@ export function AutoCutLabPlayer({
         oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
         oCtx.closePath();
         oCtx.clip();
-
-        // 🛡️ Sfondo circolare solido di contrasto: elimina al 100% qualsiasi trasparenza o infiltrazione del fogliame video sottostante
-        oCtx.fillStyle = '#0b1120';
-        oCtx.fill();
-
         try {
           oCtx.drawImage(effectiveLogo, logoX, logoY, logoSize, logoSize);
         } catch (drawErr) {
           console.warn('[AutoCutLabPlayer] Header logo draw exception:', drawErr);
         }
         oCtx.restore();
-
-        oCtx.save();
-        oCtx.beginPath();
-        oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
-        oCtx.lineWidth = 2.5 * s;
-        oCtx.strokeStyle = '#f59e0b';
-        oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-        oCtx.shadowBlur = 12 * s;
-        oCtx.stroke();
-        oCtx.restore();
       }
+
+      // 🛡️ 3. 👑 BORDO GIALLO DORATO UFFICIALE (Identico a LM1 per V1, V2, V3 e tutti i formati)
+      oCtx.save();
+      oCtx.beginPath();
+      oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+      oCtx.lineWidth = 2.8 * s;
+      oCtx.strokeStyle = '#f59e0b';
+      oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+      oCtx.shadowBlur = 12 * s;
+      oCtx.stroke();
+      oCtx.restore();
 
       // Blocco Testi Header (a destra del logo, sempre centrato)
       let ty = logoY + (2 * s);
@@ -2241,7 +2277,7 @@ export function AutoCutLabPlayer({
           const domLogoEl = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
           const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
           if (targetLogo instanceof Image && !targetLogo.src) {
-            targetLogo.src = brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64;
+            targetLogo.src = brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png';
           }
 
           const imgsToDecode: HTMLImageElement[] = [
@@ -3118,213 +3154,264 @@ export function AutoCutLabPlayer({
 
       {/* 👑 WATERMARK & HEADER UFFICIALE 9:16 (Logo +20% + testi) SEMPRE CENTRATO SULL'ASSE VERTICALE IN TUTTI I FORMATI */}
       {!isInOutro && (
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 w-max z-30 flex items-start gap-3 pointer-events-none transition-all duration-300">
-          <img
-            id="autoCutHeaderLogoImg"
-            src={brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64}
-            alt="Logo"
-            className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
-          />
-
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 w-max z-30 pointer-events-none transition-all duration-300">
           {/* ⚡ FORMATO DS DAILY SPECIAL */}
           {mode === 'DS' && (
-            <div className="flex-1 min-w-0 flex flex-col text-left drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                FLOWER POWER
-              </span>
-              <span className="font-medium italic text-[#f87171] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
-                Pizza
-              </span>
+            <div className="flex items-start gap-3">
+              <img
+                id="autoCutHeaderLogoImg"
+                src="/flower-power-pizza-logo-512.png"
+                alt="Flower Power Pizza"
+                className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+              />
+              <div className="flex-1 min-w-0 flex flex-col text-left drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
+                <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                  FLOWER POWER
+                </span>
+                <span className="font-medium italic text-[#f87171] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+                  Pizza
+                </span>
 
-              {/* Riga 2: LIVE SHOWCASE su una riga sola (allontanato di ulteriori 10px da pizza: mt-[15px]) */}
-              <div className="mt-[15px]">
-                <span className={`inline-flex items-center px-3.5 py-1 rounded-lg border text-[14px] sm:text-[15px] font-black text-white tracking-wider uppercase shadow-[0_4px_16px_rgba(0,0,0,0.8)] whitespace-nowrap animate-pulse ${
-                  currentScene?.isLiveShowcase
-                    ? 'bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 border-yellow-200'
-                    : 'bg-indigo-600 border-indigo-300'
-                }`}>
-                  {currentScene?.isLiveShowcase ? 'LIVE SHOWCASE' : 'CHEF SPECIALS'}
+                {/* Riga 2: LIVE SHOWCASE su una riga sola (allontanato di ulteriori 10px da pizza: mt-[15px]) */}
+                <div className="mt-[15px]">
+                  <span className={`inline-flex items-center px-3.5 py-1 rounded-lg border text-[14px] sm:text-[15px] font-black text-white tracking-wider uppercase shadow-[0_4px_16px_rgba(0,0,0,0.8)] whitespace-nowrap animate-pulse ${
+                    currentScene?.isLiveShowcase
+                      ? 'bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 border-yellow-200'
+                      : 'bg-indigo-600 border-indigo-300'
+                  }`}>
+                    {currentScene?.isLiveShowcase ? 'LIVE SHOWCASE' : 'CHEF SPECIALS'}
+                  </span>
+                </div>
+
+                {/* Riga 3: Fast Delivery Thai + English allontanato dal live showcase di ulteriori 10 pixel (totale 15px): mt-[15px] */}
+                <span className="mt-[15px] text-[19px] sm:text-[21.5px] font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
+                  {currentScene?.isLiveShowcase ? 'สดใหม่ในตู้โชว์' : 'เมนูพิเศษประจำวัน'}
+                </span>
+
+                {/* Riga 4: Solo Fast Delivery più grosso con bagliore scuro (+20%) */}
+                <span className="mt-1 text-[14px] sm:text-[16px] font-black text-emerald-400 tracking-wider uppercase whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                  FAST DELIVERY
                 </span>
               </div>
-
-              {/* Riga 3: Fast Delivery Thai + English allontanato dal live showcase di ulteriori 10 pixel (totale 15px): mt-[15px] */}
-              <span className="mt-[15px] text-[19px] sm:text-[21.5px] font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
-                {currentScene?.isLiveShowcase ? 'สดใหม่ในตู้โชว์' : 'เมนูพิเศษประจำวัน'}
-              </span>
-
-              {/* Riga 4: Solo Fast Delivery più grosso con bagliore scuro (+20%) */}
-              <span className="mt-1 text-[14px] sm:text-[16px] font-black text-emerald-400 tracking-wider uppercase whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                FAST DELIVERY
-              </span>
             </div>
           )}
 
           {/* 🍕 FORMATO PIZZA REGULAR (P1, P2, P3) */}
           {brand === 'pizza' && mode !== 'DS' && (
-            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                FLOWER POWER
-              </span>
-              <span className="font-medium italic text-[#f87171] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
-                Pizza
-              </span>
-              {/* Ranong Delivery sopra (+10%, distanziato di +4px dalla parola Pizza: pt-2) */}
-              <span className="text-[18.5px] sm:text-[21px] font-black text-amber-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-2 [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                Ranong Delivery
-              </span>
-              {/* Scritta Thai sotto (+10%) ben visibile con bagliore scuro */}
-              <span className="text-[21px] sm:text-[23.5px] font-black text-amber-200 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_12px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
-                ส่งถึงบ้าน
-              </span>
-              {/* flowerpowerpizza.com (+10%, distanziato in blocco di +4px da ส่งถึงบ้าน: pt-1) */}
-              <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap pt-1 [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
-                flowerpowerpizza.com
-              </span>
-              {/* Link in bio sotto (+10%) */}
-              <span className="mt-0.5 text-[15.5px] sm:text-[16.5px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
-                Link in Bio
-              </span>
+            <div className="flex items-start gap-3">
+              <img
+                id="autoCutHeaderLogoImg"
+                src="/flower-power-pizza-logo-512.png"
+                alt="Flower Power Pizza"
+                className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+              />
+              <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
+                <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                  FLOWER POWER
+                </span>
+                <span className="font-medium italic text-[#f87171] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+                  Pizza
+                </span>
+                {/* Ranong Delivery sopra (+10%, distanziato di +4px dalla parola Pizza: pt-2) */}
+                <span className="text-[18.5px] sm:text-[21px] font-black text-amber-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-2 [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                  Ranong Delivery
+                </span>
+                {/* Scritta Thai sotto (+10%) ben visibile con bagliore scuro */}
+                <span className="text-[21px] sm:text-[23.5px] font-black text-amber-200 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_12px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
+                  ส่งถึงบ้าน
+                </span>
+                {/* flowerpowerpizza.com (+10%, distanziato in blocco di +4px da ส่งถึงบ้าน: pt-1) */}
+                <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap pt-1 [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
+                  flowerpowerpizza.com
+                </span>
+                {/* Link in bio sotto (+10%) */}
+                <span className="mt-0.5 text-[15.5px] sm:text-[16.5px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
+                  Link in Bio
+                </span>
+              </div>
             </div>
           )}
 
           {/* 🍽️ FORMATO R1 RESTAURANT & DELIVERY (Koh Phayam) */}
           {mode === 'R1' && (
-            <div className="shrink-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                FLOWER POWER
-              </span>
-              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
-                Village
-              </span>
-              {/* DELIVERY lampeggiante con emoji moto 🛵 - distacco +5px totali da Village */}
-              <div className="flex flex-col items-start pt-[13px] leading-none">
-                <span
-                  className="font-['Outfit',sans-serif] text-[22px] sm:text-[23.5px] font-black uppercase tracking-wider text-[#ef4444] whitespace-nowrap leading-none animate-pulse inline-flex items-center gap-1.5"
-                  style={{
-                    filter: 'drop-shadow(1px 0 0 #ffffff) drop-shadow(-1px 0 0 #ffffff) drop-shadow(0 1px 0 #ffffff) drop-shadow(0 -1px 0 #ffffff) drop-shadow(0 2px 4px rgba(0,0,0,0.95))'
-                  }}
-                >
-                  DELIVERY <span className="text-[20px] sm:text-[22px] not-italic drop-shadow-none">🛵</span>
+            <div className="flex items-start gap-3">
+              <img
+                id="autoCutHeaderLogoImg"
+                src="/flower-power-village-logo-512.png"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (target.src.indexOf('FP_04_-_LOGO_OFFICIAL_HD.png') === -1) {
+                    target.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+                  }
+                }}
+                alt="Flower Power Village"
+                className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+              />
+              <div className="shrink-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
+                <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                  FLOWER POWER
                 </span>
-                <span className="font-['Prompt',sans-serif] text-[17.5px] sm:text-[19px] font-extrabold tracking-normal text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap leading-none mt-1.5 pt-0.5">
-                  เดลิเวอรี่
+                <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+                  Village
+                </span>
+                {/* DELIVERY lampeggiante con emoji moto 🛵 - distacco +5px totali da Village */}
+                <div className="flex flex-col items-start pt-[13px] leading-none">
+                  <span
+                    className="font-['Outfit',sans-serif] text-[22px] sm:text-[23.5px] font-black uppercase tracking-wider text-[#ef4444] whitespace-nowrap leading-none animate-pulse inline-flex items-center gap-1.5"
+                    style={{
+                      filter: 'drop-shadow(1px 0 0 #ffffff) drop-shadow(-1px 0 0 #ffffff) drop-shadow(0 1px 0 #ffffff) drop-shadow(0 -1px 0 #ffffff) drop-shadow(0 2px 4px rgba(0,0,0,0.95))'
+                    }}
+                  >
+                    DELIVERY <span className="text-[20px] sm:text-[22px] not-italic drop-shadow-none">🛵</span>
+                  </span>
+                  <span className="font-['Prompt',sans-serif] text-[17.5px] sm:text-[19px] font-extrabold tracking-normal text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap leading-none mt-1.5 pt-0.5">
+                    เดลิเวอรี่
+                  </span>
+                </div>
+                {/* Sotto numero telefono verde con icona WhatsApp e LINE Ufficiale (+20% ingranditi e nitidi) */}
+                <div className="flex items-center gap-1.5 text-[17.5px] sm:text-[18.5px] font-black text-[#25D366] font-['Outfit',sans-serif] whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)] mt-1.5">
+                  <span className="inline-flex items-center justify-center w-[25px] h-[25px] sm:w-[27px] sm:h-[27px] rounded-full bg-[#25D366] shrink-0 shadow-md">
+                    <svg className="w-[15.5px] h-[15.5px] sm:w-[17px] sm:h-[17px] fill-white" viewBox="0 0 24 24">
+                      <path d={WA_PHONE_PATH_DATA} />
+                    </svg>
+                  </span>
+                  <span className="inline-flex items-center justify-center w-[25px] h-[25px] sm:w-[27px] sm:h-[27px] rounded-full bg-[#06C755] shrink-0 shadow-md">
+                    <svg className="w-[17px] h-[17px] sm:w-[18.5px] sm:h-[18.5px] fill-white" viewBox="0 0 24 24">
+                      <path d={LINE_ICON_PATH_DATA} />
+                    </svg>
+                  </span>
+                  <span>+66 095 882 5573</span>
+                </div>
+                {/* Koh Phayam bianca subito sotto a WhatsApp con font Outfit (+10%) */}
+                <span className="text-[15.5px] sm:text-[16.5px] font-bold text-white tracking-wide whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                  Koh Phayam
                 </span>
               </div>
-              {/* Sotto numero telefono verde con icona WhatsApp e LINE Ufficiale (+20% ingranditi e nitidi) */}
-              <div className="flex items-center gap-1.5 text-[17.5px] sm:text-[18.5px] font-black text-[#25D366] font-['Outfit',sans-serif] whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)] mt-1.5">
-                <span className="inline-flex items-center justify-center w-[25px] h-[25px] sm:w-[27px] sm:h-[27px] rounded-full bg-[#25D366] shrink-0 shadow-md">
-                  <svg className="w-[15.5px] h-[15.5px] sm:w-[17px] sm:h-[17px] fill-white" viewBox="0 0 24 24">
-                    <path d={WA_PHONE_PATH_DATA} />
-                  </svg>
-                </span>
-                <span className="inline-flex items-center justify-center w-[25px] h-[25px] sm:w-[27px] sm:h-[27px] rounded-full bg-[#06C755] shrink-0 shadow-md">
-                  <svg className="w-[17px] h-[17px] sm:w-[18.5px] sm:h-[18.5px] fill-white" viewBox="0 0 24 24">
-                    <path d={LINE_ICON_PATH_DATA} />
-                  </svg>
-                </span>
-                <span>+66 095 882 5573</span>
-              </div>
-              {/* Koh Phayam bianca subito sotto a WhatsApp con font Outfit (+10%) */}
-              <span className="text-[15.5px] sm:text-[16.5px] font-bold text-white tracking-wide whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                Koh Phayam
-              </span>
             </div>
           )}
 
           {/* 🔥 FORMATO LM1 STORIES LAST MINUTE (Koh Phayam) */}
           {mode === 'LM1' && (
-            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
-              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
-                FLOWER POWER
-              </span>
-              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
-                Village
-              </span>
-              {/* Last minute su una sola riga con pallino rosso scintillante e testo pulsante - salito di 2px (pt-[8px]) e ingrandito del 10% */}
-              <div className="pt-[8px]">
-                <span className="inline-flex items-center gap-2.5 px-4 py-[7px] rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-black shadow-[0_3px_8px_rgba(0,0,0,0.45)] tracking-wider border border-yellow-200/90 whitespace-nowrap">
-                  {/* 💎 🔴 Pallino rosso luccicante con bagliore e stella di diamante rotante (+10%) */}
-                  <span className="relative flex items-center justify-center h-4 w-4 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-80" />
-                    <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-gradient-to-br from-rose-500 via-red-600 to-rose-700 shadow-[0_0_12px_#ef4444,_0_0_24px_#dc2626] border border-rose-300/80" />
-                    <span className="absolute top-[2px] left-[2px] w-1 h-1 rounded-full bg-white shadow-[0_0_4px_#ffffff]" />
-                    {/* Stella di diamante che ruota e luccica */}
-                    <svg
-                      className="absolute w-4 h-4 text-white drop-shadow-[0_0_5px_#ffffff] animate-[spin_3.5s_linear_infinite]"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
+            <div className="flex items-start gap-3">
+              <img
+                id="autoCutHeaderLogoImg"
+                src="/flower-power-village-logo-512.png"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (target.src.indexOf('FP_04_-_LOGO_OFFICIAL_HD.png') === -1) {
+                    target.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+                  }
+                }}
+                alt="Flower Power Village"
+                className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+              />
+              <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
+                <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  FLOWER POWER
+                </span>
+                <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  Village
+                </span>
+                {/* Last minute su una sola riga con pallino rosso scintillante e testo pulsante - salito di 2px (pt-[8px]) e ingrandito del 10% */}
+                <div className="pt-[8px]">
+                  <span className="inline-flex items-center gap-2.5 px-4 py-[7px] rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-black shadow-[0_3px_8px_rgba(0,0,0,0.45)] tracking-wider border border-yellow-200/90 whitespace-nowrap">
+                    {/* 💎 🔴 Pallino rosso luccicante con bagliore e stella di diamante rotante (+10%) */}
+                    <span className="relative flex items-center justify-center h-4 w-4 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-80" />
+                      <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-gradient-to-br from-rose-500 via-red-600 to-rose-700 shadow-[0_0_12px_#ef4444,_0_0_24px_#dc2626] border border-rose-300/80" />
+                      <span className="absolute top-[2px] left-[2px] w-1 h-1 rounded-full bg-white shadow-[0_0_4px_#ffffff]" />
+                      {/* Stella di diamante che ruota e luccica */}
+                      <svg
+                        className="absolute w-4 h-4 text-white drop-shadow-[0_0_5px_#ffffff] animate-[spin_3.5s_linear_infinite]"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M12 0L13.8 8.5L24 12L13.8 15.5L12 24L10.2 15.5L0 12L10.2 8.5L12 0Z" />
+                      </svg>
+                    </span>
+                    {/* 🔥 Scritta LAST MINUTE che pulsa in modo molto visibile (+10%: 14.5px / 15.5px) */}
+                    <span
+                      className="font-black text-[14.5px] sm:text-[15.5px] tracking-widest uppercase text-stone-950 inline-block font-['Outfit',sans-serif]"
+                      style={{
+                        animation: 'lastMinutePulse 1.1s ease-in-out infinite alternate',
+                        textShadow: '0 0 1px #000000, 0 1px 3px rgba(254, 240, 138, 0.9)'
+                      }}
                     >
-                      <path d="M12 0L13.8 8.5L24 12L13.8 15.5L12 24L10.2 15.5L0 12L10.2 8.5L12 0Z" />
-                    </svg>
+                      LAST MINUTE
+                    </span>
                   </span>
-                  {/* 🔥 Scritta LAST MINUTE che pulsa in modo molto visibile (+10%: 14.5px / 15.5px) */}
-                  <span
-                    className="font-black text-[14.5px] sm:text-[15.5px] tracking-widest uppercase text-stone-950 inline-block font-['Outfit',sans-serif]"
-                    style={{
-                      animation: 'lastMinutePulse 1.1s ease-in-out infinite alternate',
-                      textShadow: '0 0 1px #000000, 0 1px 3px rgba(254, 240, 138, 0.9)'
-                    }}
-                  >
-                    LAST MINUTE
-                  </span>
+                </div>
+                {/* Sotto la scritta in Thai allontanata di +3px (mt-[7px]) con ombra scura profonda (+10%: text-[17.5px] sm:text-[20px]) */}
+                <span className="mt-[7px] text-[17.5px] sm:text-[20px] font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  ห้องว่างวันนี้
+                </span>
+                {/* Sotto DIRECT BOOKING distanziata 5px ulteriori (totale 10px) dalla scritta Thai sopra (+10%: text-[20.5px] sm:text-[23px]) */}
+                <span className="text-[20.5px] sm:text-[23px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap mt-[10px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  DIRECT BOOKING
+                </span>
+                {/* Sotto DIRECT BOOKING: 10% OFF con bagliore dorato lampeggiante continuo */}
+                <span
+                  className="text-[17px] sm:text-[19px] font-black uppercase tracking-wider leading-tight whitespace-nowrap mt-[1px] inline-block origin-left font-['Outfit',sans-serif]"
+                  style={{
+                    animation: 'discountGlowPulse 1.1s ease-in-out infinite alternate',
+                    textShadow: '0 2px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,1)'
+                  }}
+                >
+                  10% OFF
+                </span>
+                {/* Sotto flowerpowervillage.com distanziata esattamente 7px dalla scritta sopra (+10%: text-[15.5px] sm:text-[17px]) */}
+                <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap mt-[7px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  flowerpowervillage.com
                 </span>
               </div>
-              {/* Sotto la scritta in Thai allontanata di +3px (mt-[7px]) con ombra scura profonda (+10%: text-[17.5px] sm:text-[20px]) */}
-              <span className="mt-[7px] text-[17.5px] sm:text-[20px] font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
-                ห้องว่างวันนี้
-              </span>
-              {/* Sotto DIRECT BOOKING distanziata 5px ulteriori (totale 10px) dalla scritta Thai sopra (+10%: text-[20.5px] sm:text-[23px]) */}
-              <span className="text-[20.5px] sm:text-[23px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap mt-[10px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
-                DIRECT BOOKING
-              </span>
-              {/* Sotto DIRECT BOOKING: 10% OFF con bagliore dorato lampeggiante continuo */}
-              <span
-                className="text-[17px] sm:text-[19px] font-black uppercase tracking-wider leading-tight whitespace-nowrap mt-[1px] inline-block origin-left font-['Outfit',sans-serif]"
-                style={{
-                  animation: 'discountGlowPulse 1.1s ease-in-out infinite alternate',
-                  textShadow: '0 2px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,1)'
-                }}
-              >
-                10% OFF
-              </span>
-              {/* Sotto flowerpowervillage.com distanziata esattamente 7px dalla scritta sopra (+10%: text-[15.5px] sm:text-[17px]) */}
-              <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap mt-[7px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
-                flowerpowervillage.com
-              </span>
             </div>
           )}
 
           {/* 🌴 FORMATO VILLAGE REGULAR (V1, V2, V3) */}
           {brand === 'village' && mode !== 'R1' && mode !== 'LM1' && (
-            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
-              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
-                FLOWER POWER
-              </span>
-              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
-                Village
-              </span>
-              {/* DIRECT BOOKING (+20%, allontanato di 2px netti dalla parola Village: pt-1.5 mt-0.5) */}
-              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
-                DIRECT BOOKING
-              </span>
-              {/* Sotto DIRECT BOOKING: 10% OFF con bagliore dorato lampeggiante continuo */}
-              <span
-                className="text-[15.5px] sm:text-[17.5px] font-black uppercase tracking-wider leading-tight whitespace-nowrap mt-0 inline-block origin-left font-['Outfit',sans-serif]"
-                style={{
-                  animation: 'discountGlowPulse 1.1s ease-in-out infinite alternate',
-                  textShadow: '0 2px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,1)'
+            <div className="flex items-start gap-3">
+              <img
+                id="autoCutHeaderLogoImg"
+                src="/flower-power-village-logo-512.png"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (target.src.indexOf('FP_04_-_LOGO_OFFICIAL_HD.png') === -1) {
+                    target.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+                  }
                 }}
-              >
-                10% OFF
-              </span>
-              {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato da 10% OFF: mt-1.5, con Link in Bio distanziato 4px in più (gap-[6px]) */}
-              <div className="flex flex-col gap-[6px] mt-1.5">
-                <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
-                  flowerpowervillage.com
+                alt="Flower Power Village"
+                className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+              />
+              <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
+                <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  FLOWER POWER
                 </span>
-                <span className="text-[14px] sm:text-[15px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
-                  Link in Bio
+                <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  Village
                 </span>
+                {/* DIRECT BOOKING (+20%, allontanato di 2px netti dalla parola Village: pt-1.5 mt-0.5) */}
+                <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  DIRECT BOOKING
+                </span>
+                {/* Sotto DIRECT BOOKING: 10% OFF con bagliore dorato lampeggiante continuo */}
+                <span
+                  className="text-[15.5px] sm:text-[17.5px] font-black uppercase tracking-wider leading-tight whitespace-nowrap mt-0 inline-block origin-left font-['Outfit',sans-serif]"
+                  style={{
+                    animation: 'discountGlowPulse 1.1s ease-in-out infinite alternate',
+                    textShadow: '0 2px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,1)'
+                  }}
+                >
+                  10% OFF
+                </span>
+                {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato da 10% OFF: mt-1.5, con Link in Bio distanziato 4px in più (gap-[6px]) */}
+                <div className="flex flex-col gap-[6px] mt-1.5">
+                  <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                    flowerpowervillage.com
+                  </span>
+                  <span className="text-[14px] sm:text-[15px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                    Link in Bio
+                  </span>
+                </div>
               </div>
             </div>
           )}

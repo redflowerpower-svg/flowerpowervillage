@@ -3,6 +3,65 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 23:10] · SOCIAL STUDIO SCHEDULER: ROUTINE QUOTIDIANA SFALSATA, PERNI ORARI MANUALI (08:00, 12:00, 17:00), TIKTOK MANUALE & BONIFICA 01_..22_ DOCUMENTI
+- **Cosa abbiamo fatto:** Completata la riorganizzazione strategica del Social Studio Scheduler e bonificata l'intera documentazione tecnica in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) e `documentation_reports/`:
+  - 🔄 **Addio al Bombardamento Simultaneo (Nuova Routine Sfalsata)**:
+    - Superato definitivamente il vecchio modello che sparava su 4 social allo stesso minuto. La funzione `handleLoadDailyRoutine` ora crea blocchetti dedicati a singolo canale distribuiti su orari specifici ad alta conversione.
+  - ⏰ **Incastro sui 3 Perni Orari Manuali di Marco**:
+    - *08:00*: 🎵 TikTok Stories del Buongiorno (contrassegnate `✋ UPLOAD TIKTOK` per upload manuale con video pronto su Telegram).
+    - *10:00 (Martedì & Venerdì)*: 📍 Scheda Google Business 4:3 (Martedì Pizzeria con link auto-applicante `?coupon=GOOGLE10`, Venerdì Villaggio per il weekend).
+    - *12:00*: 📸 Stories Last Minute `LM1` (Instagram & Facebook Stories) con alloggi liberi e sconti reali dal calendario Octorate.
+    - *14:30*: 📸 Instagram Reel `V2` Suite Tour / `CC1` Relax Tropicale.
+    - *17:00*: 👥 Post Gruppi Facebook Koh Phayam `R1` (Pizzeria/Ristorante delivery cena al bungalow con WhatsApp) + 🎵 TikTok Stories preserale.
+    - *17:45*: 🍕 Instagram Reel `P1` Pizza Tradizionale Ranong (impasto 48h e delivery serale).
+  - 🛡️ **TikTok 100% Manuale**: nessun bot automatico in background per preservare le campagne pubblicitarie TikTok Ads.
+  - 📚 **Bonifica Documentazione Progressiva da `01_` a `22_`**:
+    - Risolti i numeri duplicati (14, 15, 17) rinominando i file in una sequenza progressiva continua e univoca da `01_` a `22_`, aggiornando i riferimenti in `AGENTS.md` e nei servizi social.
+- **Effetto reale:** Lo Scheduler del Social Studio ora rispecchia la realtà operativa dell'azienda, il calendario mostra task puliti con il proprio logo social e orario dedicato, e le fonti di documentazione per Google Gemini NotebookLM sono ordinate in modo impeccabile.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e pronto per il rilascio.
+
+---
+
+### 🟩 [25/10/2026 - ORE 23:02] · SOCIAL STUDIO AUTOCUT: COPIA ESATTA COMPILAZIONE LOGO LM1 SU V1, V2, V3 (BORDO GIALLO DORATO + ASSET UFFICIALE HD)
+- **Cosa abbiamo fatto:** Eseguita alla lettera l'istruzione di copiare esattamente la stessa compilazione del logo utilizzata per `LM1` direttamente all'interno delle anteprime e del motore di rendering per `V1`, `V2` e `V3` in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 🗑️ **Cancellazione Logo Precedente & Incapsulamento Diretto nei Singoli Formati**:
+    - Rimosso il vecchio tag `<img>` generico condiviso all'esterno dei blocchi condizionali.
+    - Ciascun formato possiede ora il proprio tag logo dedicato incorporato direttamente nel container orizzontale flessibile (`flex items-start gap-3`).
+  - 👑 **Clonazione 1:1 Compilazione Logo LM1 su V1, V2 e V3**:
+    - All'interno del blocco `V1`, `V2`, `V3` (`brand === 'village' && mode !== 'R1' && mode !== 'LM1'`) è stato inserito lo stesso identico markup di `LM1`:
+      ```tsx
+      <img
+        id="autoCutHeaderLogoImg"
+        src="/flower-power-village-logo-512.png"
+        onError={(e) => {
+          const target = e.currentTarget;
+          if (target.src.indexOf('FP_04_-_LOGO_OFFICIAL_HD.png') === -1) {
+            target.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+          }
+        }}
+        alt="Flower Power Village"
+        className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+      />
+      ```
+  - 🛡️ **Allineamento Canvas Overlay & BrandLogosBase64**:
+    - Aggiornato [brandLogosBase64.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/brandLogosBase64.ts) sostituendo il vecchio payload con la decodifica dell'asset fisico reale a 512x512.
+    - Nel motore Canvas `renderOverlaysToContext`: data priorità assoluta all'elemento DOM montato decodificato e all'immagine ufficiale precaricata `globalVillageLogoImg`, garantendo che anche nei video registrati ed esportati (per Telegram, TikTok, Instagram e Facebook) il logo appaia con il suo cerchio nero di contrasto, la grafica ufficiale e il bordo dorato `#f59e0b`.
+- **Effetto reale:** Sia in anteprima a schermo nel Social Studio sia nei video esportati, i formati del villaggio V1, V2 e V3 mostrano esattamente lo stesso identico logo approvato di LM1 con il bordo giallo oro e la grafica ad alta risoluzione.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
+### 🟩 [25/10/2026 - ORE 22:35] · SOCIAL STUDIO AUTOCUT: SOSTITUZIONE RADICALE LOGO ANTEPRIMA CON ASSET STATICO FISICO (IDENTICO AD APPROVAZIONE LM1)
+- **Cosa abbiamo fatto:** Rimosso radicalmente il riferimento diretto alla stringa Base64 nel tag `<img>` di anteprima del player e ripristinato il percorso del file statico ufficiale `/flower-power-village-logo-512.png` in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx), esattamente come configurato quando LM1 funzionava alla perfezione:
+  - 🖼️ **Puntamento Diretto al File Fisico Statico (Zero Glitch Webview/DOM)**:
+    - Nel tag `<img id="autoCutHeaderLogoImg">` dell'anteprima 9:16: impostato `src="/flower-power-village-logo-512.png"` (servito a 0ms dal server HTTP con codice 200).
+    - Mantenuto il contorno dorato approvato: `className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"`.
+    - Istanza `globalVillageLogoImg` e `logoImg` allineate su `/flower-power-village-logo-512.png` con fallback `onError` per massima resilienza.
+- **Effetto reale:** Nell'anteprima a video di V1, V2 e V3, il logo Flower Power Village appare immediatamente al caricamento con il suo bordo giallo dorato ad alto contrasto, identico alla resa di LM1.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 21:30] · SOCIAL STUDIO AUTOCUT: BUFFER CANVAS SINCRONO PER LOGHI (ZERO LOGHI VUOTI NEL VIDEO) E DISTANZIAMENTO LINK IN BIO +4PX
 - **Cosa abbiamo fatto:** Risolto definitivamente il problema del logo invisibile/trasparente nei video esportati (V3, V1, V2, LM1, P1, P2, P3, DS) e calibrato la spaziatura della dicitura `Link in Bio` in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
   - 🛡️ **Buffer Sincrono `HTMLCanvasElement` per Loghi Ufficiali (Pizza & Village)**:

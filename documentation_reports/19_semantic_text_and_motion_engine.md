@@ -346,7 +346,7 @@ Per garantire una UX di classe luxury senza alcuna oscillazione visiva:
 * **Presets Catalogo & Collezioni**: `src/social/services/visualMotionEngine.ts`
 * **Copy Generator Multilingua AI**: `src/social/services/autoContentEngine.ts`
 * **Pagina Master**: `src/social/pages/SocialStudioPage.tsx`
-* **Master Blueprint**: `documentation_reports/15_semantic_text_and_motion_engine.md`
+* **Master Blueprint**: `documentation_reports/19_semantic_text_and_motion_engine.md`
 
 
 

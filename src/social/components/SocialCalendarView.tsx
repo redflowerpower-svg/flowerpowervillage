@@ -167,16 +167,77 @@ export function SocialCalendarView({
       const pizzaItem = pizzaMenuSample[(day - 1) % pizzaMenuSample.length];
       const isAltCapCut = (day % 3 === 0);
 
-      // 1. ORE 09:00 · 🏝️ LM1 Stories Last Minute Villaggio
+      // 1. ORE 08:00 · 🎵 TikTok Stories Buongiorno (✋ Azione Manuale Staff via Telegram)
+      routinePosts.push({
+        id: `routine_tiktok_am_${day}`,
+        brand: (day % 2 === 0) ? 'pizza' : 'village',
+        platforms: ['tiktok'],
+        format: 'story',
+        editorial_format: 'video_reel',
+        scheduled_for: `${dateStr}T08:00:00.000Z`,
+        title: (day % 2 === 0) ? `TikTok Story Mattina: Colazione & Farine Italiane` : `TikTok Story Mattina: Risveglio Tropicale a Phayam`,
+        caption: (day % 2 === 0)
+          ? `Buongiorno da Ranong! Mani in pasta e lievitazione naturale 48h in corso per stasera. 🍕✨ #Ranong #PizzaTradizionale`
+          : `Buongiorno da Koh Phayam Island! Il canto degli uccelli tropicali e il profumo del mare. 🌴🌊 #KohPhayam #ThailandLife`,
+        media_url: (day % 2 === 0) ? 'https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=800' : villageAsset.image,
+        source_item_id: `tiktok_am_${day}`,
+        status: 'scheduled',
+        tags: ['TikTok', 'Manuale', 'Stories', 'Morning'],
+        cta_url: (day % 2 === 0) ? 'https://flowerpowerpizza.com' : 'https://flowerpowervillage.com',
+        badge: '✋ UPLOAD TIKTOK'
+      });
+
+      // 2. ORE 10:00 · 📍 Google Business Novità 4:3 (Martedì Pizza / Venerdì Villaggio)
+      if (dayOfWeek === 2) {
+        // Martedì: Pizzeria Ranong con link coupon sconto primo ordine ?coupon=GOOGLE10
+        routinePosts.push({
+          id: `routine_google_pizza_${day}`,
+          brand: 'pizza',
+          platforms: ['google'],
+          format: 'google_post',
+          editorial_format: 'static_post',
+          scheduled_for: `${dateStr}T10:00:00.000Z`,
+          title: `Google Novità 4:3: Pizza Tradizionale & Paste Fresche a Ranong`,
+          caption: `Scopri la vera pizza italiana a lenta lievitazione e le paste artigianali a Ranong. Consegna rapida a casa tua. 10% di sconto sul primo ordine con coupon GOOGLE10.`,
+          media_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800',
+          source_item_id: pizzaItem.id,
+          price: pizzaItem.price,
+          status: 'scheduled',
+          tags: ['Google', 'Pizza', 'Novità', 'LocalSEO'],
+          cta_url: 'https://flowerpowerpizza.com?coupon=GOOGLE10',
+          badge: '📍 GOOGLE 4:3 PIZZA'
+        });
+      } else if (dayOfWeek === 5) {
+        // Venerdì: Villaggio Koh Phayam per il weekend
+        routinePosts.push({
+          id: `routine_google_village_${day}`,
+          brand: 'village',
+          platforms: ['google'],
+          format: 'google_post',
+          editorial_format: 'static_post',
+          scheduled_for: `${dateStr}T10:00:00.000Z`,
+          title: `Google Novità 4:3: Weekend a Koh Phayam - ${villageAsset.name}`,
+          caption: `Weekend nella natura incontaminata di Koh Phayam. Prenota direttamente su flowerpowervillage.com e ottieni subito il 10% di sconto diretto garantito.`,
+          media_url: villageAsset.image,
+          source_item_id: villageAsset.id,
+          price: villageAsset.price,
+          status: 'scheduled',
+          tags: ['Google', 'Village', 'Weekend', 'LocalSEO'],
+          cta_url: 'https://flowerpowervillage.com',
+          badge: '📍 GOOGLE 4:3 VILLAGE'
+        });
+      }
+
+      // 3. ORE 12:00 · 📸 LM1 Stories Last Minute Alloggi (Instagram & Facebook Stories)
       routinePosts.push({
         id: `routine_lm1_${day}`,
         brand: 'village',
-        platforms: ['instagram', 'facebook', 'tiktok', 'google'],
+        platforms: ['instagram', 'facebook'],
         format: 'story',
         editorial_format: 'video_reel',
-        scheduled_for: `${dateStr}T09:00:00.000Z`,
+        scheduled_for: `${dateStr}T12:00:00.000Z`,
         title: `LM1 Available Tonight: ${villageAsset.name}`,
-        caption: `🔥 AVAILABLE TONIGHT at Flower Power Village! ${villageAsset.name} available with direct booking discount.`,
+        caption: `🔥 AVAILABLE TONIGHT a Flower Power Village! ${villageAsset.name} disponibile con sconto prenotazione diretta a cascata su flowerpowervillage.com.`,
         media_url: villageAsset.image,
         source_item_id: villageAsset.id,
         price: villageAsset.price,
@@ -187,35 +248,15 @@ export function SocialCalendarView({
         badge: '🔥 AVAILABLE TONIGHT'
       });
 
-      // 2. ORE 11:30 · 🍕 Story Pranzo / Daily Showcase Pizzeria
-      routinePosts.push({
-        id: `routine_lunch_${day}`,
-        brand: 'pizza',
-        platforms: ['instagram', 'facebook'],
-        format: 'story',
-        editorial_format: 'video_reel',
-        scheduled_for: `${dateStr}T11:30:00.000Z`,
-        title: `DS Pranzo: ${pizzaItem.name}`,
-        caption: `Pranzo fresco a Ranong! Consegna rapida in 30 min con ${pizzaItem.name}. #RanongDelivery`,
-        media_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800',
-        source_item_id: pizzaItem.id,
-        price: pizzaItem.price,
-        status: 'scheduled',
-        tags: ['DS', 'Pranzo', 'Stories', 'Pizza'],
-        cta_url: 'https://flowerpowerpizza.com',
-        title_en: pizzaItem.name,
-        badge: '✨ FRESCO DI GIORNATA'
-      });
-
-      // 3. ORE 14:30 · 🏝️ Reel Alloggio / Tour Villaggio (Alternato con CC1 CapCut)
+      // 4. ORE 14:30 · 📸 Instagram Reel: V2 Suite Tour / CC1 Relax Pomeridiano
       routinePosts.push({
         id: `routine_village_reel_${day}`,
         brand: 'village',
-        platforms: ['instagram', 'tiktok', 'facebook'],
+        platforms: ['instagram'],
         format: 'reel',
         editorial_format: 'video_reel',
         scheduled_for: `${dateStr}T14:30:00.000Z`,
-        title: isAltCapCut ? `CC1 Filmato CapCut: Relax Koh Phayam` : `V2 Suite Tour: ${villageAsset.name}`,
+        title: isAltCapCut ? `CC1 CapCut Clip: Relax Koh Phayam` : `V2 Suite Tour: ${villageAsset.name}`,
         caption: isAltCapCut 
           ? `Momenti di pura pace a Koh Phayam Island. Amache, brezze tropicali e natura incontaminata. #KohPhayam` 
           : `Esplora ${villageAsset.name}. Suite ventilata nel cuore del giardino tropicale. #FlowerPowerVillage`,
@@ -229,7 +270,7 @@ export function SocialCalendarView({
         badge: isAltCapCut ? '🎬 CAPCUT CLIP' : '🌿 SUITE BREEZY TOUR'
       });
 
-      // 4. ORE 17:00 · 🏝️ R1 Post nei Gruppi Facebook Koh Phayam
+      // 5. ORE 17:00 · 👥 Gruppi Facebook Koh Phayam: R1 Restaurant & Delivery (✋ Azione Manuale Staff)
       routinePosts.push({
         id: `routine_r1_${day}`,
         brand: 'village',
@@ -238,7 +279,7 @@ export function SocialCalendarView({
         editorial_format: 'video_reel',
         scheduled_for: `${dateStr}T17:00:00.000Z`,
         title: `R1 Post Gruppi Phayam: Cena Italiana stasera!`,
-        caption: `Stasera a Koh Phayam pizza artigianale italiana, pasta fresca e secondi caldi! Consegna al bungalow o cena nel giardino. WhatsApp: +66 82 284 3124.`,
+        caption: `Stasera a Koh Phayam pizza artigianale italiana, pasta fresca e secondi caldi! Consegna al bungalow o cena nel giardino. WhatsApp: +66 095 882 5573.`,
         media_url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800',
         source_item_id: 'restaurant_dinner',
         price: 250,
@@ -248,47 +289,42 @@ export function SocialCalendarView({
         badge: '🛵 DELIVERY ISOLA'
       });
 
-      // 5. ORE 17:45 · 🍕 Reel Pizza & Cucina Ranong (Serale)
+      // 6. ORE 17:00 · 🎵 TikTok Stories Preserale (✋ Azione Manuale Staff)
+      routinePosts.push({
+        id: `routine_tiktok_pm_${day}`,
+        brand: 'pizza',
+        platforms: ['tiktok'],
+        format: 'story',
+        editorial_format: 'video_reel',
+        scheduled_for: `${dateStr}T17:00:00.000Z`,
+        title: `TikTok Story Preserale: Forno & Pizze Calde`,
+        caption: `Pietra refrattaria rovente e impasto 48h pronto per essere steso! Serata pizza a Ranong 🍕🛵 #RanongPizza #FoodLovers`,
+        media_url: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800',
+        source_item_id: `tiktok_pm_${day}`,
+        status: 'scheduled',
+        tags: ['TikTok', 'Manuale', 'Evening', 'Stories'],
+        cta_url: 'https://flowerpowerpizza.com',
+        badge: '✋ TIKTOK SERALE'
+      });
+
+      // 7. ORE 17:45 · 🍕 Instagram Reel: P1 Pizza Tradizionale Ranong 48h (Cena a Domicilio)
       routinePosts.push({
         id: `routine_dinner_${day}`,
         brand: 'pizza',
-        platforms: ['instagram', 'tiktok', 'facebook'],
+        platforms: ['instagram'],
         format: 'reel',
         editorial_format: 'video_reel',
         scheduled_for: `${dateStr}T17:45:00.000Z`,
-        title: isAltCapCut ? `CC1 CapCut Clip: Pizzeria Forno` : `P1 Pizza Tradizionale: ${pizzaItem.name}`,
+        title: `P1 Pizza Tradizionale: ${pizzaItem.name}`,
         caption: `Impasto a lievitazione naturale 48h, cornicione fragrante e ingredienti italiani DOP. Consegna a Ranong su flowerpowerpizza.com 🍕🛵💨`,
         media_url: 'https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=800',
         source_item_id: pizzaItem.id,
         price: pizzaItem.price,
         status: 'scheduled',
-        tags: isAltCapCut ? ['CC1', 'CapCut', 'Pizza'] : ['P1', 'PizzaReel', 'Ranong'],
+        tags: ['P1', 'PizzaReel', 'Ranong'],
         cta_url: 'https://flowerpowerpizza.com',
         title_en: pizzaItem.name,
-        badge: isAltCapCut ? '🎬 CAPCUT FORNO' : '🍕 48H NATURAL PROOFING'
-      });
-
-      // 6. LUNEDÌ & VENERDÌ ORE 10:00 · 📍 Google Business Novità (4:3 Companion)
-      if (dayOfWeek === 1 || dayOfWeek === 5) {
-        routinePosts.push({
-          id: `routine_google_${day}`,
-          brand: (day % 2 === 0) ? 'pizza' : 'village',
-          platforms: ['google'],
-          format: 'google_post',
-          editorial_format: 'static_post',
-          scheduled_for: `${dateStr}T10:00:00.000Z`,
-          title: `Google Novità 4:3: ${(day % 2 === 0) ? pizzaItem.name : villageAsset.name}`,
-          caption: (day % 2 === 0)
-            ? `Scopri l'autentica pizza italiana a Ranong con impasto a lenta lievitazione. Ordina subito online.`
-            : `Prenota direttamente il tuo soggiorno ecologico a Koh Phayam al miglior prezzo garantito.`,
-          media_url: (day % 2 === 0) ? 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800' : villageAsset.image,
-          source_item_id: (day % 2 === 0) ? pizzaItem.id : villageAsset.id,
-          status: 'scheduled',
-          tags: ['Google', 'Novità', 'LocalSEO'],
-          cta_url: (day % 2 === 0) ? 'https://flowerpowerpizza.com' : 'https://flowerpowervillage.com',
-          badge: '📍 GOOGLE 4:3'
-        });
-      }
+        badge: '🍕 48H NATURAL PROOFING'
     }
 
     onUpdatePosts(routinePosts);
