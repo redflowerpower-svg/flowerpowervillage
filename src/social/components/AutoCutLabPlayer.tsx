@@ -3197,7 +3197,7 @@ export function AutoCutLabPlayer({
           )}
 
           {/* 🍕 FORMATO PIZZA REGULAR (P1, P2, P3) */}
-          {brand === 'pizza' && mode !== 'DS' && (
+          {(mode === 'P1' || mode === 'P2' || mode === 'P3') && (
             <div className="flex items-start gap-3">
               <img
                 id="autoCutHeaderLogoImg"
@@ -3368,7 +3368,7 @@ export function AutoCutLabPlayer({
           )}
 
           {/* 🌴 FORMATO VILLAGE REGULAR (V1, V2, V3) */}
-          {brand === 'village' && mode !== 'R1' && mode !== 'LM1' && (
+          {(mode === 'V1' || mode === 'V2' || mode === 'V3') && (
             <div className="flex items-start gap-3">
               <img
                 id="autoCutHeaderLogoImg"
@@ -3432,7 +3432,7 @@ export function AutoCutLabPlayer({
         }`}>
           
           {/* Caso CIBO / PIATTI (Pizzeria e R1 Restaurant): Categoria Bilingue (Thai sopra, Eng sotto), Titoli +20%, Prezzo */}
-          {(brand === 'pizza' || mode === 'R1') && (
+          {(mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS' || mode === 'R1') && (
             <div className="w-full">
               {currentScene.badgeCategory && (
                 <div className="flex flex-col items-start gap-0.5 mb-4">
@@ -3562,7 +3562,7 @@ export function AutoCutLabPlayer({
           )}
 
           {/* Caso ALLOGGI (V1, V2, V3, LM1): Categoria, Titolo Bungalow e Sottotitolo Giallo Ingranditi +20% con distacco extra 3px */}
-          {brand === 'village' && mode !== 'R1' && (
+          {(mode === 'V1' || mode === 'V2' || mode === 'V3' || mode === 'LM1') && (
             <div className="space-y-2.5 w-full">
               {currentScene.badgeCategory && (
                 <span className="inline-block px-3 py-0.5 rounded-full bg-emerald-600/90 text-white text-[13px] font-bold tracking-wide shadow-md uppercase mb-[3px]">
@@ -3903,7 +3903,7 @@ export function AutoCutLabPlayer({
                 isInOutro ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
                 {/* Caso CIBO / PIATTI (P1): Categoria, Thai sopra in grande, Inglese sotto a scalare, prezzo */}
-                {(brand === 'pizza' || mode === 'R1') && (
+                {(mode === 'P1' || mode === 'R1') && (
                   <div className="w-full flex items-end justify-between gap-2">
                     {/* Blocco Titoli (Sinistra) - Ingrandito del 25% */}
                     <div className="flex-1 min-w-0 pr-1">
@@ -3983,7 +3983,7 @@ export function AutoCutLabPlayer({
                 )}
 
                 {/* Caso ALLOGGI (V1, LM1): Categoria, Nome Alloggio, Sottotitolo, Thai + Prezzo Last Minute a destra (se LM1) */}
-                {brand === 'village' && mode !== 'R1' && (
+                {(mode === 'V1' || mode === 'LM1') && (
                   <div className="w-full flex items-end justify-between gap-2">
                     {/* Blocco Titoli (Sinistra) */}
                     <div className="flex-1 min-w-0 pr-1 space-y-0.5">
