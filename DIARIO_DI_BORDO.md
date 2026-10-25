@@ -5,6 +5,15 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 14:00] · GOOGLE BUSINESS 4:3: WATERMARK ALTO-SX INGRANDITO DI UN ULTERIORE +20%
+- **Cosa abbiamo fatto:** Su richiesta dell'utente, incrementato ulteriormente del +20% l'intero gruppo in alto a sinistra (Logo, Brand e Ranong Delivery) nel player 4:3 ([AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx)):
+  - 🍕 **Logo a 60px**: Diametro logo portato a **60px** (`w-[60px] h-[60px]`, +20% rispetto ai precedenti 50px) con bordo oro a 2.5px e ombra rinforzata.
+  - ✍️ **Brand & Sottotitoli Scalati (+20%)**: `FLOWER POWER` a 19px/21.5px, sottotitolo *Pizza/Village* a 17.5px/18px e claim `ส่งถึงบ้าน · Ranong Delivery` a 15px/17px.
+  - 🌌 **Top Vignette Sfumata Estesa a `h-36`**: Accompagna il gruppo con una sfumatura nera soffusa alta 144px per la massima leggibilità.
+- **Effetto reale:** L'identità visiva nel 4:3 Google Business è maestosa, chiarissima e immediatamente riconoscibile a prima vista anche da smartphone e anteprime ridotte.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
+
 ### 🟩 [25/10/2026 - ORE 13:57] · GOOGLE BUSINESS 4:3: LOGO +25%, TESTI/PREZZI +25% E SAFE ZONE +3PX IN ALTO
 - **Cosa abbiamo fatto:** Perfezionata l'impaginazione del lettore companion orizzontale 4:3 per Google Business & Facebook (`AutoCutLabPlayer.tsx`):
   - 🍕 **Watermark Alto-SX Ingrandito (+25%)**: Mantenuta la posizione fissa `top-3 left-3`, il logo circolare cresce da 40px a **50px** (`w-[50px] h-[50px]`), con font brand `FLOWER POWER` scalato a 16px/18px, sottotitolo *Pizza/Village* a 14.5px/15px e claim Thai/Ranong Delivery a 12.5px/14px. Top vignette alzata a `h-32` per avvolgere morbidamente il testo.

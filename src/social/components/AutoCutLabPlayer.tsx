@@ -3190,29 +3190,29 @@ export function AutoCutLabPlayer({
             />
 
             {/* Sfondo leggermente sfumato nero in alto (Top Vignette Fade per massima leggibilità watermark) */}
-            <div className={`absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/85 via-black/40 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
+            <div className={`absolute top-0 left-0 right-0 h-36 bg-gradient-to-b from-black/85 via-black/40 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
               isInOutro ? 'opacity-0' : 'opacity-100'
             }`} />
 
-            {/* Watermark Ufficiale 4:3 (Logo +25% + Titolo con riverbero nero + Sottotitolo - Ingrandito del 25%, posizione top-3 left-3 invariata) */}
-            <div className={`absolute top-3 left-3 z-30 flex items-center gap-3 pointer-events-none transition-all duration-300 ${
+            {/* Watermark Ufficiale 4:3 (Logo +20% ulteriore = 60px + Titolo con riverbero nero + Sottotitolo - Ingrandito del 20%, posizione top-3 left-3 invariata) */}
+            <div className={`absolute top-3 left-3 z-30 flex items-center gap-3.5 pointer-events-none transition-all duration-300 ${
               isInOutro ? 'opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'
             }`}>
               <img
                 src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
                 alt="Logo"
-                className="w-[50px] h-[50px] rounded-full object-cover border-[2px] border-amber-400/80 shadow-[0_4px_14px_rgba(0,0,0,0.85)] shrink-0 bg-black/40"
+                className="w-[60px] h-[60px] rounded-full object-cover border-[2.5px] border-amber-400/80 shadow-[0_4px_16px_rgba(0,0,0,0.9)] shrink-0 bg-black/40"
               />
               <div className="flex flex-col text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                 <div className="flex flex-col text-left leading-none">
-                  <span className="text-[16px] sm:text-[18px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                  <span className="text-[19px] sm:text-[21.5px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                     FLOWER POWER
                   </span>
-                  <span className={`font-light italic text-[14.5px] sm:text-[15px] capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
+                  <span className={`font-light italic text-[17.5px] sm:text-[18px] capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
                     {brand === 'pizza' ? 'Pizza' : 'Village'}
                   </span>
                 </div>
-                <span className="text-[12.5px] sm:text-[14px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
+                <span className="text-[15px] sm:text-[17px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
                   {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking'}
                 </span>
               </div>
