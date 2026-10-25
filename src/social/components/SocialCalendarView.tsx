@@ -159,7 +159,27 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       badge: '✋ UPLOAD TIKTOK VILLAGE'
     });
 
-    // 3. ORE 10:00 · 📍 Google Business Novità 4:3 (Martedì P1 Pizza / Venerdì V1 Villaggio)
+    // 3. ORE 08:45 · 👥 Gruppo Facebook Koh Phayam: LM1 Alloggi Liberi Oggi (✋ Azione Manuale Staff - Cerchio Giallo)
+    routinePosts.push({
+      id: `routine_fb_group_phayam_${day}`,
+      brand: 'village',
+      platforms: ['facebook'],
+      format: 'feed',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T08:45:00`,
+      title: `LM1 Alloggi Liberi Oggi a Phayam: ${villageAsset.name}`,
+      caption: `🌴 ALLOGGI DISPONIBILI OGGI a Koh Phayam! Sei sull'isola o stai sbarcando al molo? ${villageAsset.name} e bungalow nel verde tropicale con sconto diretto su flowerpowervillage.com o WhatsApp: +66 095 882 5573.`,
+      media_url: villageAsset.image,
+      source_item_id: villageAsset.id,
+      price: villageAsset.price,
+      status: 'scheduled',
+      tags: ['LM1', 'GruppiPhayam', 'Manuale', 'LastMinute'],
+      cta_url: villageAsset.cta_url || 'https://flowerpowervillage.com',
+      title_en: villageAsset.name,
+      badge: '🟡 GRUPPO PHAYAM ALLOGGI'
+    });
+
+    // 4. ORE 10:00 · 📍 Google Business Novità 4:3 (Martedì P1 Pizza / Venerdì V1 Villaggio)
     if (dayOfWeek === 2) {
       routinePosts.push({
         id: `routine_google_pizza_${day}`,
@@ -198,7 +218,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       });
     }
 
-    // 4. ORE 12:00 · 📸 LM1 Stories Last Minute Alloggi (Instagram & Facebook Stories)
+    // 5. ORE 12:00 · 📸 LM1 Stories Last Minute Alloggi (Instagram & Facebook Stories)
     routinePosts.push({
       id: `routine_lm1_${day}`,
       brand: 'village',
@@ -218,7 +238,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       badge: '🔥 AVAILABLE TONIGHT'
     });
 
-    // 5. ORE 14:30 · 📸 Instagram Reel: V2 Suite Tour / CC1 Relax Pomeridiano
+    // 6. ORE 14:30 · 📸 Instagram Reel: V2 Suite Tour / CC1 Relax Pomeridiano
     routinePosts.push({
       id: `routine_village_reel_${day}`,
       brand: 'village',
@@ -240,26 +260,25 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       badge: isAltCapCut ? '🎬 CAPCUT CLIP' : '🌿 SUITE BREEZY TOUR'
     });
 
-    // 6. ORE 17:00 (5 DI SERA) · 👥 Gruppi Facebook Koh Phayam: R1 Restaurant & Delivery (✋ Azione Manuale Staff - Cerchio Giallo)
+    // 7. ORE 17:15 (POMERIGGIO/SERA) · 🎵 TikTok Story Cena Pizzeria Ranong (✋ Azione Manuale Staff - Cerchio Giallo)
     routinePosts.push({
-      id: `routine_r1_${day}`,
-      brand: 'village',
-      platforms: ['facebook'],
-      format: 'feed',
+      id: `routine_tiktok_dinner_${day}`,
+      brand: 'pizza',
+      platforms: ['tiktok'],
+      format: 'story',
       editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T17:00:00`,
-      title: `R1 Cena Italiana a Domicilio: ${pizzaItem.name}`,
-      caption: `Stasera a Koh Phayam pizza artigianale italiana, pasta fresca e secondi caldi! Consegna al bungalow o cena nel giardino. WhatsApp: +66 095 882 5573.`,
+      scheduled_for: `${dateStr}T17:15:00`,
+      title: `P1 TikTok Story: Cena & Delivery Ranong - ${pizzaItem.name}`,
+      caption: `Fame di vera pizza stasera a Ranong? 🍕 Impasto a lievitazione naturale 48h, forno professionale a pietra refrattaria e consegna calda e rapida a casa tua! Ordina su flowerpowerpizza.com 🛵💨`,
       media_url: pizzaItem.image,
       source_item_id: pizzaItem.id,
-      price: 250,
       status: 'scheduled',
-      tags: ['R1', 'GruppiPhayam', 'Dinner', 'Facebook', 'Manuale'],
+      tags: ['P1', 'TikTok', 'Manuale', 'Dinner', 'Stories'],
       cta_url: 'https://flowerpowerpizza.com',
-      badge: '🛵 DELIVERY ISOLA'
+      badge: '✋ UPLOAD TIKTOK CENA'
     });
 
-    // 7. ORE 17:45 · 🍕 Instagram Reel: P1 Pizza Tradizionale Ranong 48h (Cena a Domicilio)
+    // 8. ORE 17:45 · 🍕 Instagram Reel: P1 Pizza Tradizionale Ranong 48h (Cena a Domicilio)
     routinePosts.push({
       id: `routine_dinner_${day}`,
       brand: 'pizza',
@@ -277,6 +296,26 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       cta_url: 'https://flowerpowerpizza.com',
       title_en: pizzaItem.name,
       badge: '🍕 48H NATURAL PROOFING'
+    });
+
+    // 9. ORE 23:00 (NOTTE ASIA = PRIME TIME EUROPA 17:00/18:00 CET) · 🌙 Instagram & Facebook Reel: V3 Tropical Escape Villaggio
+    routinePosts.push({
+      id: `routine_europe_night_${day}`,
+      brand: 'village',
+      platforms: ['instagram', 'facebook'],
+      format: 'reel',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T23:00:00`,
+      title: `V3 Prime Time Europa: Koh Phayam Dream - ${villageAsset.name}`,
+      caption: `Winter is coming in Europe... Escape to Koh Phayam Island! 🌴☀️ Wake up surrounded by tropical nature, turquoise waters and peaceful silence. Direct booking discounts on flowerpowervillage.com #KohPhayam #ThailandTravel #EscapeWinter #TropicalResort`,
+      media_url: villageAsset.image,
+      source_item_id: villageAsset.id,
+      price: villageAsset.price,
+      status: 'scheduled',
+      tags: ['V3', 'EuropeNight', 'Reels', 'Automated'],
+      cta_url: 'https://flowerpowervillage.com',
+      title_en: villageAsset.name,
+      badge: '🌙 PRIME TIME EUROPA'
     });
   }
 
