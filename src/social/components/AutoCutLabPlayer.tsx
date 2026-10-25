@@ -1632,12 +1632,12 @@ export function AutoCutLabPlayer({
 
         oCtx.restore();
       } else if (brand === 'village') {
-        // Modalità Alloggi Villaggio (V1, V2, V3, LM1) - Ingrandita del +20% e alzata di +20px
+        // Modalità Alloggi Villaggio (V1, V2, V3, LM1) - Ingrandita del +20% (testi e badge)
         const bx = 16 * s;
         const hasBadge = !!scene.badgeCategory;
-        const badgeH = hasBadge ? 24 * s : 0;
-        const titleH = 29 * s; // +20%
-        const subtitleH = scene.lodgingSubtitle ? 22 * s : 0; // +20%
+        const badgeH = hasBadge ? 28 * s : 0;
+        const titleH = 35 * s; // +20%
+        const subtitleH = scene.lodgingSubtitle ? 26 * s : 0; // +20%
         const thaiH = scene.titlePrimary ? 24 * s : 0;
         const hasPrice = !!scene.priceLabel;
         const priceH = hasPrice ? 38 * s : 0;
@@ -1653,25 +1653,25 @@ export function AutoCutLabPlayer({
         oCtx.shadowBlur = 10 * s;
 
         if (hasBadge) {
-          oCtx.font = `800 ${Math.round(13.5 * s)}px "Inter", sans-serif`;
+          oCtx.font = `800 ${Math.round(16.2 * s)}px "Inter", sans-serif`;
           oCtx.fillStyle = '#34d399';
           oCtx.fillText(scene.badgeCategory!.toUpperCase(), bx, by);
-          by += 24 * s;
+          by += 28 * s;
         }
 
         const lTitle = scene.lodgingTitle || scene.titlePrimary || '';
         if (lTitle) {
-          oCtx.font = `900 ${Math.round(23 * s)}px "Outfit", "Inter", sans-serif`;
+          oCtx.font = `900 ${Math.round(27.6 * s)}px "Outfit", "Inter", sans-serif`;
           oCtx.fillStyle = '#ffffff';
           oCtx.fillText(lTitle, bx, by);
-          by += 29 * s;
+          by += 35 * s;
         }
 
         if (scene.lodgingSubtitle) {
-          oCtx.font = `700 ${Math.round(15.6 * s)}px "Inter", sans-serif`;
+          oCtx.font = `700 ${Math.round(18.7 * s)}px "Inter", sans-serif`;
           oCtx.fillStyle = '#fcd34d';
           oCtx.fillText(scene.lodgingSubtitle, bx, by);
-          by += 22 * s;
+          by += 26 * s;
         }
 
         if (hasPrice) {
@@ -2885,11 +2885,11 @@ export function AutoCutLabPlayer({
             </div>
           )}
 
-          {/* Caso ALLOGGI (V1, V2, V3, LM1): Ingrandito +20% e alzato a bottom-[47px] */}
+          {/* Caso ALLOGGI (V1, V2, V3, LM1): Categoria, Titolo Bungalow e Sottotitolo Giallo Ingranditi +20% */}
           {brand === 'village' && mode !== 'R1' && (
             <div className="space-y-1.5 w-full">
               {currentScene.badgeCategory && (
-                <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wide shadow-md uppercase">
+                <span className="inline-block px-3 py-0.5 rounded-full bg-emerald-600/90 text-white text-[13px] font-bold tracking-wide shadow-md uppercase">
                   {currentScene.badgeCategory}
                 </span>
               )}
@@ -2898,17 +2898,17 @@ export function AutoCutLabPlayer({
               <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                 {currentScene.lodgingTitle ? (
                   <>
-                    <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
+                    <h3 className="text-[21.5px] sm:text-[24px] font-black text-white leading-tight">
                       {currentScene.lodgingTitle}
                     </h3>
                     {currentScene.lodgingSubtitle && (
-                      <p className="text-sm sm:text-[15.5px] font-bold text-amber-300 leading-tight mt-0.5">
+                      <p className="text-[17px] sm:text-[18.5px] font-bold text-amber-300 leading-tight mt-0.5">
                         {currentScene.lodgingSubtitle}
                       </p>
                     )}
                   </>
                 ) : (
-                  <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
+                  <h3 className="text-[21.5px] sm:text-[24px] font-black text-white leading-tight">
                     {currentScene.titlePrimary}
                   </h3>
                 )}

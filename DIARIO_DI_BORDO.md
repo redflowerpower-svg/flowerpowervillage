@@ -5,6 +5,16 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 14:05] · VILLAGGIO (V1, V2, V3, LM1): CATEGORIA, TITOLO BUNGALOW E SOTTOTITOLO GIALLO INGRANDITI DEL +20%
+- **Cosa abbiamo fatto:** Potenziata la gerarchia visiva per gli alloggi di Koh Phayam nei formati `V1`, `V2`, `V3` e `LM1` sia nel DOM sia su Canvas ([AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx)):
+  - 🌿 **Badge Categoria (+20%)**: Da 11px a **13px** (`text-[13px]`) nel DOM con padding maggiorato `px-3 py-0.5`, e da 13.5 a **16.2*s** su Canvas.
+  - 🛖 **Nome Bungalow in Inglese (+20%)**: Da 18px/20px a **21.5px/24px** (`text-[21.5px] sm:text-[24px]`) nel DOM, e da 23 a **27.6*s** su Canvas.
+  - ☀️ **Sottotitolo Giallo Descrittivo (+20%)**: Da 14px/15.5px a **17px/18.5px** (`text-[17px] sm:text-[18.5px]`) nel DOM, e da 15.6 a **18.7*s** su Canvas.
+  - 📐 **Safe Zone e Passo Verticale Ribilanciati**: Passo interlinea ricalibrato su Canvas per ospitare armoniosamente i testi più grandi, mantenendo la safe zone protetta dalla sfumatura nera `h-96`.
+- **Effetto reale:** I nomi e i dettagli dei bungalow risaltano con grande maestosità e chiarezza sui video 9:16 di Koh Phayam, rendendo immediatamente leggibile la tipologia di alloggio (es. Villa, Bungalow, Tent) anche su smartphone in movimento.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
+
 ### 🟩 [25/10/2026 - ORE 14:03] · BANNER PROMO CALIBRATO: 25PX DI SPAZIO SPECULARE A DESTRA E SINISTRA
 - **Cosa abbiamo fatto:** Risolto l'ingombro fisico che impediva al banner di arretrare in `AutoCutLabPlayer.tsx`:
   - 📏 **Calibrazione Tipografica & Padding**: Alleggerito il padding a `px-2 py-1` (era `px-3 py-1.5`) e la taglia del testo inglese a `text-[8.5px] sm:text-[9.5px]` con margine compatto `mt-0.5`.
