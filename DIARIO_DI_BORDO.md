@@ -5,6 +5,25 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 16:20] · BLINDATURA ALL'ORIGINE MOTORE VIDEO (LM1, V1-V3, P1-P3, DS, R1): PRE-DECODE LOGO, OUTRO COMPLETO & ALLINEAMENTO CANVAS 1:1
+- **Cosa abbiamo fatto:** Risolti alla radice e in modo sistematico tutti i difetti emersi durante l'esportazione video del formato LM1 e allineato l'intero motore grafico di esportazione in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) e [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts):
+  - 🖼️ **Precaricamento e Decodifica Asincrona Universale Asset (Zero Fotogrammi Vuoti/Logo Mancante)**:
+    - Inserito in `__autoCutGetVideo` il riscaldamento e decodifica asincrona obbligatoria (`await Promise.all(imgs.map(i => i.decode()))`) del logo ufficiale (`FP_04_-_LOGO_OFFICIAL_HD.png` o `flower-power-pizza-logo-512.png`) e di tutte le scene Full HD prima di far partire il ciclo hardware WebCodecs a 60 FPS.
+    - Eliminato definitivamente il rischio che il logo o le foto appaiano vuote o saltate sia nel watermark di testa che nello stampo dell'Outro finale.
+  - 🎬 **Outro Finale Integro & Zero Reset Anticipato nel Player**:
+    - Sostituito il vecchio `renderFrame(thumbnailTimestamp)` al termine del video con `renderFrame(totalVideoDuration)`. Ora, quando il video si conclude, la schermata rimane ferma e contemplabile sull'Outro completo con logo regale e card contatti, ripartendo solo al click esplicito di Play/Replay.
+    - In `social-publisher.ts`, applicato il filtro audio `apad` con `duration=longest` su FFmpeg: la traccia audio viene estesa con silenzio se necessario e `-shortest` taglia rigorosamente sulla lunghezza del video (`0:v`), garantendo che l'Outro finale non venga mai più troncato a metà prima della fine.
+  - 🎯 **Allineamento Tipografico Matematico del Prezzo (Zero Ghosting/Sdoppiamento)**:
+    - Uniformato `oCtx.textBaseline = 'middle'` e `oCtx.textAlign = 'center'` sia prima di `strokeText` (bordo bianco 3.5px) che di `fillText` (cifra nera piena).
+    - Aggiunta al box giallo `#FFE500` l'ombra solida nera 2px 2px e il bordo nero 2px come nel DOM, azzerando qualsiasi disallineamento ottico.
+  - 🏝️ **Sincronizzazione Grafica 1:1 Formato LM1 & Alloggi Villaggio con il DOM**:
+    - *Header LM1*: Inserita la pillola ambra sfumata `LAST MINUTE` con pallino rosso pulsante, la scritta Thai dorata `ห้องว่างวันนี้`, il claim `DIRECT BOOKING` in verde smeraldo e il link `flowerpowervillage.com`.
+    - *Card Bassa Alloggi*: Inserita la pillola verde smeraldo arrotondata per la categoria (`🔥 AVAILABLE TONIGHT` o bungalow), il titolo alloggio bianco, il sottotitolo ambra e la riga poetica descrittiva in Thai.
+- **Effetto reale:** L'esportazione video genera ora una copia esatta al 100% dell'anteprima visualizzata nell'editor, con logo nitido, grafica coordinata, prezzo leggibile e outro conclusivo completo.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e consolidato su branch locale `staging`.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 15:40] · NASCITA SOCIAL STUDIO SCHEDULER: MATRICE A BLOCCHETTI DINAMICI, AGENDA 10 SIGLE (P1-CC1) & ROUTINE 6/GIORNO
 - **Cosa abbiamo fatto:** Rivoluzionato l'intero reparto calendario trasformandolo nel nuovo **Social Studio Scheduler** in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) e [AutoCutStudioPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/pages/AutoCutStudioPage.tsx):
   - 🎨 **Matrice a Blocchetti Colorati Leggeri (Zero Anteprime Pesanti)**:

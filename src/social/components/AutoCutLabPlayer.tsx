@@ -976,8 +976,8 @@ export function AutoCutLabPlayer({
           audioRef.current.currentTime = 0;
           audioRef.current.volume = 1.0;
         }
-        // 📸 FOTOGRAMMA THUMBNAIL RIPRISTINATO IMMEDIATAMENTE AL TERMINE DEL VIDEO (Zero schermo nero / velo)
-        renderFrame(thumbnailTimestamp);
+        // 🎬 Al termine del video, mantieni visualizzato l'Outro finale (Zero reset anticipato / zero salto indietro)
+        renderFrame(totalVideoDuration);
       } else {
         renderFrame(elapsed);
         if (isPlaying) {
@@ -1056,7 +1056,9 @@ export function AutoCutLabPlayer({
         const thaiW = oCtx.measureText(mode === 'LM1' ? 'ห้องว่างวันนี้' : 'เกาะพยาม').width;
         oCtx.font = `600 ${Math.round(16 * s)}px "Outfit", sans-serif`;
         const siteW = oCtx.measureText('flowerpowervillage.com').width;
-        maxSubW = Math.max(fpW, thaiW, siteW);
+        oCtx.font = `900 ${Math.round(20 * s)}px "Outfit", "Inter", sans-serif`;
+        const dbW = oCtx.measureText('DIRECT BOOKING').width;
+        maxSubW = Math.max(fpW, thaiW, siteW, dbW);
       }
       oCtx.restore();
 
@@ -1244,27 +1246,81 @@ export function AutoCutLabPlayer({
         oCtx.font = `700 ${Math.round(16.5 * s)}px "Inter", sans-serif`; // +10% (era 15 * s)
         oCtx.fillStyle = '#fcd34d';
         oCtx.fillText('Link in Bio', tx, ty);
-      } else {
-        // Formato Villaggio Regular (V1, V2, V3) e LM1
-        // +20%, allontanato di 2 pixel netti dalla parola Village (12 * s invece di 10 * s)
-        ty += 12 * s;
-        if (mode === 'LM1') {
-          ty += 6 * s; // Allontanato di ulteriori 6px da Village
+      } else if (mode === 'LM1') {
+        // Formato LM1 Stories Last Minute (Koh Phayam)
+        // Header sincronizzato 1:1 con il DOM React dell'Editor
+        ty += 14 * s;
+
+        // Pillola arancione/ambra con pallino rosso per LAST MINUTE
+        const lmPillText = 'LAST MINUTE';
+        const lmPillFontSize = Math.round(11.5 * s);
+        oCtx.font = `900 ${lmPillFontSize}px "Outfit", "Inter", sans-serif`;
+        const lmTextW = oCtx.measureText(lmPillText).width;
+        const dotR = 3.5 * s;
+        const pillPadX = 8 * s;
+        const pillW = lmTextW + (pillPadX * 2) + (dotR * 2) + (4 * s);
+        const pillH = 20 * s;
+
+        oCtx.save();
+        const pillGrad = oCtx.createLinearGradient(tx, ty, tx + pillW, ty + pillH);
+        pillGrad.addColorStop(0, '#f59e0b');
+        pillGrad.addColorStop(0.5, '#fbbf24');
+        pillGrad.addColorStop(1, '#facc15');
+        oCtx.fillStyle = pillGrad;
+        if (typeof oCtx.roundRect === 'function') {
+          oCtx.roundRect(tx, ty, pillW, pillH, 6 * s);
+        } else {
+          oCtx.rect(tx, ty, pillW, pillH);
         }
-        oCtx.font = `900 ${Math.round(20 * s)}px "Outfit", "Inter", sans-serif`;
-        oCtx.fillStyle = '#34d399';
-        oCtx.fillText(mode === 'LM1' ? 'LAST MINUTE' : 'DIRECT BOOKING', tx, ty);
-        ty += 22 * s;
-        oCtx.font = `900 ${Math.round(22 * s)}px "Prompt", "Kanit", sans-serif`;
-        oCtx.fillStyle = '#fef08a';
-        oCtx.fillText(mode === 'LM1' ? 'ห้องว่างวันนี้' : 'เกาะพยาม', tx, ty);
-        ty += 21 * s;
-        oCtx.font = `600 ${Math.round(16 * s)}px "Outfit", "Inter", sans-serif`;
+        oCtx.fill();
+        oCtx.lineWidth = 1 * s;
+        oCtx.strokeStyle = '#fef08a';
+        oCtx.stroke();
+
+        // Pallino rosso LAST MINUTE
+        oCtx.fillStyle = '#e11d48';
+        oCtx.beginPath();
+        oCtx.arc(tx + pillPadX + dotR, ty + (pillH / 2), dotR, 0, Math.PI * 2);
+        oCtx.fill();
+
+        // Testo LAST MINUTE
+        oCtx.fillStyle = '#0c0a09';
+        oCtx.textAlign = 'left';
+        oCtx.textBaseline = 'middle';
+        oCtx.fillText(lmPillText, tx + pillPadX + (dotR * 2) + (4 * s), ty + (pillH / 2) + Math.round(0.5 * s));
+        oCtx.restore();
+        ty += pillH + (10 * s);
+
+        // Thai: ห้องว่างวันนี้ (+20%, Prompt 900 dorato)
+        oCtx.font = `900 ${Math.round(21 * s)}px "Prompt", "Kanit", sans-serif`;
+        oCtx.fillStyle = '#fcd34d';
+        oCtx.fillText('ห้องว่างวันนี้', tx, ty);
+        ty += 23 * s;
+
+        // DIRECT BOOKING (verde smeraldo brillante)
+        oCtx.font = `900 ${Math.round(19 * s)}px "Outfit", "Inter", sans-serif`;
+        oCtx.fillStyle = '#6ee7b7';
+        oCtx.fillText('DIRECT BOOKING', tx, ty);
+        ty += 20 * s;
+
+        // flowerpowervillage.com
+        oCtx.font = `600 ${Math.round(15 * s)}px "Outfit", "Inter", sans-serif`;
         oCtx.fillStyle = 'rgba(255,255,255,0.95)';
         oCtx.fillText('flowerpowervillage.com', tx, ty);
-        ty += 18 * s;
-        oCtx.font = `700 ${Math.round(15 * s)}px "Inter", sans-serif`;
-        oCtx.fillStyle = '#38bdf8';
+      } else {
+        // Formato Villaggio Regular (V1, V2, V3)
+        // +20%, allontanato di 2 pixel netti dalla parola Village (12 * s invece di 10 * s)
+        ty += 12 * s;
+        oCtx.font = `900 ${Math.round(19.5 * s)}px "Outfit", "Inter", sans-serif`;
+        oCtx.fillStyle = '#34d399';
+        oCtx.fillText('DIRECT BOOKING', tx, ty);
+        ty += 22 * s;
+        oCtx.font = `600 ${Math.round(15.5 * s)}px "Outfit", "Inter", sans-serif`;
+        oCtx.fillStyle = 'rgba(255,255,255,0.95)';
+        oCtx.fillText('flowerpowervillage.com', tx, ty);
+        ty += 19 * s;
+        oCtx.font = `700 ${Math.round(14.5 * s)}px "Inter", sans-serif`;
+        oCtx.fillStyle = '#fcd34d';
         oCtx.fillText('Link in Bio', tx, ty);
       }
       oCtx.restore();
@@ -1635,19 +1691,19 @@ export function AutoCutLabPlayer({
 
         oCtx.restore();
       } else if (brand === 'village') {
-        // Modalità Alloggi Villaggio (V1, V2, V3, LM1) - Ingrandita del +20% (testi e badge)
-        const bx = 16 * s;
+        // Modalità Alloggi Villaggio (V1, V2, V3, LM1) - Sincronizzata 1:1 con il DOM React dell'Editor
+        const bx = 25 * s;
         const hasBadge = !!scene.badgeCategory;
-        const badgeH = hasBadge ? 28 * s : 0;
-        const titleH = 35 * s; // +20%
-        const subtitleH = scene.lodgingSubtitle ? 26 * s : 0; // +20%
-        const thaiH = scene.titlePrimary ? 24 * s : 0;
-        const hasPrice = !!scene.priceLabel;
-        const priceH = hasPrice ? 38 * s : 0;
-        const totalCardH = badgeH + titleH + subtitleH + thaiH + priceH + (14 * s);
+        const badgeH = hasBadge ? (32 * s) : 0;
+        const titleH = 28 * s;
+        const subtitleH = scene.lodgingSubtitle ? (24 * s) : 0;
+        const thaiH = scene.titleSecondary ? (22 * s) : 0;
+        const hasPrice = !!scene.priceLabel && mode === 'LM1';
+        const priceH = hasPrice ? (46 * s) : 0;
+        const totalCardH = badgeH + titleH + subtitleH + thaiH + priceH;
 
-        // Alzata dal basso di +20px: da 36*s a 56*s
-        let by = h - (56 * s) - totalCardH;
+        // Ancoraggio inferiore sicuro identico a bottom-[47px]
+        let by = h - (47 * s) - totalCardH;
 
         oCtx.save();
         oCtx.textAlign = 'left';
@@ -1655,58 +1711,115 @@ export function AutoCutLabPlayer({
         oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
         oCtx.shadowBlur = 10 * s;
 
+        // 1. Pillola Categoria Alloggio (Smeraldo con testo bianco centrato)
         if (hasBadge) {
-          oCtx.font = `800 ${Math.round(16.2 * s)}px "Inter", sans-serif`;
-          oCtx.fillStyle = '#34d399';
           const badgeClean = mode === 'LM1'
             ? scene.badgeCategory!.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim().toUpperCase()
             : scene.badgeCategory!.toUpperCase();
-          oCtx.fillText(badgeClean, bx, by);
+
+          const badgeFontSize = Math.round(13 * s);
+          oCtx.font = `800 ${badgeFontSize}px "Inter", sans-serif`;
+          const badgeTextW = oCtx.measureText(badgeClean).width;
+          const badgePillW = badgeTextW + (20 * s);
+          const badgePillH = 22 * s;
+
+          oCtx.save();
+          oCtx.fillStyle = 'rgba(5, 150, 105, 0.92)';
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(bx, by, badgePillW, badgePillH, 11 * s);
+          } else {
+            oCtx.rect(bx, by, badgePillW, badgePillH);
+          }
+          oCtx.fill();
+
+          oCtx.fillStyle = '#ffffff';
+          oCtx.textAlign = 'center';
+          oCtx.textBaseline = 'middle';
+          oCtx.fillText(badgeClean, bx + (badgePillW / 2), by + (badgePillH / 2) + Math.round(0.5 * s));
+          oCtx.restore();
+
+          by += badgePillH + (10 * s);
+        }
+
+        // 2. Titolo Alloggio (Inglese Strutturato Bianco)
+        const lTitle = scene.lodgingTitle || scene.titlePrimary || '';
+        if (lTitle) {
+          oCtx.font = `900 ${Math.round(23.5 * s)}px "Outfit", "Inter", sans-serif`;
+          oCtx.fillStyle = '#ffffff';
+          oCtx.fillText(lTitle, bx, by);
           by += 28 * s;
         }
 
-        const lTitle = scene.lodgingTitle || scene.titlePrimary || '';
-        if (lTitle) {
-          oCtx.font = `900 ${Math.round(27.6 * s)}px "Outfit", "Inter", sans-serif`;
-          oCtx.fillStyle = '#ffffff';
-          oCtx.fillText(lTitle, bx, by);
-          by += 35 * s;
-        }
-
+        // 3. Sottotitolo Alloggio (Giallo/Ambra)
         if (scene.lodgingSubtitle) {
-          oCtx.font = `700 ${Math.round(18.7 * s)}px "Inter", sans-serif`;
+          oCtx.font = `700 ${Math.round(18 * s)}px "Inter", sans-serif`;
           oCtx.fillStyle = '#fcd34d';
           oCtx.fillText(scene.lodgingSubtitle, bx, by);
-          by += 26 * s;
+          by += 24 * s;
         }
 
+        // 4. Descrizione Thai Alloggio (Prompt / Kanit)
+        if (scene.titleSecondary) {
+          oCtx.font = `600 ${Math.round(14 * s)}px "Prompt", "Kanit", sans-serif`;
+          oCtx.fillStyle = 'rgba(226, 232, 240, 0.95)';
+          oCtx.fillText(scene.titleSecondary, bx, by);
+          by += 22 * s;
+        }
+
+        // 5. Prezzo Last Minute Octorate (SOLO IN LM1): Box Giallo #FFE500 con bordo nero 2px, ombra solida e outline bianco centrato
         if (hasPrice) {
-          by += 5 * s;
+          by += 6 * s;
           const priceClean = scene.priceLabel!.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
-          oCtx.font = `900 ${Math.round(26.4 * s)}px "Kanit", sans-serif`;
+          oCtx.font = `900 ${Math.round(27 * s)}px "Kanit", sans-serif`;
           const pTextW = oCtx.measureText(priceClean).width;
-          const boxPadX = 10 * s;
+          const boxPadX = 12 * s;
           const boxW = pTextW + (boxPadX * 2);
-          const boxH = 34 * s;
+          const boxH = 38 * s;
+          const boxRadius = 6 * s;
 
           oCtx.save();
-          oCtx.fillStyle = '#FFE500';
+          // Ombra solida nera 2px 2px (come shadow-[2px_2px_0px_#000000] nel DOM)
+          oCtx.fillStyle = '#000000';
+          oCtx.beginPath();
           if (typeof oCtx.roundRect === 'function') {
-            oCtx.roundRect(bx, by, boxW, boxH, 6 * s);
+            oCtx.roundRect(bx + 2 * s, by + 2 * s, boxW, boxH, boxRadius);
+          } else {
+            oCtx.rect(bx + 2 * s, by + 2 * s, boxW, boxH);
+          }
+          oCtx.fill();
+
+          // Sfondo giallo #FFE500
+          oCtx.fillStyle = '#FFE500';
+          oCtx.beginPath();
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(bx, by, boxW, boxH, boxRadius);
           } else {
             oCtx.rect(bx, by, boxW, boxH);
           }
           oCtx.fill();
 
-          // Bordo esterno bianco intorno al font del prezzo e Baht
-          oCtx.lineWidth = 4.0 * s;
+          // Bordo nero 2px
+          oCtx.strokeStyle = '#000000';
+          oCtx.lineWidth = 2 * s;
+          oCtx.stroke();
+
+          // Allineamento testo: CENTRATO orizzontalmente e verticalmente (zero ghosting / zero sfasamento!)
+          oCtx.textAlign = 'center';
+          oCtx.textBaseline = 'middle';
+          const pCx = bx + (boxW / 2);
+          const pCy = by + (boxH / 2) + Math.round(1.5 * s);
+
+          // Bordo esterno bianco 3.5px
+          oCtx.lineWidth = 3.5 * s;
           oCtx.strokeStyle = '#ffffff';
           oCtx.lineJoin = 'round';
-          oCtx.strokeText(priceClean, bx + boxPadX, by + (boxH / 2));
+          oCtx.strokeText(priceClean, pCx, pCy);
 
+          // Testo nero pieno centrato identico
           oCtx.fillStyle = '#000000';
-          oCtx.textBaseline = 'middle';
-          oCtx.fillText(priceClean, bx + boxPadX, by + (boxH / 2));
+          oCtx.shadowColor = 'transparent';
+          oCtx.shadowBlur = 0;
+          oCtx.fillText(priceClean, pCx, pCy);
           oCtx.restore();
         }
 
@@ -1752,12 +1865,35 @@ export function AutoCutLabPlayer({
 
         // Assicura che tutti i web font ufficiali (Outfit, Prompt, Kanit, IBM Plex Sans Thai, Inter) siano scaricati e pronti
         if (typeof document !== 'undefined' && document.fonts) {
-          if (onProgress) onProgress(18, 1, 'Verifica e caricamento web font ufficiali (Outfit, Kanit, Prompt)...');
+          if (onProgress) onProgress(14, 1, 'Verifica e caricamento web font ufficiali (Outfit, Kanit, Prompt)...');
           try {
             await document.fonts.ready;
           } catch (e) {
             console.warn('Font loading await error:', e);
           }
+        }
+
+        // 🖼️ Precarica e decodifica tutti gli asset visivi critici (Logo Ufficiale Brand + Immagini Full HD)
+        if (onProgress) onProgress(18, 1, 'Decodifica e preriscaldamento logo ufficiale e fotogrammi Full HD...');
+        try {
+          const imgsToDecode: HTMLImageElement[] = [
+            logoImg,
+            ...loadedImages
+          ].filter(Boolean);
+
+          await Promise.all(imgsToDecode.map(img => {
+            if (!img) return Promise.resolve();
+            if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+            if (typeof img.decode === 'function') {
+              return img.decode().catch(() => {});
+            }
+            return new Promise(res => {
+              img.onload = img.onerror = res;
+              setTimeout(res, 2500);
+            });
+          }));
+        } catch (e) {
+          console.warn('Image pre-decode warning:', e);
         }
 
         const off = document.createElement('canvas');

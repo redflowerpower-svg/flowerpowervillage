@@ -151,7 +151,7 @@ async function muxAudioOntoVideo(
       console.log(`[social-publisher] Muxing SFX Outro (${sfxFileName}) con delay esatto: ${delayMs}ms...`);
       args.push(
         "-filter_complex",
-        `[1:a]volume=1.0[bg];[2:a]adelay=${delayMs}|${delayMs},volume=1.8[sfx];[bg][sfx]amix=inputs=2:duration=first:dropout_transition=2[aout]`,
+        `[1:a]volume=1.0,apad[bg];[2:a]adelay=${delayMs}|${delayMs},volume=1.8[sfx];[bg][sfx]amix=inputs=2:duration=longest:dropout_transition=2[aout]`,
         "-map", "0:v",
         "-map", "[aout]",
         "-c:v", "copy",
@@ -163,8 +163,10 @@ async function muxAudioOntoVideo(
       );
     } else {
       args.push(
+        "-filter_complex",
+        "[1:a]volume=1.0,apad[aout]",
         "-map", "0:v",
-        "-map", "1:a",
+        "-map", "[aout]",
         "-c:v", "copy",
         "-c:a", "aac",
         "-b:a", "192k",
