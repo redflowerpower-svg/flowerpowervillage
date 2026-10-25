@@ -1,13 +1,13 @@
 /**
  * Dynamic Environment & Department Favicon Engine
- * - Genera favicon dinamiche su Canvas ad altissima leggibilità con il NOME DEL REPARTO CHIARO E VISIBILE:
- *   • SOCIAL  (/social, /autocut)     -> Sfondo Viola/Fucsia Profondo con scritta SOCIAL in bianco
- *   • ADMIN   (/admin)                -> Sfondo Grafite/Ardesia con scritta ADMIN in ambra/oro brillante
- *   • DINING  (/dining, /tavoli)      -> Sfondo Blu Mare Profondo con scritta DINING in bianco
- *   • KITCHEN (/kitchen, /kds)        -> Sfondo Arancio/Rosso Fiamma con scritta KITCHEN in bianco
- *   • PIZZA   (/pizza, delivery)      -> Sfondo Rosso Italiano con scritta PIZZA in giallo oro
- *   • VILLAGE (/village, booking)     -> Sfondo Verde Tropicale Smeraldo con scritta VILLAGE in bianco
- *   • DOCS    (/docs, /reader)        -> Sfondo Blu Notte con scritta DOCS in celeste ghiaccio
+ * - Genera favicon dinamiche su Canvas ad altissima leggibilità con SIGLE GIGANTI (2-3 lettere) per massimo riconoscimento a 16px:
+ *   • SS   (/social, /autocut)     -> Social Studio (Viola/Fucsia Profondo con scritta SS bianca)
+ *   • AD   (/admin)                -> Admin Console (Grafite/Ardesia con scritta AD in ambra/oro)
+ *   • DT   (/dining, /tavoli)      -> Dining Table  (Blu Mare Profondo con scritta DT bianca)
+ *   • KM   (/kitchen, /kds)        -> Kitchen Monitor (Arancio/Rosso Fiamma con scritta KM bianca)
+ *   • PIZ  (/pizza, delivery)      -> Pizzeria (Rosso Tradizionale con scritta PIZ in giallo oro)
+ *   • VLG  (/village, booking)     -> Village (Verde Tropicale Smeraldo con scritta VLG bianca)
+ *   • WR   (/docs, /reader)        -> Web Reader (Blu Notte con scritta WR in celeste ghiaccio)
  * - Bordo Ambiente di contrasto:
  *   • Locale (localhost / 127.0.0.1)  -> Bordo ROSSO brillante (🔴 #EF4444)
  *   • Staging / Virtuale (*.vercel.app)-> Bordo VERDE SMERALDO (🟢 #10B981)
@@ -33,49 +33,49 @@ export interface DeptFaviconTheme {
 
 export const DEPT_THEMES: Record<SectionType, DeptFaviconTheme> = {
   social: {
-    label: 'SOCIAL',
+    label: 'SS', // Social Studio
     bg: '#581c87', // Rich Royal Purple
     textColor: '#ffffff',
     accentColor: '#f472b6', // Vibrant Pink
   },
   admin: {
-    label: 'ADMIN',
+    label: 'AD', // Admin
     bg: '#0f172a', // Titanium Slate
     textColor: '#fbbf24', // Amber Gold
     accentColor: '#f59e0b',
   },
   dining: {
-    label: 'DINING',
+    label: 'DT', // Dining Table
     bg: '#0369a1', // Deep Ocean Blue
     textColor: '#ffffff',
     accentColor: '#38bdf8', // Cyan
   },
   kitchen: {
-    label: 'KITCHEN',
+    label: 'KM', // Kitchen Monitor
     bg: '#c2410c', // Fiery Flame Orange
     textColor: '#ffffff',
     accentColor: '#fdba74',
   },
   pizza: {
-    label: 'PIZZA',
+    label: 'PIZ', // Pizzeria
     bg: '#991b1b', // Italian Crimson Red
     textColor: '#fde047', // Pizza Gold
     accentColor: '#f87171',
   },
   village: {
-    label: 'VILLAGE',
+    label: 'VLG', // Village
     bg: '#065f46', // Tropical Deep Emerald
     textColor: '#ffffff',
     accentColor: '#34d399', // Mint Lime
   },
   docs: {
-    label: 'DOCS',
+    label: 'WR', // Web Reader
     bg: '#1e293b', // Deep Slate
     textColor: '#38bdf8', // Ice Blue
     accentColor: '#7dd3fc',
   },
   public: {
-    label: 'PIZZA',
+    label: 'PIZ',
     bg: '#991b1b',
     textColor: '#fde047',
     accentColor: '#f87171',
@@ -86,17 +86,17 @@ export function getActiveSection(): SectionType {
   if (typeof window === 'undefined') return 'public';
   const path = window.location.pathname.toLowerCase();
 
-  // 1. Reparto SOCIAL (/social, /autocut)
+  // 1. Reparto SOCIAL (/social, /autocut) -> SS
   if (path.startsWith('/social') || path.startsWith('/autocut')) {
     return 'social';
   }
 
-  // 2. Reparto KITCHEN (/kitchen, /kds)
+  // 2. Reparto KITCHEN (/kitchen, /kds) -> KM
   if (path.startsWith('/kitchen') || path.startsWith('/kds')) {
     return 'kitchen';
   }
 
-  // 3. Reparto DINING (/dining, /tavoli, /dining-tablet)
+  // 3. Reparto DINING (/dining, /tavoli, /dining-tablet) -> DT
   if (
     path.startsWith('/dining') ||
     path.startsWith('/tavoli') ||
@@ -105,12 +105,12 @@ export function getActiveSection(): SectionType {
     return 'dining';
   }
 
-  // 4. Reparto ADMIN (/admin, tutte le aree amministrative)
+  // 4. Reparto ADMIN (/admin, tutte le aree amministrative) -> AD
   if (path.startsWith('/admin')) {
     return 'admin';
   }
 
-  // 5. Reparto DOCS & Web Reader (/docs, /reader, /read)
+  // 5. Reparto DOCS & Web Reader (/docs, /reader, /read) -> WR
   if (
     path.startsWith('/docs') ||
     path.startsWith('/reader') ||
@@ -119,12 +119,12 @@ export function getActiveSection(): SectionType {
     return 'docs';
   }
 
-  // 6. Reparto VILLAGE (/village, /booking)
+  // 6. Reparto VILLAGE (/village, /booking) -> VLG
   if (path.startsWith('/village') || path.startsWith('/booking')) {
     return 'village';
   }
 
-  // 7. Reparto PIZZA (/pizza, /delivery)
+  // 7. Reparto PIZZA (/pizza, /delivery) -> PIZ
   if (path.startsWith('/pizza') || path.startsWith('/delivery')) {
     return 'pizza';
   }
@@ -216,9 +216,9 @@ export function applyEnvironmentFavicon(): void {
 
   ctx.clearRect(0, 0, size, size);
 
-  // 1. Sfondo badge sagomato (Squircle con raggio 13)
+  // 1. Sfondo badge sagomato (Squircle con raggio 14)
   ctx.beginPath();
-  drawRoundedRect(ctx, 2, 2, size - 4, size - 4, 13);
+  drawRoundedRect(ctx, 2, 2, size - 4, size - 4, 14);
   ctx.fillStyle = theme.bg;
   ctx.fill();
 
@@ -229,26 +229,22 @@ export function applyEnvironmentFavicon(): void {
 
   // 3. Ombra/stroke interna per staccare il badge da qualsiasi tema chiaro/scuro del browser
   ctx.beginPath();
-  drawRoundedRect(ctx, 4.5, 4.5, size - 9, size - 9, 10);
+  drawRoundedRect(ctx, 4.5, 4.5, size - 9, size - 9, 11);
   ctx.lineWidth = 1;
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
   ctx.stroke();
 
   // 4. Linea accento superiore neon
   ctx.beginPath();
-  drawRoundedRect(ctx, 10, 6, size - 20, 3, 1.5);
+  drawRoundedRect(ctx, 12, 6, size - 24, 3, 1.5);
   ctx.fillStyle = theme.accentColor;
   ctx.globalAlpha = 0.85;
   ctx.fill();
   ctx.globalAlpha = 1.0;
 
-  // 5. NOME DEL REPARTO SCRITTO CHIARO E VISIBILE
-  // Calcolo della dimensione ottimale per riempire la larghezza in grassetto estremo (900)
-  let fontSize = 23;
-  if (theme.label.length <= 4) fontSize = 23;        // DOCS (4)
-  else if (theme.label.length === 5) fontSize = 19;   // ADMIN (5), PIZZA (5)
-  else if (theme.label.length === 6) fontSize = 16.5; // SOCIAL (6), DINING (6)
-  else if (theme.label.length >= 7) fontSize = 14;    // KITCHEN (7), VILLAGE (7)
+  // 5. SIGLA DEL REPARTO GIGANTE, ULTRA-BOLD E CRISTALLINA
+  // Per 2 lettere (SS, AD, KM, DT, WR) usiamo 35px; per 3 lettere (PIZ, VLG) usiamo 27px
+  let fontSize = theme.label.length <= 2 ? 35 : 27;
 
   ctx.font = `900 ${fontSize}px "Outfit", "Arial Black", -apple-system, BlinkMacSystemFont, sans-serif`;
   ctx.textAlign = 'center';
@@ -263,13 +259,13 @@ export function applyEnvironmentFavicon(): void {
   }
 
   // Ombra di contrasto 3D per leggibilità perfetta anche nei tab rimpiccioliti a 16px
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-  ctx.shadowBlur = 3;
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+  ctx.shadowBlur = 3.5;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 1.5;
 
   ctx.fillStyle = theme.textColor;
-  ctx.fillText(theme.label, size / 2, size / 2 + 1.5);
+  ctx.fillText(theme.label, size / 2, size / 2 + 2);
 
   // Reset ombra
   ctx.shadowColor = 'transparent';
@@ -277,7 +273,7 @@ export function applyEnvironmentFavicon(): void {
 
   // 6. Linea accento inferiore discreta
   ctx.beginPath();
-  drawRoundedRect(ctx, 15, size - 8, size - 30, 2, 1);
+  drawRoundedRect(ctx, 18, size - 8, size - 36, 2, 1);
   ctx.fillStyle = theme.accentColor;
   ctx.globalAlpha = 0.45;
   ctx.fill();
