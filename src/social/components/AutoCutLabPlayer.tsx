@@ -1266,6 +1266,35 @@ export function AutoCutLabPlayer({
       }
       oCtx.restore();
 
+      // 🎗️ OPZIONE 2 (CANVAS): Ticker / Nastro Promozionale Sottile Bilingue (P1, P2, P3, DS)
+      if ((mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro) {
+        oCtx.save();
+        const ribbonW = w - (48 * s);
+        const ribbonH = 26 * s;
+        const ribbonX = (w - ribbonW) / 2;
+        const ribbonY = 176 * s;
+        const ribbonRad = 13 * s;
+
+        oCtx.fillStyle = 'rgba(0, 0, 0, 0.82)';
+        if (typeof oCtx.roundRect === 'function') {
+          oCtx.roundRect(ribbonX, ribbonY, ribbonW, ribbonH, ribbonRad);
+        } else {
+          oCtx.rect(ribbonX, ribbonY, ribbonW, ribbonH);
+        }
+        oCtx.fill();
+        oCtx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+        oCtx.lineWidth = 1.2 * s;
+        oCtx.stroke();
+
+        oCtx.textAlign = 'center';
+        oCtx.textBaseline = 'middle';
+        const ribbonCy = ribbonY + (ribbonH / 2) + Math.round(1 * s);
+        oCtx.font = `900 ${Math.round(11 * s)}px "Prompt", "Kanit", sans-serif`;
+        oCtx.fillStyle = '#fcd34d';
+        oCtx.fillText('🛵 ส่งฟรี 300฿+ (Free Delivery)   ✦   🏷️ ลด 10% ครั้งแรก (10% OFF 1st)', w / 2, ribbonCy);
+        oCtx.restore();
+      }
+
       // 4. Card Bassa Proporzionata (Categoria, Titoli Bilingui, Prezzo) - ingrandita del 10%
       // 4. Card Bassa Proporzionata (Categoria Bilingue Thai/Eng, Titoli Ingranditi +20%, Prezzo, Alzata di +20px)
       if (brand === 'pizza' || mode === 'R1') {
@@ -1465,6 +1494,47 @@ export function AutoCutLabPlayer({
           const w8 = drawPizzaBadge('8"', p8, bx);
           drawPizzaBadge('12"', p12, bx + w8 + (8 * s));
           oCtx.restore();
+
+          // 🏷️ OPZIONE 1 (CANVAS): Badge Promo a destra per pizza a due taglie
+          if ((mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro) {
+            oCtx.save();
+            const badgeW = 180 * s;
+            const badgeH = 37 * s;
+            const badgeX = w - bx - badgeW;
+            const badgeY = by + (1 * s);
+            const badgeRad = 7 * s;
+
+            oCtx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+            if (typeof oCtx.roundRect === 'function') {
+              oCtx.roundRect(badgeX + (2 * s), badgeY + (2 * s), badgeW, badgeH, badgeRad);
+            } else {
+              oCtx.rect(badgeX + (2 * s), badgeY + (2 * s), badgeW, badgeH);
+            }
+            oCtx.fill();
+
+            oCtx.fillStyle = 'rgba(10, 10, 10, 0.88)';
+            if (typeof oCtx.roundRect === 'function') {
+              oCtx.roundRect(badgeX, badgeY, badgeW, badgeH, badgeRad);
+            } else {
+              oCtx.rect(badgeX, badgeY, badgeW, badgeH);
+            }
+            oCtx.fill();
+
+            oCtx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+            oCtx.lineWidth = 1.3 * s;
+            oCtx.stroke();
+
+            oCtx.textAlign = 'right';
+            oCtx.textBaseline = 'top';
+            oCtx.font = `900 ${Math.round(10.5 * s)}px "Prompt", sans-serif`;
+            oCtx.fillStyle = '#fcd34d';
+            oCtx.fillText('🛵 ส่งฟรี 300฿+ · 🏷️ ลด 10%', badgeX + badgeW - (8 * s), badgeY + (4.5 * s));
+
+            oCtx.font = `800 ${Math.round(9 * s)}px "Outfit", sans-serif`;
+            oCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            oCtx.fillText('Free Delivery 300฿+ · 1st Order -10%', badgeX + badgeW - (8 * s), badgeY + (19 * s));
+            oCtx.restore();
+          }
         } else if (hasPrice) {
           by += 20 * s; // Distacco alzato di +10px (era 10*s)
           const priceClean = scene.priceLabel!.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
@@ -1519,6 +1589,47 @@ export function AutoCutLabPlayer({
           oCtx.shadowBlur = 0;
           oCtx.fillText(priceClean, textCx, textCy);
           oCtx.restore();
+
+          // 🏷️ OPZIONE 1 (CANVAS): Badge Promo a destra del prezzo singolo
+          if ((mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro) {
+            oCtx.save();
+            const badgeW = 195 * s;
+            const badgeH = 39 * s;
+            const badgeX = w - bx - badgeW;
+            const badgeY = by + ((boxH - badgeH) / 2);
+            const badgeRad = 7 * s;
+
+            oCtx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+            if (typeof oCtx.roundRect === 'function') {
+              oCtx.roundRect(badgeX + (2 * s), badgeY + (2 * s), badgeW, badgeH, badgeRad);
+            } else {
+              oCtx.rect(badgeX + (2 * s), badgeY + (2 * s), badgeW, badgeH);
+            }
+            oCtx.fill();
+
+            oCtx.fillStyle = 'rgba(10, 10, 10, 0.88)';
+            if (typeof oCtx.roundRect === 'function') {
+              oCtx.roundRect(badgeX, badgeY, badgeW, badgeH, badgeRad);
+            } else {
+              oCtx.rect(badgeX, badgeY, badgeW, badgeH);
+            }
+            oCtx.fill();
+
+            oCtx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+            oCtx.lineWidth = 1.3 * s;
+            oCtx.stroke();
+
+            oCtx.textAlign = 'right';
+            oCtx.textBaseline = 'top';
+            oCtx.font = `900 ${Math.round(11 * s)}px "Prompt", sans-serif`;
+            oCtx.fillStyle = '#fcd34d';
+            oCtx.fillText('🛵 ส่งฟรี 300฿+  ·  🏷️ ลด 10%', badgeX + badgeW - (8 * s), badgeY + (5 * s));
+
+            oCtx.font = `800 ${Math.round(9.5 * s)}px "Outfit", sans-serif`;
+            oCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            oCtx.fillText('Free Delivery 300฿+ · 1st Order -10%', badgeX + badgeW - (8 * s), badgeY + (20 * s));
+            oCtx.restore();
+          }
         }
 
         oCtx.restore();
@@ -2633,6 +2744,25 @@ export function AutoCutLabPlayer({
         </div>
       )}
 
+      {/* 🎗️ OPZIONE 2 (PROVA): Ticker / Nastro Promozionale Sottile Bilingue sotto l'Header */}
+      {(mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro && (
+        <div className="absolute top-[178px] left-1/2 -translate-x-1/2 z-30 pointer-events-none w-[92%] max-w-[420px]">
+          <div className="bg-black/80 backdrop-blur-md border border-amber-400/80 rounded-full px-3 py-1 flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.85)]">
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-[12px] font-black text-amber-300 whitespace-nowrap">
+              <span>🛵</span>
+              <span className="font-['Prompt',sans-serif]">ส่งฟรี 300฿+</span>
+              <span className="text-white/85 font-['Outfit',sans-serif] text-[10px] sm:text-[11px] font-bold uppercase">(Free Delivery)</span>
+            </div>
+            <span className="text-amber-400 font-black text-xs px-1">✦</span>
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-[12px] font-black text-emerald-400 whitespace-nowrap">
+              <span>🏷️</span>
+              <span className="font-['Prompt',sans-serif]">ลด 10% สั่งครั้งแรก</span>
+              <span className="text-white/85 font-['Outfit',sans-serif] text-[10px] sm:text-[11px] font-bold uppercase">(10% OFF 1st)</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sfondo sfumato nero in basso (Bottom Vignette Fade cinematografica: protegge categoria, titoli bilingui e prezzo) */}
       <div className={`absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-black/85 via-black/55 via-45% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
         isInOutro ? 'opacity-0' : 'opacity-100'
@@ -2717,36 +2847,53 @@ export function AutoCutLabPlayer({
               </div>
 
               {/* PREZZO PIATTO / PIZZE 8" E 12" (SCALA PIENA +20%, BORDI RETTANGOLO ADERENTI - distacco alzato di +10px a pt-5) */}
-              <div className="pt-5 origin-left w-fit">
-                {currentScene.pizzaSizes && mode !== 'R1' ? (
-                  <div className="flex items-center gap-2">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                      <span className="font-['Kanit',sans-serif] text-[15.5px] sm:text-[17px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
+              {/* Box Prezzo (+20%) + OPZIONE 1: Badge Promo Dinamico a destra */}
+              <div className="pt-5 w-full flex items-center justify-between gap-2.5">
+                <div className="shrink-0">
+                  {currentScene.pizzaSizes && mode !== 'R1' ? (
+                    <div className="flex items-center gap-2">
+                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                        <span className="font-['Kanit',sans-serif] text-[15.5px] sm:text-[17px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
+                        <span
+                          className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
+                          style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                        >
+                          {currentScene.pizzaSizes.size8Price}฿
+                        </span>
+                      </div>
+                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                        <span className="font-['Kanit',sans-serif] text-[15.5px] sm:text-[17px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
+                        <span
+                          className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
+                          style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                        >
+                          {currentScene.pizzaSizes.size12Price}฿
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="inline-flex items-center px-3.5 py-1.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                       <span
-                        className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
-                        style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                        className="font-['Kanit',sans-serif] text-[31.5px] sm:text-[34px] font-black leading-none tracking-tight"
+                        style={{ paintOrder: 'stroke fill', WebkitTextStroke: '4.2px #ffffff' }}
                       >
-                        {currentScene.pizzaSizes.size8Price}฿
+                        {currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
                       </span>
                     </div>
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                      <span className="font-['Kanit',sans-serif] text-[15.5px] sm:text-[17px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
-                      <span
-                        className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
-                        style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
-                      >
-                        {currentScene.pizzaSizes.size12Price}฿
-                      </span>
+                  )}
+                </div>
+
+                {/* 🏷️ OPZIONE 1 (PROVA): Badge Promozionale Bilingue a destra del prezzo */}
+                {(mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && (
+                  <div className="shrink-0 bg-black/85 backdrop-blur-md border border-amber-400/80 rounded-lg px-2.5 py-1.5 shadow-[0_4px_16px_rgba(0,0,0,0.85)] flex flex-col items-end text-right">
+                    <div className="flex items-center gap-1.5 text-[11px] sm:text-[12px] font-black text-amber-300 font-['Prompt',sans-serif] leading-tight drop-shadow whitespace-nowrap">
+                      <span>🛵 ส่งฟรี 300฿+</span>
+                      <span className="text-white/60">·</span>
+                      <span className="text-emerald-400">🏷️ ลด 10%</span>
                     </div>
-                  </div>
-                ) : (
-                  <div className="inline-flex items-center px-3.5 py-1.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                    <span
-                      className="font-['Kanit',sans-serif] text-[31.5px] sm:text-[34px] font-black leading-none tracking-tight"
-                      style={{ paintOrder: 'stroke fill', WebkitTextStroke: '4.2px #ffffff' }}
-                    >
-                      {currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
-                    </span>
+                    <div className="text-[9.5px] sm:text-[10.5px] font-bold text-white/95 font-['Outfit',sans-serif] tracking-wide uppercase leading-tight drop-shadow mt-0.5 whitespace-nowrap">
+                      Free Delivery 300฿+ · 1st Order -10%
+                    </div>
                   </div>
                 )}
               </div>
