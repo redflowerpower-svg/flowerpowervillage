@@ -101,16 +101,30 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
       2. Dalla programmazione editoriale automatica (cron / publisher pianificato) quando ne ha esplicitamente bisogno.
 22. **Regola Immodificabile Standard Device di Riferimento: Xiaomi Mi Pad 4 (Tablet Ufficiale in Verticale)**:
     - **Device di Riferimento Ufficiale**: Xiaomi Mi Pad 4 / Mi Pad 4 Plus (schermo 16:10, risoluzione fisica 1920x1200, MIUI Android DPR 2.0x/2.25x/2.75x).
-    - **Larghezza Viewport Logica CSS (Verticale / Portrait)**: Compresa tra $411\text{px}$ e $533\text{px}$ in base al livello di zoom caratteri/display impostato su MIUI.
-    - **Divieto Assoluto della Trappola Breakpoint Mobile**: È severamente e categoricamente vietato utilizzare media query standard come `sm:` (640px), `md:` (768px) o soglie a 480px per definire i layout tablet, perché su Android MIUI lo schermo verticale del tablet viene scambiato per uno smartphone. Qualsiasi layout per tablet DEVE essere attivo già a partire da $360\text{px}$.
-    - **Griglia Prodotti Menu (Standard Tassativo 3 Colonne)**:
-      1. Su questo tablet di riferimento e su qualsiasi tablet, i prodotti culinari (pizze, piatti, paste, insalate, burger) devono essere **TASSATIVAMENTE 3 PER RIGA IN ORIZZONTALE**, sia in orientamento verticale che orizzontale, sia nella schermata Sala (`/dining`) sia nel menù delivery/asporto (`/` o `flowerpowerpizza.com`).
-      2. Per non dipendere mai da breakpoint CSS arbitrari o cache dei browser Android, la griglia dei prodotti impone 3 colonne di default (`grid-template-columns: repeat(3, minmax(0, 1fr))`) e applica il fallback a 2 colonne solo ed esclusivamente su schermi micro-smartphone stretti ($< 360\text{px}$).
-    - **Selettore Categorie (CategoryTabs)**:
-      1. Sul tablet di riferimento Xiaomi Mi Pad 4 e su tutti i tablet in verticale, il selettore categorie adotta **TASSATIVAMENTE IL MENU STATICO SU DUE RIGHE FISSE** (`category-tabs-desktop` con `gridTemplateColumns: repeat(cols, minmax(0, 1fr))` ed inline-style/CSS `display: grid !important`), dove tutte le categorie sono visibili e selezionabili immediatamente senza scorrimento orizzontale.
-      2. Le dimensioni delle schede categoria sono tassativamente calibrate per il viewport verticale del tablet: altezza $88\text{px}$ (`h-[88px]`), icona $28\text{px}$ (`w-7 h-7`) e font ottimizzato (`text-[9px] sm:text-[10px]`).
-      3. Solo ed esclusivamente su micro-smartphone stretti ($< 360\text{px}$) adotta lo slider orizzontale compatto a scorrimento (`category-tabs-mobile`).
+    - **Larghezza Viewport Logica CSS (Verticale / Portrait)**: Compresa tra $533\text{px}$ e $600\text{px}$ (simulata a $584\text{px}$) in base al DPR (2.0x o 2.25x). Tutti gli smartphone sul mercato (iPhone, Samsung Galaxy, Pixel) hanno invece una larghezza logica compresa tra $360\text{px}$ e $430\text{px}$ MAX.
+    - **Soglia di Demarcazione Matematica Inviolabile (460px)**:
+      1. La linea di demarcazione tra smartphone e tablet è fissata a **460px** (nello spazio vuoto di 100px tra i 430px del cellulare più largo e i 533px dello Xiaomi Mi Pad 4).
+      2. **Sotto i 460px (Smartphone)**: Tassativamente **2 colonne di prodotti** e **selettore categorie a scorrimento orizzontale compatto (1 riga)**.
+      3. **Dai 460px in su (Xiaomi Mi Pad 4 e tutti i Tablet)**: Tassativamente **3 colonne di prodotti** e **menu statico su 2 righe fisse** (`category-tabs-desktop` con altezza $88\text{px}$, icona $28\text{px}$ `w-7 h-7` e font $9\text{px}$–$10\text{px}$).
     - **Integrità Totale Interfaccia Tablet**: Qualsiasi futuro sviluppo di modali, carrello, banner, schede o flussi d'ordine DEVE essere progettato e collaudato rispettando le proporzioni di questo standard device tablet in verticale.
+23. **Regola Immodificabile Protocollo di Comunicazione Umana & Diario di Bordo Live (Soluzione 1)**:
+    - **Banner di Testata Obbligatorio in Ogni Messaggio**: Ogni singolo messaggio e risposta dell'agente verso l'utente DEVE aprirsi TASSATIVAMENTE con un callout banner visivo sintetico e strutturato in 3 punti chiari:
+      1. 🔨 *Cosa è stato fatto*: sintesi immediata dell'azione eseguita.
+      2. 📱 *Cosa cambia nella realtà*: impatto visibile su tablet sala, cellulari clienti o cassa, spiegato in italiano semplice e comprensibile.
+      3. 🚀 *Prossimo passo*: cosa sta per essere fatto subito dopo.
+    - **Diario di Bordo Live Permanente (`DIARIO_DI_BORDO.md`)**:
+      1. Tutte le operazioni completate, le migliorie e le modifiche strutturali DEVONO essere registrate e accumulate cronologicamente sia nel file di workspace `DIARIO_DI_BORDO.md` sia nell'Artifact IDE dedicato.
+      2. **DIVIETO ASSOLUTO DI CANCELLAZIONE**: È severamente vietato sovrascrivere o eliminare lo storico pregresso; ogni sessione accumula i propri traguardi formando una cronistoria indelebile a disposizione dell'utente e di tutti gli agenti.
+      3. I file di notifica o log risiedono all'interno dell'IDE; è CATEGORICAMENTE VIETATO inserire widget, tabelle o pop-up di notifica nell'interfaccia pubblica del sito o sul tablet dei clienti (`/dining`).
+      4. **Scheda Sempre Aperta & In Primo Piano**: L'agente garantisce che `DIARIO_DI_BORDO.md` sia sempre attivo, aperto e richiamato in primo piano all'interno dell'IDE come bacheca visiva principale per l'utente ad ogni aggiornamento.
+    - **Linguaggio 100% Umano & Zero Gergo Macchina**:
+      1. Spiegare ogni passaggio con parole chiare e concrete (es. "Abbiamo impostato 3 colonne per riga sulle pizze così sul tablet Xiaomi non serve più scorrere a destra e a sinistra", NON "Modificato CSS grid-template-columns inline style refactor").
+      2. Zero dump di codice o stack trace nei report discorsivi per non appesantire la lettura.
+    - **Divieto Assoluto Browser Subagent Automatico (Regola Salva-Token)**:
+      1. È severamente e categoricamente vietato invocare `browser_subagent` per effettuare screenshot o controlli visivi automatici senza l'ordine esplicito dell'utente.
+      2. Le verifiche di correttezza si effettuano tramite analisi statica, TypeScript (`npx tsc --noEmit`), test mirati Node.js in `scratch/` e log locali a 0 token extra.
+    - **Esecuzione Continua & Zero Blocchi**:
+      1. Nessun blocco di pianificazione (`RequestFeedback: false`), nessun tool di conferma interattiva (`ask_question`). Il flusso procede spedito senza interruzioni.
 
 # 🛡️ PROTOCOLLO DI AUTO-APPROVAZIONE SICURA (AUTONOMOUS EXECUTION & ZERO-DISRUPTION GUARDRAILS)
 Il sistema opera in modalità di **esecuzione completamente autonoma, rapida e continua** (predefinita su tutte le richieste, e tassativa con `/goal`, `AUTOPILOT`, `procedi` o `In autonomia:`):

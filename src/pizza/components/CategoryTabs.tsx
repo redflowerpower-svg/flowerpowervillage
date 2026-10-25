@@ -763,7 +763,6 @@ export default function CategoryTabs({ categories, activeId, onChange, lang: pro
       <div 
         className="category-tabs-desktop gap-1.5 sm:gap-2.5 lg:gap-3 mb-6 w-full"
         style={{
-          display: 'grid',
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`
         }}
       >

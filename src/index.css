@@ -171,32 +171,32 @@ body {
   display: block !important;
 }
 
-/* Universal product grid: 3 columns default on all tablets and screens, 2 only on narrow micro-phones (< 360px) */
+/* Universal product grid: 2 columns on smartphones (< 460px), 3 columns on Xiaomi Mi Pad 4 and all tablets/desktops (>= 460px) */
 .product-menu-grid {
   display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 }
 
-@media (max-width: 359px) {
+@media (min-width: 460px) {
   .product-menu-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 }
 
-/* Category Tabs: 2 static rows default on Xiaomi Mi Pad 4 and all tablets/desktops; 1-row scroll slider ONLY on micro-phones (<360px) */
-.category-tabs-desktop {
-  display: grid !important;
-}
+/* Category Tabs: Mobile slider for phones (< 460px), 2 static rows for Xiaomi Mi Pad 4 and all tablets/desktops (>= 460px) */
 .category-tabs-mobile {
+  display: flex !important;
+}
+.category-tabs-desktop {
   display: none !important;
 }
 
-@media (max-width: 359px) {
-  .category-tabs-desktop {
+@media (min-width: 460px) {
+  .category-tabs-mobile {
     display: none !important;
   }
-  .category-tabs-mobile {
-    display: flex !important;
+  .category-tabs-desktop {
+    display: grid !important;
   }
 }
 
