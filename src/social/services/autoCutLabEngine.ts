@@ -1034,8 +1034,8 @@ export function generateV2Test(): AutoCutTestRun {
  */
 export function generateV3Test(): AutoCutTestRun {
   const lodgings = getRandomItems(getVillageLodgingsLive(), 5);
-  // 🎵 REGOLA: Dove c'è più di un alloggio si usa sempre l'MP3 completo Flower Power (27.8s)
-  const audio = PIZZA_FULL_JINGLE_TRACK;
+  // 🌺 REGOLA: Tutti i formati Koh Phayam Village (V1, V2, V3, LM1, R1) usano le tracce Koh Phayam Village
+  const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / 5;
 
@@ -1226,8 +1226,8 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
       ? cachedLiveLastMinuteRooms
       : defaultRooms;
 
-  // 🎵 REGOLA: Dove c'è più di un alloggio si usa sempre l'MP3 completo Flower Power (27.8s)
-  const audio = PIZZA_FULL_JINGLE_TRACK;
+  // 🌺 REGOLA: Tutti i formati Koh Phayam Village (V1, V2, V3, LM1, R1) usano le tracce Koh Phayam Village
+  const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / rooms.length;
 

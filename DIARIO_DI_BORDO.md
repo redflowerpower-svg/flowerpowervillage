@@ -3,12 +3,12 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
-### 🟩 [25/10/2026 - ORE 16:45] · ASSEGNAZIONE TRACCE AUDIO SOCIAL: MP3 COMPLETO FLOWER POWER (27.8s) PER P2, P3 E ALLOGGI MULTIPLI (V3, LM1)
+### 🟩 [25/10/2026 - ORE 16:50] · ASSEGNAZIONE TRACCE AUDIO SOCIAL: MP3 COMPLETO (P2, P3), JINGLE CORTI (P1, DS1) & TRACCE VILLAGE (V1, V2, V3, LM1, R1)
 - **Cosa abbiamo fatto:** Perfezionata la logica di assegnazione musicale nel motore di generazione video in [autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts):
   - 🍕 **Regola Formati Piatto Singolo (P1, DS1)**: I 4 jingle brevi (`01-flower-power-yeah`, `02-flower-power-so-good`, `03-flower-power-ranong`, `04-aroi-mak-mak`) con chiusura vocale sartoriale a ~8.5s - 9.1s rimangono riservati **TASSATIVAMENTE ED ESCLUSIVAMENTE** a quando a schermo compare un solo piatto (`P1` e `DS`).
-  - 🍕 **Regola Formati Multi-Piatto (P2, P3)**: Assegnato in modo rigoroso e permanente il brano completo ufficiale Flower Power Jingle (`/audio/00-flower-power-jingle-full.mp3`, 27.8s) a `P2` (3 piatti stessa categoria) e `P3` (3 piatti diverse categorie). Ciascun piatto ha ora oltre 9.2 secondi di respiro cinematico con la canzone e l'arrangiamento completo del brand.
-  - 🌴 **Regola Multi-Alloggio (V3, LM1)**: Assegnato l'MP3 completo Flower Power (27.8s) anche a tutte le produzioni dove compare più di un alloggio (`V3` con 5 alloggi diversi e `LM1` Stories Last Minute con 3 alloggi liberi), garantendo respiro musicale impeccabile.
-- **Effetto reale:** I video a più scene (P2, P3, V3, LM1) suonano ora con la musica Flower Power per intero senza mai troncare le frasi vocali o correre a velocità innaturale, mentre i piatti singoli (P1, DS) conservano il beat rapido e la chiusura vocale energica.
+  - 🍕 **Regola Formati Multi-Piatto Pizzeria (P2, P3)**: Assegnato in modo rigoroso e permanente il brano completo ufficiale Flower Power Jingle (`/audio/00-flower-power-jingle-full.mp3`, 27.8s) a `P2` (3 piatti stessa categoria) e `P3` (3 piatti diverse categorie). Ciascun piatto ha ora oltre 9.2 secondi di respiro cinematico con la canzone e l'arrangiamento completo del brand della pizzeria.
+  - 🌴 **Regola Villaggio Koh Phayam & Ristorante (V1, V2, V3, LM1, R1)**: Tutti i formati del villaggio e del ristorante (`V1`, `V2`, `V3`, `LM1`, `R1`) usano **TASSATIVAMENTE ED ESCLUSIVAMENTE LE TRACCE UFFICIALI KOH PHAYAM VILLAGE** (`VILLAGE_AUDIO_TRACKS_LAB`), rispettando la totale identità tropicale dell'isola.
+- **Effetto reale:** P2 e P3 della Pizzeria godono del jingle completo Flower Power a tempo perfetto, P1 e DS mantengono il ritmo scattante con il beat vocale corto, e tutti i video di Koh Phayam (V1, V2, V3, LM1, R1) risuonano con le armonie tropicali delle tracce del Villaggio.
 - **Stato:** ✅ Compilato (0 errori TypeScript), testato e consolidato su branch locale `staging`.
 
 ---
