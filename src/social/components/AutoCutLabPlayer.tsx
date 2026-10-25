@@ -1453,13 +1453,41 @@ export function AutoCutLabPlayer({
         const dbFontSize = Math.round(20.5 * s); // Ingrandito del 10% (era 18.5 * s)
         oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
-        ty += dbFontSize + (4 * s);
+        ty += dbFontSize + (2 * s); // Avvicinato di 2px a DIRECT BOOKING
 
-        // 10% OFF (dorato brillante Outfit 900 con ombra profonda)
+        // 10% OFF con BAGLIORE DORATO e PULSAZIONE CONTINUA
         const offFontSize = Math.round(17.5 * s);
         oCtx.font = `900 ${offFontSize}px "Outfit", sans-serif`;
-        drawTextWithShadow('10% OFF', tx, ty, '#fcd34d', 3.2 * s);
-        ty += offFontSize + (5 * s); // Distanziata di 5 pixel dalla scritta sotto
+        const offCycle = 0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.2);
+        const offScale = 0.96 + 0.08 * offCycle;
+        const offGlowBlur = (6 + 12 * offCycle) * s;
+        const offColor = offCycle > 0.4 ? '#ffffff' : '#fef08a';
+
+        oCtx.save();
+        oCtx.translate(tx, ty);
+        oCtx.scale(offScale, offScale);
+        // 1. Bagliore dorato diffuso (Glow)
+        oCtx.shadowColor = 'rgba(250, 204, 21, 0.95)';
+        oCtx.shadowBlur = offGlowBlur;
+        oCtx.strokeStyle = 'rgba(234, 179, 8, 0.9)';
+        oCtx.lineWidth = 3.6 * s;
+        oCtx.lineJoin = 'round';
+        oCtx.strokeText('10% OFF', 0, 0);
+
+        // 2. Contorno nero solido protettivo profondo
+        oCtx.shadowColor = '#000000';
+        oCtx.shadowBlur = 8 * s;
+        oCtx.shadowOffsetY = 2 * s;
+        oCtx.strokeStyle = '#000000';
+        oCtx.lineWidth = 2.8 * s;
+        oCtx.strokeText('10% OFF', 0, 0);
+
+        // 3. Testo pieno luminoso
+        oCtx.fillStyle = offColor;
+        oCtx.fillText('10% OFF', 0, 0);
+        oCtx.restore();
+
+        ty += offFontSize + (7 * s); // Distanziata dalla scritta sotto
 
         // flowerpowervillage.com (Outfit 600) - Ingrandito del 10%
         const siteFontSize = Math.round(16 * s); // Ingrandito del 10% (era 14.5 * s)
@@ -1472,13 +1500,41 @@ export function AutoCutLabPlayer({
         const dbFontSize = Math.round(19.5 * s);
         oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
-        ty += dbFontSize + (3 * s);
+        ty += dbFontSize + (1 * s); // Avvicinato di 2px a DIRECT BOOKING
 
-        // 10% OFF (dorato brillante Outfit 900 con ombra profonda)
+        // 10% OFF con BAGLIORE DORATO e PULSAZIONE CONTINUA
         const offFontSize = Math.round(16 * s);
         oCtx.font = `900 ${offFontSize}px "Outfit", sans-serif`;
-        drawTextWithShadow('10% OFF', tx, ty, '#fcd34d', 3.0 * s);
-        ty += offFontSize + (5 * s); // Distanziato verso il blocco sito/link sotto
+        const offCycle = 0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.2);
+        const offScale = 0.96 + 0.08 * offCycle;
+        const offGlowBlur = (6 + 12 * offCycle) * s;
+        const offColor = offCycle > 0.4 ? '#ffffff' : '#fef08a';
+
+        oCtx.save();
+        oCtx.translate(tx, ty);
+        oCtx.scale(offScale, offScale);
+        // 1. Bagliore dorato diffuso (Glow)
+        oCtx.shadowColor = 'rgba(250, 204, 21, 0.95)';
+        oCtx.shadowBlur = offGlowBlur;
+        oCtx.strokeStyle = 'rgba(234, 179, 8, 0.9)';
+        oCtx.lineWidth = 3.4 * s;
+        oCtx.lineJoin = 'round';
+        oCtx.strokeText('10% OFF', 0, 0);
+
+        // 2. Contorno nero solido protettivo profondo
+        oCtx.shadowColor = '#000000';
+        oCtx.shadowBlur = 8 * s;
+        oCtx.shadowOffsetY = 2 * s;
+        oCtx.strokeStyle = '#000000';
+        oCtx.lineWidth = 2.6 * s;
+        oCtx.strokeText('10% OFF', 0, 0);
+
+        // 3. Testo pieno luminoso
+        oCtx.fillStyle = offColor;
+        oCtx.fillText('10% OFF', 0, 0);
+        oCtx.restore();
+
+        ty += offFontSize + (7 * s); // Distanziato verso il blocco sito/link sotto
 
         // Blocco unico compatto: flowerpowervillage.com + Link in Bio
         const siteFontSize = Math.round(14.5 * s);
@@ -2845,6 +2901,23 @@ export function AutoCutLabPlayer({
             0% { transform: scale(0.95); filter: brightness(0.95); }
             100% { transform: scale(1.08); filter: drop-shadow(0 0 6px rgba(254, 240, 138, 0.95)) brightness(1.15); }
           }
+          @keyframes discountGlowPulse {
+            0% {
+              transform: scale(0.96);
+              color: #fef08a;
+              filter: drop-shadow(0 0 3px rgba(234, 179, 8, 0.7)) brightness(1.0);
+            }
+            50% {
+              transform: scale(1.06);
+              color: #ffffff;
+              filter: drop-shadow(0 0 8px rgba(250, 204, 21, 1)) drop-shadow(0 0 16px rgba(234, 179, 8, 0.9)) brightness(1.3);
+            }
+            100% {
+              transform: scale(0.96);
+              color: #fef08a;
+              filter: drop-shadow(0 0 3px rgba(234, 179, 8, 0.7)) brightness(1.0);
+            }
+          }
         `}</style>
 
       {/* ⚡ SCHERMATA ELEGANTE VETRINA DAILY SPECIAL VUOTA */}
@@ -3106,12 +3179,18 @@ export function AutoCutLabPlayer({
               <span className="text-[20.5px] sm:text-[23px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap mt-[10px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              {/* Sotto DIRECT BOOKING: 10% OFF */}
-              <span className="text-[17px] sm:text-[19px] font-black text-amber-300 uppercase tracking-wider leading-tight whitespace-nowrap mt-[3px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+              {/* Sotto DIRECT BOOKING: 10% OFF con bagliore dorato lampeggiante continuo */}
+              <span
+                className="text-[17px] sm:text-[19px] font-black uppercase tracking-wider leading-tight whitespace-nowrap mt-[1px] inline-block origin-left font-['Outfit',sans-serif]"
+                style={{
+                  animation: 'discountGlowPulse 1.1s ease-in-out infinite alternate',
+                  textShadow: '0 2px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,1)'
+                }}
+              >
                 10% OFF
               </span>
-              {/* Sotto flowerpowervillage.com distanziata esattamente 5px dalla scritta sopra (+10%: text-[15.5px] sm:text-[17px]) */}
-              <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap mt-[5px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+              {/* Sotto flowerpowervillage.com distanziata esattamente 7px dalla scritta sopra (+10%: text-[15.5px] sm:text-[17px]) */}
+              <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap mt-[7px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 flowerpowervillage.com
               </span>
             </div>
@@ -3130,12 +3209,18 @@ export function AutoCutLabPlayer({
               <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              {/* Sotto DIRECT BOOKING: 10% OFF */}
-              <span className="text-[15.5px] sm:text-[17.5px] font-black text-amber-300 uppercase tracking-wider leading-tight whitespace-nowrap mt-[2px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+              {/* Sotto DIRECT BOOKING: 10% OFF con bagliore dorato lampeggiante continuo */}
+              <span
+                className="text-[15.5px] sm:text-[17.5px] font-black uppercase tracking-wider leading-tight whitespace-nowrap mt-0 inline-block origin-left font-['Outfit',sans-serif]"
+                style={{
+                  animation: 'discountGlowPulse 1.1s ease-in-out infinite alternate',
+                  textShadow: '0 2px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,1)'
+                }}
+              >
                 10% OFF
               </span>
-              {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato da 10% OFF: mt-1 */}
-              <div className="flex flex-col gap-0.5 mt-1">
+              {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato da 10% OFF: mt-1.5 */}
+              <div className="flex flex-col gap-0.5 mt-1.5">
                 <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                   flowerpowervillage.com
                 </span>

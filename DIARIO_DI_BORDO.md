@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 19:30] · 10% OFF: AVVICINAMENTO DI 2PX A DIRECT BOOKING & EFFETTO LAMPEGGIANTE CON BAGLIORE DORATO (CANVAS & DOM)
+- **Cosa abbiamo fatto:** Perfezionato il posizionamento e l'animazione visiva di **"10% OFF"** in tutti i formati Villaggio (`V1`, `V2`, `V3`) e Stories Last Minute (`LM1`) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 📏 **Avvicinamento di 2 Pixel a DIRECT BOOKING**:
+    - *Canvas LM1*: Distacco ridotto da `4 * s` a `2 * s` (recuperando 2px sotto verso il sito con `7 * s`).
+    - *Canvas V1, V2, V3*: Distacco ridotto da `3 * s` a `1 * s` (recuperando 2px sotto verso il blocco link con `7 * s`).
+    - *DOM LM1*: Margine ridotto da `mt-[3px]` a `mt-[1px]` (e `mt-[7px]` sul sito sotto).
+    - *DOM V1, V2, V3*: Margine ridotto da `mt-[2px]` a `mt-0` (e `mt-1.5` sul blocco sotto).
+  - ✨ **Lampeggio Continuo con Bagliore Dorato (Glow Pulsing)**:
+    - *Canvas (Video & MP4)*: Implementata l'onda sinusoidale `offCycle = 0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.2)`, micro-scala `0.96`➔`1.04` e doppio passaggio con bagliore diffuso ambra/oro `rgba(250, 204, 21, 0.95)` con raggio dinamico `(6 + 12 * offCycle) * s`, contorno nero profondo e testo pieno luminoso.
+    - *DOM Preview*: Aggiunta la keyframe CSS `@keyframes discountGlowPulse` con oscillazione di scala `0.96`➔`1.06`, transizione colore oro➔bianco brillante e doppio drop-shadow ad alto bagliore (`drop-shadow(0 0 8px rgba(250, 204, 21, 1)) drop-shadow(0 0 16px rgba(234, 179, 8, 0.9))`).
+- **Effetto reale:** La scritta "10% OFF" è ora saldata a 2px da DIRECT BOOKING ed emette un bagliore dorato pulsante e ipnotico sia durante l'anteprima nel social studio sia nei video esportati, catturando istantaneamente l'attenzione dell'utente.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato nel build Vite.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 19:25] · INSERIMENTO "10% OFF" SOTTO "DIRECT BOOKING" IN V1, V2, V3 E LM1 (CANVAS & DOM 1:1)
 - **Cosa abbiamo fatto:** Inserita la dicitura promozionale dorata ad alto impatto **"10% OFF"** sotto la scritta `DIRECT BOOKING` in tutti i formati del Villaggio (`V1`, `V2`, `V3`) e nelle Stories Last Minute (`LM1`) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
   - 🏷️ **Formato LM1 (Stories Last Minute)**:
