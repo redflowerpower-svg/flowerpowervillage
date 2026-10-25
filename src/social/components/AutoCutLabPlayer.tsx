@@ -9,13 +9,11 @@ import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
 const globalLineQrImg = new Image();
 globalLineQrImg.src = LINE_QR_CODE_BASE64;
 
-// Loghi Ufficiali precaricati all'avvio per watermark istantaneo sul canvas
+// Loghi Ufficiali precaricati all'avvio per watermark istantaneo sul canvas (senza crossOrigin per file locali)
 const globalPizzaLogoImg = new Image();
-globalPizzaLogoImg.crossOrigin = 'anonymous';
 globalPizzaLogoImg.src = '/flower-power-pizza-logo-512.png';
 
 const globalVillageLogoImg = new Image();
-globalVillageLogoImg.crossOrigin = 'anonymous';
 globalVillageLogoImg.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
 
 // SVG Path ufficiale WhatsApp per rendering fedele su Canvas 2D
@@ -466,7 +464,10 @@ export function AutoCutLabPlayer({
       }
 
       // Disegno Logo Centrato con Ombra 3D d'Impatto
-      if (logoImg.complete && logoImg.naturalWidth > 0) {
+      const domOutroLogo = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
+      const effectiveOutroLogo = (domOutroLogo && domOutroLogo.complete && domOutroLogo.naturalWidth > 0) ? domOutroLogo : logoImg;
+
+      if (effectiveOutroLogo && (effectiveOutroLogo.complete || (effectiveOutroLogo as any).naturalWidth > 0)) {
         targetCtx.save();
         targetCtx.translate(cx, cy);
         targetCtx.rotate(stampRotate);
@@ -477,7 +478,7 @@ export function AutoCutLabPlayer({
         targetCtx.shadowBlur = 40;
         targetCtx.shadowOffsetY = 16;
 
-        targetCtx.drawImage(logoImg, -baseLogoSize / 2, -baseLogoSize / 2, baseLogoSize, baseLogoSize);
+        targetCtx.drawImage(effectiveOutroLogo, -baseLogoSize / 2, -baseLogoSize / 2, baseLogoSize, baseLogoSize);
         targetCtx.restore();
       }
 
@@ -1067,13 +1068,16 @@ export function AutoCutLabPlayer({
       const logoX = Math.round((w - totalBlockW) / 2);
       const tx = logoX + logoSize + gap;
 
-      if (logoImg.complete && logoImg.naturalWidth > 0) {
+      const domLogo = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
+      const effectiveLogo = (domLogo && domLogo.complete && domLogo.naturalWidth > 0) ? domLogo : logoImg;
+
+      if (effectiveLogo && (effectiveLogo.complete || (effectiveLogo as any).naturalWidth > 0)) {
         oCtx.save();
         oCtx.beginPath();
         oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
         oCtx.closePath();
         oCtx.clip();
-        oCtx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+        oCtx.drawImage(effectiveLogo, logoX, logoY, logoSize, logoSize);
         oCtx.restore();
 
         oCtx.save();
@@ -1251,60 +1255,161 @@ export function AutoCutLabPlayer({
         // Header sincronizzato 1:1 con il DOM React dell'Editor
         ty += 14 * s;
 
-        // Pillola arancione/ambra con pallino rosso per LAST MINUTE
+        // 🌟 Ciclo pulsazione & luccichio ad alta frequenza per LAST MINUTE
+        const pulseFreq = tElapsed * 5.5;
+        const pulseCycle = Math.sin(pulseFreq);
+        const textPulseScale = 1.0 + 0.08 * Math.sin(pulseFreq);
+
         const lmPillText = 'LAST MINUTE';
-        const lmPillFontSize = Math.round(11.5 * s);
-        oCtx.font = `900 ${lmPillFontSize}px "Outfit", "Inter", sans-serif`;
+        const lmPillFontSize = Math.round(12.5 * s);
+        oCtx.font = `900 ${lmPillFontSize}px "Outfit", sans-serif`;
         const lmTextW = oCtx.measureText(lmPillText).width;
-        const dotR = 3.5 * s;
-        const pillPadX = 8 * s;
-        const pillW = lmTextW + (pillPadX * 2) + (dotR * 2) + (4 * s);
-        const pillH = 20 * s;
+        const dotR = 5 * s;
+        const pillPadX = 10 * s;
+        const pillW = lmTextW + (pillPadX * 2) + (dotR * 2) + (8 * s);
+        const pillH = 24 * s;
 
         oCtx.save();
+        // Alone luminescente dorato vivo che pulsa attorno alla pillola
+        oCtx.shadowColor = `rgba(251, 191, 36, ${0.80 + 0.20 * pulseCycle})`;
+        oCtx.shadowBlur = 16 * s;
+
         const pillGrad = oCtx.createLinearGradient(tx, ty, tx + pillW, ty + pillH);
         pillGrad.addColorStop(0, '#f59e0b');
         pillGrad.addColorStop(0.5, '#fbbf24');
         pillGrad.addColorStop(1, '#facc15');
         oCtx.fillStyle = pillGrad;
         if (typeof oCtx.roundRect === 'function') {
-          oCtx.roundRect(tx, ty, pillW, pillH, 6 * s);
+          oCtx.roundRect(tx, ty, pillW, pillH, 7.5 * s);
         } else {
           oCtx.rect(tx, ty, pillW, pillH);
         }
         oCtx.fill();
-        oCtx.lineWidth = 1 * s;
+        oCtx.lineWidth = 1.6 * s;
         oCtx.strokeStyle = '#fef08a';
         oCtx.stroke();
+        oCtx.restore();
 
-        // Pallino rosso LAST MINUTE
-        oCtx.fillStyle = '#e11d48';
+        // 💎 🔴 PALLINO ROSSO LUCCICANTE (Gemma rubino con bagliore neon, ping ad onda, centro brillante e stella di diamante a 4 punte che luccica e ruota)
+        const dotCx = tx + pillPadX + dotR;
+        const dotCy = ty + (pillH / 2);
+
+        // 1. Onda ping ad anello espandente
+        const pingT = (tElapsed * 1.6) % 1.0;
+        const pingR = dotR + (pingT * 7 * s);
+        const pingAlpha = Math.max(0, (1.0 - pingT) * 0.75);
+        oCtx.save();
+        oCtx.strokeStyle = `rgba(244, 63, 94, ${pingAlpha})`;
+        oCtx.lineWidth = 1.5 * s;
         oCtx.beginPath();
-        oCtx.arc(tx + pillPadX + dotR, ty + (pillH / 2), dotR, 0, Math.PI * 2);
+        oCtx.arc(dotCx, dotCy, pingR, 0, Math.PI * 2);
+        oCtx.stroke();
+        oCtx.restore();
+
+        // 2. Alone profondo e gemma rubino con gradiente sferico
+        oCtx.save();
+        oCtx.shadowColor = '#ff0033';
+        oCtx.shadowBlur = (14 + 10 * pulseCycle) * s;
+        const gemGrad = oCtx.createRadialGradient(dotCx - 1.2 * s, dotCy - 1.2 * s, 0.5 * s, dotCx, dotCy, dotR);
+        gemGrad.addColorStop(0, '#ff4d6d');
+        gemGrad.addColorStop(0.5, '#ef4444');
+        gemGrad.addColorStop(0.9, '#dc2626');
+        gemGrad.addColorStop(1, '#991b1b');
+        oCtx.fillStyle = gemGrad;
+        oCtx.beginPath();
+        oCtx.arc(dotCx, dotCy, dotR * (0.95 + 0.12 * pulseCycle), 0, Math.PI * 2);
         oCtx.fill();
 
-        // Testo LAST MINUTE
-        oCtx.fillStyle = '#0c0a09';
-        oCtx.textAlign = 'left';
-        oCtx.textBaseline = 'middle';
-        oCtx.fillText(lmPillText, tx + pillPadX + (dotR * 2) + (4 * s), ty + (pillH / 2) + Math.round(0.5 * s));
-        oCtx.restore();
-        ty += pillH + (10 * s);
+        // Bordo gemma rubino
+        oCtx.lineWidth = 1 * s;
+        oCtx.strokeStyle = '#fecdd3';
+        oCtx.stroke();
 
-        // Thai: ห้องว่างวันนี้ (+20%, Prompt 900 dorato)
-        oCtx.font = `900 ${Math.round(21 * s)}px "Prompt", "Kanit", sans-serif`;
+        // 3. Punto luce brillante al centro (highlight speculare)
+        oCtx.fillStyle = '#ffffff';
+        oCtx.shadowColor = '#ffffff';
+        oCtx.shadowBlur = 6 * s;
+        oCtx.beginPath();
+        oCtx.arc(dotCx - 1.2 * s, dotCy - 1.2 * s, 1.6 * s, 0, Math.PI * 2);
+        oCtx.fill();
+
+        // 4. ✨ STELLA DI DIAMANTE A 4 PUNTE (Luccichio rotante brillante)
+        const sparkleAngle = tElapsed * 2.8;
+        const sparkleRay = (dotR * 1.5) * (0.70 + 0.35 * Math.sin(tElapsed * 8));
+        oCtx.save();
+        oCtx.translate(dotCx, dotCy);
+        oCtx.rotate(sparkleAngle);
+        oCtx.fillStyle = '#ffffff';
+        oCtx.shadowColor = '#ffffff';
+        oCtx.shadowBlur = 8 * s;
+
+        // Raggio verticale
+        oCtx.beginPath();
+        oCtx.moveTo(0, -sparkleRay);
+        oCtx.quadraticCurveTo(0, 0, sparkleRay * 0.22, 0);
+        oCtx.quadraticCurveTo(0, 0, 0, sparkleRay);
+        oCtx.quadraticCurveTo(0, 0, -sparkleRay * 0.22, 0);
+        oCtx.closePath();
+        oCtx.fill();
+
+        // Raggio orizzontale
+        oCtx.beginPath();
+        oCtx.moveTo(-sparkleRay, 0);
+        oCtx.quadraticCurveTo(0, 0, 0, sparkleRay * 0.22);
+        oCtx.quadraticCurveTo(0, 0, sparkleRay, 0);
+        oCtx.quadraticCurveTo(0, 0, 0, -sparkleRay * 0.22);
+        oCtx.closePath();
+        oCtx.fill();
+        oCtx.restore();
+
+        oCtx.restore(); // restore gemma
+
+        // 🔥 SCRITTA LAST MINUTE PULSANTE AD ALTISSIMA VISIBILITÀ
+        const textCenterRelX = tx + pillPadX + (dotR * 2) + (6 * s) + (lmTextW / 2);
+        const textCenterRelY = dotCy;
+
+        oCtx.save();
+        oCtx.translate(textCenterRelX, textCenterRelY);
+        oCtx.scale(textPulseScale, textPulseScale);
+
+        oCtx.font = `900 ${lmPillFontSize}px "Outfit", sans-serif`;
+        oCtx.textAlign = 'center';
+        oCtx.textBaseline = 'middle';
+
+        // Glow caldo pulsante sotto la scritta
+        oCtx.shadowColor = `rgba(254, 240, 138, ${0.85 + 0.15 * pulseCycle})`;
+        oCtx.shadowBlur = 8 * s;
+
+        // Contorno chiaro protettivo per staccare dal gradiente
+        oCtx.lineWidth = 2.2 * s;
+        oCtx.strokeStyle = '#fef9c3';
+        oCtx.lineJoin = 'round';
+        oCtx.strokeText(lmPillText, 0, Math.round(0.5 * s));
+
+        // Testo pieno nero vivido Outfit 900
+        oCtx.fillStyle = '#09090b';
+        oCtx.fillText(lmPillText, 0, Math.round(0.5 * s));
+        oCtx.restore();
+
+        ty += pillH + (8 * s);
+
+        // Thai: ห้องว่างวันนี้ (Prompt 900 dorato)
+        const thaiFontSize = Math.round(19.5 * s);
+        oCtx.font = `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
         oCtx.fillStyle = '#fcd34d';
         oCtx.fillText('ห้องว่างวันนี้', tx, ty);
-        ty += 23 * s;
+        ty += thaiFontSize + (5 * s); // Esattamente 5 pixel di distacco dalla scritta sopra in Thai
 
-        // DIRECT BOOKING (verde smeraldo brillante)
-        oCtx.font = `900 ${Math.round(19 * s)}px "Outfit", "Inter", sans-serif`;
+        // DIRECT BOOKING (verde smeraldo brillante Outfit 900)
+        const dbFontSize = Math.round(18.5 * s);
+        oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
         oCtx.fillStyle = '#6ee7b7';
         oCtx.fillText('DIRECT BOOKING', tx, ty);
-        ty += 20 * s;
+        ty += dbFontSize + (5 * s); // Esattamente 5 pixel di distacco dalla scritta sopra DIRECT BOOKING
 
-        // flowerpowervillage.com
-        oCtx.font = `600 ${Math.round(15 * s)}px "Outfit", "Inter", sans-serif`;
+        // flowerpowervillage.com (Outfit 600)
+        const siteFontSize = Math.round(14.5 * s);
+        oCtx.font = `600 ${siteFontSize}px "Outfit", sans-serif`;
         oCtx.fillStyle = 'rgba(255,255,255,0.95)';
         oCtx.fillText('flowerpowervillage.com', tx, ty);
       } else {
@@ -1711,14 +1816,14 @@ export function AutoCutLabPlayer({
         oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
         oCtx.shadowBlur = 10 * s;
 
-        // 1. Pillola Categoria Alloggio (Smeraldo con testo bianco centrato)
+        // 1. Pillola Categoria Alloggio (Smeraldo con testo bianco centrato Outfit 800)
         if (hasBadge) {
           const badgeClean = mode === 'LM1'
             ? scene.badgeCategory!.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim().toUpperCase()
             : scene.badgeCategory!.toUpperCase();
 
           const badgeFontSize = Math.round(13 * s);
-          oCtx.font = `800 ${badgeFontSize}px "Inter", sans-serif`;
+          oCtx.font = `800 ${badgeFontSize}px "Outfit", sans-serif`;
           const badgeTextW = oCtx.measureText(badgeClean).width;
           const badgePillW = badgeTextW + (20 * s);
           const badgePillH = 22 * s;
@@ -1738,32 +1843,32 @@ export function AutoCutLabPlayer({
           oCtx.fillText(badgeClean, bx + (badgePillW / 2), by + (badgePillH / 2) + Math.round(0.5 * s));
           oCtx.restore();
 
-          by += badgePillH + (10 * s);
+          by += badgePillH + (11 * s); // +3 pixel di distacco verso il titolo
         }
 
-        // 2. Titolo Alloggio (Inglese Strutturato Bianco)
+        // 2. Titolo Alloggio (Inglese Strutturato Bianco Outfit 900)
         const lTitle = scene.lodgingTitle || scene.titlePrimary || '';
         if (lTitle) {
-          oCtx.font = `900 ${Math.round(23.5 * s)}px "Outfit", "Inter", sans-serif`;
+          oCtx.font = `900 ${Math.round(23.5 * s)}px "Outfit", sans-serif`;
           oCtx.fillStyle = '#ffffff';
           oCtx.fillText(lTitle, bx, by);
-          by += 28 * s;
+          by += 28 * s + (3 * s); // +3 pixel di distacco verso il sottotitolo
         }
 
-        // 3. Sottotitolo Alloggio (Giallo/Ambra)
+        // 3. Sottotitolo Alloggio (Giallo/Ambra Outfit 700)
         if (scene.lodgingSubtitle) {
-          oCtx.font = `700 ${Math.round(18 * s)}px "Inter", sans-serif`;
+          oCtx.font = `700 ${Math.round(18 * s)}px "Outfit", sans-serif`;
           oCtx.fillStyle = '#fcd34d';
           oCtx.fillText(scene.lodgingSubtitle, bx, by);
-          by += 24 * s;
+          by += 24 * s + (3 * s); // +3 pixel di distacco verso la scritta Thai
         }
 
-        // 4. Descrizione Thai Alloggio (Prompt / Kanit)
+        // 4. Descrizione Thai Alloggio (Prompt 600)
         if (scene.titleSecondary) {
           oCtx.font = `600 ${Math.round(14 * s)}px "Prompt", "Kanit", sans-serif`;
           oCtx.fillStyle = 'rgba(226, 232, 240, 0.95)';
           oCtx.fillText(scene.titleSecondary, bx, by);
-          by += 22 * s;
+          by += 22 * s + (3 * s); // +3 pixel di distacco verso il prezzo
         }
 
         // 5. Prezzo Last Minute Octorate (SOLO IN LM1): Box Giallo #FFE500 con bordo nero 2px, ombra solida e outline bianco centrato
@@ -1863,10 +1968,22 @@ export function AutoCutLabPlayer({
 
         if (onProgress) onProgress(3, 0, 'Inizializzazione motore video Full HD 1080x1920...');
 
-        // Assicura che tutti i web font ufficiali (Outfit, Prompt, Kanit, IBM Plex Sans Thai, Inter) siano scaricati e pronti
+        // Assicura che tutti i web font ufficiali (Outfit, Prompt, Kanit, Inter) siano scaricati e pronti
         if (typeof document !== 'undefined' && document.fonts) {
-          if (onProgress) onProgress(14, 1, 'Verifica e caricamento web font ufficiali (Outfit, Kanit, Prompt)...');
+          if (onProgress) onProgress(12, 1, 'Caricamento web font ufficiali (Outfit, Prompt, Kanit)...');
           try {
+            await Promise.all([
+              document.fonts.load('900 24px "Outfit"'),
+              document.fonts.load('800 24px "Outfit"'),
+              document.fonts.load('700 24px "Outfit"'),
+              document.fonts.load('600 24px "Outfit"'),
+              document.fonts.load('italic 500 24px "Outfit"'),
+              document.fonts.load('900 24px "Prompt"'),
+              document.fonts.load('800 24px "Prompt"'),
+              document.fonts.load('700 24px "Prompt"'),
+              document.fonts.load('600 24px "Prompt"'),
+              document.fonts.load('900 24px "Kanit"')
+            ]);
             await document.fonts.ready;
           } catch (e) {
             console.warn('Font loading await error:', e);
@@ -1876,10 +1993,14 @@ export function AutoCutLabPlayer({
         // 🖼️ Precarica e decodifica tutti gli asset visivi critici (Logo Ufficiale Brand + Immagini Full HD)
         if (onProgress) onProgress(18, 1, 'Decodifica e preriscaldamento logo ufficiale e fotogrammi Full HD...');
         try {
+          const domLogoEl = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
           const imgsToDecode: HTMLImageElement[] = [
+            domLogoEl,
             logoImg,
+            globalVillageLogoImg,
+            globalPizzaLogoImg,
             ...loadedImages
-          ].filter(Boolean);
+          ].filter(Boolean) as HTMLImageElement[];
 
           await Promise.all(imgsToDecode.map(img => {
             if (!img) return Promise.resolve();
@@ -2615,6 +2736,13 @@ export function AutoCutLabPlayer({
           onClick={handleTogglePlay}
         />
 
+        <style>{`
+          @keyframes lastMinutePulse {
+            0% { transform: scale(0.95); filter: brightness(0.95); }
+            100% { transform: scale(1.08); filter: drop-shadow(0 0 6px rgba(254, 240, 138, 0.95)) brightness(1.15); }
+          }
+        `}</style>
+
       {/* ⚡ SCHERMATA ELEGANTE VETRINA DAILY SPECIAL VUOTA */}
       {mode === 'DS' && testRun.isEmptyShowcase && (
         <div className="absolute inset-0 z-40 bg-gradient-to-b from-stone-950 via-slate-950 to-stone-950 flex flex-col items-center justify-between p-6 text-center select-none">
@@ -2717,6 +2845,7 @@ export function AutoCutLabPlayer({
       {!isInOutro && (
         <div className="absolute top-6 left-1/2 -translate-x-1/2 w-max z-30 flex items-start gap-3 pointer-events-none transition-all duration-300">
           <img
+            id="autoCutHeaderLogoImg"
             src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
             alt="Logo"
             className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
@@ -2836,23 +2965,45 @@ export function AutoCutLabPlayer({
               <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
                 Village
               </span>
-              {/* Last minute su una sola riga: allontanato di ulteriori 6px da Village (pt-1 -> pt-[10px]) */}
+              {/* Last minute su una sola riga con pallino rosso scintillante e testo pulsante */}
               <div className="pt-[10px]">
-                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-lg bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-stone-950 font-black text-xs shadow-xl tracking-wider border border-yellow-200 whitespace-nowrap animate-pulse">
-                  <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping shrink-0" />
-                  LAST MINUTE
+                <span className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-black text-xs shadow-[0_0_22px_rgba(251,191,36,0.95)] tracking-wider border-2 border-yellow-200 whitespace-nowrap">
+                  {/* 💎 🔴 Pallino rosso luccicante con bagliore e stella di diamante rotante */}
+                  <span className="relative flex items-center justify-center h-3.5 w-3.5 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-80" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-gradient-to-br from-rose-500 via-red-600 to-rose-700 shadow-[0_0_12px_#ef4444,_0_0_24px_#dc2626] border border-rose-300/80" />
+                    <span className="absolute top-[2px] left-[2px] w-1 h-1 rounded-full bg-white shadow-[0_0_4px_#ffffff]" />
+                    {/* Stella di diamante che ruota e luccica */}
+                    <svg
+                      className="absolute w-4 h-4 text-white drop-shadow-[0_0_5px_#ffffff] animate-[spin_3.5s_linear_infinite]"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M12 0L13.8 8.5L24 12L13.8 15.5L12 24L10.2 15.5L0 12L10.2 8.5L12 0Z" />
+                    </svg>
+                  </span>
+                  {/* 🔥 Scritta LAST MINUTE che pulsa in modo molto visibile */}
+                  <span
+                    className="font-black text-[13px] sm:text-[14px] tracking-widest uppercase text-stone-950 inline-block font-['Outfit',sans-serif]"
+                    style={{
+                      animation: 'lastMinutePulse 1.1s ease-in-out infinite alternate',
+                      textShadow: '0 0 1px #000000, 0 1px 3px rgba(254, 240, 138, 0.9)'
+                    }}
+                  >
+                    LAST MINUTE
+                  </span>
                 </span>
               </div>
               {/* Sotto la scritta in Thai più staccata e più grossa con bagliore scuro */}
               <span className="mt-1 text-base sm:text-lg font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_12px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
                 ห้องว่างวันนี้
               </span>
-              {/* Sotto DIRECT BOOKING in stampatello verde con bagliore scuro (+20%, allontanato di 2px da Village) */}
-              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              {/* Sotto DIRECT BOOKING distanziata esattamente 5px dalla scritta Thai sopra */}
+              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap mt-[5px] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              {/* Sotto flowerpowervillage.com (+20%) */}
-              <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
+              {/* Sotto flowerpowervillage.com distanziata esattamente 5px dalla scritta DIRECT BOOKING sopra */}
+              <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap mt-[5px] [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
                 flowerpowervillage.com
               </span>
             </div>
@@ -3027,46 +3178,46 @@ export function AutoCutLabPlayer({
             </div>
           )}
 
-          {/* Caso ALLOGGI (V1, V2, V3, LM1): Categoria, Titolo Bungalow e Sottotitolo Giallo Ingranditi +20% */}
+          {/* Caso ALLOGGI (V1, V2, V3, LM1): Categoria, Titolo Bungalow e Sottotitolo Giallo Ingranditi +20% con distacco extra 3px */}
           {brand === 'village' && mode !== 'R1' && (
-            <div className="space-y-1.5 w-full">
+            <div className="space-y-2.5 w-full">
               {currentScene.badgeCategory && (
-                <span className="inline-block px-3 py-0.5 rounded-full bg-emerald-600/90 text-white text-[13px] font-bold tracking-wide shadow-md uppercase">
+                <span className="inline-block px-3 py-0.5 rounded-full bg-emerald-600/90 text-white text-[13px] font-bold tracking-wide shadow-md uppercase mb-[3px]">
                   {mode === 'LM1'
                     ? currentScene.badgeCategory.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim()
                     : currentScene.badgeCategory}
                 </span>
               )}
 
-              {/* INGLESE STRUTTURATO SEMANTICO (+20%) */}
+              {/* INGLESE STRUTTURATO SEMANTICO (+20% con distacco +3px) */}
               <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                 {currentScene.lodgingTitle ? (
                   <>
-                    <h3 className="text-[21.5px] sm:text-[24px] font-black text-white leading-tight">
+                    <h3 className="text-[21.5px] sm:text-[24px] font-black text-white leading-tight mb-[3px]">
                       {currentScene.lodgingTitle}
                     </h3>
                     {currentScene.lodgingSubtitle && (
-                      <p className="text-[17px] sm:text-[18.5px] font-bold text-amber-300 leading-tight mt-0.5">
+                      <p className="text-[17px] sm:text-[18.5px] font-bold text-amber-300 leading-tight mt-[3px]">
                         {currentScene.lodgingSubtitle}
                       </p>
                     )}
                   </>
                 ) : (
-                  <h3 className="text-[21.5px] sm:text-[24px] font-black text-white leading-tight">
+                  <h3 className="text-[21.5px] sm:text-[24px] font-black text-white leading-tight mb-[3px]">
                     {currentScene.titlePrimary}
                   </h3>
                 )}
               </div>
 
-              {/* THAI SECCO SOTTO (+20%) */}
-              <p className="text-sm sm:text-[14.5px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
+              {/* THAI SECCO SOTTO (+20% con distacco +3px) */}
+              <p className="text-sm sm:text-[14.5px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-[3px]">
                 {currentScene.titleSecondary}
               </p>
 
-              {/* PREZZO OCTORATE LAST MINUTE: SOLO IN LM1 (+20%) */}
+              {/* PREZZO OCTORATE LAST MINUTE: SOLO IN LM1 (+20% con distacco +3px) */}
               {mode === 'LM1' && (
-                <div className="pt-1.5 origin-left w-fit">
-                  <div className="inline-flex items-center px-3 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                <div className="pt-2 origin-left w-fit">
+                  <div className="inline-flex items-center px-3.5 py-1.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                     <span
                       className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
                       style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}

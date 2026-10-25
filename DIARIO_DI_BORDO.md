@@ -3,6 +3,18 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 16:40] · BADGE LAST MINUTE LM1: PALLINO RUBINO LUCCICANTE (STELLA DI DIAMANTE ROTANTE) & SCRITTA AD ALTA VISIBILITÀ PULSANTE
+- **Cosa abbiamo fatto:** Potenziato radicalmente la visibilità e l'impatto visivo del badge `LAST MINUTE` nel formato **LM1** (Stories Last Minute Villaggio) sia nell'anteprima DOM che nel rendering Canvas 60 FPS per l'esportazione video in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 💎 **Pallino Rosso Brillante & Luccicante (Zero Smorto)**:
+    - *Su Canvas (Esportazione Video MP4)*: Sviluppata una gemma sferica con gradiente radiale rubino sfumato (`#ff4d6d` -> `#dc2626` -> `#991b1b`), bordino chiaro protettivo `#fecdd3`, un'onda neon espandente (ping radiale animato) e un alone di profondità neon `shadowBlur = 24px`.
+    - *Stella di Diamante a 4 Punte (Gleam / Luccichio Dinamico)*: Aggiunto sopra il punto di luce centrale una stella a 4 punte in bianco puro che ruota a 60 FPS (`sparkleAngle = tElapsed * 2.8`) e pulsa in raggio focale, creando un luccichio prezioso, scintillante e irresistibile.
+    - *Su DOM (Anteprima Player)*: Integrata gemma rubino sfumata, onda espandente CSS ping, highlight speculare e stella a 4 punte rotante SVG (`animate-[spin_3.5s_linear_infinite]`) con glow neon rosso.
+  - 🔥 **Scritta LAST MINUTE Pulsante ad Altissima Visibilità**:
+    - *Su Canvas*: Applicata traslazione e scalatura dinamica centrata sul testo (`1.08x` di scala massima pulsante a frequenza morbida), combinata con bagliore caldo dorato (`shadowColor = rgba(254, 240, 138, ...)`) e contorno bianco/crema di sicurezza 2.2px che stacca le lettere nere piene Outfit 900 dal gradiente ambra della pillola.
+    - *Su DOM*: Applicata animazione personalizzata `@keyframes lastMinutePulse` con oscillazione di scala (da 0.95x a 1.08x), luminosità e text-shadow dorato continuo ad alta visibilità.
+- **Effetto reale:** Il badge `LAST MINUTE` salta subito all'occhio con urgenza magnetica ed eleganza premium: il pallino luccica come un vero brillante scintillante e la scritta pulsa vivida e perfettamente leggibile in ogni istante del video.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e sincronizzato 1:1 tra DOM e Canvas.
+
 ---
 
 ### 🟩 [25/10/2026 - ORE 16:20] · BLINDATURA ALL'ORIGINE MOTORE VIDEO (LM1, V1-V3, P1-P3, DS, R1): PRE-DECODE LOGO, OUTRO COMPLETO & ALLINEAMENTO CANVAS 1:1
