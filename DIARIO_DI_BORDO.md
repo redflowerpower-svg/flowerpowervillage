@@ -3,6 +3,18 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 23:35] · AUTOCUT LAB: BLINDATURA CONDIZIONI DI RENDER LOGO (FORMATI V1, V2, V3 E P1, P2, P3 DIRETTI SU MODE)
+- **Cosa abbiamo fatto:** Semplificato e blindato il motore di visualizzazione in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 🛡️ **Condizioni Dirette su Mode (Zero Dipendenza da Brand o LocalStorage Sporco)**:
+    - Sostituite tutte le condizioni concatenate basate su `brand` (`brand === 'village' && mode !== 'R1' && mode !== 'LM1'` e `brand === 'pizza' && mode !== 'DS'`) con controlli diretti, espliciti e inattaccabili sul formato selezionato: `(mode === 'V1' || mode === 'V2' || mode === 'V3')` e `(mode === 'P1' || mode === 'P2' || mode === 'P3')`.
+    - La logica di V1, V2 e V3 è ora strutturalmente e concettualmente identica a quella di `mode === 'LM1'`.
+  - 🖼️ **Integrità Logo & Bordo Dorato Uniforme**:
+    - Garantita la presenza del logo ufficiale Koh Phayam Village con bordo dorato `border-amber-400` in tutti i formati del villaggio (V1, V2, V3, LM1) sia nel player 9:16 sia nel companion 4:3.
+- **Effetto reale:** Cambiando formato da Pizzeria a Villaggio (o tra V1, V2, V3 e LM1), l'header e il logo si caricano all'istante senza interruzioni o mancate corrispondenze dovute allo stato precedente memorizzato nel browser.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 23:28] · SOCIAL STUDIO SCHEDULER: ALLINEAMENTO VERTICALE A COLONNE PERFETTE, PERCENTUALE GRADIMENTO (NO TITOLI NEL BLOCCO), CANCELLAZIONE SIGLA "GOOG" & ASSET REALI SUPABASE
 - **Cosa abbiamo fatto:** Perfezionata la griglia visiva e i dati dei media in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx):
   - 📐 **Allineamento Verticale Rigoroso a Larghezze Fisse (Zero Scalettature)**:
