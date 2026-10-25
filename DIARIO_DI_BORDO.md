@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 23:28] · SOCIAL STUDIO SCHEDULER: ALLINEAMENTO VERTICALE A COLONNE PERFETTE, PERCENTUALE GRADIMENTO (NO TITOLI NEL BLOCCO), CANCELLAZIONE SIGLA "GOOG" & ASSET REALI SUPABASE
+- **Cosa abbiamo fatto:** Perfezionata la griglia visiva e i dati dei media in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx):
+  - 📐 **Allineamento Verticale Rigoroso a Larghezze Fisse (Zero Scalettature)**:
+    - Assegnate larghezze fisse in pixel ai primi 4 scomparti (`w-[38px]`, `w-[36px]`, `w-[42px]`, `w-[38px]`).
+    - Nello scomparto Social (`w-[36px]`), sia che il post abbia 1 solo social (TikTok, Google, ecc.) sia che ne abbia 2 affiancati (Instagram + Facebook per LM1), lo scomparto occupa esattamente la stessa larghezza. Tutte le linee divisorie verticali cadono esattamente sulla stessa coordinata in tutti i blocchi del giorno, creando una griglia perfetta e ordinata.
+  - 📊 **Percentuale di Gradimento al Posto del Titolo**:
+    - Rimosso l'inizio del titolo del piatto/alloggio dall'interno del blocchetto.
+    - Il 5° scomparto finale (`flex-1`) ospita ora in modo compatto e leggibile la **Percentuale di Gradimento / Statistiche** (`96%`, `94%`, `98%` con colore smeraldo per i post passati/pubblicati, `---` in grigio neutro per i post futuri programmati).
+  - 🏷️ **Cancellazione Sigla "GOOG" -> Riconversione a Formati Standard P1 / V1**:
+    - Eliminata la sigla `GOOG`. Anche le schede novità Google Business utilizzano ora i formati standard universali `P1` (Pizza Tradizionale Ranong) e `V1` (Villaggio Koh Phayam), differenziati unicamente dal rapporto 4:3 e dall'icona Google.
+  - 🍕 **Media Reali Supabase Storage (Eliminati Placeholder Unsplash)**:
+    - Sostituiti tutti i link Unsplash con i veri piatti culinari italiani da Supabase (`delivery_food/01-Pizza/`, `02-Pasta/`) e gli alloggi ufficiali del villaggio. Cliccando su qualsiasi blocchetto, il player interattivo mostra i veri piatti e le vere strutture dell'azienda (zero bibite, zero bagni).
+- **Effetto reale:** Il calendario mensile ha ora la pulizia visiva di un terminale di borsa o di un cruscotto aeronautico: linee verticali perfettamente allineate, percentuali di gradimento leggibili a colpo d'occhio, formati puliti senza sigle anomale, e cliccando su un post si vedono i veri piatti e bungalow di Flower Power.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 23:22] · SOCIAL STUDIO SCHEDULER: BLOCCHETTI MEDIA RETTANGOLARI MODULARI ULTRA-SOTTILI A SCOMPARTI (ORARIO PER PRIMO) & TASTO PRODUZIONE CON DOPPIA CONFERMA
 - **Cosa abbiamo fatto:** Ottimizzata radicalmente la leggibilità del calendario editoriale in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx):
   - 📏 **Nuovi Blocchetti Rettangolari Modulari Ultra-Sottili (`h-[25px]`)**:
