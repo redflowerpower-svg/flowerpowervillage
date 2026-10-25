@@ -3,6 +3,19 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 19:35] · 10% OFF: CALIBRAZIONE E RIDUZIONE AURA DEL BAGLIORE (PIÙ PICCOLA, NITIDA E DISCRETA)
+- **Cosa abbiamo fatto:** Ridotta l'intensità e il raggio dell'alone luminoso di **"10% OFF"** in tutti i formati Villaggio (`V1`, `V2`, `V3`) e Stories Last Minute (`LM1`) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 🔍 **Riduzione Raggio & Opacità Bagliore su Canvas**:
+    - *Raggio Blur*: Ridotto drasticamente da `(6 + 12 * offCycle) * s` (fino a 18px) a `(1.5 + 3.0 * offCycle) * s` (massimo 4.5px), mantenendo l'alone raccolto attorno ai caratteri.
+    - *Opacità & Spessore Contorno*: Opacità sfumata scesa da `0.95` a `0.60` (`rgba(250, 204, 21, 0.6)`) e `lineWidth` dimezzato da `3.6 * s` a `1.2 * s`. Il bagliore è ora un'elegante bordatura dorata sottile anziché una grossa nube diffusa.
+    - *Pulsazione Dimensionale*: Micro-oscillazione di scala resa più fine (`0.98`➔`1.01`).
+  - 🎨 **Aura Raffinata nel DOM (CSS Keyframes)**:
+    - Sostituito il pesante drop-shadow doppio da 16px con un'aura compatta e vellutata da 4px (`drop-shadow(0 0 4px rgba(250, 204, 21, 0.75)) drop-shadow(0 0 7px rgba(234, 179, 8, 0.4))`).
+- **Effetto reale:** L'aura dorata attorno a "10% OFF" è ora molto più piccola, nitida e controllata. La scritta pulsa con stile ed eleganza senza sbavare o invadere le parole vicine.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato nel build Vite.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 19:30] · 10% OFF: AVVICINAMENTO DI 2PX A DIRECT BOOKING & EFFETTO LAMPEGGIANTE CON BAGLIORE DORATO (CANVAS & DOM)
 - **Cosa abbiamo fatto:** Perfezionato il posizionamento e l'animazione visiva di **"10% OFF"** in tutti i formati Villaggio (`V1`, `V2`, `V3`) e Stories Last Minute (`LM1`) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
   - 📏 **Avvicinamento di 2 Pixel a DIRECT BOOKING**:

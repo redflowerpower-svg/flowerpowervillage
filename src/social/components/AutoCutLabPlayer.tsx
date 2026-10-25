@@ -1455,22 +1455,22 @@ export function AutoCutLabPlayer({
         drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
         ty += dbFontSize + (2 * s); // Avvicinato di 2px a DIRECT BOOKING
 
-        // 10% OFF con BAGLIORE DORATO e PULSAZIONE CONTINUA
+        // 10% OFF con BAGLIORE DORATO DELICATO e PULSAZIONE COMPATTA (Aura ridotta e raffinata)
         const offFontSize = Math.round(17.5 * s);
         oCtx.font = `900 ${offFontSize}px "Outfit", sans-serif`;
         const offCycle = 0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.2);
-        const offScale = 0.96 + 0.08 * offCycle;
-        const offGlowBlur = (6 + 12 * offCycle) * s;
-        const offColor = offCycle > 0.4 ? '#ffffff' : '#fef08a';
+        const offScale = 0.98 + 0.03 * offCycle;
+        const offGlowBlur = (1.5 + 3.0 * offCycle) * s;
+        const offColor = offCycle > 0.4 ? '#fef9c3' : '#fcd34d';
 
         oCtx.save();
         oCtx.translate(tx, ty);
         oCtx.scale(offScale, offScale);
-        // 1. Bagliore dorato diffuso (Glow)
-        oCtx.shadowColor = 'rgba(250, 204, 21, 0.95)';
+        // 1. Bagliore dorato diffuso compatto e discreto (Glow calibrato)
+        oCtx.shadowColor = 'rgba(250, 204, 21, 0.6)';
         oCtx.shadowBlur = offGlowBlur;
-        oCtx.strokeStyle = 'rgba(234, 179, 8, 0.9)';
-        oCtx.lineWidth = 3.6 * s;
+        oCtx.strokeStyle = 'rgba(234, 179, 8, 0.35)';
+        oCtx.lineWidth = 1.2 * s;
         oCtx.lineJoin = 'round';
         oCtx.strokeText('10% OFF', 0, 0);
 
@@ -1502,22 +1502,22 @@ export function AutoCutLabPlayer({
         drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
         ty += dbFontSize + (1 * s); // Avvicinato di 2px a DIRECT BOOKING
 
-        // 10% OFF con BAGLIORE DORATO e PULSAZIONE CONTINUA
+        // 10% OFF con BAGLIORE DORATO DELICATO e PULSAZIONE COMPATTA (Aura ridotta e raffinata)
         const offFontSize = Math.round(16 * s);
         oCtx.font = `900 ${offFontSize}px "Outfit", sans-serif`;
         const offCycle = 0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.2);
-        const offScale = 0.96 + 0.08 * offCycle;
-        const offGlowBlur = (6 + 12 * offCycle) * s;
-        const offColor = offCycle > 0.4 ? '#ffffff' : '#fef08a';
+        const offScale = 0.98 + 0.03 * offCycle;
+        const offGlowBlur = (1.5 + 3.0 * offCycle) * s;
+        const offColor = offCycle > 0.4 ? '#fef9c3' : '#fcd34d';
 
         oCtx.save();
         oCtx.translate(tx, ty);
         oCtx.scale(offScale, offScale);
-        // 1. Bagliore dorato diffuso (Glow)
-        oCtx.shadowColor = 'rgba(250, 204, 21, 0.95)';
+        // 1. Bagliore dorato diffuso compatto e discreto (Glow calibrato)
+        oCtx.shadowColor = 'rgba(250, 204, 21, 0.6)';
         oCtx.shadowBlur = offGlowBlur;
-        oCtx.strokeStyle = 'rgba(234, 179, 8, 0.9)';
-        oCtx.lineWidth = 3.4 * s;
+        oCtx.strokeStyle = 'rgba(234, 179, 8, 0.35)';
+        oCtx.lineWidth = 1.2 * s;
         oCtx.lineJoin = 'round';
         oCtx.strokeText('10% OFF', 0, 0);
 
@@ -2903,19 +2903,19 @@ export function AutoCutLabPlayer({
           }
           @keyframes discountGlowPulse {
             0% {
-              transform: scale(0.96);
-              color: #fef08a;
-              filter: drop-shadow(0 0 3px rgba(234, 179, 8, 0.7)) brightness(1.0);
+              transform: scale(0.98);
+              color: #fcd34d;
+              filter: drop-shadow(0 0 1.5px rgba(250, 204, 21, 0.45));
             }
             50% {
-              transform: scale(1.06);
-              color: #ffffff;
-              filter: drop-shadow(0 0 8px rgba(250, 204, 21, 1)) drop-shadow(0 0 16px rgba(234, 179, 8, 0.9)) brightness(1.3);
+              transform: scale(1.02);
+              color: #fef9c3;
+              filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.75)) drop-shadow(0 0 7px rgba(234, 179, 8, 0.4));
             }
             100% {
-              transform: scale(0.96);
-              color: #fef08a;
-              filter: drop-shadow(0 0 3px rgba(234, 179, 8, 0.7)) brightness(1.0);
+              transform: scale(0.98);
+              color: #fcd34d;
+              filter: drop-shadow(0 0 1.5px rgba(250, 204, 21, 0.45));
             }
           }
         `}</style>
