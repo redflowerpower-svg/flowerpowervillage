@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   ChevronLeft, ChevronRight, Calendar as CalendarIcon, 
   Clock, Plus, Sparkles, Trash2, Edit3, Send, CheckCircle, 
@@ -67,7 +67,7 @@ export function SocialCalendarView({
   const [selectedPlatformFilter, setSelectedPlatformFilter] = useState<SocialPlatform | 'all'>('all');
   const [showLegend, setShowLegend] = useState(true);
   
-  // 🛡️ Master Switch Stato Scheduler (Standby / Fermo vs In Produzione)
+  // 🛡️ Master Switch Stato Scheduler (Standby / Fermo vs In Produzione) con Conferma a Due Clic
   const [schedulerMode, setSchedulerMode] = useState<'standby' | 'production'>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -77,14 +77,39 @@ export function SocialCalendarView({
     }
     return 'standby';
   });
+  const [confirmingProduction, setConfirmingProduction] = useState(false);
+  const confirmTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleToggleSchedulerMode = () => {
-    const nextMode = schedulerMode === 'standby' ? 'production' : 'standby';
-    setSchedulerMode(nextMode);
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('fp_social_scheduler_mode', nextMode);
-      } catch {}
+    if (schedulerMode === 'standby') {
+      if (!confirmingProduction) {
+        // 1° Clic: Richiede conferma esplicita entro 5 secondi
+        setConfirmingProduction(true);
+        if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current);
+        confirmTimeoutRef.current = setTimeout(() => {
+          setConfirmingProduction(false);
+        }, 5000);
+        return;
+      }
+      // 2° Clic: Conferma ricevuta, passa in produzione
+      if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current);
+      setConfirmingProduction(false);
+      setSchedulerMode('production');
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('fp_social_scheduler_mode', 'production');
+        } catch {}
+      }
+    } else {
+      // Da produzione a standby: disattivazione immediata con 1 solo clic
+      if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current);
+      setConfirmingProduction(false);
+      setSchedulerMode('standby');
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('fp_social_scheduler_mode', 'standby');
+        } catch {}
+      }
     }
   };
 
@@ -413,28 +438,28 @@ export function SocialCalendarView({
 
   const getFormatBadgeStyle = (code: string) => {
     switch (code) {
-      case 'LM1': return 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50';
-      case 'R1': return 'bg-blue-600/30 text-blue-300 border-blue-400/50';
-      case 'CC1': return 'bg-purple-600/30 text-purple-300 border-purple-400/50';
-      case 'P1': return 'bg-rose-600/30 text-rose-300 border-rose-400/50';
-      case 'P2': return 'bg-amber-600/30 text-amber-300 border-amber-400/50';
-      case 'P3': return 'bg-orange-600/30 text-orange-300 border-orange-400/50';
-      case 'DS': return 'bg-yellow-600/30 text-yellow-300 border-yellow-400/50';
-      case 'V1': return 'bg-teal-600/30 text-teal-300 border-teal-400/50';
-      case 'V2': return 'bg-cyan-600/30 text-cyan-300 border-cyan-400/50';
-      case 'V3': return 'bg-sky-600/30 text-sky-300 border-sky-400/50';
-      default: return 'bg-slate-700/50 text-slate-300 border-slate-600';
+      case 'LM1': return 'bg-emerald-500/25 text-emerald-300';
+      case 'R1': return 'bg-blue-600/25 text-blue-300';
+      case 'CC1': return 'bg-purple-600/25 text-purple-300';
+      case 'P1': return 'bg-rose-600/25 text-rose-300';
+      case 'P2': return 'bg-amber-600/25 text-amber-300';
+      case 'P3': return 'bg-orange-600/25 text-orange-300';
+      case 'DS': return 'bg-yellow-600/25 text-yellow-300';
+      case 'V1': return 'bg-teal-600/25 text-teal-300';
+      case 'V2': return 'bg-cyan-600/25 text-cyan-300';
+      case 'V3': return 'bg-sky-600/25 text-sky-300';
+      default: return 'bg-slate-700/40 text-slate-300';
     }
   };
 
   const getContentBadge = (post: ScheduledSocialPost) => {
     if (post.format === 'story' || post.tags?.includes('story') || post.tags?.includes('LM1')) {
-      return { label: 'STORY', style: 'bg-fuchsia-500/25 text-fuchsia-300 border-fuchsia-500/40' };
+      return { label: 'STORY', style: 'bg-fuchsia-500/20 text-fuchsia-300' };
     }
     if (post.format === 'reel' || post.editorial_format === 'video_reel' || post.tags?.includes('reel')) {
-      return { label: 'REEL', style: 'bg-violet-500/25 text-violet-300 border-violet-500/40' };
+      return { label: 'REEL', style: 'bg-violet-500/20 text-violet-300' };
     }
-    return { label: 'POST', style: 'bg-sky-500/25 text-sky-300 border-sky-500/40' };
+    return { label: 'POST', style: 'bg-sky-500/20 text-sky-300' };
   };
 
   const getBlockBorderColor = (post: ScheduledSocialPost) => {
@@ -533,26 +558,38 @@ export function SocialCalendarView({
             {MONTH_NAMES[uiLang][month]} {year}
           </h2>
 
-          {/* 🛡️ MASTER SWITCH: FERMO (STANDBY) vs IN PRODUZIONE */}
+          {/* 🛡️ MASTER SWITCH: FERMO (STANDBY) vs IN PRODUZIONE (CON DOPPIA CONFERMA) */}
           <button
             type="button"
             onClick={handleToggleSchedulerMode}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-black transition cursor-pointer shadow-md select-none ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs font-black transition cursor-pointer shadow-md select-none ${
               schedulerMode === 'production'
                 ? 'bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-400 text-emerald-300 shadow-emerald-950/40'
-                : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-amber-950/30'
+                : confirmingProduction
+                  ? 'bg-rose-500/25 hover:bg-rose-500/35 border-rose-400 text-rose-200 ring-2 ring-rose-400/60 shadow-lg shadow-rose-950/50 animate-pulse'
+                  : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-amber-950/30'
             }`}
             title={
               schedulerMode === 'production'
-                ? 'Scheduler ATTIVO in Produzione: i post possono essere inviati. Clicca per mettere in Standby.'
-                : 'Scheduler in STANDBY (Fermo): nessuna pubblicazione possibile. Clicca per attivare lo stato di Produzione.'
+                ? 'Scheduler ATTIVO in Produzione: i post possono essere inviati. Clicca per disattivare e tornare in Standby.'
+                : confirmingProduction
+                  ? 'Clicca una seconda volta per confermare il passaggio a IN PRODUZIONE (scade tra 5s)'
+                  : 'Scheduler in STANDBY (Fermo): nessuna pubblicazione possibile. Clicca due volte per attivare lo stato di Produzione.'
             }
           >
-            <span className={`w-2.5 h-2.5 rounded-full ${schedulerMode === 'production' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+            <span className={`w-2.5 h-2.5 rounded-full ${
+              schedulerMode === 'production' 
+                ? 'bg-emerald-400 animate-pulse' 
+                : confirmingProduction
+                  ? 'bg-rose-400 animate-ping'
+                  : 'bg-amber-400'
+            }`} />
             <span>
               {schedulerMode === 'production'
                 ? (uiLang === 'EN' ? '🟢 STATUS: LIVE IN PRODUCTION' : '🟢 STATO: IN PRODUZIONE')
-                : (uiLang === 'EN' ? '⏸️ STATUS: STANDBY (PAUSED)' : '⏸️ STATO: FERMO (STANDBY)')}
+                : confirmingProduction
+                  ? (uiLang === 'EN' ? '⚠️ CONFIRM LIVE? CLICK AGAIN' : '⚠️ CONFERMI PRODUZIONE? CLICCA ANCORA')
+                  : (uiLang === 'EN' ? '⏸️ STATUS: STANDBY (PAUSED)' : '⏸️ STATO: FERMO (STANDBY)')}
             </span>
           </button>
         </div>
@@ -686,8 +723,8 @@ export function SocialCalendarView({
                   </div>
                 </div>
 
-                {/* Day Posts List (BLOCCHETTI COLORATI SNELLITI) */}
-                <div className="space-y-1 flex-1 overflow-y-auto max-h-[175px] pr-0.5 scrollbar-thin">
+                {/* Day Posts List (BLOCCHETTI RETTANGOLARI MODULARI ULTRA-SOTTILI A SCOMPARTI) */}
+                <div className="space-y-1 flex-1 overflow-y-auto max-h-[195px] pr-0.5 scrollbar-thin">
                   {dayPosts.map((post) => {
                     const postTime = new Date(post.scheduled_for).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const formatCode = getFormatCode(post);
@@ -696,6 +733,7 @@ export function SocialCalendarView({
                     const badgeStyle = getFormatBadgeStyle(formatCode);
                     const blockBorder = getBlockBorderColor(post);
                     const contentType = getContentBadge(post);
+                    const cleanPostTitle = post.title.replace(/^[A-Z0-9]+\s*·\s*/i, '');
 
                     return (
                       <div
@@ -704,42 +742,41 @@ export function SocialCalendarView({
                           setInspectingPost(post);
                           setInspectPreviewPlatform(post.platforms[0] || 'tiktok');
                         }}
-                        className={`px-2 py-1.5 rounded-xl border text-left cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-between gap-1.5 shadow group select-none ${blockBorder}`}
-                        title={`${post.title} · ${postTime} · ${post.platforms.join(', ')}`}
+                        className={`w-full rounded-md border text-left cursor-pointer transition-all hover:scale-[1.01] hover:brightness-110 flex items-stretch overflow-hidden shadow-sm group select-none text-[9.5px] h-[25px] ${blockBorder}`}
+                        title={`${postTime} · ${formatCode} · ${post.title} · ${post.platforms.join(', ')}`}
                       >
-                        <div className="flex items-center gap-1.5 min-w-0 flex-wrap sm:flex-nowrap">
-                          {/* 1° LOGO UFFICIALE SOCIAL MEDIA */}
-                          <div className="flex items-center gap-0.5 shrink-0">
-                            {post.platforms.map((p) => (
-                              <span key={p} className="shrink-0" title={p}>
-                                {p === 'tiktok' && <TikTokIcon className="w-3.5 h-3.5 text-white" />}
-                                {p === 'google' && <GoogleIcon className="w-3.5 h-3.5" />}
-                                {p === 'instagram' && <InstagramIcon className="w-3.5 h-3.5" />}
-                                {p === 'facebook' && <FacebookIcon className="w-3.5 h-3.5" />}
-                              </span>
-                            ))}
-                          </div>
-
-                          {/* 2° BRAND PIZZA O ISOLETTA */}
-                          <span className="text-xs shrink-0 select-none" title={isPizza ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}>
-                            {brandEmoji}
-                          </span>
-
-                          {/* 3° TIPO DI CONTENUTO (REEL, STORY, POST) */}
-                          <span className={`text-[8.5px] font-black uppercase px-1.5 py-0.5 rounded-md border shrink-0 ${contentType.style}`}>
-                            {contentType.label}
-                          </span>
-
-                          {/* 4° SIGLA DEL FILMATO (P1, P2, P3, V1, V2, V3, LM1, R1, DS, CC1) */}
-                          <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border shrink-0 ${badgeStyle}`}>
-                            {formatCode}
-                          </span>
+                        {/* 1° SCOMPARTO: ORARIO DI PUBBLICAZIONE (PER PRIMO) */}
+                        <div className="px-1.5 bg-black/60 flex items-center justify-center shrink-0 border-r border-white/10 font-mono font-bold text-amber-300 text-[9px] tracking-tight">
+                          {postTime}
                         </div>
 
-                        {/* 5° ORARIO DI PUBBLICAZIONE (NIENT'ALTRO) */}
-                        <div className="shrink-0 pl-1">
-                          <span className="font-mono text-[9.5px] text-slate-300 font-bold tracking-tight">
-                            {postTime}
+                        {/* 2° SCOMPARTO: ICONA SOCIAL */}
+                        <div className="px-1 bg-black/30 flex items-center justify-center shrink-0 border-r border-white/10 gap-0.5">
+                          {post.platforms.map((p) => (
+                            <span key={p} className="shrink-0" title={p}>
+                              {p === 'tiktok' && <TikTokIcon className="w-3 h-3 text-white" />}
+                              {p === 'google' && <GoogleIcon className="w-3 h-3" />}
+                              {p === 'instagram' && <InstagramIcon className="w-3 h-3" />}
+                              {p === 'facebook' && <FacebookIcon className="w-3 h-3" />}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* 3° SCOMPARTO: BRAND & SIGLA FORMATO */}
+                        <div className={`px-1.5 flex items-center gap-1 shrink-0 border-r border-white/10 font-black text-[9px] uppercase leading-none ${badgeStyle}`}>
+                          <span className="text-[10px] leading-none">{brandEmoji}</span>
+                          <span className="leading-none">{formatCode}</span>
+                        </div>
+
+                        {/* 4° SCOMPARTO: TIPO (STORY/REEL/POST) */}
+                        <div className={`px-1 flex items-center justify-center shrink-0 border-r border-white/10 text-[7.5px] font-black uppercase leading-none ${contentType.style}`}>
+                          {contentType.label}
+                        </div>
+
+                        {/* 5° SCOMPARTO: COSA AVVIENE (TITOLO PIATTO/ALLOGGIO/PROMO) */}
+                        <div className="px-1.5 flex-1 min-w-0 flex items-center bg-black/15">
+                          <span className="truncate text-[9.5px] font-medium text-slate-200 group-hover:text-white leading-tight">
+                            {cleanPostTitle}
                           </span>
                         </div>
                       </div>

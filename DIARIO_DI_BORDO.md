@@ -3,6 +3,27 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 23:22] · SOCIAL STUDIO SCHEDULER: BLOCCHETTI MEDIA RETTANGOLARI MODULARI ULTRA-SOTTILI A SCOMPARTI (ORARIO PER PRIMO) & TASTO PRODUZIONE CON DOPPIA CONFERMA
+- **Cosa abbiamo fatto:** Ottimizzata radicalmente la leggibilità del calendario editoriale in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx):
+  - 📏 **Nuovi Blocchetti Rettangolari Modulari Ultra-Sottili (`h-[25px]`)**:
+    - Superati i vecchi badge galleggianti che occupavano troppo spazio verticale e si scomponevano su più righe.
+    - Ciascun post è ora un unico rettangolo compatto suddiviso in 5 scomparti funzionali separati da linee sottili (`border-r border-white/10`):
+      1. ⏰ **1° Scomparto (Orario di Pubblicazione - AL PRIMO POSTO)**: Orario sempre all'estrema sinistra (`08:00`, `12:00`, `17:45`) con contrasto scuro dedicato e cifre monospace ambra ben marcate (`font-mono font-bold text-amber-300`).
+      2. 📱 **2° Scomparto (Icona Social Ufficiale)**: Logo TikTok, Instagram, Facebook o Google con colore originale.
+      3. 🏷️ **3° Scomparto (Brand & Formato)**: Emoji brand (`🍕` o `🏝️`) e sigla del format (`P1`, `LM1`, `R1`, `DS`, `V2`, ecc.) con sfondo colorato tematico.
+      4. 🎬 **4° Scomparto (Tipo Contenuto)**: Pill compatta (`STORY`, `REEL`, `POST`).
+      5. 📝 **5° Scomparto (Cosa Avviene Durante la Giornata)**: Nome pulito del piatto o alloggio (es. *Margherita Speciale*, *Villa Penthouse*, *10% Sconto Web*) visibile a colpo d'occhio senza dover aprire il modale.
+    - Altezza ridotta a 25px con capienza estesa a 195px: ogni casella del giorno può ora ospitare contemporaneamente 5-6 eventi senza richiedere scrolling forzato.
+  - 🛡️ **Tasto Produzione con Doppia Conferma Anti-Errore**:
+    - 1° Clic su "Fermo (Standby)": il pulsante si illumina in rosso acceso pulsante e chiede conferma (`⚠️ CONFERMI PRODUZIONE? CLICCA ANCORA`) attivando un timer di sicurezza di 5 secondi.
+    - 2° Clic: conferma definitiva con passaggio a `🟢 STATO: IN PRODUZIONE`.
+    - Se l'utente non clicca una seconda volta entro 5 secondi, il pulsante si auto-resetta e torna in sicurezza allo stato Standby.
+    - Il ritorno da Produzione a Standby avviene con 1 singolo clic immediato.
+- **Effetto reale:** La vista mensile del calendario è ora ordinata, compattissima e professionale come una control room aeronautica. Marco vede subito la timeline cronologica di ogni giorno a colpo d'occhio, e non c'è alcun rischio di mandare per sbaglio lo scheduler in produzione grazie alla doppia conferma obbligatoria.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 23:18] · SOCIAL STUDIO SCHEDULER: MASTER SWITCH DI SICUREZZA (STANDBY ⏸️ vs IN PRODUZIONE 🟢)
 - **Cosa abbiamo fatto:** Integrato un interruttore generale di sicurezza (Master Switch) per controllare lo stato di operatività dello Scheduler in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx):
   - 🛡️ **Pulsante Interattivo nella Toolbar Superiore (Accanto al Mese)**:
