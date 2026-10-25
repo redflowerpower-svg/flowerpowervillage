@@ -284,6 +284,152 @@ export function AutoCutPostCopywriter({
 
   const isPizza = testRun.brand === 'pizza';
 
+  // 📜 Trasparenza Live: Calcolo del prompt ingegnerizzato in tempo reale (visibile a 0ms prima ancora di cliccare Rigenera!)
+  const livePromptPreview = useMemo(() => {
+    if (aiOverride?.promptSent) return aiOverride.promptSent;
+
+    const isP = testRun.brand === 'pizza';
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const thaiDate = new Date(utc + (3600000 * 7));
+    const thaiDayOfWeek = thaiDate.getDay();
+    const thaiHours = thaiDate.getHours();
+
+    const daysContext = [
+      { it: 'Domenica', th: 'วันอาทิตย์', angle: 'Domenica di puro relax e ricarica: zero stress, comfort food sul divano prima di ricominciare la settimana.' },
+      { it: 'Lunedì', th: 'วันจันทร์', angle: 'Lunedì: inizio settimana, serve una coccola o un boost di buonumore per partire alla grande.' },
+      { it: 'Martedì', th: 'วันอังคาร', angle: 'Martedì: routine lavorativa, voglia di una pausa gustosa senza complicazioni.' },
+      { it: 'Mercoledì', th: 'วันพุธ', angle: 'Mercoledì: giro di boa della settimana, ci si premia a metà percorso.' },
+      { it: 'Giovedì', th: 'วันพฤหัสบดี', angle: 'Giovedì: aria di pre-weekend, si pianifica la serata con amici o famiglia.' },
+      { it: 'Venerdì', th: 'วันศุกร์แห่งชาติ', angle: 'Venerdì Nazionale (วันศุกร์แห่งชาติ): festa e liberazione! Stasera niente fornelli, premiati con un pizza party!' },
+      { it: 'Sabato', th: 'วันเสาร์', angle: 'Sabato sera: relax totale, maratona serie TV, film, amici o serata romantica.' }
+    ];
+    const todayCtx = daysContext[thaiDayOfWeek];
+
+    let mealMoment = 'Cena & Serata (momento clou per rilassarsi, ordinare caldo a casa o cenare in compagnia)';
+    if (thaiHours >= 11 && thaiHours < 15) {
+      mealMoment = 'Pranzo (pausa appetitosa, energia autentica, consegna rapida in ufficio o a casa)';
+    } else if (thaiHours >= 15 && thaiHours < 18) {
+      mealMoment = 'Tardo Pomeriggio / Pre-Cena (il momento in cui sale la voglia di qualcosa di sfizioso e confortevole)';
+    }
+
+    let weatherAngle = 'Clima tropicale piacevole: perfetto per gustare una cena all\'aperto o rilassarsi con buon cibo.';
+    if (liveWeather) {
+      if (liveWeather.isRaining) {
+        weatherAngle = isP
+          ? `FUORI STA PIOVENDO A RANONG (${liveWeather.tempC}°C). In Thailandia e a Ranong la pioggia è l'occasione perfetta per il "Sabai Sabai": non bagnarsi in scooter, stare comodi sul divano con la serie TV, mentre il rider di Flower Power bussa con la pizza caldissima in scatola termica.`
+          : `PIOGGIA TROPICALE A KOH PHAYAM (${liveWeather.tempC}°C). Il suono rilassante della pioggia sulle foglie di palma a Buffalo Bay e la quiete intima del bungalow.`;
+      } else if (liveWeather.isNight) {
+        weatherAngle = `Serata stellata tropicale (${liveWeather.tempC}°C): aria piacevole, brezza serale, la compagnia giusta e il profumo irresistibile delle specialità appena preparate.`;
+      } else {
+        weatherAngle = `Giornata serena e luminosa (${liveWeather.tempC}°C): sole tropicale, energia positiva, voglia di sapori freschi e autentici.`;
+      }
+    }
+
+    const dishListText = testRun.scenes.map(s => {
+      const name = (s.sourceName || s.titlePrimary || '').replace(/[\r\n]+/g, ' ').trim();
+      const nameTh = (s.titleSecondary || '').replace(/[\r\n]+/g, ' ').trim();
+      const desc = s.badgeCategory || 'Autentica ricetta artigianale';
+      return `- ${name} (${nameTh}): ${desc}`;
+    }).join('\n');
+
+    if (testRun.mode === 'R1') {
+      return `Sei il copywriter creativo di Flower Power Restaurant & Island Delivery a Koh Phayam, Thailandia (Buffalo Bay / อ่าวเขาควาย).
+Scrivi un micro-post social biculturale (THAI in alto + INGLESE in basso) vivace, accogliente e appetitoso, per invitare le persone a mangiare nel nostro ristorante nel giardino tropicale o ordinare con consegna a domicilio su tutta l'isola di Koh Phayam via WhatsApp.
+
+CONTESTO ATTUALE:
+- I 5 Piatti protagonisti nel video di oggi:
+${dishListText}
+- Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
+- Fascia oraria: ${mealMoment}
+- Situazione meteo del momento: ${weatherAngle}
+- Stagione: ${basePostData.seasonContext || 'Stagione tropicale'}
+- Canali di contatto: WhatsApp Delivery +66 095 882 5573 | Tavolo nel giardino tropicale a Buffalo Bay | www.flowerpowervillage.com
+
+REGOLE FONDAMENTALI DI SCRITTURA:
+1. DIVIETO ASSOLUTO DI PARLARE DI UN SOLO PIATTO (REGOLA CORALE 5 PIATTI):
+   Il video mostra una carrellata di 5 piatti diversi (es. pasta fresca fatta a mano, pizze tradizionali italiane da 12 pollici, secondi, insalate, burger).
+   NON concentrarti solo sul primo piatto! Parla della varietà del menu o presenta i piatti protagonisti come un banchetto ideale da condividere in compagnia (Food Sharing).
+2. CONTESTUALITÀ UMANA & METEO: Sfrutta pioggia, sole o serata dopo il mare in modo complice.
+3. STRUTTURA: MASSIMO 4 RIGHE per lingua. Nomi piatti continui su singola riga. Proverbio del giorno. Chiusura WhatsApp (+66 095 882 5573). Zero forno a legna. Emoji contestuali.`;
+    }
+
+    if (testRun.mode === 'LM1') {
+      return `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale ad Aow Khao Kwai / Buffalo Bay).
+Scrivi un micro-post / Story LAST MINUTE biculturale (INGLESE in alto + THAI in basso) ad altissima conversione, magnetico e dal ritmo vivace.
+
+CONTESTO ATTUALE:
+- Alloggi LIBERI STASERA con tariffe Last Minute certificate dal calendario Octorate:
+${dishListText}
+- Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
+- Fascia oraria: ${mealMoment}
+- Situazione meteo del momento: ${weatherAngle}
+- Stagione: ${basePostData.seasonContext || 'Stagione tropicale'}
+- Sito ufficiale per prenotazione istantanea: www.flowerpowervillage.com
+
+REGOLE FONDAMENTALI DI SCRITTURA:
+1. TEMA LAST MINUTE & URGENZA POSITIVA: Camere e bungalow liberi per stanotte a prezzi speciali a cascata verificati.
+2. CITARE LA DISPONIBILITÀ: Menziona le opzioni disponibili stanotte e il vantaggio del prezzo speciale.
+3. STRUTTURA: MASSIMO 3-4 RIGHE per lingua. Invito a prenotare subito su www.flowerpowervillage.com prima che si esauriscano. ZERO menzione di sunset/tramonto. Zero forno a legna. Emoji contestuali.`;
+    }
+
+    if (testRun.mode === 'V3') {
+      return `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale a Buffalo Bay / อ่าวเขาควาย).
+Scrivi un micro-post social biculturale (INGLESE in alto + THAI in basso) immersivo ed evocativo per presentare la panoramica completa del resort con 5 alloggi diversi.
+
+CONTESTO ATTUALE:
+- I 5 Alloggi protagonisti del tour nel video:
+${dishListText}
+- Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
+- Fascia oraria: ${mealMoment}
+- Situazione meteo del momento: ${weatherAngle}
+- Stagione: ${basePostData.seasonContext || 'Stagione tropicale'}
+- Sito ufficiale: www.flowerpowervillage.com (Miglior tariffa diretta garantita online + 10% privilegio prenotazione diretta)
+
+REGOLE FONDAMENTALI DI SCRITTURA:
+1. RESORT TOUR DEI 5 ALLOGGI (VARIETÀ & SPIRITO SLOW LIFE):
+   Panoramica di 5 alloggi diversi (dalla suite panoramica ai bungalow in legno nei giardini e tende glamping). Un angolo di paradiso per ogni viaggiatore.
+2. ATMOSFERA KOH PHAYAM: Pace autentica dell'isola car-free, amaca tra le palme, brezza e profumo dei fiori a Buffalo Bay.
+3. STRUTTURA: MASSIMO 3-4 RIGHE per lingua. Proverbio sul viaggio/lentezza. Chiusura su www.flowerpowervillage.com. ZERO parola sunset. Zero forno a legna. Emoji contestuali.`;
+    }
+
+    if (isP) {
+      return `Sei il copywriter creativo di Flower Power Pizza a Ranong, Thailandia (autentica pizzeria tradizionale e cucina artigianale italiana).
+Scrivi un micro-post social biculturale (THAI in alto + INGLESE in basso) magnetico, divertente e profondamente calato nel costume e nella vita reale thailandese.
+
+CONTESTO ATTUALE:
+- Piatti protagonisti:
+${dishListText}
+- Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
+- Fascia oraria: ${mealMoment}
+- Situazione meteo del momento: ${weatherAngle}
+- Stagione: ${basePostData.seasonContext || 'Clima tropicale'}
+- Sito ufficiale: www.flowerpowerpizza.com (10% sconto primo ordine online)
+
+REGOLE FONDAMENTALI DI SCRITTURA:
+1. DIVIETO BOLLETTINO METEO: Varia sempre l'attacco (esperienza sensoriale, relax serale, pizza party).
+2. GERGO THAI: Caldo, spontaneo, moderno.
+3. STRUTTURA: MASSIMO 3-4 RIGHE per lingua. Nomi piatti continui su singola riga. Proverbio del giorno. Chiusura flowerpowerpizza.com (-10%). ZERO forno a legna. Emoji contestuali.`;
+    }
+
+    return `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale a Buffalo Bay / อ่าวเขาควาย).
+Scrivi un micro-post social biculturale (INGLESE in alto + THAI in basso) evocativo, rilassante e magnetico.
+
+CONTESTO ATTUALE:
+- Alloggio protagonista:
+${dishListText}
+- Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
+- Fascia oraria: ${mealMoment}
+- Situazione meteo del momento: ${weatherAngle}
+- Stagione: ${basePostData.seasonContext || 'Stagione tropicale'}
+- Sito ufficiale: www.flowerpowervillage.com (Miglior tariffa diretta garantita)
+
+REGOLE FONDAMENTALI DI SCRITTURA:
+1. DIVIETO DI MONOTONIA: Varia sempre l'attacco (rumore del mare, magia del legno, slow life).
+2. CULTURA SLOW LIFE DI KOH PHAYAM: Pace autentica, amaca, brezza a Buffalo Bay.
+3. STRUTTURA: MASSIMO 3-4 RIGHE per lingua. Nomi alloggi continui. Proverbio saggio. Chiusura flowerpowervillage.com. ZERO sunset. Zero forno a legna. Emoji contestuali.`;
+  }, [aiOverride, testRun, liveWeather, basePostData.seasonContext]);
+
   // 1. Didascalia Finale per TikTok (Clean domain + Link in Bio)
   const finalTikTokCaption = useMemo(() => {
     const mapsLink = isPizza
@@ -489,16 +635,14 @@ export function AutoCutPostCopywriter({
               </div>
 
               <div className="flex items-center gap-2">
-                {aiOverride?.promptSent && (
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(aiOverride.promptSent || '', 'prompt_text')}
-                    className="text-[10px] text-cyan-300 hover:text-white px-2.5 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/40 hover:bg-cyan-900/60 transition cursor-pointer flex items-center gap-1"
-                  >
-                    <Copy className="w-3 h-3 text-cyan-400" />
-                    <span>{copiedType === 'prompt_text' ? 'Copiato!' : 'Copia Prompt'}</span>
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => handleCopy(livePromptPreview, 'prompt_text')}
+                  className="text-[10px] text-cyan-300 hover:text-white px-2.5 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/40 hover:bg-cyan-900/60 transition cursor-pointer flex items-center gap-1"
+                >
+                  <Copy className="w-3 h-3 text-cyan-400" />
+                  <span>{copiedType === 'prompt_text' ? 'Copiato!' : 'Copia Prompt'}</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setShowPromptInspector(false)}
@@ -514,7 +658,7 @@ export function AutoCutPostCopywriter({
             </p>
 
             <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800 text-[11px] font-mono text-slate-300 leading-relaxed whitespace-pre-wrap max-h-72 overflow-y-auto selection:bg-cyan-500/30">
-              {aiOverride?.promptSent || (isGeneratingAi ? 'Generazione del prompt e scrittura AI in corso...' : 'Nessun prompt registrato ancora. Clicca su "Rigenera Copy AI" per inviare il prompt in tempo reale a DeepSeek.')}
+              {isGeneratingAi ? 'Generazione del prompt e scrittura AI in corso...' : livePromptPreview}
             </div>
           </div>
         )}

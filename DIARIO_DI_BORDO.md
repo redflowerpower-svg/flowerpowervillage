@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 17:15] · INTEGRAZIONE PROMPT MODULARI (R1, LM1, V3), COPY CORALE 5 PIATTI IN R1 & LIVE PROMPT INSPECTOR
+- **Cosa abbiamo fatto:** Potenziata la suite di copywriting e prompt engineering per i formati specifici del Villaggio e del Ristorante in [autoCutCopywriterEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutCopywriterEngine.ts), [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts) e [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx):
+  - 🍝 **R1: Copywriter Corale 5 Piatti (Zero Monopolio del Primo Piatto)**:
+    - Risolto il difetto per cui il testo di `R1` (Ristorante Koh Phayam & Consegna all'Isola) parlava solo del primissimo piatto ignorando gli altri 4.
+    - Il copywriter deterministico locale ora itera su tutti i piatti unici presenti nel video (`testRun.scenes`), elencandoli con bullet point bilingue (Thai ed Inglese).
+    - Esalta la convivialità e il food sharing (tavolata tra amici nel giardino tropicale o consegna al proprio alloggio tramite WhatsApp `+66 095 882 5573`).
+  - 🧠 **DeepSeek Prompt Modulari Sartoriali per Tutti i Formati (R1, LM1, V3)**:
+    - Sostituito il vecchio prompt binario (`isPizza ? ... : ...`) sul server con generatori di prompt dedicati ad ogni formato:
+      - *R1 (Restaurant & Delivery Koh Phayam)*: richiede esplicitamente all'AI di valorizzare la varietà dei piatti mostrati nel video, l'atmosfera dell'isola, il comfort della consegna a domicilio e il meteo tropicale.
+      - *LM1 (Stories Last Minute)*: ingegnerizzato per creare urgenza gentile, evidenziando gli alloggi effettivamente liberi stasera e i prezzi speciali Octorate.
+      - *V3 (Resort Tour)*: focalizzato sulla panoramica completa dell'eco-resort a Buffalo Bay con le diverse anime di alloggio (suite, bungalow in legno, glamping).
+  - 👁️ **Live Prompt Inspector a Schermo (Trasparenza Immediata a 0ms)**:
+    - In `AutoCutPostCopywriter.tsx`, integrata la preview dinamica in tempo reale (`livePromptPreview`) del prompt DeepSeek visibile istantaneamente nel pannello "Ispezione Prompt Inviato a DeepSeek AI" anche prima di premere il tasto di generazione, con pulsante "Copia Prompt" sempre attivo.
+- **Effetto reale:** Nessun formato rimane senza il suo prompt dedicato. Il testo di R1 valorizza l'intero banchetto di 5 piatti senza focalizzarsi solo sul primo, e l'amministratore può ispezionare il prompt esatto inviato all'AI in qualsiasi istante.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e consolidato.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 17:00] · RISOLUZIONE DEFINITIVA ERRORE EXPORT & TELEGRAM 500: CHIUSURA VIDEOENCODER, TARGET BITRATE 12MB & COMPRESSIONE ANTI-OVERFLOW (<19.2MB)
 - **Cosa abbiamo fatto:** Individuata ed eliminata alla radice la causa del fallimento dell'esportazione video e dell'errore 500 su Telegram in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) e [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts):
   - 🛑 **Chiusura Obbligatoria Hardware VideoEncoder (`encoder.close()`)**:
