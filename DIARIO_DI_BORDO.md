@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [26/10/2026 - ORE 00:55] · SOCIAL STUDIO AUTOCUT: OMBRA NERA PROFONDA SUL FONDO E SU TUTTE LE SCRITTE (PROTEZIONE TOTALE CATEGORIE CIBI, TITOLI E WATERMARK IN TUTTI I RENDERING)
+- **Cosa abbiamo fatto:** Potenziata ed estesa l'ombra nera protettiva sul fondo (vignette gradient) e dietro a tutte le scritte in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) per tutti i formati (P1, P2, P3, DS, R1, V1, V2, V3, LM1), sia nell'anteprima DOM che nel rendering Canvas per l'esportazione:
+  - 🌑 **Sfondo Sfumato Nero Profondo in Basso (Bottom Vignette da 340px a 520px)**:
+    - Estesa l'altezza dell'ombra nera inferiore a `520px` (in DOM: `h-[520px]`; su Canvas: `btmFadeH = 520 * s`) con gradiente ad alta densità (`from-black/95 via-black/85 via-45% via-black/55 via-72%`).
+    - L'ombra nera sul fondo copre ora generosamente l'intera card, proteggendo le categorie bilingui dei cibi (`✦ อาหารจานหลัก · Primi Piatti`) e la prima riga del titolo anche contro foto con piatti bianchi, farina, tovaglie luminose o bagliori di luce.
+  - 🌌 **Top Vignette Potenziata e Bottom Vignette Aggiunta nel Player 4:3**:
+    - Header superiore esteso a `h-80` (`340 * s`) con gradiente nero profondo.
+    - Nel player companion 4:3 inserito il gradiente nero inferiore (`h-48`) precedentemente assente, garantendo massimo contrasto ai testi.
+  - ✒️ **Ombra Nera e Contorno Solido a 360° su Tutte le Scritte (`drawTextWithShadow`)**:
+    - Nel rendering Canvas, convertite tutte le scritte delle categorie del cibo (`✦`, Thai ed English), i testi di R1 e di DS (`สดใหม่ในตู้โชว์`, `FAST DELIVERY`, `เดลิเวอรี่`, WhatsApp, `Koh Phayam`) all'uso di `drawTextWithShadow`: ora possiedono un contorno nero solido e drop shadow profonda a 360°.
+    - Nel DOM, potenziato il `text-shadow` multi-livello su categorie cibi, titoli delle pietanze e alloggi villaggio.
+- **Effetto reale:** Non ci sono più scritte sbiadite o difficili da leggere: le categorie dei cibi e i titoli dei piatti risaltano con un'ombra nera profonda e un contrasto cinematografico netto e impeccabile, sia guardando il video nel social studio sia nei file video esportati.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [26/10/2026 - ORE 00:45] · SOCIAL STUDIO AUTOCUT: FORMATI VILLAGGIO V1, V2, V3 & LM1 (RIMOZIONE PILLOLA CATEGORIA VERDE & RIBILANCIAMENTO BLOCCO DIRECT BOOKING: +3PX OFFSET & +10% DIMENSIONI)
 - **Cosa abbiamo fatto:** Applicata l'ottimizzazione grafica richiesta su tutti i formati video del Villaggio (`V1`, `V2`, `V3` e `LM1`) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) sia nel player di anteprima DOM che nel rendering/esportazione Canvas:
   - 🚫 **Rimozione Pillola Rettangolare Verde della Categoria (Glamping / Bungalow / Ville)**:
