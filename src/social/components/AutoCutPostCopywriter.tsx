@@ -686,51 +686,47 @@ REGOLE FONDAMENTALI DI SCRITTURA:
             </div>
           </div>
 
-          {/* 🌦️📅🎉 BOX CONTESTO A 3 SCOMPARTI: METEO | MESE & STAGIONE SOTTO | PROSSIMA FESTIVITÀ IN FONDO */}
-          <div className="flex items-center gap-2 sm:gap-3 px-3 py-1.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs shadow-inner divide-x divide-slate-800/80 shrink-0">
-            {/* 1. METEO LIVE */}
-            <div className="flex flex-col pr-1 sm:pr-2.5 min-w-[95px]">
-              <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Meteo Live</span>
-              <div className="flex items-center gap-1.5 font-bold text-slate-200 text-xs mt-0.5" title={`Meteo Live: ${liveWeather?.sensoryAngle}`}>
-                <span className="text-sm">{liveWeather?.isRaining ? '🌧️' : liveWeather?.isNight ? '🌙' : '☀️'}</span>
+          {/* 🌦️📅🎉 BOX CONTESTO TEMPORALE IN 3 RIGHE COMPATTO (Zero Sbavature & Zero Overflow) */}
+          <div className="px-3 py-2 rounded-xl bg-slate-950/90 border border-slate-800 text-xs shadow-inner flex flex-col justify-center gap-1.5 shrink-0 max-w-full">
+            {/* RIGA 1: METEO LIVE */}
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-12 shrink-0">Meteo</span>
+              <div className="flex items-center gap-1.5 font-bold text-slate-200 text-xs" title={`Meteo Live: ${liveWeather?.sensoryAngle}`}>
+                <span className="text-xs">{liveWeather?.isRaining ? '🌧️' : liveWeather?.isNight ? '🌙' : '☀️'}</span>
                 <span>{liveWeather ? `${liveWeather.city} ${liveWeather.tempC}°C` : 'Ranong 27°C'}</span>
                 {liveWeather?.isRaining && (
-                  <span className="px-1.5 py-0.2 rounded bg-rose-600 text-[8px] font-black text-white animate-pulse">
+                  <span className="px-1.5 py-0.2 rounded bg-rose-600 text-[8px] font-black text-white leading-none animate-pulse">
                     RAIN
                   </span>
                 )}
               </div>
             </div>
 
-            {/* 2. MESE CON GREEN SEASON SOTTO */}
-            <div className="flex flex-col px-2.5 sm:px-3 min-w-[95px]">
-              <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Periodo</span>
-              <span className="font-extrabold text-white text-xs mt-0.5 capitalize">
-                {currentMonthName}
-              </span>
-              <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1 leading-none mt-0.5">
-                {currentSeasonTag}
-              </span>
+            {/* RIGA 2: PERIODO (MESE & STAGIONE SOTTO) */}
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-12 shrink-0">Periodo</span>
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="font-extrabold text-white capitalize">{currentMonthName}</span>
+                <span className="text-slate-600 font-bold">·</span>
+                <span className="font-bold text-emerald-400 text-[10px] flex items-center gap-1">
+                  {currentSeasonTag}
+                </span>
+              </div>
             </div>
 
-            {/* 3. PROSSIMA FESTIVITÀ IN FONDO */}
-            <div className="flex flex-col pl-2.5 sm:pl-3 min-w-[130px]">
-              <span className="text-[9px] uppercase font-bold text-amber-400/90 tracking-wider flex items-center gap-1">
-                <Sparkles className="w-2.5 h-2.5 text-amber-400" />
-                <span>Prossima Festività</span>
-              </span>
-              <div className="flex items-center gap-1.5 mt-0.5">
+            {/* RIGA 3: PROSSIMA FESTIVITÀ (CON DATA E COUNTDOWN) */}
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider w-12 shrink-0">Festa</span>
+              <div className="flex items-center gap-1.5 text-xs">
                 <span className="text-xs">{upcomingHoliday.emoji}</span>
-                <span className="font-black text-amber-300 text-xs">
-                  {upcomingHoliday.name}
-                </span>
+                <span className="font-black text-amber-300">{upcomingHoliday.name}</span>
                 <span className="px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-200 font-mono text-[9px] font-bold border border-amber-500/30">
                   {upcomingHoliday.dateStr}
                 </span>
+                <span className="text-[10px] text-slate-400 font-medium">
+                  ({upcomingHoliday.daysAway === 0 ? 'Oggi!' : upcomingHoliday.daysAway === 1 ? 'Domani' : `${upcomingHoliday.daysAway} gg`})
+                </span>
               </div>
-              <span className="text-[10px] text-slate-400 font-medium">
-                {upcomingHoliday.daysAway === 0 ? 'Oggi!' : upcomingHoliday.daysAway === 1 ? 'Domani!' : `Tra ${upcomingHoliday.daysAway} giorni`}
-              </span>
             </div>
           </div>
         </div>
