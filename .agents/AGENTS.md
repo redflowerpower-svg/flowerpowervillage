@@ -111,6 +111,23 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
       2. Le dimensioni delle schede categoria sono tassativamente calibrate per il viewport verticale del tablet: altezza $88\text{px}$ (`h-[88px]`), icona $28\text{px}$ (`w-7 h-7`) e font ottimizzato (`text-[9px] sm:text-[10px]`).
       3. Solo ed esclusivamente su micro-smartphone stretti ($< 360\text{px}$) adotta lo slider orizzontale compatto a scorrimento (`category-tabs-mobile`).
     - **Integrità Totale Interfaccia Tablet**: Qualsiasi futuro sviluppo di modali, carrello, banner, schede o flussi d'ordine DEVE essere progettato e collaudato rispettando le proporzioni di questo standard device tablet in verticale.
+23. **Regola Immodificabile Protocollo di Comunicazione Umana & Diario di Bordo Live (Soluzione 1)**:
+    - **Banner di Testata Obbligatorio in Ogni Messaggio**: Ogni singolo messaggio e risposta dell'agente verso l'utente DEVE aprirsi TASSATIVAMENTE con un callout banner visivo sintetico e strutturato in 3 punti chiari:
+      1. 🔨 *Cosa è stato fatto*: sintesi immediata dell'azione eseguita.
+      2. 📱 *Cosa cambia nella realtà*: impatto visibile su tablet sala, cellulari clienti o cassa, spiegato in italiano semplice e comprensibile.
+      3. 🚀 *Prossimo passo*: cosa sta per essere fatto subito dopo.
+    - **Diario di Bordo Live Permanente (`DIARIO_DI_BORDO.md`)**:
+      1. Tutte le operazioni completate, le migliorie e le modifiche strutturali DEVONO essere registrate e accumulate cronologicamente sia nel file di workspace `DIARIO_DI_BORDO.md` sia nell'Artifact IDE dedicato.
+      2. **DIVIETO ASSOLUTO DI CANCELLAZIONE**: È severamente vietato sovrascrivere o eliminare lo storico pregresso; ogni sessione accumula i propri traguardi formando una cronistoria indelebile a disposizione dell'utente e di tutti gli agenti.
+      3. I file di notifica o log risiedono all'interno dell'IDE; è CATEGORICAMENTE VIETATO inserire widget, tabelle o pop-up di notifica nell'interfaccia pubblica del sito o sul tablet dei clienti (`/dining`).
+    - **Linguaggio 100% Umano & Zero Gergo Macchina**:
+      1. Spiegare ogni passaggio con parole chiare e concrete (es. "Abbiamo impostato 3 colonne per riga sulle pizze così sul tablet Xiaomi non serve più scorrere a destra e a sinistra", NON "Modificato CSS grid-template-columns inline style refactor").
+      2. Zero dump di codice o stack trace nei report discorsivi per non appesantire la lettura.
+    - **Divieto Assoluto Browser Subagent Automatico (Regola Salva-Token)**:
+      1. È severamente e categoricamente vietato invocare `browser_subagent` per effettuare screenshot o controlli visivi automatici senza l'ordine esplicito dell'utente.
+      2. Le verifiche di correttezza si effettuano tramite analisi statica, TypeScript (`npx tsc --noEmit`), test mirati Node.js in `scratch/` e log locali a 0 token extra.
+    - **Esecuzione Continua & Zero Blocchi**:
+      1. Nessun blocco di pianificazione (`RequestFeedback: false`), nessun tool di conferma interattiva (`ask_question`). Il flusso procede spedito senza interruzioni.
 
 # 🛡️ PROTOCOLLO DI AUTO-APPROVAZIONE SICURA (AUTONOMOUS EXECUTION & ZERO-DISRUPTION GUARDRAILS)
 Il sistema opera in modalità di **esecuzione completamente autonoma, rapida e continua** (predefinita su tutte le richieste, e tassativa con `/goal`, `AUTOPILOT`, `procedi` o `In autonomia:`):
