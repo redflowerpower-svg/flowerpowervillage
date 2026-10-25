@@ -25,7 +25,7 @@ const waPhonePath2D = typeof Path2D !== 'undefined' ? new Path2D(WA_PHONE_PATH_D
 
 // SVG Path ufficiale LINE per rendering fedele su Canvas 2D
 const LINE_ICON_PATH_DATA =
-  'M12 2C6.48 2 2 5.82 2 10.53c0 4.23 3.61 7.77 8.5 8.41.33.07.78.22.89.51.1.26.07.67.03.93l-.15.91c-.05.28-.22 1.1.96.6 1.18-.5 6.38-3.76 8.7-6.44C22.25 13.9 22 12.28 22 10.53 22 5.82 17.52 2 12 2zm-3.8 11.5H6.4c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5V13h1.3c.28 0 .5.22.5.5s-.22.5-.5.5zm2.1-.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5zm4.3 0c0 .22-.15.42-.36.48-.06.02-.11.02-.16.02-.17 0-.32-.08-.41-.21L12.1 10.1v2.4c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.23.15-.42.36-.48.05-.02.11-.02.16-.02.17 0 .32.08.41.21l2.07 2.7V8c0-.28.22-.5.5-.5s.5.22.5.5v5zm3.1-3.2h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5h-1.9c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5h1.9c.28 0 .5.22.5.5s-.22.5-.5.5h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5z';
+  'M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314';
 const lineIconPath2D = typeof Path2D !== 'undefined' ? new Path2D(LINE_ICON_PATH_DATA) : null;
 
 /**
@@ -1035,7 +1035,7 @@ export function AutoCutLabPlayer({
         oCtx.font = `900 ${Math.round(24.2 * s)}px "Outfit", sans-serif`;
         const delivW = oCtx.measureText('DELIVERY ').width + (24 * s);
         oCtx.font = `900 ${Math.round(17.6 * s)}px "Outfit", sans-serif`;
-        const phoneW = (12.65 * 4 + 11) * s + oCtx.measureText('+66 095 882 5573').width;
+        const phoneW = (15.2 * 4 + 13) * s + oCtx.measureText('+66 095 882 5573').width;
         maxSubW = Math.max(fpW, phoneW, delivW);
       } else if (mode === 'DS') {
         oCtx.font = `900 ${Math.round(23 * s)}px "Prompt", "Kanit", sans-serif`;
@@ -1137,8 +1137,8 @@ export function AutoCutLabPlayer({
         oCtx.fillText('เดลิเวอรี่', tx, ty);
         ty += 20 * s + (6 * s);
 
-        // WhatsApp Icon circle (+10%) + LINE Icon circle (+10%) + Phone (+10%)
-        const iconR = 12.65 * s; // Ingrandito del +10%
+        // WhatsApp Icon circle (+20%) + LINE Icon circle (+20%) + Phone
+        const iconR = 15.2 * s; // Ingrandito del +20% per leggibilità perfetta
         let curIconX = tx + iconR;
         const iconCy = ty + iconR;
 
@@ -1151,7 +1151,7 @@ export function AutoCutLabPlayer({
 
         if (waPhonePath2D) {
           oCtx.save();
-          const waScale = (iconR * 1.35) / 24;
+          const waScale = (iconR * 1.30) / 24;
           oCtx.translate(curIconX - (12 * waScale), iconCy - (12 * waScale));
           oCtx.scale(waScale, waScale);
           oCtx.fillStyle = '#ffffff';
@@ -1161,7 +1161,7 @@ export function AutoCutLabPlayer({
         oCtx.restore();
 
         // 2. LINE circle
-        curIconX += (iconR * 2) + (5 * s);
+        curIconX += (iconR * 2) + (5.5 * s);
         oCtx.save();
         oCtx.fillStyle = '#06C755';
         oCtx.beginPath();
@@ -1179,10 +1179,10 @@ export function AutoCutLabPlayer({
         }
         oCtx.restore();
 
-        // Numero con font Outfit 900 (+10%)
-        oCtx.font = `900 ${Math.round(17.6 * s)}px "Outfit", sans-serif`;
+        // Numero con font Outfit 900
+        oCtx.font = `900 ${Math.round(18.2 * s)}px "Outfit", sans-serif`;
         oCtx.fillStyle = '#25D366';
-        oCtx.fillText('+66 095 882 5573', curIconX + iconR + (6 * s), ty + (2 * s));
+        oCtx.fillText('+66 095 882 5573', curIconX + iconR + (6.5 * s), ty + (2 * s));
         ty += (iconR * 2) + (10 * s); // Distacco perfetto: Koh Phayam sotto alle icone e al numero (zero accavallamento)
 
         // Koh Phayam con font Outfit 700 (+10%)
@@ -2555,16 +2555,16 @@ export function AutoCutLabPlayer({
                   เดลิเวอรี่
                 </span>
               </div>
-              {/* Sotto numero telefono verde con icona WhatsApp e LINE Ufficiale (+10%) */}
-              <div className="flex items-center gap-1.5 text-[17px] sm:text-[18px] font-black text-[#25D366] font-['Outfit',sans-serif] whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)] mt-1.5">
-                <span className="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[#25D366] shrink-0 shadow-md">
-                  <svg className="w-[13.5px] h-[13.5px] fill-white" viewBox="0 0 24 24">
-                    <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8.01 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 13.99C16.32 13.86 15.12 13.27 14.9 13.19C14.68 13.1 14.52 13.06 14.36 13.3C14.19 13.55 13.73 14.11 13.59 14.27C13.45 14.44 13.31 14.46 13.06 14.34C12.82 14.21 12.05 13.96 11.13 13.14C10.42 12.5 9.93 11.72 9.8 11.49C9.66 11.25 9.78 11.11 9.9 10.99C10.01 10.88 10.15 10.7 10.27 10.56C10.39 10.41 10.44 10.31 10.52 10.15C10.6 9.99 10.56 9.85 10.5 9.72C10.44 9.6 9.95 8.41 9.75 7.91C9.55 7.43 9.35 7.5 9.19 7.49C9.05 7.49 8.89 7.48 8.72 7.48L8.53 7.33Z"/>
+              {/* Sotto numero telefono verde con icona WhatsApp e LINE Ufficiale (+20% ingranditi e nitidi) */}
+              <div className="flex items-center gap-1.5 text-[17.5px] sm:text-[18.5px] font-black text-[#25D366] font-['Outfit',sans-serif] whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)] mt-1.5">
+                <span className="inline-flex items-center justify-center w-[25px] h-[25px] sm:w-[27px] sm:h-[27px] rounded-full bg-[#25D366] shrink-0 shadow-md">
+                  <svg className="w-[15.5px] h-[15.5px] sm:w-[17px] sm:h-[17px] fill-white" viewBox="0 0 24 24">
+                    <path d={WA_PHONE_PATH_DATA} />
                   </svg>
                 </span>
-                <span className="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[#06C755] shrink-0 shadow-md">
-                  <svg className="w-[15.5px] h-[15.5px] fill-white" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 5.82 2 10.53c0 4.23 3.61 7.77 8.5 8.41.33.07.78.22.89.51.1.26.07.67.03.93l-.15.91c-.05.28-.22 1.1.96.6 1.18-.5 6.38-3.76 8.7-6.44C22.25 13.9 22 12.28 22 10.53 22 5.82 17.52 2 12 2zm-3.8 11.5H6.4c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5V13h1.3c.28 0 .5.22.5.5s-.22.5-.5.5zm2.1-.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5zm4.3 0c0 .22-.15.42-.36.48-.06.02-.11.02-.16.02-.17 0-.32-.08-.41-.21L12.1 10.1v2.4c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.23.15-.42.36-.48.05-.02.11-.02.16-.02.17 0 .32.08.41.21l2.07 2.7V8c0-.28.22-.5.5-.5s.5.22.5.5v5zm3.1-3.2h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5h-1.9c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5h1.9c.28 0 .5.22.5.5s-.22.5-.5.5h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5z"/>
+                <span className="inline-flex items-center justify-center w-[25px] h-[25px] sm:w-[27px] sm:h-[27px] rounded-full bg-[#06C755] shrink-0 shadow-md">
+                  <svg className="w-[17px] h-[17px] sm:w-[18.5px] sm:h-[18.5px] fill-white" viewBox="0 0 24 24">
+                    <path d={LINE_ICON_PATH_DATA} />
                   </svg>
                 </span>
                 <span>+66 095 882 5573</span>

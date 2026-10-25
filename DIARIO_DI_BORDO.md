@@ -5,6 +5,16 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 12:18] · LOGO LINE UFFICIALE PERFETTO & BOLLINI WHATSAPP/LINE INGRANDITI (+20%)
+- **Cosa abbiamo fatto:** Riprogettata la grafica dei loghi contatti nel formato R1 (Stories Ristorante Koh Phayam) in `AutoCutLabPlayer.tsx` e `render-social-video-cloud.mjs`:
+  - 💚 **Logo LINE Rettificato**: Sostituito il vecchio tracciato che presentava la lettera "E" sollevata e tagliata fuori con la sagoma vettoriale ufficiale Simple Icons. Ora tutte e 4 le lettere (**L - I - N - E**) poggiano sulla stessa linea di base con allineamento e spessore perfetti.
+  - 🟢 **Ingrandimento Bollini (+20%)**: I due badge circolari (verde scuro per WhatsApp e verde smeraldo per LINE) sono stati ingranditi da 22px a **26-27px** nell'anteprima DOM e da `12.65 * s` a **`15.2 * s`** sul video Canvas esportato, con proporzioni ampie e nitide.
+  - 📞 **Allineamento Telefono**: Ricalibrata la spaziatura del numero verde `+66 095 882 5573` per una centratura ottica armoniosa e senza sovrapposizioni.
+- **Effetto reale:** Nel video R1 il logo di LINE si legge ora con totale chiarezza, le lettere sono perfettamente orizzontali e i due bollini risaltano con forza visiva immediata anche sugli schermi degli smartphone.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 12:05] · SFUMATURA SCURA 340PX, RESPIRO CATEGORIA +16PX & MOTO DELIVERY
 - **Cosa abbiamo fatto:** Allineato il rendering tra l'anteprima del lettore e il video esportato in `AutoCutLabPlayer.tsx`:
   - 🏍️ **Moto Delivery**: Aggiunta l'icona ufficiale della moto da delivery `🛵` a fianco della parola lampeggiante `DELIVERY`, sia nel DOM che su Canvas con centratura ottica.
