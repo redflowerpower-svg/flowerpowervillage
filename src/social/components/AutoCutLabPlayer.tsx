@@ -1292,7 +1292,11 @@ export function AutoCutLabPlayer({
         const badgeH = hasBadge ? (53 * s) : 0;
         const thaiH = thaiLines.length * thaiLineStep;
         const engH = engLines.length * (24 * s);   // Interlinea +20% (era 20*s)
-        const priceH = (hasPrice || scene.pizzaSizes) ? (43 * s + 20 * s) : 0; // Box Prezzo +20% (distacco alzato di +10px da 10*s a 20*s)
+        const priceH = (scene.pizzaSizes && mode !== 'R1')
+          ? ((38.5 * 2 + 6) * s + 20 * s) // Pizze a colonna (8" e 12" sovrapposte): altezza 83*s + 20*s distacco
+          : (hasPrice || scene.pizzaSizes)
+          ? (43 * s + 20 * s)
+          : 0;
         const totalCardH = badgeH + thaiH + engH + priceH;
 
         // Alzata di +20px dal bordo inferiore dello schermo: da 31*s a 51*s
@@ -1395,7 +1399,7 @@ export function AutoCutLabPlayer({
           const p8 = `${scene.pizzaSizes.size8Price}฿`;
           const p12 = `${scene.pizzaSizes.size12Price}฿`;
 
-          const drawPizzaBadge = (label: string, priceStr: string, startX: number) => {
+          const drawPizzaBadge = (label: string, priceStr: string, startX: number, startY: number) => {
             oCtx.font = `900 ${Math.round(25.2 * s)}px "Kanit", sans-serif`;
             const pW = oCtx.measureText(priceStr).width;
             const bW = (38 * s) + pW + (16 * s);
@@ -1406,9 +1410,9 @@ export function AutoCutLabPlayer({
             oCtx.fillStyle = '#000000';
             oCtx.beginPath();
             if (typeof oCtx.roundRect === 'function') {
-              oCtx.roundRect(startX + 2 * s, by + 2 * s, bW, bH, bRad);
+              oCtx.roundRect(startX + 2 * s, startY + 2 * s, bW, bH, bRad);
             } else {
-              oCtx.rect(startX + 2 * s, by + 2 * s, bW, bH);
+              oCtx.rect(startX + 2 * s, startY + 2 * s, bW, bH);
             }
             oCtx.fill();
 
@@ -1416,9 +1420,9 @@ export function AutoCutLabPlayer({
             oCtx.fillStyle = '#FFE500';
             oCtx.beginPath();
             if (typeof oCtx.roundRect === 'function') {
-              oCtx.roundRect(startX, by, bW, bH, bRad);
+              oCtx.roundRect(startX, startY, bW, bH, bRad);
             } else {
-              oCtx.rect(startX, by, bW, bH);
+              oCtx.rect(startX, startY, bW, bH);
             }
             oCtx.fill();
 
@@ -1432,9 +1436,9 @@ export function AutoCutLabPlayer({
             const tagW = 24 * s;
             const tagH = 21 * s;
             if (typeof oCtx.roundRect === 'function') {
-              oCtx.roundRect(startX + 6 * s, by + (8.5 * s), tagW, tagH, 3.5 * s);
+              oCtx.roundRect(startX + 6 * s, startY + (8.5 * s), tagW, tagH, 3.5 * s);
             } else {
-              oCtx.rect(startX + 6 * s, by + (8.5 * s), tagW, tagH);
+              oCtx.rect(startX + 6 * s, startY + (8.5 * s), tagW, tagH);
             }
             oCtx.fill();
 
@@ -1443,12 +1447,12 @@ export function AutoCutLabPlayer({
             oCtx.fillStyle = '#ffffff';
             oCtx.textAlign = 'center';
             oCtx.textBaseline = 'middle';
-            oCtx.fillText(label, startX + 6 * s + (tagW / 2), by + (8.5 * s) + (tagH / 2) + Math.round(1 * s));
+            oCtx.fillText(label, startX + 6 * s + (tagW / 2), startY + (8.5 * s) + (tagH / 2) + Math.round(1 * s));
 
             // Testo prezzo centrato con contorno bianco allineato
             oCtx.font = `900 ${Math.round(25.2 * s)}px "Kanit", sans-serif`;
             const priceCx = startX + 6 * s + tagW + 5 * s + (pW / 2);
-            const priceCy = by + (bH / 2) + Math.round(1.5 * s);
+            const priceCy = startY + (bH / 2) + Math.round(1.5 * s);
             oCtx.strokeStyle = '#ffffff';
             oCtx.lineWidth = 4 * s;
             oCtx.lineJoin = 'round';
@@ -1462,20 +1466,21 @@ export function AutoCutLabPlayer({
           };
 
           oCtx.save();
-          const w8 = drawPizzaBadge('8"', p8, bx);
-          drawPizzaBadge('12"', p12, bx + w8 + (8 * s));
+          const p8H = 38.5 * s;
+          const pGap = 6 * s;
+          const w8 = drawPizzaBadge('8"', p8, bx, by);
+          const w12 = drawPizzaBadge('12"', p12, bx, by + p8H + pGap);
           oCtx.restore();
 
-          // 🏷️ BADGE PROMO BILINGUE A DESTRA (Adattivo su Canvas, Centrato, Gradiente Brillante)
+          // 🏷️ BADGE PROMO BILINGUE A DESTRA (Incolonnamento Pizze, Centrato, Gradiente Brillante)
           if ((mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro) {
             oCtx.save();
-            const pRight = bx + w8 + (8 * s) + (100 * s);
-            const maxAvailW = Math.max(160 * s, w - bx - pRight);
-            const badgeW = Math.min(185 * s, maxAvailW);
-            const badgeH = 37 * s;
+            const totalPizzaH = (p8H * 2) + pGap; // 83 * s
+            const badgeW = 205 * s;
+            const badgeH = 52 * s;
             const badgeX = w - bx - badgeW;
-            const badgeY = by + (1 * s);
-            const badgeRad = 7 * s;
+            const badgeY = by + ((totalPizzaH - badgeH) / 2);
+            const badgeRad = 8 * s;
 
             // Ombra
             oCtx.shadowColor = 'rgba(225, 29, 72, 0.65)';
@@ -1497,9 +1502,9 @@ export function AutoCutLabPlayer({
             }
             oCtx.fill();
 
-            // Bordino oro chiaro 1.6px
+            // Bordino oro chiaro 1.8px
             oCtx.strokeStyle = '#fef08a';
-            oCtx.lineWidth = 1.6 * s;
+            oCtx.lineWidth = 1.8 * s;
             oCtx.stroke();
 
             // Testo rigorosamente CENTRATO
@@ -1509,13 +1514,13 @@ export function AutoCutLabPlayer({
 
             oCtx.shadowColor = 'rgba(0, 0, 0, 0.9)';
             oCtx.shadowBlur = 4 * s;
-            oCtx.font = `900 ${Math.round(10.5 * s)}px "Prompt", "Kanit", sans-serif`;
+            oCtx.font = `900 ${Math.round(11.5 * s)}px "Prompt", "Kanit", sans-serif`;
             oCtx.fillStyle = '#fef08a';
-            oCtx.fillText('🛵 ส่งฟรี 300฿+ · 🏷️ ลด 10%', badgeCx, badgeY + (12 * s));
+            oCtx.fillText('🛵 ส่งฟรี 300฿+  ·  🏷️ ลด 10%', badgeCx, badgeY + (18 * s));
 
-            oCtx.font = `800 ${Math.round(9 * s)}px "Outfit", sans-serif`;
+            oCtx.font = `800 ${Math.round(9.5 * s)}px "Outfit", sans-serif`;
             oCtx.fillStyle = '#ffffff';
-            oCtx.fillText('Free Delivery 300฿+ · 1st Order -10%', badgeCx, badgeY + (25 * s));
+            oCtx.fillText('Free Delivery 300฿+ · 1st Order -10%', badgeCx, badgeY + (34 * s));
             oCtx.restore();
           }
         } else if (hasPrice) {
@@ -2742,9 +2747,11 @@ export function AutoCutLabPlayer({
         isInOutro ? 'opacity-0' : 'opacity-100'
       }`} />
 
-      {/* 🏷️ GERARCHIA TIPOGRAFICA RIGOROSA (SAFE ZONE IN BASSO PROPORZIONATA - ALZATA DI 20PX: bottom-[47px]) */}
+      {/* 🏷️ GERARCHIA TIPOGRAFICA RIGOROSA (SAFE ZONE IN BASSO PROPORZIONATA - ALZATA A 65px PER LE PIZZE) */}
       {!testRun.isEmptyShowcase && currentScene && (
-        <div className={`absolute left-[25px] right-3.5 bottom-[47px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-500 ${
+        <div className={`absolute left-[25px] right-3.5 z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-500 ${
+          (currentScene.pizzaSizes && mode !== 'R1') ? 'bottom-[65px]' : 'bottom-[47px]'
+        } ${
           isInOutro ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
         }`}>
           
@@ -2821,24 +2828,24 @@ export function AutoCutLabPlayer({
               </div>
 
               {/* PREZZO PIATTO / PIZZE 8" E 12" (SCALA PIENA +20%, BORDI RETTANGOLO ADERENTI - distacco alzato di +10px a pt-5) */}
-              {/* Box Prezzo (+20%) + OPZIONE 1: Badge Promo Dinamico a destra */}
-              <div className="pt-5 w-full flex items-center justify-between gap-2.5">
+              {/* Box Prezzo (+20%) + BADGE PROMO A DESTRA */}
+              <div className="pt-4 w-full flex items-center justify-between gap-3">
                 <div className="shrink-0">
                   {currentScene.pizzaSizes && mode !== 'R1' ? (
-                    <div className="flex items-center gap-2">
-                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                        <span className="font-['Kanit',sans-serif] text-[15.5px] sm:text-[17px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
+                    <div className="flex flex-col items-start gap-1.5">
+                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black w-fit">
+                        <span className="font-['Kanit',sans-serif] text-[15px] sm:text-[16.5px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
                         <span
-                          className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
+                          className="font-['Kanit',sans-serif] text-[24px] sm:text-[26.5px] font-black leading-none tracking-tight"
                           style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
                         >
                           {currentScene.pizzaSizes.size8Price}฿
                         </span>
                       </div>
-                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                        <span className="font-['Kanit',sans-serif] text-[15.5px] sm:text-[17px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
+                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black w-fit">
+                        <span className="font-['Kanit',sans-serif] text-[15px] sm:text-[16.5px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
                         <span
-                          className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
+                          className="font-['Kanit',sans-serif] text-[24px] sm:text-[26.5px] font-black leading-none tracking-tight"
                           style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
                         >
                           {currentScene.pizzaSizes.size12Price}฿
@@ -2861,15 +2868,15 @@ export function AutoCutLabPlayer({
                 {(mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && (
                   <div className={`shrink-0 rounded-lg border-2 border-yellow-200 bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 shadow-[0_4px_16px_rgba(225,29,72,0.65)] flex flex-col items-center justify-center text-center ${
                     currentScene.pizzaSizes
-                      ? 'px-2 py-1 flex-1 min-w-0 max-w-[195px]'
+                      ? 'px-3 py-2 max-w-[230px]'
                       : 'px-3 py-1.5 max-w-[240px]'
                   }`}>
-                    <div className="flex items-center justify-center gap-1 font-['Prompt',sans-serif] font-black text-amber-200 leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] whitespace-nowrap text-[11px] sm:text-[12px]">
+                    <div className="flex items-center justify-center gap-1.5 font-['Prompt',sans-serif] font-black text-amber-200 leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] whitespace-nowrap text-[11.5px] sm:text-[12.5px]">
                       <span>🛵 ส่งฟรี 300฿+</span>
                       <span className="text-white/80 font-normal">·</span>
                       <span className="text-yellow-100">🏷️ ลด 10%</span>
                     </div>
-                    <div className="font-['Outfit',sans-serif] font-extrabold text-white tracking-wide uppercase leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] mt-0.5 whitespace-nowrap text-[9.5px] sm:text-[10.5px]">
+                    <div className="font-['Outfit',sans-serif] font-extrabold text-white tracking-wide uppercase leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] mt-1 whitespace-nowrap text-[9.5px] sm:text-[10.5px]">
                       Free Delivery 300฿+ · 1st Order -10%
                     </div>
                   </div>
