@@ -2749,7 +2749,7 @@ export function AutoCutLabPlayer({
 
       {/* 🏷️ GERARCHIA TIPOGRAFICA RIGOROSA (SAFE ZONE IN BASSO PROPORZIONATA - ALZATA A 65px PER LE PIZZE) */}
       {!testRun.isEmptyShowcase && currentScene && (
-        <div className={`absolute left-[25px] right-3.5 z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-500 ${
+        <div className={`absolute left-[25px] right-[25px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-500 ${
           (currentScene.pizzaSizes && mode !== 'R1') ? 'bottom-[65px]' : 'bottom-[47px]'
         } ${
           isInOutro ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'

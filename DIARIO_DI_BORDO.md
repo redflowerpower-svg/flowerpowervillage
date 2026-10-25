@@ -5,6 +5,13 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 13:51] · SIMMETRIA PERFETTA BORDO DESTRO BANNER PROMO (25PX SPECULARI AL PREZZO A SINISTRA)
+- **Cosa abbiamo fatto:** Risolto l'effetto "a filo col bordo" nel player video (`AutoCutLabPlayer.tsx`):
+  - 📐 **Margine Destro Speculare (`right-[25px]`)**: Sostituito il vecchio `right-3.5` (che lasciava solo 14px) con `right-[25px]`, equiparando al millesimo la distanza tra il bordo destro del banner e il margine destro del video allo spazio di 25px presente tra il margine sinistro del video e il riquadro giallo del prezzo.
+  - ⚖️ **Equilibrio Visivo 1:1**: Sia nell'anteprima DOM sia nel canvas MP4 l'impaginazione della riga inferiore è ora perfettamente centrata e bilanciata, con margini laterali identici di 25px a destra e a sinistra.
+- **Effetto reale:** Il banner promozionale rubino/oro non tocca più il bordo destro dello schermo: respira con lo stesso spazio armonioso del cartellino del prezzo a sinistra.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 13:24] · PREZZI PIZZE 8" E 12" A COLONNA CON BANNER PROMO SPAZIOSO A DESTRA
 - **Cosa abbiamo fatto:** Riprogettata l'impaginazione della riga prezzi nelle pizze in `AutoCutLabPlayer.tsx` (Canvas `renderOverlaysToContext` e DOM preview):
   - 🍕 **Prezzi Incolonnati a Sinistra (8" sopra, 12" sotto)**: Nelle pizze con due taglie, i due box gialli non sono più affiancati in orizzontale ma sovrapposti in colonna a sinistra (`flex-col items-start gap-1.5`). La larghezza occupata dai prezzi passa da 240px a soli **110px**.
