@@ -5,6 +5,14 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 13:24] · PREZZI PIZZE 8" E 12" A COLONNA CON BANNER PROMO SPAZIOSO A DESTRA
+- **Cosa abbiamo fatto:** Riprogettata l'impaginazione della riga prezzi nelle pizze in `AutoCutLabPlayer.tsx` (Canvas `renderOverlaysToContext` e DOM preview):
+  - 🍕 **Prezzi Incolonnati a Sinistra (8" sopra, 12" sotto)**: Nelle pizze con due taglie, i due box gialli non sono più affiancati in orizzontale ma sovrapposti in colonna a sinistra (`flex-col items-start gap-1.5`). La larghezza occupata dai prezzi passa da 240px a soli **110px**.
+  - 📏 **Card Alzata in Safe Zone (`bottom-[65px]`)**: Elevata l'intera card dei testi verso l'alto (+18px in DOM a `bottom-[65px]`, +44.5px su Canvas `priceH`) per accogliere i due box sovrapposti restando 100% protetta dalla sfumatura scura inferiore da 340px.
+  - ✨ **Banner Promo a Destra a Tutto Spazio**: Il badge promozionale rubino/oro ora dispone di **ben 230px di larghezza comoda** a destra, allineandosi e centrandosi verticalmente con la colonna delle pizze senza la minima collisione.
+- **Effetto reale:** Zero accavallamenti tra i prezzi e la promo nelle pizze: la 8" e la 12" si leggono chiare a sinistra e il banner delle offerte Ranong risalta grande, nitido e brillante a destra.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 13:10] · BADGE PROMO BASSO-DESTRA LUMINOSO, CENTRATO E DINAMICAMENTE ADATTIVO
 - **Cosa abbiamo fatto:** Perfezionato il layout promozionale nei formati Pizzeria Ranong (`P1`, `P2`, `P3`, `DS`) sia su Canvas (`renderOverlaysToContext`) sia nel DOM in `AutoCutLabPlayer.tsx` su indicazione dell'utente:
   - 🗑️ **Rimosso Nastro Ticker Superiore**: Eliminata definitivamente l'Opzione 2 in alto sotto l'header per mantenere la visuale della foto pulita e priva di ingombri.
