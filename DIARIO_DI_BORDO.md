@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [26/10/2026 - ORE 00:25] · SOCIAL STUDIO AUTOCUT: RIMOZIONE TOTALE DEL CERCHIO, CONTORNI E MASCHERE (PURO LOGO AUTENTICO AD ASSET PULITO SIA IN ANTEPRIMA CHE IN RENDERING CANVAS)
+- **Cosa abbiamo fatto:** Eliminato radicalmente qualsiasi cerchio, bordo dorato, maschera circolare o sfondo di contenimento attorno al logo in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx), caricando ed esponendo esclusivamente l'asset grafico trasparente originale del brand:
+  - 🚫 **Azzerati Sfondi e Maschere Circolari (Addio Rounded, Bg e Clip)**:
+    - Nel player di anteprima DOM (9:16 e 4:3 per DS, P1, P2, P3, R1, LM1, V1, V2, V3): rimosso `rounded-full`, rimosso `border-2 border-amber-400`, rimosso `bg-black/60` e rimosso `object-cover`.
+    - Applicato lo stile puro `w-[90px] h-[90px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0`: viene mostrato direttamente il logo nativo con le sue trasparenze originali e una morbida ombra naturale di profondità.
+  - 🎨 **Pulizia Totale nel Rendering Canvas (`renderOverlaysToContext`)**:
+    - Rimosso lo sfondo circolare `oCtx.fillStyle = '#0b1120'`.
+    - Rimossa la maschera di ritaglio `oCtx.clip()`.
+    - Rimosso il contorno dorato `oCtx.strokeStyle = '#f59e0b'` / `oCtx.stroke()`.
+    - Ora il canvas esegue il disegno diretto di `effectiveLogo` con `oCtx.drawImage(effectiveLogo, logoX, logoY, logoSize, logoSize)` accompagnato da ombra `rgba(0,0,0,0.95)`, esattamente identico all'infallibile Outro finale.
+- **Effetto reale:** Nessun cerchio o bordo artificioso compare più sul video: sia nell'anteprima del Social Studio sia nei video esportati per Telegram/TikTok/Instagram/Facebook compare unicamente il logo autentico pulito e nitido.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [26/10/2026 - ORE 00:15] · SOCIAL STUDIO SCHEDULER: DOPPIA TIKTOK STORY ORE 08:00 CONTEMPORANEA (PIZZA + VILLAGGIO), R1 GRUPPI ALLE 17:00 & BLINDATURA FASCIA DIURNA (08:00 - 17:00)
 - **Cosa abbiamo fatto:** Riorganizzata la schedulazione manuale e automatica dello Scheduler in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) e [AutoCutStudioPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/pages/AutoCutStudioPage.tsx):
   - 🌅 **Doppia Story TikTok Contemporanea alle 08:00 del Mattino**:

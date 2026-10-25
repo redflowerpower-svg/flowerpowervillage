@@ -1191,39 +1191,28 @@ export function AutoCutLabPlayer({
       const logoX = Math.round((w - totalBlockW) / 2);
       const tx = logoX + logoSize + gap;
 
-      // 🛡️ 1. Sfondo circolare solido di contrasto (nero profondo): elimina al 100% qualsiasi trasparenza o infiltrazione del fogliame video sottostante
-      oCtx.save();
-      oCtx.beginPath();
-      oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
-      oCtx.closePath();
-      oCtx.fillStyle = '#0b1120';
-      oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-      oCtx.shadowBlur = 12 * s;
-      oCtx.fill();
-      oCtx.restore();
-
-      // 🛡️ 2. Selezione logo ultra-robusta a 4 livelli (DOM montato > Image cache > Canvas buffer > Fallback)
+      // 🛡️ Disegno puro del Logo Ufficiale (Puro logo senza sfondo cerchio e senza contorno)
+      const isPizzaBrand = mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS' || brand === 'pizza';
+      const brandLogoCanvas = isPizzaBrand ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas;
+      const targetLogo = isPizzaBrand ? globalPizzaLogoImg : globalVillageLogoImg;
       const domLogo = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
-      const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
-      const brandLogoCanvas = brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas;
 
       const effectiveLogo: CanvasImageSource | null =
-        (domLogo && domLogo.complete && domLogo.naturalWidth > 0)
-          ? domLogo
-          : (targetLogo && targetLogo.complete && targetLogo.naturalWidth > 0)
-            ? targetLogo
-            : (brandLogoCanvas && brandLogoCanvas.width > 0)
-              ? brandLogoCanvas
+        (brandLogoCanvas && brandLogoCanvas.width > 0)
+          ? brandLogoCanvas
+          : (domLogo && domLogo.complete && domLogo.naturalWidth > 0)
+            ? domLogo
+            : (targetLogo && targetLogo.complete && targetLogo.naturalWidth > 0)
+              ? targetLogo
               : (logoImg && logoImg.complete && logoImg.naturalWidth > 0)
                 ? logoImg
-                : targetLogo;
+                : null;
 
       if (effectiveLogo) {
         oCtx.save();
-        oCtx.beginPath();
-        oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
-        oCtx.closePath();
-        oCtx.clip();
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        oCtx.shadowBlur = 12 * s;
+        oCtx.shadowOffsetY = 3 * s;
         try {
           oCtx.drawImage(effectiveLogo, logoX, logoY, logoSize, logoSize);
         } catch (drawErr) {
@@ -1231,17 +1220,6 @@ export function AutoCutLabPlayer({
         }
         oCtx.restore();
       }
-
-      // 🛡️ 3. 👑 BORDO GIALLO DORATO UFFICIALE (Identico a LM1 per V1, V2, V3 e tutti i formati)
-      oCtx.save();
-      oCtx.beginPath();
-      oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
-      oCtx.lineWidth = 2.8 * s;
-      oCtx.strokeStyle = '#f59e0b';
-      oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-      oCtx.shadowBlur = 12 * s;
-      oCtx.stroke();
-      oCtx.restore();
 
       // Blocco Testi Header (a destra del logo, sempre centrato)
       let ty = logoY + (2 * s);
@@ -3062,7 +3040,7 @@ export function AutoCutLabPlayer({
             <img
               src={PIZZA_LOGO_512_BASE64}
               alt="Flower Power Pizza"
-              className="w-14 h-14 rounded-full object-cover border-2 border-amber-400/80 shadow-[0_0_20px_rgba(245,158,11,0.35)] mb-2.5"
+              className="w-14 h-14 object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.35)] mb-2.5"
             />
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/60 text-amber-300 text-[10px] font-black tracking-wider uppercase shadow-md whitespace-nowrap">
               <Sparkles className="w-3 h-3 text-amber-400 animate-pulse" />
@@ -3162,7 +3140,7 @@ export function AutoCutLabPlayer({
                 id="autoCutHeaderLogoImg"
                 src={PIZZA_LOGO_512_BASE64}
                 alt="Flower Power Pizza"
-                className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+                className="w-[90px] h-[90px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0 mt-0.5"
               />
               <div className="flex-1 min-w-0 flex flex-col text-left drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
                 <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
@@ -3203,7 +3181,7 @@ export function AutoCutLabPlayer({
                 id="autoCutHeaderLogoImg"
                 src={PIZZA_LOGO_512_BASE64}
                 alt="Flower Power Pizza"
-                className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+                className="w-[90px] h-[90px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0 mt-0.5"
               />
               <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
                 <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
@@ -3239,7 +3217,7 @@ export function AutoCutLabPlayer({
                 id="autoCutHeaderLogoImg"
                 src={VILLAGE_LOGO_512_BASE64}
                 alt="Flower Power Village"
-                className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+                className="w-[90px] h-[90px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0 mt-0.5"
               />
               <div className="shrink-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
                 <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
@@ -3291,7 +3269,7 @@ export function AutoCutLabPlayer({
                 id="autoCutHeaderLogoImg"
                 src={VILLAGE_LOGO_512_BASE64}
                 alt="Flower Power Village"
-                className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+                className="w-[90px] h-[90px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0 mt-0.5"
               />
               <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
                 <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
@@ -3362,7 +3340,7 @@ export function AutoCutLabPlayer({
                 id="autoCutHeaderLogoImg"
                 src={VILLAGE_LOGO_512_BASE64}
                 alt="Flower Power Village"
-                className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+                className="w-[90px] h-[90px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0 mt-0.5"
               />
               <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
                 <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
@@ -3862,7 +3840,7 @@ export function AutoCutLabPlayer({
                 crossOrigin="anonymous"
                 src={brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64}
                 alt="Logo"
-                className="w-[60px] h-[60px] rounded-full object-cover border-[2.5px] border-amber-400/80 shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0 bg-black/40"
+                className="w-[60px] h-[60px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0"
               />
               <div className="flex flex-col text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                 <div className="flex flex-col text-left leading-none">
