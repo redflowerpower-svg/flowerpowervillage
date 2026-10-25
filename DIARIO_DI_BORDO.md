@@ -5,6 +5,17 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 13:10] · BADGE PROMO BASSO-DESTRA LUMINOSO, CENTRATO E DINAMICAMENTE ADATTIVO
+- **Cosa abbiamo fatto:** Perfezionato il layout promozionale nei formati Pizzeria Ranong (`P1`, `P2`, `P3`, `DS`) sia su Canvas (`renderOverlaysToContext`) sia nel DOM in `AutoCutLabPlayer.tsx` su indicazione dell'utente:
+  - 🗑️ **Rimosso Nastro Ticker Superiore**: Eliminata definitivamente l'Opzione 2 in alto sotto l'header per mantenere la visuale della foto pulita e priva di ingombri.
+  - ✨ **Look Luminoso & Brillante (Addio Sfondo Scuro)**: Sostituito il vecchio sfondo nero con un vivace gradiente gastronomico rubino/ambra (`from-red-600 via-rose-600 to-amber-500`) arricchito da un solido bordino giallo oro chiaro (`border-2 border-yellow-200`) e bagliore diffuso, per risaltare con energia a fianco del prezzo giallo `#FFE500`.
+  - 🎯 **Testi Rigorosamente Centrati**: Sia la riga Thai (`🛵 ส่งฟรี 300฿+ · 🏷️ ลด 10%`) sia la riga Inglese (`Free Delivery 300฿+ · 1st Order -10%`) sono ora allineate al centro su due righe armoniose.
+  - 📐 **Adattamento Dinamico (Pizze vs Piatti Singoli)**:
+    - *Con Pizze (doppia taglia 8" e 12")*: Il badge adatta automaticamente la sua larghezza e il padding (`max-w-[195px]`), affiancandosi comodamente senza mai toccare né uscire dal canvas.
+    - *Con Piatti Singoli (pasta, burger, insalate, DS)*: Il badge si espande in larghezza (`max-w-[240px]`) sfruttando appieno lo spazio disponibile a destra.
+- **Effetto reale:** L'offerta commerciale (consegna gratis sopra i 300฿ e 10% di sconto sul primo ordine) è immediatamente visibile, attraente e perfettamente integrata nella composizione 9:16.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 12:54] · PROVA COMPARATIVA OFFERTE (OPZIONE 1: BADGE PREZZO + OPZIONE 2: NASTRO TICKER)
 - **Cosa abbiamo fatto:** Integrate contemporaneamente entrambe le soluzioni di design nei formati Pizzeria Ranong (`P1`, `P2`, `P3`, `DS`) sia nel motore Canvas (`renderOverlaysToContext`) sia nell'anteprima DOM in `AutoCutLabPlayer.tsx`:
   - 🏷️ **Opzione 1 (Badge a destra del Prezzo)**: Inserito a destra del box giallo del prezzo uno smart tag sagomato in vetro scuro con bordino oro/ambra contenente:
