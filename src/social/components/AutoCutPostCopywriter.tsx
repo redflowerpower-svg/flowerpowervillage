@@ -61,6 +61,75 @@ export function DeepSeekWhaleLogo({ className = "w-5 h-5" }: { className?: strin
   );
 }
 
+export interface UpcomingHoliday {
+  name: string;
+  nameThai: string;
+  dateStr: string;
+  emoji: string;
+  daysAway: number;
+}
+
+export function getUpcomingHoliday(referenceDate: Date = new Date()): UpcomingHoliday {
+  const year = referenceDate.getFullYear();
+  
+  // Calendario Festività Nazionali Thai & Internazionali
+  const holidaySchedule: Array<{
+    name: string;
+    nameThai: string;
+    month: number; // 0-11
+    day: number;
+    emoji: string;
+  }> = [
+    { name: 'Capodanno', nameThai: 'วันขึ้นปีใหม่', month: 0, day: 1, emoji: '🎆' },
+    { name: "San Valentino", nameThai: 'วันวาเลนไทน์', month: 1, day: 14, emoji: '💖' },
+    { name: 'Chakri Memorial Day', nameThai: 'วันจักรี', month: 3, day: 6, emoji: '👑' },
+    { name: 'Songkran (Capodanno Thai)', nameThai: 'วันสงกรานต์', month: 3, day: 13, emoji: '💦' },
+    { name: 'Festa del Lavoro', nameThai: 'วันแรงงานแห่งชาติ', month: 4, day: 1, emoji: '🛠️' },
+    { name: 'Festa della Mamma Thai', nameThai: 'วันแม่แห่งชาติ', month: 7, day: 12, emoji: '💙' },
+    { name: 'King Chulalongkorn Day', nameThai: 'วันปิยมหาราช', month: 9, day: 23, emoji: '🏛️' },
+    { name: 'Halloween', nameThai: 'วันฮาโลวีน', month: 9, day: 31, emoji: '🎃' },
+    { name: 'Loy Krathong', nameThai: 'วันลอยกระทง', month: 10, day: 15, emoji: '🌕' },
+    { name: 'Festa del Re / National Day', nameThai: 'วันชาติไทย', month: 11, day: 5, emoji: '🇹🇭' },
+    { name: 'Giorno della Costituzione', nameThai: 'วันรัฐธรรมนูญ', month: 11, day: 10, emoji: '📜' },
+    { name: 'Natale', nameThai: 'วันคริสต์มาส', month: 11, day: 25, emoji: '🎄' },
+    { name: "San Silvestro", nameThai: 'วันสิ้นปี', month: 11, day: 31, emoji: '✨' },
+  ];
+
+  const todayMs = new Date(year, referenceDate.getMonth(), referenceDate.getDate()).getTime();
+  
+  let nextHoliday: { name: string; nameThai: string; month: number; day: number; emoji: string } | null = null;
+  let targetYear = year;
+
+  for (const h of holidaySchedule) {
+    const hDate = new Date(year, h.month, h.day).getTime();
+    if (hDate >= todayMs) {
+      nextHoliday = h;
+      break;
+    }
+  }
+
+  if (!nextHoliday) {
+    nextHoliday = holidaySchedule[0];
+    targetYear = year + 1;
+  }
+
+  const targetDate = new Date(targetYear, nextHoliday.month, nextHoliday.day);
+  const diffDays = Math.ceil((targetDate.getTime() - todayMs) / (1000 * 60 * 60 * 24));
+
+  const monthNamesIt = [
+    'Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu',
+    'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'
+  ];
+
+  return {
+    name: nextHoliday.name,
+    nameThai: nextHoliday.nameThai,
+    dateStr: `${nextHoliday.day} ${monthNamesIt[nextHoliday.month]}`,
+    emoji: nextHoliday.emoji,
+    daysAway: Math.max(0, diffDays)
+  };
+}
+
 export interface PostCaptionsBundle {
   tiktok: string;
   instagram: string;
@@ -96,6 +165,24 @@ export function AutoCutPostCopywriter({
     promptSent?: string;
   } | null>(null);
   const [showPromptInspector, setShowPromptInspector] = useState(false);
+
+  // Calcolo Dinamico Mese, Stagione & Prossima Festività (Ranong / Koh Phayam / Internazionali)
+  const now = useMemo(() => new Date(), []);
+  const currentMonthName = useMemo(() => {
+    const monthNamesIt = [
+      'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+      'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+    ];
+    return monthNamesIt[now.getMonth()];
+  }, [now]);
+
+  const currentSeasonTag = useMemo(() => {
+    const m = now.getMonth();
+    // Nov - Apr = High Season, Mag - Ott = Green Season
+    return (m >= 10 || m <= 3) ? '☀️ High Season' : '🌿 Green Season';
+  }, [now]);
+
+  const upcomingHoliday = useMemo(() => getUpcomingHoliday(now), [now]);
 
   // Stati Dinamici per Canale
   // 1. TikTok State
@@ -599,24 +686,52 @@ REGOLE FONDAMENTALI DI SCRITTURA:
             </div>
           </div>
 
-          {/* CAPSULA CONTESTO UNIFICATA (Meteo Live + Mese + Stagione in un unico elemento) */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-750/80 text-xs shadow-inner">
-            {liveWeather && (
-              <span className="flex items-center gap-1.5 font-bold text-slate-200" title={`Meteo Live: ${liveWeather.sensoryAngle}`}>
-                <span>{liveWeather.isRaining ? '🌧️' : liveWeather.isNight ? '🌙' : '☀️'}</span>
-                <span>{liveWeather.city} {liveWeather.tempC}°C</span>
-                {liveWeather.isRaining && (
+          {/* 🌦️📅🎉 BOX CONTESTO A 3 SCOMPARTI: METEO | MESE & STAGIONE SOTTO | PROSSIMA FESTIVITÀ IN FONDO */}
+          <div className="flex items-center gap-2 sm:gap-3 px-3 py-1.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs shadow-inner divide-x divide-slate-800/80 shrink-0">
+            {/* 1. METEO LIVE */}
+            <div className="flex flex-col pr-1 sm:pr-2.5 min-w-[95px]">
+              <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Meteo Live</span>
+              <div className="flex items-center gap-1.5 font-bold text-slate-200 text-xs mt-0.5" title={`Meteo Live: ${liveWeather?.sensoryAngle}`}>
+                <span className="text-sm">{liveWeather?.isRaining ? '🌧️' : liveWeather?.isNight ? '🌙' : '☀️'}</span>
+                <span>{liveWeather ? `${liveWeather.city} ${liveWeather.tempC}°C` : 'Ranong 27°C'}</span>
+                {liveWeather?.isRaining && (
                   <span className="px-1.5 py-0.2 rounded bg-rose-600 text-[8px] font-black text-white animate-pulse">
                     RAIN
                   </span>
                 )}
+              </div>
+            </div>
+
+            {/* 2. MESE CON GREEN SEASON SOTTO */}
+            <div className="flex flex-col px-2.5 sm:px-3 min-w-[95px]">
+              <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Periodo</span>
+              <span className="font-extrabold text-white text-xs mt-0.5 capitalize">
+                {currentMonthName}
               </span>
-            )}
-            <span className="text-slate-700 font-bold">·</span>
-            <span className="flex items-center gap-1 text-slate-300 font-medium text-xs">
-              <Calendar className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-              <span>{postData.seasonContext.split(':')[0] || 'Ottobre'} · 🌿 Green Season</span>
-            </span>
+              <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1 leading-none mt-0.5">
+                {currentSeasonTag}
+              </span>
+            </div>
+
+            {/* 3. PROSSIMA FESTIVITÀ IN FONDO */}
+            <div className="flex flex-col pl-2.5 sm:pl-3 min-w-[130px]">
+              <span className="text-[9px] uppercase font-bold text-amber-400/90 tracking-wider flex items-center gap-1">
+                <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                <span>Prossima Festività</span>
+              </span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-xs">{upcomingHoliday.emoji}</span>
+                <span className="font-black text-amber-300 text-xs">
+                  {upcomingHoliday.name}
+                </span>
+                <span className="px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-200 font-mono text-[9px] font-bold border border-amber-500/30">
+                  {upcomingHoliday.dateStr}
+                </span>
+              </div>
+              <span className="text-[10px] text-slate-400 font-medium">
+                {upcomingHoliday.daysAway === 0 ? 'Oggi!' : upcomingHoliday.daysAway === 1 ? 'Domani!' : `Tra ${upcomingHoliday.daysAway} giorni`}
+              </span>
+            </div>
           </div>
         </div>
 

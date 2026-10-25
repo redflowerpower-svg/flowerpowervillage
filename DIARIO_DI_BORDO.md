@@ -241,6 +241,16 @@
 - **Effetto reale:** Sia in anteprima a schermo nel Social Studio sia nei video esportati, i formati del villaggio V1, V2 e V3 mostrano esattamente lo stesso identico logo approvato di LM1 con il bordo giallo oro e la grafica ad alta risoluzione.
 - **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
 
+### 🟩 [26/10/2026 - ORE 01:31] · SOCIAL STUDIO AUTOCUT: RIQUADRO CONTESTO A 3 SCOMPARTI (METEO, OTTOBRE/GREEN SEASON SOTTO, PROSSIMA FESTIVITÀ CON DATA E COUNTDOWN)
+- **Cosa abbiamo fatto:** Integrato e riorganizzato il riquadro di contesto temporale e sensoriale in [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx) in un unico box rettangolare compatto (`bg-slate-950/90 border border-slate-800 rounded-2xl`) suddiviso geometricamente in 3 scomparti orizzontali:
+  - 🌦️ **Scomparto 1 (Meteo Live)**: Icona dinamica (sole/pioggia/luna), città reale (Koh Phayam o Ranong), temperatura in °C e badge pulsante `RAIN` in caso di precipitazioni.
+  - 🌿 **Scomparto 2 (Mese & Stagione Sotto)**: Mese corrente in testo bianco in grassetto (`Ottobre`) con direttamente sotto la stagione in verde smeraldo (`🌿 Green Season` da maggio a ottobre, `☀️ High Season` da novembre ad aprile).
+  - 🎃 **Scomparto 3 (Prossima Festività in Fondo)**: Calcolo automatico in tempo reale della festività più vicina in calendario (Thai e Internazionale). Mostra etichetta dorata `Prossima Festività`, icona e nome festività (es. `🎃 Halloween`), badge con la data esatta (`31 Ott`) e countdown dinamico (`Tra 5 giorni`, `Domani!` o `Oggi!`).
+- **Effetto reale:** L'operatore visualizza a colpo d'occhio nel riquadro in alto a destra tutte le coordinate temporali e culturali per contestualizzare all'istante i post per i canali social.
+- **Stato:** ✅ Compilato (0 errori TypeScript), verificato con screenshot live in browser e 100% operativo.
+
+---
+
 ### 🟩 [26/10/2026 - ORE 01:25] · SOCIAL STUDIO AUTOCUT: COCKPIT CREATORE POST CON BALENOTTERO DEEPSEEK AI V3, CAPSULA METEO UNIFICATA E TITOLO INALTERATO
 - **Cosa abbiamo fatto:** Riprogettata interamente la testata superiore del modulo di creazione post in [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx), risolvendo definitivamente il disordine visivo, la frammentazione dei tasti sparsi e le scritte troncate:
   - 🏷️ **Titolo Canale & Formato Integri (Zero Troncamenti)**:
