@@ -120,6 +120,7 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
       1. Tutte le operazioni completate, le migliorie e le modifiche strutturali DEVONO essere registrate e accumulate cronologicamente sia nel file di workspace `DIARIO_DI_BORDO.md` sia nell'Artifact IDE dedicato.
       2. **DIVIETO ASSOLUTO DI CANCELLAZIONE**: È severamente vietato sovrascrivere o eliminare lo storico pregresso; ogni sessione accumula i propri traguardi formando una cronistoria indelebile a disposizione dell'utente e di tutti gli agenti.
       3. I file di notifica o log risiedono all'interno dell'IDE; è CATEGORICAMENTE VIETATO inserire widget, tabelle o pop-up di notifica nell'interfaccia pubblica del sito o sul tablet dei clienti (`/dining`).
+      4. **Scheda Sempre Aperta & In Primo Piano**: L'agente garantisce che `DIARIO_DI_BORDO.md` sia sempre attivo, aperto e richiamato in primo piano all'interno dell'IDE come bacheca visiva principale per l'utente ad ogni aggiornamento.
     - **Linguaggio 100% Umano & Zero Gergo Macchina**:
       1. Spiegare ogni passaggio con parole chiare e concrete (es. "Abbiamo impostato 3 colonne per riga sulle pizze così sul tablet Xiaomi non serve più scorrere a destra e a sinistra", NON "Modificato CSS grid-template-columns inline style refactor").
       2. Zero dump di codice o stack trace nei report discorsivi per non appesantire la lettura.
