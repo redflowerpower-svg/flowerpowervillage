@@ -1060,6 +1060,8 @@ export function AutoCutLabPlayer({
         // Villaggio V1-V3, LM1
         oCtx.font = `900 ${Math.round(19.5 * s)}px "Outfit", sans-serif`;
         const dbW = oCtx.measureText('DIRECT BOOKING').width;
+        oCtx.font = `900 ${Math.round(17.5 * s)}px "Outfit", sans-serif`;
+        const offW = oCtx.measureText('10% OFF').width;
         oCtx.font = `600 ${Math.round(15 * s)}px "Outfit", sans-serif`;
         const siteW = oCtx.measureText('flowerpowervillage.com').width;
         let lmExtraW = 0;
@@ -1067,7 +1069,7 @@ export function AutoCutLabPlayer({
           oCtx.font = `900 ${Math.round(21.5 * s)}px "Prompt", sans-serif`;
           lmExtraW = oCtx.measureText('ห้องว่างวันนี้').width;
         }
-        maxSubW = Math.max(fpW, dbW, siteW, lmExtraW);
+        maxSubW = Math.max(fpW, dbW, offW, siteW, lmExtraW);
       }
       oCtx.restore();
 
@@ -1451,7 +1453,13 @@ export function AutoCutLabPlayer({
         const dbFontSize = Math.round(20.5 * s); // Ingrandito del 10% (era 18.5 * s)
         oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
-        ty += dbFontSize + (5 * s); // Distanziata di 5 pixel dalla scritta sopra DIRECT BOOKING
+        ty += dbFontSize + (4 * s);
+
+        // 10% OFF (dorato brillante Outfit 900 con ombra profonda)
+        const offFontSize = Math.round(17.5 * s);
+        oCtx.font = `900 ${offFontSize}px "Outfit", sans-serif`;
+        drawTextWithShadow('10% OFF', tx, ty, '#fcd34d', 3.2 * s);
+        ty += offFontSize + (5 * s); // Distanziata di 5 pixel dalla scritta sotto
 
         // flowerpowervillage.com (Outfit 600) - Ingrandito del 10%
         const siteFontSize = Math.round(16 * s); // Ingrandito del 10% (era 14.5 * s)
@@ -1464,7 +1472,13 @@ export function AutoCutLabPlayer({
         const dbFontSize = Math.round(19.5 * s);
         oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
-        ty += dbFontSize + (8 * s); // Distanziato di 4 pixel ulteriori dal blocco sito/link sotto (totale 8 * s)
+        ty += dbFontSize + (3 * s);
+
+        // 10% OFF (dorato brillante Outfit 900 con ombra profonda)
+        const offFontSize = Math.round(16 * s);
+        oCtx.font = `900 ${offFontSize}px "Outfit", sans-serif`;
+        drawTextWithShadow('10% OFF', tx, ty, '#fcd34d', 3.0 * s);
+        ty += offFontSize + (5 * s); // Distanziato verso il blocco sito/link sotto
 
         // Blocco unico compatto: flowerpowervillage.com + Link in Bio
         const siteFontSize = Math.round(14.5 * s);
@@ -3092,7 +3106,11 @@ export function AutoCutLabPlayer({
               <span className="text-[20.5px] sm:text-[23px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap mt-[10px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              {/* Sotto flowerpowervillage.com distanziata esattamente 5px dalla scritta DIRECT BOOKING sopra (+10%: text-[15.5px] sm:text-[17px]) */}
+              {/* Sotto DIRECT BOOKING: 10% OFF */}
+              <span className="text-[17px] sm:text-[19px] font-black text-amber-300 uppercase tracking-wider leading-tight whitespace-nowrap mt-[3px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                10% OFF
+              </span>
+              {/* Sotto flowerpowervillage.com distanziata esattamente 5px dalla scritta sopra (+10%: text-[15.5px] sm:text-[17px]) */}
               <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap mt-[5px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 flowerpowervillage.com
               </span>
@@ -3112,7 +3130,11 @@ export function AutoCutLabPlayer({
               <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato di 4 pixel da DIRECT BOOKING: mt-1 */}
+              {/* Sotto DIRECT BOOKING: 10% OFF */}
+              <span className="text-[15.5px] sm:text-[17.5px] font-black text-amber-300 uppercase tracking-wider leading-tight whitespace-nowrap mt-[2px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                10% OFF
+              </span>
+              {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato da 10% OFF: mt-1 */}
               <div className="flex flex-col gap-0.5 mt-1">
                 <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                   flowerpowervillage.com

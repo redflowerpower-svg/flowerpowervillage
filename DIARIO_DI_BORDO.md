@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 19:25] · INSERIMENTO "10% OFF" SOTTO "DIRECT BOOKING" IN V1, V2, V3 E LM1 (CANVAS & DOM 1:1)
+- **Cosa abbiamo fatto:** Inserita la dicitura promozionale dorata ad alto impatto **"10% OFF"** sotto la scritta `DIRECT BOOKING` in tutti i formati del Villaggio (`V1`, `V2`, `V3`) e nelle Stories Last Minute (`LM1`) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 🏷️ **Formato LM1 (Stories Last Minute)**:
+    - *Canvas*: Aggiunto `drawTextWithShadow('10% OFF', tx, ty, '#fcd34d', 3.2 * s)` con font Outfit 900 `17.5 * s`, posizionato a `4 * s` sotto `DIRECT BOOKING` e con `5 * s` di distacco prima di `flowerpowervillage.com`.
+    - *DOM*: Aggiunto `<span className="text-[17px] sm:text-[19px] font-black text-amber-300 uppercase tracking-wider leading-tight whitespace-nowrap mt-[3px] ...">10% OFF</span>`.
+  - 🌴 **Formati Villaggio V1, V2, V3 (Video Alloggi)**:
+    - *Canvas*: Aggiunto `drawTextWithShadow('10% OFF', tx, ty, '#fcd34d', 3.0 * s)` con font Outfit 900 `16 * s`, posizionato a `3 * s` sotto `DIRECT BOOKING` e a `5 * s` prima del blocco `flowerpowervillage.com` + `Link in Bio`.
+    - *DOM*: Aggiunto `<span className="text-[15.5px] sm:text-[17.5px] font-black text-amber-300 uppercase tracking-wider leading-tight whitespace-nowrap mt-[2px] ...">10% OFF</span>`.
+  - 📐 **Bilanciamento Centratura Header**:
+    - Integrata la misura orizzontale di `'10% OFF'` nel calcolo della larghezza massima della colonna testo (`maxSubW`), garantendo che il logo circolare e l'intero gruppo di testi rimangano perfettamente centrati sullo schermo.
+- **Effetto reale:** In tutti i video e le anteprime del Villaggio (V1, V2, V3) e in LM1 compare ora chiaramente sotto DIRECT BOOKING il forte incentivo commerciale dorato **10% OFF** con ombra nera scolpita, aumentando la conversione alla prenotazione diretta sul sito.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato nel build Vite.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 18:35] · FORMATO LM1: SALITA BLOCCO -2PX & INGRANDIMENTO +10% (BADGE LAST MINUTE, THAI, DIRECT BOOKING, SITO WEB)
 - **Cosa abbiamo fatto:** Allineato il blocco informativo centrale dell'Header in LM1 sia su Canvas che su DOM in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
   - 📐 **Salita dell'Intero Blocco di 2 Pixel (-2px)**:
