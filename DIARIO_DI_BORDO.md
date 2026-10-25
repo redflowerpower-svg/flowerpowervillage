@@ -5,6 +5,22 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 11:50] · FAVICON REPARTI RIVISTE CON NOME CHIARO E VISIBILE
+- **Cosa abbiamo fatto:** Riprogettato interamente il motore dinamico delle favicon in `src/utils/environmentFavicon.ts`: eliminati i vecchi cerchietti neri e le micro-scritte illegibili.
+- **Cosa è cambiato:** Ogni singolo reparto ora possiede un badge sagomato ad altissimo contrasto con il proprio **nome scritto chiaro a caratteri cubitali extra-bold (900)** e con colore tematico univoco:
+  - 🟣 **SOCIAL**: Sfondo Viola/Fucsia Profondo con scritta `SOCIAL` in bianco.
+  - 🟡 **ADMIN**: Sfondo Grafite/Ardesia con scritta `ADMIN` in ambra/oro brillante.
+  - 🔵 **DINING**: Sfondo Blu Mare Profondo con scritta `DINING` in bianco puro.
+  - 🟠 **KITCHEN**: Sfondo Arancio/Rosso Fiamma con scritta `KITCHEN` in bianco puro.
+  - 🔴 **PIZZA**: Sfondo Rosso Tradizionale con scritta `PIZZA` in giallo oro.
+  - 🟢 **VILLAGE**: Sfondo Verde Tropicale con scritta `VILLAGE` in bianco puro.
+  - 🔷 **DOCS**: Sfondo Blu Notte con scritta `DOCS` in celeste ghiaccio.
+  - Rimane intatto il bordino perimetrale dell'ambiente (Rosso = Locale, Verde = Staging, Oro = Produzione).
+- **Effetto reale:** Guardando le schede aperte del browser, si riconosce all'istante a colpo d'occhio quale scheda è di Social, quale di Admin, quale di Dining e quale di Kitchen, senza più alcuna confusione.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 08:58] · PERFETTA DISTINZIONE SMARTPHONE (2 COLONNE) VS TABLET (3 COLONNE)
 - **Cosa abbiamo fatto:** Rimosso lo stile forzato inline da `MenuGrid.tsx` e `GloriaFoodLanding.tsx`, raffinato `CategoryTabs.tsx` e impostata la soglia esatta e matematica di demarcazione a **460px** in `src/index.css`.
 - **Cosa è cambiato:** Sotto i 460px (tutti i telefoni cellulari: iPhone, Samsung, Pixel) il layout applica automaticamente **2 colonne di prodotti** e il **selettore categorie a scorrimento orizzontale compatto**. Dai 460px in su (Xiaomi Mi Pad 4 a ~533px/600px, tutti i tablet e monitor) restano intatte al 100% le **3 colonne di prodotti** e il **menu a 2 righe fisse**.
