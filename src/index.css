@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:ital,wght@0,300..900;1,300..900&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -171,19 +171,24 @@ body {
   display: block !important;
 }
 
-/* Universal product grid: 2 columns on smartphones (< 460px), 3 columns on Xiaomi Mi Pad 4 and all tablets/desktops (>= 460px) */
+/* Universal product grid: 2 columns on smartphones, 3 columns on Xiaomi Mi Pad 4 / Mi Pad 4 Plus and all tablets/desktops */
 .product-menu-grid {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 }
 
-@media (min-width: 460px) {
+@media (min-width: 460px), ((min-width: 380px) and (min-aspect-ratio: 58/100)) {
   .product-menu-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 }
 
-/* Category Tabs: Mobile slider for phones (< 460px), 2 static rows for Xiaomi Mi Pad 4 and all tablets/desktops (>= 460px) */
+/* Bulletproof hardware override for dedicated Dining Tablet Station (Xiaomi Mi Pad 4 / Table tablet) */
+[data-dining-station="tablet"] .product-menu-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+/* Category Tabs: Mobile slider for phones, 2 static rows for Xiaomi Mi Pad 4 / Mi Pad 4 Plus and all tablets/desktops */
 .category-tabs-mobile {
   display: flex !important;
 }
@@ -191,12 +196,20 @@ body {
   display: none !important;
 }
 
-@media (min-width: 460px) {
+@media (min-width: 460px), ((min-width: 380px) and (min-aspect-ratio: 58/100)) {
   .category-tabs-mobile {
     display: none !important;
   }
   .category-tabs-desktop {
     display: grid !important;
   }
+}
+
+/* Bulletproof hardware override for dedicated Dining Tablet Station (Xiaomi Mi Pad 4 / Table tablet) */
+[data-dining-station="tablet"] .category-tabs-mobile {
+  display: none !important;
+}
+[data-dining-station="tablet"] .category-tabs-desktop {
+  display: grid !important;
 }
 

@@ -7,6 +7,7 @@
  */
 
 import { AutoCutTestRun } from './autoCutLabEngine';
+import { findAccommodationIdentity } from '../../booking/resort/config/accommodations';
 
 export interface PostCopyResult {
   brand: 'pizza' | 'village';
@@ -433,18 +434,29 @@ Approfitta subito del 10% di sconto sul tuo primo ordine! 🛵💨`;
     crossTag = `@flowerpowerphayam`;
 
   } else if (testRun.mode === 'R1') {
-    // 🍽️ R1: RESTAURANT & DELIVERY A KOH PHAYAM (BUFFALO BAY)
+    // 🍽️ R1: RESTAURANT & DELIVERY A KOH PHAYAM (BUFFALO BAY) - TOUR CORALE 5 PIATTI
     const cleanEnProverb = proverb.en.replace(/["']/g, '');
 
+    const uniqueDishes = testRun.scenes
+      .map(s => ({
+        nameEn: cleanInlineTitle(s.sourceName || s.titlePrimary || ''),
+        nameTh: cleanInlineTitle(s.titleSecondary || ''),
+        cat: cleanInlineTitle(s.badgeCategory || '')
+      }))
+      .filter((d, idx, arr) => d.nameEn && arr.findIndex(x => x.nameEn === d.nameEn) === idx);
+
+    const dishesThList = uniqueDishes.map(d => `• ${d.nameTh || d.nameEn}`).join('\n');
+    const dishesEnList = uniqueDishes.map(d => `• ${d.nameEn}`).join('\n');
+
     const r1ThHooks = [
-      '🇹🇭 หิวอาหารอิตาเลียนแท้ๆ บนเกาะพยามใช่ไหมครับ? ครัว Flower Power พร้อมเสิร์ฟความอร่อย 🍝🍕 สดใหม่ครับ!',
-      '🇹🇭 กลิ่นอาหารอิตาเลียนหอมฟุ้ง ริมอ่าวเขาควาย 🌿 เกาะพยาม! แวะมาทานของอร่อยกันครับ 🔥',
-      '🇹🇭 มื้อพิเศษบนเกาะพยาม! พาสต้าเส้นสด 🍝 และพิซซ่าอิตาเลียนแท้ๆ 🍕 รสชาติต้นตำรับ 🇮🇹🌴',
+      '🇹🇭 หิวอาหารอิตาเลียนแท้ๆ บนเกาะพยามใช่ไหมครับ? ครัว Flower Power พร้อมเสิร์ฟความอร่อยครบเครื่อง 🍝🍕 สดใหม่ครับ!',
+      '🇹🇭 กลิ่นอาหารอิตาเลียนหอมฟุ้ง ริมอ่าวเขาควาย 🌿 เกาะพยาม! แวะมาทานของอร่อยหลากหลายเมนูกันครับ 🔥',
+      '🇹🇭 มื้อพิเศษบนเกาะพยาม! พาสต้าเส้นสด 🍝 พิซซ่าอิตาเลียนแท้ๆ 🍕 และอาหารจานเด็ด รสชาติต้นตำรับ 🇮🇹🌴',
       '🇹🇭 วันนี้ครัว Flower Power เกาะพยาม พร้อมเสิร์ฟทั้งนั่งทานในสวน 🌿 และส่งเดลิเวอรี่ถึงที่พักครับ 🛵✨'
     ];
 
     const r1EnHooks = [
-      '🇬🇧 Craving authentic Italian food on Koh Phayam? Flower Power Restaurant 🍝🍕 is open!',
+      '🇬🇧 Craving authentic Italian food on Koh Phayam? Flower Power Restaurant 🍝🍕 is cooking for you!',
       '🇬🇧 Freshly cooked Italian specialties 🍝 right in the heart of Buffalo Bay, Koh Phayam 🌴🔥',
       '🇬🇧 Handmade pasta 🍝, traditional Italian pizza 🍕 and artisan taste on Koh Phayam island 🇮🇹🥥',
       '🇬🇧 Dine in our lush tropical garden 🌴 or get hot delivery directly to your resort on Koh Phayam 🛵✨'
@@ -454,9 +466,10 @@ Approfitta subito del 10% di sconto sul tuo primo ordine! 🛵💨`;
 
     thaiContent = `${r1ThHooks[rIdx]}
 
-เมนูเด็ดแนะนำวันนี้:
-${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
-ปรุงสดใหม่จานต่อจานโดยใช้วัตถุดิบนำเข้าและวัตถุดิบสดจากธรรมชาติ รสชาติอิตาเลียนแท้ๆ ทานแล้วฟินแน่นอนครับ! 😋🔥
+🍽️ เมนูเด็ดในคลิปวันนี้:
+${dishesThList}
+
+ไม่ว่าจะพาสต้าเส้นสด พิซซ่าอิตาเลียนแท้ หรือเมนูจานโปรด ปรุงสดใหม่จานต่อจานโดยใช้วัตถุดิบนำเข้าและวัตถุดิบสดจากธรรมชาติ รสชาติอิตาเลียนแท้ๆ ทานแล้วฟินแน่นอนครับ! 😋🔥
 
 โบราณว่าไว้: "${proverb.thai}"
 มื้ออร่อยสร้างความสุขได้เสมอ แวะมาทานที่ร้านท่ามกลางสวนธรรมชาติ หรือสั่งเดลิเวอรี่ส่งตรงถึงที่พักบนเกาะพยามได้เลยครับ!
@@ -467,9 +480,10 @@ ${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
 
     englishContent = `${r1EnHooks[rIdx]}
 
-Featured dish today:
-${secondaryName || dishOrRoomName}
-Cooked from scratch with premium ingredients and genuine Italian passion right here in Buffalo Bay! 😋🔥
+🍽️ Featured in today's video:
+${dishesEnList}
+
+From handmade pasta to authentic 12" Italian pizzas and savory island favorites, cooked from scratch with premium ingredients and genuine Italian passion right here in Buffalo Bay! 😋🔥
 
 As the wise proverb says: ${cleanEnProverb}
 Good food shared in paradise creates unforgettable memories. Treat yourself to real Italian taste on Koh Phayam! 🤙
@@ -480,8 +494,9 @@ Good food shared in paradise creates unforgettable memories. Treat yourself to r
 
     italianContent = `🇮🇹 Voglia di vera cucina italiana a Koh Phayam? Il ristorante Flower Power è aperto! 🍝🍕✨
 
-Piatto del giorno:
-${dishOrRoomName}
+🍽️ Piatti protagonisti nel video di oggi:
+${dishesEnList}
+
 Pasta fresca fatta a mano, pizze e specialità italiane autentiche a Buffalo Bay! 😋🔥
 
 Un saggio proverbio ricorda: "${proverb.it}"
@@ -493,8 +508,148 @@ La buona cucina italiana nel cuore dell'isola di Koh Phayam!
     fixedLink = `🌺 FLOWER POWER RESTAURANT & RESORT 🌸 - Buffalo Bay, Koh Phayam\n📍 WhatsApp Delivery: +66 095 882 5573\n🌐 www.flowerpowervillage.com`;
     crossTag = `@flowerpowerphayam`;
 
+  } else if (testRun.mode === 'LM1') {
+    // 🔥 LM1: STORIES LAST MINUTE KOH PHAYAM (ALLOGGI LIBERI OGGI)
+    const cleanEnProverb = proverb.en.replace(/["']/g, '');
+
+    const lm1ThRooms = testRun.scenes.map(s => {
+      const name = cleanInlineTitle(s.titleSecondary || s.titlePrimary);
+      const price = s.priceValue ? ` (${s.priceValue}฿ / คืน)` : '';
+      return `• ${name}${price}`;
+    }).join('\n');
+
+    const lm1EnRooms = testRun.scenes.map(s => {
+      const name = cleanInlineTitle(s.titlePrimary);
+      const price = s.priceValue ? ` (${s.priceValue}฿ / night)` : '';
+      return `• ${name}${price}`;
+    }).join('\n');
+
+    const lm1ThHooks = [
+      '🇹🇭 ด่วนสุดๆ! ห้องว่าง Last Minute คืนนี้ที่ อ่าวเขาควาย เกาะพยาม 🌴🔥✨',
+      '🇹🇭 ใครอยากพักผ่อนกะทันหัน คืนนี้เรายังมีห้องว่างพร้อมราคาพิเศษครับ 🌊🌴✨',
+      '🇹🇭 หนีความวุ่นวายมานอนรับลมทะเลคืนนี้! เช็กห้องว่างราคาดีที่สุดได้เลยครับ 🥥🍃✨'
+    ];
+
+    const lm1EnHooks = [
+      '🇬🇧 Last Minute Alert! Rooms available tonight at Buffalo Bay, Koh Phayam 🌴🔥✨',
+      '🇬🇧 Spontaneous island escape? Verified available stays for tonight with special rates 🌊🌴✨',
+      '🇬🇧 Escape the ordinary tonight! Limited rooms left in our tranquil tropical sanctuary 🥥🍃✨'
+    ];
+
+    const lmIdx = Math.abs(proverbIndexSeed) % lm1EnHooks.length;
+
+    thaiContent = `${lm1ThHooks[lmIdx]}
+
+🏠 ห้องว่างคืนนี้ (ราคาพิเศษ Last Minute):
+${lm1ThRooms}
+
+สัมผัสความเงียบสงบ หลีกหนีความวุ่นวาย มานอนฟังเสียงคลื่นริมทะเลกันนะครับ มีจำนวนจำกัดเฉพาะคืนนี้เท่านั้น! 🌺🌊
+
+คนโบราณกล่าวไว้: "${proverb.thai}"
+วันหยุดทั้งที ต้องให้ธรรมชาติบำบัดหัวใจและเติมพลังชีวิตนะครับ!
+
+🎁 จองด่วนตรงกับเราที่ www.flowerpowervillage.com
+รับราคาดีที่สุดทันทีครับ! 🥥✨`;
+
+    englishContent = `${lm1EnHooks[lmIdx]}
+
+🏠 Available Tonight (Special Last Minute Rates):
+${lm1EnRooms}
+
+Wake up to the sound of ocean waves and peaceful island breezes. Limited rooms available for tonight! 🌺🌊
+
+Remember: ${cleanEnProverb}
+Pack your flip-flops and let nature recharge your soul! 🤙
+
+🎁 Book directly on www.flowerpowervillage.com
+Secure your instant booking at the guaranteed best rate! 🥥✨`;
+
+    italianContent = `🇮🇹 Offerta Last Minute per stanotte a Buffalo Bay, Koh Phayam! 🌴🔥✨
+
+🏠 Alloggi disponibili stasera:
+${lm1EnRooms}
+
+Fuga spontanea sull'isola per staccare la spina tra natura tropicale e brezza marina! 🌺🌊
+
+Come dice un saggio proverbio: "${proverb.it}"
+Camere limitate disponibili solo per questa notte!
+
+🎁 Prenota direttamente su www.flowerpowervillage.com
+Miglior tariffa garantita online! 🥥✨`;
+
+    fixedLink = `🌴 FLOWER POWER VILLAGE 🌸 - Buffalo Bay, Koh Phayam\n📍 Google Maps: https://maps.app.goo.gl/mugY88Wpuzjeebf56\n🌐 www.flowerpowervillage.com`;
+    crossTag = `@flowerpowerpizzaranong`;
+
+  } else if (testRun.mode === 'V3') {
+    // 🌴 V3: RESORT TOUR (5 DIVERSI ALLOGGI)
+    const cleanEnProverb = proverb.en.replace(/["']/g, '');
+
+    const uniqueLodgings = testRun.scenes.map(s => ({
+      nameEn: cleanInlineTitle(s.lodgingTitle || s.titlePrimary || ''),
+      nameTh: cleanInlineTitle(s.titleSecondary || '')
+    })).filter((l, idx, arr) => l.nameEn && arr.findIndex(x => x.nameEn === l.nameEn) === idx);
+
+    const lodgingsThList = uniqueLodgings.map(l => `• ${l.nameTh || l.nameEn}`).join('\n');
+    const lodgingsEnList = uniqueLodgings.map(l => `• ${l.nameEn}`).join('\n');
+
+    const v3ThHooks = [
+      '🇹🇭 พาชมบรรยากาศ Flower Power Village อ่าวเขาควาย เกาะพยาม แบบเต็มๆ ครับ 🌴🌊✨',
+      '🇹🇭 ที่พักธรรมชาติหลากหลายสไตล์ริมอ่าวเขาควาย พร้อมต้อนรับทุกคนครับ 🌴🌺✨',
+      '🇹🇭 เลือกพักผ่อนในแบบที่คุณชอบ ท่ามกลางสวนทรอปิคอลเขียวขจี เกาะพยาม 🥥🍃✨'
+    ];
+
+    const v3EnHooks = [
+      '🇬🇧 Discover your perfect island hideaway at Flower Power Village, Koh Phayam 🌴🌊✨',
+      '🇬🇧 Explore our diverse tropical stays nestled in the peaceful nature of Buffalo Bay 🌴🌺✨',
+      '🇬🇧 From panoramic suites to wooden garden bungalows — find your sanctuary on Koh Phayam 🥥🍃✨'
+    ];
+
+    const v3Idx = Math.abs(proverbIndexSeed) % v3EnHooks.length;
+
+    thaiContent = `${v3ThHooks[v3Idx]}
+
+🏡 สไตล์ที่พักในคลิปวันนี้:
+${lodgingsThList}
+
+ตั้งแต่ห้องพักสุดหรูวิวพาโนรามา ไปจนถึงบังกะโลไม้ในสวนร่มรื่น และเต็นท์แกลมปิ้งสำหรับสายธรรมชาติ สัมผัสชีวิตแบบ Slow Life อย่างแท้จริงครับ 🌺🍃
+
+คนโบราณกล่าวไว้: "${proverb.thai}"
+วันหยุดทั้งที ต้องให้ธรรมชาติบำบัดหัวใจและเติมพลังชีวิตนะครับ!
+
+🎁 ดูรายละเอียดและจองตรงได้ที่ www.flowerpowervillage.com
+รับส่วนลดพิเศษ 10% สำหรับการจองตรงครับ! 🥥✨`;
+
+    englishContent = `${v3EnHooks[v3Idx]}
+
+🏡 Stays featured in today's video:
+${lodgingsEnList}
+
+From breezy panoramic suites to cozy wooden bungalows in lush gardens and eco glamping tents, there is a space tailored for every traveler's soul. 🌺🍃
+
+Remember: ${cleanEnProverb}
+Pack your flip-flops and let nature recharge your soul! 🤙
+
+🎁 Explore all stays and book direct on www.flowerpowervillage.com
+Enjoy your guaranteed best rate and 10% direct booking privilege! 🥥✨`;
+
+    italianContent = `🇮🇹 Scopri tutti gli alloggi di Flower Power Village a Koh Phayam 🌴🌊✨
+
+🏡 Alloggi mostrati nel video di oggi:
+${lodgingsEnList}
+
+Dalla suite ventilata panoramica ai bungalow in legno nei giardini tropicali e tende glamping immerse nella natura! 🌺🍃
+
+Come dice un saggio proverbio: "${proverb.it}"
+L'isola di Koh Phayam per un soggiorno slow life indimenticabile!
+
+🎁 Prenota direttamente su www.flowerpowervillage.com
+Miglior tariffa garantita e 10% di sconto prenotazione diretta! 🥥✨`;
+
+    fixedLink = `🌴 FLOWER POWER VILLAGE 🌸 - Buffalo Bay, Koh Phayam\n📍 Google Maps: https://maps.app.goo.gl/mugY88Wpuzjeebf56\n🌐 www.flowerpowervillage.com`;
+    crossTag = `@flowerpowerpizzaranong`;
+
   } else {
-    // 🌴 VILLAGGIO KOH PHAYAM CON GANCI DINAMICI
+    // 🌴 V1, V2: SINGOLO ALLOGGIO VILLAGGIO KOH PHAYAM CON GANCI DINAMICI
     const cleanEnProverb = proverb.en.replace(/["']/g, '');
 
     const villageEnHooks = [
@@ -513,6 +668,10 @@ La buona cucina italiana nel cuore dell'isola di Koh Phayam!
 
     const vIdx = Math.abs(proverbIndexSeed) % villageEnHooks.length;
 
+    const roomIdent = findAccommodationIdentity(dishOrRoomName) || 
+      (testRun.scenes[0] && (findAccommodationIdentity(testRun.scenes[0].lodgingTitle) || findAccommodationIdentity(testRun.scenes[0].sourceName)));
+    const roomUrl = roomIdent ? `www.flowerpowervillage.com/${roomIdent.legacySlug}` : `www.flowerpowervillage.com`;
+
     // Inglese: Fresco, tropicale, a capo ariosi
     englishContent = `${villageEnHooks[vIdx]}
 
@@ -523,7 +682,7 @@ Nestled in lush tropical gardens with ocean breeze, birds singing and pure islan
 Remember: ${cleanEnProverb}
 Pack your flip-flops and let nature recharge your soul! 🤙
 
-🎁 Book directly on www.flowerpowervillage.com
+🎁 Book directly on ${roomUrl}
 Best rate guaranteed with an exclusive 10% direct booking privilege! 🥥✨`;
 
     // Thai: Maschile, particelle amichevoli, toponimi esatti, a capo ariosi
@@ -536,7 +695,7 @@ ${dishOrRoomName}
 คนโบราณกล่าวไว้: "${proverb.thai}"
 วันหยุดทั้งที ต้องให้ธรรมชาติบำบัดหัวใจและเติมพลังชีวิตนะครับ!
 
-🎁 จองตรงกับเราที่ www.flowerpowervillage.com
+🎁 จองตรงกับเราที่ ${roomUrl}
 รับราคาดีที่สุด พร้อมส่วนลดพิเศษ 10% สำหรับการจองตรงครับ! 🥥✨`;
 
     // Italiano: Traduzione letterale con proverbio e a capo ariosi
@@ -549,10 +708,10 @@ Bungalow e alloggi in legno immersi nella natura tropicale, tra brezza marina e 
 Come dice un saggio proverbio: "${proverb.it}"
 Una vacanza autentica per rigenerare corpo e spirito nel cuore dell'isola!
 
-🎁 Prenota direttamente su www.flowerpowervillage.com
+🎁 Prenota direttamente su ${roomUrl}
 Miglior tariffa garantita online e 10% di privilegio prenotazione diretta! 🥥✨`;
 
-    fixedLink = `🌴 FLOWER POWER VILLAGE 🌸 - Buffalo Bay, Koh Phayam\n📍 Google Maps: https://maps.app.goo.gl/mugY88Wpuzjeebf56\n🌐 www.flowerpowervillage.com`;
+    fixedLink = `🌴 FLOWER POWER VILLAGE 🌸 - Buffalo Bay, Koh Phayam\n📍 Google Maps: https://maps.app.goo.gl/mugY88Wpuzjeebf56\n🌐 ${roomUrl}`;
     crossTag = `@flowerpowerpizzaranong`;
   }
 

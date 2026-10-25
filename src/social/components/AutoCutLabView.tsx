@@ -74,6 +74,7 @@ export function AutoCutLabView() {
   const [dailySpecialDishes, setDailySpecialDishes] = useState<MenuItem[]>(() => getLiveDailySpecialDishes());
   const [isGenerating, setIsGenerating] = useState(false);
   const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
+  const [aiGenTrigger, setAiGenTrigger] = useState(0);
 
   // Helper unificato per creare un nuovo montaggio video reale per una data modalità
   const createTestForMode = async (mode: AutoCutLabMode): Promise<AutoCutTestRun> => {
@@ -182,6 +183,7 @@ export function AutoCutLabView() {
       });
       setCurrentTest(newTest);
       setShuffleKey(k => k + 1);
+      setAiGenTrigger(t => t + 1);
     } finally {
       setIsGenerating(false);
     }
@@ -444,6 +446,7 @@ export function AutoCutLabView() {
             channelFormats={channelFormats}
             onChangeChannelFormat={(channel, format) => setChannelFormats(prev => ({ ...prev, [channel]: format }))}
             onCaptionsChange={setLiveCaptions}
+            aiGenTrigger={aiGenTrigger}
           />
         </div>
 

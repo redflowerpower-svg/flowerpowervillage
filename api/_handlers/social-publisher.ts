@@ -151,7 +151,7 @@ async function muxAudioOntoVideo(
       console.log(`[social-publisher] Muxing SFX Outro (${sfxFileName}) con delay esatto: ${delayMs}ms...`);
       args.push(
         "-filter_complex",
-        `[1:a]volume=1.0[bg];[2:a]adelay=${delayMs}|${delayMs},volume=1.8[sfx];[bg][sfx]amix=inputs=2:duration=first:dropout_transition=2[aout]`,
+        `[1:a]volume=1.0,apad[bg];[2:a]adelay=${delayMs}|${delayMs},volume=1.8[sfx];[bg][sfx]amix=inputs=2:duration=longest:dropout_transition=2[aout]`,
         "-map", "0:v",
         "-map", "[aout]",
         "-c:v", "copy",
@@ -163,8 +163,10 @@ async function muxAudioOntoVideo(
       );
     } else {
       args.push(
+        "-filter_complex",
+        "[1:a]volume=1.0,apad[aout]",
         "-map", "0:v",
-        "-map", "1:a",
+        "-map", "[aout]",
         "-c:v", "copy",
         "-c:a", "aac",
         "-b:a", "192k",
@@ -176,8 +178,34 @@ async function muxAudioOntoVideo(
 
     execFileSync(ffmpegPath, args);
     if (fs.existsSync(outPath)) {
-      const resBuf = fs.readFileSync(outPath);
+      let resBuf = fs.readFileSync(outPath);
       console.log(`[social-publisher] Video MP4 broadcast completo (${resBuf.length} bytes) e Thumbnail estratta (${thumbBuf?.length || 0} bytes)`);
+
+      // 🛡️ SICUREZZA ANTI-OVERFLOW TELEGRAM (Max 19.2 MB per garantire che Telegram accetti sempre il file senza 400 Bad Request)
+      if (resBuf.length > 19.2 * 1024 * 1024) {
+        console.log(`[social-publisher] ⚠️ Video (${resBuf.length} bytes) supera 19.2MB: compressione rapida FFmpeg per Telegram (<18MB)...`);
+        const compOutPath = path.join(tmpDir, `comp_${rand}.mp4`);
+        try {
+          execFileSync(ffmpegPath, [
+            "-y",
+            "-i", outPath,
+            "-c:v", "libx264",
+            "-crf", "28",
+            "-preset", "veryfast",
+            "-c:a", "copy",
+            "-movflags", "+faststart",
+            compOutPath
+          ]);
+          if (fs.existsSync(compOutPath)) {
+            resBuf = fs.readFileSync(compOutPath);
+            try { fs.unlinkSync(compOutPath); } catch {}
+            console.log(`[social-publisher] 🛡️ Video compresso con successo a ${resBuf.length} bytes (100% compatibile Telegram)!`);
+          }
+        } catch (cErr: any) {
+          console.warn("[social-publisher] Avviso compressione overflow:", cErr?.message || cErr);
+        }
+      }
+
       return { videoBuffer: resBuf, thumbBuffer: thumbBuf };
     }
   } catch (err: any) {
@@ -626,7 +654,7 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
           // Tentativo 2: Fallback con video buffer completo se l'URL non è stato scaricato da Telegram
           if (!mediaSent) {
             try {
-              const fileBuffer = optimizedVideoBuf || (await (await fetch(fullMediaUrl)).arrayBuffer());
+              const fileBufRaw = optimizedVideoBuf || Buffer.from(await (await fetch(fullMediaUrl)).arrayBuffer());
               const form = new FormData();
               form.append("chat_id", String(chat_id));
               if (message_thread_id) {
@@ -634,10 +662,8 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
               }
               const blobType = isVideo ? "video/mp4" : "image/jpeg";
               const fileName = isVideo ? "story_video_916.mp4" : "story_photo_916.jpg";
-              const fileObj = typeof File !== "undefined"
-                ? new File([fileBuffer], fileName, { type: blobType })
-                : new Blob([fileBuffer], { type: blobType });
-              form.append(paramKey, fileObj, fileName);
+              const blobData = new Blob([new Uint8Array(fileBufRaw.buffer, fileBufRaw.byteOffset, fileBufRaw.byteLength)], { type: blobType });
+              form.append(paramKey, blobData, fileName);
               form.append("caption", formatAllDatesToDMY((media_caption || "🌴 <b>Flower Power Social Media Studio</b>").slice(0, 1024)));
               form.append("parse_mode", "HTML");
               if (isVideo) {
@@ -645,7 +671,8 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
                 form.append("width", "1080");
                 form.append("height", "1920");
                 if (thumbBuf && thumbBuf.length > 1000) {
-                  form.append("thumbnail", new Blob([thumbBuf], { type: "image/jpeg" }), "thumbnail.jpg");
+                  const thumbBlob = new Blob([new Uint8Array(thumbBuf.buffer, thumbBuf.byteOffset, thumbBuf.byteLength)], { type: "image/jpeg" });
+                  form.append("thumbnail", thumbBlob, "thumbnail.jpg");
                 }
               }
               if (reply_markup) {
@@ -654,7 +681,8 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
 
               const mediaRes = await fetch(`https://api.telegram.org/bot${botToken}/${endpoint}`, {
                 method: "POST",
-                body: form
+                body: form,
+                signal: AbortSignal.timeout(60000)
               });
               const mediaData = await mediaRes.json();
               if (mediaData.ok) {
@@ -921,8 +949,7 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
         ? dishDetails.map((d: any) => `- ${d.name} (${d.nameTh}): ${d.description || 'Autentica ricetta artigianale'}`).join('\n')
         : dishes.map((d: string) => `- ${d}`).join('\n');
 
-      const prompt = isPizza
-        ? `Sei il copywriter creativo di Flower Power Pizza a Ranong, Thailandia (autentica pizzeria tradizionale e cucina artigianale italiana).
+      const pizzaPrompt = `Sei il copywriter creativo di Flower Power Pizza a Ranong, Thailandia (autentica pizzeria tradizionale e cucina artigianale italiana).
 Scrivi un micro-post social biculturale (THAI in alto + INGLESE in basso) magnetico, divertente e profondamente calato nel costume e nella vita reale thailandese.
 
 CONTESTO ATTUALE:
@@ -963,8 +990,9 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
   "englishContent": "...",
   "proverbThai": "...",
   "proverbEnglish": "..."
-}`
-        : `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale e ristorante a Buffalo Bay / อ่าวเขาควาย).
+}`;
+
+      const villagePrompt = `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale e ristorante a Buffalo Bay / อ่าวเขาควาย).
 Scrivi un micro-post social biculturale (INGLESE in alto + THAI in basso) evocativo, rilassante e magnetico.
 
 CONTESTO ATTUALE:
@@ -980,7 +1008,7 @@ REGOLE FONDAMENTALI DI SCRITTURA:
 1. DIVIETO DI MONOTONIA:
    Varia sempre l'attacco: a volte il rumore del mare e la brezza marina, a volte la magia del bungalow in legno tra le palme, a volte la fuga dal caos cittadino (slow life), a volte il buon cibo all'ombra dei giardini tropicali.
 2. CULTURA SLOW LIFE DI KOH PHAYAM:
-   Evoca la pace autentica dell'isola, il dondolarsi sull'amaca, il tramonto a Buffalo Bay, il piacere di staccare la spina.
+   Evoca la pace autentica dell'isola, il dondolarsi sull'amaca nella brezza tropicale, la quiete a Buffalo Bay, il piacere di staccare la spina.
 3. STRUTTURA & LUNGHEZZA:
    - MASSIMO 3-4 RIGHE per lingua. Spaziatura ariosa, zero muri di parole.
    - Nomi alloggi: REGOLA IMMODIFICABILE: il nome dell'alloggio NON DEVE MAI andare a capo a metà!
@@ -989,6 +1017,7 @@ REGOLE FONDAMENTALI DI SCRITTURA:
     - Hashtag: NON scrivere alcun hashtag (#) nei testi: vengono aggiunti dal sistema in fondo al post, dopo le due lingue.
     - Bandiera: ogni testo (thaiContent / englishContent) DEVE iniziare con la propria bandiera prima della prima lettera (🇹🇭 per il Thai, 🇬🇧 per l'Inglese).
     - DIVIETO CATEGORICO FORNO A LEGNA: NON ABBIAMO IL FORNO A LEGNA! È severamente vietato parlare di forno a legna o "wood-fired" o "เตาฟืน".
+    - DIVIETO CATEGORICO E ASSOLUTO PAROLA SUNSET / TRAMONTO: IL NOSTRO VILLAGGIO NON VEDE IL TRAMONTO (ZERO SUNSET)! È TASSATIVAMENTE E SEVERAMENTE VIETATO usare le parole "sunset", "tramonto", "พระอาทิตย์ตก" o parlare di tramonto per Flower Power Village e per qualsiasi alloggio! Per la Villa Penthouse in particolare, parlare TASSATIVAMENTE di "Breezy Suite" / suite ventilata con terrazza panoramica fresca e arieggiata.
     - REGOLA EMOJI CONTESTUALI (DIVIETO EMOJI A FINE FRASE): DIVIETO ASSOLUTO di piazzare 3 o 4 emoji raggruppate alla fine della frase. Le emoji devono essere DISTRIBUITE IN MODO NATURALE NEL CORPO DEL TESTO, accompagnando le singole parole (es. "natura tropicale 🌴", "brezza sul mare 🌊", "suono delle onde 🌺", "relax sull'amaca 🥥").
 
 Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
@@ -998,6 +1027,129 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
   "proverbThai": "...",
   "proverbEnglish": "..."
 }`;
+
+      // 🍽️ R1: RESTAURANT & ISLAND DELIVERY A KOH PHAYAM (TOUR 5 PIATTI)
+      const r1Prompt = `Sei il copywriter creativo di Flower Power Restaurant & Island Delivery a Koh Phayam, Thailandia (Buffalo Bay / อ่าวเขาควาย).
+Scrivi un micro-post social biculturale (THAI in alto + INGLESE in basso) vivace, accogliente e appetitoso, per invitare le persone a mangiare nel nostro ristorante nel giardino tropicale o ordinare con consegna a domicilio su tutta l'isola di Koh Phayam via WhatsApp.
+
+CONTESTO ATTUALE:
+- I 5 Piatti protagonisti nel video di oggi:
+${dishListText}
+- Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
+- Fascia oraria: ${mealMoment}
+- Situazione meteo del momento: ${weatherAngle}
+- Stagione: ${season || 'Stagione tropicale'}
+- Canali di contatto: WhatsApp Delivery +66 095 882 5573 | Tavolo nel giardino tropicale a Buffalo Bay | www.flowerpowervillage.com
+
+REGOLE FONDAMENTALI DI SCRITTURA:
+1. DIVIETO ASSOLUTO DI PARLARE DI UN SOLO PIATTO (REGOLA CORALE 5 PIATTI):
+   Il video mostra una carrellata di 5 piatti diversi (es. pasta fresca fatta a mano, pizze tradizionali italiane da 12 pollici, secondi, insalate, burger).
+   NON concentrarti solo sul primo piatto! Parla della varietà del menu o presenta i piatti protagonisti come un banchetto ideale da condividere in compagnia (Food Sharing) o da gustare dopo una giornata di mare.
+2. CONTESTUALITÀ UMANA & METEO (NON FARE IL BOLLETTINO METEO):
+   Sfrutta il contesto del momento in modo naturale e complice:
+   - Se piove o è fresco: comfort food caldo consegnato direttamente alla veranda del resort via WhatsApp senza bagnarsi in scooter.
+   - Se fa caldo o c'è il sole: relax all'ombra delle piante tropicali con sapori autentici e birra fresca dopo la spiaggia.
+   - Se è orario di cena/pranzo: riunire gli amici attorno alla tavola imbandita di piatti diversi.
+3. STRUTTURA & LUNGHEZZA:
+   - MASSIMO 4 RIGHE AD ALTO IMPATTO per lingua. Spaziatura ariosa, zero muri di parole.
+   - Nomi dei piatti: REGOLA IMMODIFICABILE: il nome del piatto NON DEVE MAI andare a capo a metà! È una locuzione unica continua su singola riga.
+   - Proverbio del Giorno: proverbio o battuta sulla buona tavola, la convivialità o il relax (Thai: 📜 สุภาษิตประจำวัน: "..." | Inglese: 📜 Proverb of the Day: "...").
+   - Chiusura: invito a ordinare comodamente via WhatsApp (+66 095 882 5573) o venire a trovarci nel giardino tropicale a Buffalo Bay.
+   - Bandiera: ogni blocco inizia con la propria bandiera (🇹🇭 per il Thai, 🇬🇧 per l'Inglese).
+   - Zero hashtag nel testo (vengono aggiunti dal sistema in fondo).
+   - DIVIETO CATEGORICO FORNO A LEGNA: NON ABBIAMO IL FORNO A LEGNA! È severamente vietato parlare di forno a legna o wood-fired.
+   - REGOLA EMOJI CONTESTUALI: DIVIETO di piazzare 3 o 4 emoji raggruppate alla fine della frase. Le emoji devono essere DISTRIBUITE NEL CORPO DEL TESTO affiancate alle singole parole.
+
+Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
+{
+  "thaiContent": "...",
+  "englishContent": "...",
+  "proverbThai": "...",
+  "proverbEnglish": "..."
+}`;
+
+      // 🔥 LM1: STORIES LAST MINUTE KOH PHAYAM (ALLOGGI LIBERI OGGI & PREZZO REALE OCTORATE)
+      const lm1Prompt = `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale ad Aow Khao Kwai / Buffalo Bay).
+Scrivi un micro-post / Story LAST MINUTE biculturale (INGLESE in alto + THAI in basso) ad altissima conversione, magnetico e dal ritmo vivace.
+
+CONTESTO ATTUALE:
+- Alloggi LIBERI STASERA con tariffe Last Minute certificate dal calendario Octorate:
+${dishListText}
+- Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
+- Fascia oraria: ${mealMoment}
+- Situazione meteo del momento: ${weatherAngle}
+- Stagione: ${season || 'Stagione tropicale'}
+- Sito ufficiale per prenotazione istantanea: www.flowerpowervillage.com
+
+REGOLE FONDAMENTALI DI SCRITTURA:
+1. TEMA LAST MINUTE & URGENZA POSITIVA:
+   Comunica con entusiasmo che ci sono camere e bungalow liberi per stanotte a prezzi speciali a cascata. Chi si trova a Koh Phayam o nelle vicinanze può cogliere l'occasione al volo per una notte magica a Buffalo Bay.
+2. CITARE LA DISPONIBILITÀ DELLE CAMERE:
+   Menziona le opzioni disponibili stanotte (es. bungalow nel verde o tende glamping) e il vantaggio del prezzo speciale last minute verificato.
+3. STRUTTURA & LUNGHEZZA:
+   - MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Spaziatura ariosa, zero muri di parole.
+   - Nomi alloggi: locuzione continua su singola riga.
+   - Proverbio del Giorno: proverbio evocativo sul cogliere l'attimo, il viaggio o il relax.
+   - Chiusura: invito a prenotare subito su www.flowerpowervillage.com prima che si esauriscano.
+   - Bandiera: 🇬🇧 per l'Inglese in alto, 🇹🇭 per il Thai in basso.
+   - Zero hashtag nel testo. Zero forno a legna. ZERO menzione di sunset/tramonto.
+   - Emoji contestuali distribuite nel testo, MAI raggruppate alla fine della frase.
+
+Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
+{
+  "thaiContent": "...",
+  "englishContent": "...",
+  "proverbThai": "...",
+  "proverbEnglish": "..."
+}`;
+
+      // 🌴 V3: RESORT TOUR (5 ALLOGGI DIVERSI)
+      const v3Prompt = `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale a Buffalo Bay / อ่าวเขาควาย).
+Scrivi un micro-post social biculturale (INGLESE in alto + THAI in basso) immersivo ed evocativo per presentare la panoramica completa del resort con 5 alloggi diversi.
+
+CONTESTO ATTUALE:
+- I 5 Alloggi protagonisti del tour nel video:
+${dishListText}
+- Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
+- Fascia oraria: ${mealMoment}
+- Situazione meteo del momento: ${weatherAngle}
+- Stagione: ${season || 'Stagione tropicale'}
+- Sito ufficiale: www.flowerpowervillage.com (Miglior tariffa diretta garantita online + 10% privilegio prenotazione diretta)
+
+REGOLE FONDAMENTALI DI SCRITTURA:
+1. RESORT TOUR DEI 5 ALLOGGI (VARIETÀ & SPIRITO SLOW LIFE):
+   Il video mostra una panoramica completa di 5 alloggi diversi del villaggio: dalla suite ventilata panoramica con grande terrazza (Breezy Suite), ai bungalow in legno naturale immersi nei giardini fioriti, fino alle tende eco-glamping.
+   Spiega che al Flower Power Village ogni viaggiatore trova il proprio angolo di paradiso su misura (coppie, amici, amanti della natura e del relax totale).
+2. ATMOSFERA KOH PHAYAM:
+   Evoca la pace autentica dell'isola car-free, l'amaca tra le palme, il cinguettio degli uccelli tropicali e il profumo dei fiori a Buffalo Bay.
+3. STRUTTURA & LUNGHEZZA:
+   - MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Spaziatura ariosa, zero muri di parole.
+   - Nomi alloggi: locuzione continua su singola riga.
+   - Proverbio del Giorno: proverbio poetico sul viaggio, la lentezza, la natura o l'isola.
+   - Chiusura: invito a scoprire tutti gli alloggi e prenotare direttamente su www.flowerpowervillage.com.
+   - Bandiera: 🇬🇧 per l'Inglese in alto, 🇹🇭 per il Thai in basso.
+   - Zero hashtag nel testo. Zero forno a legna. ZERO parola sunset/tramonto.
+   - Emoji contestuali distribuite nel testo, MAI raggruppate alla fine della frase.
+
+Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
+{
+  "thaiContent": "...",
+  "englishContent": "...",
+  "proverbThai": "...",
+  "proverbEnglish": "..."
+}`;
+
+      // 🎯 SELETTORE PROMPT INGEGNERIZZATO DINAMICO:
+      let prompt = villagePrompt;
+      if (mode === 'R1') {
+        prompt = r1Prompt;
+      } else if (mode === 'LM1') {
+        prompt = lm1Prompt;
+      } else if (mode === 'V3') {
+        prompt = v3Prompt;
+      } else if (isPizza) {
+        prompt = pizzaPrompt;
+      }
 
       const aiRes = await fetch('https://api.deepseek.com/chat/completions', {
         method: 'POST',
@@ -1034,6 +1186,19 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       };
       thaiContent = scrubWoodFired(thaiContent);
       englishContent = scrubWoodFired(englishContent);
+
+      // 🛡️ REGOLA IMMODIFICABILE: Sanitizzazione automatica zero sunset per Flower Power Village
+      const scrubSunset = (t: string) => {
+        return t
+          .replace(/\b(sunset\s+deck|sunset\s+terrace|sunset\s+suite|sunset\s+view|sunset\s+balcony)\b/gi, 'breezy deck')
+          .replace(/\b(sunset|sunsets)\b/gi, 'tropical breezes')
+          .replace(/พระอาทิตย์ตก/g, 'รับลมธรรมชาติ')
+          .replace(/\b(tramonto|tramonti)\b/gi, 'aria fresca tropicale');
+      };
+      if (!isPizza) {
+        thaiContent = scrubSunset(thaiContent);
+        englishContent = scrubSunset(englishContent);
+      }
 
       if (parsed.proverbThai && !thaiContent.includes(parsed.proverbThai)) {
         const pLabel = parsed.proverbThai.startsWith('📜') ? parsed.proverbThai : `📜 สุภาษิตประจำวัน: "${parsed.proverbThai}"`;

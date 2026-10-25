@@ -64,6 +64,7 @@ import { sendNetworkHeartbeat } from '../../../pizza/services/networkAuthService
 import { resolveDishDisplayName, resolveDishSubtitle } from '../utils/kdsCatalogService';
 import { resolveExtraDisplayName, resolveVariantDisplayName, parseKdsItemDetails, KdsLanguage } from '../utils/kdsExtraDictionary';
 import { KDS_I18N } from '../utils/kdsI18n';
+import { isLocalSandbox } from '../../../pizza/services/localSandboxOrderService';
 
 export interface TableReservationKDS {
   id: string;
@@ -782,21 +783,53 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
     };
   }, []);
 
-  // Helper anti-zombie: ignora ordini pendenti più vecchi di 16 ore (residui di turni passati)
+  // Helper anti-zombie: ignora ordini pendenti più vecchi del limite in ore (residui di turni passati)
   const isStaleOrder = (order: PizzaOrder, maxHours = 16) => {
     if (!order.created_at) return false;
     const ageMs = Date.now() - new Date(order.created_at).getTime();
     return ageMs > maxHours * 60 * 60 * 1000;
   };
 
-  // Active Dining Tables in Hall (Guaranteed 1 single card per table in bottom dock)
+  // Auto-archiviazione in background per tavoli di sala rimasti aperti oltre 2 ore
+  useEffect(() => {
+    const checkAndArchiveStaleTables = async () => {
+      const now = Date.now();
+      const twoHoursMs = 2 * 60 * 60 * 1000;
+      const staleTableOrders = orders.filter(o => 
+        isDiningTableOrder(o) && 
+        o.status !== 'completed' && 
+        o.status !== 'cancelled' && 
+        (o.status as any) !== 'rejected' &&
+        o.created_at && 
+        (now - new Date(o.created_at).getTime() > twoHoursMs)
+      );
+
+      if (staleTableOrders.length > 0) {
+        for (const sto of staleTableOrders) {
+          try {
+            await updateOrderStatus(sto.id, 'completed');
+            const targetTableKey = getCanonicalTableKey(extractTableFromAddress(sto.address) || sto.table_number || String(sto.id));
+            if (targetTableKey) {
+              revokeDiningTableSession(targetTableKey);
+            }
+          } catch (_) {}
+        }
+      }
+    };
+
+    checkAndArchiveStaleTables();
+    const staleInterval = setInterval(checkAndArchiveStaleTables, 60000);
+    return () => clearInterval(staleInterval);
+  }, [orders]);
+
+  // Active Dining Tables in Hall (Guaranteed 1 single card per table in bottom dock, max 2h age)
   const activeDiningOrders = useMemo(() => {
     const rawDining = orders.filter(o => 
       isDiningTableOrder(o) && 
       o.status !== 'completed' && 
       o.status !== 'cancelled' && 
       (o.status as any) !== 'rejected' &&
-      !isStaleOrder(o, 16)
+      !isStaleOrder(o, 2)
     );
     const tableMap = new Map<string, PizzaOrder>();
     rawDining.forEach(o => {
@@ -1374,6 +1407,13 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
               🇹🇭 Ranong
             </span>
           </div>
+
+          {isLocalSandbox() && (
+            <div className="hidden sm:flex items-center gap-1.5 h-9 px-3 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 font-mono text-xs font-black shadow-inner">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>SANDBOX LOCALE</span>
+            </div>
+          )}
         </div>
 
         {/* Center: Mobile 2-Phase Switcher (only shown on small screens) */}
@@ -1803,6 +1843,11 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                             <span>{tableStationDisplay}</span>
                           </span>
                         )}
+                        {(order.is_sandbox || String(order.id).startsWith('sb-')) && (
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 uppercase tracking-wider font-mono">
+                            TEST SANDBOX
+                          </span>
+                        )}
                         <span className="text-xs font-black px-2.5 py-1 rounded-md bg-red-600 text-white uppercase tracking-wider animate-bounce">
                           🚨 {t.newBadge} ({elapsed} {t.minAgo})
                         </span>
@@ -2033,6 +2078,11 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                           <span className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-400 text-stone-950 uppercase tracking-wider flex items-center gap-1 font-mono shadow-sm">
                             <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
                             <span>{formatTableStationName(extractTableFromAddress(order.address) || order.table_number || 'Tavolo', kdsLang === 'th' ? 'TH' : 'EN')}</span>
+                          </span>
+                        )}
+                        {(order.is_sandbox || String(order.id).startsWith('sb-')) && (
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 uppercase tracking-wider font-mono">
+                            TEST SANDBOX
                           </span>
                         )}
                         {isDelivering ? (

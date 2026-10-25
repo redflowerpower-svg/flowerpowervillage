@@ -382,7 +382,7 @@ export function AutoCutReelPlayer({
                   className="font-['Kanit',sans-serif] text-[20px] sm:text-[22px] font-black leading-none tracking-tight"
                   style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
                 >
-                  {activePrice.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
+                  {String(activePrice).replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
                 </span>
               </div>
             </div>

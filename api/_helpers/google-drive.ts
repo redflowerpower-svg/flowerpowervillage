@@ -147,3 +147,85 @@ export async function uploadFileToGoogleDrive(options: UploadOptions): Promise<U
 
   return uploadData as UploadResult;
 }
+
+export interface GoogleDriveFile {
+  id: string;
+  name: string;
+  mimeType: string;
+  size?: string;
+  webViewLink?: string;
+  webContentLink?: string;
+  createdTime?: string;
+  thumbnailLink?: string;
+}
+
+/**
+ * Lists files in a specific Google Drive folder or matching a query
+ */
+export async function listGoogleDriveFiles(options: {
+  folderId?: string;
+  query?: string;
+  pageSize?: number;
+}): Promise<GoogleDriveFile[]> {
+  const accessToken = await getGoogleDriveAccessToken();
+  const config = await getGoogleDriveConfig();
+  const targetFolderId = options.folderId || config.folderId;
+
+  let q = "trashed = false";
+  if (targetFolderId) {
+    q += ` and '${targetFolderId}' in parents`;
+  }
+  if (options.query) {
+    q += ` and (${options.query})`;
+  }
+
+  const encodedQ = encodeURIComponent(q);
+  const pageSize = options.pageSize || 100;
+  const url = `https://www.googleapis.com/drive/v3/files?q=${encodedQ}&fields=files(id,name,mimeType,size,webViewLink,webContentLink,createdTime,thumbnailLink)&pageSize=${pageSize}&supportsAllDrives=true&includeItemsFromAllDrives=true`;
+
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(`Google Drive list failed (${res.status}): ${JSON.stringify(data)}`);
+  }
+
+  return (data.files || []) as GoogleDriveFile[];
+}
+
+/**
+ * Finds and retrieves all video clips inside the 'CapCut' folder
+ */
+export async function getCapCutVideos(): Promise<{
+  folderFound: boolean;
+  folderId?: string;
+  videos: GoogleDriveFile[];
+}> {
+  const accessToken = await getGoogleDriveAccessToken();
+
+  // 1. Search for folder named CapCut across Drive
+  const qFolder = encodeURIComponent(`mimeType = 'application/vnd.google-apps.folder' and trashed = false and (name = 'CapCut' or name = 'capcut')`);
+  const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${qFolder}&fields=files(id,name,parents)&supportsAllDrives=true&includeItemsFromAllDrives=true`, {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+  const folderData = await folderRes.json();
+  const capcutFolder = folderData.files?.[0];
+
+  if (!capcutFolder) {
+    return { folderFound: false, videos: [] };
+  }
+
+  // 2. Fetch video files inside the CapCut folder
+  const videos = await listGoogleDriveFiles({
+    folderId: capcutFolder.id,
+    query: "mimeType contains 'video' or name contains '.mp4' or name contains '.mov'"
+  });
+
+  return {
+    folderFound: true,
+    folderId: capcutFolder.id,
+    videos
+  };
+}

@@ -33,6 +33,14 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
     return res.status(400).json({ error: "Missing orderId parameter" });
   }
 
+  // 🛡️ LOCAL SANDBOX BACKEND SHIELD: Block Telegram messages on localhost
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '');
+  const isLocalHost = host.includes('localhost') || host.includes('127.0.0.1');
+  if (isLocalHost || String(orderId).startsWith('sb-') || String(orderId).startsWith('sandbox-')) {
+    console.log(`[LOCAL SANDBOX SHIELD] Telegram notification blocked for order ${orderId} on localhost.`);
+    return res.status(200).json({ success: true, bypassed: 'localhost_sandbox' });
+  }
+
   const { botToken, chatId } = await getTelegramCredentials('pizza');
 
   if (!botToken || !chatId) {
@@ -178,6 +186,14 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
 
   if (!orderId) {
     return res.status(400).json({ error: "orderId is required." });
+  }
+
+  // 🛡️ LOCAL SANDBOX BACKEND SHIELD: Block Supabase updates on localhost for sandbox orders
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '');
+  const isLocalHost = host.includes('localhost') || host.includes('127.0.0.1');
+  if (isLocalHost || String(orderId).startsWith('sb-') || String(orderId).startsWith('sandbox-')) {
+    console.log(`[LOCAL SANDBOX SHIELD] Status update/delete for order ${orderId} handled locally on localhost.`);
+    return res.status(200).json({ success: true, bypassed: 'localhost_sandbox', orderId, status });
   }
 
   // 0. If action is delete, remove directly with service_role

@@ -25,6 +25,7 @@ import {
 import { useCartStore, calcItemTotal } from '../store/cartStore';
 import { supabase } from '../../lib/supabase';
 import { Language } from '../config/languages';
+import { isLocalSandbox, saveSandboxOrder } from '../services/localSandboxOrderService';
 
 const QR_KSHOP_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/receipts/qr_promptpay.jpg`;
 
@@ -510,7 +511,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         try {
           const queryPromise = supabase
             .from('pizza_orders')
-            .select('id, address, table_number')
+            .select('id, address, table_number, created_at')
             .neq('status', 'completed')
             .neq('status', 'cancelled')
             .neq('status', 'rejected')
@@ -524,7 +525,13 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
           const { data: openOrders } = await Promise.race([queryPromise, timeoutPromise]);
 
           if (openOrders && openOrders.length > 0) {
+            const now = Date.now();
+            const MAX_TABLE_AGE_MS = 2 * 60 * 60 * 1000; // 2 ore: limite categorico integrazione comanda
             const found = openOrders.find((o: any) => {
+              if (o.created_at) {
+                const age = now - new Date(o.created_at).getTime();
+                if (age > MAX_TABLE_AGE_MS) return false;
+              }
               const raw = extractTableFromAddress(o.address) || o.table_number || '';
               return raw && getCanonicalTableKey(raw) === canonicalCurrentTable;
             });
@@ -563,47 +570,53 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         lang: lang || 'IT'
       } : undefined;
 
-      // 3. Primary: Serverless Backend API (service_role bypasses RLS and guaranteed atomic write/update)
-      try {
-        const res = await fetch('/api/pizza-order-submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            order: orderPayload, 
-            existingOrderId: activeExistingOrderId,
-            voucherEmail: voucherEmailPayload
-          })
-        });
-        const apiRes = await res.json();
-        if (apiRes && apiRes.success && apiRes.order) {
-          savedOrder = apiRes.order;
-        }
-      } catch (apiErr) {
-        console.warn('[DiningCheckout] Backend API submit failed, checking client fallback:', apiErr);
-      }
-
-      // 4. Secondary fallback: Direct Supabase client only if serverless API route is unreachable
-      if (!savedOrder) {
+      // 3. Environment Check: LOCAL SANDBOX vs PRODUCTION
+      if (isLocalSandbox()) {
+        console.log('[DiningCheckout] Sandbox Locale attiva: salvataggio comanda a circuito chiuso locale (Zero Supabase, Zero Telegram)');
+        savedOrder = saveSandboxOrder(orderPayload, activeExistingOrderId);
+      } else {
+        // Primary: Serverless Backend API (service_role bypasses RLS and guaranteed atomic write/update)
         try {
-          if (activeExistingOrderId) {
-            const { data: updated } = await supabase
-              .from('pizza_orders')
-              .update(orderPayload)
-              .eq('id', activeExistingOrderId)
-              .select('*')
-              .single();
-            if (updated) savedOrder = updated;
+          const res = await fetch('/api/pizza-order-submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              order: orderPayload, 
+              existingOrderId: activeExistingOrderId,
+              voucherEmail: voucherEmailPayload
+            })
+          });
+          const apiRes = await res.json();
+          if (apiRes && apiRes.success && apiRes.order) {
+            savedOrder = apiRes.order;
           }
-          if (!savedOrder) {
-            const { data: inserted } = await supabase
-              .from('pizza_orders')
-              .insert([orderPayload])
-              .select('*')
-              .single();
-            if (inserted) savedOrder = inserted;
+        } catch (apiErr) {
+          console.warn('[DiningCheckout] Backend API submit failed, checking client fallback:', apiErr);
+        }
+
+        // Secondary fallback: Direct Supabase client only if serverless API route is unreachable
+        if (!savedOrder) {
+          try {
+            if (activeExistingOrderId) {
+              const { data: updated } = await supabase
+                .from('pizza_orders')
+                .update(orderPayload)
+                .eq('id', activeExistingOrderId)
+                .select('*')
+                .single();
+              if (updated) savedOrder = updated;
+            }
+            if (!savedOrder) {
+              const { data: inserted } = await supabase
+                .from('pizza_orders')
+                .insert([orderPayload])
+                .select('*')
+                .single();
+              if (inserted) savedOrder = inserted;
+            }
+          } catch (err) {
+            console.warn('[DiningCheckout] Fallback client write error:', err);
           }
-        } catch (err) {
-          console.warn('[DiningCheckout] Fallback client write error:', err);
         }
       }
 
@@ -634,14 +647,18 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
           chFP.close();
         } catch {}
 
-        // Trigger Telegram notification in background
-        try {
-          fetch('/api/telegram-notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderId: ordId })
-          }).catch(e => console.warn('[DiningCheckout] Telegram notify failed:', e));
-        } catch {}
+        // Trigger Telegram notification in background (BLOCKED on localhost sandbox)
+        if (!isLocalSandbox()) {
+          try {
+            fetch('/api/telegram-notify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId: ordId })
+            }).catch(e => console.warn('[DiningCheckout] Telegram notify failed:', e));
+          } catch {}
+        } else {
+          console.log('[DiningCheckout] Notifica Telegram bloccata: Sandbox Locale attiva.');
+        }
 
         setIsSuccess(true);
       }

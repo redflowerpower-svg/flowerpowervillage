@@ -15,6 +15,13 @@ import {
 } from '../../../pizza/data/pizzaMenuCloudService';
 import { fetchCloudWineCollection } from '../../../pizza/data/wineCloudService';
 import type { WineCardData } from '../../../pizza/data/wineData';
+import { 
+  isLocalSandbox, 
+  getSandboxOrders, 
+  updateSandboxOrderStatus, 
+  deleteSandboxOrder, 
+  subscribeToSandboxOrders 
+} from '../../../pizza/services/localSandboxOrderService';
 
 export type { PizzaPromoCode };
 
@@ -191,7 +198,14 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
 
       if (error) throw error;
 
-      const sanitizedOrders = (data || []).map(sanitizePizzaOrder);
+      let serverData = (data || []);
+      if (isLocalSandbox()) {
+        const sandboxOrders = getSandboxOrders();
+        const sbIds = new Set(sandboxOrders.map(o => String(o.id)));
+        serverData = [...sandboxOrders, ...serverData.filter((o: any) => !sbIds.has(String(o.id)))];
+      }
+
+      const sanitizedOrders = serverData.map(sanitizePizzaOrder);
       
       set((state) => {
         const orderStatusRank: Record<string, number> = {
@@ -258,7 +272,15 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
       ch2.close();
     } catch (e) {}
 
-    // 3. Update database via serverless backend API (uses SUPABASE_SERVICE_ROLE_KEY to bypass RLS)
+    // 3. Local Sandbox check: if order is from sandbox, update locally and DO NOT touch Supabase
+    if (String(id).startsWith('sb-') || isLocalSandbox()) {
+      updateSandboxOrderStatus(String(id), status as any);
+      if (String(id).startsWith('sb-')) {
+        return;
+      }
+    }
+
+    // 4. Update database via serverless backend API (uses SUPABASE_SERVICE_ROLE_KEY to bypass RLS)
     try {
       const response = await fetch('/api/pizza-order-status', {
         method: 'POST',
@@ -305,7 +327,13 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
       ch2.close();
     } catch (e) {}
 
-    // 3. Delete via backend API (service_role bypasses RLS)
+    // 3. Local Sandbox check: if order is from sandbox, delete locally and DO NOT touch Supabase
+    if (String(id).startsWith('sb-')) {
+      deleteSandboxOrder(String(id));
+      return;
+    }
+
+    // 4. Delete via backend API (service_role bypasses RLS)
     try {
       await fetch('/api/pizza-order-status', {
         method: 'POST',
@@ -316,7 +344,7 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
       console.warn('[usePizzaAdminStore] API delete failed, trying direct Supabase fallback:', err);
     }
 
-    // 4. Also call table-reservation endpoint just in case it's a reservation record
+    // 5. Also call table-reservation endpoint just in case it's a reservation record
     try {
       await fetch('/api/table-reservation', {
         method: 'DELETE',
@@ -325,7 +353,7 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
       });
     } catch (e) {}
 
-    // 5. Fallback direct Supabase delete
+    // 6. Fallback direct Supabase delete
     try {
       await supabase.from('pizza_orders').delete().eq('id', id);
     } catch (directErr) {
@@ -755,6 +783,17 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
   },
 
   subscribeToRealtime: () => {
+    let unsubSandbox = () => {};
+    if (isLocalSandbox()) {
+      unsubSandbox = subscribeToSandboxOrders((sandboxOrders) => {
+        set((state) => {
+          const nonSandbox = state.orders.filter(o => !String(o.id).startsWith('sb-'));
+          const sanitizedSb = sandboxOrders.map(sanitizePizzaOrder);
+          return { orders: [...sanitizedSb, ...nonSandbox] };
+        });
+      });
+    }
+
     const subscription = supabase
       .channel('public:pizza_orders')
       .on(
@@ -782,6 +821,7 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
 
     return () => {
       supabase.removeChannel(subscription);
+      unsubSandbox();
     };
   }
 }));

@@ -125,6 +125,11 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
       2. Le verifiche di correttezza si effettuano tramite analisi statica, TypeScript (`npx tsc --noEmit`), test mirati Node.js in `scratch/` e log locali a 0 token extra.
     - **Esecuzione Continua & Zero Blocchi**:
       1. Nessun blocco di pianificazione (`RequestFeedback: false`), nessun tool di conferma interattiva (`ask_question`). Il flusso procede spedito senza interruzioni.
+24. **Regola Immodificabile Divieto Assoluto Parola Sunset / Tramonto (Koh Phayam / Flower Power Village)**:
+    - **IL NOSTRO VILLAGGIO NON VEDE IL TRAMONTO (ZERO SUNSET)**: Flower Power Village a Koh Phayam NON ha la vista sul tramonto.
+    - È **SEVERAMENTE, CATEGORICAMENTE E TASSATIVAMENTE VIETATO** usare o menzionare le parole "sunset", "tramonto", "พระอาทิตย์ตก", "Golden Hour Sunset" o alludere al tramonto nei prompt di DeepSeek AI, nei post social (TikTok, Instagram, Facebook, Google Maps, Telegram), nelle didascalie, nei titoli video, nei banner o nei template per il villaggio e per tutti i suoi alloggi.
+    - Per la **Villa Penthouse** in particolare, parlare TASSATIVAMENTE ed ESCLUSIVAMENTE di **"Breezy Suite"** / **suite ventilata** con grande terrazza panoramica fresca e arieggiata (`Panoramic Breezy Deck`).
+    - Il sistema applica sanitizzatori regex a monte e a valle che convertono qualsiasi residuo di "sunset" in "breezy deck" / "tropical breezes".
 
 # 🛡️ PROTOCOLLO DI AUTO-APPROVAZIONE SICURA (AUTONOMOUS EXECUTION & ZERO-DISRUPTION GUARDRAILS)
 Il sistema opera in modalità di **esecuzione completamente autonoma, rapida e continua** (predefinita su tutte le richieste, e tassativa con `/goal`, `AUTOPILOT`, `procedi` o `In autonomia:`):

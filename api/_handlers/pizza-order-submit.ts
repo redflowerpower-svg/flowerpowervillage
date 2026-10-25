@@ -29,6 +29,29 @@ export async function handlePizzaOrderSubmit(req: VercelRequest, res: VercelResp
     return res.status(500).json({ error: "Supabase client not initialized" });
   }
 
+  // 🛡️ LOCAL SANDBOX BACKEND SHIELD: Intercept any orders from localhost
+  const host = String(req.headers['x-forwarded-host'] || req.headers.host || '');
+  const isLocalHost = host.includes('localhost') || host.includes('127.0.0.1');
+  if (isLocalHost || req.body?.isLocalSandbox === true) {
+    console.log('[LOCAL SANDBOX BACKEND SHIELD] Intercepted pizza-order-submit from localhost. Returning simulated sandbox order.');
+    const addressStr = String(order.address || '');
+    const simulatedOrder = {
+      id: existingOrderId ? String(existingOrderId) : `sb-api-${Date.now().toString().slice(-6)}`,
+      customer_name: String(order.customer_name || 'Cliente Tavolo (Sandbox)'),
+      phone: String(order.phone || '+66 Dining Table'),
+      address: addressStr,
+      items: Array.isArray(order.items) ? order.items : [],
+      total: Number(order.total) || 0,
+      payment_method: String(order.payment_method || 'cash_at_table'),
+      status: 'new',
+      is_sandbox: true,
+      has_whatsapp: Boolean(order.has_whatsapp),
+      has_line: Boolean(order.has_line),
+      created_at: new Date().toISOString()
+    };
+    return res.status(200).json({ success: true, order: simulatedOrder, sandbox: true });
+  }
+
   try {
     const addressStr = String(order.address || '');
     const payload: any = {

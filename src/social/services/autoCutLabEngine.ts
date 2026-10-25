@@ -1,5 +1,5 @@
 import { menuData, MenuItem } from '../../pizza/data/menuData';
-import { ACCOMMODATIONS } from '../../booking/resort/config/accommodations';
+import { ACCOMMODATIONS, findAccommodationIdentity } from '../../booking/resort/config/accommodations';
 import { DEFAULT_PERIODS, DEFAULT_PRICES_MATRIX } from '../../admin/resort/store/useSeasonalRateStore';
 import { fetchCloudMenuOverrides } from '../../pizza/data/pizzaMenuCloudService';
 
@@ -25,6 +25,8 @@ export interface AutoCutScene {
   priceValue?: number;
   lodgingTitle?: string;    // Es. "Green Bungalow"
   lodgingSubtitle?: string; // Es. "Tropical Hideaway"
+  legacySlug?: string;      // Es. "13-green-bungalow"
+  directUrl?: string;       // Es. "https://www.flowerpowervillage.com/13-green-bungalow"
   pizzaSizes?: {
     size8Price: number;
     size12Price: number;
@@ -102,6 +104,14 @@ export const PIZZA_JINGLE_TRACKS: AutoCutAudioTrack[] = [
   }
 ];
 
+// 🎵 Brano Completo Ufficiale Flower Power Jingle (Arrangiamento Intero Signature Sound 27.8s)
+export const PIZZA_FULL_JINGLE_TRACK: AutoCutAudioTrack = {
+  id: 'pizza_full',
+  title: 'Flower Power Jingle (Versione Completa - Signature Sound)',
+  src: '/audio/00-flower-power-jingle-full.mp3',
+  duration: 27.8
+};
+
 // 🌺 Brani Sonori Koh Phayam Village (Scelta 100% Casuale tra tutte le 11 tracce ufficiali)
 export const VILLAGE_AUDIO_TRACKS_LAB: AutoCutAudioTrack[] = [
   {
@@ -156,7 +166,7 @@ export const VILLAGE_AUDIO_TRACKS_LAB: AutoCutAudioTrack[] = [
     id: 'village_09',
     title: 'Love in Koh Phayam (Vocal Jazz Bossa)',
     src: '/audio/village/09%20Flower%20Power%20Village%20-%20Love%20in%20Koh%20Phayam%20(Vocal%20Jazz%20Bossa).mp3',
-    duration: 43.7
+    duration: 30.2
   },
   {
     id: 'village_10',
@@ -194,14 +204,14 @@ export const VILLAGE_LODGINGS = [
     id: 'villa-penthouse',
     motherId: 421511,
     folder: '11_penthouse_villa',
-    nameEn: 'Villa Penthouse Sunset Suite',
+    nameEn: 'Villa Penthouse Breezy Suite',
     lodgingTitle: 'Villa Penthouse',
-    lodgingSubtitle: 'Sunset Suite',
-    nameTh: 'เพนต์เฮาส์วิลล่า ดาดฟ้าชมวิวพระอาทิตย์ตกเกาะพยาม',
+    lodgingSubtitle: 'Breezy Suite',
+    nameTh: 'เพนต์เฮาส์วิลล่า ดาดฟ้าชมวิวรับลมธรรมชาติเกาะพยาม',
     category: 'VILLE',
     mainImage: `${STORAGE_ACC}/11_penthouse_villa/01-Main.jpg`,
     gallery: [
-      { file: '01-Main.jpg', labelEn: 'Panoramic Sunset Wooden Deck', labelTh: 'วิลล่า 2 ชั้น ดาดฟ้าชมวิวพาโนรามา' },
+      { file: '01-Main.jpg', labelEn: 'Panoramic Breezy Wooden Deck', labelTh: 'วิลล่า 2 ชั้น ดาดฟ้าชมวิวรับลมพาโนรามา' },
       { file: '06-Bed1.jpg', labelEn: 'King Size Master Bedroom', labelTh: 'ห้องนอนใหญ่เตียงคิงไซส์แสนสบาย' },
       { file: '05-Sofa.jpg', labelEn: 'Private Lounge & Living Area', labelTh: 'มุมนั่งเล่นและโซฟาพักผ่อนส่วนตัว' },
       { file: '03-Kitchen.jpg', labelEn: 'Fully Equipped Kitchen & Dining', labelTh: 'ครัวส่วนตัวพร้อมอุปกรณ์ทำอาหาร' },
@@ -275,7 +285,7 @@ export const VILLAGE_LODGINGS = [
     gallery: [
       { file: '01-Main.jpg', labelEn: 'Charming Wooden Villa by Pool', labelTh: 'วิลล่าไม้บรรยากาศอบอุ่นริมสระว่ายน้ำ' },
       { file: '06-Bed.jpg', labelEn: 'Romantic King Bedroom with Organic Accents', labelTh: 'ห้องนอนเตียงคิงไซส์ ตกแต่งสไตล์ธรรมชาติ' },
-      { file: '03-Balcony.jpg', labelEn: 'Spacious Wooden Balcony for Sunset Sips', labelTh: 'ระเบียงไม้กว้างขวางสำหรับนั่งจิบค็อกเทล' },
+      { file: '03-Balcony.jpg', labelEn: 'Spacious Wooden Balcony for Breezy Sips', labelTh: 'ระเบียงไม้กว้างขวางสำหรับนั่งจิบค็อกเทล' },
       { file: '05-Kitcken.jpg', labelEn: 'Open Kitchen & Coffee Corner', labelTh: 'มุมครัวและชงกาแฟส่วนตัว' },
       { file: '07-Bedroom.jpg', labelEn: 'Second Garden Bedroom Sanctuary', labelTh: 'ห้องนอนโปร่งสบายมองเห็นสวนธรรมชาติ' }
     ]
@@ -492,7 +502,7 @@ export function getLiveDailySpecialDishes(): MenuItem[] {
     const isOverridden = dailyOverrides[id];
     const isShowcase = isOverridden !== undefined ? isOverridden === true : true;
     if (isShowcase) {
-      list.push({ ...dish, isDailySpecial: true });
+      list.push({ ...dish, isDailySpecial: true } as MenuItem);
     }
   });
 
@@ -502,7 +512,7 @@ export function getLiveDailySpecialDishes(): MenuItem[] {
     if (!dish.image || dish.image.trim() === '') return;
     if (availOverrides[id] === false || (dish as any).is_available === false) return;
     if (dailyOverrides[id] === true) {
-      list.push({ ...dish, isDailySpecial: true });
+      list.push({ ...dish, isDailySpecial: true } as MenuItem);
     }
   });
 
@@ -841,7 +851,8 @@ export function generateP2Test(): AutoCutTestRun {
 
   const catName = selectedCat.name;
   const selectedDishes = getRandomItems(selectedCat.availableItems, Math.min(3, selectedCat.availableItems.length));
-  const audio = getRandomItem(PIZZA_JINGLE_TRACKS);
+  // 🎵 REGOLA: Per P2 si usa SEMPRE l'MP3 completo della pizzeria (27.8s)
+  const audio = PIZZA_FULL_JINGLE_TRACK;
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / 3;
 
@@ -896,7 +907,8 @@ export function generateP3Test(): AutoCutTestRun {
     catName: c.name
   }));
 
-  const audio = getRandomItem(PIZZA_JINGLE_TRACKS);
+  // 🎵 REGOLA: Per P3 si usa SEMPRE l'MP3 completo della pizzeria (27.8s)
+  const audio = PIZZA_FULL_JINGLE_TRACK;
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / (selectedDishes.length || 1);
 
@@ -1022,6 +1034,7 @@ export function generateV2Test(): AutoCutTestRun {
  */
 export function generateV3Test(): AutoCutTestRun {
   const lodgings = getRandomItems(getVillageLodgingsLive(), 5);
+  // 🌺 REGOLA: Tutti i formati Koh Phayam Village (V1, V2, V3, LM1, R1) usano le tracce Koh Phayam Village
   const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / 5;
@@ -1213,6 +1226,7 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
       ? cachedLiveLastMinuteRooms
       : defaultRooms;
 
+  // 🌺 REGOLA: Tutti i formati Koh Phayam Village (V1, V2, V3, LM1, R1) usano le tracce Koh Phayam Village
   const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / rooms.length;
@@ -1223,10 +1237,10 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
     titleSecondary: entry.lodging.nameTh, // Traduzione secca in Thai
     lodgingTitle: entry.lodging.lodgingTitle,
     lodgingSubtitle: entry.lodging.lodgingSubtitle,
-    priceLabel: `Today Last Minute: ${entry.livePrice.toLocaleString('en-US')} ฿`,
+    priceLabel: `Last Minute: ${entry.livePrice.toLocaleString('en-US')} ฿`,
     priceValue: entry.livePrice,
     trajectory: TRAJECTORIES_SEQUENCE[idx % TRAJECTORIES_SEQUENCE.length],
-    badgeCategory: '🔥 AVAILABLE TONIGHT · ว่างวันนี้',
+    badgeCategory: '🔥 AVAILABLE TONIGHT',
     sourceName: entry.lodging.nameEn
   }));
 

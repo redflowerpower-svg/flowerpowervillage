@@ -4,19 +4,97 @@ import { AutoCutTestRun, AutoCutScene, getCategoryThaiName } from '../services/a
 import { LINE_QR_CODE_BASE64 } from '../services/lineQrData';
 import { autoCutSoundEngine } from '../services/autoCutSoundEffects';
 import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
+import { VILLAGE_LOGO_512_BASE64, PIZZA_LOGO_512_BASE64 } from '../services/brandLogosBase64';
 
 // Immagine QR Code Base64 precaricata e decodificata in memoria all'avvio (zero CORS, zero latenza)
 const globalLineQrImg = new Image();
 globalLineQrImg.src = LINE_QR_CODE_BASE64;
 
-// Loghi Ufficiali precaricati all'avvio per watermark istantaneo sul canvas
-const globalPizzaLogoImg = new Image();
-globalPizzaLogoImg.crossOrigin = 'anonymous';
-globalPizzaLogoImg.src = '/flower-power-pizza-logo-512.png';
+// Loghi Ufficiali precaricati e decodificati all'avvio garantiti al 100% da Data URI Base64 in memoria (zero CORS, zero fetch di rete, zero latenza, mai vuoti)
+const globalPizzaLogoImg = typeof Image !== 'undefined' ? new Image() : ({} as HTMLImageElement);
+if (globalPizzaLogoImg instanceof Image) {
+  globalPizzaLogoImg.src = PIZZA_LOGO_512_BASE64;
+}
 
-const globalVillageLogoImg = new Image();
-globalVillageLogoImg.crossOrigin = 'anonymous';
-globalVillageLogoImg.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+const globalVillageLogoImg = typeof Image !== 'undefined' ? new Image() : ({} as HTMLImageElement);
+if (globalVillageLogoImg instanceof Image) {
+  globalVillageLogoImg.src = VILLAGE_LOGO_512_BASE64;
+}
+
+// 🛡️ Precaricamento sincrono Canvas Buffer per Loghi Ufficiali (Pizza & Village)
+// Creare un canvas 512x512 nativo garantisce che i pixel RGBA siano fisicamente presenti nella memoria RAM/GPU,
+// azzerando qualsiasi rischio di decodifica ritardata o drawImage() a vuoto nel ciclo a 60 fps di Chromium.
+let cachedVillageLogoCanvas: HTMLCanvasElement | null = null;
+let cachedPizzaLogoCanvas: HTMLCanvasElement | null = null;
+
+function renderBase64ToCanvas(base64Data: string): HTMLCanvasElement | null {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    ctx.clearRect(0, 0, 512, 512);
+    ctx.drawImage(img, 0, 0, 512, 512);
+  };
+  img.src = base64Data;
+  if (img.complete && img.naturalWidth > 0) {
+    ctx.clearRect(0, 0, 512, 512);
+    ctx.drawImage(img, 0, 0, 512, 512);
+  }
+  return canvas;
+}
+
+if (typeof document !== 'undefined') {
+  cachedPizzaLogoCanvas = renderBase64ToCanvas(PIZZA_LOGO_512_BASE64);
+  cachedVillageLogoCanvas = renderBase64ToCanvas(VILLAGE_LOGO_512_BASE64);
+}
+
+async function ensureBrandLogosReady(): Promise<void> {
+  if (typeof document === 'undefined') return;
+
+  const bakeCanvas = (src: string, existing: HTMLCanvasElement | null): Promise<HTMLCanvasElement> => {
+    return new Promise((resolve) => {
+      const c = existing || document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        if (ctx) {
+          ctx.clearRect(0, 0, 512, 512);
+          ctx.drawImage(img, 0, 0, 512, 512);
+        }
+        resolve(c);
+      };
+      img.onerror = () => resolve(c);
+      img.src = src;
+      if (img.complete && img.naturalWidth > 0) {
+        if (ctx) {
+          ctx.clearRect(0, 0, 512, 512);
+          ctx.drawImage(img, 0, 0, 512, 512);
+        }
+        resolve(c);
+      }
+    });
+  };
+
+  const [pizzaC, villageC] = await Promise.all([
+    bakeCanvas(PIZZA_LOGO_512_BASE64, cachedPizzaLogoCanvas),
+    bakeCanvas(VILLAGE_LOGO_512_BASE64, cachedVillageLogoCanvas)
+  ]);
+  cachedPizzaLogoCanvas = pizzaC;
+  cachedVillageLogoCanvas = villageC;
+}
+
+if (typeof window !== 'undefined') {
+  ensureBrandLogosReady().catch(() => {});
+}
 
 // SVG Path ufficiale WhatsApp per rendering fedele su Canvas 2D
 const WA_PHONE_PATH_DATA =
@@ -25,7 +103,7 @@ const waPhonePath2D = typeof Path2D !== 'undefined' ? new Path2D(WA_PHONE_PATH_D
 
 // SVG Path ufficiale LINE per rendering fedele su Canvas 2D
 const LINE_ICON_PATH_DATA =
-  'M12 2C6.48 2 2 5.82 2 10.53c0 4.23 3.61 7.77 8.5 8.41.33.07.78.22.89.51.1.26.07.67.03.93l-.15.91c-.05.28-.22 1.1.96.6 1.18-.5 6.38-3.76 8.7-6.44C22.25 13.9 22 12.28 22 10.53 22 5.82 17.52 2 12 2zm-3.8 11.5H6.4c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5V13h1.3c.28 0 .5.22.5.5s-.22.5-.5.5zm2.1-.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5zm4.3 0c0 .22-.15.42-.36.48-.06.02-.11.02-.16.02-.17 0-.32-.08-.41-.21L12.1 10.1v2.4c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.23.15-.42.36-.48.05-.02.11-.02.16-.02.17 0 .32.08.41.21l2.07 2.7V8c0-.28.22-.5.5-.5s.5.22.5.5v5zm3.1-3.2h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5h-1.9c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5h1.9c.28 0 .5.22.5.5s-.22.5-.5.5h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5z';
+  'M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314';
 const lineIconPath2D = typeof Path2D !== 'undefined' ? new Path2D(LINE_ICON_PATH_DATA) : null;
 
 /**
@@ -147,7 +225,7 @@ export function AutoCutLabPlayer({
   }, [testRun]);
 
   const { scenes, totalDuration, sceneDuration, audioTrack, brand, mode } = testRun;
-  const isCompanionEligible = mode === 'P1' || mode === 'V1';
+  const isCompanionEligible = mode === 'P1' || mode === 'V1' || mode === 'LM1';
   const sceneCount = scenes.length;
 
   const isSingleHero = mode === 'P1' || mode === 'DS';
@@ -235,10 +313,10 @@ export function AutoCutLabPlayer({
       }
     }
 
-    // Riferimento al logo ufficiale precaricato per Watermark e Outro finale (Pizza / Villaggio)
+    // Riferimento al logo ufficiale precaricato in Base64 (Pizza / Villaggio)
     const logoImg = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
-    if (!logoImg.src) {
-      logoImg.src = brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png';
+    if (logoImg instanceof Image && !logoImg.src) {
+      logoImg.src = brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64;
     }
 
     // QR Code ufficiale LINE della Pizzeria garantito da istanza Base64 in memoria
@@ -466,7 +544,19 @@ export function AutoCutLabPlayer({
       }
 
       // Disegno Logo Centrato con Ombra 3D d'Impatto
-      if (logoImg.complete && logoImg.naturalWidth > 0) {
+      const outroLogoCanvas = brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas;
+      const domOutroLogo = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
+      const targetOutroLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
+      const effectiveOutroLogo: CanvasImageSource | null =
+        (outroLogoCanvas && outroLogoCanvas.width > 0)
+          ? outroLogoCanvas
+          : (domOutroLogo && domOutroLogo.complete && domOutroLogo.naturalWidth > 0)
+            ? domOutroLogo
+            : (targetOutroLogo && targetOutroLogo.complete && targetOutroLogo.naturalWidth > 0)
+              ? targetOutroLogo
+              : logoImg;
+
+      if (effectiveOutroLogo) {
         targetCtx.save();
         targetCtx.translate(cx, cy);
         targetCtx.rotate(stampRotate);
@@ -477,7 +567,7 @@ export function AutoCutLabPlayer({
         targetCtx.shadowBlur = 40;
         targetCtx.shadowOffsetY = 16;
 
-        targetCtx.drawImage(logoImg, -baseLogoSize / 2, -baseLogoSize / 2, baseLogoSize, baseLogoSize);
+        targetCtx.drawImage(effectiveOutroLogo, -baseLogoSize / 2, -baseLogoSize / 2, baseLogoSize, baseLogoSize);
         targetCtx.restore();
       }
 
@@ -696,7 +786,7 @@ export function AutoCutLabPlayer({
 
           targetCtx.font = '700 22px "Inter", sans-serif';
           targetCtx.fillStyle = '#e2e8f0';
-          targetCtx.fillText('🌺 Eco Wooden Bungalows & Sunset Suites', cx, boxY + 360);
+          targetCtx.fillText('🌺 Eco Wooden Bungalows & Breezy Suites', cx, boxY + 360);
         }
 
         // Payoff Footer Card (Sicuro all'interno del box)
@@ -851,12 +941,13 @@ export function AutoCutLabPlayer({
           ctx43.fillStyle = `rgba(0, 0, 0, ${darkAlpha})`;
           ctx43.fillRect(0, 0, w43, h43);
 
-          if (logoImg.complete && logoImg.naturalWidth > 0) {
+          const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
+          if (comp43Logo) {
             const lSize = 130;
             ctx43.save();
             ctx43.shadowColor = 'rgba(0, 0, 0, 0.9)';
             ctx43.shadowBlur = 20;
-            ctx43.drawImage(logoImg, cx43 - lSize / 2, 100, lSize, lSize);
+            ctx43.drawImage(comp43Logo, cx43 - lSize / 2, 100, lSize, lSize);
             ctx43.restore();
           }
 
@@ -976,8 +1067,8 @@ export function AutoCutLabPlayer({
           audioRef.current.currentTime = 0;
           audioRef.current.volume = 1.0;
         }
-        // 📸 FOTOGRAMMA THUMBNAIL RIPRISTINATO IMMEDIATAMENTE AL TERMINE DEL VIDEO (Zero schermo nero / velo)
-        renderFrame(thumbnailTimestamp);
+        // 🎬 Al termine del video, mantieni visualizzato l'Outro finale (Zero reset anticipato / zero salto indietro)
+        renderFrame(totalVideoDuration);
       } else {
         renderFrame(elapsed);
         if (isPlaying) {
@@ -998,22 +1089,24 @@ export function AutoCutLabPlayer({
       if (isOutro || !scene) return;
       const s = w / 395; // Proporzione fedele 1:1 rispetto alla preview del container reale a 395px
 
-      // 1. Top Vignette Fade ultra-morbido fedele 1:1 all'anteprima DOM (h-60 = 240px proporzionato: 240 * s)
-      const topFadeH = 240 * s;
+      // 1. Top Vignette Fade cinematografico ad alto contrasto (protegge watermark logo e scritte contro sfondi chiari, paglia o sole)
+      const topFadeH = 270 * s;
       const topGrad = oCtx.createLinearGradient(0, 0, 0, topFadeH);
-      topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.48)');
-      topGrad.addColorStop(0.40, 'rgba(0, 0, 0, 0.22)');
-      topGrad.addColorStop(0.75, 'rgba(0, 0, 0, 0.08)');
+      topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.85)');
+      topGrad.addColorStop(0.35, 'rgba(0, 0, 0, 0.62)');
+      topGrad.addColorStop(0.70, 'rgba(0, 0, 0, 0.25)');
       topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       oCtx.fillStyle = topGrad;
       oCtx.fillRect(0, 0, w, topFadeH);
 
-      // 2. Bottom Vignette Fade soffice (massima purezza, zero neri bruciati o colori finti)
-      const btmFadeH = 135 * s;
+      // 2. Bottom Vignette Fade cinematografica: protegge interamente la card testi (categoria, titoli e prezzo)
+      const btmFadeH = 340 * s;
       const btmGrad = oCtx.createLinearGradient(0, h - btmFadeH, 0, h);
       btmGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      btmGrad.addColorStop(0.40, 'rgba(0, 0, 0, 0.15)');
-      btmGrad.addColorStop(1, 'rgba(0, 0, 0, 0.40)');
+      btmGrad.addColorStop(0.28, 'rgba(0, 0, 0, 0.22)');
+      btmGrad.addColorStop(0.58, 'rgba(0, 0, 0, 0.55)');
+      btmGrad.addColorStop(0.82, 'rgba(0, 0, 0, 0.75)');
+      btmGrad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
       oCtx.fillStyle = btmGrad;
       oCtx.fillRect(0, h - btmFadeH, w, btmFadeH);
 
@@ -1030,9 +1123,11 @@ export function AutoCutLabPlayer({
       let maxSubW = fpW;
 
       if (mode === 'R1') {
+        oCtx.font = `900 ${Math.round(24.2 * s)}px "Outfit", sans-serif`;
+        const delivW = oCtx.measureText('DELIVERY ').width + (24 * s);
         oCtx.font = `900 ${Math.round(17.6 * s)}px "Outfit", sans-serif`;
-        const phoneW = (12.65 * 4 + 11) * s + oCtx.measureText('+66 095 882 5573').width;
-        maxSubW = Math.max(fpW, phoneW);
+        const phoneW = (15.2 * 4 + 13) * s + oCtx.measureText('+66 095 882 5573').width;
+        maxSubW = Math.max(fpW, phoneW, delivW);
       } else if (mode === 'DS') {
         oCtx.font = `900 ${Math.round(23 * s)}px "Prompt", "Kanit", sans-serif`;
         const dsThai = scene.isLiveShowcase ? 'สดใหม่ในตู้โชว์' : 'เมนูพิเศษประจำวัน';
@@ -1043,16 +1138,23 @@ export function AutoCutLabPlayer({
         const thaiW = oCtx.measureText('ส่งถึงบ้าน').width;
         oCtx.font = `600 ${Math.round(17.6 * s)}px "Outfit", sans-serif`;
         const siteW = oCtx.measureText('flowerpowerpizza.com').width;
-        oCtx.font = `900 ${Math.round(22 * s)}px "Outfit", "Inter", sans-serif`;
+        oCtx.font = `900 ${Math.round(22 * s)}px "Outfit", sans-serif`;
         const delivW = oCtx.measureText('RANONG DELIVERY').width;
         maxSubW = Math.max(fpW, thaiW, siteW, delivW);
       } else {
         // Villaggio V1-V3, LM1
-        oCtx.font = `900 ${Math.round(22 * s)}px "Prompt", "Kanit", sans-serif`;
-        const thaiW = oCtx.measureText(mode === 'LM1' ? 'ห้องว่างวันนี้' : 'เกาะพยาม').width;
-        oCtx.font = `600 ${Math.round(16 * s)}px "Outfit", sans-serif`;
+        oCtx.font = `900 ${Math.round(19.5 * s)}px "Outfit", sans-serif`;
+        const dbW = oCtx.measureText('DIRECT BOOKING').width;
+        oCtx.font = `900 ${Math.round(17.5 * s)}px "Outfit", sans-serif`;
+        const offW = oCtx.measureText('10% OFF').width;
+        oCtx.font = `600 ${Math.round(15 * s)}px "Outfit", sans-serif`;
         const siteW = oCtx.measureText('flowerpowervillage.com').width;
-        maxSubW = Math.max(fpW, thaiW, siteW);
+        let lmExtraW = 0;
+        if (mode === 'LM1') {
+          oCtx.font = `900 ${Math.round(21.5 * s)}px "Prompt", sans-serif`;
+          lmExtraW = oCtx.measureText('ห้องว่างวันนี้').width;
+        }
+        maxSubW = Math.max(fpW, dbW, offW, siteW, lmExtraW);
       }
       oCtx.restore();
 
@@ -1061,13 +1163,37 @@ export function AutoCutLabPlayer({
       const logoX = Math.round((w - totalBlockW) / 2);
       const tx = logoX + logoSize + gap;
 
-      if (logoImg.complete && logoImg.naturalWidth > 0) {
+      // 🛡️ Selezione logo ultra-robusta: canvas pre-renderizzato > domLogo decodificato > targetLogo > logoImg
+      const brandLogoCanvas = brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas;
+      const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
+      const domLogo = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
+      const effectiveLogo: CanvasImageSource | null =
+        (brandLogoCanvas && brandLogoCanvas.width > 0)
+          ? brandLogoCanvas
+          : (domLogo && domLogo.complete && domLogo.naturalWidth > 0)
+            ? domLogo
+            : (targetLogo && targetLogo.complete && targetLogo.naturalWidth > 0)
+              ? targetLogo
+              : (logoImg && logoImg.complete && logoImg.naturalWidth > 0)
+                ? logoImg
+                : null;
+
+      if (effectiveLogo) {
         oCtx.save();
         oCtx.beginPath();
         oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
         oCtx.closePath();
         oCtx.clip();
-        oCtx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+
+        // 🛡️ Sfondo circolare solido di contrasto: elimina al 100% qualsiasi trasparenza o infiltrazione del fogliame video sottostante
+        oCtx.fillStyle = '#0b1120';
+        oCtx.fill();
+
+        try {
+          oCtx.drawImage(effectiveLogo, logoX, logoY, logoSize, logoSize);
+        } catch (drawErr) {
+          console.warn('[AutoCutLabPlayer] Header logo draw exception:', drawErr);
+        }
         oCtx.restore();
 
         oCtx.save();
@@ -1084,30 +1210,56 @@ export function AutoCutLabPlayer({
       // Blocco Testi Header (a destra del logo, sempre centrato)
       let ty = logoY + (2 * s);
 
+      // Helper universale per testo ad altissimo contrasto con contorno nero solido a 360° e ombra profonda (leggibile al 100% su qualsiasi sfondo)
+      const drawTextWithShadow = (
+        text: string,
+        x: number,
+        y: number,
+        fillStyle: string,
+        strokeWidth: number = 3.6 * s
+      ) => {
+        // Passaggio 1: contorno nero solido e ombra profonda
+        oCtx.save();
+        oCtx.strokeStyle = '#000000';
+        oCtx.lineWidth = strokeWidth;
+        oCtx.lineJoin = 'round';
+        oCtx.miterLimit = 2;
+        oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
+        oCtx.shadowBlur = 10 * s;
+        oCtx.shadowOffsetY = 2.5 * s;
+        oCtx.strokeText(text, x, y);
+        oCtx.restore();
+
+        // Passaggio 2: testo pieno netto, vivo e brillante
+        oCtx.save();
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        oCtx.shadowBlur = 4 * s;
+        oCtx.shadowOffsetY = 1.5 * s;
+        oCtx.fillStyle = fillStyle;
+        oCtx.fillText(text, x, y);
+        oCtx.restore();
+      };
+
       oCtx.save();
       oCtx.textAlign = 'left';
       oCtx.textBaseline = 'top';
-      oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-      oCtx.shadowBlur = 14 * s;
-      oCtx.shadowOffsetY = 3 * s;
 
       oCtx.font = `900 ${fpFontSize}px "Outfit", sans-serif`;
-      oCtx.fillStyle = '#ffffff';
-      oCtx.fillText('FLOWER POWER', tx, ty);
+      drawTextWithShadow('FLOWER POWER', tx, ty, '#ffffff', 4.0 * s);
       ty += fpFontSize + (4 * s);
 
       // Riga 2: Village / Pizza (+10% ulteriore: 26.0 * s con font Outfit italic 500)
       const subFontSize = Math.round(26.0 * s);
       oCtx.font = `italic 500 ${subFontSize}px "Outfit", sans-serif`;
-      oCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#f87171' : '#34d399';
-      oCtx.fillText((brand === 'pizza' && mode !== 'R1') ? 'Pizza' : 'Village', tx, ty);
+      const subColor = (brand === 'pizza' && mode !== 'R1') ? '#f87171' : '#34d399';
+      drawTextWithShadow((brand === 'pizza' && mode !== 'R1') ? 'Pizza' : 'Village', tx, ty, subColor, 3.4 * s);
       ty += subFontSize + (5 * s);
 
       // Riga 3-6: R1 specifico (Delivery Koh Phayam) o Pizzeria / Villaggio
       if (mode === 'R1') {
         ty += 15 * s; // distacco da Village (+5px totali)
 
-        // DELIVERY in rosso con contorno bianco netto E PULSAZIONE SINUSOIDALE DINAMICA! (+10%)
+        // DELIVERY in rosso con contorno bianco netto, emoji moto delivery 🛵 E PULSAZIONE SINUSOIDALE DINAMICA! (+10%)
         const pulse = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.4));
         oCtx.save();
         oCtx.globalAlpha = pulse;
@@ -1119,6 +1271,11 @@ export function AutoCutLabPlayer({
         oCtx.strokeText('DELIVERY', tx, ty);
         oCtx.fillStyle = '#ef4444';
         oCtx.fillText('DELIVERY', tx, ty);
+
+        // Emoji Moto Delivery 🛵 affiancata con resa nativa brillante
+        const delivTextW = oCtx.measureText('DELIVERY').width;
+        oCtx.font = `${Math.round(21 * s)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+        oCtx.fillText('🛵', tx + delivTextW + (6 * s), ty + (1 * s));
         oCtx.restore();
         ty += delivFontSize + (7 * s); // allontanato di 2 pixel netti
 
@@ -1128,8 +1285,8 @@ export function AutoCutLabPlayer({
         oCtx.fillText('เดลิเวอรี่', tx, ty);
         ty += 20 * s + (6 * s);
 
-        // WhatsApp Icon circle (+10%) + LINE Icon circle (+10%) + Phone (+10%)
-        const iconR = 12.65 * s; // Ingrandito del +10%
+        // WhatsApp Icon circle (+20%) + LINE Icon circle (+20%) + Phone
+        const iconR = 15.2 * s; // Ingrandito del +20% per leggibilità perfetta
         let curIconX = tx + iconR;
         const iconCy = ty + iconR;
 
@@ -1142,7 +1299,7 @@ export function AutoCutLabPlayer({
 
         if (waPhonePath2D) {
           oCtx.save();
-          const waScale = (iconR * 1.35) / 24;
+          const waScale = (iconR * 1.30) / 24;
           oCtx.translate(curIconX - (12 * waScale), iconCy - (12 * waScale));
           oCtx.scale(waScale, waScale);
           oCtx.fillStyle = '#ffffff';
@@ -1152,7 +1309,7 @@ export function AutoCutLabPlayer({
         oCtx.restore();
 
         // 2. LINE circle
-        curIconX += (iconR * 2) + (5 * s);
+        curIconX += (iconR * 2) + (5.5 * s);
         oCtx.save();
         oCtx.fillStyle = '#06C755';
         oCtx.beginPath();
@@ -1170,10 +1327,10 @@ export function AutoCutLabPlayer({
         }
         oCtx.restore();
 
-        // Numero con font Outfit 900 (+10%)
-        oCtx.font = `900 ${Math.round(17.6 * s)}px "Outfit", sans-serif`;
+        // Numero con font Outfit 900
+        oCtx.font = `900 ${Math.round(18.2 * s)}px "Outfit", sans-serif`;
         oCtx.fillStyle = '#25D366';
-        oCtx.fillText('+66 095 882 5573', curIconX + iconR + (6 * s), ty + (2 * s));
+        oCtx.fillText('+66 095 882 5573', curIconX + iconR + (6.5 * s), ty + (2 * s));
         ty += (iconR * 2) + (10 * s); // Distacco perfetto: Koh Phayam sotto alle icone e al numero (zero accavallamento)
 
         // Koh Phayam con font Outfit 700 (+10%)
@@ -1181,8 +1338,8 @@ export function AutoCutLabPlayer({
         oCtx.fillStyle = '#ffffff';
         oCtx.fillText('Koh Phayam', tx, ty);
       } else if (mode === 'DS') {
-        // Formato DS Daily Special: live showcase distanziato di 5px dalla parola Pizza
-        ty += 5 * s;
+        // Formato DS Daily Special: live showcase allontanato di ulteriori 10px da Pizza (totale 15px: 5*s base + 10*s)
+        ty += 10 * s;
         const isLive = !!scene.isLiveShowcase;
         const dsBadgeText = isLive ? 'LIVE SHOWCASE' : 'CHEF SPECIALS';
         const dsBadgeFontSize = Math.round(14.5 * s);
@@ -1204,56 +1361,287 @@ export function AutoCutLabPlayer({
         oCtx.textAlign = 'center';
         oCtx.fillText(dsBadgeText, tx + (dsBadgeW / 2), ty + (4 * s));
         oCtx.restore();
-        ty += dsBadgeH + (5 * s); // e fast delivery con la sua traduzione in Thai altri 5px più in basso
+        ty += dsBadgeH + (15 * s); // Le due scritte successive (Thai e Fast Delivery) allontanate di ulteriori 10px dal live showcase (totale 15px)
 
         // Scritta Thai (+20%)
         const dsThaiText = isLive ? 'สดใหม่ในตู้โชว์' : 'เมนูพิเศษประจำวัน';
         oCtx.font = `900 ${Math.round(23 * s)}px "Prompt", "Kanit", sans-serif`;
         oCtx.fillStyle = '#fcd34d';
         oCtx.fillText(dsThaiText, tx, ty);
-        ty += 23 * s;
+        ty += 23 * s + (4 * s);
 
         // FAST DELIVERY (+20%)
         oCtx.font = `900 ${Math.round(16.5 * s)}px "Outfit", sans-serif`;
         oCtx.fillStyle = '#34d399';
         oCtx.fillText('FAST DELIVERY', tx, ty);
       } else if (brand === 'pizza') {
-        // P1, P2, P3: blocco ingrandito del +10%, Ranong Delivery + Thai distanziati di +4px da Pizza, website distanziato di +4px da Thai
-        ty += 14 * s; // +4px di distacco in blocco dalla parola Pizza (era 10 * s)
-        oCtx.font = `900 ${Math.round(22 * s)}px "Outfit", "Inter", sans-serif`; // +10% (era 20 * s)
-        oCtx.fillStyle = '#fcd34d';
-        oCtx.fillText('RANONG DELIVERY', tx, ty);
-        ty += 24 * s;
-        oCtx.font = `900 ${Math.round(25.3 * s)}px "Prompt", "Kanit", sans-serif`; // +10% (era 23 * s)
-        oCtx.fillStyle = '#fef08a';
-        oCtx.fillText('ส่งถึงบ้าน', tx, ty);
-        ty += 28 * s; // +4px di distacco in blocco da ส่งถึงบ้าน (era 22 * s)
-        oCtx.font = `600 ${Math.round(17.6 * s)}px "Outfit", "Inter", sans-serif`; // +10% (era 16 * s)
-        oCtx.fillStyle = 'rgba(255,255,255,0.95)';
-        oCtx.fillText('flowerpowerpizza.com', tx, ty);
-        ty += 20 * s;
-        oCtx.font = `700 ${Math.round(16.5 * s)}px "Inter", sans-serif`; // +10% (era 15 * s)
-        oCtx.fillStyle = '#fcd34d';
-        oCtx.fillText('Link in Bio', tx, ty);
+        // P1, P2, P3: blocco proporzionato sincronizzato 1:1 con il DOM React dell'Editor
+        ty += 4 * s;
+        const rdFontSize = Math.round(19.5 * s);
+        oCtx.font = `900 ${rdFontSize}px "Outfit", sans-serif`;
+        drawTextWithShadow('RANONG DELIVERY', tx, ty, '#fcd34d', 3.4 * s);
+        ty += rdFontSize + (3 * s);
+
+        const thaiFontSize = Math.round(22 * s);
+        oCtx.font = `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
+        drawTextWithShadow('ส่งถึงบ้าน', tx, ty, '#fef08a', 3.6 * s);
+        ty += thaiFontSize + (5 * s);
+
+        const siteFontSize = Math.round(16 * s);
+        oCtx.font = `600 ${siteFontSize}px "Outfit", sans-serif`;
+        drawTextWithShadow('flowerpowerpizza.com', tx, ty, 'rgba(255,255,255,0.95)', 2.8 * s);
+        ty += siteFontSize + (4 * s);
+
+        const bioFontSize = Math.round(15.5 * s);
+        oCtx.font = `700 ${bioFontSize}px "Outfit", sans-serif`;
+        drawTextWithShadow('Link in Bio', tx, ty, '#fcd34d', 2.8 * s);
+      } else if (mode === 'LM1') {
+        // Formato LM1 Stories Last Minute (Koh Phayam)
+        // Header sincronizzato 1:1 con il DOM React dell'Editor
+        ty += 12 * s; // Salito di 2 pixel (era 14 * s)
+
+        // 🌟 Ciclo pulsazione & luccichio ad alta frequenza per LAST MINUTE
+        const pulseFreq = tElapsed * 5.5;
+        const pulseCycle = Math.sin(pulseFreq);
+        const textPulseScale = 1.0 + 0.08 * Math.sin(pulseFreq);
+
+        const lmPillText = 'LAST MINUTE';
+        const lmPillFontSize = Math.round(13.8 * s); // Ingrandito del 10% (era 12.5 * s)
+        oCtx.font = `900 ${lmPillFontSize}px "Outfit", sans-serif`;
+        const lmTextW = oCtx.measureText(lmPillText).width;
+        const dotR = 5.5 * s; // Ingrandito del 10% (era 5 * s)
+        const pillPadX = 11 * s; // Ingrandito del 10% (era 10 * s)
+        const pillW = lmTextW + (pillPadX * 2) + (dotR * 2) + (9 * s);
+        const pillH = 26.5 * s; // Ingrandito del 10% (era 24 * s)
+
+        oCtx.save();
+        // 🌟 BADGE LAST MINUTE: Vettoriale ad altissima definizione con ombra netta e zero sfocatura rasterizzata
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+        oCtx.shadowBlur = 3 * s;
+        oCtx.shadowOffsetY = 2 * s;
+
+        const pillGrad = oCtx.createLinearGradient(tx, ty, tx + pillW, ty + pillH);
+        pillGrad.addColorStop(0, '#f59e0b');
+        pillGrad.addColorStop(0.5, '#fbbf24');
+        pillGrad.addColorStop(1, '#facc15');
+        oCtx.fillStyle = pillGrad;
+        oCtx.beginPath();
+        if (typeof oCtx.roundRect === 'function') {
+          oCtx.roundRect(tx, ty, pillW, pillH, 7.5 * s);
+        } else {
+          oCtx.rect(tx, ty, pillW, pillH);
+        }
+        oCtx.fill();
+
+        // Contorno dorato nitidissimo vettoriale senza dispersione sfocata
+        oCtx.shadowColor = 'transparent';
+        oCtx.shadowBlur = 0;
+        oCtx.lineWidth = 1.6 * s;
+        oCtx.strokeStyle = '#fef08a';
+        oCtx.stroke();
+        oCtx.restore();
+
+        // 💎 🔴 PALLINO ROSSO LUCCICANTE (Gemma rubino con bagliore neon, ping ad onda, centro brillante e stella di diamante a 4 punte che luccica e ruota)
+        const dotCx = tx + pillPadX + dotR;
+        const dotCy = ty + (pillH / 2);
+
+        // 1. Onda ping ad anello espandente
+        const pingT = (tElapsed * 1.6) % 1.0;
+        const pingR = dotR + (pingT * 7 * s);
+        const pingAlpha = Math.max(0, (1.0 - pingT) * 0.75);
+        oCtx.save();
+        oCtx.strokeStyle = `rgba(244, 63, 94, ${pingAlpha})`;
+        oCtx.lineWidth = 1.5 * s;
+        oCtx.beginPath();
+        oCtx.arc(dotCx, dotCy, pingR, 0, Math.PI * 2);
+        oCtx.stroke();
+        oCtx.restore();
+
+        // 2. Alone profondo e gemma rubino con gradiente sferico
+        oCtx.save();
+        oCtx.shadowColor = '#ff0033';
+        oCtx.shadowBlur = (14 + 10 * pulseCycle) * s;
+        const gemGrad = oCtx.createRadialGradient(dotCx - 1.2 * s, dotCy - 1.2 * s, 0.5 * s, dotCx, dotCy, dotR);
+        gemGrad.addColorStop(0, '#ff4d6d');
+        gemGrad.addColorStop(0.5, '#ef4444');
+        gemGrad.addColorStop(0.9, '#dc2626');
+        gemGrad.addColorStop(1, '#991b1b');
+        oCtx.fillStyle = gemGrad;
+        oCtx.beginPath();
+        oCtx.arc(dotCx, dotCy, dotR * (0.95 + 0.12 * pulseCycle), 0, Math.PI * 2);
+        oCtx.fill();
+
+        // Bordo gemma rubino
+        oCtx.lineWidth = 1 * s;
+        oCtx.strokeStyle = '#fecdd3';
+        oCtx.stroke();
+
+        // 3. Punto luce brillante al centro (highlight speculare)
+        oCtx.fillStyle = '#ffffff';
+        oCtx.shadowColor = '#ffffff';
+        oCtx.shadowBlur = 6 * s;
+        oCtx.beginPath();
+        oCtx.arc(dotCx - 1.2 * s, dotCy - 1.2 * s, 1.6 * s, 0, Math.PI * 2);
+        oCtx.fill();
+
+        // 4. ✨ STELLA DI DIAMANTE A 4 PUNTE (Luccichio rotante brillante)
+        const sparkleAngle = tElapsed * 2.8;
+        const sparkleRay = (dotR * 1.5) * (0.70 + 0.35 * Math.sin(tElapsed * 8));
+        oCtx.save();
+        oCtx.translate(dotCx, dotCy);
+        oCtx.rotate(sparkleAngle);
+        oCtx.fillStyle = '#ffffff';
+        oCtx.shadowColor = '#ffffff';
+        oCtx.shadowBlur = 8 * s;
+
+        // Raggio verticale
+        oCtx.beginPath();
+        oCtx.moveTo(0, -sparkleRay);
+        oCtx.quadraticCurveTo(0, 0, sparkleRay * 0.22, 0);
+        oCtx.quadraticCurveTo(0, 0, 0, sparkleRay);
+        oCtx.quadraticCurveTo(0, 0, -sparkleRay * 0.22, 0);
+        oCtx.closePath();
+        oCtx.fill();
+
+        // Raggio orizzontale
+        oCtx.beginPath();
+        oCtx.moveTo(-sparkleRay, 0);
+        oCtx.quadraticCurveTo(0, 0, 0, sparkleRay * 0.22);
+        oCtx.quadraticCurveTo(0, 0, sparkleRay, 0);
+        oCtx.quadraticCurveTo(0, 0, 0, -sparkleRay * 0.22);
+        oCtx.closePath();
+        oCtx.fill();
+        oCtx.restore();
+
+        oCtx.restore(); // restore gemma
+
+        // 🔥 SCRITTA LAST MINUTE PULSANTE AD ALTISSIMA VISIBILITÀ E NITIDEZZA
+        const textCenterRelX = tx + pillPadX + (dotR * 2) + (6 * s) + (lmTextW / 2);
+        const textCenterRelY = dotCy;
+
+        oCtx.save();
+        oCtx.translate(textCenterRelX, textCenterRelY);
+        oCtx.scale(textPulseScale, textPulseScale);
+
+        oCtx.font = `900 ${lmPillFontSize}px "Outfit", sans-serif`;
+        oCtx.textAlign = 'center';
+        oCtx.textBaseline = 'middle';
+
+        // Contorno chiaro protettivo per staccare dal gradiente (nitido senza blur)
+        oCtx.lineWidth = 1.8 * s;
+        oCtx.strokeStyle = '#fef9c3';
+        oCtx.lineJoin = 'round';
+        oCtx.strokeText(lmPillText, 0, Math.round(0.5 * s));
+
+        // Testo pieno nero vivido Outfit 900
+        oCtx.fillStyle = '#09090b';
+        oCtx.fillText(lmPillText, 0, Math.round(0.5 * s));
+        oCtx.restore();
+
+        ty += pillH + (11 * s); // Allontanato di 3 pixel in basso rispetto a pillH (era 8 * s)
+
+        // Thai: ห้องว่างวันนี้ (Prompt 900 dorato con ombra protettiva ad alto contrasto) - Ingrandito del 10%
+        const thaiFontSize = Math.round(21.5 * s); // Ingrandito del 10% (era 19.5 * s)
+        oCtx.font = `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
+        drawTextWithShadow('ห้องว่างวันนี้', tx, ty, '#fcd34d', 3.6 * s);
+        ty += thaiFontSize + (10 * s); // Distanziato di 5 pixel ulteriori (totale 10 * s) dalla scritta sopra in Thai
+
+        // DIRECT BOOKING (verde smeraldo brillante Outfit 900 con ombra protettiva) - Ingrandito del 10%
+        const dbFontSize = Math.round(20.5 * s); // Ingrandito del 10% (era 18.5 * s)
+        oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
+        drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
+        ty += dbFontSize + (2 * s); // Avvicinato di 2px a DIRECT BOOKING
+
+        // 10% OFF con BAGLIORE DORATO DELICATO e PULSAZIONE COMPATTA (Aura ridotta e raffinata)
+        const offFontSize = Math.round(17.5 * s);
+        oCtx.font = `900 ${offFontSize}px "Outfit", sans-serif`;
+        const offCycle = 0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.2);
+        const offScale = 0.98 + 0.03 * offCycle;
+        const offGlowBlur = (1.5 + 3.0 * offCycle) * s;
+        const offColor = offCycle > 0.4 ? '#fef9c3' : '#fcd34d';
+
+        oCtx.save();
+        oCtx.translate(tx, ty);
+        oCtx.scale(offScale, offScale);
+        // 1. Bagliore dorato diffuso compatto e discreto (Glow calibrato)
+        oCtx.shadowColor = 'rgba(250, 204, 21, 0.6)';
+        oCtx.shadowBlur = offGlowBlur;
+        oCtx.strokeStyle = 'rgba(234, 179, 8, 0.35)';
+        oCtx.lineWidth = 1.2 * s;
+        oCtx.lineJoin = 'round';
+        oCtx.strokeText('10% OFF', 0, 0);
+
+        // 2. Contorno nero solido protettivo profondo
+        oCtx.shadowColor = '#000000';
+        oCtx.shadowBlur = 8 * s;
+        oCtx.shadowOffsetY = 2 * s;
+        oCtx.strokeStyle = '#000000';
+        oCtx.lineWidth = 2.8 * s;
+        oCtx.strokeText('10% OFF', 0, 0);
+
+        // 3. Testo pieno luminoso
+        oCtx.fillStyle = offColor;
+        oCtx.fillText('10% OFF', 0, 0);
+        oCtx.restore();
+
+        ty += offFontSize + (7 * s); // Distanziata dalla scritta sotto
+
+        // flowerpowervillage.com (Outfit 600) - Ingrandito del 10%
+        const siteFontSize = Math.round(16 * s); // Ingrandito del 10% (era 14.5 * s)
+        oCtx.font = `600 ${siteFontSize}px "Outfit", sans-serif`;
+        drawTextWithShadow('flowerpowervillage.com', tx, ty, 'rgba(255,255,255,0.95)', 2.8 * s);
       } else {
-        // Formato Villaggio Regular (V1, V2, V3) e LM1
-        // +20%, allontanato di 2 pixel netti dalla parola Village (12 * s invece di 10 * s)
-        ty += 12 * s;
-        oCtx.font = `900 ${Math.round(20 * s)}px "Outfit", "Inter", sans-serif`;
-        oCtx.fillStyle = '#34d399';
-        oCtx.fillText(mode === 'LM1' ? 'LAST MINUTE' : 'DIRECT BOOKING', tx, ty);
-        ty += 22 * s;
-        oCtx.font = `900 ${Math.round(22 * s)}px "Prompt", "Kanit", sans-serif`;
-        oCtx.fillStyle = '#fef08a';
-        oCtx.fillText(mode === 'LM1' ? 'ห้องว่างวันนี้' : 'เกาะพยาม', tx, ty);
-        ty += 21 * s;
-        oCtx.font = `600 ${Math.round(16 * s)}px "Outfit", "Inter", sans-serif`;
-        oCtx.fillStyle = 'rgba(255,255,255,0.95)';
-        oCtx.fillText('flowerpowervillage.com', tx, ty);
-        ty += 18 * s;
-        oCtx.font = `700 ${Math.round(15 * s)}px "Inter", sans-serif`;
-        oCtx.fillStyle = '#38bdf8';
-        oCtx.fillText('Link in Bio', tx, ty);
+        // Formato Villaggio Regular (V1, V2, V3) - Identico al DOM React dell'Editor
+        // Distacco pt-1.5 mt-0.5 rispetto a 'Village' (3 * s)
+        ty += 3 * s;
+        const dbFontSize = Math.round(19.5 * s);
+        oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
+        drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
+        ty += dbFontSize + (1 * s); // Avvicinato di 2px a DIRECT BOOKING
+
+        // 10% OFF con BAGLIORE DORATO DELICATO e PULSAZIONE COMPATTA (Aura ridotta e raffinata)
+        const offFontSize = Math.round(16 * s);
+        oCtx.font = `900 ${offFontSize}px "Outfit", sans-serif`;
+        const offCycle = 0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.2);
+        const offScale = 0.98 + 0.03 * offCycle;
+        const offGlowBlur = (1.5 + 3.0 * offCycle) * s;
+        const offColor = offCycle > 0.4 ? '#fef9c3' : '#fcd34d';
+
+        oCtx.save();
+        oCtx.translate(tx, ty);
+        oCtx.scale(offScale, offScale);
+        // 1. Bagliore dorato diffuso compatto e discreto (Glow calibrato)
+        oCtx.shadowColor = 'rgba(250, 204, 21, 0.6)';
+        oCtx.shadowBlur = offGlowBlur;
+        oCtx.strokeStyle = 'rgba(234, 179, 8, 0.35)';
+        oCtx.lineWidth = 1.2 * s;
+        oCtx.lineJoin = 'round';
+        oCtx.strokeText('10% OFF', 0, 0);
+
+        // 2. Contorno nero solido protettivo profondo
+        oCtx.shadowColor = '#000000';
+        oCtx.shadowBlur = 8 * s;
+        oCtx.shadowOffsetY = 2 * s;
+        oCtx.strokeStyle = '#000000';
+        oCtx.lineWidth = 2.6 * s;
+        oCtx.strokeText('10% OFF', 0, 0);
+
+        // 3. Testo pieno luminoso
+        oCtx.fillStyle = offColor;
+        oCtx.fillText('10% OFF', 0, 0);
+        oCtx.restore();
+
+        ty += offFontSize + (7 * s); // Distanziato verso il blocco sito/link sotto
+
+        // Blocco unico compatto: flowerpowervillage.com + Link in Bio
+        const siteFontSize = Math.round(14.5 * s);
+        oCtx.font = `600 ${siteFontSize}px "Outfit", sans-serif`;
+        drawTextWithShadow('flowerpowervillage.com', tx, ty, 'rgba(255,255,255,0.95)', 2.8 * s);
+        ty += siteFontSize + (6 * s); // Distanziato di esattamente 4px extra (da 2*s a 6*s) sotto flowerpowervillage.com
+
+        const bioFontSize = Math.round(14.5 * s);
+        oCtx.font = `700 ${bioFontSize}px "Outfit", sans-serif`;
+        drawTextWithShadow('Link in Bio', tx, ty, '#fcd34d', 2.8 * s);
       }
       oCtx.restore();
 
@@ -1279,11 +1667,15 @@ export function AutoCutLabPlayer({
           ? (30 * s)
           : (35 * s);
 
-        // Categoria bilingue (Thai sopra a 17.5*s, Inglese sotto a 14*s): altezza 39*s
-        const badgeH = hasBadge ? (39 * s) : 0;
+        // Categoria bilingue (Thai sopra a 17.5*s, Inglese sotto a 14*s + stacco 14*s): altezza 53*s (era 39*s)
+        const badgeH = hasBadge ? (53 * s) : 0;
         const thaiH = thaiLines.length * thaiLineStep;
         const engH = engLines.length * (24 * s);   // Interlinea +20% (era 20*s)
-        const priceH = (hasPrice || scene.pizzaSizes) ? (43 * s + 20 * s) : 0; // Box Prezzo +20% (distacco alzato di +10px da 10*s a 20*s)
+        const priceH = (scene.pizzaSizes && mode !== 'R1')
+          ? ((38.5 * 2 + 6) * s + 20 * s) // Pizze a colonna (8" e 12" sovrapposte): altezza 83*s + 20*s distacco
+          : (hasPrice || scene.pizzaSizes)
+          ? (43 * s + 20 * s)
+          : 0;
         const totalCardH = badgeH + thaiH + engH + priceH;
 
         // Alzata di +20px dal bordo inferiore dello schermo: da 31*s a 51*s
@@ -1334,10 +1726,10 @@ export function AutoCutLabPlayer({
           oCtx.font = diamondFont;
           oCtx.fillStyle = diamondColor;
           oCtx.fillText('✦', bx, by);
-          oCtx.font = `900 ${Math.round(14 * s)}px "Outfit", "Inter", sans-serif`;
+          oCtx.font = `900 ${Math.round(14 * s)}px "Outfit", sans-serif`;
           oCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
           oCtx.fillText(catClean, bx + (18 * s), by);
-          by += 18 * s;
+          by += 32 * s; // Distacco netto e armonioso (+14px di respiro: da 18*s a 32*s) prima del titolo del piatto
         }
 
         // Titolo Thai sopra in grande e marcato con contorno nero solido e ombra profonda (Auto-scale a 2 righe max)
@@ -1362,7 +1754,7 @@ export function AutoCutLabPlayer({
 
         // Titolo Inglese sotto (+20%: 19.2*s) con contorno nero solido e ombra profonda
         if (engLines.length > 0) {
-          oCtx.font = `800 ${Math.round(19.2 * s)}px "Outfit", "Inter", sans-serif`;
+          oCtx.font = `800 ${Math.round(19.2 * s)}px "Outfit", sans-serif`;
           engLines.forEach(l => {
             oCtx.save();
             oCtx.strokeStyle = 'rgba(0, 0, 0, 0.98)';
@@ -1386,7 +1778,7 @@ export function AutoCutLabPlayer({
           const p8 = `${scene.pizzaSizes.size8Price}฿`;
           const p12 = `${scene.pizzaSizes.size12Price}฿`;
 
-          const drawPizzaBadge = (label: string, priceStr: string, startX: number) => {
+          const drawPizzaBadge = (label: string, priceStr: string, startX: number, startY: number) => {
             oCtx.font = `900 ${Math.round(25.2 * s)}px "Kanit", sans-serif`;
             const pW = oCtx.measureText(priceStr).width;
             const bW = (38 * s) + pW + (16 * s);
@@ -1397,9 +1789,9 @@ export function AutoCutLabPlayer({
             oCtx.fillStyle = '#000000';
             oCtx.beginPath();
             if (typeof oCtx.roundRect === 'function') {
-              oCtx.roundRect(startX + 2 * s, by + 2 * s, bW, bH, bRad);
+              oCtx.roundRect(startX + 2 * s, startY + 2 * s, bW, bH, bRad);
             } else {
-              oCtx.rect(startX + 2 * s, by + 2 * s, bW, bH);
+              oCtx.rect(startX + 2 * s, startY + 2 * s, bW, bH);
             }
             oCtx.fill();
 
@@ -1407,9 +1799,9 @@ export function AutoCutLabPlayer({
             oCtx.fillStyle = '#FFE500';
             oCtx.beginPath();
             if (typeof oCtx.roundRect === 'function') {
-              oCtx.roundRect(startX, by, bW, bH, bRad);
+              oCtx.roundRect(startX, startY, bW, bH, bRad);
             } else {
-              oCtx.rect(startX, by, bW, bH);
+              oCtx.rect(startX, startY, bW, bH);
             }
             oCtx.fill();
 
@@ -1423,9 +1815,9 @@ export function AutoCutLabPlayer({
             const tagW = 24 * s;
             const tagH = 21 * s;
             if (typeof oCtx.roundRect === 'function') {
-              oCtx.roundRect(startX + 6 * s, by + (8.5 * s), tagW, tagH, 3.5 * s);
+              oCtx.roundRect(startX + 6 * s, startY + (8.5 * s), tagW, tagH, 3.5 * s);
             } else {
-              oCtx.rect(startX + 6 * s, by + (8.5 * s), tagW, tagH);
+              oCtx.rect(startX + 6 * s, startY + (8.5 * s), tagW, tagH);
             }
             oCtx.fill();
 
@@ -1434,12 +1826,12 @@ export function AutoCutLabPlayer({
             oCtx.fillStyle = '#ffffff';
             oCtx.textAlign = 'center';
             oCtx.textBaseline = 'middle';
-            oCtx.fillText(label, startX + 6 * s + (tagW / 2), by + (8.5 * s) + (tagH / 2) + Math.round(1 * s));
+            oCtx.fillText(label, startX + 6 * s + (tagW / 2), startY + (8.5 * s) + (tagH / 2) + Math.round(1 * s));
 
             // Testo prezzo centrato con contorno bianco allineato
             oCtx.font = `900 ${Math.round(25.2 * s)}px "Kanit", sans-serif`;
             const priceCx = startX + 6 * s + tagW + 5 * s + (pW / 2);
-            const priceCy = by + (bH / 2) + Math.round(1.5 * s);
+            const priceCy = startY + (bH / 2) + Math.round(1.5 * s);
             oCtx.strokeStyle = '#ffffff';
             oCtx.lineWidth = 4 * s;
             oCtx.lineJoin = 'round';
@@ -1453,9 +1845,63 @@ export function AutoCutLabPlayer({
           };
 
           oCtx.save();
-          const w8 = drawPizzaBadge('8"', p8, bx);
-          drawPizzaBadge('12"', p12, bx + w8 + (8 * s));
+          const p8H = 38.5 * s;
+          const pGap = 6 * s;
+          const w8 = drawPizzaBadge('8"', p8, bx, by);
+          const w12 = drawPizzaBadge('12"', p12, bx, by + p8H + pGap);
           oCtx.restore();
+
+          // 🏷️ BADGE PROMO BILINGUE A DESTRA (Incolonnamento Pizze, Centrato, Gradiente Brillante)
+          if ((mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro) {
+            oCtx.save();
+            const totalPizzaH = (p8H * 2) + pGap; // 83 * s
+            const badgeW = 205 * s;
+            const badgeH = 52 * s;
+            const badgeX = w - bx - badgeW;
+            const badgeY = by + ((totalPizzaH - badgeH) / 2);
+            const badgeRad = 8 * s;
+
+            // Ombra
+            oCtx.shadowColor = 'rgba(225, 29, 72, 0.65)';
+            oCtx.shadowBlur = 10 * s;
+            oCtx.shadowOffsetY = 2 * s;
+
+            // Gradiente Rosso Rubino -> Rosa -> Ambra
+            const grad = oCtx.createLinearGradient(badgeX, badgeY, badgeX + badgeW, badgeY + badgeH);
+            grad.addColorStop(0, '#dc2626');
+            grad.addColorStop(0.5, '#e11d48');
+            grad.addColorStop(1, '#f59e0b');
+            oCtx.fillStyle = grad;
+
+            oCtx.beginPath();
+            if (typeof oCtx.roundRect === 'function') {
+              oCtx.roundRect(badgeX, badgeY, badgeW, badgeH, badgeRad);
+            } else {
+              oCtx.rect(badgeX, badgeY, badgeW, badgeH);
+            }
+            oCtx.fill();
+
+            // Bordino oro chiaro 1.8px
+            oCtx.strokeStyle = '#fef08a';
+            oCtx.lineWidth = 1.8 * s;
+            oCtx.stroke();
+
+            // Testo rigorosamente CENTRATO
+            oCtx.textAlign = 'center';
+            oCtx.textBaseline = 'middle';
+            const badgeCx = badgeX + (badgeW / 2);
+
+            oCtx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+            oCtx.shadowBlur = 4 * s;
+            oCtx.font = `900 ${Math.round(11.5 * s)}px "Prompt", "Kanit", sans-serif`;
+            oCtx.fillStyle = '#fef08a';
+            oCtx.fillText('🛵 ส่งฟรี 300฿+  ·  🏷️ ลด 10%', badgeCx, badgeY + (18 * s));
+
+            oCtx.font = `800 ${Math.round(9.5 * s)}px "Outfit", sans-serif`;
+            oCtx.fillStyle = '#ffffff';
+            oCtx.fillText('Free Delivery 300฿+ · 1st Order -10%', badgeCx, badgeY + (34 * s));
+            oCtx.restore();
+          }
         } else if (hasPrice) {
           by += 20 * s; // Distacco alzato di +10px (era 10*s)
           const priceClean = scene.priceLabel!.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
@@ -1510,23 +1956,103 @@ export function AutoCutLabPlayer({
           oCtx.shadowBlur = 0;
           oCtx.fillText(priceClean, textCx, textCy);
           oCtx.restore();
+
+          // 🏷️ BADGE PROMO BILINGUE A DESTRA DEL PREZZO SINGOLO (Centrato, Gradiente Brillante)
+          if ((mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro) {
+            oCtx.save();
+            const badgeW = 205 * s;
+            const badgeH = 41 * s;
+            const badgeX = w - bx - badgeW;
+            const badgeY = by + ((boxH - badgeH) / 2);
+            const badgeRad = 8 * s;
+
+            // Ombra
+            oCtx.shadowColor = 'rgba(225, 29, 72, 0.65)';
+            oCtx.shadowBlur = 10 * s;
+            oCtx.shadowOffsetY = 2 * s;
+
+            // Gradiente Rosso Rubino -> Rosa -> Ambra
+            const grad = oCtx.createLinearGradient(badgeX, badgeY, badgeX + badgeW, badgeY + badgeH);
+            grad.addColorStop(0, '#dc2626');
+            grad.addColorStop(0.5, '#e11d48');
+            grad.addColorStop(1, '#f59e0b');
+            oCtx.fillStyle = grad;
+
+            oCtx.beginPath();
+            if (typeof oCtx.roundRect === 'function') {
+              oCtx.roundRect(badgeX, badgeY, badgeW, badgeH, badgeRad);
+            } else {
+              oCtx.rect(badgeX, badgeY, badgeW, badgeH);
+            }
+            oCtx.fill();
+
+            // Bordino oro chiaro 1.8px
+            oCtx.strokeStyle = '#fef08a';
+            oCtx.lineWidth = 1.8 * s;
+            oCtx.stroke();
+
+            // Testo rigorosamente CENTRATO
+            oCtx.textAlign = 'center';
+            oCtx.textBaseline = 'middle';
+            const badgeCx = badgeX + (badgeW / 2);
+
+            oCtx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+            oCtx.shadowBlur = 4 * s;
+            oCtx.font = `900 ${Math.round(11.5 * s)}px "Prompt", "Kanit", sans-serif`;
+            oCtx.fillStyle = '#fef08a';
+            oCtx.fillText('🛵 ส่งฟรี 300฿+  ·  🏷️ ลด 10%', badgeCx, badgeY + (13 * s));
+
+            oCtx.font = `800 ${Math.round(9.5 * s)}px "Outfit", sans-serif`;
+            oCtx.fillStyle = '#ffffff';
+            oCtx.fillText('Free Delivery 300฿+ · 1st Order -10%', badgeCx, badgeY + (27 * s));
+            oCtx.restore();
+          }
         }
 
         oCtx.restore();
       } else if (brand === 'village') {
-        // Modalità Alloggi Villaggio (V1, V2, V3, LM1) - Ingrandita del +20% e alzata di +20px
-        const bx = 16 * s;
+        // Modalità Alloggi Villaggio (V1, V2, V3, LM1) - Sincronizzata 1:1 con il DOM React dell'Editor
+        const bx = 25 * s;
+        const maxTextW = w - bx - (25 * s);
         const hasBadge = !!scene.badgeCategory;
-        const badgeH = hasBadge ? 24 * s : 0;
-        const titleH = 29 * s; // +20%
-        const subtitleH = scene.lodgingSubtitle ? 22 * s : 0; // +20%
-        const thaiH = scene.titlePrimary ? 24 * s : 0;
-        const hasPrice = !!scene.priceLabel;
-        const priceH = hasPrice ? 38 * s : 0;
-        const totalCardH = badgeH + titleH + subtitleH + thaiH + priceH + (14 * s);
+        const badgeH = hasBadge ? (33 * s) : 0;
+        const titleH = 28 * s + (3 * s);
+        const subtitleH = scene.lodgingSubtitle ? (24 * s + 3 * s) : 0;
 
-        // Alzata dal basso di +20px: da 36*s a 56*s
-        let by = h - (56 * s) - totalCardH;
+        // Misura e suddivisione su 2 righe per Thai se supera la larghezza massima
+        let thaiLines: string[] = [];
+        if (scene.titleSecondary) {
+          const thaiFontSize = Math.round(14 * s);
+          oCtx.font = `600 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
+          if (oCtx.measureText(scene.titleSecondary).width <= maxTextW) {
+            thaiLines = [scene.titleSecondary];
+          } else {
+            const words = scene.titleSecondary.split(' ');
+            if (words.length > 1) {
+              let curLine = '';
+              for (const word of words) {
+                const testLine = curLine ? `${curLine} ${word}` : word;
+                if (oCtx.measureText(testLine).width <= maxTextW) {
+                  curLine = testLine;
+                } else {
+                  if (curLine) thaiLines.push(curLine);
+                  curLine = word;
+                }
+              }
+              if (curLine) thaiLines.push(curLine);
+            } else {
+              const mid = Math.floor(scene.titleSecondary.length / 2);
+              thaiLines = [scene.titleSecondary.slice(0, mid), scene.titleSecondary.slice(mid)];
+            }
+          }
+        }
+        const thaiH = thaiLines.length > 0 ? (thaiLines.length * (20 * s) + (3 * s)) : 0;
+        const hasPrice = !!scene.priceLabel && mode === 'LM1';
+        const priceH = hasPrice ? (46 * s) : 0;
+        const totalCardH = badgeH + titleH + subtitleH + thaiH + priceH;
+
+        // Ancoraggio inferiore sicuro identico a bottom-[47px]
+        let by = h - (47 * s) - totalCardH;
 
         oCtx.save();
         oCtx.textAlign = 'left';
@@ -1534,55 +2060,115 @@ export function AutoCutLabPlayer({
         oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
         oCtx.shadowBlur = 10 * s;
 
+        // 1. Pillola Categoria Alloggio (Smeraldo con testo bianco centrato Outfit 800)
         if (hasBadge) {
-          oCtx.font = `800 ${Math.round(13.5 * s)}px "Inter", sans-serif`;
-          oCtx.fillStyle = '#34d399';
-          oCtx.fillText(scene.badgeCategory!.toUpperCase(), bx, by);
-          by += 24 * s;
-        }
+          const badgeClean = mode === 'LM1'
+            ? scene.badgeCategory!.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim().toUpperCase()
+            : scene.badgeCategory!.toUpperCase();
 
-        const lTitle = scene.lodgingTitle || scene.titlePrimary || '';
-        if (lTitle) {
-          oCtx.font = `900 ${Math.round(23 * s)}px "Outfit", "Inter", sans-serif`;
-          oCtx.fillStyle = '#ffffff';
-          oCtx.fillText(lTitle, bx, by);
-          by += 29 * s;
-        }
-
-        if (scene.lodgingSubtitle) {
-          oCtx.font = `700 ${Math.round(15.6 * s)}px "Inter", sans-serif`;
-          oCtx.fillStyle = '#fcd34d';
-          oCtx.fillText(scene.lodgingSubtitle, bx, by);
-          by += 22 * s;
-        }
-
-        if (hasPrice) {
-          by += 5 * s;
-          const priceClean = scene.priceLabel!.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
-          oCtx.font = `900 ${Math.round(26.4 * s)}px "Kanit", sans-serif`;
-          const pTextW = oCtx.measureText(priceClean).width;
-          const boxPadX = 10 * s;
-          const boxW = pTextW + (boxPadX * 2);
-          const boxH = 34 * s;
+          const badgeFontSize = Math.round(13 * s);
+          oCtx.font = `800 ${badgeFontSize}px "Outfit", sans-serif`;
+          const badgeTextW = oCtx.measureText(badgeClean).width;
+          const badgePillW = badgeTextW + (20 * s);
+          const badgePillH = 22 * s;
 
           oCtx.save();
-          oCtx.fillStyle = '#FFE500';
+          oCtx.fillStyle = 'rgba(5, 150, 105, 0.92)';
           if (typeof oCtx.roundRect === 'function') {
-            oCtx.roundRect(bx, by, boxW, boxH, 6 * s);
+            oCtx.roundRect(bx, by, badgePillW, badgePillH, 11 * s);
+          } else {
+            oCtx.rect(bx, by, badgePillW, badgePillH);
+          }
+          oCtx.fill();
+
+          oCtx.fillStyle = '#ffffff';
+          oCtx.textAlign = 'center';
+          oCtx.textBaseline = 'middle';
+          oCtx.fillText(badgeClean, bx + (badgePillW / 2), by + (badgePillH / 2) + Math.round(0.5 * s));
+          oCtx.restore();
+
+          by += badgePillH + (11 * s); // +3 pixel di distacco verso il titolo
+        }
+
+        // 2. Titolo Alloggio (Inglese Strutturato Bianco Outfit 900 con ombra protettiva ad alto contrasto)
+        const lTitle = scene.lodgingTitle || scene.titlePrimary || '';
+        if (lTitle) {
+          oCtx.font = `900 ${Math.round(23.5 * s)}px "Outfit", sans-serif`;
+          drawTextWithShadow(lTitle, bx, by, '#ffffff', 4.0 * s);
+          by += 28 * s + (3 * s); // +3 pixel di distacco verso il sottotitolo
+        }
+
+        // 3. Sottotitolo Alloggio (Giallo/Ambra Outfit 700 con ombra protettiva)
+        if (scene.lodgingSubtitle) {
+          oCtx.font = `700 ${Math.round(18 * s)}px "Outfit", sans-serif`;
+          drawTextWithShadow(scene.lodgingSubtitle, bx, by, '#fcd34d', 3.2 * s);
+          by += 24 * s + (3 * s); // +3 pixel di distacco verso la scritta Thai
+        }
+
+        // 4. Descrizione Thai Alloggio (Prompt 600 con wrapping naturale e ombra protettiva)
+        if (thaiLines.length > 0) {
+          oCtx.font = `600 ${Math.round(14 * s)}px "Prompt", "Kanit", sans-serif`;
+          thaiLines.forEach(tl => {
+            drawTextWithShadow(tl, bx, by, 'rgba(241, 245, 249, 0.98)', 2.6 * s);
+            by += 20 * s;
+          });
+          by += 3 * s; // +3 pixel di distacco verso il prezzo
+        }
+
+        // 5. Prezzo Last Minute Octorate (SOLO IN LM1): Box Giallo #FFE500 con bordo nero 2px, ombra solida e outline bianco centrato
+        if (hasPrice) {
+          by += 6 * s;
+          const priceClean = scene.priceLabel!.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
+          oCtx.font = `900 ${Math.round(27 * s)}px "Kanit", sans-serif`;
+          const pTextW = oCtx.measureText(priceClean).width;
+          const boxPadX = 12 * s;
+          const boxW = pTextW + (boxPadX * 2);
+          const boxH = 38 * s;
+          const boxRadius = 6 * s;
+
+          oCtx.save();
+          // Ombra solida nera 2px 2px (come shadow-[2px_2px_0px_#000000] nel DOM)
+          oCtx.fillStyle = '#000000';
+          oCtx.beginPath();
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(bx + 2 * s, by + 2 * s, boxW, boxH, boxRadius);
+          } else {
+            oCtx.rect(bx + 2 * s, by + 2 * s, boxW, boxH);
+          }
+          oCtx.fill();
+
+          // Sfondo giallo #FFE500
+          oCtx.fillStyle = '#FFE500';
+          oCtx.beginPath();
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(bx, by, boxW, boxH, boxRadius);
           } else {
             oCtx.rect(bx, by, boxW, boxH);
           }
           oCtx.fill();
 
-          // Bordo esterno bianco intorno al font del prezzo e Baht
-          oCtx.lineWidth = 4.0 * s;
+          // Bordo nero 2px
+          oCtx.strokeStyle = '#000000';
+          oCtx.lineWidth = 2 * s;
+          oCtx.stroke();
+
+          // Allineamento testo: CENTRATO orizzontalmente e verticalmente (zero ghosting / zero sfasamento!)
+          oCtx.textAlign = 'center';
+          oCtx.textBaseline = 'middle';
+          const pCx = bx + (boxW / 2);
+          const pCy = by + (boxH / 2) + Math.round(1.5 * s);
+
+          // Bordo esterno bianco 3.5px
+          oCtx.lineWidth = 3.5 * s;
           oCtx.strokeStyle = '#ffffff';
           oCtx.lineJoin = 'round';
-          oCtx.strokeText(priceClean, bx + boxPadX, by + (boxH / 2));
+          oCtx.strokeText(priceClean, pCx, pCy);
 
+          // Testo nero pieno centrato identico
           oCtx.fillStyle = '#000000';
-          oCtx.textBaseline = 'middle';
-          oCtx.fillText(priceClean, bx + boxPadX, by + (boxH / 2));
+          oCtx.shadowColor = 'transparent';
+          oCtx.shadowBlur = 0;
+          oCtx.fillText(priceClean, pCx, pCy);
           oCtx.restore();
         }
 
@@ -1626,14 +2212,63 @@ export function AutoCutLabPlayer({
 
         if (onProgress) onProgress(3, 0, 'Inizializzazione motore video Full HD 1080x1920...');
 
-        // Assicura che tutti i web font ufficiali (Outfit, Prompt, Kanit, IBM Plex Sans Thai, Inter) siano scaricati e pronti
+        // Assicura che tutti i web font ufficiali (Outfit, Prompt, Kanit, Inter) siano scaricati e pronti
         if (typeof document !== 'undefined' && document.fonts) {
-          if (onProgress) onProgress(18, 1, 'Verifica e caricamento web font ufficiali (Outfit, Kanit, Prompt)...');
+          if (onProgress) onProgress(12, 1, 'Caricamento web font ufficiali (Outfit, Prompt, Kanit)...');
           try {
+            await Promise.all([
+              document.fonts.load('900 24px "Outfit"'),
+              document.fonts.load('800 24px "Outfit"'),
+              document.fonts.load('700 24px "Outfit"'),
+              document.fonts.load('600 24px "Outfit"'),
+              document.fonts.load('italic 500 24px "Outfit"'),
+              document.fonts.load('900 24px "Prompt"'),
+              document.fonts.load('800 24px "Prompt"'),
+              document.fonts.load('700 24px "Prompt"'),
+              document.fonts.load('600 24px "Prompt"'),
+              document.fonts.load('900 24px "Kanit"')
+            ]);
             await document.fonts.ready;
           } catch (e) {
             console.warn('Font loading await error:', e);
           }
+        }
+
+        // 🖼️ Precarica e decodifica tutti gli asset visivi critici (Logo Ufficiale Brand + Immagini Full HD)
+        if (onProgress) onProgress(18, 1, 'Decodifica e preriscaldamento logo ufficiale e fotogrammi Full HD...');
+        try {
+          await ensureBrandLogosReady();
+          const domLogoEl = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
+          const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
+          if (targetLogo instanceof Image && !targetLogo.src) {
+            targetLogo.src = brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64;
+          }
+
+          const imgsToDecode: HTMLImageElement[] = [
+            targetLogo,
+            domLogoEl,
+            logoImg,
+            globalVillageLogoImg,
+            globalPizzaLogoImg,
+            ...loadedImages
+          ].filter(Boolean) as HTMLImageElement[];
+
+          await Promise.all(imgsToDecode.map(img => {
+            if (!img) return Promise.resolve();
+            if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+            return new Promise<void>(res => {
+              const onDone = () => {
+                img.removeEventListener('load', onDone);
+                img.removeEventListener('error', onDone);
+                res();
+              };
+              img.addEventListener('load', onDone);
+              img.addEventListener('error', onDone);
+              setTimeout(onDone, 3000);
+            });
+          }));
+        } catch (e) {
+          console.warn('Image pre-decode warning:', e);
         }
 
         const off = document.createElement('canvas');
@@ -1769,9 +2404,9 @@ export function AutoCutLabPlayer({
             });
 
             const targetDuration = (totalVideoDuration > 0 ? totalVideoDuration : 15) + 0.4;
-            // Target ~16 MB max (così anche con audio muxato rimane < 18 MB, ben sotto il limite URL di 20 MB di Telegram)
-            const safeMaxBits = 16.0 * 1024 * 1024 * 8;
-            const targetBitrate = Math.min(6_500_000, Math.max(3_600_000, Math.floor(safeMaxBits / targetDuration)));
+            // Target ~12.0 MB max (così anche con audio muxato e cover art rimane ~13-14 MB, ben sotto il limite URL di 20 MB di Telegram)
+            const safeMaxBits = 12.0 * 1024 * 1024 * 8;
+            const targetBitrate = Math.min(5_500_000, Math.max(1_800_000, Math.floor(safeMaxBits / targetDuration)));
 
             encoder.configure({
               codec: 'avc1.64002a', // H.264 High Profile Level 4.2 Full HD 1080x1920
@@ -1786,7 +2421,10 @@ export function AutoCutLabPlayer({
             const totalFrames = Math.round(targetDuration * fps);
 
             for (let currentFrame = 0; currentFrame < totalFrames; currentFrame++) {
-              if (encoderError) throw encoderError;
+              if (encoderError) {
+                try { encoder.close(); } catch {}
+                throw encoderError;
+              }
 
               const tElapsed = currentFrame / fps;
               renderFrameToOffscreen(tElapsed);
@@ -1805,6 +2443,7 @@ export function AutoCutLabPlayer({
             }
 
             await encoder.flush();
+            try { encoder.close(); } catch {}
             muxer.finalize();
 
             // 📸 REGOLA 14: ESTRAZIONE THUMBNAIL UFFICIALE PRE-DISSOLVENZA (ZERO GHOSTING / MASSIMO ZOOM)
@@ -1956,9 +2595,9 @@ export function AutoCutLabPlayer({
         const fps = 30;
         const totalFrames = Math.round(targetDuration * fps);
 
-        // 🛡️ Bitrate Dinamico Broadcast Full HD (1080x1920): 6.8 Mbps per massima nitidezza fotografica (~10-12 MB)
-        const maxTelegramSafeBits = 14 * 1024 * 1024 * 8; // Target ~12 MB di sicurezza assoluta (ben sotto i 20 MB di Telegram)
-        const dynamicBitrate = Math.min(6800000, Math.floor(maxTelegramSafeBits / targetDuration));
+        // 🛡️ Bitrate Dinamico Broadcast Full HD (1080x1920): target ~12 MB di sicurezza assoluta (ben sotto i 20 MB di Telegram)
+        const maxTelegramSafeBits = 12 * 1024 * 1024 * 8;
+        const dynamicBitrate = Math.min(5500000, Math.max(1800000, Math.floor(maxTelegramSafeBits / targetDuration)));
 
         const recorder = new MediaRecorder(recordingStream, {
           mimeType: selectedMime,
@@ -2355,6 +2994,30 @@ export function AutoCutLabPlayer({
           onClick={handleTogglePlay}
         />
 
+        <style>{`
+          @keyframes lastMinutePulse {
+            0% { transform: scale(0.95); filter: brightness(0.95); }
+            100% { transform: scale(1.08); filter: drop-shadow(0 0 6px rgba(254, 240, 138, 0.95)) brightness(1.15); }
+          }
+          @keyframes discountGlowPulse {
+            0% {
+              transform: scale(0.98);
+              color: #fcd34d;
+              filter: drop-shadow(0 0 1.5px rgba(250, 204, 21, 0.45));
+            }
+            50% {
+              transform: scale(1.02);
+              color: #fef9c3;
+              filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.75)) drop-shadow(0 0 7px rgba(234, 179, 8, 0.4));
+            }
+            100% {
+              transform: scale(0.98);
+              color: #fcd34d;
+              filter: drop-shadow(0 0 1.5px rgba(250, 204, 21, 0.45));
+            }
+          }
+        `}</style>
+
       {/* ⚡ SCHERMATA ELEGANTE VETRINA DAILY SPECIAL VUOTA */}
       {mode === 'DS' && testRun.isEmptyShowcase && (
         <div className="absolute inset-0 z-40 bg-gradient-to-b from-stone-950 via-slate-950 to-stone-950 flex flex-col items-center justify-between p-6 text-center select-none">
@@ -2448,8 +3111,8 @@ export function AutoCutLabPlayer({
         </div>
       )}
 
-      {/* Sfondo leggermente sfumato nero in alto (Top Vignette Fade delicato per massima purezza fotografica) */}
-      <div className={`absolute top-0 left-0 right-0 h-60 bg-gradient-to-b from-black/45 via-black/15 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
+      {/* Sfondo leggermente sfumato nero in alto (Top Vignette Fade ad alto contrasto per proteggere logo e testi contro qualsiasi sfondo) */}
+      <div className={`absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-black/85 via-black/55 via-50% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
         isInOutro ? 'opacity-0' : 'opacity-100'
       }`} />
 
@@ -2457,14 +3120,15 @@ export function AutoCutLabPlayer({
       {!isInOutro && (
         <div className="absolute top-6 left-1/2 -translate-x-1/2 w-max z-30 flex items-start gap-3 pointer-events-none transition-all duration-300">
           <img
-            src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
+            id="autoCutHeaderLogoImg"
+            src={brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64}
             alt="Logo"
             className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
           />
 
           {/* ⚡ FORMATO DS DAILY SPECIAL */}
           {mode === 'DS' && (
-            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
+            <div className="flex-1 min-w-0 flex flex-col text-left drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
               <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
                 FLOWER POWER
               </span>
@@ -2472,8 +3136,8 @@ export function AutoCutLabPlayer({
                 Pizza
               </span>
 
-              {/* Riga 2: LIVE SHOWCASE su una riga sola (distanziato di 5px da pizza: pt-[5px]) */}
-              <div className="pt-[5px]">
+              {/* Riga 2: LIVE SHOWCASE su una riga sola (allontanato di ulteriori 10px da pizza: mt-[15px]) */}
+              <div className="mt-[15px]">
                 <span className={`inline-flex items-center px-3.5 py-1 rounded-lg border text-[14px] sm:text-[15px] font-black text-white tracking-wider uppercase shadow-[0_4px_16px_rgba(0,0,0,0.8)] whitespace-nowrap animate-pulse ${
                   currentScene?.isLiveShowcase
                     ? 'bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 border-yellow-200'
@@ -2483,13 +3147,13 @@ export function AutoCutLabPlayer({
                 </span>
               </div>
 
-              {/* Riga 3: Fast Delivery Thai + English distanziato dal live showcase di altri 5 pixel: mt-[5px] */}
-              <span className="mt-[5px] text-[19px] sm:text-[21.5px] font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
+              {/* Riga 3: Fast Delivery Thai + English allontanato dal live showcase di ulteriori 10 pixel (totale 15px): mt-[15px] */}
+              <span className="mt-[15px] text-[19px] sm:text-[21.5px] font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
                 {currentScene?.isLiveShowcase ? 'สดใหม่ในตู้โชว์' : 'เมนูพิเศษประจำวัน'}
               </span>
 
               {/* Riga 4: Solo Fast Delivery più grosso con bagliore scuro (+20%) */}
-              <span className="text-[14px] sm:text-[16px] font-black text-emerald-400 tracking-wider uppercase whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              <span className="mt-1 text-[14px] sm:text-[16px] font-black text-emerald-400 tracking-wider uppercase whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
                 FAST DELIVERY
               </span>
             </div>
@@ -2532,30 +3196,30 @@ export function AutoCutLabPlayer({
               <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
                 Village
               </span>
-              {/* DELIVERY lampeggiante senza pallino, con sotto Thai (+10%) - distacco +5px totali da Village */}
+              {/* DELIVERY lampeggiante con emoji moto 🛵 - distacco +5px totali da Village */}
               <div className="flex flex-col items-start pt-[13px] leading-none">
                 <span
-                  className="font-['Outfit',sans-serif] text-[22px] sm:text-[23.5px] font-black uppercase tracking-wider text-[#ef4444] whitespace-nowrap leading-none animate-pulse"
+                  className="font-['Outfit',sans-serif] text-[22px] sm:text-[23.5px] font-black uppercase tracking-wider text-[#ef4444] whitespace-nowrap leading-none animate-pulse inline-flex items-center gap-1.5"
                   style={{
                     filter: 'drop-shadow(1px 0 0 #ffffff) drop-shadow(-1px 0 0 #ffffff) drop-shadow(0 1px 0 #ffffff) drop-shadow(0 -1px 0 #ffffff) drop-shadow(0 2px 4px rgba(0,0,0,0.95))'
                   }}
                 >
-                  DELIVERY
+                  DELIVERY <span className="text-[20px] sm:text-[22px] not-italic drop-shadow-none">🛵</span>
                 </span>
                 <span className="font-['Prompt',sans-serif] text-[17.5px] sm:text-[19px] font-extrabold tracking-normal text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap leading-none mt-1.5 pt-0.5">
                   เดลิเวอรี่
                 </span>
               </div>
-              {/* Sotto numero telefono verde con icona WhatsApp e LINE Ufficiale (+10%) */}
-              <div className="flex items-center gap-1.5 text-[17px] sm:text-[18px] font-black text-[#25D366] font-['Outfit',sans-serif] whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)] mt-1.5">
-                <span className="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[#25D366] shrink-0 shadow-md">
-                  <svg className="w-[13.5px] h-[13.5px] fill-white" viewBox="0 0 24 24">
-                    <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8.01 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 13.99C16.32 13.86 15.12 13.27 14.9 13.19C14.68 13.1 14.52 13.06 14.36 13.3C14.19 13.55 13.73 14.11 13.59 14.27C13.45 14.44 13.31 14.46 13.06 14.34C12.82 14.21 12.05 13.96 11.13 13.14C10.42 12.5 9.93 11.72 9.8 11.49C9.66 11.25 9.78 11.11 9.9 10.99C10.01 10.88 10.15 10.7 10.27 10.56C10.39 10.41 10.44 10.31 10.52 10.15C10.6 9.99 10.56 9.85 10.5 9.72C10.44 9.6 9.95 8.41 9.75 7.91C9.55 7.43 9.35 7.5 9.19 7.49C9.05 7.49 8.89 7.48 8.72 7.48L8.53 7.33Z"/>
+              {/* Sotto numero telefono verde con icona WhatsApp e LINE Ufficiale (+20% ingranditi e nitidi) */}
+              <div className="flex items-center gap-1.5 text-[17.5px] sm:text-[18.5px] font-black text-[#25D366] font-['Outfit',sans-serif] whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)] mt-1.5">
+                <span className="inline-flex items-center justify-center w-[25px] h-[25px] sm:w-[27px] sm:h-[27px] rounded-full bg-[#25D366] shrink-0 shadow-md">
+                  <svg className="w-[15.5px] h-[15.5px] sm:w-[17px] sm:h-[17px] fill-white" viewBox="0 0 24 24">
+                    <path d={WA_PHONE_PATH_DATA} />
                   </svg>
                 </span>
-                <span className="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[#06C755] shrink-0 shadow-md">
-                  <svg className="w-[15.5px] h-[15.5px] fill-white" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 5.82 2 10.53c0 4.23 3.61 7.77 8.5 8.41.33.07.78.22.89.51.1.26.07.67.03.93l-.15.91c-.05.28-.22 1.1.96.6 1.18-.5 6.38-3.76 8.7-6.44C22.25 13.9 22 12.28 22 10.53 22 5.82 17.52 2 12 2zm-3.8 11.5H6.4c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5V13h1.3c.28 0 .5.22.5.5s-.22.5-.5.5zm2.1-.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5zm4.3 0c0 .22-.15.42-.36.48-.06.02-.11.02-.16.02-.17 0-.32-.08-.41-.21L12.1 10.1v2.4c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.23.15-.42.36-.48.05-.02.11-.02.16-.02.17 0 .32.08.41.21l2.07 2.7V8c0-.28.22-.5.5-.5s.5.22.5.5v5zm3.1-3.2h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5h-1.9c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5h1.9c.28 0 .5.22.5.5s-.22.5-.5.5h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5z"/>
+                <span className="inline-flex items-center justify-center w-[25px] h-[25px] sm:w-[27px] sm:h-[27px] rounded-full bg-[#06C755] shrink-0 shadow-md">
+                  <svg className="w-[17px] h-[17px] sm:w-[18.5px] sm:h-[18.5px] fill-white" viewBox="0 0 24 24">
+                    <path d={LINE_ICON_PATH_DATA} />
                   </svg>
                 </span>
                 <span>+66 095 882 5573</span>
@@ -2569,30 +3233,62 @@ export function AutoCutLabPlayer({
 
           {/* 🔥 FORMATO LM1 STORIES LAST MINUTE (Koh Phayam) */}
           {mode === 'LM1' && (
-            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
+              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 FLOWER POWER
               </span>
-              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 Village
               </span>
-              {/* Last minute su una sola riga */}
-              <div className="pt-1">
-                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-lg bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-stone-950 font-black text-xs shadow-xl tracking-wider border border-yellow-200 whitespace-nowrap animate-pulse">
-                  <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping shrink-0" />
-                  LAST MINUTE
+              {/* Last minute su una sola riga con pallino rosso scintillante e testo pulsante - salito di 2px (pt-[8px]) e ingrandito del 10% */}
+              <div className="pt-[8px]">
+                <span className="inline-flex items-center gap-2.5 px-4 py-[7px] rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-black shadow-[0_3px_8px_rgba(0,0,0,0.45)] tracking-wider border border-yellow-200/90 whitespace-nowrap">
+                  {/* 💎 🔴 Pallino rosso luccicante con bagliore e stella di diamante rotante (+10%) */}
+                  <span className="relative flex items-center justify-center h-4 w-4 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-80" />
+                    <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-gradient-to-br from-rose-500 via-red-600 to-rose-700 shadow-[0_0_12px_#ef4444,_0_0_24px_#dc2626] border border-rose-300/80" />
+                    <span className="absolute top-[2px] left-[2px] w-1 h-1 rounded-full bg-white shadow-[0_0_4px_#ffffff]" />
+                    {/* Stella di diamante che ruota e luccica */}
+                    <svg
+                      className="absolute w-4 h-4 text-white drop-shadow-[0_0_5px_#ffffff] animate-[spin_3.5s_linear_infinite]"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M12 0L13.8 8.5L24 12L13.8 15.5L12 24L10.2 15.5L0 12L10.2 8.5L12 0Z" />
+                    </svg>
+                  </span>
+                  {/* 🔥 Scritta LAST MINUTE che pulsa in modo molto visibile (+10%: 14.5px / 15.5px) */}
+                  <span
+                    className="font-black text-[14.5px] sm:text-[15.5px] tracking-widest uppercase text-stone-950 inline-block font-['Outfit',sans-serif]"
+                    style={{
+                      animation: 'lastMinutePulse 1.1s ease-in-out infinite alternate',
+                      textShadow: '0 0 1px #000000, 0 1px 3px rgba(254, 240, 138, 0.9)'
+                    }}
+                  >
+                    LAST MINUTE
+                  </span>
                 </span>
               </div>
-              {/* Sotto la scritta in Thai più staccata e più grossa con bagliore scuro */}
-              <span className="mt-1 text-base sm:text-lg font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_12px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
+              {/* Sotto la scritta in Thai allontanata di +3px (mt-[7px]) con ombra scura profonda (+10%: text-[17.5px] sm:text-[20px]) */}
+              <span className="mt-[7px] text-[17.5px] sm:text-[20px] font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 ห้องว่างวันนี้
               </span>
-              {/* Sotto DIRECT BOOKING in stampatello verde con bagliore scuro (+20%, allontanato di 2px da Village) */}
-              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              {/* Sotto DIRECT BOOKING distanziata 5px ulteriori (totale 10px) dalla scritta Thai sopra (+10%: text-[20.5px] sm:text-[23px]) */}
+              <span className="text-[20.5px] sm:text-[23px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap mt-[10px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              {/* Sotto flowerpowervillage.com (+20%) */}
-              <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
+              {/* Sotto DIRECT BOOKING: 10% OFF con bagliore dorato lampeggiante continuo */}
+              <span
+                className="text-[17px] sm:text-[19px] font-black uppercase tracking-wider leading-tight whitespace-nowrap mt-[1px] inline-block origin-left font-['Outfit',sans-serif]"
+                style={{
+                  animation: 'discountGlowPulse 1.1s ease-in-out infinite alternate',
+                  textShadow: '0 2px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,1)'
+                }}
+              >
+                10% OFF
+              </span>
+              {/* Sotto flowerpowervillage.com distanziata esattamente 7px dalla scritta sopra (+10%: text-[15.5px] sm:text-[17px]) */}
+              <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap mt-[7px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 flowerpowervillage.com
               </span>
             </div>
@@ -2600,33 +3296,51 @@ export function AutoCutLabPlayer({
 
           {/* 🌴 FORMATO VILLAGE REGULAR (V1, V2, V3) */}
           {brand === 'village' && mode !== 'R1' && mode !== 'LM1' && (
-            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
+              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 FLOWER POWER
               </span>
-              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 Village
               </span>
               {/* DIRECT BOOKING (+20%, allontanato di 2px netti dalla parola Village: pt-1.5 mt-0.5) */}
-              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              {/* flowerpowervillage.com (+20%) */}
-              <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
-                flowerpowervillage.com
+              {/* Sotto DIRECT BOOKING: 10% OFF con bagliore dorato lampeggiante continuo */}
+              <span
+                className="text-[15.5px] sm:text-[17.5px] font-black uppercase tracking-wider leading-tight whitespace-nowrap mt-0 inline-block origin-left font-['Outfit',sans-serif]"
+                style={{
+                  animation: 'discountGlowPulse 1.1s ease-in-out infinite alternate',
+                  textShadow: '0 2px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,1)'
+                }}
+              >
+                10% OFF
               </span>
-              {/* Link in bio (+20%) */}
-              <span className="mt-1 text-[14px] sm:text-[15px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
-                Link in Bio
-              </span>
+              {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato da 10% OFF: mt-1.5, con Link in Bio distanziato 4px in più (gap-[6px]) */}
+              <div className="flex flex-col gap-[6px] mt-1.5">
+                <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  flowerpowervillage.com
+                </span>
+                <span className="text-[14px] sm:text-[15px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  Link in Bio
+                </span>
+              </div>
             </div>
           )}
         </div>
       )}
 
-      {/* 🏷️ GERARCHIA TIPOGRAFICA RIGOROSA (SAFE ZONE IN BASSO PROPORZIONATA - ALZATA DI 20PX: bottom-[47px]) */}
+      {/* Sfondo sfumato nero in basso (Bottom Vignette Fade cinematografica: protegge categoria, titoli bilingui e prezzo) */}
+      <div className={`absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-black/85 via-black/55 via-45% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
+        isInOutro ? 'opacity-0' : 'opacity-100'
+      }`} />
+
+      {/* 🏷️ GERARCHIA TIPOGRAFICA RIGOROSA (SAFE ZONE IN BASSO PROPORZIONATA - ALZATA A 65px PER LE PIZZE) */}
       {!testRun.isEmptyShowcase && currentScene && (
-        <div className={`absolute left-[25px] right-3.5 bottom-[47px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-500 ${
+        <div className={`absolute left-[25px] right-[25px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-500 ${
+          (currentScene.pizzaSizes && mode !== 'R1') ? 'bottom-[65px]' : 'bottom-[47px]'
+        } ${
           isInOutro ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
         }`}>
           
@@ -2634,7 +3348,7 @@ export function AutoCutLabPlayer({
           {(brand === 'pizza' || mode === 'R1') && (
             <div className="w-full">
               {currentScene.badgeCategory && (
-                <div className="flex flex-col items-start gap-0.5 mb-1.5">
+                <div className="flex flex-col items-start gap-0.5 mb-4">
                   <div className="inline-flex items-center gap-1.5 text-[15.5px] sm:text-[17.5px] font-black tracking-wide text-amber-300 drop-shadow-[0_2px_8px_rgba(0,0,0,1)] whitespace-nowrap">
                     <span className="text-[#dc2626] font-black text-[16px] drop-shadow-[0_0_8px_rgba(220,38,38,0.95)]">✦</span>
                     <span className="font-['Prompt',sans-serif] [text-shadow:_0_2px_8px_rgba(0,0,0,1)]">
@@ -2703,85 +3417,108 @@ export function AutoCutLabPlayer({
               </div>
 
               {/* PREZZO PIATTO / PIZZE 8" E 12" (SCALA PIENA +20%, BORDI RETTANGOLO ADERENTI - distacco alzato di +10px a pt-5) */}
-              <div className="pt-5 origin-left w-fit">
-                {currentScene.pizzaSizes && mode !== 'R1' ? (
-                  <div className="flex items-center gap-2">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                      <span className="font-['Kanit',sans-serif] text-[15.5px] sm:text-[17px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
+              {/* Box Prezzo (+20%) + BADGE PROMO A DESTRA */}
+              <div className="pt-4 w-full flex items-center justify-between gap-3">
+                <div className="shrink-0">
+                  {currentScene.pizzaSizes && mode !== 'R1' ? (
+                    <div className="flex flex-col items-start gap-1.5">
+                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black w-fit">
+                        <span className="font-['Kanit',sans-serif] text-[15px] sm:text-[16.5px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
+                        <span
+                          className="font-['Kanit',sans-serif] text-[24px] sm:text-[26.5px] font-black leading-none tracking-tight"
+                          style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                        >
+                          {currentScene.pizzaSizes.size8Price}฿
+                        </span>
+                      </div>
+                      <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black w-fit">
+                        <span className="font-['Kanit',sans-serif] text-[15px] sm:text-[16.5px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
+                        <span
+                          className="font-['Kanit',sans-serif] text-[24px] sm:text-[26.5px] font-black leading-none tracking-tight"
+                          style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                        >
+                          {currentScene.pizzaSizes.size12Price}฿
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="inline-flex items-center px-3.5 py-1.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                       <span
-                        className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
-                        style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                        className="font-['Kanit',sans-serif] text-[31.5px] sm:text-[34px] font-black leading-none tracking-tight"
+                        style={{ paintOrder: 'stroke fill', WebkitTextStroke: '4.2px #ffffff' }}
                       >
-                        {currentScene.pizzaSizes.size8Price}฿
+                        {currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
                       </span>
                     </div>
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                      <span className="font-['Kanit',sans-serif] text-[15.5px] sm:text-[17px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
-                      <span
-                        className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
-                        style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
-                      >
-                        {currentScene.pizzaSizes.size12Price}฿
-                      </span>
+                  )}
+                </div>
+
+                {/* 🏷️ BADGE PROMO BILINGUE A DESTRA DEL PREZZO (Adattivo, Centrato, Gradiente Brillante) */}
+                {(mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && (
+                  <div className={`shrink-0 rounded-lg border-2 border-yellow-200 bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 shadow-[0_4px_16px_rgba(225,29,72,0.65)] flex flex-col items-center justify-center text-center ${
+                    currentScene.pizzaSizes
+                      ? 'px-2.5 py-1.5'
+                      : 'px-2 py-1'
+                  }`}>
+                    <div className="flex items-center justify-center gap-1 font-['Prompt',sans-serif] font-black text-amber-200 leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] whitespace-nowrap text-[11px] sm:text-[11.5px]">
+                      <span>🛵 ส่งฟรี 300฿+</span>
+                      <span className="text-white/80 font-normal">·</span>
+                      <span className="text-yellow-100">🏷️ ลด 10%</span>
                     </div>
-                  </div>
-                ) : (
-                  <div className="inline-flex items-center px-3.5 py-1.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                    <span
-                      className="font-['Kanit',sans-serif] text-[31.5px] sm:text-[34px] font-black leading-none tracking-tight"
-                      style={{ paintOrder: 'stroke fill', WebkitTextStroke: '4.2px #ffffff' }}
-                    >
-                      {currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
-                    </span>
+                    <div className="font-['Outfit',sans-serif] font-extrabold text-white tracking-wide uppercase leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] mt-0.5 whitespace-nowrap text-[8.5px] sm:text-[9.5px]">
+                      Free Delivery 300฿+ · 1st Order -10%
+                    </div>
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          {/* Caso ALLOGGI (V1, V2, V3, LM1): Ingrandito +20% e alzato a bottom-[47px] */}
+          {/* Caso ALLOGGI (V1, V2, V3, LM1): Categoria, Titolo Bungalow e Sottotitolo Giallo Ingranditi +20% con distacco extra 3px */}
           {brand === 'village' && mode !== 'R1' && (
-            <div className="space-y-1.5 w-full">
+            <div className="space-y-2.5 w-full">
               {currentScene.badgeCategory && (
-                <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wide shadow-md uppercase">
-                  {currentScene.badgeCategory}
+                <span className="inline-block px-3 py-0.5 rounded-full bg-emerald-600/90 text-white text-[13px] font-bold tracking-wide shadow-md uppercase mb-[3px]">
+                  {mode === 'LM1'
+                    ? currentScene.badgeCategory.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim()
+                    : currentScene.badgeCategory}
                 </span>
               )}
 
-              {/* INGLESE STRUTTURATO SEMANTICO (+20%) */}
+              {/* INGLESE STRUTTURATO SEMANTICO (+20% con distacco +3px) */}
               <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                 {currentScene.lodgingTitle ? (
                   <>
-                    <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
+                    <h3 className="text-[21.5px] sm:text-[24px] font-black text-white leading-tight mb-[3px]">
                       {currentScene.lodgingTitle}
                     </h3>
                     {currentScene.lodgingSubtitle && (
-                      <p className="text-sm sm:text-[15.5px] font-bold text-amber-300 leading-tight mt-0.5">
+                      <p className="text-[17px] sm:text-[18.5px] font-bold text-amber-300 leading-tight mt-[3px]">
                         {currentScene.lodgingSubtitle}
                       </p>
                     )}
                   </>
                 ) : (
-                  <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
+                  <h3 className="text-[21.5px] sm:text-[24px] font-black text-white leading-tight mb-[3px]">
                     {currentScene.titlePrimary}
                   </h3>
                 )}
               </div>
 
-              {/* THAI SECCO SOTTO (+20%) */}
-              <p className="text-sm sm:text-[14.5px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
+              {/* THAI SECCO SOTTO (+20% con distacco +3px) */}
+              <p className="text-sm sm:text-[14.5px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-[3px]">
                 {currentScene.titleSecondary}
               </p>
 
-              {/* PREZZO OCTORATE LAST MINUTE: SOLO IN LM1 (+20%) */}
+              {/* PREZZO OCTORATE LAST MINUTE: SOLO IN LM1 (+20% con distacco +3px) */}
               {mode === 'LM1' && (
-                <div className="pt-1.5 origin-left w-fit">
-                  <div className="inline-flex items-center px-3 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                <div className="pt-2 origin-left w-fit">
+                  <div className="inline-flex items-center px-3.5 py-1.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                     <span
                       className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
                       style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
                     >
-                      {currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
+                      {currentScene.priceLabel ? currentScene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
                     </span>
                   </div>
                 </div>
@@ -3044,43 +3781,44 @@ export function AutoCutLabPlayer({
             />
 
             {/* Sfondo leggermente sfumato nero in alto (Top Vignette Fade per massima leggibilità watermark) */}
-            <div className={`absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-black/85 via-black/40 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
+            <div className={`absolute top-0 left-0 right-0 h-36 bg-gradient-to-b from-black/85 via-black/40 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
               isInOutro ? 'opacity-0' : 'opacity-100'
             }`} />
 
-            {/* Watermark Ufficiale 4:3 (Logo 3x + Titolo con riverbero nero + Sottotitolo - Senza Banner, con Sfondo Sfumato Nero) */}
-            <div className={`absolute top-3 left-3 z-30 flex items-center gap-2.5 pointer-events-none transition-all duration-300 ${
+            {/* Watermark Ufficiale 4:3 (Logo +20% ulteriore = 60px + Titolo con riverbero nero + Sottotitolo - Ingrandito del 20%, posizione top-3 left-3 invariata) */}
+            <div className={`absolute top-3 left-3 z-30 flex items-center gap-3.5 pointer-events-none transition-all duration-300 ${
               isInOutro ? 'opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'
             }`}>
               <img
-                src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
+                crossOrigin="anonymous"
+                src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png'}
                 alt="Logo"
-                className="w-10 h-10 rounded-full object-cover border-[1.5px] border-amber-400/80 shadow-[0_4px_14px_rgba(0,0,0,0.85)] shrink-0 bg-black/40"
+                className="w-[60px] h-[60px] rounded-full object-cover border-[2.5px] border-amber-400/80 shadow-[0_4px_16px_rgba(0,0,0,0.9)] shrink-0 bg-black/40"
               />
               <div className="flex flex-col text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                 <div className="flex flex-col text-left leading-none">
-                  <span className="text-[13px] sm:text-[14.5px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                  <span className="text-[19px] sm:text-[21.5px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                     FLOWER POWER
                   </span>
-                  <span className={`font-light italic text-[11.5px] sm:text-xs capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
+                  <span className={`font-light italic text-[21px] sm:text-[22px] capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
                     {brand === 'pizza' ? 'Pizza' : 'Village'}
                   </span>
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
+                <span className="text-[15px] sm:text-[17px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
                   {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking'}
                 </span>
               </div>
             </div>
 
-            {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA (Zero box opaco, identica al 9:16) */}
+            {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA (Sollevata di 3px a bottom-[15px], testi e prezzo ingranditi del 25%) */}
             {currentScene && (
-              <div className={`absolute left-3 right-3 bottom-3 z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
+              <div className={`absolute left-3 right-3 bottom-[15px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
                 isInOutro ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
                 {/* Caso CIBO / PIATTI (P1): Categoria, Thai sopra in grande, Inglese sotto a scalare, prezzo */}
                 {(brand === 'pizza' || mode === 'R1') && (
                   <div className="w-full flex items-end justify-between gap-2">
-                    {/* Blocco Titoli (Sinistra) */}
+                    {/* Blocco Titoli (Sinistra) - Ingrandito del 25% */}
                     <div className="flex-1 min-w-0 pr-1">
                       {currentScene.badgeCategory && (() => {
                         let catText = currentScene.badgeCategory;
@@ -3088,15 +3826,15 @@ export function AutoCutLabPlayer({
                           catText = 'ITALIAN PIZZA';
                         }
                         return (
-                          <div className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-black tracking-wider uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
-                            <span className="text-rose-500 font-black text-xs">✦</span>
+                          <div className="inline-flex items-center gap-1 text-[14px] sm:text-[15px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
+                            <span className="text-rose-500 font-black text-[14px]">✦</span>
                             <span className="[text-shadow:_0_2px_6px_rgba(0,0,0,1)]">{catText.replace(/^[✦⭐\s*]+/, '')}</span>
                           </div>
                         );
                       })()}
 
-                      {/* THAI IN GRANDE SOPRA (Per 4:3 se breve su singola riga protetta) */}
-                      <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight mt-0.5 [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                      {/* THAI IN GRANDE SOPRA (+25%) */}
+                      <h3 className="text-[17.5px] sm:text-[20px] font-black text-amber-300 leading-tight mt-0.5 [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                         {(mode === 'P1' ? format43DishTitle(currentScene.titlePrimary, 'th') : currentScene.titlePrimary.split('\n')).map((line, idx) => (
                           <span key={idx} className="block leading-tight whitespace-nowrap">
                             {line}
@@ -3104,8 +3842,8 @@ export function AutoCutLabPlayer({
                         ))}
                       </h3>
 
-                      {/* INGLESE SOTTO (Per 4:3 se breve su singola riga protetta) */}
-                      <div className="text-[11px] sm:text-xs font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                      {/* INGLESE SOTTO (+25%) */}
+                      <div className="text-[14px] sm:text-[15px] font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                         {(mode === 'P1' ? format43DishTitle(currentScene.titleSecondary, 'en') : currentScene.titleSecondary.split('\n')).map((line, idx) => (
                           <span key={idx} className="block leading-snug whitespace-nowrap">
                             {line}
@@ -3114,11 +3852,11 @@ export function AutoCutLabPlayer({
                       </div>
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (TASSATIVAMENTE UNO SOPRA L'ALTRO, RIDOTTO DI UN ULTERIORE 25%) */}
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" (TASSATIVAMENTE UNO SOPRA L'ALTRO, INGRANDITO DEL 25%) */}
                     <div 
                       className="w-fit shrink-0 pb-0.5"
                       style={{
-                        transform: currentScene.pizzaSizes && mode !== 'R1' ? 'scale(0.605)' : 'scale(0.75)',
+                        transform: currentScene.pizzaSizes && mode !== 'R1' ? 'scale(0.756)' : 'scale(0.938)',
                         transformOrigin: 'bottom right'
                       }}
                     >
@@ -3157,29 +3895,48 @@ export function AutoCutLabPlayer({
                   </div>
                 )}
 
-                {/* Caso ALLOGGI (V1): Categoria, Nome Alloggio, Sottotitolo, Thai */}
+                {/* Caso ALLOGGI (V1, LM1): Categoria, Nome Alloggio, Sottotitolo, Thai + Prezzo Last Minute a destra (se LM1) */}
                 {brand === 'village' && mode !== 'R1' && (
-                  <div className="space-y-1 w-full">
-                    {currentScene.badgeCategory && (
-                      <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[9px] font-bold tracking-wide shadow-md uppercase">
-                        {currentScene.badgeCategory}
-                      </span>
-                    )}
-
-                    <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                      <h3 className="text-sm sm:text-base font-black text-white leading-tight">
-                        {currentScene.lodgingTitle || currentScene.titlePrimary}
-                      </h3>
-                      {currentScene.lodgingSubtitle && (
-                        <p className="text-[11px] sm:text-xs font-bold text-amber-300 leading-tight mt-0.5">
-                          {currentScene.lodgingSubtitle}
-                        </p>
+                  <div className="w-full flex items-end justify-between gap-2">
+                    {/* Blocco Titoli (Sinistra) */}
+                    <div className="flex-1 min-w-0 pr-1 space-y-0.5">
+                      {currentScene.badgeCategory && (
+                        <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wide shadow-md uppercase">
+                          {mode === 'LM1'
+                            ? currentScene.badgeCategory.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim()
+                            : currentScene.badgeCategory}
+                        </span>
                       )}
+
+                      <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                        <h3 className="text-[17.5px] sm:text-[20px] font-black text-white leading-tight">
+                          {currentScene.lodgingTitle || currentScene.titlePrimary}
+                        </h3>
+                        {currentScene.lodgingSubtitle && (
+                          <p className="text-[14px] sm:text-[15px] font-bold text-amber-300 leading-tight mt-0.5">
+                            {currentScene.lodgingSubtitle}
+                          </p>
+                        )}
+                      </div>
+
+                      <p className="text-[12.5px] sm:text-[14px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
+                        {currentScene.titleSecondary}
+                      </p>
                     </div>
 
-                    <p className="text-[10px] sm:text-[11px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
-                      {currentScene.titleSecondary}
-                    </p>
+                    {/* Prezzo Octorate Last Minute a Destra (se LM1) con la stessa impaginazione e stile di P1 */}
+                    {mode === 'LM1' && currentScene.priceLabel && (
+                      <div className="w-fit shrink-0 pb-0.5">
+                        <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                          <span
+                            className="font-['Kanit',sans-serif] text-[17px] sm:text-[19px] font-black leading-none tracking-tight"
+                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.8px #ffffff' }}
+                          >
+                            {currentScene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

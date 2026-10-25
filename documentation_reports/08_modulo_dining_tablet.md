@@ -86,6 +86,31 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
     - **Target Touch Ampio & Facile**: Risolve la difficoltà di cliccare con precisione la piccola icona su smartphone: toccare un punto qualsiasi del banner (o il pulsante di conferma bianco) esegue la chiusura/reset e riporta alla selezione del tavolo.
     - **Localizzazione Completa in 9 Lingue**: Indicazione integrata `👉 Tocca ovunque su questa barra per chiudere il tavolo` / `Tap anywhere on this bar to close table` / `แตะที่แถบนี้เพื่อปิดโต๊ะ` / `Tippen Sie hier...`.
 
+24. **Auto-Chiusura Categorica a 2 Ore & Blindatura Anti-Ghost Orders (Dining, Checkout, KDS)**:
+    - Tutti gli ordini di sala aperti aventi timestamp superiore alle 2 ore (`MAX_ORDER_AGE_MS = 2 * 60 * 60 * 1000`) vengono archiviati e completati automaticamente su Supabase in background (`status: 'completed'`).
+    - In `DiningCheckoutModal.tsx`, gli ordini con più di 2 ore vengono categoricamente esclusi dall'accorpamento e dall'integrazione comanda, azzerando alla radice qualsiasi rischio di riaprire o riordinare su vecchie comande dimenticate.
+    - In `KitchenTabletKDS.tsx`, il dock e le colonne della cucina applicano il filtro `isStaleOrder(o, 2)` con auto-completamento in background, mantenendo il monitor sempre pulito.
+25. **Modale di Sicurezza Bilingue per Tavolo Occupato (Conto Attivo)**:
+    - Se un tavolo ha già una comanda attiva inviata in cucina (indicatore giallo pulsante sul selettore tavoli), toccando il tavolo non si entra più alla cieca nel menu: si apre un modale di sicurezza bilingue tradotto in 9 lingue (IT, EN, TH, DE, MM, ES, FR, RU, ZH).
+    - Il modale espone in evidenza:
+      1. Totale conto attuale in Baht (es. `฿780`).
+      2. Minuti trascorsi dall'invio della comanda (*"Comanda inviata X min fa"*).
+      3. Elenco completo delle portate già ordinate.
+      4. Tre pulsanti di azione immediata: **Aggiungi Piatti (Integrazione)** (apre il menu per aggiungere portate), **Salda Conto Subito** (apre direttamente il cassetto di incasso), **Annulla** (chiude l'avviso e resta sui tavoli).
+26. **Gestione Carrello con Piatti Non Inviati, Rimozione Parola "Bozza" ed Esposizione Valore Reale `🛒 ฿[Totale]`**:
+    - Rimossa categoricamente la parola tecnica "bozza". Quando un tavolo ha prodotti selezionati nel carrello ma non ancora inviati alla cassa, il pulsante del tavolo nel pop-up iniziale espone direttamente l'importo monetario calcolato al centesimo: **`🛒 ฿[Totale]`** (es. `🛒 ฿520`, `🛒 ฿780`).
+    - Toccando il tavolo si apre il modale dedicato *"NON ANCORA INVIATO ALLA CASSA"* che elenca i piatti nel carrello e offre la scelta tra **Continua Ordinazione** o **Cancella e Svuota Carrello** (azzerando il tavolo con l'icona cestino).
+    - **Doppio Timer Anti-Dimenticanza**:
+      - *3 minuti sul pop-up iniziale tavoli*: se nessuno interagisce per 3 minuti con una bozza ferma sul selettore, il carrello si svuota da solo.
+      - *4 minuti dentro il menu di ordinazione*: se il cameriere lascia il tablet fermo dentro il menu con prodotti inseriti senza toccarlo per 4 minuti, il sistema cancella la sessione e riporta il tablet alla selezione iniziale dei tavoli.
+27. **Sandbox Locale a Circuito Chiuso & Isolamento Totale da Ranong (`localSandboxOrderService.ts`)**:
+    - Circuit Breaker ermetico per lo sviluppo su `localhost` / `127.0.0.1`:
+      - Gli ordini inviati dal tablet locale non toccano il database cloud Supabase di produzione, ma vengono salvati nella memoria del browser (`localStorage`) e trasmessi via `BroadcastChannel` a 0ms.
+      - Il Kitchen Monitor (`/kitchen`) su `localhost` riceve istantaneamente le comande di test con suono campana, cartellino verde **`[TEST SANDBOX]`** e spia verde **`SANDBOX LOCALE`** nella barra di stato.
+      - Il modale di saldo (`TableSettlementModal.tsx`) permette di completare l'incasso e liberare il tavolo localmente a circuito chiuso.
+      - Gli endpoint API (`pizza-order-submit.ts`, `telegram.ts`) integrano uno scudo backend che sterilizza le chiamate da localhost, bloccando categoricamente l'invio di messaggi Telegram allo staff e di email di ricevuta ai clienti.
+      - Quando il sito gira online su produzione (`flowerpowerpizza.com`), il sistema usa automaticamente il database reale di Ranong come sempre, con zero contaminazione tra i due ambienti.
+
 ---
 
 ## 📱 8. Esperienza Mobile & Tablet Ottimizzata per Extra e Descrizioni
