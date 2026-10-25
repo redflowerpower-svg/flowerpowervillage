@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 18:20] · NUOVO STANDARD ESSENZIALE BLOCCHETTI MEDIA SCHEDULER: 5 ELEMENTI ORDINATI & ZERO TITOLI TRONCATI
+- **Cosa abbiamo fatto:** Riprogettato completamente il layout visivo e geometrico dei blocchetti di pubblicazione all'interno dello scheduler in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx):
+  - 🧩 **Sequenza Tassativa a 5 Elementi Ordinati (Niente Altro)**:
+    1. *Primo*: **Logo ufficiale del Social Media** (icone SVG ufficiali HD TikTok, Instagram, Facebook, Google in `w-3.5 h-3.5`).
+    2. *Secondo*: **Brand Aziendale**: `🍕` per la Pizzeria Ranong, `🏝️` per il Villaggio Koh Phayam.
+    3. *Terzo*: **Tipo di Contenuto**: pillola compatta ad alto contrasto con classificazione immediata (`REEL`, `STORY`, `POST`).
+    4. *Quarto*: **Sigla del Filmato**: badge identificativo del format (`P1`, `P2`, `P3`, `DS`, `V1`, `V2`, `V3`, `LM1`, `R1`, `CC1`).
+    5. *Quinto*: **Orario di Pubblicazione**: orario pulito `HH:MM` in font monospace posizionato all'estrema destra.
+  - 🧹 **Eliminazione Totale del Testo Troncato (Zero Disallineamenti)**:
+    - Rimosso il titolo esteso che occupava spazio e veniva troncato orizzontalmente con puntini di sospensione nelle celle giornaliere del calendario.
+    - Il titolo completo, la didascalia, il player e i dettagli rimangono al 100% accessibili tramite tooltip al passaggio del mouse e cliccando sul blocchetto per aprire il modale di ispezione e anteprima.
+- **Effetto reale:** Le celle del calendario mensile appaiono ora ordinate, pulitissime e scansionabili a colpo d'occhio da tablet e desktop, senza testi troncati o sovrapposizioni.
+- **Stato:** ✅ Compilato (0 errori TypeScript), verificato su browser headless e consolidato.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 18:15] · ALLINEAMENTO 1:1 TOTALE RENDERING CANVAS SU TUTTI I 9 FORMATI (P1, P2, P3, DS, V1, V2, V3, LM1, R1): FONT OUTFIT, DISTANZE VERTICALI & WRAPPING THAI ALLOGGI
 - **Cosa abbiamo fatto:** Allineato radicalmente e matematicamente il rendering 2D Canvas di esportazione video con l'anteprima DOM dell'editor in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx), [index.html](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/index.html) e [src/index.css](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/index.css):
   - 🔤 **Importazione Completa Pesi e Corsivi Google Font Outfit (Zero Fallback / Font Sbagliati)**:

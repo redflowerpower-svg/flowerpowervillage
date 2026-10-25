@@ -369,6 +369,16 @@ export function SocialCalendarView({
     }
   };
 
+  const getContentBadge = (post: ScheduledSocialPost) => {
+    if (post.format === 'story' || post.tags?.includes('story') || post.tags?.includes('LM1')) {
+      return { label: 'STORY', style: 'bg-fuchsia-500/25 text-fuchsia-300 border-fuchsia-500/40' };
+    }
+    if (post.format === 'reel' || post.editorial_format === 'video_reel' || post.tags?.includes('reel')) {
+      return { label: 'REEL', style: 'bg-violet-500/25 text-violet-300 border-violet-500/40' };
+    }
+    return { label: 'POST', style: 'bg-sky-500/25 text-sky-300 border-sky-500/40' };
+  };
+
   const getBlockBorderColor = (post: ScheduledSocialPost) => {
     if (post.platforms.includes('facebook') && post.platforms.length === 1) {
       return 'bg-blue-950/40 border-blue-800/60 hover:border-blue-400';
@@ -601,12 +611,10 @@ export function SocialCalendarView({
                     const postTime = new Date(post.scheduled_for).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const formatCode = getFormatCode(post);
                     const isPizza = post.brand === 'pizza';
-                    const brandEmoji = post.tags?.includes('CC1') ? '🎬' : (isPizza ? '🍕' : '🏝️');
+                    const brandEmoji = isPizza ? '🍕' : '🏝️';
                     const badgeStyle = getFormatBadgeStyle(formatCode);
                     const blockBorder = getBlockBorderColor(post);
-
-                    // Pulisci il titolo per renderlo snello e compatto
-                    const shortTitle = post.title.replace(/^(P1|P2|P3|DS|V1|V2|V3|LM1|R1|CC1)\s*(Available Tonight:|\s*Reel\s*|\s*·\s*)?/i, '').trim();
+                    const contentType = getContentBadge(post);
 
                     return (
                       <div
@@ -615,31 +623,43 @@ export function SocialCalendarView({
                           setInspectingPost(post);
                           setInspectPreviewPlatform(post.platforms[0] || 'tiktok');
                         }}
-                        className={`px-2 py-1.5 rounded-xl border text-left cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-between gap-1 shadow group select-none ${blockBorder}`}
-                        title={`${post.title} · ${postTime}`}
+                        className={`px-2 py-1.5 rounded-xl border text-left cursor-pointer transition-all hover:scale-[1.02] flex items-center justify-between gap-1.5 shadow group select-none ${blockBorder}`}
+                        title={`${post.title} · ${postTime} · ${post.platforms.join(', ')}`}
                       >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="text-xs shrink-0">{brandEmoji}</span>
-                          <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border shrink-0 ${badgeStyle}`}>
-                            {formatCode}
-                          </span>
-                          <span className="text-[10px] font-bold text-slate-100 truncate leading-tight">
-                            {shortTitle}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-1 shrink-0">
-                          <span className="font-mono text-[9px] text-slate-400 font-semibold">{postTime}</span>
-                          <div className="flex items-center gap-0.5">
+                        <div className="flex items-center gap-1.5 min-w-0 flex-wrap sm:flex-nowrap">
+                          {/* 1° LOGO UFFICIALE SOCIAL MEDIA */}
+                          <div className="flex items-center gap-0.5 shrink-0">
                             {post.platforms.map((p) => (
-                              <span key={p} className="shrink-0 opacity-80 group-hover:opacity-100">
-                                {p === 'tiktok' && <TikTokIcon className="w-2.5 h-2.5 text-white" />}
-                                {p === 'google' && <GoogleIcon className="w-2.5 h-2.5" />}
-                                {p === 'instagram' && <InstagramIcon className="w-2.5 h-2.5" />}
-                                {p === 'facebook' && <FacebookIcon className="w-2.5 h-2.5" />}
+                              <span key={p} className="shrink-0" title={p}>
+                                {p === 'tiktok' && <TikTokIcon className="w-3.5 h-3.5 text-white" />}
+                                {p === 'google' && <GoogleIcon className="w-3.5 h-3.5" />}
+                                {p === 'instagram' && <InstagramIcon className="w-3.5 h-3.5" />}
+                                {p === 'facebook' && <FacebookIcon className="w-3.5 h-3.5" />}
                               </span>
                             ))}
                           </div>
+
+                          {/* 2° BRAND PIZZA O ISOLETTA */}
+                          <span className="text-xs shrink-0 select-none" title={isPizza ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}>
+                            {brandEmoji}
+                          </span>
+
+                          {/* 3° TIPO DI CONTENUTO (REEL, STORY, POST) */}
+                          <span className={`text-[8.5px] font-black uppercase px-1.5 py-0.5 rounded-md border shrink-0 ${contentType.style}`}>
+                            {contentType.label}
+                          </span>
+
+                          {/* 4° SIGLA DEL FILMATO (P1, P2, P3, V1, V2, V3, LM1, R1, DS, CC1) */}
+                          <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border shrink-0 ${badgeStyle}`}>
+                            {formatCode}
+                          </span>
+                        </div>
+
+                        {/* 5° ORARIO DI PUBBLICAZIONE (NIENT'ALTRO) */}
+                        <div className="shrink-0 pl-1">
+                          <span className="font-mono text-[9.5px] text-slate-300 font-bold tracking-tight">
+                            {postTime}
+                          </span>
                         </div>
                       </div>
                     );
