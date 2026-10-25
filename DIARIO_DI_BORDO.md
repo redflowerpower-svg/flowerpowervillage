@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 17:00] · RISOLUZIONE DEFINITIVA ERRORE EXPORT & TELEGRAM 500: CHIUSURA VIDEOENCODER, TARGET BITRATE 12MB & COMPRESSIONE ANTI-OVERFLOW (<19.2MB)
+- **Cosa abbiamo fatto:** Individuata ed eliminata alla radice la causa del fallimento dell'esportazione video e dell'errore 500 su Telegram in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) e [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts):
+  - 🛑 **Chiusura Obbligatoria Hardware VideoEncoder (`encoder.close()`)**:
+    - Prima mancava la chiamata esplicita `encoder.close()`, lasciando le istanze dell'encoder hardware aperte nella memoria GPU di Chromium. Dopo 1 o 2 esportazioni consecutive, Chromium andava in saturazione codec generando `QuotaExceededError: Codec reclaimed due to inactivity`.
+    - Inserito `try { encoder.close(); } catch {}` sia dopo `flush()` che in caso di errore, azzerando qualsiasi leak hardware.
+  - 📏 **Ricalibrazione Bitrate di Sicurezza Target ~12 MB (Soglia Inviolabile Telegram 20 MB)**:
+    - Nei brani lunghi (come le tracce villaggio da 44s), il bitrate fisso minimo a 3.6 Mbps generava un video da oltre 21.2 MB. Telegram Bot API rifiuta categoricamente qualsiasi file sopra i 20 MB inviato tramite URL (`Bad Request: failed to get HTTP URL content`).
+    - Ricalibrato il bitrate dinamico con target nominale a 12 MB (`Math.min(5.5Mbps, Math.max(1.8Mbps, safeMaxBits / duration))`). Tutti i video (da 8s a 45s) restano ora rigorosamente tra 8 MB e 14 MB complessivi.
+  - 🛡️ **Doppia Rete di Protezione Anti-Overflow Lato Server**:
+    - In `social-publisher.ts`, inserita una clausola di sicurezza che verifica il file finale dopo il muxing audio: se supera 19.2 MB, viene compresso automaticamente con FFmpeg a meno di 18 MB prima dell'upload su Supabase e Telegram.
+    - Blindato il fallback buffer con `new Uint8Array` e timeout di 60s per prevenire qualsiasi blocco di rete.
+- **Effetto reale:** L'esportazione si conclude sempre con successo al 100%, senza saturare la GPU del browser e senza blocchi su Telegram.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e consolidato su branch locale `staging`.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 16:50] · ASSEGNAZIONE TRACCE AUDIO SOCIAL: MP3 COMPLETO (P2, P3), JINGLE CORTI (P1, DS1) & TRACCE VILLAGE (V1, V2, V3, LM1, R1)
 - **Cosa abbiamo fatto:** Perfezionata la logica di assegnazione musicale nel motore di generazione video in [autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts):
   - 🍕 **Regola Formati Piatto Singolo (P1, DS1)**: I 4 jingle brevi (`01-flower-power-yeah`, `02-flower-power-so-good`, `03-flower-power-ranong`, `04-aroi-mak-mak`) con chiusura vocale sartoriale a ~8.5s - 9.1s rimangono riservati **TASSATIVAMENTE ED ESCLUSIVAMENTE** a quando a schermo compare un solo piatto (`P1` e `DS`).

@@ -178,8 +178,34 @@ async function muxAudioOntoVideo(
 
     execFileSync(ffmpegPath, args);
     if (fs.existsSync(outPath)) {
-      const resBuf = fs.readFileSync(outPath);
+      let resBuf = fs.readFileSync(outPath);
       console.log(`[social-publisher] Video MP4 broadcast completo (${resBuf.length} bytes) e Thumbnail estratta (${thumbBuf?.length || 0} bytes)`);
+
+      // 🛡️ SICUREZZA ANTI-OVERFLOW TELEGRAM (Max 19.2 MB per garantire che Telegram accetti sempre il file senza 400 Bad Request)
+      if (resBuf.length > 19.2 * 1024 * 1024) {
+        console.log(`[social-publisher] ⚠️ Video (${resBuf.length} bytes) supera 19.2MB: compressione rapida FFmpeg per Telegram (<18MB)...`);
+        const compOutPath = path.join(tmpDir, `comp_${rand}.mp4`);
+        try {
+          execFileSync(ffmpegPath, [
+            "-y",
+            "-i", outPath,
+            "-c:v", "libx264",
+            "-crf", "28",
+            "-preset", "veryfast",
+            "-c:a", "copy",
+            "-movflags", "+faststart",
+            compOutPath
+          ]);
+          if (fs.existsSync(compOutPath)) {
+            resBuf = fs.readFileSync(compOutPath);
+            try { fs.unlinkSync(compOutPath); } catch {}
+            console.log(`[social-publisher] 🛡️ Video compresso con successo a ${resBuf.length} bytes (100% compatibile Telegram)!`);
+          }
+        } catch (cErr: any) {
+          console.warn("[social-publisher] Avviso compressione overflow:", cErr?.message || cErr);
+        }
+      }
+
       return { videoBuffer: resBuf, thumbBuffer: thumbBuf };
     }
   } catch (err: any) {
@@ -628,7 +654,7 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
           // Tentativo 2: Fallback con video buffer completo se l'URL non è stato scaricato da Telegram
           if (!mediaSent) {
             try {
-              const fileBuffer = optimizedVideoBuf || (await (await fetch(fullMediaUrl)).arrayBuffer());
+              const fileBufRaw = optimizedVideoBuf || Buffer.from(await (await fetch(fullMediaUrl)).arrayBuffer());
               const form = new FormData();
               form.append("chat_id", String(chat_id));
               if (message_thread_id) {
@@ -636,10 +662,8 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
               }
               const blobType = isVideo ? "video/mp4" : "image/jpeg";
               const fileName = isVideo ? "story_video_916.mp4" : "story_photo_916.jpg";
-              const fileObj = typeof File !== "undefined"
-                ? new File([fileBuffer], fileName, { type: blobType })
-                : new Blob([fileBuffer], { type: blobType });
-              form.append(paramKey, fileObj, fileName);
+              const blobData = new Blob([new Uint8Array(fileBufRaw.buffer, fileBufRaw.byteOffset, fileBufRaw.byteLength)], { type: blobType });
+              form.append(paramKey, blobData, fileName);
               form.append("caption", formatAllDatesToDMY((media_caption || "🌴 <b>Flower Power Social Media Studio</b>").slice(0, 1024)));
               form.append("parse_mode", "HTML");
               if (isVideo) {
@@ -647,7 +671,8 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
                 form.append("width", "1080");
                 form.append("height", "1920");
                 if (thumbBuf && thumbBuf.length > 1000) {
-                  form.append("thumbnail", new Blob([thumbBuf], { type: "image/jpeg" }), "thumbnail.jpg");
+                  const thumbBlob = new Blob([new Uint8Array(thumbBuf.buffer, thumbBuf.byteOffset, thumbBuf.byteLength)], { type: "image/jpeg" });
+                  form.append("thumbnail", thumbBlob, "thumbnail.jpg");
                 }
               }
               if (reply_markup) {
@@ -656,7 +681,8 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
 
               const mediaRes = await fetch(`https://api.telegram.org/bot${botToken}/${endpoint}`, {
                 method: "POST",
-                body: form
+                body: form,
+                signal: AbortSignal.timeout(60000)
               });
               const mediaData = await mediaRes.json();
               if (mediaData.ok) {

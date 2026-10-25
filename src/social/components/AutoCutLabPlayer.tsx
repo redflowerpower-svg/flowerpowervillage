@@ -2150,9 +2150,9 @@ export function AutoCutLabPlayer({
             });
 
             const targetDuration = (totalVideoDuration > 0 ? totalVideoDuration : 15) + 0.4;
-            // Target ~16 MB max (così anche con audio muxato rimane < 18 MB, ben sotto il limite URL di 20 MB di Telegram)
-            const safeMaxBits = 16.0 * 1024 * 1024 * 8;
-            const targetBitrate = Math.min(6_500_000, Math.max(3_600_000, Math.floor(safeMaxBits / targetDuration)));
+            // Target ~12.0 MB max (così anche con audio muxato e cover art rimane ~13-14 MB, ben sotto il limite URL di 20 MB di Telegram)
+            const safeMaxBits = 12.0 * 1024 * 1024 * 8;
+            const targetBitrate = Math.min(5_500_000, Math.max(1_800_000, Math.floor(safeMaxBits / targetDuration)));
 
             encoder.configure({
               codec: 'avc1.64002a', // H.264 High Profile Level 4.2 Full HD 1080x1920
@@ -2167,7 +2167,10 @@ export function AutoCutLabPlayer({
             const totalFrames = Math.round(targetDuration * fps);
 
             for (let currentFrame = 0; currentFrame < totalFrames; currentFrame++) {
-              if (encoderError) throw encoderError;
+              if (encoderError) {
+                try { encoder.close(); } catch {}
+                throw encoderError;
+              }
 
               const tElapsed = currentFrame / fps;
               renderFrameToOffscreen(tElapsed);
@@ -2186,6 +2189,7 @@ export function AutoCutLabPlayer({
             }
 
             await encoder.flush();
+            try { encoder.close(); } catch {}
             muxer.finalize();
 
             // 📸 REGOLA 14: ESTRAZIONE THUMBNAIL UFFICIALE PRE-DISSOLVENZA (ZERO GHOSTING / MASSIMO ZOOM)
@@ -2337,9 +2341,9 @@ export function AutoCutLabPlayer({
         const fps = 30;
         const totalFrames = Math.round(targetDuration * fps);
 
-        // 🛡️ Bitrate Dinamico Broadcast Full HD (1080x1920): 6.8 Mbps per massima nitidezza fotografica (~10-12 MB)
-        const maxTelegramSafeBits = 14 * 1024 * 1024 * 8; // Target ~12 MB di sicurezza assoluta (ben sotto i 20 MB di Telegram)
-        const dynamicBitrate = Math.min(6800000, Math.floor(maxTelegramSafeBits / targetDuration));
+        // 🛡️ Bitrate Dinamico Broadcast Full HD (1080x1920): target ~12 MB di sicurezza assoluta (ben sotto i 20 MB di Telegram)
+        const maxTelegramSafeBits = 12 * 1024 * 1024 * 8;
+        const dynamicBitrate = Math.min(5500000, Math.max(1800000, Math.floor(maxTelegramSafeBits / targetDuration)));
 
         const recorder = new MediaRecorder(recordingStream, {
           mimeType: selectedMime,
