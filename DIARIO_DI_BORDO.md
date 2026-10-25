@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 23:42] · SOCIAL STUDIO SCHEDULER: BONIFICA FUSO ORARIO LOCALE (08:00 & 15:00 PER TIKTOK, 17:00 GRUPPI) & CERCHIO GIALLO SU AZIONI MANUALI STAFF
+- **Cosa abbiamo fatto:** Risolto definitivamente il disallineamento di fuso orario e introdotto l'indicatore visivo immediato per le azioni manuali in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) e [autoCutIntelligence.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutIntelligence.ts):
+  - ⏰ **Risolto Bug Fuso Orario (Zero Mezzanotte o Orari Sballati)**:
+    - Rimosso il suffisso UTC `.000Z` dalle stringhe ISO generate dalla routine. Il browser in Thailandia (UTC+7) sommava 7 ore alle date UTC, trasformando le 17:00 in mezzanotte (00:00).
+    - Ora tutte le date sono formattate in orario locale esplicito (`YYYY-MM-DDTHH:mm:00`), garantendo che:
+      - 1ª TikTok Story Mattina: **tassativamente ore 08:00**.
+      - 2ª TikTok Story Pomeriggio: **tassativamente ore 15:00 (3 del pomeriggio)**, quando Marco è sveglio e attivo.
+      - Post Gruppi Koh Phayam `R1`: **tassativamente ore 17:00**.
+  - 🟡 **Cerchio Giallo Pulsante & Bordo Dorato per i Post Manuali**:
+    - Per tutti i task che richiedono l'intervento manuale dello staff (le 2 Stories TikTok con video pronto via Telegram e il post `R1` per i Gruppi Facebook di Koh Phayam), il blocchetto mostra ora:
+      1. Un **cerchio giallo pulsante ben visibile** (`🟡 w-2 h-2 rounded-full bg-yellow-400 border border-yellow-100 shadow-[0_0_6px_rgba(250,204,21,1)] animate-pulse`) posizionato prima dell'orario.
+      2. Un **bordo dorato a contrasto** (`border-yellow-400/80 shadow-[0_0_8px_rgba(250,204,21,0.25)]`).
+      3. Tooltip esplicito: `🟡 AZIONE MANUALE STAFF: Da caricare a mano`.
+- **Effetto reale:** Marco non vedrà mai più stories programmate a mezzanotte: i post sono tutti ad orari comodi e svegli (08:00 e 15:00). Con il cerchio giallo riconosce in un millisecondo sul calendario quali sono i blocchetti da fare a mano e quali sono automatici.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 23:35] · AUTOCUT LAB: BLINDATURA CONDIZIONI DI RENDER LOGO (FORMATI V1, V2, V3 E P1, P2, P3 DIRETTI SU MODE)
 - **Cosa abbiamo fatto:** Semplificato e blindato il motore di visualizzazione in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
   - 🛡️ **Condizioni Dirette su Mode (Zero Dipendenza da Brand o LocalStorage Sporco)**:

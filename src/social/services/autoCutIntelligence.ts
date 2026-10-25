@@ -695,7 +695,12 @@ export function generateFullAutoCutCampaign(): Array<{
     const c = item.concept;
     const isPizza = c.brand === 'pizza';
 
-    const fullCaption = `${c.descriptionTh}\n\n${c.descriptionEn}\n\n${c.tags.join(' ')}`;
+    const y = postDate.getFullYear();
+    const m = String(postDate.getMonth() + 1).padStart(2, '0');
+    const d = String(postDate.getDate()).padStart(2, '0');
+    const hh = String(item.hour).padStart(2, '0');
+    const mm = String(item.min).padStart(2, '0');
+    const localScheduledFor = `${y}-${m}-${d}T${hh}:${mm}:00`;
 
     posts.push({
       id: `autocut_${c.brand}_${Date.now()}_${index + 1}`,
@@ -703,7 +708,7 @@ export function generateFullAutoCutCampaign(): Array<{
       platforms: [item.platform as any],
       format: 'reel',
       editorial_format: 'video_reel',
-      scheduled_for: postDate.toISOString(),
+      scheduled_for: localScheduledFor,
       title: `${c.titleTh} | ${c.titleEn}`,
       caption: fullCaption,
       media_url: c.slides[0].imageUrl,

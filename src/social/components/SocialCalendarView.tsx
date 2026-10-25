@@ -254,14 +254,14 @@ export function SocialCalendarView({
       const pizzaItem = realFoodDatabase[(day - 1) % realFoodDatabase.length];
       const isAltCapCut = (day % 3 === 0);
 
-      // 1. ORE 08:00 · 🎵 TikTok Stories Buongiorno (✋ Azione Manuale Staff via Telegram)
+      // 1. ORE 08:00 · 🎵 TikTok Stories Buongiorno (✋ Azione Manuale Staff via Telegram - Cerchio Giallo)
       routinePosts.push({
         id: `routine_tiktok_am_${day}`,
         brand: (day % 2 === 0) ? 'pizza' : 'village',
         platforms: ['tiktok'],
         format: 'story',
         editorial_format: 'video_reel',
-        scheduled_for: `${dateStr}T08:00:00.000Z`,
+        scheduled_for: `${dateStr}T08:00:00`,
         title: (day % 2 === 0) ? `TikTok Story: Farine Italiane & Impasto 48h` : `TikTok Story: Risveglio Tropicale a Phayam`,
         caption: (day % 2 === 0)
           ? `Buongiorno da Ranong! Mani in pasta e lievitazione naturale 48h in corso per stasera. 🍕✨ #Ranong #PizzaTradizionale`
@@ -283,7 +283,7 @@ export function SocialCalendarView({
           platforms: ['google'],
           format: 'google_post',
           editorial_format: 'static_post',
-          scheduled_for: `${dateStr}T10:00:00.000Z`,
+          scheduled_for: `${dateStr}T10:00:00`,
           title: `P1 Google Scheda 4:3: Pizza Tradizionale Ranong`,
           caption: `Scopri la vera pizza italiana a lenta lievitazione e le paste artigianali a Ranong. Consegna rapida a casa tua. 10% di sconto sul primo ordine con coupon GOOGLE10.`,
           media_url: pizzaItem.image,
@@ -302,7 +302,7 @@ export function SocialCalendarView({
           platforms: ['google'],
           format: 'google_post',
           editorial_format: 'static_post',
-          scheduled_for: `${dateStr}T10:00:00.000Z`,
+          scheduled_for: `${dateStr}T10:00:00`,
           title: `V1 Google Scheda 4:3: Weekend a Koh Phayam - ${villageAsset.name}`,
           caption: `Weekend nella natura incontaminata di Koh Phayam. Prenota direttamente su flowerpowervillage.com e ottieni subito il 10% di sconto diretto garantito.`,
           media_url: villageAsset.image,
@@ -322,7 +322,7 @@ export function SocialCalendarView({
         platforms: ['instagram', 'facebook'],
         format: 'story',
         editorial_format: 'video_reel',
-        scheduled_for: `${dateStr}T12:00:00.000Z`,
+        scheduled_for: `${dateStr}T12:00:00`,
         title: `LM1 Available Tonight: ${villageAsset.name}`,
         caption: `🔥 AVAILABLE TONIGHT a Flower Power Village! ${villageAsset.name} disponibile con sconto prenotazione diretta a cascata su flowerpowervillage.com.`,
         media_url: villageAsset.image,
@@ -342,7 +342,7 @@ export function SocialCalendarView({
         platforms: ['instagram'],
         format: 'reel',
         editorial_format: 'video_reel',
-        scheduled_for: `${dateStr}T14:30:00.000Z`,
+        scheduled_for: `${dateStr}T14:30:00`,
         title: isAltCapCut ? `CC1 CapCut Clip: Relax Koh Phayam` : `V2 Suite Tour: ${villageAsset.name}`,
         caption: isAltCapCut 
           ? `Momenti di pura pace a Koh Phayam Island. Amache, brezze tropicali e natura incontaminata. #KohPhayam` 
@@ -357,41 +357,41 @@ export function SocialCalendarView({
         badge: isAltCapCut ? '🎬 CAPCUT CLIP' : '🌿 SUITE BREEZY TOUR'
       });
 
-      // 5. ORE 17:00 · 👥 Gruppi Facebook Koh Phayam: R1 Restaurant & Delivery (✋ Azione Manuale Staff)
-      routinePosts.push({
-        id: `routine_r1_${day}`,
-        brand: 'village',
-        platforms: ['facebook'],
-        format: 'feed',
-        editorial_format: 'video_reel',
-        scheduled_for: `${dateStr}T17:00:00.000Z`,
-        title: `R1 Cena Italiana a Domicilio: ${pizzaItem.name}`,
-        caption: `Stasera a Koh Phayam pizza artigianale italiana, pasta fresca e secondi caldi! Consegna al bungalow o cena nel giardino. WhatsApp: +66 095 882 5573.`,
-        media_url: pizzaItem.image,
-        source_item_id: pizzaItem.id,
-        price: 250,
-        status: 'scheduled',
-        tags: ['R1', 'GruppiPhayam', 'Dinner', 'Facebook'],
-        cta_url: 'https://flowerpowerpizza.com',
-        badge: '🛵 DELIVERY ISOLA'
-      });
-
-      // 6. ORE 17:00 · 🎵 TikTok Stories Preserale (✋ Azione Manuale Staff)
+      // 5. ORE 15:00 · 🎵 TikTok Stories Pomeriggio (✋ Azione Manuale Staff via Telegram - Cerchio Giallo)
       routinePosts.push({
         id: `routine_tiktok_pm_${day}`,
         brand: 'pizza',
         platforms: ['tiktok'],
         format: 'story',
         editorial_format: 'video_reel',
-        scheduled_for: `${dateStr}T17:00:00.000Z`,
-        title: `TikTok Story Preserale: Forno & Pizze Calde`,
-        caption: `Pietra refrattaria rovente e impasto 48h pronto per essere steso! Serata pizza a Ranong 🍕🛵 #RanongPizza #FoodLovers`,
+        scheduled_for: `${dateStr}T15:00:00`,
+        title: `TikTok Story Pomeriggio: Impasti & Primi Preparativi`,
+        caption: `Pomeriggio di preparativi a Ranong! Impasto 48h profumato e pronto per stasera. 🍕✨ #RanongPizza #FoodLovers`,
         media_url: pizzaItem.image,
         source_item_id: pizzaItem.id,
         status: 'scheduled',
-        tags: ['P1', 'TikTok', 'Manuale', 'Evening', 'Stories'],
+        tags: ['P1', 'TikTok', 'Manuale', 'Afternoon', 'Stories'],
         cta_url: 'https://flowerpowerpizza.com',
-        badge: '✋ TIKTOK SERALE'
+        badge: '✋ TIKTOK POMERIGGIO'
+      });
+
+      // 6. ORE 17:00 · 👥 Gruppi Facebook Koh Phayam: R1 Restaurant & Delivery (✋ Azione Manuale Staff - Cerchio Giallo)
+      routinePosts.push({
+        id: `routine_r1_${day}`,
+        brand: 'village',
+        platforms: ['facebook'],
+        format: 'feed',
+        editorial_format: 'video_reel',
+        scheduled_for: `${dateStr}T17:00:00`,
+        title: `R1 Cena Italiana a Domicilio: ${pizzaItem.name}`,
+        caption: `Stasera a Koh Phayam pizza artigianale italiana, pasta fresca e secondi caldi! Consegna al bungalow o cena nel giardino. WhatsApp: +66 095 882 5573.`,
+        media_url: pizzaItem.image,
+        source_item_id: pizzaItem.id,
+        price: 250,
+        status: 'scheduled',
+        tags: ['R1', 'GruppiPhayam', 'Dinner', 'Facebook', 'Manuale'],
+        cta_url: 'https://flowerpowerpizza.com',
+        badge: '🛵 DELIVERY ISOLA'
       });
 
       // 7. ORE 17:45 · 🍕 Instagram Reel: P1 Pizza Tradizionale Ranong 48h (Cena a Domicilio)
@@ -401,7 +401,7 @@ export function SocialCalendarView({
         platforms: ['instagram'],
         format: 'reel',
         editorial_format: 'video_reel',
-        scheduled_for: `${dateStr}T17:45:00.000Z`,
+        scheduled_for: `${dateStr}T17:45:00`,
         title: `P1 Pizza Tradizionale: ${pizzaItem.name}`,
         caption: `Impasto a lievitazione naturale 48h, cornicione fragrante e ingredienti italiani DOP. Consegna a Ranong su flowerpowerpizza.com 🍕🛵💨`,
         media_url: pizzaItem.image,
@@ -774,6 +774,15 @@ export function SocialCalendarView({
                     const blockBorder = getBlockBorderColor(post);
                     const contentType = getContentBadge(post);
                     
+                    const isManual = post.platforms.includes('tiktok') ||
+                      post.tags?.includes('GruppiPhayam') ||
+                      post.tags?.includes('R1') ||
+                      post.tags?.includes('Manuale') ||
+                      post.title?.includes('Gruppi') ||
+                      post.title?.includes('R1') ||
+                      post.badge?.includes('UPLOAD') ||
+                      post.badge?.includes('TIKTOK');
+                    
                     // Statistiche / Percentuale di gradimento:
                     // Se post passato/pubblicato mostra la % di gradimento (es. 96%), se futuro mostra '---'
                     const isPast = new Date(post.scheduled_for).getTime() < Date.now();
@@ -788,12 +797,22 @@ export function SocialCalendarView({
                           setInspectingPost(post);
                           setInspectPreviewPlatform(post.platforms[0] || 'tiktok');
                         }}
-                        className={`w-full rounded-md border text-left cursor-pointer transition-all hover:scale-[1.01] hover:brightness-110 flex items-stretch overflow-hidden shadow-sm group select-none text-[9.5px] h-[25px] ${blockBorder}`}
-                        title={`${postTime} · ${formatCode} · ${post.title} · Piattaforme: ${post.platforms.join(', ')} · Gradimento: ${statPercent}`}
+                        className={`w-full rounded-md border text-left cursor-pointer transition-all hover:scale-[1.01] hover:brightness-110 flex items-stretch overflow-hidden shadow-sm group select-none text-[9.5px] h-[25px] ${
+                          isManual 
+                            ? 'border-yellow-400/80 shadow-[0_0_8px_rgba(250,204,21,0.25)]' 
+                            : blockBorder
+                        }`}
+                        title={`${postTime} · ${isManual ? '🟡 DA FARE A MANO · ' : ''}${formatCode} · ${post.title} · Piattaforme: ${post.platforms.join(', ')} · Gradimento: ${statPercent}`}
                       >
-                        {/* 1° SCOMPARTO: ORARIO DI PUBBLICAZIONE (PER PRIMO - LARGHEZZA FISSA 38px) */}
-                        <div className="w-[38px] min-w-[38px] max-w-[38px] bg-black/60 flex items-center justify-center shrink-0 border-r border-white/10 font-mono font-bold text-amber-300 text-[9px] tracking-tight">
-                          {postTime}
+                        {/* 1° SCOMPARTO: ORARIO DI PUBBLICAZIONE (CON CERCHIO GIALLO SE AZIONE MANUALE STAFF) */}
+                        <div className="w-[42px] min-w-[42px] max-w-[42px] bg-black/60 flex items-center justify-center gap-1 shrink-0 border-r border-white/10 font-mono font-bold text-amber-300 text-[9px] tracking-tight">
+                          {isManual && (
+                            <span
+                              className="w-2 h-2 rounded-full bg-yellow-400 border border-yellow-100 shadow-[0_0_6px_rgba(250,204,21,1)] shrink-0 animate-pulse"
+                              title="🟡 AZIONE MANUALE STAFF: Da caricare a mano (TikTok Stories o Post Gruppi Phayam)"
+                            />
+                          )}
+                          <span>{postTime}</span>
                         </div>
 
                         {/* 2° SCOMPARTO: ICONA SOCIAL (LARGHEZZA FISSA 36px - ALLINEAMENTO VERTICALE UNIFORME PER 1 O 2 CANALI) */}
