@@ -5,6 +5,27 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 15:40] · NASCITA SOCIAL STUDIO SCHEDULER: MATRICE A BLOCCHETTI DINAMICI, AGENDA 10 SIGLE (P1-CC1) & ROUTINE 6/GIORNO
+- **Cosa abbiamo fatto:** Rivoluzionato l'intero reparto calendario trasformandolo nel nuovo **Social Studio Scheduler** in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) e [AutoCutStudioPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/pages/AutoCutStudioPage.tsx):
+  - 🎨 **Matrice a Blocchetti Colorati Leggeri (Zero Anteprime Pesanti)**:
+    - Rimosse le vecchie card con miniature video e testi pesanti che rallentavano la griglia. Ogni casella del giorno ospita ora una sequenza snella, rapida e a colpo d'occhio di **blocchetti colorati** ordinati cronologicamente per orario (`09:00`, `11:30`, `14:30`, `17:00`, `17:45`).
+    - Ogni blocchetto espone: emoji brand (`🍕`, `🏝️`, `🎬`), badge della sigla formato con colore dedicato, orario e micro-icone delle piattaforme social abilitate (Facebook, Instagram, TikTok, Google).
+  - 📖 **Agenda Ufficiale delle Sigle (Legenda 10 Formati Espandibile)**:
+    - Inserito in testata il banner consultabile con tutti i 10 formati ufficiali del Social Studio: `P1` (Pizza Reel), `P2` (Pasta Reel), `P3` (Gourmet), `DS` (Daily Showcase), `V1` (Vetrina Alloggio), `V2` (Suite Tour), `V3` (Panoramica), `LM1` (Last Minute Stories), `R1` (Gruppi Facebook Koh Phayam) e il nuovo `CC1` (CapCut Video Clips da Google Drive).
+  - ⚡ **Pulsante "Carica Routine Quotidiana (6 Task/Giorno)"**:
+    - Un solo click popola l'intero mese con la cadenza strategica concordata:
+      - `09:00`: 🏝️ LM1 Stories Last Minute con sconto reale dal calendario (IG, FB, TikTok, Google Promo).
+      - `11:30`: 🍕 DS / P2 Story Pranzo veloce delivery Ranong (IG, FB).
+      - `14:30`: 🏝️ V2 Suite Tour / CC1 CapCut Reel relax Koh Phayam (IG, TikTok, FB).
+      - `17:00`: 🏝️ R1 Post nei Gruppi Facebook della Community di Koh Phayam per la cena.
+      - `17:45`: 🍕 P1 Pizza 48h / CC1 CapCut Reel serale per il picco delivery a Ranong.
+      - *Lunedì & Venerdì ore 10:00*: 📍 Google Business Novità 4:3 Companion.
+  - ➕ **Modal "+ Nuovo Blocchetto Rapido" & Filtri Avanzati**:
+    - Tasto `+` in ogni casella del giorno per inserire al volo un task personalizzato (orario, sigla, brand, canali).
+    - Filtro rapido in testata: `Tutti` | `🍕 Pizza` | `🏝️ Village` | `🎬 CapCut CC1`.
+- **Effetto reale:** Lo Scheduler è adesso leggero, velocissimo, ultra-ordinato e strategicamente blindato. Permette di gestire il palinsesto dell'intero mese in pochi secondi, con un colpo d'occhio immediato e zero fatica.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 15:15] · FUSIONE PERMANENTE 18 URL LEGACY SITO AGLI ALLOGGI & UX SCHEDA EVIDENZIATA CON SCROLL MORBIDO
 - **Cosa abbiamo fatto:** Completata l'integrazione strutturale e definitiva dei 18 link legacy storici del vecchio sito (`52-jungle-villa`, `11-yellow-bungalow`, `22-villa-penthouse`, ecc.) fondendoli in modo permanente nel codice e nell'identità di ogni singolo alloggio:
   - 🔗 **Mappatura Canonica Immodificabile (`ACCOMMODATION_IDENTITIES`)**:

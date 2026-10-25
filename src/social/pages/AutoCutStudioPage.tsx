@@ -595,10 +595,10 @@ export default function AutoCutStudioPage() {
               }`}
             >
               <CalendarIcon className="w-3.5 h-3.5" />
-              <span>{uiLang === 'EN' ? 'Visual Editorial Calendar & Autopilot' : 'Calendario & Pilota Automatico'}</span>
+              <span>{uiLang === 'EN' ? '🗓️ Social Studio Scheduler' : '🗓️ Social Studio Scheduler'}</span>
               {scheduledPosts.length > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-indigo-950 border border-indigo-400/40 text-indigo-300">
-                  {scheduledPosts.length}
+                  {scheduledPosts.length} Blocchetti
                 </span>
               )}
             </button>
