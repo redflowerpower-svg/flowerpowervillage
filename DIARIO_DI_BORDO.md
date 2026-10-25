@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 18:25] · POTENZIAMENTO OMBRE NERE PROFONDE (HEADER E CARD ALLOGGI), TOP VIGNETTE AD ALTO CONTRASTO E DISTANZIAMENTO +3PX THAI LM1
+- **Cosa abbiamo fatto:** Potenziata radicalmente la leggibilità di tutti i testi e corretto il distanziamento nel formato LM1 in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 📏 **Distanziamento Scritta Thai LM1 (+3px in Basso sotto LAST MINUTE)**:
+    - *Canvas*: Aumentato il distacco da `pillH + (8 * s)` a `pillH + (11 * s)`, allontanando di 3 pixel esatti la scritta Thai dorata `ห้องว่างวันนี้` verso il basso rispetto alla pillola del badge Last Minute.
+    - *DOM*: Aggiornato lo spacing a `mt-[7px]` (da `mt-1`), garantendo il perfetto allineamento 1:1 tra anteprima e video esportato.
+  - 🖤 **Potenziamento Radicale Ombre Nere & Contorno Protettivo (Zero Scritte Fiacche o Lavate)**:
+    - *Causa individuata*: Il solo `shadowBlur = 14 * s` su canvas ad alta risoluzione (1080p) diffondeva il nero su un raggio troppo ampio (~38px), disperdendo l'ombra e facendola apparire debole e trasparente contro sfondi complessi (come il tetto di paglia/bambù nello screenshot dell'utente).
+    - *Soluzione applicata*: Introdotto il sistema di disegno a doppio passaggio `drawTextWithShadow`:
+      1. *Primo passaggio*: contorno scuro profondo `rgba(0, 0, 0, 0.98)` con `lineWidth` calibrato (2.6*s - 4.0*s), `lineJoin = 'round'`, ombra serrata `shadowBlur = 8 * s` e `shadowOffsetY = 2 * s`.
+      2. *Secondo passaggio*: riempimento a colore pieno netto (`fillText`) con drop shadow ravvicinata `shadowBlur = 3 * s`.
+    - Applicato a tutti i testi dell'Header (`FLOWER POWER`, `Village`, `Pizza`, `ห้องว่างวันนี้`, `DIRECT BOOKING`, `flowerpowervillage.com`, `Link in Bio`, `Ranong Delivery`) e della Card Alloggi (`Lagoon Tent`, `Glamping Sanctuary`, descrizione Thai).
+  - 🌄 **Top Vignette Fade ad Alto Contrasto Cinematografico**:
+    - Rafforzato il gradiente scuro superiore su canvas (da `0.48` a `0.85` in cima, `0.62` a 35%, `0.25` a 70% e altezza `270 * s`) e nel DOM (`h-64 bg-gradient-to-b from-black/85 via-black/55 via-50% to-transparent`). I testi e il logo ora staccano con contrasto nitido, scolpito e cristallino anche sopra tetti di paglia chiari, sole o pareti luminose.
+- **Effetto reale:** Le scritte non vengono più inghiottite dalle texture dello sfondo: ogni singola lettera stacca netta e leggibile in qualsiasi condizione di luce e la scritta Thai sotto Last Minute ha il giusto respiro visivo richiesto.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e consolidato su branch locale `staging`.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 18:20] · NUOVO STANDARD ESSENZIALE BLOCCHETTI MEDIA SCHEDULER: 5 ELEMENTI ORDINATI & ZERO TITOLI TRONCATI
 - **Cosa abbiamo fatto:** Riprogettato completamente il layout visivo e geometrico dei blocchetti di pubblicazione all'interno dello scheduler in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx):
   - 🧩 **Sequenza Tassativa a 5 Elementi Ordinati (Niente Altro)**:
