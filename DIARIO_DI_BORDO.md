@@ -5,6 +5,13 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 12:22] · IMPAGINAZIONE MILLIMETRICA FORMATO DS (5PX DA PIZZA & 5PX DA LIVE SHOWCASE)
+- **Cosa abbiamo fatto:** Ottimizzato il posizionamento e l'impaginazione dei testi nel formato **DS** (Daily Specials / Chef Showcase) sia nel motore Canvas (`renderOverlaysToContext`) sia nell'anteprima DOM in `AutoCutLabPlayer.tsx`:
+  - 📏 **Distanziamento Badge LIVE SHOWCASE (5px netti da Pizza)**: Rimosso il doppio conteggio dell'offset su Canvas e calibrato il margine nel DOM (`mt-[5px]` senza gap flexbox parassiti). Il rettangolo pulsante `LIVE SHOWCASE` / `CHEF SPECIALS` poggia ora esattamente a **5 pixel di distanza** al di sotto della parola *Pizza*.
+  - 📐 **Distanziamento Blocco Thai & Fast Delivery (ulteriori 5px netti dal Badge)**: Il blocco bilingue sottostante (`สดใหม่ในตู้โชว์` / `เมนูพิเศษประจำวัน` e `FAST DELIVERY`) è posizionato con precisione millimetrica a **ulteriori 5 pixel di distacco** al di sotto del bordo inferiore del rettangolo badge.
+- **Effetto reale:** Nel formato DS il banner superiore possiede ora proporzioni armoniche e perfettamente ariose: le scritte non si accavallano e non risultano compresse, offrendo una gerarchia visiva limpida e leggibile nei video social.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 12:18] · LOGO LINE UFFICIALE PERFETTO & BOLLINI WHATSAPP/LINE INGRANDITI (+20%)
 - **Cosa abbiamo fatto:** Riprogettata la grafica dei loghi contatti nel formato R1 (Stories Ristorante Koh Phayam) in `AutoCutLabPlayer.tsx` e `render-social-video-cloud.mjs`:
   - 💚 **Logo LINE Rettificato**: Sostituito il vecchio tracciato che presentava la lettera "E" sollevata e tagliata fuori con la sagoma vettoriale ufficiale Simple Icons. Ora tutte e 4 le lettere (**L - I - N - E**) poggiano sulla stessa linea di base con allineamento e spessore perfetti.
