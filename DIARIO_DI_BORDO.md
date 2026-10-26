@@ -379,6 +379,23 @@
 
 ---
 
+### 🟩 [26/10/2026 - ORE 14:00] · SOCIAL STUDIO: CALIBRAZIONE LAYOUT 4:3 (WATERMARK +150%, TITOLI SEMANTICI 9:16 +120%, BADGE PREZZO GIALLO +50%, DISTACCHI +5PX)
+- **Cosa abbiamo fatto:** Perfezionato radicalmente il rendering del formato panoramico 4:3 (Google Business & Facebook Feed per `P1`, `V1`, `LM1`) sia nel motore Canvas WebCodecs/MediaRecorder per l'esportazione video inviata a Telegram sia nell'anteprima DOM in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 🌟 **Watermark Logo Top-Left (+150% = 1.5x, offset +5px)**:
+    - Logo scalato da `60px` a `90px` (+150%) con distacco dall'angolo portato a `posX = 21 * s`, `posY = 21 * s` (+5px extra verso destra e verso il basso).
+    - Tipografia brand scalata a `30 * s` per `FLOWER POWER`, `28.5 * s` per `Pizza/Village` e `22.5 * s` per `Ranong Delivery / Direct Booking`, con ombra nera profonda a 360° per contrasto totale.
+  - 📝 **Titoli Inferiori a Sinistra (+120%, offset +5px e Regola Semantica 9:16)**:
+    - Testi sollevati con base a `h - 27*s` e distanziati a sinistra a `23*s` (+5px).
+    - Pizzeria (`P1`, `R1`): applicati rigorosamente i formattatori semantici ufficiali `formatSemanticThaiDishTitle` (taglio naturale prima di connettori Thai `ซอส`, `สไตล์`, `พร้อม`, parentesi `(`) e `formatSemanticEnglishDishTitle` (taglio prima di `WITH`, `&`, `ALLA`, `CON`), garantendo che i titoli a capo seguano la stessa identica armonia logica del 9:16 (Regola 13). Font Thai `Prompt` ambra `24 * s`, Inglese `Outfit` bianco `19.5 * s`.
+    - Villaggio (`V1`, `LM1`): reso fedele 1:1 con il layout 9:16 (titolo alloggio bianco Outfit 900 `24 * s`, sottotitolo ambra Outfit 700 `18.5 * s`, descrizione Thai stone `16 * s`) preservando la mappatura delle righe semantiche.
+  - 🏷️ **Box Prezzo Giallo Ufficiale a Destra (+50%, offset +5px)**:
+    - Sostituito il vecchio testo giallo piatto con il rettangolo giallo `#FFE500` ufficiale con bordo nero solido da 2.5px, ombra d'angolo nera 3px, font Kanit 900 scalato a `36 * s` (+50%) e contorno bianco spesso 4px.
+    - Per `LM1`: etichetta `⚡ LAST MINUTE TONIGHT` con ombra nera solida posizionata sopra il box.
+- **Effetto reale:** I video test 4:3 inviati su Telegram e visualizzati nel Social Media Studio presentano un watermark imponente e leggibile, titoli culinari e alloggi impaginati a capo con perfetta logica semantica (zero parole orfane) e il cartellino prezzo giallo iconico e brillante.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 22:35] · SOCIAL STUDIO AUTOCUT: SOSTITUZIONE RADICALE LOGO ANTEPRIMA CON ASSET STATICO FISICO (IDENTICO AD APPROVAZIONE LM1)
 - **Cosa abbiamo fatto:** Rimosso radicalmente il riferimento diretto alla stringa Base64 nel tag `<img>` di anteprima del player e ripristinato il percorso del file statico ufficiale `/flower-power-village-logo-512.png` in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx), esattamente come configurato quando LM1 funzionava alla perfezione:
   - 🖼️ **Puntamento Diretto al File Fisico Statico (Zero Glitch Webview/DOM)**:

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Play, Pause, RotateCcw, RotateCw, SkipBack, SkipForward, Volume2, VolumeX, Sparkles, Layers, Clock, Music, Star } from 'lucide-react';
-import { AutoCutTestRun, AutoCutScene, getCategoryThaiName } from '../services/autoCutLabEngine';
+import { AutoCutTestRun, AutoCutScene, getCategoryThaiName, formatSemanticEnglishDishTitle, formatSemanticThaiDishTitle } from '../services/autoCutLabEngine';
 import { LINE_QR_CODE_BASE64 } from '../services/lineQrData';
 import { autoCutSoundEngine } from '../services/autoCutSoundEffects';
 import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
@@ -1039,79 +1039,266 @@ export function AutoCutLabPlayer({
       if (!scene) return;
       const s = w / 960;
 
-      // 1. Watermark Logo Top-Left (60px * s)
+      // Helper universale per testo 4:3 con contorno nero solido a 360° e ombra profonda
+      const drawTextWithShadow43 = (
+        text: string,
+        x: number,
+        y: number,
+        fillStyle: string,
+        strokeWidth: number = 3.6 * s
+      ) => {
+        oCtx.save();
+        oCtx.strokeStyle = '#000000';
+        oCtx.lineWidth = strokeWidth;
+        oCtx.lineJoin = 'round';
+        oCtx.miterLimit = 2;
+        oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
+        oCtx.shadowBlur = 10 * s;
+        oCtx.shadowOffsetY = 2.5 * s;
+        oCtx.strokeText(text, x, y);
+        oCtx.restore();
+
+        oCtx.save();
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        oCtx.shadowBlur = 4 * s;
+        oCtx.shadowOffsetY = 1.5 * s;
+        oCtx.fillStyle = fillStyle;
+        oCtx.fillText(text, x, y);
+        oCtx.restore();
+      };
+
+      // 1. Watermark Logo Top-Left (+150% = 1.5x, distanziato +5px dall'alto e +5px da sinistra: posX = 21*s, posY = 21*s)
       const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
-      const logoSize = 60 * s;
-      const posX = 16 * s;
-      const posY = 16 * s;
+      const logoSize = Math.round(90 * s); // Ingrandito del 150% (era 60 * s)
+      const posX = 21 * s; // Distanziato +5px verso destra (era 16 * s)
+      const posY = 21 * s; // Distanziato +5px verso il basso (era 16 * s)
 
       if (comp43Logo) {
         oCtx.save();
         oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-        oCtx.shadowBlur = 16;
+        oCtx.shadowBlur = 18 * s;
+        oCtx.shadowOffsetY = 3 * s;
         oCtx.drawImage(comp43Logo, posX, posY, logoSize, logoSize);
         oCtx.restore();
       }
 
-      // Testi Brand Watermark
+      // Testi Brand Watermark a Destra del Logo (+150% con ombra nera profonda a 360°)
       oCtx.save();
-      const textX = posX + logoSize + (14 * s);
+      const textX = posX + logoSize + (15 * s);
       oCtx.textAlign = 'left';
-      oCtx.font = `900 ${Math.round(20 * s)}px "Outfit", sans-serif`;
-      oCtx.fillStyle = '#ffffff';
-      oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
-      oCtx.shadowBlur = 8;
-      oCtx.fillText('FLOWER POWER', textX, posY + (18 * s));
+      oCtx.textBaseline = 'top';
 
-      oCtx.font = `italic 500 ${Math.round(19 * s)}px "Outfit", sans-serif`;
-      oCtx.fillStyle = brand === 'pizza' ? '#f87171' : '#34d399';
-      oCtx.fillText(brand === 'pizza' ? 'Pizza' : 'Village', textX, posY + (38 * s));
+      // Riga 1: FLOWER POWER (30 * s)
+      const fpFontSize = Math.round(30 * s);
+      oCtx.font = `900 ${fpFontSize}px "Outfit", sans-serif`;
+      drawTextWithShadow43('FLOWER POWER', textX, posY + (4 * s), '#ffffff', 4.5 * s);
 
-      oCtx.font = `700 ${Math.round(15 * s)}px "Outfit", sans-serif`;
-      oCtx.fillStyle = '#fbbf24';
-      oCtx.fillText(brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off', textX, posY + (56 * s));
+      // Riga 2: Pizza / Village (28.5 * s)
+      const subFontSize = Math.round(28.5 * s);
+      oCtx.font = `italic 500 ${subFontSize}px "Outfit", sans-serif`;
+      const subColor = brand === 'pizza' ? '#f87171' : '#34d399';
+      drawTextWithShadow43(brand === 'pizza' ? 'Pizza' : 'Village', textX, posY + (35 * s), subColor, 3.8 * s);
+
+      // Riga 3: Delivery / Direct Booking (22.5 * s)
+      const infoFontSize = Math.round(22.5 * s);
+      oCtx.font = `700 ${infoFontSize}px "Outfit", sans-serif`;
+      const infoText = brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off';
+      drawTextWithShadow43(infoText, textX, posY + (66 * s), '#fbbf24', 3.5 * s);
       oCtx.restore();
 
-      // 4. Testi Inferiori (Titoli Bilingui + Categoria + Prezzo)
+      // 2. Testi Inferiori a Sinistra (+120%, distanziati +5px a destra e +5px dal basso, con A Capo Semantico del 9:16)
+      const leftX = 23 * s; // Distanziato +5px verso destra (era 18 * s)
+      const bottomBaseY = h - (27 * s); // Distanziato +5px verso l'alto (era h - 22*s)
+
+      // Regola 13: Split semantico identico al 9:16 (rispetta i connettori culinari e le regole grammaticali Thai)
       oCtx.save();
-      const bottomBaseY = h - (22 * s);
-      const leftX = 18 * s;
+      oCtx.textAlign = 'left';
+      oCtx.textBaseline = 'top';
 
-      let catText = scene.badgeCategory || '';
-      if (catText.toUpperCase().includes('TRADITIONAL ITALIAN PIZZA') || catText.toUpperCase() === 'TRADITIONAL PIZZA') {
-        catText = 'ITALIAN PIZZA';
-      }
-      if (catText) {
-        oCtx.font = `900 ${Math.round(14 * s)}px "Outfit", sans-serif`;
-        oCtx.fillStyle = '#ffffff';
-        oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
-        oCtx.shadowBlur = 6;
-        oCtx.fillText(`✦ ${catText.replace(/^[✦⭐\s*]+/, '')}`, leftX, bottomBaseY - (52 * s));
-      }
+      if (brand === 'pizza' || mode === 'P1' || mode === 'R1') {
+        const thaiText = formatSemanticThaiDishTitle(scene.titlePrimary || '');
+        const engText = formatSemanticEnglishDishTitle(scene.titleSecondary || '');
+        const thaiLines = thaiText.split('\n').filter(Boolean);
+        const engLines = engText.split('\n').filter(Boolean);
 
-      oCtx.font = `900 ${Math.round(20 * s)}px "Prompt", "Kanit", sans-serif`;
-      oCtx.fillStyle = '#fbbf24';
-      oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
-      oCtx.shadowBlur = 10;
-      const cleanThai = scene.titlePrimary.replace(/\n+/g, ' ');
-      oCtx.fillText(cleanThai, leftX, bottomBaseY - (28 * s));
+        const thaiFontSize = Math.round(24 * s);  // Ingrandito del 120% (era 20 * s)
+        const thaiLineStep = Math.round(30 * s);
+        const engFontSize = Math.round(19.5 * s); // Ingrandito del 120% (era 16 * s)
+        const engLineStep = Math.round(24 * s);
+        const catFontSize = Math.round(17 * s);   // Ingrandito del 120% (era 14 * s)
 
-      oCtx.font = `800 ${Math.round(16 * s)}px "Outfit", sans-serif`;
-      oCtx.fillStyle = '#f8fafc';
-      oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
-      oCtx.shadowBlur = 8;
-      const cleanEn = scene.titleSecondary.replace(/\n+/g, ' ');
-      oCtx.fillText(cleanEn, leftX, bottomBaseY);
+        const hasBadge = !!scene.badgeCategory;
+        const catH = hasBadge ? (26 * s) : 0;
+        const thaiH = thaiLines.length * thaiLineStep;
+        const engH = engLines.length * engLineStep;
+        const totalTextH = catH + thaiH + engH;
 
-      if (scene.priceLabel) {
-        oCtx.textAlign = 'right';
-        oCtx.font = `900 ${Math.round(24 * s)}px "Outfit", "Kanit", sans-serif`;
-        oCtx.fillStyle = '#fbbf24';
-        oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
-        oCtx.shadowBlur = 12;
-        oCtx.fillText(scene.priceLabel, w - (20 * s), bottomBaseY - (8 * s));
+        let curY = bottomBaseY - totalTextH;
+
+        // 🏷️ Categoria (✦ BUNGALOW / ✦ ITALIAN PIZZA)
+        if (hasBadge) {
+          let catText = scene.badgeCategory || '';
+          if (catText.toUpperCase().includes('TRADITIONAL ITALIAN PIZZA') || catText.toUpperCase() === 'TRADITIONAL PIZZA') {
+            catText = 'ITALIAN PIZZA';
+          }
+          const cleanCat = catText.replace(/^[✦⭐✨\s*]+/, '').trim().toUpperCase();
+          oCtx.font = `900 ${catFontSize}px "Outfit", sans-serif`;
+          drawTextWithShadow43('✦', leftX, curY, '#dc2626', 3.6 * s);
+          drawTextWithShadow43(cleanCat, leftX + (16 * s), curY, '#ffffff', 3.6 * s);
+          curY += catFontSize + (7 * s);
+        }
+
+        // Titolo Thai (Regola 13: A Capo Semantico Naturale del 9:16)
+        oCtx.font = `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
+        thaiLines.forEach(line => {
+          drawTextWithShadow43(line, leftX, curY, '#fcd34d', 4.5 * s);
+          curY += thaiLineStep;
+        });
+
+        // Titolo Inglese (Regola 13: A Capo Semantico Naturale del 9:16)
+        oCtx.font = `800 ${engFontSize}px "Outfit", sans-serif`;
+        engLines.forEach(line => {
+          drawTextWithShadow43(line, leftX, curY, '#f8fafc', 4.0 * s);
+          curY += engLineStep;
+        });
+      } else {
+        // Modalità Alloggi Villaggio (V1, LM1)
+        const lodgingTitle = scene.lodgingTitle || scene.titlePrimary || '';
+        const titleLines = lodgingTitle.split('\n').filter(Boolean);
+        const subLines = scene.lodgingSubtitle ? scene.lodgingSubtitle.split('\n').filter(Boolean) : [];
+        const thaiLines = (scene.titleSecondary || '').split('\n').filter(Boolean);
+
+        const titleFontSize = Math.round(24 * s);  // Ingrandito del 120%
+        const titleLineStep = Math.round(30 * s);
+        const subFontSize = Math.round(18.5 * s);
+        const subLineStep = Math.round(23 * s);
+        const thaiFontSize = Math.round(16 * s);
+        const thaiLineStep = Math.round(20 * s);
+        const catFontSize = Math.round(17 * s);
+
+        const hasBadge = !!scene.badgeCategory;
+        const catH = hasBadge ? (26 * s) : 0;
+        const titleH = titleLines.length * titleLineStep;
+        const subH = subLines.length * subLineStep;
+        const thaiH = thaiLines.length * thaiLineStep;
+        const totalTextH = catH + titleH + subH + thaiH;
+
+        let curY = bottomBaseY - totalTextH;
+
+        // 🏷️ Categoria Alloggio (✦ BUNGALOW / ✦ VILLA)
+        if (hasBadge) {
+          const cleanCat = (scene.badgeCategory || '').replace(/^[✦⭐✨\s*]+/, '').trim().toUpperCase();
+          oCtx.font = `900 ${catFontSize}px "Outfit", sans-serif`;
+          drawTextWithShadow43('✦', leftX, curY, '#dc2626', 3.6 * s);
+          drawTextWithShadow43(cleanCat, leftX + (16 * s), curY, '#ffffff', 3.6 * s);
+          curY += catFontSize + (7 * s);
+        }
+
+        // Titolo Alloggio (Inglese Strutturato Bianco Outfit 900)
+        oCtx.font = `900 ${titleFontSize}px "Outfit", sans-serif`;
+        titleLines.forEach(line => {
+          drawTextWithShadow43(line, leftX, curY, '#ffffff', 4.5 * s);
+          curY += titleLineStep;
+        });
+
+        // Sottotitolo Alloggio (Ambra Outfit 700)
+        if (subLines.length > 0) {
+          oCtx.font = `700 ${subFontSize}px "Outfit", sans-serif`;
+          subLines.forEach(line => {
+            drawTextWithShadow43(line, leftX, curY, '#fcd34d', 3.8 * s);
+            curY += subLineStep;
+          });
+        }
+
+        // Descrizione Thai (Stone-200 Prompt 600)
+        if (thaiLines.length > 0) {
+          oCtx.font = `600 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
+          thaiLines.forEach(line => {
+            drawTextWithShadow43(line, leftX, curY, 'rgba(241, 245, 249, 0.98)', 3.2 * s);
+            curY += thaiLineStep;
+          });
+        }
       }
       oCtx.restore();
+
+      // 3. Prezzo Ufficiale in Basso a Destra (Rettangolo Giallo #FFE500, Bordo Nero, Kanit 900, Ingrandito +50%, +5px dx e +5px su)
+      const hasPrice = !!scene.priceLabel || !!scene.pizzaSizes;
+      if (hasPrice) {
+        oCtx.save();
+        const priceMarginRight = 25 * s; // Distanziato +5px extra da destra (era 20 * s)
+        const priceBottomY = bottomBaseY - (5 * s); // Distanziato +5px extra dal basso
+
+        let priceText = '';
+        if (scene.pizzaSizes) {
+          priceText = `8" ${scene.pizzaSizes.size8Price}฿  •  12" ${scene.pizzaSizes.size12Price}฿`;
+        } else if (scene.priceLabel) {
+          priceText = scene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
+        }
+
+        // Font Kanit ingrandito del +50% (era 24*s -> 36*s)
+        const pFontSize = Math.round(36 * s);
+        oCtx.font = `900 ${pFontSize}px "Kanit", sans-serif`;
+        const pTextW = oCtx.measureText(priceText).width;
+
+        const boxPadX = 18 * s;
+        const boxH = Math.round(52 * s);
+        const boxW = Math.round(pTextW + (boxPadX * 2));
+        const boxRadius = 10 * s;
+        const boxX = w - priceMarginRight - boxW;
+        const boxY = priceBottomY - boxH;
+
+        // Ombra solida d'angolo nera 3px 3px
+        oCtx.fillStyle = '#000000';
+        oCtx.beginPath();
+        if (typeof oCtx.roundRect === 'function') {
+          oCtx.roundRect(boxX + 3 * s, boxY + 3 * s, boxW, boxH, boxRadius);
+        } else {
+          oCtx.rect(boxX + 3 * s, boxY + 3 * s, boxW, boxH);
+        }
+        oCtx.fill();
+
+        // Sfondo giallo dorato #FFE500
+        oCtx.fillStyle = '#FFE500';
+        oCtx.beginPath();
+        if (typeof oCtx.roundRect === 'function') {
+          oCtx.roundRect(boxX, boxY, boxW, boxH, boxRadius);
+        } else {
+          oCtx.rect(boxX, boxY, boxW, boxH);
+        }
+        oCtx.fill();
+
+        // Bordo nero solido 2.5px
+        oCtx.strokeStyle = '#000000';
+        oCtx.lineWidth = 2.5 * s;
+        oCtx.stroke();
+
+        // Testo cifra in nero con outline bianco centrato
+        oCtx.textAlign = 'center';
+        oCtx.textBaseline = 'middle';
+        const pCx = boxX + (boxW / 2);
+        const pCy = boxY + (boxH / 2) + Math.round(2 * s);
+
+        oCtx.lineWidth = 4 * s;
+        oCtx.strokeStyle = '#ffffff';
+        oCtx.lineJoin = 'round';
+        oCtx.strokeText(priceText, pCx, pCy);
+
+        oCtx.fillStyle = '#000000';
+        oCtx.shadowColor = 'transparent';
+        oCtx.shadowBlur = 0;
+        oCtx.fillText(priceText, pCx, pCy);
+
+        // Se Last Minute (LM1): etichetta arancione/gialla sopra il box per massima chiarezza
+        if (mode === 'LM1') {
+          const lmFontSize = Math.round(15 * s);
+          oCtx.font = `900 ${lmFontSize}px "Outfit", sans-serif`;
+          oCtx.textAlign = 'right';
+          oCtx.textBaseline = 'bottom';
+          drawTextWithShadow43('⚡ LAST MINUTE TONIGHT', w - priceMarginRight - (2 * s), boxY - (4 * s), '#f59e0b', 3.0 * s);
+        }
+
+        oCtx.restore();
+      }
     };
 
     const renderFrame = (elapsed: number) => {
@@ -3964,34 +4151,34 @@ export function AutoCutLabPlayer({
               className="w-full h-full object-cover"
             />
 
-            {/* Watermark Ufficiale 4:3 (Logo +20% ulteriore = 60px + Titolo con riverbero nero + Sottotitolo - Ingrandito del 20%, posizione top-3 left-3 invariata) */}
-            <div className={`absolute top-3 left-3 z-30 flex items-center gap-3.5 pointer-events-none transition-all duration-300 ${
+            {/* Watermark Ufficiale 4:3 (Logo +150% = 90px + Titoli ingranditi + offset +5px) */}
+            <div className={`absolute top-[17px] left-[17px] z-30 flex items-center gap-3.5 pointer-events-none transition-all duration-300 ${
               isInOutro ? 'opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'
             }`}>
               <img
                 crossOrigin="anonymous"
                 src={brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64}
                 alt="Logo"
-                className="w-[60px] h-[60px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0"
+                className="w-[90px] h-[90px] object-contain drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)] shrink-0"
               />
-              <div className="flex flex-col text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+              <div className="flex flex-col text-left drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
                 <div className="flex flex-col text-left leading-none">
-                  <span className="text-[19px] sm:text-[21.5px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                  <span className="text-[25px] sm:text-[28px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] font-['Outfit',sans-serif]">
                     FLOWER POWER
                   </span>
-                  <span className={`font-light italic text-[21px] sm:text-[22px] capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
+                  <span className={`font-light italic text-[25px] sm:text-[27px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
                     {brand === 'pizza' ? 'Pizza' : 'Village'}
                   </span>
                 </div>
-                <span className="text-[15px] sm:text-[17px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
-                  {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking'}
+                <span className="text-[18px] sm:text-[20px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300 font-['Outfit',sans-serif]">
+                  {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off'}
                 </span>
               </div>
             </div>
 
-            {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA (Sollevata di 3px a bottom-[15px], testi e prezzo ingranditi del 25%) */}
+            {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA 4:3 (Sollevata a bottom-[20px], offset +5px da sinistra e dal basso) */}
             {currentScene && (
-              <div className={`absolute left-3 right-3 bottom-[15px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
+              <div className={`absolute left-[17px] right-[17px] bottom-[20px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
                 isInOutro ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
                 {/* Caso CIBO / PIATTI (P1): Categoria, Thai sopra in grande, Inglese sotto a scalare, prezzo */}
@@ -4005,25 +4192,25 @@ export function AutoCutLabPlayer({
                           catText = 'ITALIAN PIZZA';
                         }
                         return (
-                          <div className="inline-flex items-center gap-1 text-[14px] sm:text-[15px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
-                            <span className="text-rose-500 font-black text-[14px] drop-shadow-[0_0_6px_rgba(244,63,94,0.95)] [text-shadow:_0_2px_4px_rgba(0,0,0,1)]">✦</span>
+                          <div className="inline-flex items-center gap-1.5 text-[15.5px] sm:text-[17px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_6px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
+                            <span className="text-rose-500 font-black text-[16px] drop-shadow-[0_0_8px_rgba(244,63,94,0.95)] [text-shadow:_0_2px_4px_rgba(0,0,0,1)]">✦</span>
                             <span className="[text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_1px_1px_2px_rgba(0,0,0,1)]">{catText.replace(/^[✦⭐\s*]+/, '')}</span>
                           </div>
                         );
                       })()}
 
-                      {/* THAI IN GRANDE SOPRA (+25%) */}
-                      <h3 className="text-[17.5px] sm:text-[20px] font-black text-amber-300 leading-tight mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1),_0_0_24px_rgba(0,0,0,0.95),_1px_1px_3px_rgba(0,0,0,1)] drop-shadow-[0_3px_10px_rgba(0,0,0,1)]">
-                        {(mode === 'P1' ? format43DishTitle(currentScene.titlePrimary, 'th') : currentScene.titlePrimary.split('\n')).map((line, idx) => (
+                      {/* THAI IN GRANDE SOPRA (+120%, Regola 13: A Capo Semantico Naturale del 9:16) */}
+                      <h3 className="text-[21px] sm:text-[24px] font-black text-amber-300 leading-tight mt-1 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1),_0_0_24px_rgba(0,0,0,0.95),_1px_1px_3px_rgba(0,0,0,1)] drop-shadow-[0_3px_10px_rgba(0,0,0,1)]">
+                        {formatSemanticThaiDishTitle(currentScene.titlePrimary || '').split('\n').filter(Boolean).map((line, idx) => (
                           <span key={idx} className="block leading-tight whitespace-nowrap">
                             {line}
                           </span>
                         ))}
                       </h3>
 
-                      {/* INGLESE SOTTO (+25%) */}
-                      <div className="text-[14px] sm:text-[15px] font-semibold text-white/95 leading-snug [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_3px_rgba(0,0,0,1)] drop-shadow-[0_2px_8px_rgba(0,0,0,1)]">
-                        {(mode === 'P1' ? format43DishTitle(currentScene.titleSecondary, 'en') : currentScene.titleSecondary.split('\n')).map((line, idx) => (
+                      {/* INGLESE SOTTO (+120%, Regola 13: A Capo Semantico Naturale del 9:16) */}
+                      <div className="text-[16.5px] sm:text-[18.5px] font-semibold text-white/95 leading-snug [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_3px_rgba(0,0,0,1)] drop-shadow-[0_2px_8px_rgba(0,0,0,1)] mt-0.5">
+                        {formatSemanticEnglishDishTitle(currentScene.titleSecondary || '').split('\n').filter(Boolean).map((line, idx) => (
                           <span key={idx} className="block leading-snug whitespace-nowrap">
                             {line}
                           </span>
@@ -4031,29 +4218,29 @@ export function AutoCutLabPlayer({
                       </div>
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (TASSATIVAMENTE UNO SOPRA L'ALTRO, INGRANDITO DEL 25%) */}
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" (+50%, Rettangolo Giallo Ufficiale con bordo nero e ombra solida) */}
                     <div 
-                      className="w-fit shrink-0 pb-0.5"
+                      className="w-fit shrink-0 pb-1"
                       style={{
-                        transform: currentScene.pizzaSizes && mode !== 'R1' ? 'scale(0.756)' : 'scale(0.938)',
+                        transform: 'scale(1.15)',
                         transformOrigin: 'bottom right'
                       }}
                     >
                       {currentScene.pizzaSizes && mode !== 'R1' ? (
-                        <div className="flex flex-col items-end gap-1">
-                          <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                            <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
+                        <div className="flex flex-col items-end gap-1.5">
+                          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[#FFE500] border-2 border-black shadow-[3px_3px_0px_#000000] text-black">
+                            <span className="font-['Kanit',sans-serif] text-xs sm:text-[14px] font-black bg-black text-white px-1.5 py-0.5 rounded-[4px] leading-none tracking-tight">8"</span>
                             <span
-                              className="font-['Kanit',sans-serif] text-[19px] sm:text-[21px] font-black leading-none tracking-tight"
+                              className="font-['Kanit',sans-serif] text-[22px] sm:text-[25px] font-black leading-none tracking-tight"
                               style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
                             >
                               {currentScene.pizzaSizes.size8Price}฿
                             </span>
                           </div>
-                          <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                            <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
+                          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[#FFE500] border-2 border-black shadow-[3px_3px_0px_#000000] text-black">
+                            <span className="font-['Kanit',sans-serif] text-xs sm:text-[14px] font-black bg-black text-white px-1.5 py-0.5 rounded-[4px] leading-none tracking-tight">12"</span>
                             <span
-                              className="font-['Kanit',sans-serif] text-[19px] sm:text-[21px] font-black leading-none tracking-tight"
+                              className="font-['Kanit',sans-serif] text-[22px] sm:text-[25px] font-black leading-none tracking-tight"
                               style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
                             >
                               {currentScene.pizzaSizes.size12Price}฿
@@ -4061,10 +4248,10 @@ export function AutoCutLabPlayer({
                           </div>
                         </div>
                       ) : currentScene.priceLabel ? (
-                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                        <div className="inline-flex items-center px-3 py-1 rounded-lg bg-[#FFE500] border-2 border-black shadow-[3px_3px_0px_#000000] text-black">
                           <span
-                            className="font-['Kanit',sans-serif] text-[24px] sm:text-[26px] font-black leading-none tracking-tight"
-                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                            className="font-['Kanit',sans-serif] text-[28px] sm:text-[32px] font-black leading-none tracking-tight"
+                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '4px #ffffff' }}
                           >
                             {currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
                           </span>
@@ -4076,32 +4263,53 @@ export function AutoCutLabPlayer({
 
                 {/* Caso ALLOGGI (V1, LM1): Nome Alloggio, Sottotitolo, Thai + Prezzo Last Minute a destra (se LM1) */}
                 {(mode === 'V1' || mode === 'LM1') && (
-                  <div className="w-full flex items-end justify-between gap-2">
+                  <div className="w-full flex items-end justify-between gap-3">
                     {/* Blocco Titoli (Sinistra) */}
                     <div className="flex-1 min-w-0 pr-1 space-y-0.5">
                       <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                        <h3 className="text-[17.5px] sm:text-[20px] font-black text-white leading-tight">
-                          {currentScene.lodgingTitle || currentScene.titlePrimary}
+                        <h3 className="text-[21px] sm:text-[24px] font-black text-white leading-tight">
+                          {(currentScene.lodgingTitle || currentScene.titlePrimary || '').split('\n').filter(Boolean).map((line, idx) => (
+                            <span key={idx} className="block leading-tight whitespace-nowrap">
+                              {line}
+                            </span>
+                          ))}
                         </h3>
                         {currentScene.lodgingSubtitle && (
-                          <p className="text-[14px] sm:text-[15px] font-bold text-amber-300 leading-tight mt-0.5">
-                            {currentScene.lodgingSubtitle}
-                          </p>
+                          <div className="text-[16px] sm:text-[18px] font-bold text-amber-300 leading-tight mt-0.5">
+                            {currentScene.lodgingSubtitle.split('\n').filter(Boolean).map((line, idx) => (
+                              <span key={idx} className="block leading-tight whitespace-nowrap">
+                                {line}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
 
-                      <p className="text-[12.5px] sm:text-[14px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
-                        {currentScene.titleSecondary}
-                      </p>
+                      <div className="text-[15px] sm:text-[17px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
+                        {(currentScene.titleSecondary || '').split('\n').filter(Boolean).map((line, idx) => (
+                          <span key={idx} className="block leading-snug whitespace-nowrap">
+                            {line}
+                          </span>
+                        ))}
+                      </div>
                     </div>
 
-                    {/* Prezzo Octorate Last Minute a Destra (se LM1) con la stessa impaginazione e stile di P1 */}
+                    {/* Prezzo Octorate Last Minute a Destra (se LM1) con Rettangolo Giallo Ufficiale +50% */}
                     {mode === 'LM1' && currentScene.priceLabel && (
-                      <div className="w-fit shrink-0 pb-0.5">
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                      <div 
+                        className="w-fit shrink-0 pb-1 flex flex-col items-end gap-1"
+                        style={{
+                          transform: 'scale(1.15)',
+                          transformOrigin: 'bottom right'
+                        }}
+                      >
+                        <span className="text-[11px] font-black text-amber-400 uppercase tracking-wider [text-shadow:_0_2px_4px_rgba(0,0,0,1)]">
+                          ⚡ LAST MINUTE
+                        </span>
+                        <div className="inline-flex items-center px-3 py-1 rounded-lg bg-[#FFE500] border-2 border-black shadow-[3px_3px_0px_#000000] text-black">
                           <span
-                            className="font-['Kanit',sans-serif] text-[17px] sm:text-[19px] font-black leading-none tracking-tight"
-                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.8px #ffffff' }}
+                            className="font-['Kanit',sans-serif] text-[22px] sm:text-[25px] font-black leading-none tracking-tight"
+                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
                           >
                             {currentScene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
                           </span>
