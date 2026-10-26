@@ -467,6 +467,18 @@
 
 ---
 
+### 🟩 [26/10/2026 - ORE 15:55] · SOCIAL STUDIO AUTOCUT: CALIBRAZIONE RENDERING FINALE LM1 4:3 (5 PUNTI UFFICIALI SU VIDEO MP4 SOCIAL)
+- **Cosa abbiamo fatto:** Eseguiti i 5 interventi richiesti esclusivamente sulla pipeline di rendering video finale 4:3 per i social media (in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx)), lasciando intatta al 100% l'anteprima DOM del Social Studio:
+  1. 🖼️ **Punto 1 (Watermark Top-Left +50%)**: Ingranditi in blocco il logo e tutte le diciture ufficiali (`FLOWER POWER`, `Village`, `Direct Booking · 10% Off`) esattamente del +50% nel canvas di esportazione (`logoSize = 96 * s`, font 33px, 30px e 24px proporzionati).
+  2. ⚡ **Punto 2 (Cancellazione "Last Minute Tonight")**: Rimossa categoricamente la scritta arancione `⚡ LAST MINUTE TONIGHT` che compariva sopra il box prezzo.
+  3. 🏷️ **Punto 3 (Testi Bottom-Left +30%)**: Ingrandito del +30% l'intero blocco descrittivo dell'alloggio in basso a sinistra: categoria `✦ AVAILABLE TONIGHT` (22px), titolo alloggio es. `Villa Penthouse` (34px, interlinea 42px), sottotitolo `Breezy Suite` (25px, interlinea 32px) e riga Thai (21px, interlinea 27px con wrapping semantico protetto).
+  4. 💰 **Punto 4 (Prezzo Spostato in Basso a Sinistra)**: Il box giallo del prezzo scontato Octorate (`Last Minute: 1,161฿`) è stato rimosso dall'angolo in basso a destra e posizionato in basso a sinistra, incolonnato verticalmente subito sotto la descrizione in lingua Thai, lasciando il quadrante in basso a destra completamente sgombro.
+  5. 🛡️ **Punto 5 (Rimozione Totale Rettangolo nell'Outro Finale)**: Con lo spostamento del prezzo a sinistra durante le scene e la pulizia preliminare `offCtx.fillRect(0, 0, targetW, targetH)` a nero puro prima dell'outro, l'angolo in basso a destra del video MP4 è al 100% pulito e privo di qualsiasi riquadro verde/grigio o residuo di rendering.
+- **Effetto reale:** Nei video MP4 4:3 generati e scaricati per Google Business e social media, la grafica è più grande e leggibile: il watermark in alto a sinistra è maestoso (+50%), i testi alloggio sono ingranditi (+30%), il prezzo è ordinatamente sotto i testi a sinistra e la schermata di outro con logo finale e card contatti non presenta più alcun rettangolo fantasma in basso a destra. L'anteprima interna del Social Studio non ha subito alterazioni.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 22:35] · SOCIAL STUDIO AUTOCUT: SOSTITUZIONE RADICALE LOGO ANTEPRIMA CON ASSET STATICO FISICO (IDENTICO AD APPROVAZIONE LM1)
 - **Cosa abbiamo fatto:** Rimosso radicalmente il riferimento diretto alla stringa Base64 nel tag `<img>` di anteprima del player e ripristinato il percorso del file statico ufficiale `/flower-power-village-logo-512.png` in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx), esattamente come configurato quando LM1 funzionava alla perfezione:
   - 🖼️ **Puntamento Diretto al File Fisico Statico (Zero Glitch Webview/DOM)**:

@@ -1048,7 +1048,7 @@ export function AutoCutLabPlayer({
         x: number,
         y: number,
         fillStyle: string,
-        strokeWidth: number = 4.0 * s
+        strokeWidth: number = 4.2 * s
       ) => {
         oCtx.save();
         oCtx.strokeStyle = '#000000';
@@ -1070,16 +1070,16 @@ export function AutoCutLabPlayer({
         oCtx.restore();
       };
 
-      // 1. Watermark Logo Top-Left (+50% ingrandito nel rendering: logo 90px, testi calibrati +50%)
+      // 1. Watermark Logo Top-Left (PUNTO 1: ingrandito del +50% nel rendering: logo 96px, testi Outfit calibrati +50%)
       const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
-      const logoSize = Math.round(90 * s); // +50% rispetto ai 60px baseline
+      const logoSize = Math.round(96 * s); // +50% rispetto ai 64px baseline
       const posX = 20 * s;
       const posY = 20 * s;
 
       if (comp43Logo) {
         oCtx.save();
         oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-        oCtx.shadowBlur = 16 * s;
+        oCtx.shadowBlur = 18 * s;
         oCtx.shadowOffsetY = 3.5 * s;
         oCtx.drawImage(comp43Logo, posX, posY, logoSize, logoSize);
         oCtx.restore();
@@ -1091,66 +1091,50 @@ export function AutoCutLabPlayer({
       oCtx.textAlign = 'left';
       oCtx.textBaseline = 'top';
 
-      // Riga 1: FLOWER POWER (+50%: 30 * s)
-      const fpFontSize = Math.round(30 * s);
+      // Riga 1: FLOWER POWER (+50%: 33 * s)
+      const fpFontSize = Math.round(33 * s);
       oCtx.font = `900 ${fpFontSize}px "Outfit", sans-serif`;
-      drawTextWithShadow43('FLOWER POWER', textX, posY + (2 * s), '#ffffff', 4.5 * s);
+      drawTextWithShadow43('FLOWER POWER', textX, posY + (2 * s), '#ffffff', 5.0 * s);
 
-      // Riga 2: Pizza / Village (+50%: 28.5 * s)
-      const subFontSize = Math.round(28.5 * s);
+      // Riga 2: Pizza / Village (+50%: 30 * s)
+      const subFontSize = Math.round(30 * s);
       oCtx.font = `italic 500 ${subFontSize}px "Outfit", sans-serif`;
       const subColor = brand === 'pizza' ? '#f87171' : '#34d399';
-      drawTextWithShadow43(brand === 'pizza' ? 'Pizza' : 'Village', textX, posY + (34 * s), subColor, 4.0 * s);
+      drawTextWithShadow43(brand === 'pizza' ? 'Pizza' : 'Village', textX, posY + (36 * s), subColor, 4.2 * s);
 
-      // Riga 3: Delivery / Direct Booking (+50%: 22.5 * s)
-      const infoFontSize = Math.round(22.5 * s);
+      // Riga 3: Delivery / Direct Booking (+50%: 24 * s)
+      const infoFontSize = Math.round(24 * s);
       oCtx.font = `700 ${infoFontSize}px "Outfit", sans-serif`;
       const infoText = brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off';
-      drawTextWithShadow43(infoText, textX, posY + (66 * s), '#fbbf24', 3.5 * s);
+      drawTextWithShadow43(infoText, textX, posY + (70 * s), '#fbbf24', 3.8 * s);
       oCtx.restore();
 
-      // 2. Prezzo Ufficiale in Basso a Destra:
-      // 🛡️ REGOLA: Tutto quel che concerne il prezzo DEVE sparire 0.60s prima dell'arrivo del cartello finale con il logo
+      // 2. Prezzo Ufficiale & Disponibilità:
+      // 🛡️ REGOLA: Tutto quel che concerne il prezzo DEVE sparire prima dell'arrivo del cartello finale con il logo
       // In V2 è stato rimosso categoricamente (nessun prezzo in V2)
-      const isPriceAllowed = tElapsed < (outroStartTime - 0.60);
+      const isPriceAllowed = tElapsed < (outroStartTime - 0.50);
       const hasPrice = isPriceAllowed && mode !== 'V2' && mode !== 'V3' && (!!scene.priceLabel || !!scene.pizzaSizes);
 
-      // Calcolo dimensioni e posizione box prezzo (se attivo)
-      let priceBoxW = 0;
-      let priceBoxH = 0;
-      let priceBoxX = 0;
-      let priceBoxY = 0;
       let priceText = '';
-      const priceMarginRight = 24 * s;
-      const bottomBaseY = h - (26 * s);
-      const priceBottomY = bottomBaseY - (4 * s);
-
       if (hasPrice) {
         if (scene.pizzaSizes) {
           priceText = `8" ${scene.pizzaSizes.size8Price}฿  •  12" ${scene.pizzaSizes.size12Price}฿`;
         } else if (scene.priceLabel) {
           priceText = scene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
         }
-
-        const pFontSize = Math.round(38 * s);
-        oCtx.font = `900 ${pFontSize}px "Kanit", sans-serif`;
-        const pTextW = oCtx.measureText(priceText).width;
-        const boxPadX = 18 * s;
-        priceBoxH = Math.round(54 * s);
-        priceBoxW = Math.round(pTextW + (boxPadX * 2));
-        priceBoxX = w - priceMarginRight - priceBoxW;
-        priceBoxY = priceBottomY - priceBoxH;
       }
 
-      // 3. Testi Inferiori a Sinistra (+30% ingranditi nel rendering rispetto al baseline)
+      // 3. Testi Inferiori a Sinistra (PUNTO 3: ingranditi del +30% nel rendering)
       const leftX = 20 * s;
+      const bottomBaseY = h - (26 * s);
 
-      // Spazio orizzontale massimo consentito a sinistra: se c'è il prezzo a destra, il testo DEVE fermarsi prima
-      const maxBottomTextW = hasPrice
-        ? (priceBoxX - leftX - (20 * s))
-        : (w - leftX - (40 * s));
+      // In LM1 e Villaggio il prezzo è stato spostato in BASSO A SINISTRA (PUNTO 4), quindi l'intera larghezza è libera!
+      const isPriceOnLeft = mode === 'LM1' || brand === 'village';
+      const maxBottomTextW = isPriceOnLeft
+        ? (w - leftX - (40 * s))
+        : (w - leftX - (260 * s));
 
-      // Helper universale per andare a capo in 2 o 3 righe se il testo supera maxBottomTextW (mai sotto il prezzo)
+      // Helper universale per andare a capo in 2 o 3 righe se il testo supera maxBottomTextW
       const wrapTextToWidth = (text: string, maxW: number, font: string): string[] => {
         oCtx.font = font;
         const rawLines = text.split('\n').filter(Boolean);
@@ -1200,7 +1184,7 @@ export function AutoCutLabPlayer({
         const thaiLineStep = Math.round(38 * s);
         const engFontSize = Math.round(25 * s);   // Ingrandito del +30% (baseline 19.5 * s -> 25 * s)
         const engLineStep = Math.round(31 * s);
-        const catFontSize = Math.round(19.5 * s); // Ingrandito del +30% (baseline 15 * s -> 19.5 * s)
+        const catFontSize = Math.round(20 * s);   // Ingrandito del +30% (baseline 15 * s -> 20 * s)
 
         const rawThai = formatSemanticThaiDishTitle(scene.titlePrimary || '');
         const rawEng = formatSemanticEnglishDishTitle(scene.titleSecondary || '');
@@ -1241,125 +1225,184 @@ export function AutoCutLabPlayer({
           drawTextWithShadow43(line, leftX, curY, '#f8fafc', 4.5 * s);
           curY += engLineStep;
         });
+
+        // Prezzo Pizza a Destra
+        if (hasPrice) {
+          oCtx.save();
+          const pFontSize = Math.round(38 * s);
+          oCtx.font = `900 ${pFontSize}px "Kanit", sans-serif`;
+          const pTextW = oCtx.measureText(priceText).width;
+          const boxPadX = 18 * s;
+          const priceBoxH = Math.round(54 * s);
+          const priceBoxW = Math.round(pTextW + (boxPadX * 2));
+          const priceMarginRight = 24 * s;
+          const priceBoxX = w - priceMarginRight - priceBoxW;
+          const priceBoxY = bottomBaseY - (4 * s) - priceBoxH;
+          const boxRadius = 10 * s;
+
+          oCtx.fillStyle = '#000000';
+          oCtx.beginPath();
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(priceBoxX + 3 * s, priceBoxY + 3 * s, priceBoxW, priceBoxH, boxRadius);
+          } else {
+            oCtx.rect(priceBoxX + 3 * s, priceBoxY + 3 * s, priceBoxW, priceBoxH);
+          }
+          oCtx.fill();
+
+          oCtx.fillStyle = '#FFE500';
+          oCtx.beginPath();
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(priceBoxX, priceBoxY, priceBoxW, priceBoxH, boxRadius);
+          } else {
+            oCtx.rect(priceBoxX, priceBoxY, priceBoxW, priceBoxH);
+          }
+          oCtx.fill();
+
+          oCtx.strokeStyle = '#000000';
+          oCtx.lineWidth = 2.5 * s;
+          oCtx.stroke();
+
+          oCtx.textAlign = 'center';
+          oCtx.textBaseline = 'middle';
+          const pCx = priceBoxX + (priceBoxW / 2);
+          const pCy = priceBoxY + (priceBoxH / 2) + Math.round(2 * s);
+
+          oCtx.font = `900 ${pFontSize}px "Kanit", sans-serif`;
+          oCtx.lineWidth = 4 * s;
+          oCtx.strokeStyle = '#ffffff';
+          oCtx.lineJoin = 'round';
+          oCtx.strokeText(priceText, pCx, pCy);
+
+          oCtx.fillStyle = '#000000';
+          oCtx.shadowColor = 'transparent';
+          oCtx.shadowBlur = 0;
+          oCtx.fillText(priceText, pCx, pCy);
+          oCtx.restore();
+        }
+
       } else {
-        // Modalità Alloggi Villaggio (V1, LM1)
-        const titleFontSize = Math.round(31 * s);  // Ingrandito del +30% (baseline 24 * s -> 31 * s)
-        const titleLineStep = Math.round(38 * s);
-        const subFontSize = Math.round(23.5 * s);  // Ingrandito del +30% (baseline 18 * s -> 23.5 * s)
-        const subLineStep = Math.round(29 * s);
-        const thaiFontSize = Math.round(20 * s);   // Ingrandito del +30% (baseline 15 * s -> 20 * s)
-        const thaiLineStep = Math.round(25 * s);
-        const catFontSize = Math.round(19.5 * s);  // Ingrandito del +30% (baseline 15 * s -> 19.5 * s)
+        // Modalità Alloggi Villaggio (LM1, V1)
+        // PUNTO 3: Ingranditi del +30% nel rendering
+        const titleFontSize = Math.round(34 * s);  // Ingrandito del +30% (era ~25 * s -> 34 * s)
+        const titleLineStep = Math.round(42 * s);
+        const subFontSize = Math.round(25 * s);    // Ingrandito del +30% (era ~19 * s -> 25 * s)
+        const subLineStep = Math.round(32 * s);
+        const thaiFontSize = Math.round(21 * s);   // Ingrandito del +30% (era ~16 * s -> 21 * s)
+        const thaiLineStep = Math.round(27 * s);
+        const catFontSize = Math.round(22 * s);    // Ingrandito del +30% (era ~16 * s -> 22 * s)
 
         const lodgingTitle = scene.lodgingTitle || scene.titlePrimary || '';
         const titleLines = wrapTextToWidth(lodgingTitle, maxBottomTextW, `900 ${titleFontSize}px "Outfit", sans-serif`);
         const subLines = scene.lodgingSubtitle ? wrapTextToWidth(scene.lodgingSubtitle, maxBottomTextW, `700 ${subFontSize}px "Outfit", sans-serif`) : [];
-        // 🛡️ Regola richiesta: in V1 e LM1 l'ultima riga in Thai non deve finire sotto il prezzo, va a capo in 2 o 3 righe
         const thaiLines = wrapTextToWidth(scene.titleSecondary || '', maxBottomTextW, `600 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`);
 
         const hasBadge = !!scene.badgeCategory;
-        const catH = hasBadge ? (28 * s) : 0;
+        const catH = hasBadge ? (32 * s) : 0;
         const titleH = titleLines.length * titleLineStep;
         const subH = subLines.length * subLineStep;
         const thaiH = thaiLines.length * thaiLineStep;
-        const totalTextH = catH + titleH + subH + thaiH;
+
+        // PUNTO 4: Prezzo posizionato in BASSO A SINISTRA sotto la descrizione Thai!
+        const priceBoxH = Math.round(50 * s);
+        const priceMarginTop = 10 * s;
+        const priceTotalH = (hasPrice && isPriceOnLeft) ? (priceBoxH + priceMarginTop) : 0;
+        const totalTextH = catH + titleH + subH + thaiH + priceTotalH;
 
         let curY = bottomBaseY - totalTextH;
 
-        // 🏷️ Categoria Alloggio (✦ BUNGALOW / ✦ VILLA)
+        // 🏷️ Categoria Alloggio (✦ 🔥 AVAILABLE TONIGHT / ✦ BUNGALOW / ✦ VILLA)
         if (hasBadge) {
           const cleanCat = (scene.badgeCategory || '').replace(/^[✦⭐✨\s*]+/, '').trim().toUpperCase();
           oCtx.font = `900 ${catFontSize}px "Outfit", sans-serif`;
           drawTextWithShadow43('✦', leftX, curY, '#dc2626', 4.5 * s);
-          drawTextWithShadow43(cleanCat, leftX + (20 * s), curY, '#ffffff', 4.5 * s);
-          curY += catFontSize + (8 * s);
+          drawTextWithShadow43(cleanCat, leftX + (22 * s), curY, '#ffffff', 4.5 * s);
+          curY += catFontSize + (9 * s);
         }
 
-        // Titolo Alloggio (Inglese Strutturato Bianco Outfit 900)
+        // Titolo Alloggio (Villa Penthouse - Ingrandito +30% Outfit 900)
         oCtx.font = `900 ${titleFontSize}px "Outfit", sans-serif`;
         titleLines.forEach(line => {
-          drawTextWithShadow43(line, leftX, curY, '#ffffff', 5.0 * s);
+          drawTextWithShadow43(line, leftX, curY, '#ffffff', 5.5 * s);
           curY += titleLineStep;
         });
 
-        // Sottotitolo Alloggio (Ambra Outfit 700)
+        // Sottotitolo Alloggio (Breezy Suite - Ingrandito +30% Outfit 700 Ambra)
         if (subLines.length > 0) {
           oCtx.font = `700 ${subFontSize}px "Outfit", sans-serif`;
           subLines.forEach(line => {
-            drawTextWithShadow43(line, leftX, curY, '#fcd34d', 4.5 * s);
+            drawTextWithShadow43(line, leftX, curY, '#fcd34d', 4.8 * s);
             curY += subLineStep;
           });
         }
 
-        // Descrizione Thai (Stone-200 Prompt 600) su 2 o 3 righe ordinate e protette (mai sotto il prezzo)
+        // Descrizione Thai (Ingrandito +30% Prompt 600)
         if (thaiLines.length > 0) {
           oCtx.font = `600 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
           thaiLines.forEach(line => {
-            drawTextWithShadow43(line, leftX, curY, 'rgba(241, 245, 249, 0.98)', 4.0 * s);
+            drawTextWithShadow43(line, leftX, curY, 'rgba(241, 245, 249, 0.98)', 4.2 * s);
             curY += thaiLineStep;
           });
         }
+
+        // 🎯 PUNTO 4: Prezzo Ufficiale Spostato in BASSO A SINISTRA (sotto la descrizione Thai)
+        // E PUNTO 2: Eliminato categoricamente "Last Minute Tonight" sopra il prezzo
+        if (hasPrice && isPriceOnLeft) {
+          curY += priceMarginTop;
+          oCtx.save();
+          const pFontSize = Math.round(34 * s);
+          oCtx.font = `900 ${pFontSize}px "Kanit", sans-serif`;
+          const pTextW = oCtx.measureText(priceText).width;
+          const boxPadX = 18 * s;
+          const boxW = Math.round(pTextW + (boxPadX * 2));
+          const boxRadius = 10 * s;
+          const boxX = leftX;
+          const boxY = curY;
+
+          // Ombra solida d'angolo nera 3.5px 3.5px
+          oCtx.fillStyle = '#000000';
+          oCtx.beginPath();
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(boxX + 3.5 * s, boxY + 3.5 * s, boxW, priceBoxH, boxRadius);
+          } else {
+            oCtx.rect(boxX + 3.5 * s, boxY + 3.5 * s, boxW, priceBoxH);
+          }
+          oCtx.fill();
+
+          // Sfondo giallo dorato #FFE500
+          oCtx.fillStyle = '#FFE500';
+          oCtx.beginPath();
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(boxX, boxY, boxW, priceBoxH, boxRadius);
+          } else {
+            oCtx.rect(boxX, boxY, boxW, priceBoxH);
+          }
+          oCtx.fill();
+
+          // Bordo nero solido 2.5px
+          oCtx.strokeStyle = '#000000';
+          oCtx.lineWidth = 2.5 * s;
+          oCtx.stroke();
+
+          // Testo cifra in nero con outline bianco centrato
+          oCtx.textAlign = 'center';
+          oCtx.textBaseline = 'middle';
+          const pCx = boxX + (boxW / 2);
+          const pCy = boxY + (priceBoxH / 2) + Math.round(2 * s);
+
+          oCtx.lineWidth = 4 * s;
+          oCtx.strokeStyle = '#ffffff';
+          oCtx.lineJoin = 'round';
+          oCtx.strokeText(priceText, pCx, pCy);
+
+          oCtx.fillStyle = '#000000';
+          oCtx.shadowColor = 'transparent';
+          oCtx.shadowBlur = 0;
+          oCtx.fillText(priceText, pCx, pCy);
+
+          oCtx.restore();
+        }
       }
       oCtx.restore();
-
-      // Disegno effettivo Box Prezzo (se hasPrice è attivo, ovvero prima di outroStartTime - 0.60s e mai in V2)
-      if (hasPrice) {
-        oCtx.save();
-        const boxRadius = 10 * s;
-
-        // Ombra solida d'angolo nera 3px 3px
-        oCtx.fillStyle = '#000000';
-        oCtx.beginPath();
-        if (typeof oCtx.roundRect === 'function') {
-          oCtx.roundRect(priceBoxX + 3 * s, priceBoxY + 3 * s, priceBoxW, priceBoxH, boxRadius);
-        } else {
-          oCtx.rect(priceBoxX + 3 * s, priceBoxY + 3 * s, priceBoxW, priceBoxH);
-        }
-        oCtx.fill();
-
-        // Sfondo giallo dorato #FFE500
-        oCtx.fillStyle = '#FFE500';
-        oCtx.beginPath();
-        if (typeof oCtx.roundRect === 'function') {
-          oCtx.roundRect(priceBoxX, priceBoxY, priceBoxW, priceBoxH, boxRadius);
-        } else {
-          oCtx.rect(priceBoxX, priceBoxY, priceBoxW, priceBoxH);
-        }
-        oCtx.fill();
-
-        // Bordo nero solido 2.5px
-        oCtx.strokeStyle = '#000000';
-        oCtx.lineWidth = 2.5 * s;
-        oCtx.stroke();
-
-        // Testo cifra in nero con outline bianco centrato
-        oCtx.textAlign = 'center';
-        oCtx.textBaseline = 'middle';
-        const pCx = priceBoxX + (priceBoxW / 2);
-        const pCy = priceBoxY + (priceBoxH / 2) + Math.round(2 * s);
-
-        oCtx.font = `900 ${Math.round(38 * s)}px "Kanit", sans-serif`;
-        oCtx.lineWidth = 4 * s;
-        oCtx.strokeStyle = '#ffffff';
-        oCtx.lineJoin = 'round';
-        oCtx.strokeText(priceText, pCx, pCy);
-
-        oCtx.fillStyle = '#000000';
-        oCtx.shadowColor = 'transparent';
-        oCtx.shadowBlur = 0;
-        oCtx.fillText(priceText, pCx, pCy);
-
-        // Se Last Minute (LM1): etichetta arancione sopra il box
-        if (mode === 'LM1') {
-          const lmFontSize = Math.round(15 * s);
-          oCtx.font = `900 ${lmFontSize}px "Outfit", sans-serif`;
-          oCtx.textAlign = 'right';
-          oCtx.textBaseline = 'bottom';
-          drawTextWithShadow43('⚡ LAST MINUTE TONIGHT', w - priceMarginRight - (2 * s), priceBoxY - (4 * s), '#f59e0b', 3.2 * s);
-        }
-
-        oCtx.restore();
-      }
     };
 
     const renderFrame = (elapsed: number) => {
