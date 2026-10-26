@@ -557,13 +557,13 @@ export function AutoCutLabPlayer({
       }
 
       const cx = wVirtual / 2;
-      const cy = 370; // Posizionato elegantemente nella metà superiore
-      const baseLogoSize = 210;
+      const cy = 285; // Posizionato con maestoso respiro nella metà superiore
+      const baseLogoSize = 220; // Logo maggiorato e regale
 
       // Alone luminoso dorato radiale all'impatto
       if (stampProgress >= 0.65) {
         const glowAlpha = Math.min(0.50, (outroElapsed - 0.40) * 0.7);
-        const glow = targetCtx.createRadialGradient(cx, cy, 25, cx, cy, 240);
+        const glow = targetCtx.createRadialGradient(cx, cy, 30, cx, cy, 260);
         glow.addColorStop(0, `rgba(245, 158, 11, ${glowAlpha})`);
         glow.addColorStop(0.55, `rgba(217, 119, 6, ${glowAlpha * 0.45})`);
         glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
@@ -606,45 +606,54 @@ export function AutoCutLabPlayer({
         targetCtx.globalAlpha = textAlpha;
         targetCtx.textAlign = 'center';
 
-        // Nome Brand Dorato (Grande & Incisivo)
-        targetCtx.font = '900 36px "Outfit", "Inter", sans-serif';
+        // Nome Brand Dorato (Grande & Incisivo 42px)
+        targetCtx.font = '900 42px "Outfit", "Inter", sans-serif';
         targetCtx.fillStyle = '#fbbf24';
         targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-        targetCtx.shadowBlur = 12;
+        targetCtx.shadowBlur = 14;
+        targetCtx.shadowOffsetY = 4;
         targetCtx.fillText(
-          brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE',
+          mode === 'R1'
+            ? 'FLOWER POWER RESTAURANT'
+            : (brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE'),
           cx,
           cy + (baseLogoSize / 2) + 48
         );
 
-        // Località (Grande & Chiara)
-        targetCtx.font = '800 22px "Inter", sans-serif';
+        // Località (Grande & Chiara 24px)
+        targetCtx.font = '800 24px "Outfit", "Inter", sans-serif';
         targetCtx.fillStyle = '#ffffff';
-        targetCtx.shadowBlur = 8;
+        targetCtx.shadowBlur = 10;
+        targetCtx.shadowOffsetY = 3;
         targetCtx.fillText(
-          brand === 'pizza' ? 'RANONG · THAILAND' : 'KOH PHAYAM · THAILAND',
+          (mode === 'R1' || brand === 'village') ? 'KOH PHAYAM · THAILAND' : 'RANONG · THAILAND',
           cx,
           cy + (baseLogoSize / 2) + 82
         );
 
         // Sottotitolo / Identità Ufficiale (Zero Napoletana - Solo Tradizionale Italiana)
-        targetCtx.font = '600 17px "Inter", sans-serif';
+        targetCtx.font = '700 20px "Outfit", "Inter", sans-serif';
         targetCtx.fillStyle = '#cbd5e1';
-        targetCtx.shadowBlur = 4;
+        targetCtx.shadowBlur = 6;
+        targetCtx.shadowOffsetY = 2;
         targetCtx.fillText(
-          brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary',
+          mode === 'R1'
+            ? 'Italian Restaurant & Island Delivery'
+            : (brand === 'pizza'
+              ? 'Authentic Traditional Italian Pizza'
+              : 'Tropical Island Resort & Eco Sanctuary'),
           cx,
           cy + (baseLogoSize / 2) + 112
         );
 
-        // 🛵 CARD FINALE AD ALTO IMPATTO (VISIVA, INCISIVA & LEGGIBILE IN 4 SECONDI)
-        const boxX = 28;
+        // 🛵 CARD FINALE AD ALTO IMPATTO (VISIVA, INCISIVA, ZERO SBUZZO & LEGGIBILE SUBITO)
+        const boxX = 24;
         const boxY = cy + (baseLogoSize / 2) + 130;
-        const boxW = wVirtual - 56; // 664px (più larga, ariosa e maestosa)
-        const boxH = 475;           // 475px (sfrutta lo spazio in basso senza comprimere i testi)
-        const radius = 28;
+        const boxW = wVirtual - 48; // 672px (più larga, ariosa e maestosa)
+        const boxH = 715;           // 715px (sfrutta lo schermo annullando i 200px di buco nero sul fondo)
+        const radius = 32;
 
-        // Sfondo scuro satinato con bordo dorato/smeraldo luminescente
+        // Sfondo scuro satinato con sfumatura verticale e bordo dorato/smeraldo luminescente
         targetCtx.save();
         targetCtx.beginPath();
         if (typeof targetCtx.roundRect === 'function') {
@@ -652,87 +661,133 @@ export function AutoCutLabPlayer({
         } else {
           targetCtx.rect(boxX, boxY, boxW, boxH);
         }
-        targetCtx.fillStyle = 'rgba(11, 17, 32, 0.95)';
+        const cardGrad = targetCtx.createLinearGradient(boxX, boxY, boxX, boxY + boxH);
+        cardGrad.addColorStop(0, 'rgba(15, 23, 42, 0.96)');
+        cardGrad.addColorStop(1, 'rgba(8, 12, 22, 0.98)');
+        targetCtx.fillStyle = cardGrad;
         targetCtx.fill();
         targetCtx.lineWidth = 2.5;
-        targetCtx.strokeStyle = brand === 'pizza' ? 'rgba(245, 158, 11, 0.70)' : 'rgba(52, 211, 153, 0.80)';
-        targetCtx.shadowColor = brand === 'pizza' ? 'rgba(245, 158, 11, 0.40)' : 'rgba(52, 211, 153, 0.40)';
-        targetCtx.shadowBlur = 22;
+        targetCtx.strokeStyle = (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0.75)' : 'rgba(52, 211, 153, 0.85)';
+        targetCtx.shadowColor = (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0.45)' : 'rgba(52, 211, 153, 0.50)';
+        targetCtx.shadowBlur = 24;
         targetCtx.stroke();
         targetCtx.restore();
 
-        // Intestazione Card (Inglese & Thailandese - Font 25px Bold)
-        targetCtx.font = '900 25px "Inter", sans-serif';
-        targetCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
+        // Intestazione Card su 2 righe (Zero Sbuzzo, Perfetta Gerarchia Biculturale)
         targetCtx.textAlign = 'center';
-        targetCtx.fillText(
-          mode === 'R1'
-            ? '🛵 BUFFALO BAY DELIVERY & RESTAURANT · เกาะพยาม'
-            : (brand === 'pizza' 
-              ? '🛵 RANONG DELIVERY · ส่งถึงบ้าน' 
-              : '🌴 DIRECT BOOKING · จองตรงที่พัก'),
-          cx,
-          boxY + 46
-        );
+        if (mode === 'R1') {
+          // Riga 1 Titolo Delivery & Restaurant
+          targetCtx.font = '900 27px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#34d399';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+          targetCtx.shadowBlur = 10;
+          targetCtx.shadowOffsetY = 3;
+          targetCtx.fillText('🛵 BUFFALO BAY DELIVERY & RESTAURANT', cx, boxY + 46);
+
+          // Riga 2 Sottotitolo Isola Koh Phayam in Thai/Inglese
+          targetCtx.font = '800 20px "Prompt", "Outfit", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('เกาะพยาม · KOH PHAYAM ISLAND', cx, boxY + 78);
+        } else if (brand === 'pizza') {
+          targetCtx.font = '900 28px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+          targetCtx.shadowBlur = 10;
+          targetCtx.shadowOffsetY = 3;
+          targetCtx.fillText('🛵 RANONG DELIVERY · ส่งถึงบ้าน', cx, boxY + 46);
+
+          targetCtx.font = '800 20px "Prompt", "Outfit", sans-serif';
+          targetCtx.fillStyle = '#34d399';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('ส่งตรงถึงบ้านคุณ · รวดเร็ว สดใหม่ ร้อนๆ', cx, boxY + 78);
+        } else {
+          targetCtx.font = '900 28px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#34d399';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+          targetCtx.shadowBlur = 10;
+          targetCtx.shadowOffsetY = 3;
+          targetCtx.fillText('🌴 DIRECT BOOKING · จองตรงที่พัก', cx, boxY + 46);
+
+          targetCtx.font = '800 20px "Prompt", "Outfit", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('เกาะพยาม · KOH PHAYAM ISLAND RESORT', cx, boxY + 78);
+        }
 
         if (mode === 'R1') {
           // Modalità R1 Ristorante & Delivery Buffalo Bay (Koh Phayam)
-          const btnW = 560;
-          const btnH = 72;
+          const btnW = 616;
+          const btnH = 88;
           const btnX = cx - (btnW / 2);
-          const btnY = boxY + 76;
+          const btnY = boxY + 104;
 
           targetCtx.save();
           targetCtx.beginPath();
           if (typeof targetCtx.roundRect === 'function') {
-            targetCtx.roundRect(btnX, btnY, btnW, btnH, 20);
+            targetCtx.roundRect(btnX, btnY, btnW, btnH, 22);
           } else {
             targetCtx.rect(btnX, btnY, btnW, btnH);
           }
-          targetCtx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+          const btnGrad = targetCtx.createLinearGradient(btnX, btnY, btnX, btnY + btnH);
+          btnGrad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+          btnGrad.addColorStop(1, 'rgba(5, 150, 105, 0.22)');
+          targetCtx.fillStyle = btnGrad;
           targetCtx.fill();
           targetCtx.lineWidth = 2.5;
           targetCtx.strokeStyle = '#34d399';
-          targetCtx.shadowColor = 'rgba(52, 211, 153, 0.55)';
-          targetCtx.shadowBlur = 18;
+          targetCtx.shadowColor = 'rgba(52, 211, 153, 0.60)';
+          targetCtx.shadowBlur = 20;
           targetCtx.stroke();
           targetCtx.restore();
 
           targetCtx.textAlign = 'center';
-          targetCtx.font = '900 33px "Outfit", "Inter", sans-serif';
+          targetCtx.font = '900 36px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#ffffff';
-          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+          targetCtx.shadowBlur = 10;
+          targetCtx.shadowOffsetY = 3;
+          targetCtx.fillText('✆ WhatsApp +66 095 882 5573', cx, btnY + 56);
+
+          // Highlights Piatto e Servizio d'Impatto (Font 26px - 29px Bold)
+          targetCtx.font = '900 29px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#ffffff';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.90)';
           targetCtx.shadowBlur = 8;
-          targetCtx.fillText('✆ WhatsApp +66 095 882 5573', cx, btnY + 47);
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('🍕 Authentic Italian Pizza & Homemade Pasta', cx, boxY + 270);
 
-          targetCtx.font = '800 25px "Inter", sans-serif';
+          targetCtx.font = '800 28px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#fbbf24';
-          targetCtx.fillText('🛵 Fast Island Delivery in Koh Phayam', cx, boxY + 215);
+          targetCtx.fillText('🛵 Fast Island Delivery to Your Resort', cx, boxY + 350);
 
-          targetCtx.font = '800 25px "Inter", sans-serif';
+          targetCtx.font = '800 26px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#38bdf8';
-          targetCtx.fillText('🍕 Authentic Italian Pizza & Homemade Pasta', cx, boxY + 280);
+          targetCtx.fillText('🌴 Buffalo Bay (Ao Khao Kwai) · Koh Phayam', cx, boxY + 430);
 
-          targetCtx.font = '700 22px "Inter", sans-serif';
+          targetCtx.font = '800 26px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#e2e8f0';
-          targetCtx.fillText('🌴 Buffalo Bay (Ao Khao Kwai) · Koh Phayam', cx, boxY + 360);
+          targetCtx.fillText('🌐 www.flowerpowervillage.com', cx, boxY + 510);
         } else if (brand === 'pizza') {
-          // Disegno QR Code Ufficiale LINE (Colonna Sinistra 185x185)
-          const qrSize = 185;
-          const qrX = boxX + 24;
-          const qrY = boxY + 76;
+          // Disegno QR Code Ufficiale LINE (Colonna Sinistra 215x215)
+          const qrSize = 215;
+          const qrX = boxX + 26;
+          const qrY = boxY + 115;
 
           targetCtx.save();
           targetCtx.beginPath();
           if (typeof targetCtx.roundRect === 'function') {
-            targetCtx.roundRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20, 18);
+            targetCtx.roundRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20, 20);
           } else {
             targetCtx.rect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
           }
           targetCtx.fillStyle = '#ffffff';
           targetCtx.fill();
-          targetCtx.shadowColor = 'rgba(0,0,0,0.6)';
-          targetCtx.shadowBlur = 18;
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+          targetCtx.shadowBlur = 20;
 
           // Disegna il QR Code Ufficiale LINE
           if (lineQrImg.complete && lineQrImg.naturalWidth > 0) {
@@ -743,92 +798,133 @@ export function AutoCutLabPlayer({
           targetCtx.restore();
 
           // Didascalia sotto al QR Code (Grande & Incisiva)
-          targetCtx.font = '900 18px "Inter", sans-serif';
+          targetCtx.font = '900 21px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#fbbf24';
           targetCtx.textAlign = 'center';
-          targetCtx.fillText('📲 Scan to Order', qrX + (qrSize / 2), qrY + qrSize + 30);
-          targetCtx.font = '800 17px "Prompt", sans-serif';
+          targetCtx.fillText('📲 Scan to Order', qrX + (qrSize / 2), qrY + qrSize + 34);
+          targetCtx.font = '800 19px "Prompt", sans-serif';
           targetCtx.fillStyle = '#ffffff';
-          targetCtx.fillText('สแกนสั่งอาหาร', qrX + (qrSize / 2), qrY + qrSize + 56);
+          targetCtx.fillText('สแกนสั่งอาหารทันที', qrX + (qrSize / 2), qrY + qrSize + 60);
 
           // Dati di Contatto & Ordine (Colonna Destra - Grandi & Incisivi con ampio respiro)
-          const infoX = boxX + 242;
+          const infoX = boxX + 272;
           targetCtx.textAlign = 'left';
 
-          targetCtx.font = '900 28px "Outfit", "Inter", sans-serif';
+          targetCtx.font = '900 30px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#ffffff';
-          targetCtx.fillText('🌐 flowerpowerpizza.com', infoX, boxY + 120);
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.90)';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('🌐 flowerpowerpizza.com', infoX, boxY + 155);
 
-          targetCtx.font = '800 24px "Inter", sans-serif';
+          targetCtx.font = '900 26px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#10b981';
-          targetCtx.fillText('💚 LINE: @flowerpowerpizza', infoX, boxY + 178);
+          targetCtx.fillText('💚 LINE: @flowerpowerpizza', infoX, boxY + 220);
 
-          targetCtx.font = '800 21px "Inter", sans-serif';
+          targetCtx.font = '800 24px "Outfit", "Prompt", sans-serif';
           targetCtx.fillStyle = '#fbbf24';
-          targetCtx.fillText('🎁 10% Off 1st Order · ลด 10%', infoX, boxY + 234);
+          targetCtx.fillText('🎁 10% Off 1st Order · ลด 10%', infoX, boxY + 282);
 
-          targetCtx.font = '800 21px "Inter", sans-serif';
+          targetCtx.font = '800 24px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#38bdf8';
-          targetCtx.fillText('👆 Link in Bio ➔ Order Now', infoX, boxY + 288);
+          targetCtx.fillText('👆 Link in Bio ➔ Order Now', infoX, boxY + 344);
 
-          targetCtx.font = '700 17px "Inter", sans-serif';
-          targetCtx.fillStyle = '#94a3b8';
-          targetCtx.fillText('🔥 Hot & Fresh in Thermal Box', infoX, boxY + 340);
+          targetCtx.font = '700 22px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#cbd5e1';
+          targetCtx.fillText('🔥 Hot & Fresh in Thermal Box', infoX, boxY + 406);
+
+          // Orari di Consegna (Centrato a piena larghezza)
+          targetCtx.textAlign = 'center';
+          targetCtx.font = '800 24px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.90)';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('🛵 Delivery Hours: 11:30 - 21:30 · Open Every Day', cx, boxY + 510);
         } else {
           // Modalità Villaggio (Koh Phayam): Layout Diretto, Visivo e Gigante
-          const btnW = 560;
-          const btnH = 72;
+          const btnW = 616;
+          const btnH = 88;
           const btnX = cx - (btnW / 2);
-          const btnY = boxY + 76;
+          const btnY = boxY + 104;
 
           targetCtx.save();
           targetCtx.beginPath();
           if (typeof targetCtx.roundRect === 'function') {
-            targetCtx.roundRect(btnX, btnY, btnW, btnH, 20);
+            targetCtx.roundRect(btnX, btnY, btnW, btnH, 22);
           } else {
             targetCtx.rect(btnX, btnY, btnW, btnH);
           }
-          targetCtx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+          const btnGrad = targetCtx.createLinearGradient(btnX, btnY, btnX, btnY + btnH);
+          btnGrad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+          btnGrad.addColorStop(1, 'rgba(5, 150, 105, 0.22)');
+          targetCtx.fillStyle = btnGrad;
           targetCtx.fill();
           targetCtx.lineWidth = 2.5;
           targetCtx.strokeStyle = '#34d399';
-          targetCtx.shadowColor = 'rgba(52, 211, 153, 0.55)';
-          targetCtx.shadowBlur = 18;
+          targetCtx.shadowColor = 'rgba(52, 211, 153, 0.60)';
+          targetCtx.shadowBlur = 20;
           targetCtx.stroke();
           targetCtx.restore();
 
           targetCtx.textAlign = 'center';
-          targetCtx.font = '900 34px "Outfit", "Inter", sans-serif';
+          targetCtx.font = '900 36px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#ffffff';
-          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-          targetCtx.shadowBlur = 8;
-          targetCtx.fillText('🌐 flowerpowervillage.com', cx, btnY + 47);
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+          targetCtx.shadowBlur = 10;
+          targetCtx.shadowOffsetY = 3;
+          targetCtx.fillText('🌐 flowerpowervillage.com', cx, btnY + 56);
 
-          targetCtx.font = '800 25px "Inter", sans-serif';
+          // Highlights Resort (Font 26px - 29px Bold)
+          targetCtx.font = '900 29px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#fbbf24';
-          targetCtx.fillText('✨ Best Rate Guaranteed Online', cx, boxY + 215);
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.90)';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('✨ Best Rate Guaranteed Online (-10% Direct)', cx, boxY + 270);
 
-          targetCtx.font = '800 25px "Inter", sans-serif';
+          targetCtx.font = '800 28px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#38bdf8';
-          targetCtx.fillText('👉 Link in Bio ➔ Book Your Stay', cx, boxY + 280);
+          targetCtx.fillText('👉 Link in Bio ➔ Instant Room Confirmation', cx, boxY + 350);
 
-          targetCtx.font = '700 22px "Inter", sans-serif';
+          targetCtx.font = '800 26px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#34d399';
+          targetCtx.fillText('🌺 Eco Wooden Bungalows & Breezy Suites', cx, boxY + 430);
+
+          targetCtx.font = '800 26px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#e2e8f0';
-          targetCtx.fillText('🌺 Eco Wooden Bungalows & Breezy Suites', cx, boxY + 360);
+          targetCtx.fillText('🏝️ Buffalo Bay (Ao Khao Kwai) · Koh Phayam', cx, boxY + 510);
         }
 
-        // Payoff Footer Card (Sicuro all'interno del box)
+        // Linea divisoria sottile ed elegante
+        targetCtx.save();
+        const sepGrad = targetCtx.createLinearGradient(boxX + 60, boxY + 575, boxX + boxW - 60, boxY + 575);
+        sepGrad.addColorStop(0, (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0)' : 'rgba(52, 211, 153, 0)');
+        sepGrad.addColorStop(0.5, (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0.45)' : 'rgba(52, 211, 153, 0.45)');
+        sepGrad.addColorStop(1, (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0)' : 'rgba(52, 211, 153, 0)');
+        targetCtx.strokeStyle = sepGrad;
+        targetCtx.lineWidth = 1.5;
+        targetCtx.beginPath();
+        targetCtx.moveTo(boxX + 60, boxY + 575);
+        targetCtx.lineTo(boxX + boxW - 60, boxY + 575);
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        // Payoff Footer Card (Sicuro all'interno del box, ad alto contrasto 22px)
         targetCtx.textAlign = 'center';
-        targetCtx.font = '800 19px "Inter", sans-serif';
-        targetCtx.fillStyle = '#f1f5f9';
+        targetCtx.font = '800 22px "Outfit", "Inter", sans-serif';
+        targetCtx.fillStyle = '#f8fafc';
+        targetCtx.shadowColor = 'rgba(0, 0, 0, 0.90)';
+        targetCtx.shadowBlur = 6;
+        targetCtx.shadowOffsetY = 2;
         targetCtx.fillText(
           mode === 'R1'
-            ? '🇮🇹 Authentic Traditional Italian Pizza & Kitchen in Koh Phayam'
+            ? '🇮🇹 Authentic Italian Traditional Pizza & Homemade Kitchen'
             : (brand === 'pizza'
               ? '🇮🇹 Authentic Traditional Italian Pizza in Ranong'
               : '🌴 Tropical Island Resort & Eco Sanctuary in Koh Phayam'),
           cx,
-          boxY + boxH - 26
+          boxY + 645
         );
 
         targetCtx.restore();
@@ -981,10 +1077,10 @@ export function AutoCutLabPlayer({
           }
 
           ctx43.font = '900 32px "Outfit", "Inter", sans-serif';
-          ctx43.fillStyle = brand === 'pizza' ? '#fbbf24' : '#34d399';
+          ctx43.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
           ctx43.textAlign = 'center';
           ctx43.fillText(
-            brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE',
+            mode === 'R1' ? 'FLOWER POWER RESTAURANT' : (brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE'),
             cx43,
             275
           );
@@ -992,7 +1088,7 @@ export function AutoCutLabPlayer({
           ctx43.font = '800 20px "Inter", sans-serif';
           ctx43.fillStyle = '#ffffff';
           ctx43.fillText(
-            brand === 'pizza' ? 'RANONG · THAILAND' : 'KOH PHAYAM · THAILAND',
+            (mode === 'R1' || brand === 'village') ? 'KOH PHAYAM · THAILAND' : 'RANONG · THAILAND',
             cx43,
             315
           );
@@ -1000,7 +1096,7 @@ export function AutoCutLabPlayer({
           ctx43.font = '600 16px "Inter", sans-serif';
           ctx43.fillStyle = '#cbd5e1';
           ctx43.fillText(
-            brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary',
+            mode === 'R1' ? 'Italian Restaurant & Island Delivery' : (brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary'),
             cx43,
             348
           );
@@ -1017,7 +1113,7 @@ export function AutoCutLabPlayer({
             ctx43.rect(cardX, cardY, cardW, cardH);
           }
           ctx43.fill();
-          ctx43.strokeStyle = brand === 'pizza' ? 'rgba(245, 158, 11, 0.65)' : 'rgba(52, 211, 153, 0.75)';
+          ctx43.strokeStyle = (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0.65)' : 'rgba(52, 211, 153, 0.75)';
           ctx43.lineWidth = 2.5;
           ctx43.stroke();
           ctx43.restore();
@@ -1026,15 +1122,15 @@ export function AutoCutLabPlayer({
           ctx43.fillStyle = '#ffffff';
           ctx43.textAlign = 'center';
           ctx43.fillText(
-            brand === 'pizza' ? '🌐 flowerpowerpizza.com' : '🌐 flowerpowervillage.com',
+            mode === 'R1' ? '✆ WhatsApp +66 095 882 5573' : (brand === 'pizza' ? '🌐 flowerpowerpizza.com' : '🌐 flowerpowervillage.com'),
             cx43,
             cardY + 46
           );
 
           ctx43.font = '800 18px "Inter", sans-serif';
-          ctx43.fillStyle = brand === 'pizza' ? '#fbbf24' : '#34d399';
+          ctx43.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
           ctx43.fillText(
-            brand === 'pizza' ? '🛵 Fast Delivery Ranong · 10% Off 1st Order' : '🌴 Direct Booking · Best Rates Guaranteed',
+            mode === 'R1' ? '🛵 Fast Island Delivery in Koh Phayam' : (brand === 'pizza' ? '🛵 Fast Delivery Ranong · 10% Off 1st Order' : '🌴 Direct Booking · Best Rates Guaranteed'),
             cx43,
             cardY + 86
           );
@@ -1042,7 +1138,7 @@ export function AutoCutLabPlayer({
           ctx43.font = '600 15px "Inter", sans-serif';
           ctx43.fillStyle = '#94a3b8';
           ctx43.fillText(
-            brand === 'pizza' ? 'Order Online or Visit us near Hot Springs' : 'Koh Phayam Island · Thailand',
+            mode === 'R1' ? 'Buffalo Bay (Ao Khao Kwai) · Koh Phayam' : (brand === 'pizza' ? 'Order Online or Visit us near Hot Springs' : 'Koh Phayam Island · Thailand'),
             cx43,
             cardY + 118
           );
