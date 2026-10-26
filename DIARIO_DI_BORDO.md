@@ -3,7 +3,20 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
-### 🟩 [26/10/2026 - ORE 12:50] · SOCIAL STUDIO AUTOCUT: NUOVO TASTO "VIDEO TEST TELEGRAM" & MODAL OTTIMIZZATA (12 OPZIONI VIDEO REALI, PRESET RAPIDI & ZERO PESANTEZZA)
+### 🟩 [26/10/2026 - ORE 13:15] · SOCIAL STUDIO AUTOCUT: RIMOZIONE TOTALE MASCHERE GRADIENTE NERO SU TUTTI I VIDEO (COLORI VIVI, PIENA LUCE NATURALE & OMBRA NERA CIRCOSCRITTA ESCLUSIVAMENTE AI TESTI)
+- **Cosa abbiamo fatto:** Rimosse simultaneamente e definitivamente tutte le maschere di gradiente nero a tutta larghezza in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) per tutti i formati (9:16 e 4:3), sia nell'anteprima DOM che nel motore di esportazione Canvas:
+  - 🚫 **Rimozione Maschere di Gradiente a Tutta Larghezza (Top & Bottom Vignettes)**:
+    - *Canvas 9:16 (`renderOverlaysToContext`)*: eliminate la Top Vignette da $340\text{px}$ (`topFadeH`) e la Bottom Vignette da $520\text{px}$ (`btmFadeH`).
+    - *Canvas 4:3 (`render43OverlaysToContext`)*: eliminate la Top Vignette da $160\text{px}$ e la Bottom Vignette da $220\text{px}$.
+    - *DOM 9:16 Preview*: eliminati i div sovrapposti `h-80` (sfumatura superiore) e `h-[520px]` (sfumatura inferiore).
+    - *DOM 4:3 Companion Preview*: eliminati i div sovrapposti `h-40` e `h-48`.
+  - ✒️ **Protezione Nera Mantenuta ESCLUSIVAMENTE a Ridosso delle Scritte**:
+    - Ogni singolo testo conserva `drawTextWithShadow` su Canvas: contorno solido a 360° e drop shadow profonda circoscritta alle sole lettere.
+    - Nel DOM, ogni intestazione, titolo piatto e sottotitolo alloggio mantiene il proprio multi-layer `text-shadow` e `drop-shadow` perimetrale.
+- **Effetto reale:** L'intero fotogramma video viene liberato dalla patina cupa e scura: le foto di pizze, paste artigianali, bungalow tropicali e spiagge risplendono al 100% della loro luce naturale e brillantezza, con le scritte perfettamente leggibili e staccate dallo sfondo senza intaccare la qualità dell'immagine.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato visivamente nel browser del Social Studio e operativo.
+
+---
 - **Cosa abbiamo fatto:** Perfezionata e snellita l'architettura del test sequenziale batch a Telegram in [AutoCutBatchDispatcherModal.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutBatchDispatcherModal.tsx) e [AutoCutLabView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabView.tsx):
   - 🔘 **Ridenominazione Ufficiale Tasto in "Video Test Telegram"**:
     - Rinominato il pulsante principale nell'header da *"Verifica Sequenza Telegram"* a **`Video Test Telegram`**.

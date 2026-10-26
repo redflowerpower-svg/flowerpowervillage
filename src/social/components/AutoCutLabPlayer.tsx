@@ -1039,23 +1039,7 @@ export function AutoCutLabPlayer({
       if (!scene) return;
       const s = w / 960;
 
-      // 1. Top Vignette
-      const topFadeH = 160 * s;
-      const topGrad = oCtx.createLinearGradient(0, 0, 0, topFadeH);
-      topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.90)');
-      topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      oCtx.fillStyle = topGrad;
-      oCtx.fillRect(0, 0, w, topFadeH);
-
-      // 2. Bottom Vignette
-      const btmFadeH = 220 * s;
-      const btmGrad = oCtx.createLinearGradient(0, h - btmFadeH, 0, h);
-      btmGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      btmGrad.addColorStop(1, 'rgba(0, 0, 0, 0.92)');
-      oCtx.fillStyle = btmGrad;
-      oCtx.fillRect(0, h - btmFadeH, w, btmFadeH);
-
-      // 3. Watermark Logo Top-Left (60px * s)
+      // 1. Watermark Logo Top-Left (60px * s)
       const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
       const logoSize = 60 * s;
       const posX = 16 * s;
@@ -1331,28 +1315,7 @@ export function AutoCutLabPlayer({
       if (isOutro || !scene) return;
       const s = w / 395; // Proporzione fedele 1:1 rispetto alla preview del container reale a 395px
 
-      // 1. Top Vignette Fade cinematografico ad alto contrasto (protegge watermark logo e scritte contro sfondi chiari, paglia o sole)
-      const topFadeH = 340 * s;
-      const topGrad = oCtx.createLinearGradient(0, 0, 0, topFadeH);
-      topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.92)');
-      topGrad.addColorStop(0.35, 'rgba(0, 0, 0, 0.70)');
-      topGrad.addColorStop(0.70, 'rgba(0, 0, 0, 0.35)');
-      topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      oCtx.fillStyle = topGrad;
-      oCtx.fillRect(0, 0, w, topFadeH);
-
-      // 2. Bottom Vignette Fade cinematografica profonda: protegge interamente la card testi (categoria cibi, titoli bilingui e prezzo con ombra nera continua)
-      const btmFadeH = 520 * s;
-      const btmGrad = oCtx.createLinearGradient(0, h - btmFadeH, 0, h);
-      btmGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      btmGrad.addColorStop(0.18, 'rgba(0, 0, 0, 0.35)');
-      btmGrad.addColorStop(0.40, 'rgba(0, 0, 0, 0.68)');
-      btmGrad.addColorStop(0.68, 'rgba(0, 0, 0, 0.88)');
-      btmGrad.addColorStop(1, 'rgba(0, 0, 0, 0.96)');
-      oCtx.fillStyle = btmGrad;
-      oCtx.fillRect(0, h - btmFadeH, w, btmFadeH);
-
-      // 3. Header Top: Logo a sinistra (+20%) + Testi a destra (SEMPRE CENTRATI SULL'ASSE VERTICALE IN TUTTI I FORMATI)
+      // 1. Header Top: Logo a sinistra (+20%) + Testi a destra (SEMPRE CENTRATI SULL'ASSE VERTICALE IN TUTTI I FORMATI)
       const logoSize = 91 * s; // Ingrandito del +20% (era 76 * s)
       const logoY = 24 * s;    // Ancoraggio superiore
       const gap = 12 * s;
@@ -3317,11 +3280,6 @@ export function AutoCutLabPlayer({
         </div>
       )}
 
-      {/* Sfondo sfumato nero in alto (Top Vignette Fade ad alto contrasto per proteggere logo e testi contro qualsiasi sfondo) */}
-      <div className={`absolute top-0 left-0 right-0 h-80 bg-gradient-to-b from-black/92 via-black/65 via-50% via-black/25 via-80% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
-        isInOutro ? 'opacity-0' : 'opacity-100'
-      }`} />
-
       {/* 👑 WATERMARK & HEADER UFFICIALE 9:16 (Logo +20% + testi) SEMPRE CENTRATO SULL'ASSE VERTICALE IN TUTTI I FORMATI */}
       {!isInOutro && (
         <div className="absolute top-6 left-1/2 -translate-x-1/2 w-max z-30 pointer-events-none transition-all duration-300">
@@ -3569,11 +3527,6 @@ export function AutoCutLabPlayer({
           )}
         </div>
       )}
-
-      {/* Sfondo sfumato nero in basso (Bottom Vignette Fade cinematografica profonda: protegge categoria, titoli bilingui e prezzo con ombra nera continua) */}
-      <div className={`absolute bottom-0 left-0 right-0 h-[520px] bg-gradient-to-t from-black/95 via-black/85 via-45% via-black/55 via-72% via-black/25 via-88% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
-        isInOutro ? 'opacity-0' : 'opacity-100'
-      }`} />
 
       {/* 🏷️ GERARCHIA TIPOGRAFICA RIGOROSA (SAFE ZONE IN BASSO PROPORZIONATA - ALZATA A 65px PER LE PIZZE) */}
       {!testRun.isEmptyShowcase && currentScene && (
@@ -4010,16 +3963,6 @@ export function AutoCutLabPlayer({
               height={720}
               className="w-full h-full object-cover"
             />
-
-            {/* Sfondo sfumato nero in alto (Top Vignette Fade per massima leggibilità watermark) */}
-            <div className={`absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-black/92 via-black/55 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
-              isInOutro ? 'opacity-0' : 'opacity-100'
-            }`} />
-
-            {/* Sfondo sfumato nero in basso 4:3 (Bottom Vignette Fade: protegge categoria, titoli e prezzo con ombra nera continua) */}
-            <div className={`absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/95 via-black/75 via-45% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
-              isInOutro ? 'opacity-0' : 'opacity-100'
-            }`} />
 
             {/* Watermark Ufficiale 4:3 (Logo +20% ulteriore = 60px + Titolo con riverbero nero + Sottotitolo - Ingrandito del 20%, posizione top-3 left-3 invariata) */}
             <div className={`absolute top-3 left-3 z-30 flex items-center gap-3.5 pointer-events-none transition-all duration-300 ${
