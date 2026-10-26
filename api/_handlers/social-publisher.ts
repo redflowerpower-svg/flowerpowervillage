@@ -946,7 +946,14 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
       }
 
       const dishListText = dishDetails && dishDetails.length > 0
-        ? dishDetails.map((d: any) => `- ${d.name} (${d.nameTh}): ${d.description || 'Autentica ricetta artigianale'}`).join('\n')
+        ? dishDetails.map((d: any) => {
+            const basePrice = d.priceValue || (d.priceLabel ? parseInt(String(d.priceLabel).replace(/[^\d]/g, ''), 10) : 0);
+            const directPrice = basePrice ? Math.round(basePrice * 0.90) : 0;
+            const priceInfo = basePrice
+              ? `Tariffa online: ${basePrice} THB ➔ Prenotazione diretta sul nostro sito (-10%): ${directPrice} THB`
+              : (d.description || 'Autentica ricetta o alloggio');
+            return `- ${d.name} (${d.nameTh}): ${priceInfo}`;
+          }).join('\n')
         : dishes.map((d: string) => `- ${d}`).join('\n');
 
       const pizzaPrompt = `Sei il copywriter creativo di Flower Power Pizza a Ranong, Thailandia (autentica pizzeria tradizionale e cucina artigianale italiana).
@@ -1068,32 +1075,41 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
   "proverbEnglish": "..."
 }`;
 
-      // 🔥 LM1: STORIES LAST MINUTE KOH PHAYAM (ALLOGGI LIBERI OGGI & PREZZO REALE OCTORATE)
+      // 🔥 LM1: STORIES & POST LAST MINUTE KOH PHAYAM (ALLOGGI LIBERI OGGI, TARIFFE ONLINE ➔ SCONTO DIRETTO -10%)
       const lm1Prompt = `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale ad Aow Khao Kwai / Buffalo Bay).
-Scrivi un micro-post / Story LAST MINUTE biculturale (INGLESE in alto + THAI in basso) ad altissima conversione, magnetico e dal ritmo vivace.
+Scrivi un micro-post / Story LAST MINUTE biculturale (INGLESE in alto + THAI in basso) ad altissima conversione, magnetico, trasparente e dal ritmo vivace, pensato per Facebook, Instagram e TikTok.
 
 CONTESTO ATTUALE:
-- Alloggi LIBERI STASERA con tariffe Last Minute certificate dal calendario Octorate:
+- Alloggi LIBERI STASERA con tariffe Last Minute Octorate e SCONTO PRENOTAZIONE DIRETTA -10%:
 ${dishListText}
 - Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
 - Fascia oraria: ${mealMoment}
 - Situazione meteo del momento: ${weatherAngle}
 - Stagione: ${season || 'Stagione tropicale'}
-- Sito ufficiale per prenotazione istantanea: www.flowerpowervillage.com
+- Sito ufficiale per prenotazione istantanea al miglior prezzo garantito: www.flowerpowervillage.com
+- Canale WhatsApp per contatto rapido: +66 095 882 5573
 
 REGOLE FONDAMENTALI DI SCRITTURA:
 1. TEMA LAST MINUTE & URGENZA POSITIVA:
-   Comunica con entusiasmo che ci sono camere e bungalow liberi per stanotte a prezzi speciali a cascata. Chi si trova a Koh Phayam o nelle vicinanze può cogliere l'occasione al volo per una notte magica a Buffalo Bay.
-2. CITARE LA DISPONIBILITÀ DELLE CAMERE:
-   Menziona le opzioni disponibili stanotte (es. bungalow nel verde o tende glamping) e il vantaggio del prezzo speciale last minute verificato.
-3. STRUTTURA & LUNGHEZZA:
-   - MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Spaziatura ariosa, zero muri di parole.
-   - Nomi alloggi: locuzione continua su singola riga.
-   - Proverbio del Giorno: proverbio evocativo sul cogliere l'attimo, il viaggio o il relax.
-   - Chiusura: invito a prenotare subito su www.flowerpowervillage.com prima che si esauriscano.
+   Comunica con entusiasmo che ci sono camere e bungalow liberi per stanotte a Buffalo Bay. Chi si trova a Koh Phayam, al porto o nelle vicinanze può cogliere l'occasione al volo per una notte magica tra palme tropicali e brezza marina.
+2. ELENCO ALLOGGI LIBERI CON PREZZO ONLINE ➔ PREZZO SITO DIRETTO (-10%):
+   Presenta in modo ordinato e pulito (elenco puntato con emoji) gli alloggi liberi stanotte mostrando la trasparenza dello sconto diretto:
+   Esempio per ciascun alloggio libero nel contesto:
+   • [Nome Alloggio]: [Prezzo Online] THB ➔ [Prezzo Scontato Diretto] THB (-10% prenotazione diretta)
+3. PRIVILEGIO PRENOTAZIONE DIRETTA (DISINTERMEDIAZIONE BOOKING/AGODA):
+   Evidenzia chiaramente che prenotando direttamente sul nostro sito ufficiale www.flowerpowervillage.com si ottiene automaticamente un ulteriore -10% di sconto reale rispetto alle tariffe online!
+4. UNICO LINK DIRETTO PULITO & WHATSAPP (DIVIETO ASSOLUTO LINK MULTIPLI):
+   NON mettere link diversi o confusi per ogni camera. Inserisci ESCLUSIVAMENTE:
+   👉 www.flowerpowervillage.com
+   💬 WhatsApp: +66 095 882 5573
+5. STRUTTURA & LUNGHEZZA:
+   - MASSIMO 4-5 RIGHE AD ALTO IMPATTO per lingua (inclusa la lista alloggi). Spaziatura ariosa, zero muri di parole.
+   - Nomi alloggi: locuzione continua su singola riga (mai spezzata a metà).
+   - Proverbio del Giorno: proverbio evocativo sul cogliere l'attimo, il viaggio, la natura o il mare (Thai: 📜 สุภาษิต: "..." | Inglese: 📜 Proverb: "...").
    - Bandiera: 🇬🇧 per l'Inglese in alto, 🇹🇭 per il Thai in basso.
-   - Zero hashtag nel testo. Zero forno a legna. ZERO menzione di sunset/tramonto.
-   - Emoji contestuali distribuite nel testo, MAI raggruppate alla fine della frase.
+   - Zero hashtag nel corpo del testo (vengono aggiunti dal sistema in fondo al post).
+   - Zero forno a legna. ZERO menzione di sunset/tramonto.
+   - Emoji contestuali distribuite nel testo, MAI 3 o 4 raggruppate alla fine della frase.
 
 Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 {

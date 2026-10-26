@@ -1029,6 +1029,7 @@ export function AutoCutLabPlayer({
     };
 
     // 🖥️ Helper per disegnare gli overlay 4:3 con gerarchia scalare per Google Business & Facebook Feed
+    // 🖥️ Helper per disegnare gli overlay 4:3 con gerarchia scalare per Google Business & Facebook Feed
     const render43OverlaysToContext = (
       oCtx: CanvasRenderingContext2D,
       w: number,
@@ -1037,7 +1038,7 @@ export function AutoCutLabPlayer({
       tElapsed: number = 0
     ) => {
       if (!scene) return;
-      // 🛡️ Se il video è nella fase di Outro finale o in dissolvenza verso l'Outro, azzera categoricamente ogni overlay e prezzo
+      // 🛡️ Se il video è nella fase di Outro finale o in dissolvenza verso l'Outro, azzera categoricamente ogni overlay
       if (tElapsed >= outroStartTime - 0.35) return;
       const s = w / 960;
 
@@ -1047,7 +1048,7 @@ export function AutoCutLabPlayer({
         x: number,
         y: number,
         fillStyle: string,
-        strokeWidth: number = 4.5 * s
+        strokeWidth: number = 4.0 * s
       ) => {
         oCtx.save();
         oCtx.strokeStyle = '#000000';
@@ -1055,8 +1056,8 @@ export function AutoCutLabPlayer({
         oCtx.lineJoin = 'round';
         oCtx.miterLimit = 2;
         oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
-        oCtx.shadowBlur = 12 * s;
-        oCtx.shadowOffsetY = 3 * s;
+        oCtx.shadowBlur = 10 * s;
+        oCtx.shadowOffsetY = 2.5 * s;
         oCtx.strokeText(text, x, y);
         oCtx.restore();
 
@@ -1069,75 +1070,152 @@ export function AutoCutLabPlayer({
         oCtx.restore();
       };
 
-      // 1. Watermark Logo Top-Left (+100% ingrandito nel rendering: 140px, distanziato +5px dall'alto e +5px da sinistra)
+      // 1. Watermark Logo Top-Left (+50% ingrandito nel rendering: logo 90px, testi calibrati +50%)
       const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
-      const logoSize = Math.round(140 * s); // Raddoppiato nel rendering per massima visibilità a 1440x1080
-      const posX = 24 * s; // Distanziato +5px extra
-      const posY = 24 * s; // Distanziato +5px extra
+      const logoSize = Math.round(90 * s); // +50% rispetto ai 60px baseline
+      const posX = 20 * s;
+      const posY = 20 * s;
 
       if (comp43Logo) {
         oCtx.save();
         oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-        oCtx.shadowBlur = 20 * s;
-        oCtx.shadowOffsetY = 4 * s;
+        oCtx.shadowBlur = 16 * s;
+        oCtx.shadowOffsetY = 3.5 * s;
         oCtx.drawImage(comp43Logo, posX, posY, logoSize, logoSize);
         oCtx.restore();
       }
 
-      // Testi Brand Watermark a Destra del Logo (+100% ingranditi nel rendering con ombra solida a 360°)
+      // Testi Brand Watermark a Destra del Logo (+50% in blocco rispetto al baseline con ombra solida a 360°)
       oCtx.save();
-      const textX = posX + logoSize + (18 * s);
+      const textX = posX + logoSize + (14 * s);
       oCtx.textAlign = 'left';
       oCtx.textBaseline = 'top';
 
-      // Riga 1: FLOWER POWER (48 * s)
-      const fpFontSize = Math.round(48 * s);
+      // Riga 1: FLOWER POWER (+50%: 30 * s)
+      const fpFontSize = Math.round(30 * s);
       oCtx.font = `900 ${fpFontSize}px "Outfit", sans-serif`;
-      drawTextWithShadow43('FLOWER POWER', textX, posY + (4 * s), '#ffffff', 5.5 * s);
+      drawTextWithShadow43('FLOWER POWER', textX, posY + (2 * s), '#ffffff', 4.5 * s);
 
-      // Riga 2: Pizza / Village (44 * s)
-      const subFontSize = Math.round(44 * s);
+      // Riga 2: Pizza / Village (+50%: 28.5 * s)
+      const subFontSize = Math.round(28.5 * s);
       oCtx.font = `italic 500 ${subFontSize}px "Outfit", sans-serif`;
       const subColor = brand === 'pizza' ? '#f87171' : '#34d399';
-      drawTextWithShadow43(brand === 'pizza' ? 'Pizza' : 'Village', textX, posY + (52 * s), subColor, 5.0 * s);
+      drawTextWithShadow43(brand === 'pizza' ? 'Pizza' : 'Village', textX, posY + (34 * s), subColor, 4.0 * s);
 
-      // Riga 3: Delivery / Direct Booking (34 * s)
-      const infoFontSize = Math.round(34 * s);
+      // Riga 3: Delivery / Direct Booking (+50%: 22.5 * s)
+      const infoFontSize = Math.round(22.5 * s);
       oCtx.font = `700 ${infoFontSize}px "Outfit", sans-serif`;
       const infoText = brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off';
-      drawTextWithShadow43(infoText, textX, posY + (102 * s), '#fbbf24', 4.5 * s);
+      drawTextWithShadow43(infoText, textX, posY + (66 * s), '#fbbf24', 3.5 * s);
       oCtx.restore();
 
-      // 2. Testi Inferiori a Sinistra (+150% ingranditi nel rendering, distanziati +5px a destra e +5px dal basso, con A Capo Semantico del 9:16)
-      const leftX = 24 * s; // Distanziato +5px verso destra
-      const bottomBaseY = h - (46 * s); // Distanziato +5px verso l'alto con safe zone per testi +150%
+      // 2. Prezzo Ufficiale in Basso a Destra:
+      // 🛡️ REGOLA: Tutto quel che concerne il prezzo DEVE sparire 0.60s prima dell'arrivo del cartello finale con il logo
+      // In V2 è stato rimosso categoricamente (nessun prezzo in V2)
+      const isPriceAllowed = tElapsed < (outroStartTime - 0.60);
+      const hasPrice = isPriceAllowed && mode !== 'V2' && mode !== 'V3' && (!!scene.priceLabel || !!scene.pizzaSizes);
 
-      // Regola 13: Split semantico identico al 9:16 (rispetta i connettori culinari e le regole grammaticali Thai)
+      // Calcolo dimensioni e posizione box prezzo (se attivo)
+      let priceBoxW = 0;
+      let priceBoxH = 0;
+      let priceBoxX = 0;
+      let priceBoxY = 0;
+      let priceText = '';
+      const priceMarginRight = 24 * s;
+      const bottomBaseY = h - (26 * s);
+      const priceBottomY = bottomBaseY - (4 * s);
+
+      if (hasPrice) {
+        if (scene.pizzaSizes) {
+          priceText = `8" ${scene.pizzaSizes.size8Price}฿  •  12" ${scene.pizzaSizes.size12Price}฿`;
+        } else if (scene.priceLabel) {
+          priceText = scene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
+        }
+
+        const pFontSize = Math.round(38 * s);
+        oCtx.font = `900 ${pFontSize}px "Kanit", sans-serif`;
+        const pTextW = oCtx.measureText(priceText).width;
+        const boxPadX = 18 * s;
+        priceBoxH = Math.round(54 * s);
+        priceBoxW = Math.round(pTextW + (boxPadX * 2));
+        priceBoxX = w - priceMarginRight - priceBoxW;
+        priceBoxY = priceBottomY - priceBoxH;
+      }
+
+      // 3. Testi Inferiori a Sinistra (+30% ingranditi nel rendering rispetto al baseline)
+      const leftX = 20 * s;
+
+      // Spazio orizzontale massimo consentito a sinistra: se c'è il prezzo a destra, il testo DEVE fermarsi prima
+      const maxBottomTextW = hasPrice
+        ? (priceBoxX - leftX - (20 * s))
+        : (w - leftX - (40 * s));
+
+      // Helper universale per andare a capo in 2 o 3 righe se il testo supera maxBottomTextW (mai sotto il prezzo)
+      const wrapTextToWidth = (text: string, maxW: number, font: string): string[] => {
+        oCtx.font = font;
+        const rawLines = text.split('\n').filter(Boolean);
+        const result: string[] = [];
+        for (const rawLine of rawLines) {
+          if (oCtx.measureText(rawLine).width <= maxW) {
+            result.push(rawLine);
+            continue;
+          }
+          const words = rawLine.split(' ');
+          if (words.length > 1) {
+            let cur = '';
+            for (const word of words) {
+              const test = cur ? `${cur} ${word}` : word;
+              if (oCtx.measureText(test).width <= maxW) {
+                cur = test;
+              } else {
+                if (cur) result.push(cur);
+                cur = word;
+              }
+            }
+            if (cur) result.push(cur);
+          } else {
+            let cur = '';
+            for (let c = 0; c < rawLine.length; c++) {
+              const char = rawLine[c];
+              const test = cur + char;
+              if (oCtx.measureText(test).width <= maxW) {
+                cur = test;
+              } else {
+                if (cur) result.push(cur);
+                cur = char;
+              }
+            }
+            if (cur) result.push(cur);
+          }
+        }
+        return result;
+      };
+
       oCtx.save();
       oCtx.textAlign = 'left';
       oCtx.textBaseline = 'top';
 
       if (brand === 'pizza' || mode === 'P1' || mode === 'R1') {
-        const thaiText = formatSemanticThaiDishTitle(scene.titlePrimary || '');
-        const engText = formatSemanticEnglishDishTitle(scene.titleSecondary || '');
-        const thaiLines = thaiText.split('\n').filter(Boolean);
-        const engLines = engText.split('\n').filter(Boolean);
+        const thaiFontSize = Math.round(31 * s);  // Ingrandito del +30% (baseline 24 * s -> 31 * s)
+        const thaiLineStep = Math.round(38 * s);
+        const engFontSize = Math.round(25 * s);   // Ingrandito del +30% (baseline 19.5 * s -> 25 * s)
+        const engLineStep = Math.round(31 * s);
+        const catFontSize = Math.round(19.5 * s); // Ingrandito del +30% (baseline 15 * s -> 19.5 * s)
 
-        const thaiFontSize = Math.round(54 * s);  // Ingrandito del 150% nel rendering (era 24 * s -> 54 * s)
-        const thaiLineStep = Math.round(66 * s);
-        const engFontSize = Math.round(42 * s);   // Ingrandito del 150% nel rendering (era 19.5 * s -> 42 * s)
-        const engLineStep = Math.round(52 * s);
-        const catFontSize = Math.round(34 * s);   // Ingrandito del 150% nel rendering (era 17 * s -> 34 * s)
+        const rawThai = formatSemanticThaiDishTitle(scene.titlePrimary || '');
+        const rawEng = formatSemanticEnglishDishTitle(scene.titleSecondary || '');
+        const thaiLines = wrapTextToWidth(rawThai, maxBottomTextW, `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`);
+        const engLines = wrapTextToWidth(rawEng, maxBottomTextW, `800 ${engFontSize}px "Outfit", sans-serif`);
 
         const hasBadge = !!scene.badgeCategory;
-        const catH = hasBadge ? (46 * s) : 0;
+        const catH = hasBadge ? (28 * s) : 0;
         const thaiH = thaiLines.length * thaiLineStep;
         const engH = engLines.length * engLineStep;
         const totalTextH = catH + thaiH + engH;
 
         let curY = bottomBaseY - totalTextH;
 
-        // 🏷️ Categoria (✦ BUNGALOW / ✦ ITALIAN PIZZA)
+        // 🏷️ Categoria (✦ ITALIAN PIZZA)
         if (hasBadge) {
           let catText = scene.badgeCategory || '';
           if (catText.toUpperCase().includes('TRADITIONAL ITALIAN PIZZA') || catText.toUpperCase() === 'TRADITIONAL PIZZA') {
@@ -1145,41 +1223,42 @@ export function AutoCutLabPlayer({
           }
           const cleanCat = catText.replace(/^[✦⭐✨\s*]+/, '').trim().toUpperCase();
           oCtx.font = `900 ${catFontSize}px "Outfit", sans-serif`;
-          drawTextWithShadow43('✦', leftX, curY, '#dc2626', 5.5 * s);
-          drawTextWithShadow43(cleanCat, leftX + (30 * s), curY, '#ffffff', 5.5 * s);
-          curY += catFontSize + (12 * s);
+          drawTextWithShadow43('✦', leftX, curY, '#dc2626', 4.5 * s);
+          drawTextWithShadow43(cleanCat, leftX + (20 * s), curY, '#ffffff', 4.5 * s);
+          curY += catFontSize + (8 * s);
         }
 
-        // Titolo Thai (Regola 13: A Capo Semantico Naturale del 9:16)
+        // Titolo Thai
         oCtx.font = `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
         thaiLines.forEach(line => {
-          drawTextWithShadow43(line, leftX, curY, '#fcd34d', 6.5 * s);
+          drawTextWithShadow43(line, leftX, curY, '#fcd34d', 5.0 * s);
           curY += thaiLineStep;
         });
 
-        // Titolo Inglese (Regola 13: A Capo Semantico Naturale del 9:16)
+        // Titolo Inglese
         oCtx.font = `800 ${engFontSize}px "Outfit", sans-serif`;
         engLines.forEach(line => {
-          drawTextWithShadow43(line, leftX, curY, '#f8fafc', 6.0 * s);
+          drawTextWithShadow43(line, leftX, curY, '#f8fafc', 4.5 * s);
           curY += engLineStep;
         });
       } else {
         // Modalità Alloggi Villaggio (V1, LM1)
-        const lodgingTitle = scene.lodgingTitle || scene.titlePrimary || '';
-        const titleLines = lodgingTitle.split('\n').filter(Boolean);
-        const subLines = scene.lodgingSubtitle ? scene.lodgingSubtitle.split('\n').filter(Boolean) : [];
-        const thaiLines = (scene.titleSecondary || '').split('\n').filter(Boolean);
+        const titleFontSize = Math.round(31 * s);  // Ingrandito del +30% (baseline 24 * s -> 31 * s)
+        const titleLineStep = Math.round(38 * s);
+        const subFontSize = Math.round(23.5 * s);  // Ingrandito del +30% (baseline 18 * s -> 23.5 * s)
+        const subLineStep = Math.round(29 * s);
+        const thaiFontSize = Math.round(20 * s);   // Ingrandito del +30% (baseline 15 * s -> 20 * s)
+        const thaiLineStep = Math.round(25 * s);
+        const catFontSize = Math.round(19.5 * s);  // Ingrandito del +30% (baseline 15 * s -> 19.5 * s)
 
-        const titleFontSize = Math.round(54 * s);  // Ingrandito del 150% nel rendering
-        const titleLineStep = Math.round(66 * s);
-        const subFontSize = Math.round(40 * s);    // Ingrandito del 150% nel rendering
-        const subLineStep = Math.round(50 * s);
-        const thaiFontSize = Math.round(34 * s);   // Ingrandito del 150% nel rendering
-        const thaiLineStep = Math.round(44 * s);
-        const catFontSize = Math.round(34 * s);    // Ingrandito del 150% nel rendering
+        const lodgingTitle = scene.lodgingTitle || scene.titlePrimary || '';
+        const titleLines = wrapTextToWidth(lodgingTitle, maxBottomTextW, `900 ${titleFontSize}px "Outfit", sans-serif`);
+        const subLines = scene.lodgingSubtitle ? wrapTextToWidth(scene.lodgingSubtitle, maxBottomTextW, `700 ${subFontSize}px "Outfit", sans-serif`) : [];
+        // 🛡️ Regola richiesta: in V1 e LM1 l'ultima riga in Thai non deve finire sotto il prezzo, va a capo in 2 o 3 righe
+        const thaiLines = wrapTextToWidth(scene.titleSecondary || '', maxBottomTextW, `600 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`);
 
         const hasBadge = !!scene.badgeCategory;
-        const catH = hasBadge ? (46 * s) : 0;
+        const catH = hasBadge ? (28 * s) : 0;
         const titleH = titleLines.length * titleLineStep;
         const subH = subLines.length * subLineStep;
         const thaiH = thaiLines.length * thaiLineStep;
@@ -1191,15 +1270,15 @@ export function AutoCutLabPlayer({
         if (hasBadge) {
           const cleanCat = (scene.badgeCategory || '').replace(/^[✦⭐✨\s*]+/, '').trim().toUpperCase();
           oCtx.font = `900 ${catFontSize}px "Outfit", sans-serif`;
-          drawTextWithShadow43('✦', leftX, curY, '#dc2626', 5.5 * s);
-          drawTextWithShadow43(cleanCat, leftX + (30 * s), curY, '#ffffff', 5.5 * s);
-          curY += catFontSize + (12 * s);
+          drawTextWithShadow43('✦', leftX, curY, '#dc2626', 4.5 * s);
+          drawTextWithShadow43(cleanCat, leftX + (20 * s), curY, '#ffffff', 4.5 * s);
+          curY += catFontSize + (8 * s);
         }
 
         // Titolo Alloggio (Inglese Strutturato Bianco Outfit 900)
         oCtx.font = `900 ${titleFontSize}px "Outfit", sans-serif`;
         titleLines.forEach(line => {
-          drawTextWithShadow43(line, leftX, curY, '#ffffff', 6.5 * s);
+          drawTextWithShadow43(line, leftX, curY, '#ffffff', 5.0 * s);
           curY += titleLineStep;
         });
 
@@ -1207,55 +1286,34 @@ export function AutoCutLabPlayer({
         if (subLines.length > 0) {
           oCtx.font = `700 ${subFontSize}px "Outfit", sans-serif`;
           subLines.forEach(line => {
-            drawTextWithShadow43(line, leftX, curY, '#fcd34d', 5.5 * s);
+            drawTextWithShadow43(line, leftX, curY, '#fcd34d', 4.5 * s);
             curY += subLineStep;
           });
         }
 
-        // Descrizione Thai (Stone-200 Prompt 600)
+        // Descrizione Thai (Stone-200 Prompt 600) su 2 o 3 righe ordinate e protette (mai sotto il prezzo)
         if (thaiLines.length > 0) {
           oCtx.font = `600 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
           thaiLines.forEach(line => {
-            drawTextWithShadow43(line, leftX, curY, 'rgba(241, 245, 249, 0.98)', 5.0 * s);
+            drawTextWithShadow43(line, leftX, curY, 'rgba(241, 245, 249, 0.98)', 4.0 * s);
             curY += thaiLineStep;
           });
         }
       }
       oCtx.restore();
 
-      // 3. Prezzo Ufficiale in Basso a Destra (Rettangolo Giallo #FFE500, Bordo Nero, Kanit 900, Ingrandito +50%, +5px dx e +5px su)
-      const hasPrice = !!scene.priceLabel || !!scene.pizzaSizes;
+      // Disegno effettivo Box Prezzo (se hasPrice è attivo, ovvero prima di outroStartTime - 0.60s e mai in V2)
       if (hasPrice) {
         oCtx.save();
-        const priceMarginRight = 28 * s; // Distanziato +5px extra da destra
-        const priceBottomY = bottomBaseY - (6 * s); // Distanziato +5px extra dal basso
+        const boxRadius = 10 * s;
 
-        let priceText = '';
-        if (scene.pizzaSizes) {
-          priceText = `8" ${scene.pizzaSizes.size8Price}฿  •  12" ${scene.pizzaSizes.size12Price}฿`;
-        } else if (scene.priceLabel) {
-          priceText = scene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
-        }
-
-        // Font Kanit ingrandito del +50% nel rendering
-        const pFontSize = Math.round(44 * s);
-        oCtx.font = `900 ${pFontSize}px "Kanit", sans-serif`;
-        const pTextW = oCtx.measureText(priceText).width;
-
-        const boxPadX = 20 * s;
-        const boxH = Math.round(62 * s);
-        const boxW = Math.round(pTextW + (boxPadX * 2));
-        const boxRadius = 12 * s;
-        const boxX = w - priceMarginRight - boxW;
-        const boxY = priceBottomY - boxH;
-
-        // Ombra solida d'angolo nera 3.5px 3.5px
+        // Ombra solida d'angolo nera 3px 3px
         oCtx.fillStyle = '#000000';
         oCtx.beginPath();
         if (typeof oCtx.roundRect === 'function') {
-          oCtx.roundRect(boxX + 3.5 * s, boxY + 3.5 * s, boxW, boxH, boxRadius);
+          oCtx.roundRect(priceBoxX + 3 * s, priceBoxY + 3 * s, priceBoxW, priceBoxH, boxRadius);
         } else {
-          oCtx.rect(boxX + 3.5 * s, boxY + 3.5 * s, boxW, boxH);
+          oCtx.rect(priceBoxX + 3 * s, priceBoxY + 3 * s, priceBoxW, priceBoxH);
         }
         oCtx.fill();
 
@@ -1263,24 +1321,25 @@ export function AutoCutLabPlayer({
         oCtx.fillStyle = '#FFE500';
         oCtx.beginPath();
         if (typeof oCtx.roundRect === 'function') {
-          oCtx.roundRect(boxX, boxY, boxW, boxH, boxRadius);
+          oCtx.roundRect(priceBoxX, priceBoxY, priceBoxW, priceBoxH, boxRadius);
         } else {
-          oCtx.rect(boxX, boxY, boxW, boxH);
+          oCtx.rect(priceBoxX, priceBoxY, priceBoxW, priceBoxH);
         }
         oCtx.fill();
 
-        // Bordo nero solido 3px
+        // Bordo nero solido 2.5px
         oCtx.strokeStyle = '#000000';
-        oCtx.lineWidth = 3 * s;
+        oCtx.lineWidth = 2.5 * s;
         oCtx.stroke();
 
         // Testo cifra in nero con outline bianco centrato
         oCtx.textAlign = 'center';
         oCtx.textBaseline = 'middle';
-        const pCx = boxX + (boxW / 2);
-        const pCy = boxY + (boxH / 2) + Math.round(2.5 * s);
+        const pCx = priceBoxX + (priceBoxW / 2);
+        const pCy = priceBoxY + (priceBoxH / 2) + Math.round(2 * s);
 
-        oCtx.lineWidth = 5 * s;
+        oCtx.font = `900 ${Math.round(38 * s)}px "Kanit", sans-serif`;
+        oCtx.lineWidth = 4 * s;
         oCtx.strokeStyle = '#ffffff';
         oCtx.lineJoin = 'round';
         oCtx.strokeText(priceText, pCx, pCy);
@@ -1290,13 +1349,13 @@ export function AutoCutLabPlayer({
         oCtx.shadowBlur = 0;
         oCtx.fillText(priceText, pCx, pCy);
 
-        // Se Last Minute (LM1): etichetta arancione/gialla sopra il box per massima chiarezza
+        // Se Last Minute (LM1): etichetta arancione sopra il box
         if (mode === 'LM1') {
-          const lmFontSize = Math.round(18 * s);
+          const lmFontSize = Math.round(15 * s);
           oCtx.font = `900 ${lmFontSize}px "Outfit", sans-serif`;
           oCtx.textAlign = 'right';
           oCtx.textBaseline = 'bottom';
-          drawTextWithShadow43('⚡ LAST MINUTE TONIGHT', w - priceMarginRight - (2 * s), boxY - (6 * s), '#f59e0b', 3.6 * s);
+          drawTextWithShadow43('⚡ LAST MINUTE TONIGHT', w - priceMarginRight - (2 * s), priceBoxY - (4 * s), '#f59e0b', 3.2 * s);
         }
 
         oCtx.restore();

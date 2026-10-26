@@ -293,7 +293,9 @@ export function AutoCutPostCopywriter({
       const dishDetails = testRun.scenes.map(s => ({
         name: (s.sourceName || s.titlePrimary || '').replace(/[\r\n]+/g, ' ').trim(),
         nameTh: (s.titleSecondary || '').replace(/[\r\n]+/g, ' ').trim(),
-        description: s.badgeCategory || ''
+        description: s.badgeCategory || '',
+        priceValue: s.priceValue,
+        priceLabel: s.priceLabel
       }));
 
       const activeWeather = wOverride !== undefined ? wOverride : liveWeather;

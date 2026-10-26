@@ -3,6 +3,44 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [26/10/2026 - ORE 15:30] · SOCIAL STUDIO AUTOCUT: CALIBRAZIONE ESCLUSIVA NEL RENDERING DEI 4 FILMATI (WATERMARK +50%, TESTI +30%, ZERO PREZZO IN V2, A CAPO THAI PROTETTO & SCOMPARSA PREZZO PRIMA DELL'OUTRO)
+- **Cosa abbiamo fatto:** Aggiornato in modo mirato ed esclusivo il motore di rendering video (`render43OverlaysToContext` in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) e [autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts)), preservando identiche al 100% le proporzioni della Dashboard DOM:
+  - 🏷️ **Watermark Top-Left Ingrandito del +50% nel Rendering (P1 4:3, V1 4:3, LM1 4:3)**:
+    - Diametro Logo portato da 60px a **`90px`** (`logoSize = Math.round(90 * s)`).
+    - `FLOWER POWER` a **`30px`** (`Math.round(30 * s)`, Outfit 900 con ombra a 360°).
+    - `Pizza` / `Village` a **`28.5px`** (`Math.round(28.5 * s)`, Outfit italic 500).
+    - Sottotitolo `Ranong Delivery` / `Direct Booking` a **`22.5px`** (`Math.round(22.5 * s)`, Outfit bold 700).
+  - 📝 **Testi in Basso a Sinistra Ingranditi del +30% nel Rendering**:
+    - *Pizzeria (P1 / R1)*: Categoria a `19.5px`, Titolo Thai a `31px` (line step `38px`), Titolo Inglese a `25px` (line step `31px`).
+    - *Alloggi Villaggio (V1 / LM1)*: Categoria a `19.5px`, Titolo Alloggio a `31px` (line step `38px`), Sottotitolo Ambra a `23.5px` (line step `29px`), Descrizione Thai a `20px` (line step `25px`).
+  - 🚫 **Cancellazione Totale Prezzo in V2 (Galleria Stesso Alloggio)**:
+    - Rimosso qualsiasi cartellino prezzo da V2 in `autoCutLabEngine.ts` (`priceLabel: ''`, `priceValue: 0`).
+    - In `render43OverlaysToContext`: escluso esplicitamente V2 dal rendering prezzo (`mode !== 'V2' && mode !== 'V3'`).
+  - 🛡️ **A Capo Multilinea per Thai in V1 e LM1 (Zero Sovrapposizione col Box Prezzo)**:
+    - Implementato `wrapTextToWidth` parametrizzato sulla larghezza utile residua a sinistra (`maxBottomTextW = priceBoxX - leftX - 20px`).
+    - L'ultima riga in thailandese per gli alloggi va a capo in due o tre righe senza mai andare a finire sotto o a contatto con il rettangolo del prezzo in basso a destra.
+  - ⏳ **Scomparsa Totale Prezzo 0.60s Prima dell'Arrivo dell'Outro (Zero Perimetro Fantasma)**:
+    - Il prezzo viene visualizzato solo fino a `tElapsed < outroStartTime - 0.60`.
+    - Per gli ultimi 0.60 secondi della scena finale, il rettangolo giallo, il bordo nero, la shadow e il testo del prezzo scompaiono completamente dal frame, azzerando qualsiasi residuo, perimetro o ghosting all'arrivo del cartello finale col logo.
+- **Effetto reale:** L'anteprima nel Social Studio mantiene intatte le sue proporzioni native e snelle, mentre i video esportati (MP4 a 60 FPS) e riprodotti su Google Business e Facebook presentano testi e loghi perfettamente calibrati, leggibili, con il testo Thai che va a capo naturalmente e un cartello finale privo di rettangoli residui.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+- **Cosa abbiamo fatto:** Reinventato e calibrato il motore di generazione copywriter e il prompt DeepSeek AI per il formato `LM1` (Stories & Post Last Minute Koh Phayam) in [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts), [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx) e [autoCutCopywriterEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutCopywriterEngine.ts):
+  - 🧠 **Nuovo Prompt DeepSeek Ingegnerizzato per `LM1`**:
+    - *Preservazione Integrale Regole Core*: gerarchia bilingue (🇬🇧 Inglese sopra, 🇹🇭 Thai sotto), nomi alloggi a locuzione continua su riga unica (zero a capo), zero forno a legna, divieto assoluto parole sunset/tramonto, proverbio del giorno evocativo, emoji contestuali distribuite nel testo (zero emoji raggruppate a fine frase) e zero hashtag inline.
+    - *Integrazione Doppia Tariffa Trasparente*: le camere disponibili stasera espongono chiaramente il passaggio dalla tariffa OTA/online a quella con sconto immediato: `• [Nome Alloggio]: [Prezzo Online] THB ➔ [Prezzo Scontato] THB (-10% prenotazione diretta)`.
+    - *Leva Commerciale Disintermediazione Booking/Agoda*: dichiarato chiaramente il **DIRECT BOOKING PRIVILEGE** (ulteriore -10% applicato automaticamente prenotando sul sito ufficiale).
+    - *Regola Anti-Confusione Unico Link Pulito*: tassativamente vietati link multipli dispersivi per ogni stanza; presenza esclusiva del link ufficiale `👉 www.flowerpowervillage.com` e del contatto rapido `💬 WhatsApp: +66 095 882 5573`.
+  - ⚡ **Allineamento Motore Deterministico Locale (`autoCutCopywriterEngine.ts`)**:
+    - Anche a 0 token (senza invocare DeepSeek), il fallback locale genera la lista degli alloggi con il calcolo automatico dello sconto `-10%` (`Math.round(priceValue * 0.90)`), la freccia `➔` e la call-to-action con il link unico.
+  - 📦 **Arricchimento Contesto Prezzi (`AutoCutPostCopywriter.tsx`)**:
+    - Passati a monte `priceValue` e `priceLabel` a `dishDetails` per permettere al backend di disporre dei prezzi reali certificati di ciascun alloggio.
+- **Effetto reale:** Nessuna modifica invasiva o rischiosa al delicato motore di rendering video: il video MP4 rimane pulito, leggero e fluido. Nel testo del post (su Facebook, Instagram, TikTok e Telegram), il cliente trova una lista trasparente, irresistibile e senza barriere dei prezzi di stasera con lo sconto del -10% e un unico link pulito per completare la prenotazione diretta.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [26/10/2026 - ORE 13:15] · SOCIAL STUDIO AUTOCUT: RIMOZIONE TOTALE MASCHERE GRADIENTE NERO SU TUTTI I VIDEO (COLORI VIVI, PIENA LUCE NATURALE & OMBRA NERA CIRCOSCRITTA ESCLUSIVAMENTE AI TESTI)
 - **Cosa abbiamo fatto:** Rimosse simultaneamente e definitivamente tutte le maschere di gradiente nero a tutta larghezza in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) per tutti i formati (9:16 e 4:3), sia nell'anteprima DOM che nel motore di esportazione Canvas:
   - 🚫 **Rimozione Maschere di Gradiente a Tutta Larghezza (Top & Bottom Vignettes)**:
