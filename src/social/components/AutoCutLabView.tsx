@@ -224,10 +224,10 @@ export function AutoCutLabView() {
               type="button"
               onClick={() => setIsBatchModalOpen(true)}
               className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-gradient-to-r from-cyan-600 via-sky-500 to-blue-600 hover:from-cyan-500 hover:to-sky-400 text-white font-bold text-xs shadow-lg shadow-sky-950/40 transition active:scale-95 shrink-0"
-              title="Apri console di verifica sequenziale e invio Telegram (9:16 e 4:3)"
+              title="Apri console Video Test Telegram per la verifica rapida dei formati (9:16 e 4:3)"
             >
               <Send className="w-4 h-4" />
-              <span>Verifica Sequenza Telegram</span>
+              <span>Video Test Telegram</span>
             </button>
 
             <button
@@ -442,10 +442,10 @@ export function AutoCutLabView() {
               type="button"
               onClick={() => setIsBatchModalOpen(true)}
               className="text-xs font-bold py-2 px-3 rounded-xl bg-sky-950/70 hover:bg-sky-900/90 text-cyan-300 border border-sky-500/40 flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
-              title="Verifica sequenziale e invio batch a Telegram"
+              title="Apri console Video Test Telegram"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>Batch Telegram</span>
+              <span>Video Test Telegram</span>
             </button>
           </div>
 

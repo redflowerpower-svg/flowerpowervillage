@@ -3,25 +3,27 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
-### 🟩 [26/10/2026 - ORE 10:45] · SOCIAL STUDIO AUTOCUT: NUOVO TASTO VERIFICA SEQUENZIALE VIDEO TELEGRAM (BATCH QUALITY CHECK MULTI-FORMATO CON OPZIONE SPECIFICA 4:3 E 9:16)
-- **Cosa abbiamo fatto:** Aggiunto il nuovo pulsante e l'intero flusso di verifica sequenziale batch a Telegram in [AutoCutLabView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabView.tsx), [AutoCutBatchDispatcherModal.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutBatchDispatcherModal.tsx) e [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
-  - 🔘 **Pulsante di Accesso Diretto nel Social Studio**:
-    - Inserito il pulsante principale azzurro ciano **"Verifica Sequenza Telegram"** nell'header di AutoCut Studio accanto a "Genera Nuovo Video".
-    - Inserito il pulsante compatto **"Batch Telegram"** direttamente sopra il mockup dello smartphone per accesso rapido durante i test.
-  - 🎛️ **Nuovo Componente `AutoCutBatchDispatcherModal.tsx`**:
-    - **Selettore Multi-Formato & Preset**: Selezione a checkbox di tutti i 9 formati ufficiali (`P1`, `P2`, `P3`, `DS`, `V1`, `V2`, `V3`, `R1`, `LM1`) con preset rapidi a 1 tocco (`Tutti (9)`, `Solo Pizzeria (4)`, `Solo Villaggio (5)`, `Deseleziona`).
-    - **Opzione Specifica 4:3 e 9:16 (L'opzione richiesta)**: Scelta dell'aspect ratio di compilazione:
-      1. `📱 9:16 Verticale` (1080x1920 Full HD - TikTok, Reels, Stories).
-      2. `🖥️ 4:3 Orizzontale` (1440x1080 Full HD - Post Facebook, monitor e tablet).
-      3. `🔄 Entrambi (9:16 + 4:3)` (compila e invia a Telegram entrambe le versioni per ogni formato selezionato).
-    - **Destinazione Topic Telegram**: Selezione del canale di destinazione nel Supergruppo Staff (`Topic 3 TikTok Stories & Reels` o `Topic 2 Koh Phayam Group FB`).
-    - **Motore di Coda Sequenziale a 60 FPS**: Esegue in successione il caricamento del format, il rendering hardware WebCodecs 60 FPS, l'estrazione thumbnail ufficiale senza ghosting (Regola 14), l'upload S3 Cloud e l'invio a Telegram con testo bilingue, gestendo pause di rate-limit.
-    - **Monitor di Avanzamento Live & Interruzione**: Visualizzazione della percentuale per singolo video e totale, link diretti ai file MP4 generati e pulsante di interruzione manuale immediata.
-    - **Supporto Accessibilità**: Chiusura automatica con tasto `Escape` e click fuori dal backdrop.
-  - 🎬 **Motore Video 4:3 Full HD in `AutoCutLabPlayer.tsx`**:
-    - Aggiornato `__autoCutGetVideo` per supportare `{ aspectRatio?: '9:16' | '4:3' }` con rendering overlays 4:3 (`render43OverlaysToContext`) e outro 4:3 (`draw43OutroToContext`) con grafica d'impatto ad alta risoluzione.
-- **Effetto reale:** Ora l'operatore può selezionare con facilità una sequenza qualsiasi di formati (ad es. P1, P2, V3 e LM1) e scegliere se compilarli in 4:3 o 9:16 (o entrambi): il sistema li genera uno dietro l'altro a 60 FPS e li recapita sul gruppo Telegram Staff con il rispettivo testo bilingue, permettendo una verifica di funzionamento completa e immediata sul campo.
-- **Stato:** ✅ Compilato (0 errori TypeScript), collaudato nel browser del Social Studio e operativo.
+### 🟩 [26/10/2026 - ORE 12:50] · SOCIAL STUDIO AUTOCUT: NUOVO TASTO "VIDEO TEST TELEGRAM" & MODAL OTTIMIZZATA (12 OPZIONI VIDEO REALI, PRESET RAPIDI & ZERO PESANTEZZA)
+- **Cosa abbiamo fatto:** Perfezionata e snellita l'architettura del test sequenziale batch a Telegram in [AutoCutBatchDispatcherModal.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutBatchDispatcherModal.tsx) e [AutoCutLabView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabView.tsx):
+  - 🔘 **Ridenominazione Ufficiale Tasto in "Video Test Telegram"**:
+    - Rinominato il pulsante principale nell'header da *"Verifica Sequenza Telegram"* a **`Video Test Telegram`**.
+    - Rinominato anche il pulsante rapido compatto sopra il mockup smartphone da *"Batch Telegram"* a **`Video Test Telegram`**.
+  - ⚡ **Eliminazione Selettore Astratto & Lista Diretta delle 12 Opzioni Reali**:
+    - Rimosso completamente il blocco superiore ridondante di aspect ratio.
+    - Sostituito con l'inventario puntuale e cristallino delle sole **12 opzioni video effettivamente esistenti** (le 9 canoniche in 9:16 + le 3 orizzontali in 4:3 disponibili esclusivamente per `P1`, `V1` e `LM1`):
+      - 🍕 **Pizzeria Ranong (5 opzioni)**: `P1 (9:16)`, `P1 (4:3)`, `P2 (9:16)`, `P3 (9:16)`, `DS (9:16)`.
+      - 🌴 **Villaggio Koh Phayam (4 opzioni)**: `V1 (9:16)`, `V1 (4:3)`, `V2 (9:16)`, `V3 (9:16)`.
+      - ⚡ **Stories Koh Phayam (3 opzioni)**: `R1 (9:16)`, `LM1 (9:16)`, `LM1 (4:3)`.
+    - Ciascuna opzione possiede il proprio badge distintivo (`📱 9:16` ciano o `🖥️ 4:3` ambra) e la stima della durata.
+  - 🎯 **Preset Rapidi a 1 Tocco**:
+    - `Tutti (12)`
+    - `Solo 9:16 (9)`
+    - `Solo 4:3 (3)` *(seleziona all'istante e unicamente P1 4:3, V1 4:3 e LM1 4:3)*
+    - `Pizzeria (5)`
+    - `Villaggio (7)`
+    - `Deseleziona`
+- **Effetto reale:** L'operatore non si trova più davanti a moltiplicazioni teoriche pesanti, ma apre la finestra "Video Test Telegram", flagga direttamente solo i video che gli interessano (o clicca su "Solo 4:3" per testare i layout orizzontali) e con un click su "Avvia Video Test Telegram" riceve i video completi su Telegram a 60 FPS in sequenza.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e confermato con screenshot live nel browser, operativo.
 
 ---
 - **Cosa abbiamo fatto:** Aggiornato e rilasciato il motore di schedulazione in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) implementando la griglia a 14 azioni basata sui dati reali di mercato e risolvendo l'etichettatura REEL per i gruppi Facebook:

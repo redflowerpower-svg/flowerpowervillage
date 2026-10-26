@@ -14,7 +14,6 @@ import {
   CheckSquare,
   Square,
   ExternalLink,
-  RotateCcw,
   StopCircle
 } from 'lucide-react';
 import { AutoCutLabMode, AutoCutTestRun } from '../services/autoCutLabEngine';
@@ -31,14 +30,39 @@ export interface AutoCutBatchDispatcherModalProps {
   createTestForMode: (mode: AutoCutLabMode) => Promise<AutoCutTestRun>;
 }
 
-export type AspectRatioChoice = '9:16' | '4:3' | 'both';
-
-interface QueueItem {
-  id: string; // e.g. "P1_9:16"
+export interface AvailableVideoOption {
+  id: string; // e.g. "P1_9:16" o "P1_4:3"
   mode: AutoCutLabMode;
   aspectRatio: '9:16' | '4:3';
-  label: string;
+  category: 'pizza' | 'village' | 'stories';
+  title: string;
+  durationLabel: string;
 }
+
+/**
+ * Tutte e 12 le sole opzioni video reali disponibili:
+ * - 9 verticali (9:16)
+ * - 3 orizzontali (4:3) disponibili ESCLUSIVAMENTE per P1, V1 e LM1
+ */
+export const AVAILABLE_VIDEO_OPTIONS: AvailableVideoOption[] = [
+  // 🍕 Pizzeria Ranong (5 opzioni)
+  { id: 'P1_9:16', mode: 'P1', aspectRatio: '9:16', category: 'pizza', title: '1 Piatto Culinario Iconico', durationLabel: '~12s · Rapido' },
+  { id: 'P1_4:3',  mode: 'P1', aspectRatio: '4:3',  category: 'pizza', title: '1 Piatto Culinario Iconico', durationLabel: '~12s · Rapido' },
+  { id: 'P2_9:16', mode: 'P2', aspectRatio: '9:16', category: 'pizza', title: '2 Piatti & Connessioni Culinari', durationLabel: '~18s · Medio' },
+  { id: 'P3_9:16', mode: 'P3', aspectRatio: '9:16', category: 'pizza', title: '3 Piatti Menu Completo', durationLabel: '~24s · Vetrina' },
+  { id: 'DS_9:16', mode: 'DS', aspectRatio: '9:16', category: 'pizza', title: 'Daily Special Fuori Menu', durationLabel: '~15s · Live Specials' },
+
+  // 🌴 Villaggio Koh Phayam (4 opzioni)
+  { id: 'V1_9:16', mode: 'V1', aspectRatio: '9:16', category: 'village', title: '3 Alloggi Tropicali Panoramica', durationLabel: '~24s · Alloggi' },
+  { id: 'V1_4:3',  mode: 'V1', aspectRatio: '4:3',  category: 'village', title: '3 Alloggi Tropicali Panoramica', durationLabel: '~24s · Alloggi' },
+  { id: 'V2_9:16', mode: 'V2', aspectRatio: '9:16', category: 'village', title: '5 Foto Stesso Alloggio', durationLabel: '~37s · Suite Tour' },
+  { id: 'V3_9:16', mode: 'V3', aspectRatio: '9:16', category: 'village', title: '7 Alloggi Resort & Verande', durationLabel: '~50s · Grand Tour' },
+
+  // ⚡ Stories Koh Phayam (3 opzioni)
+  { id: 'R1_9:16',  mode: 'R1',  aspectRatio: '9:16', category: 'stories', title: 'Ristorante Buffalo Bay Ranong & Phayam', durationLabel: '~25s · Stories Delivery' },
+  { id: 'LM1_9:16', mode: 'LM1', aspectRatio: '9:16', category: 'stories', title: 'Last Minute Alloggi Liberi (Prezzi Reali)', durationLabel: '~25s · Stories Flash' },
+  { id: 'LM1_4:3',  mode: 'LM1', aspectRatio: '4:3',  category: 'stories', title: 'Last Minute Alloggi Liberi (Prezzi Reali)', durationLabel: '~25s · Stories Flash' }
+];
 
 interface ItemStatus {
   state: 'idle' | 'preparing' | 'rendering' | 'uploading' | 'dispatching' | 'done' | 'error';
@@ -48,28 +72,6 @@ interface ItemStatus {
   error?: string;
 }
 
-const ALL_MODES: {
-  mode: AutoCutLabMode;
-  category: 'pizza' | 'village' | 'stories';
-  title: string;
-  durationLabel: string;
-}[] = [
-  // Pizzeria Ranong
-  { mode: 'P1', category: 'pizza', title: '1 Piatto Culinario Iconico', durationLabel: '~12s · Rapido' },
-  { mode: 'P2', category: 'pizza', title: '2 Piatti & Connessioni Culinari', durationLabel: '~18s · Medio' },
-  { mode: 'P3', category: 'pizza', title: '3 Piatti Menu Completo', durationLabel: '~24s · Vetrina' },
-  { mode: 'DS', category: 'pizza', title: 'Daily Special Fuori Menu', durationLabel: '~15s · Live Specials' },
-
-  // Villaggio Koh Phayam
-  { mode: 'V1', category: 'village', title: '3 Alloggi Tropicali Panoramica', durationLabel: '~24s · Alloggi' },
-  { mode: 'V2', category: 'village', title: '5 Foto Stesso Alloggio', durationLabel: '~37s · Suite Tour' },
-  { mode: 'V3', category: 'village', title: '7 Alloggi Resort & Verande', durationLabel: '~50s · Grand Tour' },
-
-  // Stories Koh Phayam
-  { mode: 'R1', category: 'stories', title: 'Ristorante Buffalo Bay Ranong & Phayam', durationLabel: '~25s · Stories Delivery' },
-  { mode: 'LM1', category: 'stories', title: 'Last Minute Alloggi Liberi (Prezzi Reali)', durationLabel: '~25s · Stories Flash' }
-];
-
 export function AutoCutBatchDispatcherModal({
   isOpen,
   onClose,
@@ -78,26 +80,25 @@ export function AutoCutBatchDispatcherModal({
   testsByMode,
   createTestForMode
 }: AutoCutBatchDispatcherModalProps) {
-  // Modal selection state
-  const [selectedModes, setSelectedModes] = useState<AutoCutLabMode[]>(['P1', 'P2', 'V3', 'LM1']);
-  const [aspectChoice, setAspectChoice] = useState<AspectRatioChoice>('9:16');
+  // Lista diretta degli ID selezionati tra le 12 opzioni
+  const [selectedIds, setSelectedIds] = useState<string[]>([
+    'P1_9:16',
+    'P1_4:3',
+    'V1_9:16',
+    'V1_4:3',
+    'LM1_9:16',
+    'LM1_4:3'
+  ]);
   const [targetTopic, setTargetTopic] = useState<StudioTopicKey>('tikTokStories');
 
   // Queue runner state
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(-1);
-  const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
+  const [queueItems, setQueueItems] = useState<AvailableVideoOption[]>([]);
   const [itemStatuses, setItemStatuses] = useState<Record<string, ItemStatus>>({});
   const [overallSummary, setOverallSummary] = useState<{ total: number; success: number; failed: number } | null>(null);
 
   const isCancelledRef = useRef(false);
-
-  // Sync selected modes if modal just opened and empty
-  useEffect(() => {
-    if (isOpen && selectedModes.length === 0) {
-      setSelectedModes(['P1', 'P2', 'V3', 'LM1']);
-    }
-  }, [isOpen]);
 
   // Escape key handler to close modal
   useEffect(() => {
@@ -114,59 +115,43 @@ export function AutoCutBatchDispatcherModal({
 
   if (!isOpen) return null;
 
-  // Toggle selection
-  const handleToggleMode = (mode: AutoCutLabMode) => {
+  // Toggle singola opzione video
+  const handleToggleId = (id: string) => {
     if (isProcessing) return;
-    setSelectedModes(prev =>
-      prev.includes(mode) ? prev.filter(m => m !== mode) : [...prev, mode]
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
   };
 
-  // Presets
+  // Presets intelligenti a 1 tocco
   const handleSelectAll = () => {
     if (isProcessing) return;
-    setSelectedModes(ALL_MODES.map(m => m.mode));
+    setSelectedIds(AVAILABLE_VIDEO_OPTIONS.map(o => o.id));
+  };
+  const handleSelectOnly916 = () => {
+    if (isProcessing) return;
+    setSelectedIds(AVAILABLE_VIDEO_OPTIONS.filter(o => o.aspectRatio === '9:16').map(o => o.id));
+  };
+  const handleSelectOnly43 = () => {
+    if (isProcessing) return;
+    setSelectedIds(AVAILABLE_VIDEO_OPTIONS.filter(o => o.aspectRatio === '4:3').map(o => o.id));
   };
   const handleSelectPizza = () => {
     if (isProcessing) return;
-    setSelectedModes(['P1', 'P2', 'P3', 'DS']);
+    setSelectedIds(AVAILABLE_VIDEO_OPTIONS.filter(o => o.category === 'pizza').map(o => o.id));
   };
-  const handleSelectVillage = () => {
+  const handleSelectVillageAndStories = () => {
     if (isProcessing) return;
-    setSelectedModes(['V1', 'V2', 'V3', 'R1', 'LM1']);
+    setSelectedIds(AVAILABLE_VIDEO_OPTIONS.filter(o => o.category === 'village' || o.category === 'stories').map(o => o.id));
   };
   const handleDeselectAll = () => {
     if (isProcessing) return;
-    setSelectedModes([]);
-  };
-
-  // Costruisci la lista dei task in coda in base alle selezioni
-  const buildQueue = (): QueueItem[] => {
-    const list: QueueItem[] = [];
-    selectedModes.forEach(mode => {
-      if (aspectChoice === '9:16' || aspectChoice === 'both') {
-        list.push({
-          id: `${mode}_9:16`,
-          mode,
-          aspectRatio: '9:16',
-          label: `${mode} · 9:16 Verticale`
-        });
-      }
-      if (aspectChoice === '4:3' || aspectChoice === 'both') {
-        list.push({
-          id: `${mode}_4:3`,
-          mode,
-          aspectRatio: '4:3',
-          label: `${mode} · 4:3 Orizzontale`
-        });
-      }
-    });
-    return list;
+    setSelectedIds([]);
   };
 
   // Avvio sequenziale di compilazione e invio a Telegram
   const handleStartBatch = async () => {
-    const items = buildQueue();
+    const items = AVAILABLE_VIDEO_OPTIONS.filter(o => selectedIds.includes(o.id));
     if (items.length === 0) return;
 
     setQueueItems(items);
@@ -174,7 +159,7 @@ export function AutoCutBatchDispatcherModal({
     isCancelledRef.current = false;
     setOverallSummary(null);
 
-    // Inizializza gli stati
+    // Inizializza gli stati di ogni elemento
     const initStatuses: Record<string, ItemStatus> = {};
     items.forEach(it => {
       initStatuses[it.id] = {
@@ -228,13 +213,13 @@ export function AutoCutBatchDispatcherModal({
           throw new Error('Motore video WebCodecs non pronto nel browser.');
         }
 
-        // 2. Registrazione e Compilazione Video (60 FPS con formato aspect ratio richiesto)
+        // 2. Registrazione e Compilazione Video (60 FPS con aspect ratio 9:16 o 4:3)
         setItemStatuses(prev => ({
           ...prev,
           [item.id]: {
             state: 'rendering',
             progress: 15,
-            message: `Rendering 60 FPS (${item.aspectRatio === '4:3' ? '1440x1080' : '1080x1920'})...`
+            message: `Rendering 60 FPS (${item.aspectRatio === '4:3' ? '1440x1080 4:3' : '1080x1920 9:16'})...`
           }
         }));
 
@@ -274,7 +259,7 @@ export function AutoCutBatchDispatcherModal({
         const testRun: AutoCutTestRun | undefined =
           (window as any).__lastAutoCutTestRun || testsByMode[item.mode];
 
-        const isPizza = item.mode === 'P1' || item.mode === 'P2' || item.mode === 'P3' || item.mode === 'DS';
+        const isPizza = item.category === 'pizza';
         const brand = isPizza ? 'pizza' : 'village';
 
         // Estrazione copy intelligente (cache AI o motore deterministico bilingue)
@@ -310,7 +295,7 @@ export function AutoCutBatchDispatcherModal({
 
         const tgRes = await dispatchPostToTelegramTopic({
           topic: targetTopic,
-          title: `Verifica Batch · Format ${item.mode} (${aspectLabel})`,
+          title: `Video Test · Format ${item.mode} (${aspectLabel})`,
           copyText: `Target: ${brandLabel}\n\n${captionText}`,
           format: item.mode,
           brand: brand,
@@ -370,7 +355,7 @@ export function AutoCutBatchDispatcherModal({
     setIsProcessing(false);
   };
 
-  const totalItemsCount = selectedModes.length * (aspectChoice === 'both' ? 2 : 1);
+  const selectedCount = selectedIds.length;
 
   return (
     <div
@@ -396,14 +381,14 @@ export function AutoCutBatchDispatcherModal({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
-                  Verifica Sequenziale Video Telegram
+                  Video Test Telegram
                 </h2>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                   Batch Quality Check
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
-                Scegli i formati da verificare e il layout video. Il sistema li compilerà uno dopo l'altro a 60 FPS e li invierà in fila a Telegram.
+                Seleziona i video che desideri controllare. Il sistema li compilerà a 60 FPS in sequenza e li invierà in fila al tuo Telegram.
               </p>
             </div>
           </div>
@@ -419,271 +404,271 @@ export function AutoCutBatchDispatcherModal({
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 sm:p-6 space-y-6 max-h-[72vh] overflow-y-auto relative z-10 custom-scrollbar">
+        <div className="p-5 sm:p-6 space-y-5 max-h-[72vh] overflow-y-auto relative z-10 custom-scrollbar">
 
-          {/* 1. SELETTORE ASPECT RATIO (L'OPZIONE SPECIFICA DEL 4 TERZI!) */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Tv className="w-3.5 h-3.5 text-cyan-400" />
-                <span>1. Formato Aspect Ratio Video</span>
-              </span>
-              <span className="text-[11px] text-cyan-400/90 font-mono">
-                {aspectChoice === 'both' ? '2 video per formato (9:16 + 4:3)' : '1 video per formato'}
-              </span>
-            </div>
+          {/* BARRA PRESET RAPIDI A 1 TOCCO */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3">
+            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <CheckSquare className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Selezionati: <strong className="text-white font-mono">{selectedCount}</strong> di 12 video</span>
+            </span>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              
-              {/* Opzione 9:16 */}
+            <div className="flex items-center gap-1.5 flex-wrap">
               <button
                 type="button"
                 disabled={isProcessing}
-                onClick={() => setAspectChoice('9:16')}
-                className={`p-3 rounded-xl border text-left transition flex items-center gap-3 ${
-                  aspectChoice === '9:16'
-                    ? 'bg-cyan-500/15 border-cyan-400/60 shadow-lg shadow-cyan-950/30'
-                    : 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800 text-slate-300'
-                }`}
+                onClick={handleSelectAll}
+                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition"
               >
-                <div className={`p-2 rounded-lg ${aspectChoice === '9:16' ? 'bg-cyan-500 text-black' : 'bg-slate-700 text-slate-300'}`}>
-                  <Smartphone className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className={`text-xs font-bold ${aspectChoice === '9:16' ? 'text-cyan-300' : 'text-white'}`}>
-                    📱 9:16 Verticale
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    1080x1920 Full HD (TikTok, Reels, Stories)
-                  </div>
-                </div>
+                Tutti (12)
               </button>
-
-              {/* Opzione 4:3 (L'OPZIONE SPECIFICA RICHIESTA DALL'UTENTE) */}
               <button
                 type="button"
                 disabled={isProcessing}
-                onClick={() => setAspectChoice('4:3')}
-                className={`p-3 rounded-xl border text-left transition flex items-center gap-3 ${
-                  aspectChoice === '4:3'
-                    ? 'bg-amber-500/15 border-amber-400/60 shadow-lg shadow-amber-950/30'
-                    : 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800 text-slate-300'
-                }`}
+                onClick={handleSelectOnly916}
+                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 transition"
               >
-                <div className={`p-2 rounded-lg ${aspectChoice === '4:3' ? 'bg-amber-500 text-black' : 'bg-slate-700 text-slate-300'}`}>
-                  <Tv className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className={`text-xs font-bold ${aspectChoice === '4:3' ? 'text-amber-300' : 'text-white'}`}>
-                    🖥️ 4:3 Orizzontale
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    1440x1080 Full HD (Post Facebook & Monitor)
-                  </div>
-                </div>
+                Solo 9:16 (9)
               </button>
-
-              {/* Opzione Entrambi */}
               <button
                 type="button"
                 disabled={isProcessing}
-                onClick={() => setAspectChoice('both')}
-                className={`p-3 rounded-xl border text-left transition flex items-center gap-3 ${
-                  aspectChoice === 'both'
-                    ? 'bg-rose-500/15 border-rose-400/60 shadow-lg shadow-rose-950/30'
-                    : 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800 text-slate-300'
-                }`}
+                onClick={handleSelectOnly43}
+                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-950/60 hover:bg-amber-900/70 text-amber-300 border border-amber-600/40 transition shadow-sm"
               >
-                <div className={`p-2 rounded-lg ${aspectChoice === 'both' ? 'bg-rose-500 text-white' : 'bg-slate-700 text-slate-300'}`}>
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className={`text-xs font-bold ${aspectChoice === 'both' ? 'text-rose-300' : 'text-white'}`}>
-                    🔄 Entrambi (9:16 + 4:3)
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    Compila entrambe le versioni in sequenza
-                  </div>
-                </div>
+                Solo 4:3 (3)
               </button>
-
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={handleSelectPizza}
+                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 transition"
+              >
+                Pizzeria (5)
+              </button>
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={handleSelectVillageAndStories}
+                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition"
+              >
+                Villaggio (7)
+              </button>
+              <button
+                type="button"
+                disabled={isProcessing}
+                onClick={handleDeselectAll}
+                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 transition"
+              >
+                Deseleziona
+              </button>
             </div>
           </div>
 
-          {/* 2. SELEZIONE FORMATI (PRESET RAPIDI + GRIGLIA) */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <CheckSquare className="w-3.5 h-3.5 text-cyan-400" />
-                <span>2. Formati da Inviare ({selectedModes.length} selezionati)</span>
-              </span>
-
-              {/* Bottoni Preset */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <button
-                  type="button"
-                  disabled={isProcessing}
-                  onClick={handleSelectAll}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition"
-                >
-                  Tutti (9)
-                </button>
-                <button
-                  type="button"
-                  disabled={isProcessing}
-                  onClick={handleSelectPizza}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 transition"
-                >
-                  Solo Pizzeria (4)
-                </button>
-                <button
-                  type="button"
-                  disabled={isProcessing}
-                  onClick={handleSelectVillage}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition"
-                >
-                  Solo Villaggio (5)
-                </button>
-                <button
-                  type="button"
-                  disabled={isProcessing}
-                  onClick={handleDeselectAll}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 transition"
-                >
-                  Deseleziona
-                </button>
-              </div>
-            </div>
-
-            {/* Griglia a 3 Colonne per Categoria */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              
-              {/* Colonna Pizzeria Ranong */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5 px-1 text-xs font-bold text-rose-400">
+          {/* GRIGLIA UNIFICATA DELLE 12 OPZIONI VIDEO REALI */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            
+            {/* 1. Colonna Pizzeria Ranong (5 Opzioni) */}
+            <div className="bg-slate-900/40 border border-rose-950/40 rounded-2xl p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-rose-400">
                   <Pizza className="w-3.5 h-3.5" />
                   <span>Pizzeria Ranong</span>
                 </div>
-                <div className="space-y-1.5">
-                  {ALL_MODES.filter(m => m.category === 'pizza').map(m => {
-                    const isSelected = selectedModes.includes(m.mode);
-                    return (
-                      <button
-                        key={m.mode}
-                        type="button"
-                        disabled={isProcessing}
-                        onClick={() => handleToggleMode(m.mode)}
-                        className={`w-full p-2.5 rounded-xl border text-left transition flex items-center justify-between ${
-                          isSelected
-                            ? 'bg-rose-500/15 border-rose-500/50 text-white'
-                            : 'bg-slate-800/40 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded flex items-center justify-center ${isSelected ? 'bg-rose-500 text-white' : 'border border-slate-600'}`}>
-                            {isSelected && <CheckSquare className="w-3 h-3" />}
-                          </div>
-                          <div>
-                            <span className="font-mono font-bold text-xs mr-1.5">{m.mode}</span>
-                            <span className="text-[11px]">{m.title}</span>
-                          </div>
-                        </div>
-                        <span className="text-[10px] text-slate-400 font-mono shrink-0 pl-1">
-                          {m.durationLabel}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <span className="text-[10px] text-rose-400/80 font-mono">5 Opzioni</span>
               </div>
 
-              {/* Colonna Villaggio Koh Phayam */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5 px-1 text-xs font-bold text-emerald-400">
+              <div className="space-y-1.5">
+                {AVAILABLE_VIDEO_OPTIONS.filter(o => o.category === 'pizza').map(opt => {
+                  const isSelected = selectedIds.includes(opt.id);
+                  const is43 = opt.aspectRatio === '4:3';
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={() => handleToggleId(opt.id)}
+                      className={`w-full p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2 ${
+                        isSelected
+                          ? is43
+                            ? 'bg-amber-500/15 border-amber-500/60 text-white shadow-sm shadow-amber-950/30'
+                            : 'bg-rose-500/15 border-rose-500/50 text-white shadow-sm shadow-rose-950/30'
+                          : 'bg-slate-800/40 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${
+                            isSelected
+                              ? is43
+                                ? 'bg-amber-500 text-black'
+                                : 'bg-rose-500 text-white'
+                              : 'border border-slate-600'
+                          }`}
+                        >
+                          {isSelected && <CheckSquare className="w-3 h-3" />}
+                        </div>
+                        <div className="truncate">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono font-bold text-xs text-white">{opt.mode}</span>
+                            <span
+                              className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase tracking-wider ${
+                                is43
+                                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                  : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                              }`}
+                            >
+                              {is43 ? '4:3' : '9:16'}
+                            </span>
+                          </div>
+                          <div className="text-[11px] truncate opacity-90">{opt.title}</div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                        {opt.durationLabel.split('·')[0].trim()}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 2. Colonna Villaggio Koh Phayam (4 Opzioni) */}
+            <div className="bg-slate-900/40 border border-emerald-950/40 rounded-2xl p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
                   <Palmtree className="w-3.5 h-3.5" />
                   <span>Villaggio Koh Phayam</span>
                 </div>
-                <div className="space-y-1.5">
-                  {ALL_MODES.filter(m => m.category === 'village').map(m => {
-                    const isSelected = selectedModes.includes(m.mode);
-                    return (
-                      <button
-                        key={m.mode}
-                        type="button"
-                        disabled={isProcessing}
-                        onClick={() => handleToggleMode(m.mode)}
-                        className={`w-full p-2.5 rounded-xl border text-left transition flex items-center justify-between ${
-                          isSelected
-                            ? 'bg-emerald-500/15 border-emerald-500/50 text-white'
-                            : 'bg-slate-800/40 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded flex items-center justify-center ${isSelected ? 'bg-emerald-500 text-white' : 'border border-slate-600'}`}>
-                            {isSelected && <CheckSquare className="w-3 h-3" />}
-                          </div>
-                          <div>
-                            <span className="font-mono font-bold text-xs mr-1.5">{m.mode}</span>
-                            <span className="text-[11px]">{m.title}</span>
-                          </div>
-                        </div>
-                        <span className="text-[10px] text-slate-400 font-mono shrink-0 pl-1">
-                          {m.durationLabel}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <span className="text-[10px] text-emerald-400/80 font-mono">4 Opzioni</span>
               </div>
 
-              {/* Colonna Stories Koh Phayam */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5 px-1 text-xs font-bold text-amber-400">
+              <div className="space-y-1.5">
+                {AVAILABLE_VIDEO_OPTIONS.filter(o => o.category === 'village').map(opt => {
+                  const isSelected = selectedIds.includes(opt.id);
+                  const is43 = opt.aspectRatio === '4:3';
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={() => handleToggleId(opt.id)}
+                      className={`w-full p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2 ${
+                        isSelected
+                          ? is43
+                            ? 'bg-amber-500/15 border-amber-500/60 text-white shadow-sm shadow-amber-950/30'
+                            : 'bg-emerald-500/15 border-emerald-500/50 text-white shadow-sm shadow-emerald-950/30'
+                          : 'bg-slate-800/40 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${
+                            isSelected
+                              ? is43
+                                ? 'bg-amber-500 text-black'
+                                : 'bg-emerald-500 text-white'
+                              : 'border border-slate-600'
+                          }`}
+                        >
+                          {isSelected && <CheckSquare className="w-3 h-3" />}
+                        </div>
+                        <div className="truncate">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono font-bold text-xs text-white">{opt.mode}</span>
+                            <span
+                              className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase tracking-wider ${
+                                is43
+                                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                  : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                              }`}
+                            >
+                              {is43 ? '4:3' : '9:16'}
+                            </span>
+                          </div>
+                          <div className="text-[11px] truncate opacity-90">{opt.title}</div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                        {opt.durationLabel.split('·')[0].trim()}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 3. Colonna Stories Koh Phayam (3 Opzioni) */}
+            <div className="bg-slate-900/40 border border-amber-950/40 rounded-2xl p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
                   <Flame className="w-3.5 h-3.5" />
                   <span>Stories Koh Phayam</span>
                 </div>
-                <div className="space-y-1.5">
-                  {ALL_MODES.filter(m => m.category === 'stories').map(m => {
-                    const isSelected = selectedModes.includes(m.mode);
-                    return (
-                      <button
-                        key={m.mode}
-                        type="button"
-                        disabled={isProcessing}
-                        onClick={() => handleToggleMode(m.mode)}
-                        className={`w-full p-2.5 rounded-xl border text-left transition flex items-center justify-between ${
-                          isSelected
-                            ? 'bg-amber-500/15 border-amber-500/50 text-white'
-                            : 'bg-slate-800/40 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded flex items-center justify-center ${isSelected ? 'bg-amber-500 text-black' : 'border border-slate-600'}`}>
-                            {isSelected && <CheckSquare className="w-3 h-3" />}
-                          </div>
-                          <div>
-                            <span className="font-mono font-bold text-xs mr-1.5">{m.mode}</span>
-                            <span className="text-[11px]">{m.title}</span>
-                          </div>
-                        </div>
-                        <span className="text-[10px] text-slate-400 font-mono shrink-0 pl-1">
-                          {m.durationLabel}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <span className="text-[10px] text-amber-400/80 font-mono">3 Opzioni</span>
               </div>
 
+              <div className="space-y-1.5">
+                {AVAILABLE_VIDEO_OPTIONS.filter(o => o.category === 'stories').map(opt => {
+                  const isSelected = selectedIds.includes(opt.id);
+                  const is43 = opt.aspectRatio === '4:3';
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={() => handleToggleId(opt.id)}
+                      className={`w-full p-2.5 rounded-xl border text-left transition flex items-center justify-between gap-2 ${
+                        isSelected
+                          ? is43
+                            ? 'bg-amber-500/15 border-amber-500/60 text-white shadow-sm shadow-amber-950/30'
+                            : 'bg-amber-500/15 border-amber-500/50 text-white shadow-sm shadow-amber-950/30'
+                          : 'bg-slate-800/40 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${
+                            isSelected
+                              ? 'bg-amber-500 text-black'
+                              : 'border border-slate-600'
+                          }`}
+                        >
+                          {isSelected && <CheckSquare className="w-3 h-3" />}
+                        </div>
+                        <div className="truncate">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono font-bold text-xs text-white">{opt.mode}</span>
+                            <span
+                              className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase tracking-wider ${
+                                is43
+                                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                  : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                              }`}
+                            >
+                              {is43 ? '4:3' : '9:16'}
+                            </span>
+                          </div>
+                          <div className="text-[11px] truncate opacity-90">{opt.title}</div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                        {opt.durationLabel.split('·')[0].trim()}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+
           </div>
 
-          {/* 3. DESTINAZIONE TELEGRAM */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
+          {/* DESTINAZIONE TELEGRAM */}
+          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-3.5">
+            <div className="flex items-center justify-between mb-2.5">
               <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Send className="w-3.5 h-3.5 text-sky-400" />
-                <span>3. Destinazione Supergruppo Telegram Staff (ID: -1004492692624)</span>
+                <span>Destinazione Telegram Staff</span>
               </span>
             </div>
 
@@ -704,7 +689,7 @@ export function AutoCutBatchDispatcherModal({
                     Topic 3: TikTok Stories & Reels
                   </div>
                   <div className="text-[10px] text-slate-400">
-                    threadId: 3 · Ricezione video 9:16 / 4:3 con copy bilingue
+                    threadId: 3 · Ricezione video con copy bilingue
                   </div>
                 </div>
               </button>
@@ -725,14 +710,14 @@ export function AutoCutBatchDispatcherModal({
                     Topic 2: Koh Phayam Group FB
                   </div>
                   <div className="text-[10px] text-slate-400">
-                    threadId: 2 · Ricezione video con formattazione per Gruppo FB
+                    threadId: 2 · Ricezione video per Gruppo Facebook
                   </div>
                 </div>
               </button>
             </div>
           </div>
 
-          {/* 4. MONITOR PROGRESSO SEQUENZIALE & CODA (QUANDO ATTIVO O COMPLETATO) */}
+          {/* MONITOR PROGRESSO SEQUENZIALE & CODA (QUANDO ATTIVO O COMPLETATO) */}
           {(isProcessing || queueItems.length > 0) && (
             <div className="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-4 space-y-3">
               <div className="flex items-center justify-between">
@@ -740,12 +725,12 @@ export function AutoCutBatchDispatcherModal({
                   {isProcessing ? (
                     <>
                       <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
-                      <span>Elaborazione Sequenziale in Corso ({currentIndex + 1} di {queueItems.length})</span>
+                      <span>Elaborazione Video in Corso ({currentIndex + 1} di {queueItems.length})</span>
                     </>
                   ) : overallSummary ? (
                     <>
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>Riepilogo Verifica: {overallSummary.success} Inviati / {overallSummary.failed} Errori</span>
+                      <span>Riepilogo Test: {overallSummary.success} Inviati / {overallSummary.failed} Errori</span>
                     </>
                   ) : (
                     <span>Coda Video Pronta</span>
@@ -809,7 +794,7 @@ export function AutoCutBatchDispatcherModal({
                         )}
 
                         <div className="truncate">
-                          <span className="font-bold text-white mr-1.5">{item.label}</span>
+                          <span className="font-bold text-white mr-1.5">{item.mode} ({item.aspectRatio})</span>
                           <span className="text-[11px] opacity-80">· {status.message}</span>
                         </div>
                       </div>
@@ -846,11 +831,11 @@ export function AutoCutBatchDispatcherModal({
             {isProcessing ? (
               <span className="text-cyan-300 flex items-center gap-1.5 font-medium">
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Compilazione in corso: non chiudere questa scheda del browser.
+                Compilazione video in corso: mantieni attiva questa scheda.
               </span>
             ) : (
               <span>
-                Totale da compilare: <strong className="text-white">{totalItemsCount} video</strong> ({selectedModes.length} format × {aspectChoice === 'both' ? '2 layout' : '1 layout'})
+                Selezionati: <strong className="text-white">{selectedCount} video</strong> da compilare
               </span>
             )}
           </div>
@@ -868,7 +853,7 @@ export function AutoCutBatchDispatcherModal({
             <button
               type="button"
               onClick={handleStartBatch}
-              disabled={isProcessing || selectedModes.length === 0}
+              disabled={isProcessing || selectedCount === 0}
               className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-sky-500 text-white font-bold text-xs shadow-lg shadow-sky-950/50 transition active:scale-95 disabled:opacity-40"
             >
               {isProcessing ? (
@@ -879,7 +864,7 @@ export function AutoCutBatchDispatcherModal({
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  <span>Avvia Invio a Telegram ({totalItemsCount} Video)</span>
+                  <span>Avvia Video Test Telegram ({selectedCount})</span>
                 </>
               )}
             </button>
