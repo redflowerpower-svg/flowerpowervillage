@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [26/10/2026 - ORE 15:45] · SOCIAL STUDIO LM1: SEMPLIFICAZIONE RADICALE NOMI ALLOGGI NEI POST (NOMI SECCHI, FORMATO COMPATTO ฿ SU RIGA UNICA & ZERO DISPERSIONE)
+- **Cosa abbiamo fatto:** Ottimizzato il format grafico e testuale della lista alloggi Last Minute in [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts) e [autoCutCopywriterEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutCopywriterEngine.ts):
+  - ✂️ **Sanitizzazione Nomi Alloggi (`simplifyLodgingName`)**:
+    - Rimossi tutti gli appellativi prolissi e ridondanti che allungavano il testo da smartphone: eliminati definitivamente *"Breezy Suite"*, *"Suite"*, *"Sweet"*, *"Tropical Garden View"*, *"Garden View"*, *"Eco-Glamping Sanctuary"*, *"Panoramic Terrace"*, ecc.
+    - Mantenuto esclusivamente il nome secco, essenziale e forte dell'alloggio: `Penthouse Villa`, `Peace & Love Villa`, `Yellow Bungalow`, `Green Bungalow`, `Camel Tent`, `Lagoon Tent`, ecc.
+  - 📏 **Riga Compatta a Prova di Smartphone (Nome + Prezzo Online ➔ Prezzo Scontato -10%)**:
+    - Ogni alloggio libero viene formattato come: `• [Nome Secco]: [Prezzo]฿ ➔ [Prezzo -10%]฿ (-10%)`.
+    - L'intera stringa entra perfettamente su una singola riga orizzontale su qualsiasi schermo mobile senza spezzarsi in modo disordinato.
+  - 🎯 **Prompt DeepSeek & Fallback Locale Blindati**:
+    - Sia il prompt AI che il generatore deterministico a 0 token applicano la stessa stringente regola di sintesi, mantenendo il singolo link ufficiale `👉 www.flowerpowervillage.com` e il contatto `💬 WhatsApp: +66 095 882 5573`.
+- **Effetto reale:** Leggibilità immediata ed altissima conversione da smartphone nei gruppi Facebook e sui social: i viaggiatori leggono i nomi delle camere e i prezzi a colpo d'occhio senza muri di testo o righe tronche.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [26/10/2026 - ORE 15:30] · SOCIAL STUDIO AUTOCUT: CALIBRAZIONE ESCLUSIVA NEL RENDERING DEI 4 FILMATI (WATERMARK +50%, TESTI +30%, ZERO PREZZO IN V2, A CAPO THAI PROTETTO & SCOMPARSA PREZZO PRIMA DELL'OUTRO)
 - **Cosa abbiamo fatto:** Aggiornato in modo mirato ed esclusivo il motore di rendering video (`render43OverlaysToContext` in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) e [autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts)), preservando identiche al 100% le proporzioni della Dashboard DOM:
   - 🏷️ **Watermark Top-Left Ingrandito del +50% nel Rendering (P1 4:3, V1 4:3, LM1 4:3)**:

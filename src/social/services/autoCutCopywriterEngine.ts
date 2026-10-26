@@ -512,22 +512,31 @@ La buona cucina italiana nel cuore dell'isola di Koh Phayam!
     // 🔥 LM1: STORIES LAST MINUTE KOH PHAYAM (ALLOGGI LIBERI OGGI, TARIFFE ONLINE ➔ SCONTO DIRETTO -10%)
     const cleanEnProverb = proverb.en.replace(/["']/g, '');
 
+    const simplifyLodgingName = (name: string): string => {
+      return (name || '')
+        .replace(/\b(Breezy Suite|Breezy|Suite|Sweet|Tropical Garden View|Tropical Garden|Garden View|Eco-Glamping Sanctuary|Eco-Glamping|Glamping Sanctuary|Glamping|Sanctuary|Panoramic Terrace|Panoramic)\b/gi, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    };
+
     const lm1ThRooms = testRun.scenes.map(s => {
-      const name = cleanInlineTitle(s.titleSecondary || s.titlePrimary);
+      const rawName = cleanInlineTitle(s.titleSecondary || s.titlePrimary);
+      const name = simplifyLodgingName(rawName);
       const basePrice = s.priceValue || 0;
       const directPrice = basePrice ? Math.round(basePrice * 0.90) : 0;
       const priceText = basePrice
-        ? ` (${basePrice}฿ ➔ ${directPrice}฿ จองตรงลด 10%)`
+        ? `: ${basePrice}฿ ➔ ${directPrice}฿ (-10%)`
         : '';
       return `• ${name}${priceText}`;
     }).join('\n');
 
     const lm1EnRooms = testRun.scenes.map(s => {
-      const name = cleanInlineTitle(s.titlePrimary);
+      const rawName = cleanInlineTitle(s.titlePrimary);
+      const name = simplifyLodgingName(rawName);
       const basePrice = s.priceValue || 0;
       const directPrice = basePrice ? Math.round(basePrice * 0.90) : 0;
       const priceText = basePrice
-        ? ` (${basePrice} THB ➔ ${directPrice} THB / -10% direct)`
+        ? `: ${basePrice}฿ ➔ ${directPrice}฿ (-10%)`
         : '';
       return `• ${name}${priceText}`;
     }).join('\n');

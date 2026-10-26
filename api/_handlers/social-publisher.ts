@@ -945,14 +945,23 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
         }
       }
 
+      const simplifyLodgingName = (name: string): string => {
+        return (name || '')
+          .replace(/\b(Breezy Suite|Breezy|Suite|Sweet|Tropical Garden View|Tropical Garden|Garden View|Eco-Glamping Sanctuary|Eco-Glamping|Glamping Sanctuary|Glamping|Sanctuary|Panoramic Terrace|Panoramic)\b/gi, '')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+      };
+
       const dishListText = dishDetails && dishDetails.length > 0
         ? dishDetails.map((d: any) => {
             const basePrice = d.priceValue || (d.priceLabel ? parseInt(String(d.priceLabel).replace(/[^\d]/g, ''), 10) : 0);
             const directPrice = basePrice ? Math.round(basePrice * 0.90) : 0;
+            const cleanName = mode === 'LM1' ? simplifyLodgingName(d.name) : d.name;
+            const cleanNameTh = mode === 'LM1' ? simplifyLodgingName(d.nameTh || '') : (d.nameTh || '');
             const priceInfo = basePrice
-              ? `Tariffa online: ${basePrice} THB ➔ Prenotazione diretta sul nostro sito (-10%): ${directPrice} THB`
+              ? `${basePrice}฿ ➔ ${directPrice}฿ (-10%)`
               : (d.description || 'Autentica ricetta o alloggio');
-            return `- ${d.name} (${d.nameTh}): ${priceInfo}`;
+            return `- ${cleanName}${cleanNameTh ? ` (${cleanNameTh})` : ''}: ${priceInfo}`;
           }).join('\n')
         : dishes.map((d: string) => `- ${d}`).join('\n');
 
@@ -1092,10 +1101,10 @@ ${dishListText}
 REGOLE FONDAMENTALI DI SCRITTURA:
 1. TEMA LAST MINUTE & URGENZA POSITIVA:
    Comunica con entusiasmo che ci sono camere e bungalow liberi per stanotte a Buffalo Bay. Chi si trova a Koh Phayam, al porto o nelle vicinanze può cogliere l'occasione al volo per una notte magica tra palme tropicali e brezza marina.
-2. ELENCO ALLOGGI LIBERI CON PREZZO ONLINE ➔ PREZZO SITO DIRETTO (-10%):
-   Presenta in modo ordinato e pulito (elenco puntato con emoji) gli alloggi liberi stanotte mostrando la trasparenza dello sconto diretto:
-   Esempio per ciascun alloggio libero nel contesto:
-   • [Nome Alloggio]: [Prezzo Online] THB ➔ [Prezzo Scontato Diretto] THB (-10% prenotazione diretta)
+2. ELENCO ALLOGGI LIBERI CON NOME SECCO E PREZZO (ONLINE ➔ SITO DIRETTO -10%):
+   Usa TASSATIVAMENTE il nome secco ed essenziale dell'alloggio (es. 'Penthouse Villa', 'Yellow Bungalow', 'Camel Tent', 'Peace & Love Villa', 'Green Bungalow'), ELIMINANDO qualsiasi appellativo lungo come 'Breezy Suite', 'Suite', 'Sweet', 'Tropical Garden', 'View' o descrizioni prolisse per far entrare ogni alloggio su una singola riga compatta da smartphone.
+   Formato riga:
+   • [Nome Secco]: [Prezzo Online]฿ ➔ [Prezzo Scontato]฿ (-10%)
 3. PRIVILEGIO PRENOTAZIONE DIRETTA (DISINTERMEDIAZIONE BOOKING/AGODA):
    Evidenzia chiaramente che prenotando direttamente sul nostro sito ufficiale www.flowerpowervillage.com si ottiene automaticamente un ulteriore -10% di sconto reale rispetto alle tariffe online!
 4. UNICO LINK DIRETTO PULITO & WHATSAPP (DIVIETO ASSOLUTO LINK MULTIPLI):
@@ -1104,7 +1113,7 @@ REGOLE FONDAMENTALI DI SCRITTURA:
    💬 WhatsApp: +66 095 882 5573
 5. STRUTTURA & LUNGHEZZA:
    - MASSIMO 4-5 RIGHE AD ALTO IMPATTO per lingua (inclusa la lista alloggi). Spaziatura ariosa, zero muri di parole.
-   - Nomi alloggi: locuzione continua su singola riga (mai spezzata a metà).
+   - Nomi alloggi: locuzione continua su singola riga secca (mai spezzata a metà).
    - Proverbio del Giorno: proverbio evocativo sul cogliere l'attimo, il viaggio, la natura o il mare (Thai: 📜 สุภาษิต: "..." | Inglese: 📜 Proverb: "...").
    - Bandiera: 🇬🇧 per l'Inglese in alto, 🇹🇭 per il Thai in basso.
    - Zero hashtag nel corpo del testo (vengono aggiunti dal sistema in fondo al post).
