@@ -3,7 +3,27 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
-### 🟩 [26/10/2026 - ORE 01:00] · SOCIAL STUDIO SCHEDULER: RILASCIO PALINSESTO SCIENTIFICO 14 AZIONI (4 MANUALI DIURNE, 10 AUTOMATICHE & ALTERNANZA MASSICCIA CC1 NELLE STORIES E REEL)
+### 🟩 [26/10/2026 - ORE 10:45] · SOCIAL STUDIO AUTOCUT: NUOVO TASTO VERIFICA SEQUENZIALE VIDEO TELEGRAM (BATCH QUALITY CHECK MULTI-FORMATO CON OPZIONE SPECIFICA 4:3 E 9:16)
+- **Cosa abbiamo fatto:** Aggiunto il nuovo pulsante e l'intero flusso di verifica sequenziale batch a Telegram in [AutoCutLabView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabView.tsx), [AutoCutBatchDispatcherModal.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutBatchDispatcherModal.tsx) e [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 🔘 **Pulsante di Accesso Diretto nel Social Studio**:
+    - Inserito il pulsante principale azzurro ciano **"Verifica Sequenza Telegram"** nell'header di AutoCut Studio accanto a "Genera Nuovo Video".
+    - Inserito il pulsante compatto **"Batch Telegram"** direttamente sopra il mockup dello smartphone per accesso rapido durante i test.
+  - 🎛️ **Nuovo Componente `AutoCutBatchDispatcherModal.tsx`**:
+    - **Selettore Multi-Formato & Preset**: Selezione a checkbox di tutti i 9 formati ufficiali (`P1`, `P2`, `P3`, `DS`, `V1`, `V2`, `V3`, `R1`, `LM1`) con preset rapidi a 1 tocco (`Tutti (9)`, `Solo Pizzeria (4)`, `Solo Villaggio (5)`, `Deseleziona`).
+    - **Opzione Specifica 4:3 e 9:16 (L'opzione richiesta)**: Scelta dell'aspect ratio di compilazione:
+      1. `📱 9:16 Verticale` (1080x1920 Full HD - TikTok, Reels, Stories).
+      2. `🖥️ 4:3 Orizzontale` (1440x1080 Full HD - Post Facebook, monitor e tablet).
+      3. `🔄 Entrambi (9:16 + 4:3)` (compila e invia a Telegram entrambe le versioni per ogni formato selezionato).
+    - **Destinazione Topic Telegram**: Selezione del canale di destinazione nel Supergruppo Staff (`Topic 3 TikTok Stories & Reels` o `Topic 2 Koh Phayam Group FB`).
+    - **Motore di Coda Sequenziale a 60 FPS**: Esegue in successione il caricamento del format, il rendering hardware WebCodecs 60 FPS, l'estrazione thumbnail ufficiale senza ghosting (Regola 14), l'upload S3 Cloud e l'invio a Telegram con testo bilingue, gestendo pause di rate-limit.
+    - **Monitor di Avanzamento Live & Interruzione**: Visualizzazione della percentuale per singolo video e totale, link diretti ai file MP4 generati e pulsante di interruzione manuale immediata.
+    - **Supporto Accessibilità**: Chiusura automatica con tasto `Escape` e click fuori dal backdrop.
+  - 🎬 **Motore Video 4:3 Full HD in `AutoCutLabPlayer.tsx`**:
+    - Aggiornato `__autoCutGetVideo` per supportare `{ aspectRatio?: '9:16' | '4:3' }` con rendering overlays 4:3 (`render43OverlaysToContext`) e outro 4:3 (`draw43OutroToContext`) con grafica d'impatto ad alta risoluzione.
+- **Effetto reale:** Ora l'operatore può selezionare con facilità una sequenza qualsiasi di formati (ad es. P1, P2, V3 e LM1) e scegliere se compilarli in 4:3 o 9:16 (o entrambi): il sistema li genera uno dietro l'altro a 60 FPS e li recapita sul gruppo Telegram Staff con il rispettivo testo bilingue, permettendo una verifica di funzionamento completa e immediata sul campo.
+- **Stato:** ✅ Compilato (0 errori TypeScript), collaudato nel browser del Social Studio e operativo.
+
+---
 - **Cosa abbiamo fatto:** Aggiornato e rilasciato il motore di schedulazione in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) implementando la griglia a 14 azioni basata sui dati reali di mercato e risolvendo l'etichettatura REEL per i gruppi Facebook:
   - 🎬 **Correzione Priorità REEL nei Gruppi Facebook (Addio Cartellino Story a Phayam)**:
     - Risolto il bug in `getContentBadge`: per tutti i post destinati ai gruppi Facebook (`GruppiPhayam`, `R1`, o `format: 'reel'`) viene stampata tassativamente l'etichetta viola **`REEL`**, azzerando la vecchia forzatura "STORY".

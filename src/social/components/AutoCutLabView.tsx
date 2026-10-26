@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Sparkles, Pizza, Palmtree, RefreshCw, Music, 
   Layers, Info, CheckCircle2, ChevronRight, Volume2, ShieldCheck,
-  Eye, Zap, Sliders, AlertTriangle, Ban, Type, Video, Clock, Target, Compass, Bookmark
+  Eye, Zap, Sliders, AlertTriangle, Ban, Type, Video, Clock, Target, Compass, Bookmark, Send
 } from 'lucide-react';
 import { MenuItem } from '../../pizza/data/menuData';
 import { 
@@ -20,8 +20,10 @@ import { AUTOCUT_RULES_REGISTRY } from '../services/autoCutRulesRegistry';
 import { AutoCutLabPlayer } from './AutoCutLabPlayer';
 import { AutoCutPostCopywriter, PostCaptionsBundle } from './AutoCutPostCopywriter';
 import { AutoCutDistributionPanel, DistributionChannelId, ChannelFormatMap } from './AutoCutDistributionPanel';
+import { AutoCutBatchDispatcherModal } from './AutoCutBatchDispatcherModal';
 
 export function AutoCutLabView() {
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
   const [activeMode, setActiveMode] = useState<AutoCutLabMode>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -217,15 +219,27 @@ export function AutoCutLabView() {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleRegenerateCurrent}
-            disabled={isGenerating}
-            className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 hover:from-amber-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-950/40 transition active:scale-95 shrink-0 disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
-            <span>{isGenerating ? 'Generazione in corso...' : `Genera Nuovo Video (${activeMode})`}</span>
-          </button>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setIsBatchModalOpen(true)}
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-gradient-to-r from-cyan-600 via-sky-500 to-blue-600 hover:from-cyan-500 hover:to-sky-400 text-white font-bold text-xs shadow-lg shadow-sky-950/40 transition active:scale-95 shrink-0"
+              title="Apri console di verifica sequenziale e invio Telegram (9:16 e 4:3)"
+            >
+              <Send className="w-4 h-4" />
+              <span>Verifica Sequenza Telegram</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleRegenerateCurrent}
+              disabled={isGenerating}
+              className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 hover:from-amber-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-950/40 transition active:scale-95 shrink-0 disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+              <span>{isGenerating ? 'Generazione in corso...' : `Genera Nuovo Video (${activeMode})`}</span>
+            </button>
+          </div>
         </div>
 
         {/* 🎛️ SELETTORE DEI FORMATI UFFICIALI (PIZZERIA P1-P3 & DS, VILLAGGIO V1-V3, STORIES KOH PHAYAM R1 & LM1) */}
@@ -413,15 +427,25 @@ export function AutoCutLabView() {
         
         {/* 1. COLONNA SINISTRA: Smartphone Mockup con AutoCut Player (dimensione reale 395px fedele a smartphone moderno) */}
         <div className="lg:col-span-4 xl:col-span-4 flex flex-col items-start isolate">
-          <div className="w-full max-w-[395px] mb-1.5">
+          <div className="w-full max-w-[395px] mb-1.5 flex items-center gap-2">
             <button
               type="button"
               onClick={handleRegenerateCurrent}
               disabled={isGenerating}
-              className="w-full text-xs font-bold py-2 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-amber-300 border border-slate-700/80 flex items-center justify-center gap-2 transition active:scale-95 shadow-sm disabled:opacity-50"
+              className="flex-1 text-xs font-bold py-2 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-amber-300 border border-slate-700/80 flex items-center justify-center gap-2 transition active:scale-95 shadow-sm disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isGenerating ? 'animate-spin' : ''}`} />
               <span>{isGenerating ? 'Generazione...' : 'Genera Nuovo Video'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsBatchModalOpen(true)}
+              className="text-xs font-bold py-2 px-3 rounded-xl bg-sky-950/70 hover:bg-sky-900/90 text-cyan-300 border border-sky-500/40 flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm"
+              title="Verifica sequenziale e invio batch a Telegram"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Batch Telegram</span>
             </button>
           </div>
 
@@ -745,6 +769,16 @@ export function AutoCutLabView() {
           );
         })()}
       </div>
+
+      {/* 🚀 MODAL VERIFICA & DISPATCHING SEQUENZIALE TELEGRAM (9:16 & 4:3) */}
+      <AutoCutBatchDispatcherModal
+        isOpen={isBatchModalOpen}
+        onClose={() => setIsBatchModalOpen(false)}
+        activeMode={activeMode}
+        onSelectMode={handleSelectMode}
+        testsByMode={testsByMode}
+        createTestForMode={createTestForMode}
+      />
 
     </div>
   );

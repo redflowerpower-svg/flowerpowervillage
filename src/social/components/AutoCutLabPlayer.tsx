@@ -932,6 +932,204 @@ export function AutoCutLabPlayer({
       targetCtx.restore();
     };
 
+    // 🖥️ Helper per disegnare l'Outro 4:3 per Google Business & Facebook Feed
+    const draw43OutroToContext = (
+      targetCtx: CanvasRenderingContext2D,
+      w: number,
+      h: number,
+      outroElapsed: number
+    ) => {
+      targetCtx.save();
+      targetCtx.scale(w / 960, h / 720);
+      const w43 = 960;
+      const h43 = 720;
+      const cx43 = w43 / 2;
+      const darkAlpha = Math.min(0.88, (outroElapsed / 0.35) * 0.88);
+      targetCtx.fillStyle = `rgba(0, 0, 0, ${darkAlpha})`;
+      targetCtx.fillRect(0, 0, w43, h43);
+
+      const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
+      if (comp43Logo) {
+        const lSize = 130;
+        targetCtx.save();
+        targetCtx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+        targetCtx.shadowBlur = 20;
+        targetCtx.drawImage(comp43Logo, cx43 - lSize / 2, 100, lSize, lSize);
+        targetCtx.restore();
+      }
+
+      targetCtx.font = '900 32px "Outfit", "Inter", sans-serif';
+      targetCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
+      targetCtx.textAlign = 'center';
+      targetCtx.fillText(
+        mode === 'R1' ? 'FLOWER POWER RESTAURANT' : (brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE'),
+        cx43,
+        275
+      );
+
+      targetCtx.font = '800 20px "Inter", sans-serif';
+      targetCtx.fillStyle = '#ffffff';
+      targetCtx.fillText(
+        (mode === 'R1' || brand === 'village') ? 'KOH PHAYAM · THAILAND' : 'RANONG · THAILAND',
+        cx43,
+        315
+      );
+
+      targetCtx.font = '600 16px "Inter", sans-serif';
+      targetCtx.fillStyle = '#cbd5e1';
+      targetCtx.fillText(
+        mode === 'R1' ? 'Italian Restaurant & Island Delivery' : (brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary'),
+        cx43,
+        348
+      );
+
+      const cardW = 600;
+      const cardH = 150;
+      const cardX = cx43 - (cardW / 2);
+      const cardY = 390;
+      targetCtx.save();
+      targetCtx.fillStyle = 'rgba(11, 17, 32, 0.94)';
+      if (typeof targetCtx.roundRect === 'function') {
+        targetCtx.roundRect(cardX, cardY, cardW, cardH, 20);
+      } else {
+        targetCtx.rect(cardX, cardY, cardW, cardH);
+      }
+      targetCtx.fill();
+      targetCtx.strokeStyle = (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0.65)' : 'rgba(52, 211, 153, 0.75)';
+      targetCtx.lineWidth = 2.5;
+      targetCtx.stroke();
+      targetCtx.restore();
+
+      targetCtx.font = '900 24px "Inter", sans-serif';
+      targetCtx.fillStyle = '#ffffff';
+      targetCtx.textAlign = 'center';
+      targetCtx.fillText(
+        mode === 'R1' ? '✆ WhatsApp +66 095 882 5573' : (brand === 'pizza' ? '🌐 flowerpowerpizza.com' : '🌐 flowerpowervillage.com'),
+        cx43,
+        cardY + 46
+      );
+
+      targetCtx.font = '800 18px "Inter", sans-serif';
+      targetCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
+      targetCtx.fillText(
+        mode === 'R1' ? '🛵 Fast Island Delivery in Koh Phayam' : (brand === 'pizza' ? '🛵 Fast Delivery Ranong · 10% Off 1st Order' : '🌴 Direct Booking · Best Rates Guaranteed'),
+        cx43,
+        cardY + 86
+      );
+
+      targetCtx.font = '600 15px "Inter", sans-serif';
+      targetCtx.fillStyle = '#94a3b8';
+      targetCtx.fillText(
+        mode === 'R1' ? 'Buffalo Bay (Ao Khao Kwai) · Koh Phayam' : (brand === 'pizza' ? 'Order Online or Visit us near Hot Springs' : 'Koh Phayam Island · Thailand'),
+        cx43,
+        cardY + 118
+      );
+
+      targetCtx.restore();
+    };
+
+    // 🖥️ Helper per disegnare gli overlay 4:3 con gerarchia scalare per Google Business & Facebook Feed
+    const render43OverlaysToContext = (
+      oCtx: CanvasRenderingContext2D,
+      w: number,
+      h: number,
+      scene: AutoCutScene,
+      tElapsed: number = 0
+    ) => {
+      if (!scene) return;
+      const s = w / 960;
+
+      // 1. Top Vignette
+      const topFadeH = 160 * s;
+      const topGrad = oCtx.createLinearGradient(0, 0, 0, topFadeH);
+      topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.90)');
+      topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      oCtx.fillStyle = topGrad;
+      oCtx.fillRect(0, 0, w, topFadeH);
+
+      // 2. Bottom Vignette
+      const btmFadeH = 220 * s;
+      const btmGrad = oCtx.createLinearGradient(0, h - btmFadeH, 0, h);
+      btmGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      btmGrad.addColorStop(1, 'rgba(0, 0, 0, 0.92)');
+      oCtx.fillStyle = btmGrad;
+      oCtx.fillRect(0, h - btmFadeH, w, btmFadeH);
+
+      // 3. Watermark Logo Top-Left (60px * s)
+      const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
+      const logoSize = 60 * s;
+      const posX = 16 * s;
+      const posY = 16 * s;
+
+      if (comp43Logo) {
+        oCtx.save();
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        oCtx.shadowBlur = 16;
+        oCtx.drawImage(comp43Logo, posX, posY, logoSize, logoSize);
+        oCtx.restore();
+      }
+
+      // Testi Brand Watermark
+      oCtx.save();
+      const textX = posX + logoSize + (14 * s);
+      oCtx.textAlign = 'left';
+      oCtx.font = `900 ${Math.round(20 * s)}px "Outfit", sans-serif`;
+      oCtx.fillStyle = '#ffffff';
+      oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
+      oCtx.shadowBlur = 8;
+      oCtx.fillText('FLOWER POWER', textX, posY + (18 * s));
+
+      oCtx.font = `italic 500 ${Math.round(19 * s)}px "Outfit", sans-serif`;
+      oCtx.fillStyle = brand === 'pizza' ? '#f87171' : '#34d399';
+      oCtx.fillText(brand === 'pizza' ? 'Pizza' : 'Village', textX, posY + (38 * s));
+
+      oCtx.font = `700 ${Math.round(15 * s)}px "Outfit", sans-serif`;
+      oCtx.fillStyle = '#fbbf24';
+      oCtx.fillText(brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off', textX, posY + (56 * s));
+      oCtx.restore();
+
+      // 4. Testi Inferiori (Titoli Bilingui + Categoria + Prezzo)
+      oCtx.save();
+      const bottomBaseY = h - (22 * s);
+      const leftX = 18 * s;
+
+      let catText = scene.badgeCategory || '';
+      if (catText.toUpperCase().includes('TRADITIONAL ITALIAN PIZZA') || catText.toUpperCase() === 'TRADITIONAL PIZZA') {
+        catText = 'ITALIAN PIZZA';
+      }
+      if (catText) {
+        oCtx.font = `900 ${Math.round(14 * s)}px "Outfit", sans-serif`;
+        oCtx.fillStyle = '#ffffff';
+        oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
+        oCtx.shadowBlur = 6;
+        oCtx.fillText(`✦ ${catText.replace(/^[✦⭐\s*]+/, '')}`, leftX, bottomBaseY - (52 * s));
+      }
+
+      oCtx.font = `900 ${Math.round(20 * s)}px "Prompt", "Kanit", sans-serif`;
+      oCtx.fillStyle = '#fbbf24';
+      oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
+      oCtx.shadowBlur = 10;
+      const cleanThai = scene.titlePrimary.replace(/\n+/g, ' ');
+      oCtx.fillText(cleanThai, leftX, bottomBaseY - (28 * s));
+
+      oCtx.font = `800 ${Math.round(16 * s)}px "Outfit", sans-serif`;
+      oCtx.fillStyle = '#f8fafc';
+      oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
+      oCtx.shadowBlur = 8;
+      const cleanEn = scene.titleSecondary.replace(/\n+/g, ' ');
+      oCtx.fillText(cleanEn, leftX, bottomBaseY);
+
+      if (scene.priceLabel) {
+        oCtx.textAlign = 'right';
+        oCtx.font = `900 ${Math.round(24 * s)}px "Outfit", "Kanit", sans-serif`;
+        oCtx.fillStyle = '#fbbf24';
+        oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
+        oCtx.shadowBlur = 12;
+        oCtx.fillText(scene.priceLabel, w - (20 * s), bottomBaseY - (8 * s));
+      }
+      oCtx.restore();
+    };
+
     const renderFrame = (elapsed: number) => {
       if (isCancelled) return;
       currentElapsedRef.current = elapsed;
@@ -1060,88 +1258,7 @@ export function AutoCutLabPlayer({
 
         // Rendering Outro specifico anche per Canvas 4:3 Companion
         if (canvas43 && ctx43) {
-          const w43 = canvas43.width;
-          const h43 = canvas43.height;
-          const cx43 = w43 / 2;
-          ctx43.fillStyle = `rgba(0, 0, 0, ${darkAlpha})`;
-          ctx43.fillRect(0, 0, w43, h43);
-
-          const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
-          if (comp43Logo) {
-            const lSize = 130;
-            ctx43.save();
-            ctx43.shadowColor = 'rgba(0, 0, 0, 0.9)';
-            ctx43.shadowBlur = 20;
-            ctx43.drawImage(comp43Logo, cx43 - lSize / 2, 100, lSize, lSize);
-            ctx43.restore();
-          }
-
-          ctx43.font = '900 32px "Outfit", "Inter", sans-serif';
-          ctx43.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
-          ctx43.textAlign = 'center';
-          ctx43.fillText(
-            mode === 'R1' ? 'FLOWER POWER RESTAURANT' : (brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE'),
-            cx43,
-            275
-          );
-
-          ctx43.font = '800 20px "Inter", sans-serif';
-          ctx43.fillStyle = '#ffffff';
-          ctx43.fillText(
-            (mode === 'R1' || brand === 'village') ? 'KOH PHAYAM · THAILAND' : 'RANONG · THAILAND',
-            cx43,
-            315
-          );
-
-          ctx43.font = '600 16px "Inter", sans-serif';
-          ctx43.fillStyle = '#cbd5e1';
-          ctx43.fillText(
-            mode === 'R1' ? 'Italian Restaurant & Island Delivery' : (brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary'),
-            cx43,
-            348
-          );
-
-          const cardW = 600;
-          const cardH = 150;
-          const cardX = cx43 - (cardW / 2);
-          const cardY = 390;
-          ctx43.save();
-          ctx43.fillStyle = 'rgba(11, 17, 32, 0.94)';
-          if (typeof ctx43.roundRect === 'function') {
-            ctx43.roundRect(cardX, cardY, cardW, cardH, 20);
-          } else {
-            ctx43.rect(cardX, cardY, cardW, cardH);
-          }
-          ctx43.fill();
-          ctx43.strokeStyle = (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0.65)' : 'rgba(52, 211, 153, 0.75)';
-          ctx43.lineWidth = 2.5;
-          ctx43.stroke();
-          ctx43.restore();
-
-          ctx43.font = '900 24px "Inter", sans-serif';
-          ctx43.fillStyle = '#ffffff';
-          ctx43.textAlign = 'center';
-          ctx43.fillText(
-            mode === 'R1' ? '✆ WhatsApp +66 095 882 5573' : (brand === 'pizza' ? '🌐 flowerpowerpizza.com' : '🌐 flowerpowervillage.com'),
-            cx43,
-            cardY + 46
-          );
-
-          ctx43.font = '800 18px "Inter", sans-serif';
-          ctx43.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
-          ctx43.fillText(
-            mode === 'R1' ? '🛵 Fast Island Delivery in Koh Phayam' : (brand === 'pizza' ? '🛵 Fast Delivery Ranong · 10% Off 1st Order' : '🌴 Direct Booking · Best Rates Guaranteed'),
-            cx43,
-            cardY + 86
-          );
-
-          ctx43.font = '600 15px "Inter", sans-serif';
-          ctx43.fillStyle = '#94a3b8';
-          ctx43.fillText(
-            mode === 'R1' ? 'Buffalo Bay (Ao Khao Kwai) · Koh Phayam' : (brand === 'pizza' ? 'Order Online or Visit us near Hot Springs' : 'Koh Phayam Island · Thailand'),
-            cx43,
-            cardY + 118
-          );
+          draw43OutroToContext(ctx43, canvas43.width, canvas43.height, outroElapsed);
         }
 
 
@@ -2246,8 +2363,11 @@ export function AutoCutLabPlayer({
       }
     };
 
-    // Espone l'esportatore del fotogramma composito 9:16 e del VIDEO MP4 Full HD (1080x1920)
+    // Espone l'esportatore del fotogramma composito 9:16 e del VIDEO MP4 Full HD (1080x1920 / 1440x1080)
     if (typeof window !== 'undefined') {
+      (window as any).__autoCutCurrentMode = mode;
+      (window as any).__lastAutoCutTestRun = testRun;
+
       (window as any).__autoCutGetCanvas = () => {
         const c = canvasRef.current;
         const off = document.createElement('canvas');
@@ -2275,12 +2395,20 @@ export function AutoCutLabPlayer({
         return off;
       };
 
-      // 🎬 Generatore Video MP4 Full HD con MediaRecorder a 30fps con Audio Muxato, Font Originali e Outro Ufficiale Completo
-      (window as any).__autoCutGetVideo = async (onProgress?: (pct: number, stepIndex?: number, stepLabel?: string) => void): Promise<string | null> => {
+      // 🎬 Generatore Video MP4 Full HD con WebCodecs 60fps (o MediaRecorder) con Audio Muxato, Font Originali e Outro Ufficiale
+      // Supporta sia 9:16 (1080x1920) sia 4:3 (1440x1080)
+      (window as any).__autoCutGetVideo = async (
+        onProgress?: (pct: number, stepIndex?: number, stepLabel?: string) => void,
+        options?: { aspectRatio?: '9:16' | '4:3' }
+      ): Promise<string | null> => {
         const c = canvasRef.current;
         if (!c) return null;
 
-        if (onProgress) onProgress(3, 0, 'Inizializzazione motore video Full HD 1080x1920...');
+        const is43 = options?.aspectRatio === '4:3';
+        const targetW = is43 ? 1440 : 1080;
+        const targetH = is43 ? 1080 : 1920;
+
+        if (onProgress) onProgress(3, 0, `Inizializzazione motore video Full HD ${targetW}x${targetH} (${is43 ? '4:3 Landscape' : '9:16 Vertical'} )...`);
 
         // Assicura che tutti i web font ufficiali (Outfit, Prompt, Kanit, Inter) siano scaricati e pronti
         if (typeof document !== 'undefined' && document.fonts) {
@@ -2342,13 +2470,13 @@ export function AutoCutLabPlayer({
         }
 
         const off = document.createElement('canvas');
-        off.width = 1080;
-        off.height = 1920;
+        off.width = targetW;
+        off.height = targetH;
         off.style.position = 'fixed';
         off.style.left = '0px';
         off.style.top = '0px';
-        off.style.width = '1080px';
-        off.style.height = '1920px';
+        off.style.width = `${targetW}px`;
+        off.style.height = `${targetH}px`;
         off.style.zIndex = '-99999';
         off.style.opacity = '0.01';
         off.style.pointerEvents = 'none';
@@ -2396,9 +2524,9 @@ export function AutoCutLabPlayer({
           const activeSc = scenes[curIdx] || scenes[0];
           const activeImg = loadedImages[curIdx] || loadedImages[0];
 
-          offCtx.clearRect(0, 0, 1080, 1920);
+          offCtx.clearRect(0, 0, targetW, targetH);
           if (activeImg && activeSc) {
-            drawSceneToCanvas(off, offCtx, activeImg, activeSc, subT, 1.0, false);
+            drawSceneToCanvas(off, offCtx, activeImg, activeSc, subT, 1.0, is43);
           }
 
           // Crossfade con la scena successiva: SOLTANTO L'IMMAGINE DI FONDO DISSOLVE, L'HEADER RIMANE FISSO!
@@ -2417,7 +2545,7 @@ export function AutoCutLabPlayer({
               const nSubT = INCOMING_OFFSET + (nRawSubT * (1.0 - INCOMING_OFFSET));
               const crossRatio = Math.min(1.0, Math.max(0.0, (tElapsed - transThreshold) / effDissolve));
               const nOpacity = 0.5 - 0.5 * Math.cos(crossRatio * Math.PI);
-              drawSceneToCanvas(off, offCtx, nextImg, nextSc, nSubT, nOpacity, false);
+              drawSceneToCanvas(off, offCtx, nextImg, nextSc, nSubT, nOpacity, is43);
               if (crossRatio >= 0.5) {
                 dominantIdx = nextIdx;
               }
@@ -2425,14 +2553,14 @@ export function AutoCutLabPlayer({
           }
 
           // Overlay gradiente cinematografico per contrasto tipografico
-          if (tElapsed < outroStartTime) {
-            const grad = offCtx.createLinearGradient(0, 0, 0, 1920);
+          if (!is43 && tElapsed < outroStartTime) {
+            const grad = offCtx.createLinearGradient(0, 0, 0, targetH);
             grad.addColorStop(0, 'rgba(0,0,0,0.25)');
             grad.addColorStop(0.20, 'rgba(0,0,0,0.0)');
             grad.addColorStop(0.80, 'rgba(0,0,0,0.0)');
             grad.addColorStop(1, 'rgba(0,0,0,0.35)');
             offCtx.fillStyle = grad;
-            offCtx.fillRect(0, 0, 1080, 1920);
+            offCtx.fillRect(0, 0, targetW, targetH);
           }
 
           // 2. Disegna gli overlay identici alla preview (con dissolvenza dolce prima dell'outro) o l'Outro finale animato
@@ -2444,10 +2572,18 @@ export function AutoCutLabPlayer({
             }
             offCtx.save();
             offCtx.globalAlpha = overlayAlpha;
-            renderOverlaysToContext(offCtx, 1080, 1920, scenes[dominantIdx] || activeSc, false, tElapsed);
+            if (is43) {
+              render43OverlaysToContext(offCtx, targetW, targetH, scenes[dominantIdx] || activeSc, tElapsed);
+            } else {
+              renderOverlaysToContext(offCtx, 1080, 1920, scenes[dominantIdx] || activeSc, false, tElapsed);
+            }
             offCtx.restore();
           } else {
-            drawFullOutroToContext(offCtx, 1080, 1920, tElapsed - outroStartTime);
+            if (is43) {
+              draw43OutroToContext(offCtx, targetW, targetH, tElapsed - outroStartTime);
+            } else {
+              drawFullOutroToContext(offCtx, 1080, 1920, tElapsed - outroStartTime);
+            }
           }
         };
 
@@ -2455,14 +2591,14 @@ export function AutoCutLabPlayer({
         // Zero scatti, zero frame drop, 100% identico alla preview canvas del Social Studio!
         if (typeof window !== 'undefined' && typeof (window as any).VideoEncoder === 'function') {
           try {
-            if (onProgress) onProgress(6, 1, 'Inizializzazione encoder hardware WebCodecs 60 FPS...');
+            if (onProgress) onProgress(6, 1, `Inizializzazione encoder hardware WebCodecs 60 FPS (${targetW}x${targetH})...`);
 
             const muxer = new Muxer({
               target: new ArrayBufferTarget(),
               video: {
                 codec: 'avc',
-                width: 1080,
-                height: 1920
+                width: targetW,
+                height: targetH
               },
               fastStart: 'in-memory'
             });
@@ -2479,9 +2615,9 @@ export function AutoCutLabPlayer({
             const targetBitrate = Math.min(5_500_000, Math.max(1_800_000, Math.floor(safeMaxBits / targetDuration)));
 
             encoder.configure({
-              codec: 'avc1.64002a', // H.264 High Profile Level 4.2 Full HD 1080x1920
-              width: 1080,
-              height: 1920,
+              codec: 'avc1.64002a', // H.264 High Profile Level 4.2
+              width: targetW,
+              height: targetH,
               bitrate: targetBitrate,
               framerate: 60,
               latencyMode: 'quality'
