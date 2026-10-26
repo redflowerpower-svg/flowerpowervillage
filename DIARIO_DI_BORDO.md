@@ -377,6 +377,22 @@
 - **Effetto reale:** L'operatore visualizza un modulo copywriter e un ispettore dei prompt solido, impeccabile, leggibile e coerente con un software professionale di fascia alta.
 - **Stato:** ✅ Compilato (0 errori TypeScript), verificato via browser con screenshot ad alta risoluzione e 100% operativo.
 
+### 🟩 [26/10/2026 - ORE 14:30] · SOCIAL STUDIO: INGRANDIMENTO CALIBRATO NEL RENDERING VIDEO 4:3 (WATERMARK +100%, TITOLI +150%, RETTANGOLO PREZZO AZZERATO) E RIPRISTINO PREVIEW DOM
+- **Cosa abbiamo fatto:** Riportata l'anteprima DOM alle proporzioni armoniose originali e concentrato l'ingrandimento massivo richiesto direttamente nel motore di esportazione video Canvas / WebCodecs in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 🔄 **Ripristino Anteprima DOM a Schermo (Undo Inflazione CSS)**:
+    - Revertite le classi Tailwind del box di anteprima companion: logo a `w-[90px] h-[90px]`, titoli brand a `text-[25px]` / `text-[22px]`, diciture a `text-[18px]`, titoli piatti a `text-[21px]` (Thai) / `text-[16.5px]` (Inglese) e alloggi a `text-[21px]`.
+    - Rimosso lo `scale(1.15)` sul box prezzo DOM, mantenendo il comportamento di sparizione completa (`hidden opacity-0`) durante l'Outro.
+  - 🎬 **Ingrandimento Massivo nel Rendering Video 4:3 (`render43OverlaysToContext`)**:
+    - **Watermark In Alto a Sinistra (+100% effettivo nel video MP4)**: Logo scalato a `140 * s` (raddoppiato rispetto ai 60px base), `FLOWER POWER` a `48 * s`, `Pizza/Village` a `44 * s` e `Delivery / Direct Booking` a `34 * s` con contorno protettivo nero e ombra profonda a 360°.
+    - **Titoli in Basso a Sinistra (+150% effettivo nel video MP4)**: Titolo Thai portato a `54 * s` (lineStep `66 * s`), Titolo Inglese a `42 * s` (lineStep `52 * s`), Categoria a `34 * s` (con rispetto delle regole di a capo semantico 9:16). Alloggi scalati a `54 * s` per il titolo, `40 * s` per il sottotitolo ambra e `34 * s` per la descrizione Thai.
+    - **Box Prezzo Giallo (+50%)**: Cifra Kanit portata a `44 * s`, altezza box `62 * s` con bordo nero solido e contorno bianco.
+  - 🛑 **Scomparsa Radicale del Rettangolo Prezzo all'Arrivo dell'Outro (Zero Ghosting/Residui)**:
+    - In `draw43OutroToContext`: sfondo impostato a `#000000` 100% opaco solido (azzerata qualsiasi trasparenza).
+    - In `renderFrameToOffscreen`: inserita cancellazione preliminare a fondo nero opaco (`offCtx.fillStyle = '#000000'; offCtx.fillRect(0, 0, targetW, targetH);`) non appena scatta l'Outro.
+    - In `render43OverlaysToContext`: soglia di stop anticipata a `tElapsed >= outroStartTime - 0.35`.
+- **Effetto reale:** L'anteprima nel browser torna pulita, elegante e proporzionata senza testi debordanti. Nei file video MP4 Full HD 4:3 esportati (per Telegram, Facebook e Google), il watermark in alto a sinistra è enorme e visibile, i titoli dei piatti e degli alloggi in basso a sinistra sono grandissimi, ad alto contrasto e leggibili istantaneamente da qualsiasi smartphone, e all'inizio della schermata finale Outro il vecchio cartellino del prezzo scompare totalmente a 0ms senza alcun residuo visivo.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
 ---
 
 ### 🟩 [26/10/2026 - ORE 14:15] · SOCIAL STUDIO: RICALIBRAZIONE MASSIVA 4:3 (WATERMARK RADDOPPIATO +100%, TITOLI +150%, DISSOLVENZA TOTALE PREZZO OUTRO)
