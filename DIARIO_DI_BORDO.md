@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 19:05] · DATEPICKER POPOVER INTERATTIVO & BLOCCHETTI SCHEDULER DISATTIVATI TRASPARENTI
+- **Cosa abbiamo fatto:** 
+  1. 🗓️ **Calendario Pop-up Interattivo (DatePicker Integrato)**:
+     - Trasformata l'intestazione mese/anno della toolbar in un pulsante interattivo con icona e freccia di espansione.
+     - Cliccandoci si apre un pop-up calendario fluido (con backdrop oscurato) che permette di:
+       - Selezionare direttamente qualsiasi Mese e Anno tramite comodi menu a tendina.
+       - Navigare rapidamente avanti e indietro tra i mesi.
+       - Visualizzare la griglia completa dei giorni con il numero esatto di post programmati per ciascuna data.
+       - Saltare istantaneamente al giorno desiderato con un solo tocco, attivando l'evidenziazione e il focus visivo.
+       - Tasto rapido "⚡ Vai a Oggi" per tornare subito alla data corrente.
+  2. 👻 **Blocchetti Disattivati al 100% Trasparenti & Grigi (`opacity-20 grayscale`)**:
+     - Aggiornata la logica di rendering dei singoli blocchetti dello scheduler: quando uno o più canali social vengono disattivati dagli interruttori in alto, i blocchetti che non hanno più canali attivi diventano **interamente trasparenti, sfumati e grigi** (`opacity-20 grayscale saturate-0 border-dashed border-slate-700/60 bg-slate-950/30`).
+     - In questo modo i contenuti dei canali in pausa (es. TikTok o Google Maps) non creano più disturbo visivo e "non si notano", lasciando in risalto solo i post effettivamente attivi (Instagram e Facebook).
+- **Effetto reale:** Navigazione tra mesi e giorni ultra-rapida con un clic dal popover del calendario; i post dei social spenti sfumano sullo sfondo rendendo la visuale del calendario pulita, ordinata ed ergonomica.
+- **Stato:** ✅ Compilato con `npm run build` a 0 errori (`built in 5.71s`), rilasciato su `staging` e `main`.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 18:55] · CANALI TELEGRAM DEDICATI «PUBLISHED» & «FAILED» COLLEGATI ALLO SCHEDULER
 - **Cosa abbiamo fatto:** 
   1. 🎯 **Rilevamento & Integrazione Dinamica dei Due Topic nel Supergruppo Social Studio**:

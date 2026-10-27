@@ -4,7 +4,7 @@ import {
   Clock, Plus, Sparkles, Trash2, Edit3, Send, CheckCircle, 
   Pizza, Palmtree, Film, Image as ImageIcon, ExternalLink,
   Filter, Zap, Play, Heart, MessageCircle, Bookmark, Globe, Search, Check, Share2, Music,
-  BookOpen, ChevronDown, ChevronUp, Layers, Video, ShieldCheck, Flame
+  BookOpen, ChevronDown, ChevronUp, Layers, Video, ShieldCheck, Flame, X
 } from 'lucide-react';
 import { 
   TikTokIcon, 
@@ -438,6 +438,11 @@ export function SocialCalendarView({
   const [selectedPlatformFilter, setSelectedPlatformFilter] = useState<SocialPlatform | 'all'>('all');
   const [showLegend, setShowLegend] = useState(true);
 
+  // 🗓️ Stato Pop-up Calendario Dettagliato (Selezione rapida Giorno, Mese, Anno con scorciatoie)
+  const [showDatePickerPopup, setShowDatePickerPopup] = useState(false);
+  const [popupViewDate, setPopupViewDate] = useState(() => new Date());
+  const [selectedDayFocus, setSelectedDayFocus] = useState<number | null>(null);
+
   // 📡 Interruttori Canali Scheduler (Attivi / In Pausa con persistenza in localStorage)
   const [channelToggles, setChannelToggles] = useState<SchedulerChannelToggles>(() => {
     const defaults: SchedulerChannelToggles = {
@@ -547,6 +552,28 @@ export function SocialCalendarView({
 
   const handleToday = () => {
     setCurrentDate(new Date());
+    setSelectedDayFocus(new Date().getDate());
+  };
+
+  // Pop-up DatePicker helpers
+  const popupYear = popupViewDate.getFullYear();
+  const popupMonth = popupViewDate.getMonth();
+  const firstDayOfPopupMonth = new Date(popupYear, popupMonth, 1);
+  const lastDayOfPopupMonth = new Date(popupYear, popupMonth + 1, 0);
+  let popupStartingDay = firstDayOfPopupMonth.getDay() - 1;
+  if (popupStartingDay === -1) popupStartingDay = 6;
+  const popupDaysInMonth = lastDayOfPopupMonth.getDate();
+
+  const handlePopupPrevMonth = () => {
+    setPopupViewDate(new Date(popupYear, popupMonth - 1, 1));
+  };
+  const handlePopupNextMonth = () => {
+    setPopupViewDate(new Date(popupYear, popupMonth + 1, 1));
+  };
+  const handleSelectDayFromPopup = (day: number) => {
+    setCurrentDate(new Date(popupYear, popupMonth, day));
+    setSelectedDayFocus(day);
+    setShowDatePickerPopup(false);
   };
 
   // Build calendar matrix
@@ -950,9 +977,163 @@ export function SocialCalendarView({
             </button>
           </div>
 
-          <h2 className="text-base sm:text-lg font-black text-white tracking-wide">
-            {MONTH_NAMES[uiLang][month]} {year}
-          </h2>
+          {/* POPOVER TRIGGER & DATEPICKER RAPIDO */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setPopupViewDate(new Date(currentDate.getTime()));
+                setShowDatePickerPopup(!showDatePickerPopup);
+              }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500 text-white transition cursor-pointer shadow-md group"
+              title="Apri calendario interattivo: scegli direttamente qualsiasi giorno, mese o anno"
+            >
+              <CalendarIcon className="w-4 h-4 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
+              <span className="text-base sm:text-lg font-black tracking-wide">
+                {MONTH_NAMES[uiLang][month]} {year}
+              </span>
+              <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-white transition-transform duration-200 ${showDatePickerPopup ? 'rotate-180 text-indigo-400' : ''}`} />
+            </button>
+
+            {/* POPOVER CALENDARIO INTERATTIVO */}
+            {showDatePickerPopup && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px]" 
+                  onClick={() => setShowDatePickerPopup(false)} 
+                />
+                <div className="absolute top-full left-0 mt-2 z-50 w-[310px] sm:w-[350px] bg-[#121826] border border-indigo-500/40 rounded-2xl shadow-2xl p-4 text-white space-y-3.5 select-none animate-in fade-in zoom-in-95 duration-150">
+                  
+                  {/* Header Popover: Selettore Mese, Anno e Tasti Avanti/Indietro */}
+                  <div className="flex items-center justify-between gap-1.5 border-b border-slate-800 pb-2.5">
+                    <div className="flex items-center gap-1.5">
+                      {/* Selettore Mese Dropdown */}
+                      <select
+                        value={popupMonth}
+                        onChange={(e) => setPopupViewDate(new Date(popupYear, Number(e.target.value), 1))}
+                        className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs font-bold text-white cursor-pointer focus:outline-none focus:border-indigo-500"
+                      >
+                        {MONTH_NAMES[uiLang].map((mName, idx) => (
+                          <option key={idx} value={idx}>{mName}</option>
+                        ))}
+                      </select>
+
+                      {/* Selettore Anno Dropdown */}
+                      <select
+                        value={popupYear}
+                        onChange={(e) => setPopupViewDate(new Date(Number(e.target.value), popupMonth, 1))}
+                        className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs font-bold text-white cursor-pointer focus:outline-none focus:border-indigo-500 font-mono"
+                      >
+                        {[2024, 2025, 2026, 2027, 2028].map((y) => (
+                          <option key={y} value={y}>{y}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Tasti Mese Prec / Succ e Chiudi */}
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={handlePopupPrevMonth}
+                        className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition"
+                        title="Mese Precedente"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handlePopupNextMonth}
+                        className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition"
+                        title="Mese Successivo"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowDatePickerPopup(false)}
+                        className="p-1 rounded-lg hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 transition ml-0.5"
+                        title="Chiudi pop-up"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Griglia Giorni Settimana */}
+                  <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-1">
+                    {DAYS_OF_WEEK[uiLang].map((d) => (
+                      <div key={d}>{d}</div>
+                    ))}
+                  </div>
+
+                  {/* Griglia Numeri Giorni con Badge Post Programmati */}
+                  <div className="grid grid-cols-7 gap-1">
+                    {Array.from({ length: popupStartingDay }).map((_, i) => (
+                      <div key={`empty-pop-${i}`} className="h-8 rounded-lg opacity-10 bg-slate-900" />
+                    ))}
+                    {Array.from({ length: popupDaysInMonth }).map((_, i) => {
+                      const dayNum = i + 1;
+                      const isDayToday = today.getFullYear() === popupYear && today.getMonth() === popupMonth && today.getDate() === dayNum;
+                      const isSelected = year === popupYear && month === popupMonth && (selectedDayFocus ? selectedDayFocus === dayNum : today.getDate() === dayNum);
+                      
+                      // Calcolo post programmati per questo giorno
+                      const postsCount = scheduledPosts.filter(p => {
+                        const pD = new Date(p.scheduled_for);
+                        return pD.getFullYear() === popupYear && pD.getMonth() === popupMonth && pD.getDate() === dayNum;
+                      }).length;
+
+                      return (
+                        <button
+                          key={`pop-day-${dayNum}`}
+                          type="button"
+                          onClick={() => handleSelectDayFromPopup(dayNum)}
+                          className={`h-9 rounded-xl flex flex-col items-center justify-center transition-all relative group cursor-pointer ${
+                            isSelected
+                              ? 'bg-indigo-600 text-white font-black shadow-lg shadow-indigo-950/60 ring-2 ring-indigo-400'
+                              : isDayToday
+                              ? 'bg-indigo-950/50 text-indigo-300 font-extrabold border border-indigo-500/50 hover:bg-indigo-900/60'
+                              : 'bg-slate-900/80 text-slate-200 hover:bg-slate-800 hover:text-white border border-slate-800/80'
+                          }`}
+                          title={`${dayNum} ${MONTH_NAMES[uiLang][popupMonth]} ${popupYear} (${postsCount} post)`}
+                        >
+                          <span className="text-xs leading-none font-mono">{dayNum}</span>
+                          {postsCount > 0 && (
+                            <span className={`text-[8px] font-mono leading-none mt-0.5 px-1 rounded-full ${
+                              isSelected ? 'bg-white/30 text-white' : 'text-amber-400 font-bold'
+                            }`}>
+                              {postsCount}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Scorciatoie Rapide in Calce al Popover */}
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const now = new Date();
+                        setPopupViewDate(new Date(now.getFullYear(), now.getMonth(), 1));
+                        handleSelectDayFromPopup(now.getDate());
+                      }}
+                      className="text-indigo-400 hover:text-indigo-300 font-bold transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>⚡ Vai a Oggi</span>
+                    </button>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      {scheduledPosts.filter(p => {
+                        const pD = new Date(p.scheduled_for);
+                        return pD.getFullYear() === popupYear && pD.getMonth() === popupMonth;
+                      }).length} post nel mese
+                    </span>
+                  </div>
+
+                </div>
+              </>
+            )}
+          </div>
 
           {/* 🛡️ MASTER SWITCH: FERMO (STANDBY) vs IN PRODUZIONE (CON DOPPIA CONFERMA) */}
           <button
@@ -1085,19 +1266,28 @@ export function SocialCalendarView({
           {Array.from({ length: daysInMonth }).map((_, i) => {
             const dayNum = i + 1;
             const isToday = isCurrentMonth && today.getDate() === dayNum;
+            const isFocused = selectedDayFocus === dayNum && isCurrentMonth;
             const dayPosts = postsByDay[dayNum] || [];
 
             return (
               <div 
                 key={`day-${dayNum}`} 
                 className={`min-h-[160px] p-2 flex flex-col justify-between transition-colors ${
-                  isToday ? 'bg-indigo-950/20 ring-1 ring-inset ring-indigo-500/30' : 'hover:bg-slate-900/40'
+                  isFocused
+                    ? 'bg-indigo-950/40 ring-2 ring-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]'
+                    : isToday 
+                    ? 'bg-indigo-950/20 ring-1 ring-inset ring-indigo-500/30' 
+                    : 'hover:bg-slate-900/40'
                 }`}
               >
                 {/* Day Header */}
                 <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-850">
                   <span className={`text-xs font-black w-6 h-6 rounded-full flex items-center justify-center ${
-                    isToday ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400'
+                    isFocused
+                      ? 'bg-indigo-500 text-white shadow-md ring-2 ring-white/50'
+                      : isToday 
+                      ? 'bg-indigo-600 text-white shadow-md' 
+                      : 'text-slate-400'
                   }`}>
                     {dayNum}
                   </span>
@@ -1130,6 +1320,10 @@ export function SocialCalendarView({
                     const blockBorder = getBlockBorderColor(post);
                     const contentType = getContentBadge(post);
                     
+                    const activePlatforms = post.platforms.filter((p) => channelToggles[p as keyof SchedulerChannelToggles] ?? true);
+                    const isFullyDisabled = activePlatforms.length === 0;
+                    const isPartiallyDisabled = activePlatforms.length > 0 && activePlatforms.length < post.platforms.length;
+
                     const isManual = post.platforms.includes('tiktok') ||
                       post.tags?.includes('GruppiPhayam') ||
                       post.tags?.includes('R1') ||
@@ -1153,12 +1347,16 @@ export function SocialCalendarView({
                           setInspectingPost(post);
                           setInspectPreviewPlatform(post.platforms[0] || 'tiktok');
                         }}
-                        className={`w-full rounded-md border text-left cursor-pointer transition-all hover:scale-[1.01] hover:brightness-110 flex items-stretch overflow-hidden shadow-sm group select-none text-[9.5px] h-[25px] ${
-                          isManual 
-                            ? 'border-yellow-400/80 shadow-[0_0_8px_rgba(250,204,21,0.25)]' 
-                            : blockBorder
+                        className={`w-full rounded-md border text-left cursor-pointer transition-all flex items-stretch overflow-hidden shadow-sm group select-none text-[9.5px] h-[25px] ${
+                          isFullyDisabled
+                            ? 'opacity-20 grayscale saturate-0 border-dashed border-slate-700/60 bg-slate-950/30 hover:opacity-60'
+                            : isPartiallyDisabled
+                            ? 'opacity-85 hover:opacity-100 hover:scale-[1.01] hover:brightness-110 ' + (isManual ? 'border-yellow-400/80 shadow-[0_0_8px_rgba(250,204,21,0.25)]' : blockBorder)
+                            : isManual 
+                              ? 'border-yellow-400/80 shadow-[0_0_8px_rgba(250,204,21,0.25)] hover:scale-[1.01] hover:brightness-110' 
+                              : `${blockBorder} hover:scale-[1.01] hover:brightness-110`
                         }`}
-                        title={`${postTime} · ${isManual ? '🟡 DA FARE A MANO · ' : ''}${formatCode} · ${post.title} · Piattaforme: ${post.platforms.join(', ')} · Gradimento: ${statPercent}`}
+                        title={`${postTime} · ${isFullyDisabled ? '🚫 DISATTIVATO NELLO SCHEDULER · ' : isManual ? '🟡 DA FARE A MANO · ' : ''}${formatCode} · ${post.title} · Piattaforme: ${post.platforms.join(', ')} · Gradimento: ${statPercent}`}
                       >
                         {/* 1° SCOMPARTO: ORARIO DI PUBBLICAZIONE (CON CERCHIO GIALLO SE AZIONE MANUALE STAFF) */}
                         <div className="w-[42px] min-w-[42px] max-w-[42px] bg-black/60 flex items-center justify-center gap-1 shrink-0 border-r border-white/10 font-mono font-bold text-amber-300 text-[9px] tracking-tight">
