@@ -15,7 +15,7 @@
      - Rimosso l'impacchettamento statico delle librerie `@ffmpeg-installer/ffmpeg` e `ffmpeg-static` dall'endpoint Vercel (`api/_handlers/social-publisher.ts`), che gonfiava ogni build serverless con 80MB di binari compilati.
      - Il rendering e il mux audio avvengono su GitHub Actions runner e ambienti locali dove FFmpeg è presente nativamente, riducendo le dimensioni dei pacchetti serverless Vercel da 90MB a ~1MB e bloccando il consumo anomalo di Functions Storage.
 - **Effetto reale:** Nessuna perdita di dati o video (tutti salvati per sempre su Google Drive 5TB), totale conformità con i limiti gratuiti di Vercel e Supabase, ed esecuzione 100% autonoma 24/7.
-- **Stato:** ✅ Test dry-run superato, 92 file puliti da Supabase, Google Drive 5TB operativo, verificato 0 errori TypeScript.
+- **Stato:** ✅ Test dry-run superato, 92 file puliti da Supabase, Google Drive 5TB operativo, 78 vecchie preview deployments Vercel rimosse automaticamente (~7 GB liberati), verificato 0 errori TypeScript.
 
 ---
 
