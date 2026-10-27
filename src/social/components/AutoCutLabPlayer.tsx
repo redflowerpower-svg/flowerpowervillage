@@ -2254,8 +2254,8 @@ export function AutoCutLabPlayer({
             const bRad = 7 * s;
 
             // Ombra solida nera 2px 2px
-            oCtx.fillStyle = '#000000';
             oCtx.beginPath();
+            oCtx.fillStyle = '#000000';
             if (typeof oCtx.roundRect === 'function') {
               oCtx.roundRect(startX + 2 * s, startY + 2 * s, bW, bH, bRad);
             } else {
@@ -2263,9 +2263,9 @@ export function AutoCutLabPlayer({
             }
             oCtx.fill();
 
-            // Sfondo giallo #FFE500
-            oCtx.fillStyle = '#FFE500';
+            // Sfondo giallo dorato #FFE500
             oCtx.beginPath();
+            oCtx.fillStyle = '#FFE500';
             if (typeof oCtx.roundRect === 'function') {
               oCtx.roundRect(startX, startY, bW, bH, bRad);
             } else {
@@ -2278,7 +2278,8 @@ export function AutoCutLabPlayer({
             oCtx.lineWidth = 2 * s;
             oCtx.stroke();
 
-            // Badge nero per la taglia (8" o 12")
+            // Badge nero per la taglia (8" o 12") con path isolato per non sovrascrivere lo sfondo giallo
+            oCtx.beginPath();
             oCtx.fillStyle = '#000000';
             const tagW = 24 * s;
             const tagH = 21 * s;
