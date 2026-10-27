@@ -25,6 +25,13 @@ import {
 import { generateFullAutoCutCampaign } from '../services/autoCutIntelligence';
 import { AutoCutReelPlayer } from './AutoCutReelPlayer';
 
+export interface SchedulerChannelToggles {
+  instagram: boolean;
+  facebook: boolean;
+  tiktok: boolean;
+  google: boolean;
+}
+
 interface SocialCalendarViewProps {
   scheduledPosts: ScheduledSocialPost[];
   onUpdatePosts: (posts: ScheduledSocialPost[]) => void;
@@ -430,6 +437,35 @@ export function SocialCalendarView({
   const [selectedBrandFilter, setSelectedBrandFilter] = useState<BrandType | 'all' | 'capcut'>('all');
   const [selectedPlatformFilter, setSelectedPlatformFilter] = useState<SocialPlatform | 'all'>('all');
   const [showLegend, setShowLegend] = useState(true);
+
+  // 📡 Interruttori Canali Scheduler (Attivi / In Pausa con persistenza in localStorage)
+  const [channelToggles, setChannelToggles] = useState<SchedulerChannelToggles>(() => {
+    const defaults: SchedulerChannelToggles = {
+      instagram: true,
+      facebook: true,
+      tiktok: false,
+      google: false
+    };
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('fp_social_scheduler_channels');
+        if (saved) return { ...defaults, ...JSON.parse(saved) };
+      } catch {}
+    }
+    return defaults;
+  });
+
+  const handleToggleChannel = (channel: keyof SchedulerChannelToggles) => {
+    setChannelToggles(prev => {
+      const updated = { ...prev, [channel]: !prev[channel] };
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('fp_social_scheduler_channels', JSON.stringify(updated));
+        } catch {}
+      }
+      return updated;
+    });
+  };
   
   // 🛡️ Master Switch Stato Scheduler (Standby / Fermo vs In Produzione) con Conferma a Due Clic
   const [schedulerMode, setSchedulerMode] = useState<'standby' | 'production'>(() => {
@@ -709,6 +745,183 @@ export function SocialCalendarView({
         )}
       </div>
 
+      {/* 📡 BARRA INTERRUTTORI CANALI SCHEDULER (ATTIVI / IN PAUSA) */}
+      <div className="bg-[#121826] border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-300">
+              <Share2 className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
+                <span>{uiLang === 'EN' ? 'Active Scheduler Channels' : 'Canali Scheduler Attivi'}</span>
+                <span className="text-[10px] font-mono font-bold bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full">
+                  {Object.values(channelToggles).filter(Boolean).length} / 4 {uiLang === 'EN' ? 'Active' : 'Attivi'}
+                </span>
+              </h3>
+              <p className="text-[10px] text-slate-400">
+                {uiLang === 'EN' 
+                  ? 'All channels remain in place. Disabled channels are paused and skipped cleanly during publishing.' 
+                  : 'I canali rimangono visibili. I canali disattivati vengono messi in pausa e saltati automaticamente durante la pubblicazione.'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* I 4 INTERRUTTORI */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          
+          {/* 1. INSTAGRAM */}
+          <div 
+            onClick={() => handleToggleChannel('instagram')}
+            className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+              channelToggles.instagram 
+                ? 'bg-gradient-to-br from-pink-950/30 to-purple-950/20 border-pink-500/50 shadow-lg shadow-pink-950/30' 
+                : 'bg-slate-900/60 border-slate-800/80 opacity-60 hover:opacity-90'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <InstagramIcon className="w-4 h-4" />
+                <span className="text-xs font-bold text-white">Instagram</span>
+              </div>
+              <button 
+                type="button"
+                className={`w-10 h-5 rounded-full transition-colors relative flex items-center px-0.5 ${
+                  channelToggles.instagram ? 'bg-gradient-to-r from-pink-500 to-purple-600' : 'bg-slate-700'
+                }`}
+              >
+                <span className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
+                  channelToggles.instagram ? 'translate-x-5' : 'translate-x-0'
+                }`} />
+              </button>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-slate-300">Reels diretti & Storie 24h</p>
+              <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                channelToggles.instagram 
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                  : 'bg-slate-800 text-slate-400'
+              }`}>
+                {channelToggles.instagram ? '🟢 Operativo' : '⏸️ In Pausa'}
+              </span>
+            </div>
+          </div>
+
+          {/* 2. FACEBOOK */}
+          <div 
+            onClick={() => handleToggleChannel('facebook')}
+            className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+              channelToggles.facebook 
+                ? 'bg-gradient-to-br from-blue-950/30 to-indigo-950/20 border-blue-500/50 shadow-lg shadow-blue-950/30' 
+                : 'bg-slate-900/60 border-slate-800/80 opacity-60 hover:opacity-90'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <FacebookIcon className="w-4 h-4" />
+                <span className="text-xs font-bold text-white">Facebook</span>
+              </div>
+              <button 
+                type="button"
+                className={`w-10 h-5 rounded-full transition-colors relative flex items-center px-0.5 ${
+                  channelToggles.facebook ? 'bg-blue-600' : 'bg-slate-700'
+                }`}
+              >
+                <span className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
+                  channelToggles.facebook ? 'translate-x-5' : 'translate-x-0'
+                }`} />
+              </button>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-slate-300">Pagina Ufficiale & Gruppo Phayam</p>
+              <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                channelToggles.facebook 
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                  : 'bg-slate-800 text-slate-400'
+              }`}>
+                {channelToggles.facebook ? '🟢 Operativo' : '⏸️ In Pausa'}
+              </span>
+            </div>
+          </div>
+
+          {/* 3. TIKTOK */}
+          <div 
+            onClick={() => handleToggleChannel('tiktok')}
+            className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+              channelToggles.tiktok 
+                ? 'bg-gradient-to-br from-cyan-950/30 to-slate-900 border-cyan-500/50 shadow-lg shadow-cyan-950/30' 
+                : 'bg-slate-900/60 border-slate-800/80 opacity-70 hover:opacity-90'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <TikTokIcon className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs font-bold text-white">TikTok</span>
+              </div>
+              <button 
+                type="button"
+                className={`w-10 h-5 rounded-full transition-colors relative flex items-center px-0.5 ${
+                  channelToggles.tiktok ? 'bg-cyan-500' : 'bg-slate-700'
+                }`}
+              >
+                <span className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
+                  channelToggles.tiktok ? 'translate-x-5' : 'translate-x-0'
+                }`} />
+              </button>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-slate-300">Feed Video 9:16 & Content Posting v2</p>
+              <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                channelToggles.tiktok 
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' 
+                  : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+              }`}>
+                {channelToggles.tiktok ? '🟢 Attivo (Sandbox/Live)' : '🟡 In Attesa Approvazione v2'}
+              </span>
+            </div>
+          </div>
+
+          {/* 4. GOOGLE BUSINESS PROFILE & MAPS */}
+          <div 
+            onClick={() => handleToggleChannel('google')}
+            className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+              channelToggles.google 
+                ? 'bg-gradient-to-br from-emerald-950/30 to-teal-950/20 border-emerald-500/50 shadow-lg shadow-emerald-950/30' 
+                : 'bg-slate-900/60 border-slate-800/80 opacity-70 hover:opacity-90'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <GoogleMapsIcon className="w-4 h-4" />
+                <span className="text-xs font-bold text-white">Google Maps</span>
+              </div>
+              <button 
+                type="button"
+                className={`w-10 h-5 rounded-full transition-colors relative flex items-center px-0.5 ${
+                  channelToggles.google ? 'bg-emerald-500' : 'bg-slate-700'
+                }`}
+              >
+                <span className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
+                  channelToggles.google ? 'translate-x-5' : 'translate-x-0'
+                }`} />
+              </button>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-slate-300">Aggiornamenti & Novità con CTA</p>
+              <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                channelToggles.google 
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                  : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+              }`}>
+                {channelToggles.google ? '🟢 Quota Attiva' : '⏳ Attesa Quota (Case 2-3532000041993)'}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       {/* Top Calendar Toolbar */}
       <div className="bg-[#121826] border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-4">
         
@@ -960,14 +1173,21 @@ export function SocialCalendarView({
 
                         {/* 2° SCOMPARTO: ICONA SOCIAL (LARGHEZZA FISSA 36px - ALLINEAMENTO VERTICALE UNIFORME PER 1 O 2 CANALI) */}
                         <div className="w-[36px] min-w-[36px] max-w-[36px] bg-black/30 flex items-center justify-center shrink-0 border-r border-white/10 gap-0.5">
-                          {post.platforms.map((p) => (
-                            <span key={p} className="shrink-0" title={p}>
-                              {p === 'tiktok' && <TikTokIcon className="w-3 h-3 text-white" />}
-                              {p === 'google' && <GoogleIcon className="w-3 h-3" />}
-                              {p === 'instagram' && <InstagramIcon className="w-3 h-3" />}
-                              {p === 'facebook' && <FacebookIcon className="w-3 h-3" />}
-                            </span>
-                          ))}
+                          {post.platforms.map((p) => {
+                            const isChannelActive = channelToggles[p as keyof SchedulerChannelToggles] ?? true;
+                            return (
+                              <span 
+                                key={p} 
+                                className={`shrink-0 transition-opacity ${!isChannelActive ? 'opacity-30 grayscale' : ''}`} 
+                                title={`${p} ${!isChannelActive ? '(IN PAUSA / DISABILITATO NELLO SCHEDULER)' : '(ATTIVO)'}`}
+                              >
+                                {p === 'tiktok' && <TikTokIcon className="w-3 h-3 text-white" />}
+                                {p === 'google' && <GoogleIcon className="w-3 h-3" />}
+                                {p === 'instagram' && <InstagramIcon className="w-3 h-3" />}
+                                {p === 'facebook' && <FacebookIcon className="w-3 h-3" />}
+                              </span>
+                            );
+                          })}
                         </div>
 
                         {/* 3° SCOMPARTO: BRAND & SIGLA FORMATO (LARGHEZZA FISSA 42px) */}
@@ -1258,7 +1478,18 @@ export function SocialCalendarView({
                     disabled={schedulerMode === 'standby'}
                     onClick={() => {
                       if (schedulerMode === 'standby') return;
-                      onPublishNow(inspectingPost);
+                      // Filtra solo le piattaforme attive negli interruttori
+                      const activePlatforms = inspectingPost.platforms.filter(p => channelToggles[p as keyof SchedulerChannelToggles] ?? true);
+                      if (activePlatforms.length === 0) {
+                        alert(uiLang === 'EN' 
+                          ? 'All destination platforms for this post are currently paused. Please enable at least one channel in the top switches.' 
+                          : 'Tutti i canali di destinazione di questo post sono attualmente disabilitati negli interruttori in alto. Abilita almeno un canale per pubblicare.');
+                        return;
+                      }
+                      onPublishNow({
+                        ...inspectingPost,
+                        platforms: activePlatforms
+                      });
                       setInspectingPost(null);
                     }}
                     className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
