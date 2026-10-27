@@ -2645,12 +2645,18 @@ export function AutoCutLabPlayer({
         return off;
       };
 
+      // 🛑 Funzione per interrompere/abortire il rendering video
+      (window as any).__autoCutAbortVideo = () => {
+        (window as any).__autoCutAbortRequested = true;
+      };
+
       // 🎬 Generatore Video MP4 Full HD con WebCodecs 60fps (o MediaRecorder) con Audio Muxato, Font Originali e Outro Ufficiale
       // Supporta sia 9:16 (1080x1920) sia 4:3 (1440x1080)
       (window as any).__autoCutGetVideo = async (
         onProgress?: (pct: number, stepIndex?: number, stepLabel?: string) => void,
         options?: { aspectRatio?: '9:16' | '4:3' }
       ): Promise<string | null> => {
+        (window as any).__autoCutAbortRequested = false;
         const c = canvasRef.current;
         if (!c) return null;
 
@@ -2882,7 +2888,14 @@ export function AutoCutLabPlayer({
             for (let currentFrame = 0; currentFrame < totalFrames; currentFrame++) {
               if (encoderError) {
                 try { encoder.close(); } catch {}
+                cleanupOff();
                 throw encoderError;
+              }
+
+              if ((window as any).__autoCutAbortRequested) {
+                try { encoder.close(); } catch {}
+                cleanupOff();
+                throw new Error('Rendering video interrotto dall\'utente.');
               }
 
               const tElapsed = currentFrame / fps;
