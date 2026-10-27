@@ -36,6 +36,9 @@ Desktop.ini
 # ─── Scratch temporary media & logs ─────────────────────
 scratch/recordings/
 scratch/outro_frames/
+scratch/parity/
+scratch/test_local/
+scratch/scheduler/
 scratch/Flower Power Village - Soundtrack/
 scratch/documentation_reports/
 scratch/*.mp4

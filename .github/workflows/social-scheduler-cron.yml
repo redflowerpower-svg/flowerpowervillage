@@ -1,0 +1,108 @@
+name: Social Media Studio Scheduler (24/7 Serverless)
+
+# Reparto Stagno Social Media Studio (/social)
+# Scheduler serverless 100% gratuito per Pizzeria Ranong e Villaggio Koh Phayam.
+# Esegue i compiti orari secondo il fuso di Bangkok (UTC+7):
+# - 08:00 Bangkok (01:00 UTC): 2 Stories (Pizzeria + Villaggio) su Topic 3 + 1 Post LM1 su Topic 2
+# - 11:30 Bangkok (04:30 UTC): Pranzo Ranong Pasta Fresca (SOLO Facebook)
+# - 16:00 Bangkok (09:00 UTC): Pomeriggio Relax Alloggi Phayam (SOLO Instagram)
+# - 17:00 Bangkok (10:00 UTC): 2 Stories (Pizzeria + Villaggio) su Topic 3 + 1 Post R1 su Topic 2
+# - 18:30 Bangkok (11:30 UTC): Post Feed TikTok 9:16 (API, se attivo)
+# - 19:30 Bangkok (12:30 UTC): Cena Ranong Pizza Tradizionale (SOLO Facebook)
+# - 21:00 Bangkok (14:00 UTC): Notte Tropical Escape Phayam (SOLO Instagram)
+
+on:
+  schedule:
+    # 08:00 Bangkok = 01:00 UTC
+    - cron: '0 1 * * *'
+    # 11:30 Bangkok = 04:30 UTC
+    - cron: '30 4 * * *'
+    # 16:00 Bangkok = 09:00 UTC
+    - cron: '0 9 * * *'
+    # 17:00 Bangkok = 10:00 UTC
+    - cron: '0 10 * * *'
+    # 18:30 Bangkok = 11:30 UTC
+    - cron: '30 11 * * *'
+    # 19:30 Bangkok = 12:30 UTC
+    - cron: '30 12 * * *'
+    # 21:00 Bangkok = 14:00 UTC
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: 'Slot orario da eseguire (es. 08:00, 11:30, 16:00, 17:00, 18:30, 19:30, 21:00 oppure auto)'
+        required: true
+        default: 'auto'
+      dry_run:
+        description: 'Dry run (renderizza e testa senza inviare su Telegram o API)'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: social-scheduler-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Installa Font (Thai, Liberation) e FFmpeg di sistema
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-liberation fonts-thai-tlwg fonts-dejavu-core
+
+      - name: Installa dipendenze NPM
+        run: npm ci || npm install --include=dev
+
+      - name: Installa Chromium headless (Playwright)
+        run: npx playwright install --with-deps chromium
+
+      - name: Avvia app Vite in locale sul runner
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          nohup npx vite --host 127.0.0.1 --port 3000 > vite.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf http://127.0.0.1:3000/ > /dev/null && break
+            sleep 2
+          done
+          curl -sf http://127.0.0.1:3000/ > /dev/null || (cat vite.log; exit 1)
+
+      - name: Esegui Social Scheduler Dispatcher
+        env:
+          CI: 'true'
+          FFMPEG_PATH: /usr/bin/ffmpeg
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TELEGRAM_SOCIAL_BOT_TOKEN: ${{ secrets.TELEGRAM_SOCIAL_BOT_TOKEN }}
+        run: |
+          SLOT_ARG=""
+          if [ "${{ inputs.slot }}" != "" ] && [ "${{ inputs.slot }}" != "auto" ]; then
+            SLOT_ARG="--slot=${{ inputs.slot }}"
+          fi
+          DRY_ARG=""
+          if [ "${{ inputs.dry_run }}" == "true" ]; then
+            DRY_ARG="--dry-run"
+          fi
+          node scripts/social-scheduler-dispatch.mjs --base=http://127.0.0.1:3000 $SLOT_ARG $DRY_ARG
+
+      - name: Archivia video e log generati
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-scheduler-output
+          path: |
+            scratch/scheduler/
+            vite.log
+          retention-days: 7

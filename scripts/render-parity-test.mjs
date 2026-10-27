@@ -64,11 +64,89 @@ async function main() {
 
   const page = await context.newPage();
 
-  // Runner cloud: nessun `vercel dev`. Le chiamate /api/social-publisher vanno all'API remota.
-  if (apiBase) {
-    await context.route('**/api/social-publisher**', async (route) => {
-      const req = route.request();
-      const u = new URL(req.url());
+  // 🎵 Intercettatore API: muxing audio istantaneo in locale con FFmpeg per evitare timeout Vercel (15s)
+  await context.route('**/api/social-publisher**', async (route) => {
+    const req = route.request();
+    const u = new URL(req.url());
+    const action = u.searchParams.get('action');
+
+    if (action === 'attach_audio_to_story' && req.method() === 'POST') {
+      try {
+        const body = JSON.parse(req.postData() || '{}');
+        const { video_url, audio_track, outro_start_time, brand, thumbnail_url } = body;
+        log('Muxing audio locale con FFmpeg...');
+        
+        const vRes = await fetch(video_url);
+        if (!vRes.ok) throw new Error('Download video fallito: ' + vRes.status);
+        const vBuf = Buffer.from(await vRes.arrayBuffer());
+        const tmpV = path.join(outDir, `temp_in_${Date.now()}.mp4`);
+        const tmpOut = path.join(outDir, `temp_master_${Date.now()}.mp4`);
+        fs.writeFileSync(tmpV, vBuf);
+
+        // Risoluzione tracce audio da ./public
+        let cleanAudio = (audio_track || '').replace(/^https?:\/\/[^/]+/, '').replace(/^\/+/, '');
+        let bgPath = path.resolve('./public', cleanAudio);
+        if (!fs.existsSync(bgPath)) {
+          bgPath = path.resolve('./public/audio/01-flower-power-yeah.mp3');
+        }
+        const sfxName = brand === 'village' ? 'sfx-outro-village.wav' : 'sfx-outro-pizza.wav';
+        let sfxPath = path.resolve('./public/audio', sfxName);
+        if (!fs.existsSync(sfxPath)) sfxPath = path.resolve('./public/audio/sfx-outro-pizza.wav');
+
+        const delay = typeof outro_start_time === 'number' && outro_start_time > 0
+          ? Math.round(outro_start_time * 1000)
+          : 8850;
+
+        const ffArgs = [
+          '-y', '-i', tmpV, '-i', bgPath, '-i', sfxPath,
+          '-filter_complex', `[1:a]volume=0.9[m];[2:a]adelay=${delay}|${delay},volume=1.0[s];[m][s]amix=inputs=2:dropout_transition=2[a]`,
+          '-map', '0:v', '-map', '[a]',
+          '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k',
+          '-movflags', '+faststart',
+          '-shortest', tmpOut
+        ];
+        execFileSync(ffmpeg, ffArgs);
+
+        let masterUrl = video_url;
+        const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co';
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+        if (supabaseKey) {
+          const masterBuf = fs.readFileSync(tmpOut);
+          const uObj = new URL(video_url);
+          const origPath = uObj.pathname.split('/public/assets/')[1] || `social_stories/story_${Date.now()}.mp4`;
+          const cleanP = origPath.split('?')[0];
+          const masterStoragePath = cleanP.replace(/(_master)?\.mp4$/i, '') + '_master.mp4';
+          
+          const upRes = await fetch(`${supabaseUrl}/storage/v1/object/assets/${masterStoragePath}`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${supabaseKey}`,
+              'apikey': supabaseKey,
+              'Content-Type': 'video/mp4',
+              'x-upsert': 'true'
+            },
+            body: masterBuf
+          });
+          if (upRes.ok) {
+            masterUrl = `${supabaseUrl}/storage/v1/object/public/assets/${masterStoragePath}`;
+            log(`Master audio muxato caricato con successo su Supabase: ${masterUrl} (${(masterBuf.length / 1e6).toFixed(1)} MB)`);
+          }
+        }
+
+        try { fs.unlinkSync(tmpV); } catch {}
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ ok: true, url: masterUrl, thumbnail_url })
+        });
+        return;
+      } catch (muxErr) {
+        log('Avviso muxing audio locale fallito, proseguo con proxy:', muxErr.message);
+      }
+    }
+
+    if (apiBase) {
       try {
         const resp = await fetch(`${apiBase}${u.pathname}${u.search}`, {
           method: req.method(),
@@ -83,9 +161,10 @@ async function main() {
       } catch (e) {
         await route.abort();
       }
-    });
-    log(`API instradata verso ${apiBase}`);
-  }
+    } else {
+      await route.continue();
+    }
+  });
   const consoleLog = [];
   const annotate = (level, msg) => {
     if (process.env.GITHUB_ACTIONS) console.log(`::${level} title=parity::${String(msg).replace(/\r?\n/g, ' ').slice(0, 400)}`);
