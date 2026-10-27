@@ -2424,14 +2424,19 @@ MANDATORY RULES:
 
       if (!gRes.ok || gData.error) {
         const status = gRes.status || 400;
-        const errDetail = gData.error?.message || (typeof gData.error === "string" ? gData.error : JSON.stringify(gData.error || gData));
-        const isAuthError = status === 401 || errDetail.toLowerCase().includes("auth") || errDetail.toLowerCase().includes("credential");
+        const isAccessDisabled = status === 403 && (errDetail.includes("SERVICE_DISABLED") || errDetail.includes("mybusiness.googleapis.com"));
+        const isQuotaZero = status === 429 || errDetail.includes("Quota exceeded");
+
+        let userError = `Google Business Profile API: ${errDetail}`;
+        if (isAuthError) {
+          userError = "Autorizzazione Google Business Profile scaduta. Riconnetti l'account da Google Login su /social per autorizzare la pubblicazione reale su Google Maps.";
+        } else if (isAccessDisabled || isQuotaZero) {
+          userError = "Google Business Profile API richiede l'abilitazione della quota da parte di Google per il progetto 129023399780 (Google impone quota 0 di default per le API My Business). Per testare subito l'intero flusso video e invio Telegram con successo, attiva lo switch 'Test (Sandbox)' in alto a sinistra!";
+        }
 
         return res.status(status).json({
           success: false,
-          error: isAuthError
-            ? "Autorizzazione Google Business Profile scaduta. Riconnetti l'account da Google Login su /social per autorizzare la pubblicazione reale su Google Maps."
-            : `Google Business Profile API: ${errDetail}`,
+          error: userError,
           details: gData.error || gData
         });
       }
