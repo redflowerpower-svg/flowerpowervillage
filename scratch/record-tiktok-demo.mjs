@@ -19,13 +19,32 @@ for (const file of fs.readdirSync(outputDir)) {
   }
 }
 
+const lockFile = path.resolve('scratch/.recording.lock');
+if (fs.existsSync(lockFile)) {
+  try {
+    const pid = fs.readFileSync(lockFile, 'utf8').trim();
+    console.log(`⚠️ Recording session already running (PID: ${pid}). Exiting to prevent CPU overload.`);
+    process.exit(0);
+  } catch {}
+}
+fs.writeFileSync(lockFile, String(process.pid));
+
+function removeLock() {
+  try { if (fs.existsSync(lockFile)) fs.unlinkSync(lockFile); } catch {}
+}
+process.on('exit', removeLock);
+process.on('SIGINT', () => { removeLock(); process.exit(1); });
+process.on('SIGTERM', () => { removeLock(); process.exit(1); });
+
 console.log(`🚀 Launching automated Playwright recording session on ${baseUrl}/social ...`);
 
 async function run() {
-  const browser = await chromium.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  let browser = null;
+  try {
+    browser = await chromium.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
 
   const context = await browser.newContext({
     viewport: { width: 1920, height: 1080 },
@@ -244,27 +263,34 @@ async function run() {
   await page.mouse.wheel(0, 500);
   await page.waitForTimeout(3500);
 
-  console.log('✅ Recording completed successfully!');
-  const rawVideo = await page.video().path();
-  await page.close();
-  await context.close();
-  await browser.close();
+    console.log('✅ Recording completed successfully!');
+    const rawVideo = await page.video().path();
+    await page.close();
+    await context.close();
+    await browser.close();
+    browser = null;
 
-  if (rawVideo && fs.existsSync(rawVideo)) {
-    const finalMp4 = path.resolve('scratch/tiktok_demo_flowerpower_social_studio.mp4');
-    
-    console.log(`🎬 Converting ${rawVideo} to certified MP4 (${finalMp4})...`);
-    const cmd = `"${ffmpeg}" -y -i "${rawVideo}" -c:v libx264 -preset fast -crf 22 -movflags +faststart -pix_fmt yuv420p "${finalMp4}"`;
-    execSync(cmd, { stdio: 'inherit' });
+    if (rawVideo && fs.existsSync(rawVideo)) {
+      const finalMp4 = path.resolve('scratch/tiktok_demo_flowerpower_social_studio.mp4');
+      
+      console.log(`🎬 Converting ${rawVideo} to certified MP4 (${finalMp4}) with CPU throttle (-threads 2)...`);
+      const cmd = `"${ffmpeg}" -y -threads 2 -i "${rawVideo}" -c:v libx264 -preset fast -crf 22 -movflags +faststart -pix_fmt yuv420p "${finalMp4}"`;
+      execSync(cmd, { stdio: 'inherit' });
 
-    const stats = fs.statSync(finalMp4);
-    const sizeMb = (stats.size / (1024 * 1024)).toFixed(2);
-    console.log(`🎉 SUCCESS! Certified MP4 created at: ${finalMp4}`);
-    console.log(`📊 File Size: ${sizeMb} MB`);
+      const stats = fs.statSync(finalMp4);
+      const sizeMb = (stats.size / (1024 * 1024)).toFixed(2);
+      console.log(`🎉 SUCCESS! Certified MP4 created at: ${finalMp4}`);
+      console.log(`📊 File Size: ${sizeMb} MB`);
 
-    // Copy to public folder
-    fs.copyFileSync(finalMp4, path.resolve('public/tiktok_demo_flowerpower_social_studio.mp4'));
-    console.log('📁 Updated public/tiktok_demo_flowerpower_social_studio.mp4');
+      // Copy to public folder
+      fs.copyFileSync(finalMp4, path.resolve('public/tiktok_demo_flowerpower_social_studio.mp4'));
+      console.log('📁 Updated public/tiktok_demo_flowerpower_social_studio.mp4');
+    }
+  } finally {
+    if (browser) {
+      try { await browser.close(); } catch {}
+    }
+    removeLock();
   }
 }
 
