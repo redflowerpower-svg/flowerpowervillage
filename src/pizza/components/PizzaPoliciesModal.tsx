@@ -53,7 +53,7 @@ const content = {
     privPoint3Title: 'Diritti dell’Interessato',
     privPoint3Desc: 'In conformità con il Personal Data Protection Act (PDPA) thailandese e il GDPR europeo, il cliente ha diritto in qualsiasi momento di richiedere la verifica, modifica o cancellazione definitiva dei propri dati inviando un’email a flowerpowerpizzaranong.th@gmail.com.',
     privPoint4Title: 'Integrazione TikTok for Developers & Social Studio',
-    privPoint4Desc: 'Il nostro applicativo interno (Flower Power Social Studio) accede alle API ufficiali TikTok unicamente per la pubblicazione di contenuti autorizzati e risposta ai commenti. È fatto divieto assoluto di cessione o vendita dei dati a terze parti. Gli utenti possono revocare i permessi dall\'app TikTok o richiedere la cancellazione totale dei dati scrivendo a redflowerpower@gmail.com.',
+    privPoint4Desc: 'La nostra piattaforma di social media management (Flower Power Social Studio) consente a ristoratori, creator culinari e partner del settore hospitality di accedere alle API ufficiali TikTok per la pubblicazione di contenuti autorizzati e risposta ai commenti. È fatto divieto assoluto di cessione o vendita dei dati a terze parti. Gli utenti possono revocare i permessi dall\'app TikTok o richiedere la cancellazione totale dei dati scrivendo a redflowerpower@gmail.com.',
     closeBtn: 'Chiudi'
   },
   EN: {
@@ -96,7 +96,7 @@ const content = {
     privPoint3Title: 'Customer Data Rights (PDPA Compliance)',
     privPoint3Desc: 'Under Thailand’s Personal Data Protection Act (PDPA) and GDPR, customers may request access, correction, or deletion of their personal information by contacting flowerpowerpizzaranong.th@gmail.com.',
     privPoint4Title: 'TikTok for Developers & Social Studio Integration',
-    privPoint4Desc: 'Our internal marketing application (Flower Power Social Studio) accesses TikTok APIs solely for authorized content publishing (videos, 9:16 vertical stories, photos) and community comment responses. User credentials and data are NEVER sold, rented, or transferred to third parties. Tokens are encrypted using enterprise AES-256 standards. You may revoke access at any time directly in your TikTok profile settings or request immediate data deletion by contacting redflowerpower@gmail.com.',
+    privPoint4Desc: 'Our social media management platform (Flower Power Social Studio) enables restaurants, culinary creators, and hospitality operators to connect their TikTok accounts via official APIs solely for authorized content publishing (videos, 9:16 vertical stories, photos) and community comment responses. User credentials and data are NEVER sold, rented, or transferred to third parties. Tokens are encrypted using enterprise AES-256 standards. You may revoke access at any time directly in your TikTok profile settings or request immediate data deletion by contacting redflowerpower@gmail.com.',
     closeBtn: 'Close'
   },
   TH: {
@@ -139,7 +139,7 @@ const content = {
     privPoint3Title: 'สิทธิของเจ้าของข้อมูลส่วนบุคคล (ตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล)',
     privPoint3Desc: 'ตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) ลูกค้ามีสิทธิขอตรวจสอบ แก้ไข หรือลบข้อมูลส่วนบุคคลของท่านได้ โดยติดต่อผ่านอีเมล flowerpowerpizzaranong.th@gmail.com',
     privPoint4Title: 'การเชื่อมต่อระบบ TikTok API และ Social Studio',
-    privPoint4Desc: 'แอปพลิเคชันภายในของเรา (Flower Power Social Studio) เข้าถึง TikTok API เพื่อการโพสต์เนื้อหาที่ได้รับอนุญาตและตอบกลับความคิดเห็นเท่านั้น เราไม่มีนโยบายจำหน่ายหรือเปิดเผยข้อมูลแก่บุคคลภายนอกอย่างเด็ดขาด โทเค็นได้รับการเข้ารหัสอย่างปลอดภัย ผู้ใช้สามารถยกเลิกสิทธิ์ได้ผ่านการตั้งค่าในแอป TikTok หรือส่งคำขอลบข้อมูลได้ที่ redflowerpower@gmail.com',
+    privPoint4Desc: 'แพลตฟอร์มการจัดการโซเชียลมีเดียของเรา (Flower Power Social Studio) เชื่อมต่อกับ TikTok API เพื่อให้ร้านอาหารและครีเอเตอร์สามารถโพสต์เนื้อหาที่ได้รับอนุญาตและตอบกลับความคิดเห็นได้อย่างปลอดภัย เราไม่มีนโยบายจำหน่ายหรือเปิดเผยข้อมูลแก่บุคคลภายนอกอย่างเด็ดขาด โทเค็นได้รับการเข้ารหัสอย่างปลอดภัย ผู้ใช้สามารถยกเลิกสิทธิ์ได้ผ่านการตั้งค่าในแอป TikTok หรือส่งคำขอลบข้อมูลได้ที่ redflowerpower@gmail.com',
     closeBtn: 'ปิดหน้าต่าง'
   },
   DE: {
@@ -182,7 +182,7 @@ const content = {
     privPoint3Title: 'Ihre Rechte (PDPA & DSGVO)',
     privPoint3Desc: 'Sie haben das Recht auf Auskunft, Korrektur oder Löschung Ihrer Daten via flowerpowerpizzaranong.th@gmail.com.',
     privPoint4Title: 'TikTok for Developers & Social Studio Integration',
-    privPoint4Desc: 'Unsere interne Marketing-Anwendung (Flower Power Social Studio) greift auf offizielle TikTok-APIs ausschließlich zur Veröffentlichung von Inhalten und Beantwortung von Kommentaren zu. Daten werden niemals an Dritte weitergegeben oder verkauft. Tokens sind sicher mit AES-256 verschlüsselt. Sie können Berechtigungen jederzeit in der TikTok-App widerrufen oder die Löschung via redflowerpower@gmail.com beantragen.',
+    privPoint4Desc: 'Unsere Social-Media-Management-Plattform (Flower Power Social Studio) ermöglicht es Restaurants, kulinarischen Creators und Partnern, offizielle TikTok-APIs zur Veröffentlichung von Inhalten und Beantwortung von Kommentaren sicher zu nutzen. Daten werden niemals an Dritte weitergegeben oder verkauft. Tokens sind sicher mit AES-256 verschlüsselt. Sie können Berechtigungen jederzeit in der TikTok-App widerrufen oder die Löschung via redflowerpower@gmail.com beantragen.',
     closeBtn: 'Schließen'
   }
 };

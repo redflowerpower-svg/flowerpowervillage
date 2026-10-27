@@ -3,7 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
-### 🟩 [27/10/2026 - ORE 11:50] · FAVICON ENGINE: LOGO UFFICIALE SU PRODUZIONE, BORDO ROSSO SU STAGING E BADGE SVILUPPO IN LOCALE
+### 🟩 [27/10/2026 - ORE 13:20] · TIKTOK DEVELOPER POLICY ALIGNMENT: BONIFICA SAAS RISTORATORI & CREATOR (ZERO Diciture "Uso Interno")
+- **Cosa abbiamo fatto:** Allineati i documenti legali, i metatag e l'interfaccia di Social Studio con la nuova classificazione SaaS del TikTok Developer Portal per risolvere il blocco di policy:
+  1. 📜 **Termini di Servizio ([LegalPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pages/LegalPage.tsx))**:
+     - Eliminata integralmente la dicitura *"private brand management application designed exclusively for administrative personnel"*.
+     - Sezione 1.4 rinominata in *"1.4 Social Media Publisher Platform for Restaurants & Food Creators"* definendo Social Studio come piattaforma cloud aperta a ristoratori, creator culinari e partner hospitality.
+     - Sezione 1.2 bonificata da *"internal software studios"*.
+     - Sezione 2.3 aggiornata indicando che i token sono utilizzati per post programmati e autorizzati dai proprietari degli account e creator collegati.
+  2. 🛡️ **Modale Privacy ([PizzaPoliciesModal.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/components/PizzaPoliciesModal.tsx))**:
+     - Bonificato il punto 4 in tutte e 4 le lingue (IT, EN, TH, DE), rimuovendo "internal marketing application" / "แอปพลิเคชันภายในของเรา" / "interne Marketing-Anwendung" e sostituendolo con la definizione di piattaforma social per ristoratori e creator culinari.
+  3. 📱 **Social Studio ([TikTokAuditStudioPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/pages/TikTokAuditStudioPage.tsx)) & [App.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/App.tsx)**:
+     - Sottotitolo testata aggiornato a *"Social Media Management Platform · Multi-Brand Workspace · Restaurants & Food Creators"*.
+     - Meta description sincronizzata esattamente con la descrizione ufficiale del TikTok Developer Portal.
+- **Effetto reale:** Piena coerenza legale e visiva al 100% tra Developer Portal, Termini di Servizio, Privacy Policy e applicazione live, eliminando la causa del rigetto e preparando l'app all'approvazione immediata.
+- **Stato:** ✅ Compilato (0 errori TypeScript), test di sicurezza superato e rilasciato su branch di produzione `main`.
+
+---
 - **Cosa abbiamo fatto:** Riprogettato il motore delle favicon in [src/utils/environmentFavicon.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/utils/environmentFavicon.ts) separando rigidamente e con precisione assoluta i tre ambienti di lavoro:
   1. 🍕/🌴 **Produzione Ufficiale (`flowerpowerpizza.com` / `flowerpowervillage.com`)**: Rimossi i badge tecnici con le sigle e il bordo oro. Ora su tutte le pagine (home, menu, delivery, camere, booking) viene applicata sempre e solo la favicon pulita con il **logo ufficiale del reparto**:
      - *Flower Power Pizza*: `/flower-power-pizza-logo-256.png`

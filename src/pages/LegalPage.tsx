@@ -229,8 +229,8 @@ export default function LegalPage({ initialTab }: Props) {
                 </h4>
                 <p>
                   {lang === 'EN'
-                    ? 'By accessing this platform, submitting online food orders, booking resort accommodations, or using our internal software studios, you agree to comply with and be bound by these Terms. The platform must be used solely for lawful purposes. You must not attempt to compromise website security, introduce viruses or unauthorized bots, reverse engineer proprietary code, or interfere with other users\' access.'
-                    : 'Accedendo a questa piattaforma, effettuando ordini alimentari online, prenotando alloggi nel villaggio o utilizzando i nostri applicativi interni, l\'utente accetta di essere vincolato dai presenti Termini. La piattaforma deve essere utilizzata esclusivamente per scopi leciti. È vietato violare o tentare di violare la sicurezza del sistema, introdurre malware o bot non autorizzati, decompilare il codice proprietario o interferire con le normali operazioni.'}
+                    ? 'By accessing this platform, submitting online food orders, booking resort accommodations, or using our software applications and social publishing tools, you agree to comply with and be bound by these Terms. The platform must be used solely for lawful purposes. You must not attempt to compromise website security, introduce viruses or unauthorized bots, reverse engineer proprietary code, or interfere with other users\' access.'
+                    : 'Accedendo a questa piattaforma, effettuando ordini alimentari online, prenotando alloggi nel villaggio o utilizzando le nostre piattaforme software e strumenti di pubblicazione social, l\'utente accetta di essere vincolato dai presenti Termini. La piattaforma deve essere utilizzata esclusivamente per scopi leciti. È vietato violare o tentare di violare la sicurezza del sistema, introdurre malware o bot non autorizzati, decompilare il codice proprietario o interferire con le normali operazioni.'}
                 </p>
               </div>
 
@@ -250,16 +250,16 @@ export default function LegalPage({ initialTab }: Props) {
                 </ul>
               </div>
 
-              {/* 1.4 Internal Management & Social Tools */}
+              {/* 1.4 Social Publisher Platform for Restaurants & Food Creators */}
               <div className="p-5 rounded-xl bg-stone-900/60 border border-stone-800/80">
                 <h4 className="text-base font-semibold text-white mb-2 flex items-center gap-2">
                   <Share2 size={16} className="text-amber-400" />
-                  <span>{lang === 'EN' ? '1.4 Internal Applications & Social Publisher Studio' : '1.4 Applicativi Interni e Social Studio'}</span>
+                  <span>{lang === 'EN' ? '1.4 Social Media Publisher Platform for Restaurants & Food Creators' : '1.4 Piattaforma Social Publisher per Ristoranti e Food Creator'}</span>
                 </h4>
                 <p>
                   {lang === 'EN'
-                    ? 'Flower Power Social Studio is our private brand management application designed exclusively for authorized Flower Power administrative personnel to coordinate marketing campaigns, schedule content publication, and interact with audience feedback across authorized Meta and TikTok channels. Unauthorized third-party access is strictly prohibited.'
-                    : 'Flower Power Social Studio è un applicativo interno riservato al personale autorizzato di Flower Power per coordinare la pubblicazione di contenuti e gestire le interazioni con i clienti sui canali social ufficiali Meta e TikTok. L\'accesso non autorizzato a terzi è severamente vietato.'}
+                    ? 'Flower Power Social Studio is a cloud-based social media management platform designed for restaurants, culinary creators, and hospitality businesses to schedule, format, and publish video content and stories across connected TikTok and Meta channels via official developer APIs. Authorized restaurant operators and content creators manage their connected social accounts in full compliance with TikTok and Meta Developer Policies and Community Guidelines.'
+                    : 'Flower Power Social Studio è una piattaforma cloud di social media management progettata per ristoranti, creator culinari e brand del settore hospitality per comporre, pianificare e pubblicare contenuti video e stories sui propri canali TikTok e Meta collegati tramite API ufficiali. I ristoratori e i creator autorizzati gestiscono i propri account social collegati nel pieno rispetto delle policy e linee guida per sviluppatori di TikTok e Meta.'}
                 </p>
               </div>
 
@@ -361,8 +361,8 @@ export default function LegalPage({ initialTab }: Props) {
 
                 <p className="mb-4 text-xs sm:text-sm text-stone-300">
                   {lang === 'EN'
-                    ? 'Our proprietary management tool "Flower Power Social Studio" integrates with the TikTok for Developers platform (Content Posting API and Comment Management API). This section explicitly details how user and account data is handled in accordance with TikTok Developer Policies:'
-                    : 'Il nostro applicativo "Flower Power Social Studio" si integra con la piattaforma TikTok for Developers (Content Posting API e Comment Management API). Questa sezione descrive dettagliatamente la gestione dei dati in conformità alle policy per sviluppatori di TikTok:'}
+                    ? 'Our social media publishing platform "Flower Power Social Studio" integrates with the TikTok for Developers platform (Content Posting API and Comment Management API). This section explicitly details how user and account data is handled in accordance with TikTok Developer Policies:'
+                    : 'La nostra piattaforma social "Flower Power Social Studio" si integra con la piattaforma TikTok for Developers (Content Posting API e Comment Management API). Questa sezione descrive dettagliatamente la gestione dei dati in conformità alle policy per sviluppatori di TikTok:'}
                 </p>
 
                 <div className="space-y-3 text-xs">
@@ -413,8 +413,8 @@ export default function LegalPage({ initialTab }: Props) {
                       </strong>
                       <p className="text-stone-400">
                         {lang === 'EN'
-                          ? 'OAuth authorization tokens are encrypted using enterprise AES-256 standards in a secure local vault. Tokens are used programmatically solely to perform the scheduled posts scheduled by authorized administrators.'
-                          : 'I token di autorizzazione OAuth sono conservati con cifratura di livello enterprise AES-256. Sono utilizzati unicamente per eseguire i post programmati dagli amministratori autorizzati.'}
+                          ? 'OAuth authorization tokens are encrypted using enterprise AES-256 standards in a secure vault. Tokens are used programmatically solely to perform the posts scheduled and authorized by connected account owners and creators.'
+                          : 'I token di autorizzazione OAuth sono conservati con cifratura di livello enterprise AES-256 in un vault protetto. Sono utilizzati unicamente per eseguire i post programmati e autorizzati dai proprietari degli account e dai creator collegati.'}
                       </p>
                     </div>
                   </div>
