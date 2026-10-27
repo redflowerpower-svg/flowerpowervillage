@@ -63,24 +63,12 @@ export const SCHEDULER_FORMAT_DEFINITIONS = [
   { code: 'CC1', brand: 'both', emoji: '🎬', label: 'CapCut Video Clip', desc: 'Filmati spontanei montati da Google Drive (282 video)', color: 'bg-purple-500/25 text-purple-300 border-purple-500/50' },
 ];
 
-// ⚡ GENERATORE UFFICIALE DELLA ROUTINE MENSILE SOCIAL STUDIO (FASCIA ORARIA 08:00 - 17:00 RIGOROSA)
-// 🛡️ REGOLA FONDAMENTALE: La programmazione dei post si ferma tassativamente il 31 Ottobre 2026.
-export function generateOfficialMonthlyRoutine(year: number, month: number): ScheduledSocialPost[] {
-  // Se l'anno o il mese è successivo a Ottobre 2026 (month > 9 nel 2026 o anno > 2026), non genera alcun post
-  if (year > 2026 || (year === 2026 && month > 9)) {
-    return [];
-  }
-  // Se prima di Ottobre 2026, non genera
-  if (year < 2026 || (year === 2026 && month < 9)) {
-    return [];
-  }
-
+// ⚡ GENERATORE UFFICIALE DELLA ROUTINE SOCIAL STUDIO — FINESTRA MOBILE (sempre avanti, nessun limite di mese)
+// Genera `daysCount` giorni consecutivi a partire da `startDate`, attraversando liberamente i cambi di mese/anno.
+// Gli ID sono basati sulla data (YYYY-MM-DD) quindi non collidono mai tra mesi diversi.
+export function generateOfficialRoutineRange(startDate: Date, daysCount: number): ScheduledSocialPost[] {
   const routinePosts: ScheduledSocialPost[] = [];
   const villageAssets = VILLAGE_SOCIAL_ASSETS;
-
-  // Si programma solo a partire da domani (28 Ottobre) fino al 31 Ottobre 2026 (compreso)
-  const startDay = 28;
-  const endDay = 31; // Tassativamente 31 Ottobre (la programmazione si ferma qui)
 
   const realFoodDatabase = [
     {
@@ -134,19 +122,21 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
     }
   ];
 
-  for (let day = startDay; day <= endDay; day++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const dayDate = new Date(year, month, day, 12, 0, 0);
+  for (let offset = 0; offset < daysCount; offset++) {
+    const dayDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + offset, 12, 0, 0);
+    const dateStr = `${dayDate.getFullYear()}-${String(dayDate.getMonth() + 1).padStart(2, '0')}-${String(dayDate.getDate()).padStart(2, '0')}`;
     const dayOfWeek = dayDate.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+    // Indice di rotazione continuo (giorni dal 1970): la rotazione di piatti/alloggi non si azzera a inizio mese
+    const rot = Math.floor(dayDate.getTime() / 86400000);
 
-    const villageAsset = villageAssets[(day - 1) % villageAssets.length];
-    const pizzaItem = realFoodDatabase[(day - 1) % realFoodDatabase.length];
-    const pastaItem = realFoodDatabase[((day - 1) % 2 === 0 ? 2 : 3)]; // Spaghetti allo scoglio o Tagliatelle al nero
-    const isAltCapCut = (day % 2 === 0);
+    const villageAsset = villageAssets[rot % villageAssets.length];
+    const pizzaItem = realFoodDatabase[rot % realFoodDatabase.length];
+    const pastaItem = realFoodDatabase[(rot % 2 === 0 ? 2 : 3)]; // Spaghetti allo scoglio o Tagliatelle al nero
+    const isAltCapCut = (rot % 2 === 0);
 
     // 1. ORE 08:00 · 🎵 TikTok Story Pizzeria Ranong (✋ Azione Manuale Staff - Cerchio Giallo)
     routinePosts.push({
-      id: `routine_tiktok_pizza_${day}`,
+      id: `routine_tiktok_pizza_${dateStr}`,
       brand: 'pizza',
       platforms: ['tiktok'],
       format: 'story',
@@ -164,7 +154,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 2. ORE 08:00 (CONTEMPORANEA) · 🎵 TikTok Story Villaggio Koh Phayam (✋ Azione Manuale Staff - Cerchio Giallo)
     routinePosts.push({
-      id: `routine_tiktok_village_${day}`,
+      id: `routine_tiktok_village_${dateStr}`,
       brand: 'village',
       platforms: ['tiktok'],
       format: 'story',
@@ -182,7 +172,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 3. ORE 08:45 · 👥 Gruppo Facebook Koh Phayam: REEL Alloggi Liberi Oggi (✋ Azione Manuale Staff - Cerchio Giallo)
     routinePosts.push({
-      id: `routine_fb_group_alloggi_${day}`,
+      id: `routine_fb_group_alloggi_${dateStr}`,
       brand: 'village',
       platforms: ['facebook'],
       format: 'reel',
@@ -202,7 +192,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 4. ORE 09:30 · 📸 Instagram & FB Story: Risveglio & Colazione Tropicale (Alternanza con Filmini Spontanei CC1)
     routinePosts.push({
-      id: `routine_story_morning_${day}`,
+      id: `routine_story_morning_${dateStr}`,
       brand: 'village',
       platforms: ['instagram', 'facebook'],
       format: 'story',
@@ -223,7 +213,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
     // 5. ORE 10:00 · 📍 Google Business Novità 4:3 (Martedì P1 Pizza / Venerdì V1 Villaggio)
     if (dayOfWeek === 2) {
       routinePosts.push({
-        id: `routine_google_pizza_${day}`,
+        id: `routine_google_pizza_${dateStr}`,
         brand: 'pizza',
         platforms: ['google'],
         format: 'google_post',
@@ -241,7 +231,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
       });
     } else if (dayOfWeek === 5) {
       routinePosts.push({
-        id: `routine_google_village_${day}`,
+        id: `routine_google_village_${dateStr}`,
         brand: 'village',
         platforms: ['google'],
         format: 'google_post',
@@ -261,7 +251,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 6. ORE 11:00 · 🎬 Instagram & FB REEL: Pranzo Pasta Fresca Ranong (Lead time 45m prima del picco 11:45)
     routinePosts.push({
-      id: `routine_lunch_reel_${day}`,
+      id: `routine_lunch_reel_${dateStr}`,
       brand: 'pizza',
       platforms: ['instagram', 'facebook'],
       format: 'reel',
@@ -281,7 +271,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 7. ORE 12:00 · 📸 LM1 Stories Last Minute Alloggi (Instagram & Facebook Stories)
     routinePosts.push({
-      id: `routine_lm1_${day}`,
+      id: `routine_lm1_${dateStr}`,
       brand: 'village',
       platforms: ['instagram', 'facebook'],
       format: 'story',
@@ -301,7 +291,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 8. ORE 14:30 · 🎬 Instagram & FB REEL: V2 Suite Tour / CC1 Relax Pomeridiano (Alternanza 1:1)
     routinePosts.push({
-      id: `routine_village_reel_${day}`,
+      id: `routine_village_reel_${dateStr}`,
       brand: 'village',
       platforms: ['instagram', 'facebook'],
       format: 'reel',
@@ -323,7 +313,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 9. ORE 15:45 · 📸 Instagram & FB Story: Merenda Dolci & Caffè Italiano (Alternanza con Clip Cucina CC1)
     routinePosts.push({
-      id: `routine_story_dessert_${day}`,
+      id: `routine_story_dessert_${dateStr}`,
       brand: 'pizza',
       platforms: ['instagram', 'facebook'],
       format: 'story',
@@ -343,7 +333,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 10. ORE 17:00 (5 DI SERA) · 👥 Gruppo Facebook Koh Phayam: REEL R1 Ristorante & Cena (✋ Azione Manuale Staff - Cerchio Giallo)
     routinePosts.push({
-      id: `routine_fb_group_dinner_${day}`,
+      id: `routine_fb_group_dinner_${dateStr}`,
       brand: 'village',
       platforms: ['facebook'],
       format: 'reel',
@@ -362,7 +352,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 11. ORE 17:15 · 🎵 TikTok Story Cena Pizzeria Ranong (✋ Azione Manuale Staff - Cerchio Giallo)
     routinePosts.push({
-      id: `routine_tiktok_dinner_${day}`,
+      id: `routine_tiktok_dinner_${dateStr}`,
       brand: 'pizza',
       platforms: ['tiktok'],
       format: 'story',
@@ -380,7 +370,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 12. ORE 17:45 · 🍕 Instagram & FB REEL: P1 Pizza Tradizionale Ranong 48h (Cena a Domicilio)
     routinePosts.push({
-      id: `routine_dinner_${day}`,
+      id: `routine_dinner_${dateStr}`,
       brand: 'pizza',
       platforms: ['instagram', 'facebook'],
       format: 'reel',
@@ -400,7 +390,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 13. ORE 18:30 · 🌅 Instagram & FB Story: Sunset Golden Hour Koh Phayam (CC1 Filmato Reale Tramonto)
     routinePosts.push({
-      id: `routine_story_sunset_${day}`,
+      id: `routine_story_sunset_${dateStr}`,
       brand: 'village',
       platforms: ['instagram', 'facebook'],
       format: 'story',
@@ -418,7 +408,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 
     // 14. ORE 23:00 (NOTTE ASIA = PRIME TIME EUROPA 17:00/18:00 CET) · 🌙 Instagram & Facebook REEL: V3 Tropical Escape Villaggio
     routinePosts.push({
-      id: `routine_europe_night_${day}`,
+      id: `routine_europe_night_${dateStr}`,
       brand: 'village',
       platforms: ['instagram', 'facebook'],
       format: 'reel',
@@ -438,6 +428,27 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
   }
 
   return routinePosts;
+}
+
+// Compatibilità: genera un mese intero (usato solo da chi chiede esplicitamente un mese)
+export function generateOfficialMonthlyRoutine(year: number, month: number): ScheduledSocialPost[] {
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  return generateOfficialRoutineRange(new Date(year, month, 1), daysInMonth);
+}
+
+// 🔄 TOP-UP ORIZZONTE: garantisce che il calendario arrivi sempre a `horizonDays` giorni da oggi.
+// Aggiunge SOLO i post mancanti (per ID): non sovrascrive mai modifiche manuali, non tocca il passato.
+export const ROUTINE_HORIZON_DAYS = 60;
+export function extendRoutineHorizon(
+  existing: ScheduledSocialPost[],
+  horizonDays: number = ROUTINE_HORIZON_DAYS
+): ScheduledSocialPost[] {
+  const now = new Date();
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  const generated = generateOfficialRoutineRange(tomorrow, horizonDays);
+  const existingIds = new Set(existing.map((p) => p.id));
+  const missing = generated.filter((p) => !existingIds.has(p.id));
+  return missing.length > 0 ? [...existing, ...missing] : existing;
 }
 
 export function SocialCalendarView({
@@ -630,7 +641,7 @@ export function SocialCalendarView({
 
   // ⚡ CARICA LA ROUTINE QUOTIDIANA AUTOMATICA (08:00 - 17:00 RIGOROSA)
   const handleLoadDailyRoutine = () => {
-    onUpdatePosts(generateOfficialMonthlyRoutine(year, month));
+    onUpdatePosts(extendRoutineHorizon(scheduledPosts));
   };
 
   // Quick Block Adder Helper
