@@ -658,6 +658,7 @@ REGOLE FONDAMENTALI DI SCRITTURA:
 
   // 3. Didascalia Finale per Facebook (Link 100% cliccabile)
   const finalFacebookCaption = useMemo(() => {
+    const isGroup = activeFacebookFormat === 'group';
     const mapsLink = isPizza
       ? 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'
       : 'https://maps.app.goo.gl/mugY88Wpuzjeebf56';
@@ -666,10 +667,21 @@ REGOLE FONDAMENTALI DI SCRITTURA:
       ? `👉 สั่งเดลิเวอรี่ออนไลน์ / Order Online Direct (10% Off):\n🔗 ${siteUrl}\n📍 Google Maps GPS:\n${mapsLink}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`
       : `👉 จองห้องพักออนไลน์ / Book Your Island Stay Direct:\n🔗 ${siteUrl}\n📍 Google Maps GPS:\n${mapsLink}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`;
     const tagFooter = [...postData.thaiHashtags, ...postData.englishHashtags].join(' ');
+
+    // 🛡️ REGOLA IMMODIFICABILE: Se il post è destinato al Gruppo Facebook di Koh Phayam (isGroup),
+    // la gerarchia linguistica è TASSATIVAMENTE:
+    // 1️⃣ INGLESE (sopra per residenti internazionali, backpackers e viaggiatori)
+    // 2️⃣ THAILANDESE (sotto)
+    // 3️⃣ LINK SITO, GPS & CHECK-IN
+    // 4️⃣ HASHTAG UNIFICATI RIGOROSAMENTE IN CODA (ALLA FINE, MAI IN MEZZO)
+    if (isGroup) {
+      return `${postData.englishContent}\n\n${postData.thaiContent}\n\n${directLinkNotice}\n\n${tagFooter}`;
+    }
+
     return isPizza
       ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${directLinkNotice}\n\n${tagFooter}`
       : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${directLinkNotice}\n\n${tagFooter}`;
-  }, [postData, isPizza, fbTargetUrl, fbCheckin]);
+  }, [postData, isPizza, activeFacebookFormat, fbTargetUrl, fbCheckin]);
 
   // 4. Didascalia Finale per Google Business Profile (SEO Locale + Bottone)
   const finalGoogleCaption = useMemo(() => {

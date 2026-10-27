@@ -265,26 +265,41 @@ export function AutoCutBatchDispatcherModal({
 
         // Estrazione copy intelligente (cache AI o motore deterministico bilingue)
         let captionText = '';
+        const isGroupTopic = targetTopic === 'kohPhayamGroup';
+        const isVillageBrand = brand === 'village' || isGroupTopic;
         const cacheKey = `autocut_ai_copy_${testRun?.signature || item.mode}`;
         try {
           const cached = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null;
           if (cached) {
             const parsed = JSON.parse(cached);
             if (parsed && (parsed.thaiContent || parsed.englishContent)) {
-              captionText =
-                targetTopic === 'tikTokStories'
-                  ? (parsed.fullCaptionTikTok || `${parsed.thaiContent}\n\n${parsed.englishContent}`)
-                  : (parsed.fullCaptionInstagram || `${parsed.thaiContent}\n\n${parsed.englishContent}`);
+              const th = (parsed.thaiContent || '').replace(/[ \t]*#\S+/g, '').trim();
+              const en = (parsed.englishContent || '').replace(/[ \t]*#\S+/g, '').trim();
+              const tags = (parsed.fullCaptionInstagram || '').match(/#\S+/g)?.join(' ') || '';
+
+              if (isGroupTopic && parsed.fullCaptionFacebook) {
+                captionText = parsed.fullCaptionFacebook;
+              } else if (targetTopic === 'tikTokStories') {
+                captionText = parsed.fullCaptionTikTok || (isVillageBrand ? `${en}\n\n${th}` : `${th}\n\n${en}`);
+              } else {
+                captionText = isVillageBrand
+                  ? `${en}\n\n${th}${tags ? `\n\n${tags}` : ''}`
+                  : `${th}\n\n${en}${tags ? `\n\n${tags}` : ''}`;
+              }
             }
           }
         } catch (e) {}
 
         if (!captionText && testRun) {
           const copyResult = generatePostCopy(testRun, 0);
-          captionText =
-            targetTopic === 'tikTokStories'
-              ? copyResult.fullCaptionTikTok
-              : copyResult.fullCaptionInstagram;
+          const tags = [...copyResult.englishHashtags, ...copyResult.thaiHashtags].join(' ');
+          if (targetTopic === 'tikTokStories') {
+            captionText = copyResult.fullCaptionTikTok;
+          } else if (isGroupTopic) {
+            captionText = `${copyResult.englishContent}\n\n${copyResult.thaiContent}\n\n${copyResult.fixedLink}\n\n${copyResult.crossTag}\n\n${tags}`;
+          } else {
+            captionText = copyResult.fullCaptionInstagram;
+          }
         }
 
         if (!captionText) {

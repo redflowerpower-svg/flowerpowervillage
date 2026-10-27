@@ -1375,15 +1375,28 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
         ? `https://www.tiktok.com/v2/auth/authorize/?client_key=${encodeURIComponent(clientKey)}&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=fp_social_studio`
         : "";
 
-      // Google OAuth URL
-      const googleClientId = process.env.GOOGLE_CLIENT_ID || "";
+      // Google OAuth URL (Dedicated Google Business Profile Client)
+      let googleClientId = process.env.GOOGLE_BUSINESS_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || "";
+      if (!googleClientId && supabase) {
+        try {
+          const { data: bData } = await supabase
+            .from("telegram_config")
+            .select("chat_id")
+            .eq("id", "google_business_config")
+            .maybeSingle();
+          if (bData?.chat_id) {
+            const parsed = JSON.parse(bData.chat_id);
+            if (parsed.client_id) googleClientId = parsed.client_id;
+          }
+        } catch {}
+      }
       const host = (req.headers["x-forwarded-host"] || req.headers.host || "") as string;
       const googleRedirectUri = host.includes("localhost")
         ? "http://localhost:3000/api/social-callback"
         : (process.env.GOOGLE_REDIRECT_URI || "https://flowerpowerpizza.com/api/social-callback");
 
       const googleAuthUrl = googleClientId
-        ? `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(googleClientId)}&redirect_uri=${encodeURIComponent(googleRedirectUri)}&response_type=code&scope=${encodeURIComponent('https://www.googleapis.com/auth/business.manage')}&access_type=offline&prompt=consent&state=google_social_studio`
+        ? `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(googleClientId)}&redirect_uri=${encodeURIComponent(googleRedirectUri)}&response_type=code&scope=${encodeURIComponent('https://www.googleapis.com/auth/business.manage')}&access_type=offline&prompt=consent&include_granted_scopes=true&state=google_social_studio`
         : "";
 
       const hasMetaPizza = !!process.env.META_PIZZA_PAGE_TOKEN;
@@ -2223,10 +2236,39 @@ MANDATORY RULES:
       actionType = "ORDER",
       actionUrl = "https://flowerpowerpizza.com",
       mediaUrl = "",
-      topicType = "STANDARD"
+      topicType = "STANDARD",
+      simulate = false
     } = body;
 
+    // Se richiesta simulazione (Sandbox / Test mode), rispondi immediatamente con successo simulato
+    if (simulate) {
+      const simulatedPostId = `g_post_${brand}_${Date.now().toString(36)}`;
+      return res.status(200).json({
+        success: true,
+        simulation: true,
+        postId: simulatedPostId,
+        message: "Google Business Profile Post pubblicato con successo (Sandbox / Demo mode)",
+        post: {
+          name: `${locationName || (brand === "pizza" ? "accounts/primary/locations/fp_pizza_ranong" : "accounts/primary/locations/fp_village_phayam")}/localPosts/${simulatedPostId}`,
+          languageCode: "en",
+          summary,
+          callToAction: {
+            actionType,
+            url: actionUrl
+          },
+          topicType,
+          createTime: new Date().toISOString()
+        }
+      });
+    }
+
     let googleToken = "";
+    let refreshToken = "";
+    let expiresAt = 0;
+    let storedLocations: any[] = [];
+    let clientId = process.env.GOOGLE_CLIENT_ID || "";
+    let clientSecret = process.env.GOOGLE_CLIENT_SECRET || "";
+
     if (supabase) {
       try {
         const { data: gData } = await supabase
@@ -2234,10 +2276,81 @@ MANDATORY RULES:
           .select("*")
           .eq("id", "google_business_token")
           .maybeSingle();
-        if (gData?.bot_token) {
-          googleToken = gData.bot_token;
+
+        if (gData) {
+          googleToken = gData.bot_token || "";
+          if (gData.chat_id) {
+            try {
+              const parsed = JSON.parse(gData.chat_id);
+              refreshToken = parsed.refresh_token || "";
+              expiresAt = Number(parsed.expires_at || 0);
+              storedLocations = parsed.locations || [];
+            } catch {}
+          }
         }
-      } catch {}
+
+        // Recupero credenziali OAuth dedicate Google Business da riga google_business_config se non presenti in env
+        if (!clientId || !clientSecret) {
+          const { data: busData } = await supabase
+            .from("telegram_config")
+            .select("chat_id")
+            .eq("id", "google_business_config")
+            .maybeSingle();
+          if (busData?.chat_id) {
+            try {
+              const bParsed = JSON.parse(busData.chat_id);
+              if (!clientId && bParsed.client_id) clientId = bParsed.client_id;
+              if (!clientSecret && bParsed.client_secret) clientSecret = bParsed.client_secret;
+            } catch {}
+          }
+        }
+      } catch (dbErr) {
+        console.warn("[SocialPublisher:Google] Errore lettura config Supabase:", dbErr);
+      }
+    }
+
+    // Auto-Refresh Token se scaduto o in scadenza (margine 2 minuti)
+    const isTokenExpired = !googleToken || (expiresAt > 0 && Date.now() >= expiresAt - 120000);
+    if (isTokenExpired && refreshToken && clientId && clientSecret) {
+      try {
+        console.log("[SocialPublisher:Google] Tentativo rinnovo automatico access_token Google OAuth2...");
+        const rParams = new URLSearchParams();
+        rParams.append("client_id", clientId);
+        rParams.append("client_secret", clientSecret);
+        rParams.append("refresh_token", refreshToken);
+        rParams.append("grant_type", "refresh_token");
+
+        const rRes = await fetch("https://oauth2.googleapis.com/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: rParams.toString()
+        });
+        const rData = await rRes.json();
+        if (rRes.ok && rData.access_token) {
+          googleToken = rData.access_token;
+          expiresAt = Date.now() + (Number(rData.expires_in || 3600) * 1000);
+          console.log("[SocialPublisher:Google] Access token Google rinnovato con successo.");
+
+          if (supabase) {
+            try {
+              await supabase.from("telegram_config").update({
+                bot_token: googleToken,
+                chat_id: JSON.stringify({
+                  refresh_token: refreshToken,
+                  expires_at: expiresAt,
+                  locations: storedLocations,
+                  updated_at: new Date().toISOString()
+                }),
+                updated_at: new Date().toISOString()
+              }).eq("id", "google_business_token");
+            } catch {}
+          }
+        } else {
+          console.warn("[SocialPublisher:Google] Refresh token Google fallito:", rData);
+        }
+      } catch (rfErr: any) {
+        console.error("[SocialPublisher:Google] Eccezione durante refresh token:", rfErr);
+      }
     }
 
     if (!googleToken) {
@@ -2247,9 +2360,9 @@ MANDATORY RULES:
         success: true,
         simulation: true,
         postId: simulatedPostId,
-        message: "Google Business Profile Post published successfully (Sandbox / Demo mode)",
+        message: "Google Business Profile Post pubblicato con successo (Sandbox / Demo mode)",
         post: {
-          name: `${locationName || 'locations/fp_pizza_ranong'}/localPosts/${simulatedPostId}`,
+          name: `${locationName || (brand === "pizza" ? "accounts/primary/locations/fp_pizza_ranong" : "accounts/primary/locations/fp_village_phayam")}/localPosts/${simulatedPostId}`,
           languageCode: "en",
           summary,
           callToAction: {
@@ -2263,11 +2376,23 @@ MANDATORY RULES:
     }
 
     try {
-      const targetLocation = locationName || (brand === "pizza" ? "locations/fp_pizza_ranong" : "locations/fp_village_phayam");
+      // Risoluzione targetLocation
+      let targetLocation = locationName;
+      if (!targetLocation) {
+        const matchedLoc = storedLocations.find((l: any) => l.brand === brand);
+        if (matchedLoc) {
+          const acc = matchedLoc.account || "accounts/primary";
+          const locName = matchedLoc.name || (brand === "pizza" ? "locations/fp_pizza_ranong" : "locations/fp_village_phayam");
+          targetLocation = locName.startsWith("accounts/") ? locName : `${acc}/${locName}`;
+        } else {
+          targetLocation = brand === "pizza" ? "accounts/primary/locations/fp_pizza_ranong" : "accounts/primary/locations/fp_village_phayam";
+        }
+      }
+
       const postPayload: any = {
         languageCode: "en",
         summary: summary.slice(0, 1500),
-        topicType,
+        topicType: topicType || "STANDARD",
         callToAction: actionUrl ? {
           actionType: actionType || (brand === "village" ? "BOOK" : "ORDER"),
           url: actionUrl
@@ -2298,18 +2423,31 @@ MANDATORY RULES:
       console.log("[SocialPublisher] Google publish response:", gData);
 
       if (!gRes.ok || gData.error) {
-        return res.status(400).json({
-          error: "Google Business Profile API error",
+        const status = gRes.status || 400;
+        const errDetail = gData.error?.message || (typeof gData.error === "string" ? gData.error : JSON.stringify(gData.error || gData));
+        const isAuthError = status === 401 || errDetail.toLowerCase().includes("auth") || errDetail.toLowerCase().includes("credential");
+
+        return res.status(status).json({
+          success: false,
+          error: isAuthError
+            ? "Autorizzazione Google Business Profile scaduta. Riconnetti l'account da Google Login su /social per autorizzare la pubblicazione reale su Google Maps."
+            : `Google Business Profile API: ${errDetail}`,
           details: gData.error || gData
         });
       }
 
       return res.status(200).json({
         success: true,
+        postId: gData.name || gData.id || `g_${Date.now()}`,
         post: gData
       });
     } catch (gErr: any) {
-      return res.status(500).json({ error: "Google publish exception", message: gErr.message });
+      console.error("[SocialPublisher] Google publish exception:", gErr);
+      return res.status(500).json({
+        success: false,
+        error: `Errore pubblicazione Google Business: ${gErr.message || 'Eccezione imprevista'}`,
+        message: gErr.message
+      });
     }
   }
 

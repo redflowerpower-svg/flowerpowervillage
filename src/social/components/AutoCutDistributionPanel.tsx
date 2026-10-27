@@ -254,7 +254,9 @@ export function AutoCutDistributionPanel({
       // Invio REALE al bot Telegram Staff se l'opzione Gruppo Koh Phayam è selezionata (SEMPRE Topic 2)
       if (activeChannel === 'facebook' && formats.facebook === 'group') {
         const copyResult = generatePostCopy(testRun, 0);
-        const captionText = liveCaptions?.facebook || liveCaptions?.instagram || copyResult.fullCaptionInstagram;
+        const tags = [...copyResult.englishHashtags, ...copyResult.thaiHashtags].join(' ');
+        const fallbackGroupCaption = `${copyResult.englishContent}\n\n${copyResult.thaiContent}\n\n${copyResult.fixedLink}\n\n${copyResult.crossTag}\n\n${tags}`;
+        const captionText = liveCaptions?.facebook || fallbackGroupCaption;
         const tgRes = await dispatchPostToTelegramTopic({
           topic: 'kohPhayamGroup',
           title: `Video Pronto per Gruppo Facebook Koh Phayam · Format ${testRun.mode}`,
@@ -412,7 +414,8 @@ export function AutoCutDistributionPanel({
               mediaUrl: finalMediaUrl,
               topicType: formats.google === 'offer' ? 'OFFER' : 'STANDARD',
               actionType: selectedBrand === 'village' ? 'BOOK' : 'ORDER',
-              actionUrl: selectedBrand === 'village' ? 'https://flowerpowervillage.com' : 'https://flowerpowerpizza.com'
+              actionUrl: selectedBrand === 'village' ? 'https://flowerpowervillage.com' : 'https://flowerpowerpizza.com',
+              simulate: environment === 'test'
             })
           });
           const gData = await gRes.json();

@@ -947,7 +947,7 @@ export default function AutoCutStudioPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400">Client ID:</span>
                   <span className="font-mono text-slate-200 text-[11px] truncate max-w-[240px]">
-                    129023399780-76mhovvoeeof3ka566qjb87udb3dpfa8...
+                    129023399780-dlg8mi7unu94rmt3nt5skhdl9s1ehhvf...
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -1017,7 +1017,7 @@ export default function AutoCutStudioPage() {
 
             <div className="flex flex-col gap-2 pt-2">
               <a
-                href={accountStatus?.google?.authUrl || 'https://accounts.google.com/o/oauth2/v2/auth?client_id=129023399780-76mhovvoeeof3ka566qjb87udb3dpfa8.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fflowerpowerpizza.com%2Fapi%2Fsocial-callback&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fbusiness.manage&access_type=offline&prompt=consent&state=google_social_studio'}
+                href={accountStatus?.google?.authUrl || 'https://accounts.google.com/o/oauth2/v2/auth?client_id=129023399780-dlg8mi7unu94rmt3nt5skhdl9s1ehhvf.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fflowerpowerpizza.com%2Fapi%2Fsocial-callback&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fbusiness.manage&access_type=offline&prompt=consent&include_granted_scopes=true&state=google_social_studio'}
                 className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs text-center shadow-lg shadow-blue-950/50 transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Key className="w-3.5 h-3.5" />

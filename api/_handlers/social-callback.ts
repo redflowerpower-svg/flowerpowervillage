@@ -49,8 +49,22 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
     // Refresh Google Token Action
     if (query.action === "refresh" || body.action === "refresh") {
       const refreshToken = (body.refresh_token || query.refresh_token) as string;
-      const clientId = process.env.GOOGLE_CLIENT_ID;
-      const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+      let clientId = process.env.GOOGLE_BUSINESS_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+      let clientSecret = process.env.GOOGLE_BUSINESS_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+      if ((!clientId || !clientSecret) && supabase) {
+        try {
+          const { data: bData } = await supabase
+            .from("telegram_config")
+            .select("chat_id")
+            .eq("id", "google_business_config")
+            .maybeSingle();
+          if (bData?.chat_id) {
+            const parsed = JSON.parse(bData.chat_id);
+            if (!clientId && parsed.client_id) clientId = parsed.client_id;
+            if (!clientSecret && parsed.client_secret) clientSecret = parsed.client_secret;
+          }
+        } catch {}
+      }
       if (!refreshToken || !clientId || !clientSecret) {
         return res.status(400).json({ error: "Missing refresh_token or Google credentials" });
       }
@@ -97,12 +111,27 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
       return res.redirect(302, "/social?status=missing_code&platform=google");
     }
 
-    const googleClientId = process.env.GOOGLE_CLIENT_ID;
-    const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    let googleClientId = process.env.GOOGLE_BUSINESS_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+    let googleClientSecret = process.env.GOOGLE_BUSINESS_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
     const host = (req.headers["x-forwarded-host"] || req.headers.host || "") as string;
     const googleRedirectUri = host.includes("localhost")
       ? "http://localhost:3000/api/social-callback"
       : (process.env.GOOGLE_REDIRECT_URI || "https://flowerpowerpizza.com/api/social-callback");
+
+    if ((!googleClientId || !googleClientSecret) && supabase) {
+      try {
+        const { data: bData } = await supabase
+          .from("telegram_config")
+          .select("chat_id")
+          .eq("id", "google_business_config")
+          .maybeSingle();
+        if (bData?.chat_id) {
+          const parsed = JSON.parse(bData.chat_id);
+          if (!googleClientId && parsed.client_id) googleClientId = parsed.client_id;
+          if (!googleClientSecret && parsed.client_secret) googleClientSecret = parsed.client_secret;
+        }
+      } catch {}
+    }
 
     if (!googleClientId || !googleClientSecret) {
       console.error("[SocialCallback:Google] Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET");
