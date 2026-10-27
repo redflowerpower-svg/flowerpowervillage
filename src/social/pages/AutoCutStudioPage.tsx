@@ -36,7 +36,7 @@ const I18N = {
   EN: {
     appTitle: 'Flower Power Social Studio',
     appBadge: 'TikTok v2 & Meta',
-    appSubtitle: 'Dedicated Multichannel Publisher · Pizzeria Ranong · Koh Phayam Village',
+    appSubtitle: 'Social Media Management Platform · Multi-Brand Workspace · Restaurants & Food Creators',
     brandPizza: 'Pizzeria Ranong',
     brandVillage: 'Koh Phayam Village',
     guideBtn: 'TikTok Demo Video Guide',
@@ -152,7 +152,7 @@ const I18N = {
   IT: {
     appTitle: 'Flower Power Social Studio',
     appBadge: 'TikTok v2 & Meta',
-    appSubtitle: 'Piattaforma Multicanale Stagna · Pizzeria Ranong · Koh Phayam',
+    appSubtitle: 'Piattaforma di Social Media Management · Workspace Multi-Brand · Ristoranti e Food Creator',
     brandPizza: 'Pizzeria Ranong',
     brandVillage: 'Koh Phayam Village',
     guideBtn: 'Guida Video Demo TikTok',
@@ -464,9 +464,11 @@ export default function AutoCutStudioPage() {
           
           {/* Logo & Reparto Stagno Title */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 via-pink-500 to-amber-400 flex items-center justify-center shadow-lg shadow-rose-950/40">
-              <Share2 className="w-5 h-5 text-white" />
-            </div>
+            <img
+              src="/flower-power-social-studio-logo.png"
+              alt="Flower Power Social Studio"
+              className="w-10 h-10 rounded-full object-cover shadow-lg shadow-rose-950/50 ring-2 ring-amber-400/50 hover:scale-105 transition-transform"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg font-bold tracking-tight text-white">{t.appTitle}</h1>

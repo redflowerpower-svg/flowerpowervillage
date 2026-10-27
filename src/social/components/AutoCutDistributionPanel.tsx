@@ -108,8 +108,8 @@ export function AutoCutDistributionPanel({
     }
   }, [testRun.brand, testRun.mode]);
 
-  // 1. Switch Ambiente (Test Sandbox vs Produzione Live)
-  const [environment, setEnvironment] = useState<DistributionEnvironment>('test');
+  // 1. Switch Ambiente (Default: Produzione Live - l'utente può passare a Test Sandbox se desiderato)
+  const [environment, setEnvironment] = useState<DistributionEnvironment>('production');
 
   // 2. Canale Attivo (singola scelta che pilota il form al centro)
   const [internalChannel, setInternalChannel] = useState<DistributionChannelId>('tiktok');
@@ -249,22 +249,14 @@ export function AutoCutDistributionPanel({
         }
       }
 
-      // Invio REALE al bot Telegram Staff se Stories TikTok o Stories Instagram/Facebook è selezionata (Topic 3)
-      if (
-        (activeChannel === 'tiktok' && formats.tiktok === 'story') ||
-        (activeChannel === 'instagram' && formats.instagram === 'story') ||
-        (activeChannel === 'facebook' && formats.facebook === 'story')
-      ) {
+      // Invio REALE al bot Telegram Staff SOLO se Stories TikTok è selezionata (Topic 3)
+      if (activeChannel === 'tiktok' && formats.tiktok === 'story') {
         const copyResult = generatePostCopy(testRun, 0);
-        const captionText = activeChannel === 'instagram'
-          ? (liveCaptions?.instagram || copyResult.fullCaptionInstagram)
-          : activeChannel === 'facebook'
-          ? (liveCaptions?.facebook || copyResult.fullCaptionInstagram)
-          : (liveCaptions?.tiktok || copyResult.fullCaptionTikTok);
+        const captionText = liveCaptions?.tiktok || copyResult.fullCaptionTikTok;
         const brandLabel = selectedBrand === 'pizza' ? 'Flower Power Pizza (Ranong)' : 'Flower Power Farm Village (Koh Phayam)';
         const tgRes = await dispatchPostToTelegramTopic({
           topic: 'tikTokStories',
-          title: `Stories Video ${activeChannel === 'instagram' ? 'Instagram' : activeChannel === 'facebook' ? 'Facebook' : 'TikTok'} & Reels · Format ${testRun.mode}`,
+          title: `Stories Video TikTok & Reels · Format ${testRun.mode}`,
           copyText: `Profilo Target: ${brandLabel}\n\n${captionText}`,
           format: testRun.mode,
           brand: selectedBrand,
@@ -276,6 +268,136 @@ export function AutoCutDistributionPanel({
         });
         if (!tgRes.success) {
           throw new Error(tgRes.error || 'Errore durante la trasmissione Telegram');
+        }
+      }
+
+      // 1. Invio REALE alla Pagina Facebook (Post Video di Pagina, Reels o Storie 24h)
+      let publishedFacebookUrl: string | undefined = undefined;
+      let publishedFacebookStoryId: string | undefined = undefined;
+      if (activeChannel === 'facebook' && (formats.facebook === 'post' || formats.facebook === 'reels' || formats.facebook === 'story')) {
+        if (environment === 'production') {
+          const isStory = formats.facebook === 'story';
+          setPublishStatus({
+            type: null,
+            message: isStory
+              ? `Caricamento e pubblicazione Storia 24h su Facebook (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`
+              : `Trasmissione video a Meta Graph API (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`
+          });
+          const copyResult = generatePostCopy(testRun, 0);
+          const captionText = liveCaptions?.facebook || liveCaptions?.instagram || copyResult.fullCaptionInstagram;
+          const fbRes = await fetch('/api/social-publisher?action=publish_facebook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              videoUrl: finalMediaUrl,
+              title: testRun.scenes[0]?.titlePrimary || `Flower Power ${selectedBrand === 'pizza' ? 'Pizza' : 'Village'}`,
+              caption: captionText,
+              brand: selectedBrand,
+              isStory
+            })
+          });
+          const fbData = await fbRes.json();
+          if (!fbRes.ok || !fbData.success) {
+            throw new Error(fbData.error || 'Errore durante la pubblicazione su Facebook');
+          }
+          if (isStory) {
+            publishedFacebookStoryId = fbData.storyId;
+            console.log('[AutoCutDistributionPanel] Storia Facebook pubblicata con successo:', fbData);
+          } else {
+            publishedFacebookUrl = fbData.postUrl;
+            console.log('[AutoCutDistributionPanel] Pubblicazione Facebook completata con successo:', fbData);
+          }
+        }
+      }
+
+      // 2. Invio REALE a Instagram Reels / Feed / Stories 24h
+      let publishedInstagramId: string | undefined = undefined;
+      if (activeChannel === 'instagram' && (formats.instagram === 'reels' || formats.instagram === 'feed' || formats.instagram === 'story')) {
+        if (environment === 'production') {
+          const isStory = formats.instagram === 'story';
+          setPublishStatus({
+            type: null,
+            message: isStory
+              ? `Caricamento e pubblicazione Storia 24h su Instagram (${selectedBrand === 'pizza' ? '@flowerpowerpizzaranong' : '@flowerpowerphayam'})...`
+              : `Caricamento e pubblicazione Reels su Instagram (${selectedBrand === 'pizza' ? '@flowerpowerpizzaranong' : '@flowerpowerphayam'})...`
+          });
+          const copyResult = generatePostCopy(testRun, 0);
+          const captionText = liveCaptions?.instagram || copyResult.fullCaptionInstagram;
+          const igRes = await fetch('/api/social-publisher?action=publish_instagram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              videoUrl: finalMediaUrl,
+              caption: captionText,
+              brand: selectedBrand,
+              isStory
+            })
+          });
+          const igData = await igRes.json();
+          if (!igRes.ok || !igData.success) {
+            throw new Error(igData.error || 'Errore durante la pubblicazione su Instagram');
+          }
+          publishedInstagramId = igData.mediaId;
+          console.log('[AutoCutDistributionPanel] Pubblicazione Instagram completata con successo:', igData);
+        }
+      }
+
+      // 3. Invio REALE a TikTok (Feed Video)
+      let publishedTikTokId: string | undefined = undefined;
+      if (activeChannel === 'tiktok' && formats.tiktok === 'feed') {
+        if (environment === 'production') {
+          setPublishStatus({
+            type: null,
+            message: `Trasmissione video a TikTok Content Posting API (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`
+          });
+          const copyResult = generatePostCopy(testRun, 0);
+          const captionText = liveCaptions?.tiktok || copyResult.fullCaptionTikTok;
+          const ttRes = await fetch('/api/social-publisher?action=publish_video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              videoUrl: finalMediaUrl,
+              title: captionText,
+              brand: selectedBrand
+            })
+          });
+          const ttData = await ttRes.json();
+          if (!ttRes.ok || !ttData.success) {
+            throw new Error(ttData.error || 'Errore durante la pubblicazione su TikTok');
+          }
+          publishedTikTokId = ttData.publish_id;
+          console.log('[AutoCutDistributionPanel] Pubblicazione TikTok completata con successo:', ttData);
+        }
+      }
+
+      // 4. Invio REALE a Google Business Profile
+      let publishedGooglePostId: string | undefined = undefined;
+      if (activeChannel === 'google') {
+        if (environment === 'production') {
+          setPublishStatus({
+            type: null,
+            message: `Pubblicazione scheda su Google Business Profile (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`
+          });
+          const copyResult = generatePostCopy(testRun, 0);
+          const captionText = liveCaptions?.google || copyResult.fullCaptionInstagram;
+          const gRes = await fetch('/api/social-publisher?action=publish_google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              summary: captionText,
+              brand: selectedBrand,
+              mediaUrl: finalMediaUrl,
+              topicType: formats.google === 'offer' ? 'OFFER' : 'STANDARD',
+              actionType: selectedBrand === 'village' ? 'BOOK' : 'ORDER',
+              actionUrl: selectedBrand === 'village' ? 'https://flowerpowervillage.com' : 'https://flowerpowerpizza.com'
+            })
+          });
+          const gData = await gRes.json();
+          if (!gRes.ok || !gData.success) {
+            throw new Error(gData.error || 'Errore durante la pubblicazione su Google Business Profile');
+          }
+          publishedGooglePostId = gData.postId || gData.post?.name;
+          console.log('[AutoCutDistributionPanel] Pubblicazione Google completata con successo:', gData);
         }
       }
 
@@ -315,6 +437,42 @@ export function AutoCutDistributionPanel({
           details: [
             `Video MP4 e didascalia trasmessi alle API ufficiali`,
             `Profilo aziendale: ${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}`,
+            ...(activeChannel === 'facebook' && (formats.facebook === 'post' || formats.facebook === 'reels')
+              ? [
+                  `Video MP4 e didascalia bilingue pubblicati sulla Pagina Facebook ufficiale!`,
+                  publishedFacebookUrl ? `Link Facebook Post: ${publishedFacebookUrl}` : ''
+                ].filter(Boolean)
+              : []),
+            ...(activeChannel === 'facebook' && formats.facebook === 'story'
+              ? [
+                  `Storia Video 24h pubblicata con successo sulla Pagina Facebook!`,
+                  publishedFacebookStoryId ? `Story ID: ${publishedFacebookStoryId}` : ''
+                ].filter(Boolean)
+              : []),
+            ...(activeChannel === 'instagram' && (formats.instagram === 'reels' || formats.instagram === 'feed')
+              ? [
+                  `Video Reels pubblicato su Instagram (@${selectedBrand === 'pizza' ? 'flowerpowerpizzaranong' : 'flowerpowerphayam'})!`,
+                  publishedInstagramId ? `Media ID: ${publishedInstagramId}` : ''
+                ].filter(Boolean)
+              : []),
+            ...(activeChannel === 'instagram' && formats.instagram === 'story'
+              ? [
+                  `Storia Video 24h pubblicata con successo su Instagram (@${selectedBrand === 'pizza' ? 'flowerpowerpizzaranong' : 'flowerpowerphayam'})!`,
+                  publishedInstagramId ? `Media ID: ${publishedInstagramId}` : ''
+                ].filter(Boolean)
+              : []),
+            ...(activeChannel === 'tiktok' && formats.tiktok === 'feed'
+              ? [
+                  `Video pubblicato su TikTok (@${selectedBrand === 'pizza' ? 'flowerpowerpizza_ranong' : 'flowerpowervillage'})!`,
+                  publishedTikTokId ? `Publish ID: ${publishedTikTokId}` : ''
+                ].filter(Boolean)
+              : []),
+            ...(activeChannel === 'google'
+              ? [
+                  `Scheda pubblicata su Google Business Profile!`,
+                  publishedGooglePostId ? `Post ID: ${publishedGooglePostId}` : ''
+                ].filter(Boolean)
+              : []),
             ...(activeChannel === 'facebook' && formats.facebook === 'group'
               ? ['Video inviato con successo al Topic 2 "Koh Phayam Group" con testo copiabile a 1 tocco e link al gruppo FB!']
               : []),
@@ -648,7 +806,7 @@ export function AutoCutDistributionPanel({
             )}
           </div>
           <div className="text-[10px] text-pink-300/80 font-mono pl-6 pt-0.5">
-            Account: {selectedBrand === 'pizza' ? '@flowerpowerpizza' : '@flowerpowervillage'}
+            Account: {selectedBrand === 'pizza' ? '@flowerpowerpizzaranong' : '@flowerpowerphayam'}
           </div>
 
           {activeChannel === 'instagram' && (

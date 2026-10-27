@@ -1410,12 +1410,12 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
           connected: hasMetaPizza || hasMetaVillage,
           pizza: {
             pageId: process.env.META_PIZZA_PAGE_ID || "410856732111386",
-            igId: process.env.META_PIZZA_IG_ID || "17841469176521344",
+            igId: process.env.META_PIZZA_IG_ID || "17841468753633265",
             connected: hasMetaPizza
           },
           village: {
             pageId: process.env.META_VILLAGE_PAGE_ID || "106883044573670",
-            igId: process.env.META_VILLAGE_IG_ID || "17841444373676743",
+            igId: process.env.META_VILLAGE_IG_ID || "17841404137072110",
             connected: hasMetaVillage
           }
         }
@@ -1544,6 +1544,342 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       console.error("[SocialPublisher] Publish exception:", err);
       return res.status(500).json({ error: "Publish exception", message: err.message });
     }
+  }
+
+  // 2b. POST /api/social-publisher?action=publish_facebook
+  if (action === "publish_facebook") {
+    const {
+      videoUrl,
+      title = "",
+      caption = "",
+      brand = "pizza",
+      isStory = false
+    } = body;
+
+    const isPizza = brand === "pizza";
+    const pageId = isPizza
+      ? (process.env.META_PIZZA_PAGE_ID || "410856732111386")
+      : (process.env.META_VILLAGE_PAGE_ID || "106883044573670");
+    const pageToken = isPizza
+      ? process.env.META_PIZZA_PAGE_TOKEN
+      : process.env.META_VILLAGE_PAGE_TOKEN;
+
+    if (!pageToken) {
+      return res.status(400).json({
+        success: false,
+        error: `Meta Page Access Token non configurato per ${isPizza ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}.`
+      });
+    }
+
+    if (!videoUrl) {
+      return res.status(400).json({
+        success: false,
+        error: "Parametro videoUrl mancante per la pubblicazione su Facebook."
+      });
+    }
+
+    // GESTIONE STORIA FACEBOOK (video_stories 24h)
+    if (isStory) {
+      try {
+        console.log(`[SocialPublisher] Pubblicazione Storia Facebook (Page ID: ${pageId}, Video: ${videoUrl})...`);
+
+        // Step 1: Start video_stories session
+        const startRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/video_stories?upload_phase=start&access_token=${pageToken}`, {
+          method: "POST"
+        });
+        const startData = await startRes.json();
+        console.log("[SocialPublisher] Facebook video_stories start:", startData);
+
+        if (!startRes.ok || !startData.upload_url || !startData.video_id) {
+          return res.status(startRes.status || 400).json({
+            success: false,
+            error: startData.error?.message || "Errore inizializzazione Storia Facebook",
+            details: startData.error
+          });
+        }
+
+        // Step 2: Fetch video e upload binario su rupload.facebook.com
+        const vRes = await fetch(videoUrl);
+        if (!vRes.ok) {
+          throw new Error(`Impossibile scaricare il video per la Storia (${vRes.statusText})`);
+        }
+        const vBuf = Buffer.from(await vRes.arrayBuffer());
+
+        const upRes = await fetch(startData.upload_url, {
+          method: "POST",
+          headers: {
+            "Authorization": `OAuth ${pageToken}`,
+            "offset": "0",
+            "file_size": String(vBuf.length)
+          },
+          body: vBuf
+        });
+        const upData = await upRes.json();
+        console.log("[SocialPublisher] Facebook video_stories upload:", upData);
+
+        // Step 3: Finish upload session
+        const fParams = new URLSearchParams();
+        fParams.append("access_token", pageToken);
+        fParams.append("upload_phase", "finish");
+        fParams.append("video_id", startData.video_id);
+
+        const finishRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/video_stories`, {
+          method: "POST",
+          body: fParams
+        });
+        const finishData = await finishRes.json();
+        console.log("[SocialPublisher] Facebook video_stories finish:", finishData);
+
+        if (!finishRes.ok || finishData.error) {
+          return res.status(finishRes.status || 400).json({
+            success: false,
+            error: finishData.error?.message || "Errore finalizzazione Storia Facebook",
+            details: finishData.error
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+          isStory: true,
+          storyId: finishData.post_id || startData.video_id,
+          raw: finishData
+        });
+      } catch (stErr: any) {
+        console.error("[SocialPublisher] Facebook story publish exception:", stErr);
+        return res.status(500).json({
+          success: false,
+          error: "Eccezione durante la pubblicazione della Storia su Facebook",
+          message: stErr.message
+        });
+      }
+    }
+
+    try {
+      console.log(`[SocialPublisher] Invio video su Pagina Facebook (Brand: ${brand}, Page ID: ${pageId}, Video: ${videoUrl})...`);
+
+      const postDescription = (caption || title || "").slice(0, 5000);
+      const postTitle = (title || "").slice(0, 255);
+
+      const params = new URLSearchParams();
+      params.append("access_token", pageToken);
+      params.append("file_url", videoUrl);
+      if (postDescription) params.append("description", postDescription);
+      if (postTitle) params.append("title", postTitle);
+
+      const fbRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/videos`, {
+        method: "POST",
+        body: params
+      });
+
+      const fbData = await fbRes.json();
+      console.log("[SocialPublisher] Facebook Graph API response:", fbData);
+
+      if (!fbRes.ok || fbData.error) {
+        return res.status(fbRes.status || 400).json({
+          success: false,
+          error: fbData.error?.message || "Errore durante la pubblicazione del video su Facebook",
+          details: fbData.error
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        videoId: fbData.id,
+        postUrl: `https://www.facebook.com/${fbData.id}`,
+        raw: fbData
+      });
+    } catch (err: any) {
+      console.error("[SocialPublisher] Facebook publish exception:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Eccezione durante la pubblicazione su Facebook",
+        message: err.message
+      });
+    }
+  }
+
+  // 2c. POST /api/social-publisher?action=publish_instagram
+  if (action === "publish_instagram") {
+    const {
+      videoUrl,
+      caption = "",
+      brand = "pizza",
+      isStory = false
+    } = body;
+
+    const isPizza = brand === "pizza";
+    const pageId = isPizza
+      ? (process.env.META_PIZZA_PAGE_ID || "410856732111386")
+      : (process.env.META_VILLAGE_PAGE_ID || "106883044573670");
+    const pageToken = isPizza
+      ? process.env.META_PIZZA_PAGE_TOKEN
+      : process.env.META_VILLAGE_PAGE_TOKEN;
+
+    if (!pageToken) {
+      return res.status(400).json({
+        success: false,
+        error: `Meta Page Access Token non configurato per ${isPizza ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}.`
+      });
+    }
+
+    if (!videoUrl) {
+      return res.status(400).json({
+        success: false,
+        error: `Parametro videoUrl mancante per Instagram ${isStory ? 'Stories' : 'Reels'}.`
+      });
+    }
+
+    // Risoluzione dinamica e verificata dell'Instagram Business Account collegato alla Pagina Facebook
+    let igId = isPizza
+      ? (process.env.META_PIZZA_IG_ID || "17841468753633265")
+      : (process.env.META_VILLAGE_IG_ID || "17841404137072110");
+
+    try {
+      const pageInfoRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}?fields=instagram_business_account&access_token=${pageToken}`);
+      if (pageInfoRes.ok) {
+        const pageInfo = await pageInfoRes.json();
+        if (pageInfo?.instagram_business_account?.id) {
+          igId = pageInfo.instagram_business_account.id;
+          console.log(`[SocialPublisher] Instagram Business Account collegato a Pagina ${pageId}: ${igId}`);
+        }
+      }
+    } catch (dynErr) {
+      console.warn("[SocialPublisher] Risoluzione dinamica IG fallita, uso fallback:", igId);
+    }
+
+    try {
+      console.log(`[SocialPublisher] Creazione container Instagram ${isStory ? 'STORIES' : 'REELS'} (IG ID: ${igId}, Video: ${videoUrl})...`);
+
+      const cParams = new URLSearchParams();
+      cParams.append("access_token", pageToken);
+      cParams.append("media_type", isStory ? "STORIES" : "REELS");
+      cParams.append("video_url", videoUrl);
+      if (!isStory && caption) {
+        cParams.append("caption", caption.slice(0, 2200));
+      }
+
+      const cRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media`, {
+        method: "POST",
+        body: cParams
+      });
+      const cData = await cRes.json();
+      console.log(`[SocialPublisher] Instagram ${isStory ? 'STORIES' : 'REELS'} container response:`, cData);
+
+      if (!cRes.ok || !cData.id) {
+        return res.status(cRes.status || 400).json({
+          success: false,
+          error: cData.error?.message || "Errore creazione container Instagram",
+          details: cData.error
+        });
+      }
+
+      const creationId = cData.id;
+
+      // Polling intelligente elaborazione video su server Meta Instagram (fino a FINISHED)
+      let isReady = false;
+      let attempts = 0;
+      const maxAttempts = 12; // fino a 36 secondi
+      while (!isReady && attempts < maxAttempts) {
+        attempts++;
+        await new Promise(r => setTimeout(r, 3000));
+        try {
+          const sRes = await fetch(`https://graph.facebook.com/v19.0/${creationId}?fields=status_code,status&access_token=${pageToken}`);
+          if (sRes.ok) {
+            const sData = await sRes.json();
+            console.log(`[SocialPublisher] Polling Instagram container status (${attempts}/${maxAttempts}):`, sData);
+            if (sData.status_code === "FINISHED") {
+              isReady = true;
+              break;
+            } else if (sData.status_code === "ERROR") {
+              return res.status(400).json({
+                success: false,
+                error: `Errore elaborazione video su Instagram: ${sData.status || sData.status_code}`,
+                details: sData
+              });
+            }
+          }
+        } catch (pollErr) {
+          console.warn("[SocialPublisher] Errore polling container Instagram:", pollErr);
+        }
+      }
+
+      const pParams = new URLSearchParams();
+      pParams.append("access_token", pageToken);
+      pParams.append("creation_id", creationId);
+
+      const pRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media_publish`, {
+        method: "POST",
+        body: pParams
+      });
+      const pData = await pRes.json();
+      console.log("[SocialPublisher] Instagram publish response:", pData);
+
+      if (!pRes.ok || !pData.id) {
+        return res.status(pRes.status || 400).json({
+          success: false,
+          error: pData.error?.message || "Errore pubblicazione Instagram Reels",
+          details: pData.error
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        mediaId: pData.id,
+        raw: pData
+      });
+    } catch (err: any) {
+      console.error("[SocialPublisher] Instagram publish exception:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Eccezione pubblicazione Instagram",
+        message: err.message
+      });
+    }
+  }
+
+  // 2d. POST /api/social-publisher?action=publish_thought (Post di solo testo / pensieri su Facebook Page e Google)
+  if (action === "publish_thought") {
+    const {
+      text = "",
+      brand = "pizza",
+      publishToFacebook = true
+    } = body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ success: false, error: "Il testo del pensiero non può essere vuoto." });
+    }
+
+    const isPizza = brand === "pizza";
+    const pageId = isPizza
+      ? (process.env.META_PIZZA_PAGE_ID || "410856732111386")
+      : (process.env.META_VILLAGE_PAGE_ID || "106883044573670");
+    const pageToken = isPizza
+      ? process.env.META_PIZZA_PAGE_TOKEN
+      : process.env.META_VILLAGE_PAGE_TOKEN;
+
+    const results: any = {};
+
+    if (publishToFacebook && pageToken) {
+      try {
+        const params = new URLSearchParams();
+        params.append("access_token", pageToken);
+        params.append("message", text.trim());
+
+        const fbRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/feed`, {
+          method: "POST",
+          body: params
+        });
+        const fbData = await fbRes.json();
+        results.facebook = fbData;
+      } catch (fbErr: any) {
+        results.facebook = { error: fbErr.message };
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      results
+    });
   }
 
   // 3. POST /api/social-publisher?action=check_status

@@ -136,9 +136,11 @@ export function SocialAdminAuth({ children }: SocialAdminAuthProps) {
         <div className="w-full max-w-md bg-stone-900/90 border border-stone-800 backdrop-blur-xl rounded-3xl p-8 shadow-2xl relative z-10 space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-red-600/20 via-amber-500/20 to-stone-800 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 shadow-inner">
-              <Share2 className="w-8 h-8 text-amber-400" />
-            </div>
+            <img
+              src="/flower-power-social-studio-logo.png"
+              alt="Flower Power Social Studio"
+              className="w-20 h-20 rounded-full mx-auto shadow-2xl ring-2 ring-amber-400/40 object-cover hover:scale-105 transition-transform"
+            />
             <h1 className="text-2xl font-black text-white tracking-tight">
               Flower Power Social Studio
             </h1>
