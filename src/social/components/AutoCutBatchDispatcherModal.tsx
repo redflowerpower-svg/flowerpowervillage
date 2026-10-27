@@ -80,15 +80,8 @@ export function AutoCutBatchDispatcherModal({
   testsByMode,
   createTestForMode
 }: AutoCutBatchDispatcherModalProps) {
-  // Lista diretta degli ID selezionati tra le 12 opzioni
-  const [selectedIds, setSelectedIds] = useState<string[]>([
-    'P1_9:16',
-    'P1_4:3',
-    'V1_9:16',
-    'V1_4:3',
-    'LM1_9:16',
-    'LM1_4:3'
-  ]);
+  // Lista diretta degli ID selezionati tra le 12 opzioni (nessuna spuntata di default all'apertura)
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [targetTopic, setTargetTopic] = useState<StudioTopicKey>('tikTokStories');
 
   // Queue runner state
@@ -99,6 +92,14 @@ export function AutoCutBatchDispatcherModal({
   const [overallSummary, setOverallSummary] = useState<{ total: number; success: number; failed: number } | null>(null);
 
   const isCancelledRef = useRef(false);
+
+  // All'apertura della sezione, assicurati che tutte le opzioni non siano spuntate di default
+  useEffect(() => {
+    if (isOpen && !isProcessing) {
+      setSelectedIds([]);
+      setOverallSummary(null);
+    }
+  }, [isOpen]);
 
   // Escape key handler to close modal
   useEffect(() => {

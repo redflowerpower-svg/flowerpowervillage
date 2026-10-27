@@ -3,7 +3,19 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
-### 🟩 [27/10/2026 - ORE 11:45] · SOCIAL STUDIO LM1 4:3: SINCRONIZZAZIONE PROPORZIONALE 1440x1080 (IDENTICA A PREVIEW) & RISOLUZIONE BUG RETTANGOLO VERDE OUTRO (BEGINPATH)
+### 🟩 [27/10/2026 - ORE 11:50] · FAVICON ENGINE: LOGO UFFICIALE SU PRODUZIONE, BORDO ROSSO SU STAGING E BADGE SVILUPPO IN LOCALE
+- **Cosa abbiamo fatto:** Riprogettato il motore delle favicon in [src/utils/environmentFavicon.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/utils/environmentFavicon.ts) separando rigidamente e con precisione assoluta i tre ambienti di lavoro:
+  1. 🍕/🌴 **Produzione Ufficiale (`flowerpowerpizza.com` / `flowerpowervillage.com`)**: Rimossi i badge tecnici con le sigle e il bordo oro. Ora su tutte le pagine (home, menu, delivery, camere, booking) viene applicata sempre e solo la favicon pulita con il **logo ufficiale del reparto**:
+     - *Flower Power Pizza*: `/flower-power-pizza-logo-256.png`
+     - *Flower Power Village*: `/FP_04_-_LOGO_OFFICIAL_HD.png`
+  2. 🔴 **Staging / Virtuale (`staging.flowerpowerpizza.com` / `*.vercel.app`)**:
+     - I siti aperti nello staging generano la favicon del rispettivo brand con un **bordo ROSSO brillante** (🔴 `#EF4444` spesso 4px), distinguendo istantaneamente a colpo d'occhio che si sta navigando nell'ambiente di test/staging.
+  3. 💻 **Locale (`localhost:3000` / `127.0.0.1`)**:
+     - Mantenute al 100% inalterate le favicon personalizzate attuali con le sigle giganti ad alto contrasto per reparto (`SS`, `AD`, `DT`, `KM`, `PIZ`, `VLG`, `WR`) e bordo rosso per una navigazione comodissima durante lo sviluppo.
+- **Effetto reale:** I clienti in produzione vedono sempre il logo ufficiale pulito del brand su qualsiasi pagina del sito; sullo staging di test c'è il bordo rosso protettivo inequivocabile; sulla postazione locale di sviluppo restano le pratiche sigle dei reparti.
+- **Stato:** ✅ Compilato (0 errori TypeScript), test di sicurezza `0 secrets` superato e 100% operativo.
+
+---
 - **Cosa abbiamo fatto:** Risolti i due problemi chiave segnalati negli screenshot di confronto tra l'anteprima DOM e il video esportato per Telegram in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
   1. 📐 **Sincronizzazione Proporzioni 1440x1080 (Identica all'Anteprima)**:
      - Calibrati matematicamente i font e il watermark del canvas offscreen 1440x1080 per corrispondere alla stessa esatta percentuale di occupazione dello schermo dell'anteprima DOM:
