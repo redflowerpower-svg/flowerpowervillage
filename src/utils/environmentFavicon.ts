@@ -89,8 +89,12 @@ export function getActiveSection(): SectionType {
   if (typeof window === 'undefined') return 'public';
   const path = window.location.pathname.toLowerCase();
 
-  // 1. Reparto SOCIAL (/social, /autocut) -> SS
-  if (path.startsWith('/social') || path.startsWith('/autocut')) {
+  // 1. Reparto SOCIAL (/social, /social-studio, /autocut) -> SS
+  if (
+    path.startsWith('/social') ||
+    path.startsWith('/social-studio') ||
+    path.startsWith('/autocut')
+  ) {
     return 'social';
   }
 
@@ -231,20 +235,17 @@ const stagingLogoCache: Record<'pizza' | 'village' | 'social', string> = {
 };
 
 /**
- * Renderizza o assegna la favicon specifica di Flower Power Social Studio
+ * Renderizza su Canvas il logo del Social Studio per lo Staging:
+ * - Scontornato tondo su fondo 100% trasparente (nessun fondo nero o squircle)
+ * - Bordato con anello circolare ROSSO Staging brillante (🔴 #EF4444)
  */
-function applySocialFavicon(isOfficial: boolean): void {
-  const logoSrc = '/flower-power-social-studio-logo.png';
-  if (isOfficial) {
-    setFaviconHref(logoSrc);
-    return;
-  }
-
+function applySocialStagingFavicon(): void {
   if (stagingLogoCache.social) {
     setFaviconHref(stagingLogoCache.social);
     return;
   }
 
+  const logoSrc = '/flower-power-social-studio-logo-256.png';
   const size = 64;
   const canvas = document.createElement('canvas');
   canvas.width = size;
@@ -260,32 +261,22 @@ function applySocialFavicon(isOfficial: boolean): void {
   img.onload = () => {
     ctx.clearRect(0, 0, size, size);
 
-    // 1. Sfondo squircle elegante a contrasto
-    ctx.beginPath();
-    drawRoundedRect(ctx, 2, 2, size - 4, size - 4, 14);
-    ctx.fillStyle = '#0f172a';
-    ctx.fill();
+    const center = size / 2;
+    const radius = size / 2 - 2.5;
 
-    // 2. Disegna il logo centrato e protetto
+    // 1. Disegna il logo tondo scontornato (trasparenza completa attorno, nessun fondo nero)
     ctx.save();
     ctx.beginPath();
-    drawRoundedRect(ctx, 4, 4, size - 8, size - 8, 12);
+    ctx.arc(center, center, radius, 0, Math.PI * 2);
     ctx.clip();
-    ctx.drawImage(img, 4, 4, size - 8, size - 8);
+    ctx.drawImage(img, 2, 2, size - 4, size - 4);
     ctx.restore();
 
-    // 3. Bordo ROSSO Staging / Dev (🔴 #EF4444)
+    // 2. Bordo circolare ROSSO Staging (🔴 #EF4444)
     ctx.beginPath();
-    drawRoundedRect(ctx, 2, 2, size - 4, size - 4, 14);
-    ctx.lineWidth = 4;
+    ctx.arc(center, center, radius, 0, Math.PI * 2);
+    ctx.lineWidth = 3.5;
     ctx.strokeStyle = '#EF4444';
-    ctx.stroke();
-
-    // 4. Ombra/stroke interna per nitidezza e stacco
-    ctx.beginPath();
-    drawRoundedRect(ctx, 4.5, 4.5, size - 9, size - 9, 11);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
     ctx.stroke();
 
     const dataUrl = canvas.toDataURL('image/png');
@@ -385,14 +376,13 @@ export function applyEnvironmentFavicon(): void {
   const section = getActiveSection();
   const isPizza = isPizzaDepartment(hostname, section);
 
-  // 0. REPARTO SOCIAL STUDIO (/social, /autocut): Logo ufficiale specifico del Social Studio!
-  if (section === 'social') {
-    applySocialFavicon(isOfficial);
-    return;
-  }
-
-  // 1. PRODUZIONE UFFICIALE ONLINE: Solo e sempre il LOGO UFFICIALE del rispettivo brand
+  // 1. PRODUZIONE UFFICIALE ONLINE: Solo e sempre il LOGO UFFICIALE (senza bordo rosso)
+  // Per Social Studio: logo tondo scontornato trasparente senza fondo nero!
   if (isOfficial) {
+    if (section === 'social') {
+      setFaviconHref('/flower-power-social-studio-logo-256.png');
+      return;
+    }
     const targetIcon = isPizza
       ? '/flower-power-pizza-logo-256.png'
       : '/FP_04_-_LOGO_OFFICIAL_HD.png';
@@ -401,7 +391,12 @@ export function applyEnvironmentFavicon(): void {
   }
 
   // 2. STAGING ONLINE: Logo ufficiale del reparto BORDATO DI ROSSO brillante (🔴 #EF4444)
+  // Per Social Studio: logo tondo scontornato bordato di rosso circolare (senza fondo nero)
   if (isStaging) {
+    if (section === 'social') {
+      applySocialStagingFavicon();
+      return;
+    }
     if (section === 'public' || section === 'pizza' || section === 'village') {
       applyStagingFavicon(isPizza);
       return;
@@ -409,7 +404,7 @@ export function applyEnvironmentFavicon(): void {
     // Per sezioni interne staff aperte su staging (/admin, /kitchen, /dining), prosegue con badge a bordo rosso
   }
 
-  // 3. LOCALE (e console staff su staging): Manteniamo i badge personalizzati attuali ad altissima leggibilità
+  // 3. LOCALE (e console staff su staging): SEMPRE i badge personalizzati con SIGLE (SS, KM, DT, AD, PIZ, VLG, WR)
   const theme = DEPT_THEMES[section] || DEPT_THEMES.public;
   const ringColor = '#EF4444'; // Bordo ROSSO brillante di sviluppo
 
