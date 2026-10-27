@@ -27,10 +27,12 @@ import { AutoCutReelPlayer } from './AutoCutReelPlayer';
 
 export interface SchedulerChannelToggles {
   instagram: boolean;
-  facebook: boolean;
+  facebookPageApi: boolean;
+  facebookGroup: boolean;
   tiktokStories: boolean;
   tiktokFeedApi: boolean;
   google: boolean;
+  facebook?: boolean;
   tiktok?: boolean;
 }
 
@@ -43,8 +45,11 @@ export function isChannelActiveForPost(
     const isFeedApi = post.tags?.includes('tiktokFeedApi') || (post.format !== 'story' && !post.tags?.includes('Stories'));
     return isFeedApi ? (toggles.tiktokFeedApi ?? false) : (toggles.tiktokStories ?? true);
   }
+  if (p === 'facebook') {
+    const isGroup = post.tags?.includes('GruppiPhayam') || post.tags?.includes('LM1') || post.tags?.includes('R1') || post.tags?.includes('facebookGroup');
+    return isGroup ? (toggles.facebookGroup ?? true) : (toggles.facebookPageApi ?? true);
+  }
   if (p === 'instagram') return toggles.instagram ?? true;
-  if (p === 'facebook') return toggles.facebook ?? true;
   if (p === 'google') return toggles.google ?? false;
   return true;
 }
@@ -149,7 +154,18 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
     const villageAsset = villageAssets[rot % villageAssets.length];
     const pizzaItem = realFoodDatabase[rot % realFoodDatabase.length];
     const pastaItem = realFoodDatabase[(rot % 2 === 0 ? 2 : 3)]; // Spaghetti allo scoglio o Tagliatelle al nero
-    const isAltCapCut = (rot % 2 === 0);
+
+    // Alternanze CC1 differenziate per slot: presenza bilanciata e costante ogni giorno per eliminare qualsiasi monotonia
+    const isCc1_0800_Village = (rot % 2 === 1);           // 08:00 TikTok Story Village alternata con CC1
+    const isCc1_0930_IgStory = (rot % 2 === 0);           // 09:30 IG Story alternata con CC1
+    const isCc1_1130_FbReel  = ((rot + 1) % 3 === 0);     // 11:30 FB Reel alternato con CC1 ogni 3 gg
+    const isCc1_1230_FbStory = (rot % 2 === 1);           // 12:30 FB Story alternata con CC1
+    const isCc1_1600_IgReel  = (rot % 2 === 0);           // 16:00 IG Reel alternato con CC1
+    const isCc1_1700_Village = (rot % 2 === 0);           // 17:00 TikTok Story Sunset alternata con CC1
+    const isCc1_1800_IgStory = (rot % 2 === 1);           // 18:00 IG Story Golden Hour alternata con CC1
+    const isCc1_1930_FbReel  = ((rot + 2) % 3 === 0);     // 19:30 FB Reel alternato con CC1 ogni 3 gg
+    const isCc1_2000_FbStory = (rot % 2 === 0);           // 20:00 FB Story alternata con CC1
+    const isCc1_2100_IgReel  = (rot % 2 === 1);           // 21:00 IG Reel alternato con CC1
 
     // 1. ORE 08:00 · 🎵 TikTok & IG Story Pizzeria Ranong (✋ Azione Manuale Staff via Telegram Topic 3)
     routinePosts.push({
@@ -169,7 +185,7 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       badge: '✋ UPLOAD TIKTOK PIZZA'
     });
 
-    // 2. ORE 08:00 (CONTEMPORANEA) · 🎵 TikTok & IG Story Villaggio Koh Phayam (✋ Azione Manuale Staff via Telegram Topic 3)
+    // 2. ORE 08:00 (CONTEMPORANEA) · 🎵 TikTok & IG Story Villaggio Koh Phayam (Alternanza V1 / CC1)
     routinePosts.push({
       id: `routine_tiktok_village_${dateStr}`,
       brand: 'village',
@@ -177,14 +193,16 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       format: 'story',
       editorial_format: 'video_reel',
       scheduled_for: `${dateStr}T08:00:00`,
-      title: `V1 TikTok Story: Risveglio Tropicale a Phayam`,
-      caption: `Buongiorno da Koh Phayam Island! Il canto degli uccelli tropicali e il profumo del mare. 🌴🌊 #KohPhayam #ThailandLife`,
+      title: isCc1_0800_Village ? `CC1 Brezza del Mattino a Phayam` : `V1 TikTok Story: Risveglio Tropicale a Phayam`,
+      caption: isCc1_0800_Village
+        ? `Buongiorno da Koh Phayam! Il canto degli uccelli tropicali e il profumo del mare. 🌴🌊 #KohPhayam #ThailandLife`
+        : `Risveglio in paradiso a Koh Phayam. Amache all'ombra e natura rigogliosa. 🌴✨ #FlowerPowerVillage`,
       media_url: villageAsset.image,
       source_item_id: villageAsset.id,
       status: 'scheduled',
-      tags: ['V1', 'TikTok', 'Manuale', 'Stories', 'tiktokStories'],
+      tags: isCc1_0800_Village ? ['CC1', 'CapCut', 'TikTok', 'Manuale', 'Stories', 'tiktokStories'] : ['V1', 'TikTok', 'Manuale', 'Stories', 'tiktokStories'],
       cta_url: 'https://flowerpowervillage.com',
-      badge: '✋ UPLOAD TIKTOK VILLAGE'
+      badge: isCc1_0800_Village ? '🎬 CC1 TIKTOK STORY' : '✋ UPLOAD TIKTOK VILLAGE'
     });
 
     // 3. ORE 08:00 (CONTEMPORANEA) · 👥 Gruppo Facebook Koh Phayam: REEL LM1 Alloggi Liberi Oggi (✋ Azione Manuale Staff via Telegram Topic 2)
@@ -201,13 +219,33 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       source_item_id: villageAsset.id,
       price: villageAsset.price,
       status: 'scheduled',
-      tags: ['LM1', 'GruppiPhayam', 'Manuale', 'LastMinute', 'reel'],
+      tags: ['LM1', 'GruppiPhayam', 'Manuale', 'LastMinute', 'facebookGroup', 'reel'],
       cta_url: villageAsset.cta_url || 'https://flowerpowervillage.com',
       title_en: villageAsset.name,
       badge: '🟡 GRUPPO PHAYAM ALLOGGI'
     });
 
-    // 4. ORE 10:00 · 📍 Google Business Novità 4:3 (Martedì P1 Pizza / Venerdì V1 Villaggio)
+    // 4. ORE 09:30 · 📸 Instagram Story Mattino: Risveglio Tropicale / Brezza del Mattino (Alternanza con CC1)
+    routinePosts.push({
+      id: `routine_ig_story_morning_${dateStr}`,
+      brand: 'village',
+      platforms: ['instagram'],
+      format: 'story',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T09:30:00`,
+      title: isCc1_0930_IgStory ? `CC1 Brezza del Mattino a Phayam` : `V1 Risveglio Tropicale: ${villageAsset.name}`,
+      caption: isCc1_0930_IgStory 
+        ? `Il suono del vento tra le palme e la quiete del mattino a Koh Phayam. 🌴✨ #KohPhayam #TropicalVibes` 
+        : `Buongiorno da Flower Power Village. Colazione all'aperto circondati dal verde tropicale. #IslandLife`,
+      media_url: villageAsset.image,
+      source_item_id: villageAsset.id,
+      status: 'scheduled',
+      tags: isCc1_0930_IgStory ? ['CC1', 'CapCut', 'story', 'Resort', 'InstagramStory'] : ['V1', 'story', 'Resort', 'InstagramStory'],
+      cta_url: 'https://flowerpowervillage.com',
+      badge: isCc1_0930_IgStory ? '🎬 CC1 MORNING STORY' : '🌿 TROPICAL MORNING'
+    });
+
+    // 5. ORE 10:00 · 📍 Google Business Novità 4:3 (Martedì P1 Pizza / Venerdì V1 Villaggio)
     if (dayOfWeek === 2) {
       routinePosts.push({
         id: `routine_google_pizza_${dateStr}`,
@@ -246,7 +284,7 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       });
     }
 
-    // 5. ORE 11:30 · 🎬 Facebook REEL: Pranzo Pasta Fresca Ranong (SOLO FACEBOOK)
+    // 6. ORE 11:30 · 🎬 Facebook REEL: Pranzo Pasta Fresca Ranong (SOLO FACEBOOK PAGINA)
     routinePosts.push({
       id: `routine_fb_lunch_${dateStr}`,
       brand: 'pizza',
@@ -260,13 +298,33 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       source_item_id: pastaItem.id,
       price: pastaItem.price,
       status: 'scheduled',
-      tags: ['P2', 'PastaReel', 'Lunch', 'Ranong', 'FacebookOnly', 'reel'],
+      tags: ['P2', 'PastaReel', 'Lunch', 'Ranong', 'facebookPageApi', 'reel'],
       cta_url: 'https://flowerpowerpizza.com',
       title_en: pastaItem.name,
       badge: '🍝 PRANZO FACEBOOK'
     });
 
-    // 6. ORE 16:00 · 🎬 Instagram REEL: V2 Suite Tour / Relax Pomeridiano Phayam (SOLO INSTAGRAM)
+    // 7. ORE 12:30 · 📸 Facebook Story Pranzo: Forno Tradizionale / Laboratorio Pizza (Alternanza con CC1)
+    routinePosts.push({
+      id: `routine_fb_story_lunch_${dateStr}`,
+      brand: 'pizza',
+      platforms: ['facebook'],
+      format: 'story',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T12:30:00`,
+      title: isCc1_1230_FbStory ? `CC1 Video Clip: Mani in Pasta & Laboratorio` : `P1 Pizze Sfornate: Forno Tradizionale`,
+      caption: isCc1_1230_FbStory 
+        ? `Lavorazione artigianale e stesura a mano nel laboratorio di Flower Power Pizza. 🍕✨ #Artigianale` 
+        : `Pizze fumanti pronte per il pranzo a Ranong! Impasto 48h leggero e croccante. 🍕🔥 #Ranong`,
+      media_url: isCc1_1230_FbStory ? pizzaItem.image : 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/01-affogato-al-caffe.webp',
+      source_item_id: pizzaItem.id,
+      status: 'scheduled',
+      tags: isCc1_1230_FbStory ? ['CC1', 'CapCut', 'story', 'Kitchen', 'facebookPageApi'] : ['P1', 'story', 'PizzaTradizionale', 'facebookPageApi'],
+      cta_url: 'https://flowerpowerpizza.com',
+      badge: isCc1_1230_FbStory ? '🎬 CC1 PIZZA STORY' : '🍕 FORNO TRADIZIONALE'
+    });
+
+    // 8. ORE 16:00 · 🎬 Instagram REEL: V2 Suite Tour / Relax Pomeridiano Phayam (SOLO INSTAGRAM - Alternanza con CC1)
     routinePosts.push({
       id: `routine_ig_afternoon_${dateStr}`,
       brand: 'village',
@@ -274,21 +332,21 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       format: 'reel',
       editorial_format: 'video_reel',
       scheduled_for: `${dateStr}T16:00:00`,
-      title: isAltCapCut ? `CC1 CapCut Clip: Relax Koh Phayam` : `V2 Suite Tour: ${villageAsset.name}`,
-      caption: isAltCapCut 
+      title: isCc1_1600_IgReel ? `CC1 CapCut Clip: Relax Koh Phayam` : `V2 Suite Tour: ${villageAsset.name}`,
+      caption: isCc1_1600_IgReel 
         ? `Momenti di pura pace a Koh Phayam Island. Amache, brezze tropicali e natura incontaminata. #KohPhayam` 
         : `Esplora ${villageAsset.name}. Suite ventilata nel cuore del giardino tropicale. #FlowerPowerVillage`,
       media_url: villageAsset.image,
       source_item_id: villageAsset.id,
       price: villageAsset.price,
       status: 'scheduled',
-      tags: isAltCapCut ? ['CC1', 'CapCut', 'reel', 'InstagramOnly'] : ['V2', 'SuiteTour', 'reel', 'InstagramOnly'],
+      tags: isCc1_1600_IgReel ? ['CC1', 'CapCut', 'reel', 'InstagramOnly'] : ['V2', 'SuiteTour', 'reel', 'InstagramOnly'],
       cta_url: villageAsset.cta_url || 'https://flowerpowervillage.com',
       title_en: villageAsset.name,
-      badge: isAltCapCut ? '🎬 CC1 RELAX REEL' : '🌿 SUITE INSTAGRAM'
+      badge: isCc1_1600_IgReel ? '🎬 CC1 RELAX REEL' : '🌿 SUITE INSTAGRAM'
     });
 
-    // 7. ORE 17:00 (5 DI SERA) · 🎵 TikTok & IG Story Pizzeria Ranong (✋ Azione Manuale Staff via Telegram Topic 3)
+    // 9. ORE 17:00 (5 DI SERA) · 🎵 TikTok & IG Story Pizzeria Ranong (✋ Azione Manuale Staff via Telegram Topic 3)
     routinePosts.push({
       id: `routine_tiktok_dinner_${dateStr}`,
       brand: 'pizza',
@@ -306,7 +364,7 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       badge: '✋ UPLOAD TIKTOK CENA'
     });
 
-    // 8. ORE 17:00 (CONTEMPORANEA) · 🎵 TikTok & IG Story Tramonto Villaggio (✋ Azione Manuale Staff via Telegram Topic 3)
+    // 10. ORE 17:00 (CONTEMPORANEA) · 🎵 TikTok & IG Story Tramonto Villaggio (Alternanza V3 / CC1)
     routinePosts.push({
       id: `routine_tiktok_village_sunset_${dateStr}`,
       brand: 'village',
@@ -314,17 +372,19 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       format: 'story',
       editorial_format: 'video_reel',
       scheduled_for: `${dateStr}T17:00:00`,
-      title: `V3 TikTok Story: Tramonto Tropicale a Phayam`,
-      caption: `Il cielo che si colora di fuoco e la quiete serale sull'oceano a Koh Phayam. 🌅🌴 #KohPhayam #SunsetLovers`,
+      title: isCc1_1700_Village ? `CC1 Sunset Golden Hour: Tramonto Tropicale` : `V3 TikTok Story: Tramonto Tropicale a Phayam`,
+      caption: isCc1_1700_Village
+        ? `Il cielo che si colora di fuoco e la quiete serale sull'oceano a Koh Phayam. 🌅🌴 #KohPhayam #SunsetLovers`
+        : `Luce dorata e tramonto indimenticabile a Koh Phayam Island. 🌅🌴 #FlowerPowerVillage`,
       media_url: villageAsset.image,
       source_item_id: villageAsset.id,
       status: 'scheduled',
-      tags: ['V3', 'TikTok', 'Manuale', 'Sunset', 'Stories', 'tiktokStories'],
+      tags: isCc1_1700_Village ? ['CC1', 'CapCut', 'TikTok', 'Manuale', 'Sunset', 'Stories', 'tiktokStories'] : ['V3', 'TikTok', 'Manuale', 'Sunset', 'Stories', 'tiktokStories'],
       cta_url: 'https://flowerpowervillage.com',
-      badge: '✋ UPLOAD TIKTOK TRAMONTO'
+      badge: isCc1_1700_Village ? '🎬 CC1 TIKTOK TRAMONTO' : '✋ UPLOAD TIKTOK TRAMONTO'
     });
 
-    // 9. ORE 17:00 (CONTEMPORANEA) · 👥 Gruppo Facebook Koh Phayam: REEL R1 Ristorante & Cena (✋ Azione Manuale Staff via Telegram Topic 2)
+    // 11. ORE 17:00 (CONTEMPORANEA) · 👥 Gruppo Facebook Koh Phayam: REEL R1 Ristorante & Cena (✋ Azione Manuale Staff via Telegram Topic 2)
     routinePosts.push({
       id: `routine_fb_group_dinner_${dateStr}`,
       brand: 'village',
@@ -338,12 +398,32 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       source_item_id: pizzaItem.id,
       price: 250,
       status: 'scheduled',
-      tags: ['R1', 'GruppiPhayam', 'Dinner', 'Facebook', 'Manuale', 'reel'],
+      tags: ['R1', 'GruppiPhayam', 'Dinner', 'Facebook', 'Manuale', 'facebookGroup', 'reel'],
       cta_url: 'https://flowerpowerpizza.com',
       badge: '🛵 DELIVERY ISOLA'
     });
 
-    // 10. ORE 18:30 · 🎵 TikTok Feed Post Ufficiale (API Ufficiale TikTok - Disattivato di default fino ad approvazione v2)
+    // 12. ORE 18:00 · 📸 Instagram Story Golden Hour: Sunset Phayam / CC1 Tramonto (Alternanza con CC1)
+    routinePosts.push({
+      id: `routine_ig_story_sunset_${dateStr}`,
+      brand: 'village',
+      platforms: ['instagram'],
+      format: 'story',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T18:00:00`,
+      title: isCc1_1800_IgStory ? `CC1 Sunset Golden Hour: Tramonto Tropicale` : `V3 Sunset Vibe: Luce Dorata a Phayam`,
+      caption: isCc1_1800_IgStory 
+        ? `Il cielo che si colora di fuoco e la brezza serale sull'oceano a Koh Phayam. 🌅🌴 #KohPhayam #SunsetLovers` 
+        : `Aria fresca e luce dorata tra i bungalow tropicali di Flower Power. 🌅✨ #FlowerPowerVillage`,
+      media_url: villageAsset.image,
+      source_item_id: villageAsset.id,
+      status: 'scheduled',
+      tags: isCc1_1800_IgStory ? ['CC1', 'CapCut', 'story', 'Sunset', 'InstagramStory'] : ['V3', 'Sunset', 'story', 'InstagramStory'],
+      cta_url: 'https://flowerpowervillage.com',
+      badge: isCc1_1800_IgStory ? '🎬 CC1 SUNSET STORY' : '🌅 GOLDEN HOUR IG'
+    });
+
+    // 13. ORE 18:30 · 🎵 TikTok Feed Post Ufficiale (API Ufficiale TikTok - Disattivato di default fino ad approvazione v2)
     routinePosts.push({
       id: `routine_tiktok_feed_${dateStr}`,
       brand: 'pizza',
@@ -363,7 +443,7 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       badge: '🎵 TIKTOK FEED POST'
     });
 
-    // 11. ORE 19:30 · 🍕 Facebook REEL: P1 Pizza Tradizionale Ranong 48h (SOLO FACEBOOK)
+    // 14. ORE 19:30 · 🍕 Facebook REEL: P1 Pizza Tradizionale Ranong 48h (SOLO FACEBOOK PAGINA - Alternanza con CC1)
     routinePosts.push({
       id: `routine_fb_dinner_${dateStr}`,
       brand: 'pizza',
@@ -371,19 +451,41 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       format: 'reel',
       editorial_format: 'video_reel',
       scheduled_for: `${dateStr}T19:30:00`,
-      title: `P1 Pizza Tradizionale Ranong: ${pizzaItem.name}`,
-      caption: `Impasto a lievitazione naturale 48h, cornicione fragrante e ingredienti italiani DOP. Consegna calda a Ranong su flowerpowerpizza.com 🍕🛵💨`,
+      title: isCc1_1930_FbReel ? `CC1 CapCut Clip: Pizzeria & Cornicione Dorato` : `P1 Pizza Tradizionale Ranong: ${pizzaItem.name}`,
+      caption: isCc1_1930_FbReel
+        ? `L'arte della pizza tradizionale italiana: forno ad alta temperatura e profumo inconfondibile a Ranong! 🍕🔥 #Ranong`
+        : `Impasto a lievitazione naturale 48h, cornicione fragrante e ingredienti italiani DOP. Consegna calda a Ranong su flowerpowerpizza.com 🍕🛵💨`,
       media_url: pizzaItem.image,
       source_item_id: pizzaItem.id,
       price: pizzaItem.price,
       status: 'scheduled',
-      tags: ['P1', 'PizzaReel', 'Dinner', 'Ranong', 'FacebookOnly', 'reel'],
+      tags: isCc1_1930_FbReel ? ['CC1', 'CapCut', 'reel', 'Dinner', 'facebookPageApi'] : ['P1', 'PizzaReel', 'Dinner', 'Ranong', 'facebookPageApi', 'reel'],
       cta_url: 'https://flowerpowerpizza.com',
       title_en: pizzaItem.name,
-      badge: '🍕 CENA FACEBOOK'
+      badge: isCc1_1930_FbReel ? '🎬 CC1 PIZZA REEL' : '🍕 CENA FACEBOOK'
     });
 
-    // 12. ORE 21:00 · 🌙 Instagram REEL: V3 Tropical Escape Villaggio Koh Phayam (SOLO INSTAGRAM)
+    // 15. ORE 20:00 · 📸 Facebook Story Serale: Atmosfera Tavoli / Dolci Artigianali (Alternanza con CC1)
+    routinePosts.push({
+      id: `routine_fb_story_dinner_${dateStr}`,
+      brand: 'pizza',
+      platforms: ['facebook'],
+      format: 'story',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T20:00:00`,
+      title: isCc1_2000_FbStory ? `CC1 Video Clip: Atmosfera Tavoli & Serata` : `P3 Dolci Artigianali: Tiramisù & Caffè Espresso`,
+      caption: isCc1_2000_FbStory 
+        ? `Serata viva e calda atmosfera tra i tavoli di Flower Power Pizza Ranong! 🍕✨` 
+        : `Concludi la serata con autentico tiramisù fatto in casa e caffè espresso. ☕🍰 #Ranong #DolciItaliani`,
+      media_url: isCc1_2000_FbStory ? pizzaItem.image : 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/01-affogato-al-caffe.webp',
+      source_item_id: pizzaItem.id,
+      status: 'scheduled',
+      tags: isCc1_2000_FbStory ? ['CC1', 'CapCut', 'story', 'Dinner', 'facebookPageApi'] : ['P3', 'Dessert', 'story', 'FacebookStory', 'facebookPageApi'],
+      cta_url: 'https://flowerpowerpizza.com',
+      badge: isCc1_2000_FbStory ? '🎬 CC1 EVENING STORY' : '☕ SERATA DOLCI FB'
+    });
+
+    // 16. ORE 21:00 · 🌙 Instagram REEL: V3 Tropical Escape Villaggio Koh Phayam (SOLO INSTAGRAM - Alternanza con CC1)
     routinePosts.push({
       id: `routine_ig_night_${dateStr}`,
       brand: 'village',
@@ -391,16 +493,18 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       format: 'reel',
       editorial_format: 'video_reel',
       scheduled_for: `${dateStr}T21:00:00`,
-      title: `V3 Tropical Escape Phayam: ${villageAsset.name}`,
-      caption: `Winter is coming in Europe... Escape to Koh Phayam Island! 🌴☀️ Wake up surrounded by tropical nature, turquoise waters and peaceful silence. Direct booking discounts on flowerpowervillage.com #KohPhayam #ThailandTravel #EscapeWinter #TropicalResort`,
+      title: isCc1_2100_IgReel ? `CC1 CapCut Clip: Notte Silenziosa a Phayam` : `V3 Tropical Escape Phayam: ${villageAsset.name}`,
+      caption: isCc1_2100_IgReel
+        ? `La quiete assoluta della notte a Koh Phayam Island. Suoni della giungla e brezze d'oceano. 🌴🌙 #KohPhayam`
+        : `Winter is coming in Europe... Escape to Koh Phayam Island! 🌴☀️ Wake up surrounded by tropical nature, turquoise waters and peaceful silence. Direct booking discounts on flowerpowervillage.com #KohPhayam #ThailandTravel #EscapeWinter #TropicalResort`,
       media_url: villageAsset.image,
       source_item_id: villageAsset.id,
       price: villageAsset.price,
       status: 'scheduled',
-      tags: ['V3', 'NightEscape', 'KohPhayam', 'InstagramOnly', 'reel'],
+      tags: isCc1_2100_IgReel ? ['CC1', 'CapCut', 'reel', 'NightEscape', 'InstagramOnly'] : ['V3', 'NightEscape', 'KohPhayam', 'InstagramOnly', 'reel'],
       cta_url: 'https://flowerpowervillage.com',
       title_en: villageAsset.name,
-      badge: '🌙 NOTTE INSTAGRAM'
+      badge: isCc1_2100_IgReel ? '🎬 CC1 NIGHT REEL' : '🌙 NOTTE INSTAGRAM'
     });
   }
 
@@ -448,7 +552,8 @@ export function SocialCalendarView({
   const [channelToggles, setChannelToggles] = useState<SchedulerChannelToggles>(() => {
     const defaults: SchedulerChannelToggles = {
       instagram: true,
-      facebook: true,
+      facebookPageApi: true,
+      facebookGroup: true,
       tiktokStories: true,
       tiktokFeedApi: false,
       google: false
@@ -786,7 +891,7 @@ export function SocialCalendarView({
               <h3 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
                 <span>{uiLang === 'EN' ? 'Active Scheduler Channels' : 'Canali Scheduler Attivi'}</span>
                 <span className="text-[10px] font-mono font-bold bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full">
-                  {Object.values(channelToggles).filter(Boolean).length} / 5 {uiLang === 'EN' ? 'Active' : 'Attivi'}
+                  {Object.values(channelToggles).filter(Boolean).length} / 6 {uiLang === 'EN' ? 'Active' : 'Attivi'}
                 </span>
               </h3>
               <p className="text-[10px] text-slate-400">
@@ -798,8 +903,8 @@ export function SocialCalendarView({
           </div>
         </div>
 
-        {/* I 5 INTERRUTTORI CANALI */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+        {/* I 6 INTERRUTTORI CANALI */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
           
           {/* 1. INSTAGRAM */}
           <div 
@@ -827,7 +932,7 @@ export function SocialCalendarView({
               </button>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] text-slate-300">Reels & Post Pomeriggio/Sera</p>
+              <p className="text-[10px] text-slate-300">Reels & Stories 24h</p>
               <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
                 channelToggles.instagram 
                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
@@ -838,39 +943,76 @@ export function SocialCalendarView({
             </div>
           </div>
 
-          {/* 2. FACEBOOK */}
+          {/* 2. FACEBOOK PAGINA (API) */}
           <div 
-            onClick={() => handleToggleChannel('facebook')}
+            onClick={() => handleToggleChannel('facebookPageApi')}
             className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
-              channelToggles.facebook 
+              channelToggles.facebookPageApi 
                 ? 'bg-gradient-to-br from-blue-950/30 to-indigo-950/20 border-blue-500/50 shadow-lg shadow-blue-950/30' 
                 : 'bg-slate-900/60 border-slate-800/80 opacity-60 hover:opacity-90'
             }`}
           >
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-1.5">
-                <FacebookIcon className="w-4 h-4" />
-                <span className="text-xs font-bold text-white">Facebook</span>
+                <FacebookIcon className="w-4 h-4 text-blue-400" />
+                <span className="text-xs font-bold text-white">FB Pagina (API)</span>
               </div>
               <button 
                 type="button"
                 className={`w-9 h-4.5 rounded-full transition-colors relative flex items-center px-0.5 ${
-                  channelToggles.facebook ? 'bg-blue-600' : 'bg-slate-700'
+                  channelToggles.facebookPageApi ? 'bg-blue-600' : 'bg-slate-700'
                 }`}
               >
                 <span className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform ${
-                  channelToggles.facebook ? 'translate-x-4.5' : 'translate-x-0'
+                  channelToggles.facebookPageApi ? 'translate-x-4.5' : 'translate-x-0'
                 }`} />
               </button>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] text-slate-300">Pranzo, Cena & Gruppo Phayam</p>
+              <p className="text-[10px] text-slate-300">Reels & Stories Ufficiali</p>
               <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
-                channelToggles.facebook 
+                channelToggles.facebookPageApi 
                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
                   : 'bg-slate-800 text-slate-400'
               }`}>
-                {channelToggles.facebook ? '🟢 Operativo' : '⏸️ In Pausa'}
+                {channelToggles.facebookPageApi ? '🟢 Operativo (API)' : '⏸️ In Pausa'}
+              </span>
+            </div>
+          </div>
+
+          {/* 3. FACEBOOK GRUPPI PHAYAM (ZERO API - TELEGRAM TOPIC 2) */}
+          <div 
+            onClick={() => handleToggleChannel('facebookGroup')}
+            className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+              channelToggles.facebookGroup 
+                ? 'bg-gradient-to-br from-amber-950/30 to-blue-950/20 border-amber-500/50 shadow-lg shadow-amber-950/30' 
+                : 'bg-slate-900/60 border-slate-800/80 opacity-60 hover:opacity-90'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-1.5">
+                <FacebookIcon className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-bold text-white">FB Gruppi Phayam</span>
+              </div>
+              <button 
+                type="button"
+                className={`w-9 h-4.5 rounded-full transition-colors relative flex items-center px-0.5 ${
+                  channelToggles.facebookGroup ? 'bg-amber-500' : 'bg-slate-700'
+                }`}
+              >
+                <span className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform ${
+                  channelToggles.facebookGroup ? 'translate-x-4.5' : 'translate-x-0'
+                }`} />
+              </button>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-slate-300">LM1 & R1 via Topic 2 (Copia)</p>
+              <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                channelToggles.facebookGroup 
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                  : 'bg-slate-800 text-slate-400'
+              }`}>
+                {channelToggles.facebookGroup ? '🟢 Zero API (Topic 2)' : '⏸️ In Pausa'}
               </span>
             </div>
           </div>

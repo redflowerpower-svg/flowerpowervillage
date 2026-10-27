@@ -28,6 +28,34 @@
 
 ---
 
+### 🟩 [27/10/2026 - ORE 22:15] · OPZIONE B APPROVATA: ROUTINE 11 SLOT SFASATI, 2+2 STORIES, ALTERNANZA DINAMICA CC1 & 6 SWITCH INDIPENDENTI
+- **Cosa abbiamo fatto:** 
+  1. ⚡ **Attivazione Completa Opzione B (Sfasamento Totale Instagram / Facebook)**:
+     - Separati categoricamente gli orari di pubblicazione tra Instagram e Facebook: mai più contenuti in contemporanea sulle due piattaforme, azzerando la cannibalizzazione organica del pubblico.
+     - **Instagram**: 2 Stories (09:30 mattino, 18:00 golden hour) + 2 Reels (16:00 pomeriggio relax, 21:00 notte silente) = 4 contenuti giornalieri.
+     - **Facebook Pagina Ufficiale (API)**: 2 Stories (12:30 pranzo, 20:00 serata dolci) + 2 Reels (11:30 pranzo pasta fresca, 19:30 cena pizza 48h) = 4 contenuti giornalieri.
+     - **Facebook Gruppi Koh Phayam (Zero API / Telegram Topic 2)**: 08:00 LM1 (Alloggi liberi con sconti a cascata reali) + 17:00 R1 (Ristorante e delivery isola).
+     - **TikTok Stories (Zero API / Telegram Topic 3)**: 08:00 (2 Stories: Pizza + Alloggio) + 17:00 (2 Stories: Pizza Cena + Tramonto).
+     - **TikTok Feed (API v2)**: 18:30 (Reel 9:16, switch disattivato di default in attesa approvazione sviluppatori).
+  2. 🎬 **Alternanza Dinamica CC1 (CapCut Clips da Google Drive) su Tutti i Giorni**:
+     - Eliminata la precedente alternanza a blocchi giornalieri (tutto CC1 vs zero CC1) che creava monotonia.
+     - Introdotti flag di rotazione differenziati per singolo slot (`isCc1_0800_Village`, `isCc1_0930_IgStory`, `isCc1_1130_FbReel`, `isCc1_1230_FbStory`, `isCc1_1600_IgReel`, `isCc1_1700_Village`, `isCc1_1800_IgStory`, `isCc1_1930_FbReel`, `isCc1_2000_FbStory`, `isCc1_2100_IgReel`).
+     - Ogni giorno contiene un mix perfettamente bilanciato di ~4-5 filmati spontanei autentici CC1 alternati a grafiche e format editoriali (P1, P2, P3, V1, V2, V3), garantendo freschezza e varietà continua.
+  3. 🎛️ **6 Interruttori Indipendenti nel Toolbar del Calendario**:
+     - `instagram`: Gestione Reels e Stories su Instagram.
+     - `facebookPageApi`: Post, Reels e Stories sulla Pagina Facebook ufficiale (Meta Graph API).
+     - `facebookGroup`: Post comunitari per i gruppi di Koh Phayam (Zero API, inoltro Staff su Telegram Topic 2).
+     - `tiktokStories`: Stories 9:16 per TikTok (Zero API, inoltro Staff su Telegram Topic 3).
+     - `tiktokFeedApi`: Video per il Feed TikTok (API v2, spento di default).
+     - `google`: Post e aggiornamenti 4:3 per Google Maps / Google Business.
+  4. 🤖 **Dispatcher Serverless & GitHub Actions Cron a 11 Slot**:
+     - Aggiornato `scripts/social-scheduler-dispatch.mjs` per gestire tutti gli 11 slot orari con rendering headless locale, muxing audio MP3/WAV in 0.3s e upload Supabase.
+     - Configurato `.github/workflows/social-scheduler-cron.yml` con gli 11 trigger cron UTC corrispondenti alle ore di Bangkok (`08:00`, `09:30`, `11:30`, `12:30`, `16:00`, `17:00`, `18:00`, `18:30`, `19:30`, `20:00`, `21:00`).
+- **Effetto reale:** Nessuna monotonia: il pubblico vede ogni giorno una combinazione vibrante di clip reali e piatti/bungalow caldi. Instagram e Facebook non pubblicano mai negli stessi minuti. Lo staff riceve su Telegram le stories pronte al mattino e alla sera senza dipendere da API terze, mentre post feed e gruppi hanno i loro canali 100% indipendenti.
+- **Stato:** ✅ Test dry-run superato a 0 errori (`V1.local.mp4` 1080x1920 con audio muxato in 0.3s), TypeScript a 0 errori, codice pronto per sync staging/main.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 20:53] · ROTAZIONE OCTORATE CLIENT SECRET, BLINDATURA SICUREZZA & RIPRISTINO TOKEN
 - **Cosa abbiamo fatto:** 
   1. 🔑 **Rotazione Immediata Credenziali Octorate Channel Manager**:
