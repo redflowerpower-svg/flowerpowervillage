@@ -1,0 +1,79 @@
+name: Social Render Parity Test
+
+# Reparto stagno Social Media Studio (/social).
+# Verifica che il video esportato dal VERO player nel cloud (Linux) sia uguale
+# a quello dell'anteprima locale. Solo manuale: non pubblica nulla.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Formato da testare'
+        required: true
+        default: 'P1'
+        type: choice
+        options: ['P1', 'P2', 'P3', 'DS', 'R1', 'V1', 'V2', 'V3', 'LM1']
+      baseline_url:
+        description: 'URL MP4 di riferimento (render locale dello STESSO montaggio)'
+        required: false
+        default: ''
+      api_base:
+        description: 'API remota per upload video (Supabase signed URL + audio mux)'
+        required: true
+        default: 'https://www.flowerpowerpizza.com'
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Font (Thai, Liberation) e ffmpeg di sistema
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-liberation fonts-thai-tlwg fonts-dejavu-core
+
+      - name: Install NPM
+        run: npm ci || npm install --include=dev
+
+      - name: Install Chromium (Playwright)
+        run: npx playwright install --with-deps chromium
+
+      - name: Avvia app (vite) in locale sul runner
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          nohup npx vite --host 127.0.0.1 --port 3000 > vite.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf http://127.0.0.1:3000/ > /dev/null && break
+            sleep 2
+          done
+          curl -sf http://127.0.0.1:3000/ > /dev/null || (cat vite.log; exit 1)
+
+      - name: Parity test (render con il vero player)
+        env:
+          CI: 'true'
+          PARITY_TAG: cloud
+          FFMPEG_PATH: /usr/bin/ffmpeg
+        run: |
+          MODE="${{ inputs.mode }}"
+          ARGS="--mode=$MODE --base=http://127.0.0.1:3000 --api=${{ inputs.api_base }}"
+          FIXTURE="scripts/parity-fixtures/$MODE.testrun.json"
+          if [ -f "$FIXTURE" ]; then ARGS="$ARGS --testRunFile=$FIXTURE"; fi
+          if [ -n "${{ inputs.baseline_url }}" ]; then ARGS="$ARGS --compare=${{ inputs.baseline_url }}"; fi
+          node scripts/render-parity-test.mjs $ARGS
+
+      - name: Salva risultati (video, frame, report)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-${{ inputs.mode }}
+          path: scratch/parity/
+          retention-days: 7
