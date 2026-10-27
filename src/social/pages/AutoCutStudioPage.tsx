@@ -16,7 +16,7 @@ import {
   InstagramIcon, 
   FacebookIcon 
 } from '../components/SocialPlatformIcons';
-import { SocialCalendarView, generateOfficialMonthlyRoutine } from '../components/SocialCalendarView';
+import { SocialCalendarView, extendRoutineHorizon } from '../components/SocialCalendarView';
 import { VisualMotionStudio } from '../components/VisualMotionStudio';
 import { AutoCutLabView } from '../components/AutoCutLabView';
 import { generateFullAutoCutCampaign } from '../services/autoCutIntelligence';
@@ -274,8 +274,8 @@ export default function AutoCutStudioPage() {
 
   // Scheduled Posts Queue for Editorial Calendar (Initialized with official routine: 08:00 TikTok Pizza + Village, 17:00 R1 Gruppi Phayam)
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledSocialPost[]>(() => {
-    const now = new Date();
-    return generateOfficialMonthlyRoutine(now.getFullYear(), now.getMonth());
+    // Finestra mobile: sempre 60 giorni in avanti da domani, attraversando i cambi di mese
+    return extendRoutineHorizon([]);
   });
 
   // UI Language Switcher (default EN for TikTok review, toggleable to IT)
