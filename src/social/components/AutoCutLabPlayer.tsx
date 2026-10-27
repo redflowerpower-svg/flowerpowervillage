@@ -4257,27 +4257,27 @@ export function AutoCutLabPlayer({
               className="w-full h-full object-cover"
             />
 
-            {/* Watermark Ufficiale 4:3 (Preview proporzionata: PUNTO 1 ingrandito del +50%) */}
+            {/* Watermark Ufficiale 4:3 (Preview proporzionata all'altezza ridotta di 285px del container) */}
             {!isInOutro && (
-              <div className={`absolute top-[17px] left-[17px] z-30 flex items-center gap-4 pointer-events-none transition-all duration-300 ${
+              <div className={`absolute top-[12px] left-[14px] z-30 flex items-center gap-2.5 pointer-events-none transition-all duration-300 ${
                 isInOutro ? 'hidden opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
                 <img
                   crossOrigin="anonymous"
                   src={brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64}
                   alt="Logo"
-                  className="w-[135px] h-[135px] object-contain drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)] shrink-0"
+                  className="w-[62px] h-[62px] object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] shrink-0"
                 />
-                <div className="flex flex-col text-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+                <div className="flex flex-col text-left drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
                   <div className="flex flex-col text-left leading-none">
-                    <span className="text-[36px] sm:text-[39px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] font-['Outfit',sans-serif]">
+                    <span className="text-[19px] sm:text-[21px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_6px_rgba(0,0,0,1)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] font-['Outfit',sans-serif]">
                       FLOWER POWER
                     </span>
-                    <span className={`font-light italic text-[31px] sm:text-[34px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
+                    <span className={`font-light italic text-[16px] sm:text-[18px] capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 font-['Outfit',sans-serif] ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
                       {brand === 'pizza' ? 'Pizza' : 'Village'}
                     </span>
                   </div>
-                  <span className="text-[25px] sm:text-[28px] font-bold leading-tight mt-1.5 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300 font-['Outfit',sans-serif]">
+                  <span className="text-[12.5px] sm:text-[14px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_3px_rgba(0,0,0,1)] drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] text-amber-300 font-['Outfit',sans-serif]">
                     {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off'}
                   </span>
                 </div>
@@ -4286,7 +4286,7 @@ export function AutoCutLabPlayer({
 
             {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA 4:3 (Preview proporzionata a vista) */}
             {!isInOutro && currentScene && (
-              <div className={`absolute left-[17px] right-[17px] bottom-[20px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
+              <div className={`absolute left-[14px] right-[14px] bottom-[14px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
                 isInOutro ? 'hidden opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
                 {/* Caso CIBO / PIATTI (P1): Categoria, Thai sopra in grande, Inglese sotto a scalare, prezzo */}
@@ -4300,15 +4300,15 @@ export function AutoCutLabPlayer({
                           catText = 'ITALIAN PIZZA';
                         }
                         return (
-                          <div className="inline-flex items-center gap-1.5 text-[15.5px] sm:text-[17px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_6px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
-                            <span className="text-rose-500 font-black text-[16px] drop-shadow-[0_0_8px_rgba(244,63,94,0.95)] [text-shadow:_0_2px_4px_rgba(0,0,0,1)]">✦</span>
-                            <span className="[text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_1px_1px_2px_rgba(0,0,0,1)]">{catText.replace(/^[✦⭐\s*]+/, '')}</span>
+                          <div className="inline-flex items-center gap-1.5 text-[13px] sm:text-[14px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_6px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
+                            <span className="text-rose-500 font-black text-[14px] drop-shadow-[0_0_8px_rgba(244,63,94,0.95)] [text-shadow:_0_2px_4px_rgba(0,0,0,1)]">✦</span>
+                            <span className="[text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1)]">{catText.replace(/^[✦⭐\s*]+/, '')}</span>
                           </div>
                         );
                       })()}
 
-                      {/* THAI IN GRANDE SOPRA (Regola 13: A Capo Semantico Naturale del 9:16) */}
-                      <h3 className="text-[21px] sm:text-[24px] font-black text-amber-300 leading-tight mt-1 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1),_0_0_24px_rgba(0,0,0,0.95),_1px_1px_3px_rgba(0,0,0,1)] drop-shadow-[0_3px_10px_rgba(0,0,0,1)]">
+                      {/* THAI IN GRANDE SOPRA */}
+                      <h3 className="text-[18px] sm:text-[20px] font-black text-amber-300 leading-tight mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1)] drop-shadow-[0_3px_10px_rgba(0,0,0,1)]">
                         {formatSemanticThaiDishTitle(currentScene.titlePrimary || '').split('\n').filter(Boolean).map((line, idx) => (
                           <span key={idx} className="block leading-tight whitespace-nowrap">
                             {line}
@@ -4316,8 +4316,8 @@ export function AutoCutLabPlayer({
                         ))}
                       </h3>
 
-                      {/* INGLESE SOTTO (Regola 13: A Capo Semantico Naturale del 9:16) */}
-                      <div className="text-[16.5px] sm:text-[18.5px] font-semibold text-white/95 leading-snug [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_3px_rgba(0,0,0,1)] drop-shadow-[0_2px_8px_rgba(0,0,0,1)] mt-0.5">
+                      {/* INGLESE SOTTO */}
+                      <div className="text-[14px] sm:text-[15px] font-semibold text-white/95 leading-snug [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1)] drop-shadow-[0_2px_8px_rgba(0,0,0,1)] mt-0.5">
                         {formatSemanticEnglishDishTitle(currentScene.titleSecondary || '').split('\n').filter(Boolean).map((line, idx) => (
                           <span key={idx} className="block leading-snug whitespace-nowrap">
                             {line}
@@ -4326,35 +4326,26 @@ export function AutoCutLabPlayer({
                       </div>
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (Rettangolo Giallo Ufficiale) */}
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" */}
                     <div className="w-fit shrink-0 pb-0.5">
                       {currentScene.pizzaSizes && mode !== 'R1' ? (
                         <div className="flex flex-col items-end gap-1">
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                            <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
-                            <span
-                              className="font-['Kanit',sans-serif] text-[19px] sm:text-[21px] font-black leading-none tracking-tight"
-                              style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
-                            >
+                            <span className="font-['Kanit',sans-serif] text-xs font-black bg-black text-white px-1 py-0.5 rounded-[3px] leading-none">8"</span>
+                            <span className="font-['Kanit',sans-serif] text-[17px] font-black leading-none" style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.5px #ffffff' }}>
                               {currentScene.pizzaSizes.size8Price}฿
                             </span>
                           </div>
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                            <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
-                            <span
-                              className="font-['Kanit',sans-serif] text-[19px] sm:text-[21px] font-black leading-none tracking-tight"
-                              style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
-                            >
+                            <span className="font-['Kanit',sans-serif] text-xs font-black bg-black text-white px-1 py-0.5 rounded-[3px] leading-none">12"</span>
+                            <span className="font-['Kanit',sans-serif] text-[17px] font-black leading-none" style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.5px #ffffff' }}>
                               {currentScene.pizzaSizes.size12Price}฿
                             </span>
                           </div>
                         </div>
                       ) : currentScene.priceLabel ? (
-                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                          <span
-                            className="font-['Kanit',sans-serif] text-[24px] sm:text-[26px] font-black leading-none tracking-tight"
-                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
-                          >
+                        <div className="inline-flex items-center px-2 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                          <span className="font-['Kanit',sans-serif] text-[20px] font-black leading-none" style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}>
                             {currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
                           </span>
                         </div>
@@ -4363,22 +4354,22 @@ export function AutoCutLabPlayer({
                   </div>
                 )}
 
-                {/* Caso ALLOGGI (V1, LM1): PUNTO 3 Ingrandito +30% & PUNTO 4 Prezzo in Basso a Sinistra sotto il Thai */}
+                {/* Caso ALLOGGI (V1, LM1): Layout proporzionato ai 285px di altezza del player */}
                 {(mode === 'V1' || mode === 'LM1') && (
-                  <div className="w-full flex flex-col items-start gap-1">
+                  <div className="w-full flex flex-col items-start gap-0.5">
                     {/* Categoria Alloggio se presente (✦ AVAILABLE TONIGHT) */}
                     {currentScene.badgeCategory && (
-                      <div className="inline-flex items-center gap-1.5 text-[17px] sm:text-[19px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_6px_rgba(0,0,0,1)] whitespace-nowrap">
-                        <span className="text-rose-500 font-black text-[18px] drop-shadow-[0_0_8px_rgba(244,63,94,0.95)]">✦</span>
-                        <span className="[text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1)]">
+                      <div className="inline-flex items-center gap-1 text-[13px] sm:text-[14px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_6px_rgba(0,0,0,1)] whitespace-nowrap">
+                        <span className="text-rose-500 font-black text-[14px] drop-shadow-[0_0_8px_rgba(244,63,94,0.95)]">✦</span>
+                        <span className="[text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_8px_rgba(0,0,0,1)]">
                           {currentScene.badgeCategory.replace(/^[✦⭐\s*]+/, '')}
                         </span>
                       </div>
                     )}
 
-                    {/* Blocco Titolo e Sottotitolo (PUNTO 3: Ingranditi del +30%) */}
-                    <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                      <h3 className="text-[28px] sm:text-[32px] font-black text-white leading-tight font-['Outfit',sans-serif]">
+                    {/* Blocco Titolo e Sottotitolo */}
+                    <div className="leading-tight [text-shadow:_0_2px_6px_rgba(0,0,0,1)] drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
+                      <h3 className="text-[20px] sm:text-[22px] font-black text-white leading-tight font-['Outfit',sans-serif]">
                         {(currentScene.lodgingTitle || currentScene.titlePrimary || '').split('\n').filter(Boolean).map((line, idx) => (
                           <span key={idx} className="block leading-tight whitespace-nowrap">
                             {line}
@@ -4386,7 +4377,7 @@ export function AutoCutLabPlayer({
                         ))}
                       </h3>
                       {currentScene.lodgingSubtitle && (
-                        <div className="text-[21px] sm:text-[24px] font-bold text-amber-300 leading-tight mt-0.5 font-['Outfit',sans-serif]">
+                        <div className="text-[15px] sm:text-[16px] font-bold text-amber-300 leading-tight font-['Outfit',sans-serif]">
                           {currentScene.lodgingSubtitle.split('\n').filter(Boolean).map((line, idx) => (
                             <span key={idx} className="block leading-tight whitespace-nowrap">
                               {line}
@@ -4396,8 +4387,8 @@ export function AutoCutLabPlayer({
                       )}
                     </div>
 
-                    {/* Descrizione Thai (PUNTO 3: Ingrandito del +30% a 20px-22px) */}
-                    <div className="text-[19px] sm:text-[22px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] max-w-full">
+                    {/* Descrizione Thai */}
+                    <div className="text-[13px] sm:text-[14px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_6px_rgba(0,0,0,1)] drop-shadow-[0_2px_4px_rgba(0,0,0,1)] max-w-full">
                       {(currentScene.titleSecondary || '').split('\n').filter(Boolean).map((line, idx) => (
                         <span key={idx} className="block leading-snug">
                           {line}
@@ -4405,13 +4396,13 @@ export function AutoCutLabPlayer({
                       ))}
                     </div>
 
-                    {/* PUNTO 4: Prezzo Octorate Last Minute SOTTO A SINISTRA (subito dopo la riga Thai) */}
+                    {/* PUNTO 4: Prezzo Octorate Last Minute SOTTO A SINISTRA (Compatto ed elegante) */}
                     {mode === 'LM1' && currentScene.priceLabel && (
-                      <div className="pt-2 pb-0.5">
-                        <div className="inline-flex items-center px-3.5 py-1 rounded-lg bg-[#FFE500] border-2 border-black shadow-[3px_3px_0px_#000000] text-black">
+                      <div className="pt-1">
+                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                           <span
-                            className="font-['Kanit',sans-serif] text-[20px] sm:text-[23px] font-black leading-none tracking-tight"
-                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
+                            className="font-['Kanit',sans-serif] text-[16px] sm:text-[17px] font-black leading-none tracking-tight"
+                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.5px #ffffff' }}
                           >
                             {currentScene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
                           </span>
