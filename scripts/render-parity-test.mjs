@@ -86,13 +86,24 @@ async function main() {
     });
     log(`API instradata verso ${apiBase}`);
   }
-  page.on('pageerror', e => log('pageerror:', e.message));
+  const consoleLog = [];
+  const annotate = (level, msg) => {
+    if (process.env.GITHUB_ACTIONS) console.log(`::${level} title=parity::${String(msg).replace(/\r?\n/g, ' ').slice(0, 400)}`);
+  };
+  page.on('pageerror', e => { log('pageerror:', e.message); consoleLog.push('pageerror: ' + e.message); annotate('warning', 'pageerror: ' + e.message); });
   page.on('console', m => {
     const t = m.text();
-    if (/AutoCutLab|WebCodecs|MediaRecorder|publisher|error|warn/i.test(t)) log('console:', t.slice(0, 300));
+    if (/AutoCutLab|WebCodecs|MediaRecorder|publisher|error|warn|font|Font/i.test(t)) {
+      log('console:', t.slice(0, 300));
+      consoleLog.push(t.slice(0, 300));
+      if (/WebCodecs fallback|MediaRecorder|Upload|upload|error/i.test(t)) annotate('warning', t);
+    }
   });
   page.on('response', r => {
-    if (r.url().includes('/api/social-publisher') && !r.ok()) log(`HTTP ${r.status()} ${r.url().slice(0, 160)}`);
+    if (r.url().includes('/api/social-publisher') && !r.ok()) {
+      const msg = `HTTP ${r.status()} ${r.url().slice(0, 160)}`;
+      log(msg); consoleLog.push(msg); annotate('error', msg);
+    }
   });
 
   log(`Apro ${base}/social-studio (mode ${mode})`);
@@ -169,6 +180,9 @@ async function main() {
   log(`Durata ${seconds.toFixed(2)}s, risoluzione ${res ? res[0] : '?'}`);
 
   const checks = [];
+  const usedWebCodecs = !!result.remoteUrl;
+  checks.push({ name: 'percorso deterministico WebCodecs (no fallback MediaRecorder)', ok: usedWebCodecs });
+  if (!usedWebCodecs) annotate('error', 'Il player e caduto sul fallback MediaRecorder (tempo reale): video NON deterministico. Vedi righe console/HTTP sopra.');
   checks.push({ name: 'risoluzione 1080x1920', ok: !!res && res[1] === '1080' && res[2] === '1920' });
   checks.push({ name: 'durata > 5s', ok: seconds > 5 });
   checks.push({ name: 'file > 300 KB', ok: result.size > 300_000 });
@@ -195,13 +209,14 @@ async function main() {
     const m = /All:([\d.]+)/.exec(r.stderr || '');
     const ssim = m ? parseFloat(m[1]) : 0;
     log(`SSIM vs ${compare}: ${ssim}`);
+    annotate(ssim >= 0.98 ? 'notice' : 'error', `SSIM ${ssim} (soglia 0.98)`);
     checks.push({ name: `SSIM >= 0.98 (${ssim})`, ok: ssim >= 0.98 });
   }
 
   console.log('\n===== ESITO PARITY TEST =====');
   for (const c of checks) console.log(`${c.ok ? '✅' : '❌'} ${c.name}`);
   const ok = checks.every(c => c.ok) && caps.videoEncoder !== undefined;
-  fs.writeFileSync(path.join(outDir, `${mode}.${tag}.report.json`), JSON.stringify({ mode, caps, seconds, size: result.size, type: result.type, checks }, null, 2));
+  fs.writeFileSync(path.join(outDir, `${mode}.${tag}.report.json`), JSON.stringify({ mode, caps, seconds, size: result.size, type: result.type, usedWebCodecs, checks, consoleLog }, null, 2));
   process.exit(ok ? 0 : 1);
 }
 
