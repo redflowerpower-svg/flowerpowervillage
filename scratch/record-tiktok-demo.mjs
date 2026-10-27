@@ -11,7 +11,11 @@ if (!fs.existsSync(outputDir)) {
 
 // Clean old recordings
 for (const file of fs.readdirSync(outputDir)) {
-  fs.unlinkSync(path.join(outputDir, file));
+  try {
+    fs.unlinkSync(path.join(outputDir, file));
+  } catch (e) {
+    // Ignore locked files
+  }
 }
 
 console.log('🚀 Launching automated Playwright recording session with full TikTok OAuth Consent Screen...');
@@ -39,7 +43,7 @@ async function run() {
 
   // 2. Open Connect TikTok Modal
   console.log('📹 2. Opening TikTok OAuth Configuration Modal...');
-  const connectBtn = await page.locator('button:has-text("Connect TikTok"), button:has-text("TikTok Connesso")').first();
+  const connectBtn = await page.locator('button:has-text("TikTok Connected"), button:has-text("Connect TikTok"), button:has-text("TikTok Connesso"), button:has-text("Connetti TikTok")').first();
   await page.mouse.move(1750, 45, { steps: 15 });
   await connectBtn.click();
   await page.waitForTimeout(1500);
@@ -218,10 +222,14 @@ async function run() {
   await context.close();
   await browser.close();
 
-  // Find recorded WebM
-  const videoFiles = fs.readdirSync(outputDir).filter(f => f.endsWith('.webm') || f.endsWith('.mp4'));
+  // Find latest recorded WebM
+  const videoFiles = fs.readdirSync(outputDir)
+    .filter(f => f.endsWith('.webm') || f.endsWith('.mp4'))
+    .map(f => ({ name: f, time: fs.statSync(path.join(outputDir, f)).mtimeMs }))
+    .sort((a, b) => b.time - a.time);
+
   if (videoFiles.length > 0) {
-    const rawVideo = path.join(outputDir, videoFiles[0]);
+    const rawVideo = path.join(outputDir, videoFiles[0].name);
     const finalMp4 = path.resolve('scratch/tiktok_demo_flowerpower_social_studio.mp4');
     
     console.log(`🎬 Converting ${rawVideo} to certified MP4 (${finalMp4})...`);
