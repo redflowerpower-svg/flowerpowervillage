@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 19:35] · TOOLBAR SOTTILE SU RIGA SINGOLA, GIORNI PASSATI GRIGI & ROUTINE FINO AL 31 OTTOBRE
+- **Cosa abbiamo fatto:** 
+  1. 📏 **Toolbar Compatta Ultra-Sottile su 1 Sola Riga**:
+     - Eliminato lo spessore a doppia riga: la barra superiore è ora sottile, concentrata (`px-3 py-1.5`, `rounded-xl`, `flex-nowrap`), con altezza ridotta di oltre il 50%.
+     - Ridimensionato `October 2026`: non più font enorme su due righe, ma testo pulito, moderno ed elegante su singola riga (`text-xs font-bold whitespace-nowrap`).
+     - Snellite le pillole brand (`All`, `🍕 Pizza`, `🌴 Village`, `🎬 CapCut`) e i pulsanti (`⚡ Routine`, `Svuota`, switch `STANDBY`), tutti perfettamente affiancati.
+  2. 👻 **Giorni Passati al 100% Grigi e Sfumati (`opacity-20 grayscale`)**:
+     - Tutti i giorni precedenti a oggi (1 - 26 Ottobre) diventano automaticamente scuri, trasparenti e desaturati (`bg-slate-950/90 border-slate-900 opacity-20 grayscale`).
+     - Numero giorno grigio scuro (`text-slate-600`), pulsante `+` nascosto per non creare disturbo visivo.
+     - Applicata la stessa attenuazione visiva anche all'interno del pop-up DatePicker interattivo.
+  3. 🛑 **Stop Rigoroso della Programmazione al 31 Ottobre 2026**:
+     - Aggiornata la funzione `generateOfficialMonthlyRoutine()`: genera esclusivamente per i giorni attivi dal 28 al 31 Ottobre 2026 (compreso).
+     - Dal 1° Novembre in poi (o mesi successivi) la routine si ferma tassativamente a zero post generati, lasciando intatta l'organizzazione futura.
+- **Effetto reale:** Schermata del calendario limpida e riposante per gli occhi: i giorni passati non disturbano più perché sfumano nello sfondo; la toolbar occupa pochissimo spazio su una sola riga; i post programmati sono concentrati solo da domani fino alla fine di Ottobre.
+- **Stato:** ✅ Compilato con `npm run build` a 0 errori (`built in 5.49s`), rilasciato su `staging` e `main`.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 19:25] · RIPRISTINO UNIFICATO «MARKDOWN-PROJECT», ELIMINAZIONE «MARKDOWN-WAIT» & FAVICON TONDA SCONTORNATA
 - **Cosa abbiamo fatto:** 
   1. 🔄 **Ripristino Unico Master Workflow «MARKDOWN-PROJECT»**:
