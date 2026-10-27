@@ -249,22 +249,19 @@ export function AutoCutDistributionPanel({
         }
       }
 
-      // Invio REALE al bot Telegram Staff se Stories TikTok o Stories Instagram/Facebook è selezionata (Topic 3)
+      // Invio REALE al bot Telegram Staff se Stories TikTok o Stories Instagram è selezionata (Topic 3)
       if (
         (activeChannel === 'tiktok' && formats.tiktok === 'story') ||
-        (activeChannel === 'instagram' && formats.instagram === 'story') ||
-        (activeChannel === 'facebook' && formats.facebook === 'story')
+        (activeChannel === 'instagram' && formats.instagram === 'story')
       ) {
         const copyResult = generatePostCopy(testRun, 0);
         const captionText = activeChannel === 'instagram'
           ? (liveCaptions?.instagram || copyResult.fullCaptionInstagram)
-          : activeChannel === 'facebook'
-          ? (liveCaptions?.facebook || copyResult.fullCaptionInstagram)
           : (liveCaptions?.tiktok || copyResult.fullCaptionTikTok);
         const brandLabel = selectedBrand === 'pizza' ? 'Flower Power Pizza (Ranong)' : 'Flower Power Farm Village (Koh Phayam)';
         const tgRes = await dispatchPostToTelegramTopic({
           topic: 'tikTokStories',
-          title: `Stories Video ${activeChannel === 'instagram' ? 'Instagram' : activeChannel === 'facebook' ? 'Facebook' : 'TikTok'} & Reels · Format ${testRun.mode}`,
+          title: `Stories Video ${activeChannel === 'instagram' ? 'Instagram' : 'TikTok'} & Reels · Format ${testRun.mode}`,
           copyText: `Profilo Target: ${brandLabel}\n\n${captionText}`,
           format: testRun.mode,
           brand: selectedBrand,
@@ -279,13 +276,17 @@ export function AutoCutDistributionPanel({
         }
       }
 
-      // 1. Invio REALE alla Pagina Facebook (Post Video di Pagina o Reels)
+      // 1. Invio REALE alla Pagina Facebook (Post Video di Pagina, Reels o Storie 24h)
       let publishedFacebookUrl: string | undefined = undefined;
-      if (activeChannel === 'facebook' && (formats.facebook === 'post' || formats.facebook === 'reels')) {
+      let publishedFacebookStoryId: string | undefined = undefined;
+      if (activeChannel === 'facebook' && (formats.facebook === 'post' || formats.facebook === 'reels' || formats.facebook === 'story')) {
         if (environment === 'production') {
+          const isStory = formats.facebook === 'story';
           setPublishStatus({
             type: null,
-            message: `Trasmissione video a Meta Graph API (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`
+            message: isStory
+              ? `Caricamento e pubblicazione Storia 24h su Facebook (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`
+              : `Trasmissione video a Meta Graph API (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`
           });
           const copyResult = generatePostCopy(testRun, 0);
           const captionText = liveCaptions?.facebook || liveCaptions?.instagram || copyResult.fullCaptionInstagram;
@@ -296,15 +297,21 @@ export function AutoCutDistributionPanel({
               videoUrl: finalMediaUrl,
               title: testRun.scenes[0]?.titlePrimary || `Flower Power ${selectedBrand === 'pizza' ? 'Pizza' : 'Village'}`,
               caption: captionText,
-              brand: selectedBrand
+              brand: selectedBrand,
+              isStory
             })
           });
           const fbData = await fbRes.json();
           if (!fbRes.ok || !fbData.success) {
-            throw new Error(fbData.error || 'Errore durante la pubblicazione del video su Facebook');
+            throw new Error(fbData.error || 'Errore durante la pubblicazione su Facebook');
           }
-          publishedFacebookUrl = fbData.postUrl;
-          console.log('[AutoCutDistributionPanel] Pubblicazione Facebook completata con successo:', fbData);
+          if (isStory) {
+            publishedFacebookStoryId = fbData.storyId;
+            console.log('[AutoCutDistributionPanel] Storia Facebook pubblicata con successo:', fbData);
+          } else {
+            publishedFacebookUrl = fbData.postUrl;
+            console.log('[AutoCutDistributionPanel] Pubblicazione Facebook completata con successo:', fbData);
+          }
         }
       }
 
@@ -435,6 +442,12 @@ export function AutoCutDistributionPanel({
               ? [
                   `Video MP4 e didascalia bilingue pubblicati sulla Pagina Facebook ufficiale!`,
                   publishedFacebookUrl ? `Link Facebook Post: ${publishedFacebookUrl}` : ''
+                ].filter(Boolean)
+              : []),
+            ...(activeChannel === 'facebook' && formats.facebook === 'story'
+              ? [
+                  `Storia Video 24h pubblicata con successo sulla Pagina Facebook!`,
+                  publishedFacebookStoryId ? `Story ID: ${publishedFacebookStoryId}` : ''
                 ].filter(Boolean)
               : []),
             ...(activeChannel === 'instagram' && (formats.instagram === 'reels' || formats.instagram === 'feed')

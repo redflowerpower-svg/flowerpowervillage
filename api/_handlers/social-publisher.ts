@@ -1552,7 +1552,8 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       videoUrl,
       title = "",
       caption = "",
-      brand = "pizza"
+      brand = "pizza",
+      isStory = false
     } = body;
 
     const isPizza = brand === "pizza";
@@ -1575,6 +1576,82 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
         success: false,
         error: "Parametro videoUrl mancante per la pubblicazione su Facebook."
       });
+    }
+
+    // GESTIONE STORIA FACEBOOK (video_stories 24h)
+    if (isStory) {
+      try {
+        console.log(`[SocialPublisher] Pubblicazione Storia Facebook (Page ID: ${pageId}, Video: ${videoUrl})...`);
+
+        // Step 1: Start video_stories session
+        const startRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/video_stories?upload_phase=start&access_token=${pageToken}`, {
+          method: "POST"
+        });
+        const startData = await startRes.json();
+        console.log("[SocialPublisher] Facebook video_stories start:", startData);
+
+        if (!startRes.ok || !startData.upload_url || !startData.video_id) {
+          return res.status(startRes.status || 400).json({
+            success: false,
+            error: startData.error?.message || "Errore inizializzazione Storia Facebook",
+            details: startData.error
+          });
+        }
+
+        // Step 2: Fetch video e upload binario su rupload.facebook.com
+        const vRes = await fetch(videoUrl);
+        if (!vRes.ok) {
+          throw new Error(`Impossibile scaricare il video per la Storia (${vRes.statusText})`);
+        }
+        const vBuf = Buffer.from(await vRes.arrayBuffer());
+
+        const upRes = await fetch(startData.upload_url, {
+          method: "POST",
+          headers: {
+            "Authorization": `OAuth ${pageToken}`,
+            "offset": "0",
+            "file_size": String(vBuf.length)
+          },
+          body: vBuf
+        });
+        const upData = await upRes.json();
+        console.log("[SocialPublisher] Facebook video_stories upload:", upData);
+
+        // Step 3: Finish upload session
+        const fParams = new URLSearchParams();
+        fParams.append("access_token", pageToken);
+        fParams.append("upload_phase", "finish");
+        fParams.append("video_id", startData.video_id);
+
+        const finishRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/video_stories`, {
+          method: "POST",
+          body: fParams
+        });
+        const finishData = await finishRes.json();
+        console.log("[SocialPublisher] Facebook video_stories finish:", finishData);
+
+        if (!finishRes.ok || finishData.error) {
+          return res.status(finishRes.status || 400).json({
+            success: false,
+            error: finishData.error?.message || "Errore finalizzazione Storia Facebook",
+            details: finishData.error
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+          isStory: true,
+          storyId: finishData.post_id || startData.video_id,
+          raw: finishData
+        });
+      } catch (stErr: any) {
+        console.error("[SocialPublisher] Facebook story publish exception:", stErr);
+        return res.status(500).json({
+          success: false,
+          error: "Eccezione durante la pubblicazione della Storia su Facebook",
+          message: stErr.message
+        });
+      }
     }
 
     try {
