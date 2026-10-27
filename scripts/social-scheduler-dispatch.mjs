@@ -83,19 +83,11 @@ async function getTelegramToken() {
   return telegramToken;
 }
 
-// Invia video renderizzato a Telegram Topic
-async function sendVideoToTelegram({ filePath, topicId, caption }) {
-  if (dryRun) {
-    console.log(`[DRY-RUN] Invierei su Telegram Topic ${topicId}: ${filePath}\nCaption:\n${caption}`);
-    return { ok: true, dryRun: true };
-  }
-
-  const token = await getTelegramToken();
-  if (!token) throw new Error('Token Telegram non trovato!');
-
+// Upload video buffer su Supabase Storage e restituisce URL pubblico
+async function ensureCloudVideoUrl(filePath) {
   const buf = fs.readFileSync(filePath);
   const cloudPath = `social_stories/dispatch_${Date.now()}_${path.basename(filePath)}`;
-  console.log(`[scheduler-dispatch] Upload Supabase per Topic ${topicId} (${(buf.length / 1024 / 1024).toFixed(1)} MB)...`);
+  console.log(`[scheduler-dispatch] Upload Supabase (${(buf.length / 1024 / 1024).toFixed(1)} MB) su ${cloudPath}...`);
 
   const { error: upErr } = await sb.storage.from('assets').upload(cloudPath, buf, {
     contentType: 'video/mp4',
@@ -104,6 +96,24 @@ async function sendVideoToTelegram({ filePath, topicId, caption }) {
   if (upErr) throw upErr;
 
   const videoUrl = sb.storage.from('assets').getPublicUrl(cloudPath).data.publicUrl;
+  return { videoUrl, buffer: buf };
+}
+
+// Invia video renderizzato a Telegram Topic
+async function sendVideoToTelegram({ filePath, topicId, caption, videoUrl }) {
+  if (dryRun) {
+    console.log(`[DRY-RUN] Invierei su Telegram Topic ${topicId}: ${filePath}\nCaption:\n${caption}`);
+    return { ok: true, dryRun: true };
+  }
+
+  const token = await getTelegramToken();
+  if (!token) throw new Error('Token Telegram non trovato!');
+
+  let finalUrl = videoUrl;
+  if (!finalUrl) {
+    const uploaded = await ensureCloudVideoUrl(filePath);
+    finalUrl = uploaded.videoUrl;
+  }
 
   const res = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
     method: 'POST',
@@ -111,7 +121,7 @@ async function sendVideoToTelegram({ filePath, topicId, caption }) {
     body: JSON.stringify({
       chat_id: chatId,
       message_thread_id: topicId,
-      video: videoUrl,
+      video: finalUrl,
       caption: caption,
       supports_streaming: true,
       width: 1080,
@@ -126,6 +136,161 @@ async function sendVideoToTelegram({ filePath, topicId, caption }) {
   }
   console.log(`✅ [scheduler-dispatch] Inviato con successo a Telegram Topic ${topicId}!`);
   return json;
+}
+
+// 🌐 Pubblicazione automatica su Pagina Facebook (Reels o 24h Stories)
+async function publishToFacebook({ videoUrl, videoBuffer, title = '', caption = '', brand = 'pizza', isStory = false }) {
+  if (dryRun) {
+    console.log(`[DRY-RUN] Pubblicazione Facebook (${brand}, isStory: ${isStory}) con URL: ${videoUrl}`);
+    return { ok: true, dryRun: true, id: 'mock_fb_id' };
+  }
+
+  const isPizza = (brand === 'pizza');
+  const pageId = isPizza ? (env.META_PIZZA_PAGE_ID || '410856732111386') : (env.META_VILLAGE_PAGE_ID || '106883044573670');
+  const pageToken = isPizza ? env.META_PIZZA_PAGE_TOKEN : env.META_VILLAGE_PAGE_TOKEN;
+
+  if (!pageToken) {
+    throw new Error(`Meta Page Token mancante per ${brand}`);
+  }
+
+  if (isStory) {
+    console.log(`[scheduler-dispatch] Inizio pubblicazione Facebook Story (Page ID: ${pageId})...`);
+    const startRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/video_stories?upload_phase=start&access_token=${pageToken}`, {
+      method: 'POST'
+    });
+    const startData = await startRes.json();
+    if (!startRes.ok || !startData.upload_url || !startData.video_id) {
+      throw new Error(`FB Stories start failed: ${JSON.stringify(startData.error || startData)}`);
+    }
+
+    const vBuf = videoBuffer || Buffer.from(await (await fetch(videoUrl)).arrayBuffer());
+    const upRes = await fetch(startData.upload_url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `OAuth ${pageToken}`,
+        'offset': '0',
+        'file_size': String(vBuf.length)
+      },
+      body: vBuf
+    });
+    await upRes.json();
+
+    const fParams = new URLSearchParams();
+    fParams.append('access_token', pageToken);
+    fParams.append('upload_phase', 'finish');
+    fParams.append('video_id', startData.video_id);
+
+    const finishRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/video_stories`, {
+      method: 'POST',
+      body: fParams
+    });
+    const finishData = await finishRes.json();
+    if (!finishRes.ok || finishData.error) {
+      throw new Error(`FB Stories finish failed: ${JSON.stringify(finishData.error || finishData)}`);
+    }
+    const storyId = finishData.post_id || startData.video_id;
+    console.log(`🎉 [scheduler-dispatch] Facebook Story pubblicata con successo! (ID: ${storyId})`);
+    return { ok: true, id: storyId };
+  } else {
+    console.log(`[scheduler-dispatch] Invio Reel video su Pagina Facebook (Page ID: ${pageId})...`);
+    const params = new URLSearchParams();
+    params.append('access_token', pageToken);
+    params.append('file_url', videoUrl);
+    if (caption || title) params.append('description', (caption || title).slice(0, 5000));
+    if (title) params.append('title', title.slice(0, 255));
+
+    const fbRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/videos`, {
+      method: 'POST',
+      body: params
+    });
+    const fbData = await fbRes.json();
+    if (!fbRes.ok || fbData.error) {
+      throw new Error(`FB Reel publish failed: ${JSON.stringify(fbData.error || fbData)}`);
+    }
+    console.log(`🎉 [scheduler-dispatch] Facebook Reel pubblicato con successo! (Video ID: ${fbData.id})`);
+    return { ok: true, id: fbData.id, postUrl: `https://www.facebook.com/${fbData.id}` };
+  }
+}
+
+// 📸 Pubblicazione automatica su Instagram (Reels o 24h Stories)
+async function publishToInstagram({ videoUrl, caption = '', brand = 'village', isStory = false }) {
+  if (dryRun) {
+    console.log(`[DRY-RUN] Pubblicazione Instagram (${brand}, isStory: ${isStory}) con URL: ${videoUrl}`);
+    return { ok: true, dryRun: true, id: 'mock_ig_id' };
+  }
+
+  const isPizza = (brand === 'pizza');
+  const pageId = isPizza ? (env.META_PIZZA_PAGE_ID || '410856732111386') : (env.META_VILLAGE_PAGE_ID || '106883044573670');
+  const pageToken = isPizza ? env.META_PIZZA_PAGE_TOKEN : env.META_VILLAGE_PAGE_TOKEN;
+  let igId = isPizza ? (env.META_PIZZA_IG_ID || '17841468753633265') : (env.META_VILLAGE_IG_ID || '17841404137072110');
+
+  if (!pageToken) {
+    throw new Error(`Meta Page Token mancante per ${brand}`);
+  }
+
+  try {
+    const pageInfoRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}?fields=instagram_business_account&access_token=${pageToken}`);
+    if (pageInfoRes.ok) {
+      const pageInfo = await pageInfoRes.json();
+      if (pageInfo?.instagram_business_account?.id) {
+        igId = pageInfo.instagram_business_account.id;
+      }
+    }
+  } catch {}
+
+  console.log(`[scheduler-dispatch] Creazione container Instagram ${isStory ? 'STORIES' : 'REELS'} (IG ID: ${igId})...`);
+  const cParams = new URLSearchParams();
+  cParams.append('access_token', pageToken);
+  cParams.append('media_type', isStory ? 'STORIES' : 'REELS');
+  cParams.append('video_url', videoUrl);
+  if (!isStory && caption) cParams.append('caption', caption.slice(0, 2200));
+
+  const cRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media`, {
+    method: 'POST',
+    body: cParams
+  });
+  const cData = await cRes.json();
+  if (!cRes.ok || !cData.id) {
+    throw new Error(`IG Container creation failed: ${JSON.stringify(cData.error || cData)}`);
+  }
+  const creationId = cData.id;
+
+  console.log(`[scheduler-dispatch] Attesa elaborazione container Instagram (ID: ${creationId})...`);
+  let isReady = false;
+  for (let i = 0; i < 15; i++) {
+    await new Promise(r => setTimeout(r, 3000));
+    const sRes = await fetch(`https://graph.facebook.com/v19.0/${creationId}?fields=status_code,status&access_token=${pageToken}`);
+    if (sRes.ok) {
+      const sData = await sRes.json();
+      console.log(`[scheduler-dispatch] Status container IG (${i + 1}/15): ${sData.status_code || sData.status}`);
+      if (sData.status_code === 'FINISHED') {
+        isReady = true;
+        break;
+      }
+      if (sData.status_code === 'ERROR') {
+        throw new Error(`IG Video processing error: ${JSON.stringify(sData)}`);
+      }
+    }
+  }
+
+  if (!isReady) {
+    throw new Error(`IG Video processing timeout (superati i 45s di elaborazione)`);
+  }
+
+  const pParams = new URLSearchParams();
+  pParams.append('access_token', pageToken);
+  pParams.append('creation_id', creationId);
+
+  const pRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media_publish`, {
+    method: 'POST',
+    body: pParams
+  });
+  const pData = await pRes.json();
+  if (!pRes.ok || !pData.id) {
+    throw new Error(`IG media_publish failed: ${JSON.stringify(pData.error || pData)}`);
+  }
+  console.log(`🎉 [scheduler-dispatch] Instagram ${isStory ? 'Story' : 'Reel'} pubblicata con successo! (Media ID: ${pData.id})`);
+  return { ok: true, id: pData.id };
 }
 
 // Invia messaggio di testo/foto a Telegram Topic (per post gruppi)
@@ -260,37 +425,75 @@ async function run() {
       text: `📢 [POST DA COPIARE/CONDIVIDERE SUI GRUPPI KOH PHAYAM]\n\n${lm1Text}`
     });
   } else if (is0930) {
-    console.log(`🌿 [09:30 BANGKOK] Slot Story Mattino — SOLO INSTAGRAM (V1 / CC1 Risveglio Tropicale)`);
+    console.log(`🌿 [09:30 BANGKOK] Slot Story Mattino — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM STORIES`);
     const storyVid = await renderVideoMode('V1');
-    const igStoryCaption = `🇹🇭 สดชื่นยามเช้ากับสายลมและธรรมชาติเขียวขจีที่เกาะพยาม 🌿🌴\n\n` +
-      `🇬🇧 Crisp morning breeze and tropical peaceful vibes at Flower Power Village Koh Phayam. 🌴☀️\n\n` +
-      `🏝️ flowerpowervillage.com\n` +
-      `#KohPhayam #MorningVibes #TropicalResort`;
+    const { videoUrl } = await ensureCloudVideoUrl(storyVid);
+    const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
 
-    await sendVideoToTelegram({
-      filePath: storyVid,
+    await sendMessageToTelegram({
       topicId: TOPIC_TIKTOK_STORIES,
-      caption: `📸 [INSTAGRAM STORY 09:30 - MATTINO RESORT]\nCarica subito su Instagram Stories!\n\n${igStoryCaption}`
+      text: `✅ [09:30 BANGKOK] Storia Instagram pubblicata automaticamente via Meta Graph API!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
     });
   } else if (is1130) {
-    console.log(`🍝 [11:30 BANGKOK] Slot Pranzo Ranong — SOLO FACEBOOK PAGINA (P2 Pasta Fresca)`);
-    console.log(`✅ [11:30] Post Pranzo Facebook verificato.`);
-  } else if (is1230) {
-    console.log(`🍕 [12:30 BANGKOK] Slot Story Pranzo — SOLO FACEBOOK PAGINA (P1 / CC1 Laboratorio & Forno)`);
-    const fbStoryVid = await renderVideoMode('P1');
-    const fbStoryCaption = `🇹🇭 พิซซ่าอบร้อนๆ หอมกรุ่นพร้อมเสิร์ฟมื้อกลางวันในระนอง! 🍕🛵💨\n\n` +
-      `🇬🇧 Piping hot artisanal pizzas ready for lunch delivery in Ranong! 🍕🔥\n\n` +
-      `🛵 flowerpowerpizza.com\n` +
-      `#RanongFood #PizzaRanong #LunchDelivery`;
+    console.log(`🍝 [11:30 BANGKOK] Slot Pranzo Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
+    const p2Vid = await renderVideoMode('P2');
+    const { videoUrl } = await ensureCloudVideoUrl(p2Vid);
+    const p2Caption = `🇹🇭 เมนูกลางวันอร่อยๆ ในระนอง! พาสต้าเส้นสดทำเอง ซอสสูตรดั้งเดิมอิตาเลียนแท้ เสิร์ฟร้อนๆ ถึงบ้านหรือออฟฟิศ 🍝🛵💨\n\n` +
+      `🇬🇧 Homemade fresh pasta ready for lunch delivery in Ranong! Rich sauces and authentic Italian flavors delivered hot. 🍝🛵💨\n\n` +
+      `🛵 Order now: flowerpowerpizza.com\n` +
+      `📍 Ranong Delivery & Takeaway\n` +
+      `@flowerpowerpizzaranong\n\n` +
+      `#พาสต้าระนอง #RanongPasta #LunchRanong #DeliveryRanong #PastaFresca`;
 
-    await sendVideoToTelegram({
-      filePath: fbStoryVid,
+    const fbRes = await publishToFacebook({
+      videoUrl,
+      title: 'Pranzo Pasta Fresca Ranong 🍝 Piatto Espresso Caldo',
+      caption: p2Caption,
+      brand: 'pizza',
+      isStory: false
+    });
+
+    await sendMessageToTelegram({
+      topicId: TOPIC_KOH_PHAYAM_GROUP,
+      text: `✅ [11:30 BANGKOK] Reel Pranzo Pasta Fresca pubblicato automaticamente su Pagina Facebook!\nLink: ${fbRes.postUrl || fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
+    });
+  } else if (is1230) {
+    console.log(`🍕 [12:30 BANGKOK] Slot Story Pranzo — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK STORIES`);
+    const fbStoryVid = await renderVideoMode('P1');
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(fbStoryVid);
+    const fbRes = await publishToFacebook({
+      videoUrl,
+      videoBuffer: buffer,
+      brand: 'pizza',
+      isStory: true
+    });
+
+    await sendMessageToTelegram({
       topicId: TOPIC_TIKTOK_STORIES,
-      caption: `📸 [FACEBOOK STORY 12:30 - PRANZO FORNO TRADIZIONALE]\nCarica su Facebook Stories Pagina Ufficiale!\n\n${fbStoryCaption}`
+      text: `✅ [12:30 BANGKOK] Storia Facebook pubblicata automaticamente via Meta Graph API!\nID Post: ${fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
     });
   } else if (is1600) {
-    console.log(`🌿 [16:00 BANGKOK] Slot Pomeriggio Relax — SOLO INSTAGRAM (V2 Suite Tour / CC1 Relax)`);
-    console.log(`✅ [16:00] Reel Instagram verificato.`);
+    console.log(`🌿 [16:00 BANGKOK] Slot Pomeriggio Relax — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM REEL`);
+    const v2Vid = await renderVideoMode('V2');
+    const { videoUrl } = await ensureCloudVideoUrl(v2Vid);
+    const v2Caption = `🇹🇭 ความสุขที่แท้จริงคือความเงียบสงบในธรรมชาติ เกาะพยาม 🌴 พักผ่อนในวิลล่าส่วนตัวพร้อมระเบียงและเปลญวน 🌊✨\n\n` +
+      `🇬🇧 True peace in lush nature at Koh Phayam Island. King size beds, private hammocks and bird songs. 🌿🌴🌊\n\n` +
+      `🏝️ Direct booking: flowerpowervillage.com\n` +
+      `📍 Koh Phayam Island, Thailand\n` +
+      `@flowerpowervillage\n\n` +
+      `#KohPhayam #ThailandResort #TropicalVibe #IslandLiving`;
+
+    const igRes = await publishToInstagram({
+      videoUrl,
+      caption: v2Caption,
+      brand: 'village',
+      isStory: false
+    });
+
+    await sendMessageToTelegram({
+      topicId: TOPIC_TIKTOK_STORIES,
+      text: `✅ [16:00 BANGKOK] Reel Pomeriggio Relax pubblicato automaticamente su Instagram!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
+    });
   } else if (is1700) {
     console.log(`🌅 [17:00 BANGKOK] Avvio tranche serale: 2 Stories + 1 Post R1 Ristorante Phayam`);
 
@@ -340,40 +543,78 @@ async function run() {
       text: `🍕 [POST DA COPIARE/CONDIVIDERE SUI GRUPPI KOH PHAYAM - CENA]\n\n${r1Text}`
     });
   } else if (is1800) {
-    console.log(`🌅 [18:00 BANGKOK] Slot Story Golden Hour — SOLO INSTAGRAM (V3 / CC1 Sunset Phayam)`);
+    console.log(`🌅 [18:00 BANGKOK] Slot Story Golden Hour — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM STORIES`);
     const sunsetVid = await renderVideoMode('V3');
-    const sunsetCaption = `🇹🇭 ท้องฟ้าสีทองยามเย็นที่เกาะพยาม ความงดงามที่ไม่อาจลืมเลือน 🌅✨\n\n` +
-      `🇬🇧 Golden hour bliss on Koh Phayam Island. Nature at its finest. 🌅🌴🌊\n\n` +
-      `🏝️ flowerpowervillage.com\n` +
-      `#KohPhayam #SunsetLovers #GoldenHour`;
+    const { videoUrl } = await ensureCloudVideoUrl(sunsetVid);
+    const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
 
-    await sendVideoToTelegram({
-      filePath: sunsetVid,
+    await sendMessageToTelegram({
       topicId: TOPIC_TIKTOK_STORIES,
-      caption: `📸 [INSTAGRAM STORY 18:00 - GOLDEN HOUR RESORT]\nCarica subito su Instagram Stories!\n\n${sunsetCaption}`
+      text: `✅ [18:00 BANGKOK] Storia Instagram Golden Hour pubblicata automaticamente via Meta Graph API!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
     });
   } else if (is1830) {
     console.log(`🎵 [18:30 BANGKOK] Slot TikTok Feed API (Post Feed 9:16)`);
     console.log(`ℹ️ Canale TikTok Feed API attualmente disattivato in attesa dell'approvazione v2 da TikTok for Developers. Slot saltato correttamente.`);
   } else if (is1930) {
-    console.log(`🍕 [19:30 BANGKOK] Slot Cena Ranong — SOLO FACEBOOK PAGINA (P1 Pizza Tradizionale / CC1 Forno)`);
-    console.log(`✅ [19:30] Reel Cena Facebook verificato.`);
-  } else if (is2000) {
-    console.log(`☕ [20:00 BANGKOK] Slot Story Serale — SOLO FACEBOOK PAGINA (P3 Dolci Artigianali / CC1 Tavoli)`);
-    const dessertVid = await renderVideoMode('P3');
-    const dessertCaption = `🇹🇭 ปิดท้ายค่ำคืนด้วยทีรามิสุทำเองแท้ๆ และเอสเปรสโซหอมกรุ่น 🍰☕\n\n` +
-      `🇬🇧 End your evening in Ranong with authentic homemade tiramisu and rich Italian espresso. ☕🍰✨\n\n` +
-      `🛵 flowerpowerpizza.com\n` +
-      `#RanongDessert #TiramisuRanong #ItalianDessert`;
+    console.log(`🍕 [19:30 BANGKOK] Slot Cena Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
+    const p1Vid = await renderVideoMode('P1');
+    const { videoUrl } = await ensureCloudVideoUrl(p1Vid);
+    const p1Caption = `🇹🇭 พิซซ่าอิตาเลียนแท้ อบใหม่แป้งหมักธรรมชาติ 48 ชม. หอมกรอบส่งตรงถึงบ้านคุณในเมืองระนอง! 🍕🛵💨\n\n` +
+      `🇬🇧 Authentic traditional Italian pizza in Ranong! Slow 48h natural proofing baked hot on stone. Home delivery! 🍕🔥🛵💨\n\n` +
+      `🛵 Order now: flowerpowerpizza.com\n` +
+      `📍 Ranong Delivery & Takeaway\n` +
+      `@flowerpowerpizzaranong\n\n` +
+      `#พิซซ่าระนอง #RanongPizza #DinnerRanong #PizzaRanong #DeliveryRanong`;
 
-    await sendVideoToTelegram({
-      filePath: dessertVid,
+    const fbRes = await publishToFacebook({
+      videoUrl,
+      title: 'Cena Pizza Tradizionale Ranong 🍕 Impasto Naturale 48h',
+      caption: p1Caption,
+      brand: 'pizza',
+      isStory: false
+    });
+
+    await sendMessageToTelegram({
+      topicId: TOPIC_KOH_PHAYAM_GROUP,
+      text: `✅ [19:30 BANGKOK] Reel Cena Pizza Tradizionale pubblicato automaticamente su Pagina Facebook!\nLink: ${fbRes.postUrl || fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
+    });
+  } else if (is2000) {
+    console.log(`☕ [20:00 BANGKOK] Slot Story Serale — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK STORIES`);
+    const dessertVid = await renderVideoMode('P3');
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(dessertVid);
+    const fbRes = await publishToFacebook({
+      videoUrl,
+      videoBuffer: buffer,
+      brand: 'pizza',
+      isStory: true
+    });
+
+    await sendMessageToTelegram({
       topicId: TOPIC_TIKTOK_STORIES,
-      caption: `📸 [FACEBOOK STORY 20:00 - SERATA DOLCI & ATMOSFERA]\nCarica su Facebook Stories Pagina Ufficiale!\n\n${dessertCaption}`
+      text: `✅ [20:00 BANGKOK] Storia Facebook Serata pubblicata automaticamente via Meta Graph API!\nID Post: ${fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
     });
   } else if (is2100) {
-    console.log(`🌙 [21:00 BANGKOK] Slot Notte — SOLO INSTAGRAM (V3 Tropical Escape / CC1 Notte)`);
-    console.log(`✅ [21:00] Reel Notte Instagram verificato.`);
+    console.log(`🌙 [21:00 BANGKOK] Slot Notte — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM REEL`);
+    const v3Vid = await renderVideoMode('V3');
+    const { videoUrl } = await ensureCloudVideoUrl(v3Vid);
+    const v3Caption = `🇹🇭 ราตรีสวัสดิ์จากเกาะพยาม เสียงคลื่นและสายลมใต้แสงดาว 🌴🌙🌊\n\n` +
+      `🇬🇧 Peaceful tropical nights at Koh Phayam Island. Escape the cold winter and wake up in paradise. 🌴☀️\n\n` +
+      `🏝️ Direct booking discounts: flowerpowervillage.com\n` +
+      `📍 Koh Phayam Island, Thailand\n` +
+      `@flowerpowervillage\n\n` +
+      `#KohPhayam #TropicalEscape #EscapeWinter #IslandNights`;
+
+    const igRes = await publishToInstagram({
+      videoUrl,
+      caption: v3Caption,
+      brand: 'village',
+      isStory: false
+    });
+
+    await sendMessageToTelegram({
+      topicId: TOPIC_TIKTOK_STORIES,
+      text: `✅ [21:00 BANGKOK] Reel Notte Tropicale pubblicato automaticamente su Instagram!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
+    });
   } else {
     console.log(`ℹ️ Nessun evento programmato per lo slot ${targetSlot}. Scheduler a riposo.`);
   }
