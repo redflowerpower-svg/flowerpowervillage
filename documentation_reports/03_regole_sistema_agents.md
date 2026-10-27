@@ -221,7 +221,7 @@ Esegue il rilascio definitivo direttamente sul branch di produzione `main` (`www
 Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`**:
 Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi i reparti:
 1. **Fase 1 - Versioning & Documentazione Tecnica**:
-   - Aggiornamento fisico dei file in `/documentation_reports/` e copie di sicurezza.
+   - Aggiornamento fisico dei file in `/documentation_reports/` e copie di sicurezza (`.agents/AGENTS.md` -> `documentation_reports/AGENTS.md`).
    - Cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
    - Controllo zero secret leak (`node scratch/security-audit.mjs`).
    - Typecheck (`npx tsc --noEmit`).
@@ -232,17 +232,13 @@ Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi
    - `git merge staging -m "Release: <descrizione_rilascio>"`
    - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
    - Ritorno automatico su `staging` (`git checkout staging`).
-3. **Fase 3 - Report Handoff a 5 Punti per Gemini Notebook**:
+3. **Fase 3 - Isolamento /social vs /social-studio**:
+   - Sul dominio di produzione, `/social` rimane **TASSATIVAMENTE CONGELATO** sulla versione per la revisione TikTok (`TikTokAuditStudioPage.tsx`).
+   - La suite ufficiale e attiva per lo staff è ora raggiungibile su `/social-studio` (`AutoCutStudioPage.tsx`), garantendo zero interferenze con TikTok.
+4. **Fase 4 - Report Handoff a 5 Punti per Gemini Notebook**:
    - Emissione del report compatto per il taccuino Gemini e conferma dell'allineamento globale.
 
 ---
-
-### 5. `MARKDOWN-WAIT` (Freeze Social Studio TikTok Review + Deploy Completo di Tutto il Resto)
-Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WAIT`**:
-Esegue l'intero workflow di **`MARKDOWN-PROJECT`** (documentazione tecnica, cifratura vault, audit di sicurezza, typecheck, sincronizzazione staging e deploy simultaneo su produzione `main`) per tutti i reparti (Pizzeria, Delivery, Ristorante, Villaggio Koh Phayam, Octorate, Booking Engine, Documenti e Kitchen Monitor), garantendo il **CONGELAMENTO CATEGORICO DEL SOCIAL ONLINE**:
-1. **Blindatura Social in Produzione**: Il routing in `src/social/pages/SocialStudioPage.tsx` garantisce tassativamente che sul dominio ufficiale `https://www.flowerpowerpizza.com/social` rimanga attiva ed esposta **SOLO ED ESCLUSIVAMENTE la versione primordiale `TikTokAuditStudioPage.tsx`** sottoposta a revisione per le API TikTok for Developers (con TikTok Sandbox, demo assets e bottoni di simulazione identici al video inviato).
-2. **Libertà Totale di Sviluppo in Locale**: In locale (`localhost:5173/social`), lo sviluppatore continua a progettare e affinare la versione ultramoderna `AutoCutStudioPage.tsx` (tutti i formati video, Ken Burns, meteo Ranong e copywriter DeepSeek con il *Proverbio del Giorno*) senza che questa sovrascriva mai la versione online per gli auditor.
-3. **Controllo di Sicurezza Pre-Merge**: Prima di qualsiasi merge/push su `main`, il comando verifica che `SocialStudioPage.tsx` contenga il discriminatore d'ambiente attivo, impedendo ogni rilascio accidentale del nuovo codice social su `flowerpowerpizza.com/social` fino alla notifica ufficiale di approvazione da TikTok.
 
 
 
