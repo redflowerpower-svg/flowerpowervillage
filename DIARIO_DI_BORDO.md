@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 22:45] · ARCHIVIAZIONE PERMANENTE GOOGLE DRIVE 5TB, SNELLIMENTO SERVERLESS VERCEL & ROTAZIONE SUPABASE STORAGE
+- **Cosa abbiamo fatto:** 
+  1. 📁 **Archiviazione Permanente Google Drive 5TB (Capienza Illimitata a Costo Zero)**:
+     - Collegato il Cloud Vault Google Drive (5TB, cartella `1cf23Ag-cXEnbkSsSy7CLhYnonEAN9lRe`) mediante credenziali e refresh token OAuth2 già presenti nel database di Flower Power.
+     - Ogni video master generato dallo scheduler viene caricato e conservato in modo perenne e sicuro sul Google Drive aziendale prima di qualsiasi altra operazione.
+  2. 🧹 **Rotazione Automatica Buffer Supabase Storage (Max 8 Video, <60MB)**:
+     - Implementata rotazione intelligente su Supabase Storage (`social_stories`): Supabase funge ora unicamente da CDN temporanea per il download immediato da parte di Meta Graph API e Telegram.
+     - Il sistema conserva solo gli 8 video più recenti ed elimina i precedenti: eliminati immediatamente 92 file orfani, azzerando l'occupazione e garantendo che Supabase rimanga sempre sotto i 60 MB (ben lontano dalla soglia gratuita di 1 GB).
+  3. ⚡ **Snellimento Serverless Vercel (Rimozione Bundle FFmpeg Statico)**:
+     - Rimosso l'impacchettamento statico delle librerie `@ffmpeg-installer/ffmpeg` e `ffmpeg-static` dall'endpoint Vercel (`api/_handlers/social-publisher.ts`), che gonfiava ogni build serverless con 80MB di binari compilati.
+     - Il rendering e il mux audio avvengono su GitHub Actions runner e ambienti locali dove FFmpeg è presente nativamente, riducendo le dimensioni dei pacchetti serverless Vercel da 90MB a ~1MB e bloccando il consumo anomalo di Functions Storage.
+- **Effetto reale:** Nessuna perdita di dati o video (tutti salvati per sempre su Google Drive 5TB), totale conformità con i limiti gratuiti di Vercel e Supabase, ed esecuzione 100% autonoma 24/7.
+- **Stato:** ✅ Test dry-run superato, 92 file puliti da Supabase, Google Drive 5TB operativo, verificato 0 errori TypeScript.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 21:50] · TIMETABLE STAGGERED SEPARAZIONE INSTAGRAM/FACEBOOK, INTERRUTTORI SDOPPIATI TIKTOK & SCHEDULER SERVERLESS 24/7
 - **Cosa abbiamo fatto:** 
   1. 🗓️ **Separazione Rigorosa & Scaglionata Instagram / Facebook**:

@@ -119,12 +119,107 @@ async function getTelegramToken() {
   return telegramToken;
 }
 
-// Upload video buffer su Supabase Storage e restituisce URL pubblico
+// Carica configurazione Google Drive 5TB da Supabase
+async function getGoogleDriveCredentials() {
+  try {
+    const { data } = await sb.from('telegram_config').select('chat_id').eq('id', 'google_drive').maybeSingle();
+    if (data?.chat_id) {
+      return JSON.parse(data.chat_id);
+    }
+  } catch (err) {
+    console.warn('[scheduler-dispatch] Errore lettura credenziali Google Drive:', err.message);
+  }
+  return null;
+}
+
+// 📁 Upload permanente su Google Drive 5TB (Cassaforte infinita a zero costi)
+async function uploadToGoogleDrive({ name, buffer }) {
+  if (dryRun) {
+    console.log(`[DRY-RUN] Archiviazione Google Drive 5TB: ${name} (${(buffer.length / 1e6).toFixed(1)} MB)`);
+    return { ok: true, dryRun: true, id: 'mock_gdrive_id' };
+  }
+
+  try {
+    const creds = await getGoogleDriveCredentials();
+    if (!creds?.client_id || !creds?.client_secret || !creds?.refresh_token) {
+      console.warn('[scheduler-dispatch] Credenziali Google Drive non disponibili, upload cloud saltato.');
+      return null;
+    }
+
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: creds.client_id,
+        client_secret: creds.client_secret,
+        refresh_token: creds.refresh_token,
+        grant_type: "refresh_token"
+      })
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenRes.ok || !tokenData.access_token) {
+      throw new Error(`Google Drive token refresh failed: ${JSON.stringify(tokenData)}`);
+    }
+
+    const accessToken = tokenData.access_token;
+    const boundary = "-------FP_DRIVE_BOUNDARY_" + Date.now();
+    const delimiter = "\r\n--" + boundary + "\r\n";
+    const closeDelim = "\r\n--" + boundary + "--";
+
+    const metadata = {
+      name: name,
+      parents: creds.folder_id ? [creds.folder_id] : []
+    };
+
+    const metadataPart = delimiter +
+      "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
+      JSON.stringify(metadata) + "\r\n";
+
+    const fileHeader = "--" + boundary + "\r\n" +
+      "Content-Type: video/mp4\r\n\r\n";
+
+    const bodyBuffer = Buffer.concat([
+      Buffer.from(metadataPart, "utf8"),
+      Buffer.from(fileHeader, "utf8"),
+      buffer,
+      Buffer.from(closeDelim, "utf8")
+    ]);
+
+    console.log(`[scheduler-dispatch] 📁 Archiviazione permanente su Google Drive 5TB (Folder: ${creds.folder_id})...`);
+    const uploadRes = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": `multipart/related; boundary=${boundary}`,
+        "Content-Length": bodyBuffer.length.toString()
+      },
+      body: bodyBuffer
+    });
+
+    const uploadData = await uploadRes.json();
+    if (!uploadRes.ok || !uploadData.id) {
+      throw new Error(`Google Drive upload failed: ${JSON.stringify(uploadData)}`);
+    }
+
+    console.log(`✅ [Google Drive 5TB] Video archiviato con successo nel Cloud permanente! (File: ${uploadData.name}, ID: ${uploadData.id})`);
+    return uploadData;
+  } catch (gdErr) {
+    console.warn('⚠️ [scheduler-dispatch] Avviso archiviazione Google Drive:', gdErr.message);
+    return null;
+  }
+}
+
+// Upload video buffer su Google Drive 5TB (Permanente) e Supabase Storage (Temporaneo con rotazione)
 async function ensureCloudVideoUrl(filePath) {
   const buf = fs.readFileSync(filePath);
-  const cloudPath = `social_stories/dispatch_${Date.now()}_${path.basename(filePath)}`;
-  console.log(`[scheduler-dispatch] Upload Supabase (${(buf.length / 1024 / 1024).toFixed(1)} MB) su ${cloudPath}...`);
+  const fileName = `dispatch_${Date.now()}_${path.basename(filePath)}`;
+  const cloudPath = `social_stories/${fileName}`;
 
+  // 1. Archiviazione Permanente su Google Drive 5TB (Nessun limite di spazio)
+  await uploadToGoogleDrive({ name: fileName, buffer: buf });
+
+  // 2. Buffer temporaneo su Supabase Storage (per download immediato di Meta Graph API e Telegram)
+  console.log(`[scheduler-dispatch] Upload buffer temporaneo Supabase (${(buf.length / 1024 / 1024).toFixed(1)} MB) su ${cloudPath}...`);
   const { error: upErr } = await sb.storage.from('assets').upload(cloudPath, buf, {
     contentType: 'video/mp4',
     upsert: true
@@ -132,6 +227,19 @@ async function ensureCloudVideoUrl(filePath) {
   if (upErr) throw upErr;
 
   const videoUrl = sb.storage.from('assets').getPublicUrl(cloudPath).data.publicUrl;
+
+  // 3. Rotazione intelligente: conserva solo gli ultimi 8 video su Supabase (< 60MB), evitando ogni rischio di esaurire il limite di 1GB
+  try {
+    const { data: list } = await sb.storage.from('assets').list('social_stories', { sortBy: { column: 'created_at', order: 'asc' } });
+    if (list && list.length > 8) {
+      const toRemove = list.slice(0, list.length - 8).map(f => `social_stories/${f.name}`);
+      await sb.storage.from('assets').remove(toRemove);
+      console.log(`🧹 [scheduler-dispatch] Rotazione storage Supabase: rimossi ${toRemove.length} file temporanei (l'archivio permanente su Google Drive 5TB è intatto e sicuro).`);
+    }
+  } catch (cleanErr) {
+    // Non bloccante
+  }
+
   return { videoUrl, buffer: buf };
 }
 

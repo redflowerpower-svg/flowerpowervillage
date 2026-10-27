@@ -7,8 +7,11 @@ import { execFile, execSync, execFileSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import os from "os";
-import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
-import ffmpegStatic from "ffmpeg-static";
+
+// Helper risoluzione binario FFmpeg (previene l'impacchettamento di 80MB di binari compilati su Vercel Serverless)
+function getFFmpegPath(): string {
+  return process.env.FFMPEG_PATH || "ffmpeg";
+}
 
 // Configura il dispatcher globale con timeout esteso (180s) per prevenire HeadersTimeoutError durante invii di file multimediali su Telegram
 try {
@@ -33,7 +36,7 @@ const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supaba
  * di muovere la timeline del lettore in modo perfettamente fluido dall'inizio alla fine.
  */
 async function optimizeVideoWithFaststart(buffer: Buffer): Promise<Buffer> {
-  const ffmpegPath = process.env.FFMPEG_PATH || ffmpegStatic || ffmpegInstaller?.path;
+  const ffmpegPath = getFFmpegPath();
   if (!ffmpegPath) return buffer;
 
   const tmpDir = os.tmpdir();
@@ -94,7 +97,7 @@ async function muxAudioOntoVideo(
   brand?: string,
   thumbnailTimeSec?: number
 ): Promise<MuxResult> {
-  const ffmpegPath = process.env.FFMPEG_PATH || ffmpegStatic || "ffmpeg";
+  const ffmpegPath = getFFmpegPath();
   const tmpDir = os.tmpdir();
   const rand = Math.random().toString(36).substring(2, 9);
   const inPath = path.join(tmpDir, `in_${rand}.mp4`);
