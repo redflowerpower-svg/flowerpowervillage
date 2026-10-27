@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   FlaskConical, Rocket, Check, AlertCircle, Send,
   Share2, Video, Smartphone, Clock, Users,
   MapPin, Tag, Sparkles, CheckCircle2, ChevronRight, ExternalLink,
-  Pizza, Palmtree, Camera
+  Pizza, Palmtree, Camera, XCircle
 } from 'lucide-react';
 import { AutoCutTestRun } from '../services/autoCutLabEngine';
 import { THIRD_PARTY_COMMUNITY_GROUPS } from '../config/thirdPartyGroups';
@@ -150,6 +150,27 @@ export function AutoCutDistributionPanel({
     details?: string[];
   }>({ type: null, message: '' });
 
+  // Controller e ref per abortire il processo in qualsiasi momento
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const isAbortedRef = useRef<boolean>(false);
+
+  const handleAbort = () => {
+    isAbortedRef.current = true;
+    if (abortControllerRef.current) {
+      try { abortControllerRef.current.abort(); } catch {}
+    }
+    if (typeof window !== 'undefined' && (window as any).__autoCutAbortVideo) {
+      try { (window as any).__autoCutAbortVideo(); } catch {}
+    }
+    setIsPublishing(false);
+    setPublishProgressPct(0);
+    setPublishStatus({
+      type: 'error',
+      message: 'Operazione annullata dall\'utente.',
+      details: ['Il processo di rendering e pubblicazione è stato interrotto con successo.']
+    });
+  };
+
   // Nome formattato canale attivo
   const channelNames: Record<DistributionChannelId, string> = {
     tiktok: 'TikTok',
@@ -160,6 +181,8 @@ export function AutoCutDistributionPanel({
 
   // Gestione Pubblicazione o Test: TASSATIVAMENTE VIDEO MP4 9:16
   const handleExecute = async () => {
+    isAbortedRef.current = false;
+    abortControllerRef.current = new AbortController();
     setIsPublishing(true);
     setPublishProgressPct(5);
 
@@ -918,45 +941,61 @@ export function AutoCutDistributionPanel({
           </button>
         </div>
 
-        <button
-          type="button"
-          onClick={handleExecute}
-          disabled={isPublishing}
-          className={`w-full py-2.5 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition active:scale-95 shadow-lg disabled:opacity-50 cursor-pointer ${
-            environment === 'test'
-              ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 shadow-amber-950/40'
-              : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-950/60 border border-emerald-400'
-          }`}
-        >
-          {isPublishing ? (
-            <>
-              <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              <span>Elaborazione in corso ({publishProgressPct}%)...</span>
-            </>
-          ) : environment === 'test' ? (
-            <>
-              <FlaskConical className="w-3.5 h-3.5 text-amber-400" />
-              <span>
-                {activeChannel === 'facebook' && formats.facebook === 'group'
-                  ? 'Invia al Gruppo FB su Telegram (Topic 2)'
-                  : (activeChannel === 'tiktok' && formats.tiktok === 'story') || (activeChannel === 'instagram' && formats.instagram === 'story')
-                  ? 'Invia Stories su Telegram (Topic 3)'
-                  : `Simula Test su ${channelNames[activeChannel]}`}
-              </span>
-            </>
-          ) : (
-            <>
-              <Send className="w-3.5 h-3.5 text-white" />
-              <span>
-                {activeChannel === 'facebook' && formats.facebook === 'group'
-                  ? 'Invia al Gruppo FB su Telegram (Topic 2)'
-                  : (activeChannel === 'tiktok' && formats.tiktok === 'story') || (activeChannel === 'instagram' && formats.instagram === 'story')
-                  ? 'Invia Stories su Telegram (Topic 3)'
-                  : `Pubblica Subito su ${channelNames[activeChannel]}`}
-              </span>
-            </>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleExecute}
+            disabled={isPublishing}
+            className={`flex-1 py-2.5 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition active:scale-95 shadow-lg disabled:opacity-60 cursor-pointer ${
+              environment === 'test'
+                ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 shadow-amber-950/40'
+                : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-950/60 border border-emerald-400'
+            }`}
+          >
+            {isPublishing ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                <span>Elaborazione ({publishProgressPct}%)...</span>
+              </>
+            ) : environment === 'test' ? (
+              <>
+                <FlaskConical className="w-3.5 h-3.5 text-amber-400" />
+                <span>
+                  {activeChannel === 'facebook' && formats.facebook === 'group'
+                    ? 'Invia al Gruppo FB su Telegram (Topic 2)'
+                    : activeChannel === 'tiktok' && formats.tiktok === 'story'
+                    ? 'Invia Stories su Telegram (Topic 3)'
+                    : `Simula Test su ${channelNames[activeChannel]}`}
+                </span>
+              </>
+            ) : (
+              <>
+                <Send className="w-3.5 h-3.5 text-white" />
+                <span>
+                  {activeChannel === 'facebook' && formats.facebook === 'group'
+                    ? 'Invia al Gruppo FB su Telegram (Topic 2)'
+                    : activeChannel === 'tiktok' && formats.tiktok === 'story'
+                    ? 'Invia Stories su Telegram (Topic 3)'
+                    : formats[activeChannel] === 'story'
+                    ? `Pubblica Storia su ${channelNames[activeChannel]}`
+                    : `Pubblica Subito su ${channelNames[activeChannel]}`}
+                </span>
+              </>
+            )}
+          </button>
+
+          {isPublishing && (
+            <button
+              type="button"
+              onClick={handleAbort}
+              title="Interrompi e annulla pubblicazione"
+              className="py-2.5 px-3.5 rounded-xl font-bold text-xs bg-rose-600 hover:bg-rose-500 text-white border border-rose-400 shadow-lg shadow-rose-950 flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer animate-pulse shrink-0"
+            >
+              <XCircle className="w-4 h-4 text-white" />
+              <span>Annulla</span>
+            </button>
           )}
-        </button>
+        </div>
       </div>
 
       {/* 4. FEEDBACK E STATO PUBBLICAZIONE LIVE */}

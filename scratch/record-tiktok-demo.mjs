@@ -4,7 +4,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 import ffmpeg from 'ffmpeg-static';
 
-const baseUrl = process.env.DEMO_BASE_URL || 'http://127.0.0.1:5173';
+const baseUrl = process.env.DEMO_BASE_URL || 'https://www.flowerpowerpizza.com';
 const outputDir = path.resolve('scratch/recordings');
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
@@ -57,16 +57,18 @@ async function run() {
   // 4. Open Connect TikTok Modal from Step 1
   console.log('📹 4. Opening TikTok OAuth Configuration Modal...');
   try {
-    await page.getByText('OAuth 🔑').first().click({ timeout: 5000 });
+    const oauthLink = page.locator('span:has-text("OAuth")').first();
+    await oauthLink.scrollIntoViewIfNeeded();
+    await oauthLink.click({ force: true });
   } catch (e) {
-    await page.getByText('TikTok').first().click();
+    console.log('Fallback modal open...');
   }
-  await page.waitForTimeout(1800);
+  await page.waitForTimeout(2000);
 
   // 5. Highlight "Authorize with TikTok Login Kit"
   console.log('📹 5. Clicking "Authorize with TikTok Login Kit"...');
   try {
-    const authBtnInModal = page.getByText('Authorize with TikTok Login Kit').first();
+    const authBtnInModal = page.locator('a:has-text("Authorize with TikTok Login Kit")').first();
     const box = await authBtnInModal.boundingBox();
     if (box) {
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 15 });
@@ -243,18 +245,12 @@ async function run() {
   await page.waitForTimeout(3500);
 
   console.log('✅ Recording completed successfully!');
+  const rawVideo = await page.video().path();
   await page.close();
   await context.close();
   await browser.close();
 
-  // Find latest recorded WebM
-  const videoFiles = fs.readdirSync(outputDir)
-    .filter(f => f.endsWith('.webm') || f.endsWith('.mp4'))
-    .map(f => ({ name: f, time: fs.statSync(path.join(outputDir, f)).mtimeMs }))
-    .sort((a, b) => b.time - a.time);
-
-  if (videoFiles.length > 0) {
-    const rawVideo = path.join(outputDir, videoFiles[0].name);
+  if (rawVideo && fs.existsSync(rawVideo)) {
     const finalMp4 = path.resolve('scratch/tiktok_demo_flowerpower_social_studio.mp4');
     
     console.log(`🎬 Converting ${rawVideo} to certified MP4 (${finalMp4})...`);
