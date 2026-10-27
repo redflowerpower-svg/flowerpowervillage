@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Play, Pause, RotateCcw, RotateCw, SkipBack, SkipForward, Volume2, VolumeX, Sparkles, Layers, Clock, Music, Star } from 'lucide-react';
-import { AutoCutTestRun, AutoCutScene, getCategoryThaiName } from '../services/autoCutLabEngine';
+import { AutoCutTestRun, AutoCutScene, getCategoryThaiName, formatSemanticEnglishDishTitle, formatSemanticThaiDishTitle } from '../services/autoCutLabEngine';
 import { LINE_QR_CODE_BASE64 } from '../services/lineQrData';
 import { autoCutSoundEngine } from '../services/autoCutSoundEffects';
 import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
@@ -557,13 +557,13 @@ export function AutoCutLabPlayer({
       }
 
       const cx = wVirtual / 2;
-      const cy = 370; // Posizionato elegantemente nella metà superiore
-      const baseLogoSize = 210;
+      const cy = 285; // Posizionato con maestoso respiro nella metà superiore
+      const baseLogoSize = 220; // Logo maggiorato e regale
 
       // Alone luminoso dorato radiale all'impatto
       if (stampProgress >= 0.65) {
         const glowAlpha = Math.min(0.50, (outroElapsed - 0.40) * 0.7);
-        const glow = targetCtx.createRadialGradient(cx, cy, 25, cx, cy, 240);
+        const glow = targetCtx.createRadialGradient(cx, cy, 30, cx, cy, 260);
         glow.addColorStop(0, `rgba(245, 158, 11, ${glowAlpha})`);
         glow.addColorStop(0.55, `rgba(217, 119, 6, ${glowAlpha * 0.45})`);
         glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
@@ -606,45 +606,54 @@ export function AutoCutLabPlayer({
         targetCtx.globalAlpha = textAlpha;
         targetCtx.textAlign = 'center';
 
-        // Nome Brand Dorato (Grande & Incisivo)
-        targetCtx.font = '900 36px "Outfit", "Inter", sans-serif';
+        // Nome Brand Dorato (Grande & Incisivo 42px)
+        targetCtx.font = '900 42px "Outfit", "Inter", sans-serif';
         targetCtx.fillStyle = '#fbbf24';
         targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-        targetCtx.shadowBlur = 12;
+        targetCtx.shadowBlur = 14;
+        targetCtx.shadowOffsetY = 4;
         targetCtx.fillText(
-          brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE',
+          mode === 'R1'
+            ? 'FLOWER POWER RESTAURANT'
+            : (brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE'),
           cx,
           cy + (baseLogoSize / 2) + 48
         );
 
-        // Località (Grande & Chiara)
-        targetCtx.font = '800 22px "Inter", sans-serif';
+        // Località (Grande & Chiara 24px)
+        targetCtx.font = '800 24px "Outfit", "Inter", sans-serif';
         targetCtx.fillStyle = '#ffffff';
-        targetCtx.shadowBlur = 8;
+        targetCtx.shadowBlur = 10;
+        targetCtx.shadowOffsetY = 3;
         targetCtx.fillText(
-          brand === 'pizza' ? 'RANONG · THAILAND' : 'KOH PHAYAM · THAILAND',
+          (mode === 'R1' || brand === 'village') ? 'KOH PHAYAM · THAILAND' : 'RANONG · THAILAND',
           cx,
           cy + (baseLogoSize / 2) + 82
         );
 
         // Sottotitolo / Identità Ufficiale (Zero Napoletana - Solo Tradizionale Italiana)
-        targetCtx.font = '600 17px "Inter", sans-serif';
+        targetCtx.font = '700 20px "Outfit", "Inter", sans-serif';
         targetCtx.fillStyle = '#cbd5e1';
-        targetCtx.shadowBlur = 4;
+        targetCtx.shadowBlur = 6;
+        targetCtx.shadowOffsetY = 2;
         targetCtx.fillText(
-          brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary',
+          mode === 'R1'
+            ? 'Italian Restaurant & Island Delivery'
+            : (brand === 'pizza'
+              ? 'Authentic Traditional Italian Pizza'
+              : 'Tropical Island Resort & Eco Sanctuary'),
           cx,
           cy + (baseLogoSize / 2) + 112
         );
 
-        // 🛵 CARD FINALE AD ALTO IMPATTO (VISIVA, INCISIVA & LEGGIBILE IN 4 SECONDI)
-        const boxX = 28;
+        // 🛵 CARD FINALE AD ALTO IMPATTO (VISIVA, INCISIVA, ZERO SBUZZO & LEGGIBILE SUBITO)
+        const boxX = 24;
         const boxY = cy + (baseLogoSize / 2) + 130;
-        const boxW = wVirtual - 56; // 664px (più larga, ariosa e maestosa)
-        const boxH = 475;           // 475px (sfrutta lo spazio in basso senza comprimere i testi)
-        const radius = 28;
+        const boxW = wVirtual - 48; // 672px (più larga, ariosa e maestosa)
+        const boxH = 715;           // 715px (sfrutta lo schermo annullando i 200px di buco nero sul fondo)
+        const radius = 32;
 
-        // Sfondo scuro satinato con bordo dorato/smeraldo luminescente
+        // Sfondo scuro satinato con sfumatura verticale e bordo dorato/smeraldo luminescente
         targetCtx.save();
         targetCtx.beginPath();
         if (typeof targetCtx.roundRect === 'function') {
@@ -652,87 +661,133 @@ export function AutoCutLabPlayer({
         } else {
           targetCtx.rect(boxX, boxY, boxW, boxH);
         }
-        targetCtx.fillStyle = 'rgba(11, 17, 32, 0.95)';
+        const cardGrad = targetCtx.createLinearGradient(boxX, boxY, boxX, boxY + boxH);
+        cardGrad.addColorStop(0, 'rgba(15, 23, 42, 0.96)');
+        cardGrad.addColorStop(1, 'rgba(8, 12, 22, 0.98)');
+        targetCtx.fillStyle = cardGrad;
         targetCtx.fill();
         targetCtx.lineWidth = 2.5;
-        targetCtx.strokeStyle = brand === 'pizza' ? 'rgba(245, 158, 11, 0.70)' : 'rgba(52, 211, 153, 0.80)';
-        targetCtx.shadowColor = brand === 'pizza' ? 'rgba(245, 158, 11, 0.40)' : 'rgba(52, 211, 153, 0.40)';
-        targetCtx.shadowBlur = 22;
+        targetCtx.strokeStyle = (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0.75)' : 'rgba(52, 211, 153, 0.85)';
+        targetCtx.shadowColor = (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0.45)' : 'rgba(52, 211, 153, 0.50)';
+        targetCtx.shadowBlur = 24;
         targetCtx.stroke();
         targetCtx.restore();
 
-        // Intestazione Card (Inglese & Thailandese - Font 25px Bold)
-        targetCtx.font = '900 25px "Inter", sans-serif';
-        targetCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
+        // Intestazione Card su 2 righe (Zero Sbuzzo, Perfetta Gerarchia Biculturale)
         targetCtx.textAlign = 'center';
-        targetCtx.fillText(
-          mode === 'R1'
-            ? '🛵 BUFFALO BAY DELIVERY & RESTAURANT · เกาะพยาม'
-            : (brand === 'pizza' 
-              ? '🛵 RANONG DELIVERY · ส่งถึงบ้าน' 
-              : '🌴 DIRECT BOOKING · จองตรงที่พัก'),
-          cx,
-          boxY + 46
-        );
+        if (mode === 'R1') {
+          // Riga 1 Titolo Delivery & Restaurant
+          targetCtx.font = '900 27px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#34d399';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+          targetCtx.shadowBlur = 10;
+          targetCtx.shadowOffsetY = 3;
+          targetCtx.fillText('🛵 BUFFALO BAY DELIVERY & RESTAURANT', cx, boxY + 46);
+
+          // Riga 2 Sottotitolo Isola Koh Phayam in Thai/Inglese
+          targetCtx.font = '800 20px "Prompt", "Outfit", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('เกาะพยาม · KOH PHAYAM ISLAND', cx, boxY + 78);
+        } else if (brand === 'pizza') {
+          targetCtx.font = '900 28px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+          targetCtx.shadowBlur = 10;
+          targetCtx.shadowOffsetY = 3;
+          targetCtx.fillText('🛵 RANONG DELIVERY · ส่งถึงบ้าน', cx, boxY + 46);
+
+          targetCtx.font = '800 20px "Prompt", "Outfit", sans-serif';
+          targetCtx.fillStyle = '#34d399';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('ส่งตรงถึงบ้านคุณ · รวดเร็ว สดใหม่ ร้อนๆ', cx, boxY + 78);
+        } else {
+          targetCtx.font = '900 28px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#34d399';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+          targetCtx.shadowBlur = 10;
+          targetCtx.shadowOffsetY = 3;
+          targetCtx.fillText('🌴 DIRECT BOOKING · จองตรงที่พัก', cx, boxY + 46);
+
+          targetCtx.font = '800 20px "Prompt", "Outfit", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('เกาะพยาม · KOH PHAYAM ISLAND RESORT', cx, boxY + 78);
+        }
 
         if (mode === 'R1') {
           // Modalità R1 Ristorante & Delivery Buffalo Bay (Koh Phayam)
-          const btnW = 560;
-          const btnH = 72;
+          const btnW = 616;
+          const btnH = 88;
           const btnX = cx - (btnW / 2);
-          const btnY = boxY + 76;
+          const btnY = boxY + 104;
 
           targetCtx.save();
           targetCtx.beginPath();
           if (typeof targetCtx.roundRect === 'function') {
-            targetCtx.roundRect(btnX, btnY, btnW, btnH, 20);
+            targetCtx.roundRect(btnX, btnY, btnW, btnH, 22);
           } else {
             targetCtx.rect(btnX, btnY, btnW, btnH);
           }
-          targetCtx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+          const btnGrad = targetCtx.createLinearGradient(btnX, btnY, btnX, btnY + btnH);
+          btnGrad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+          btnGrad.addColorStop(1, 'rgba(5, 150, 105, 0.22)');
+          targetCtx.fillStyle = btnGrad;
           targetCtx.fill();
           targetCtx.lineWidth = 2.5;
           targetCtx.strokeStyle = '#34d399';
-          targetCtx.shadowColor = 'rgba(52, 211, 153, 0.55)';
-          targetCtx.shadowBlur = 18;
+          targetCtx.shadowColor = 'rgba(52, 211, 153, 0.60)';
+          targetCtx.shadowBlur = 20;
           targetCtx.stroke();
           targetCtx.restore();
 
           targetCtx.textAlign = 'center';
-          targetCtx.font = '900 33px "Outfit", "Inter", sans-serif';
+          targetCtx.font = '900 36px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#ffffff';
-          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+          targetCtx.shadowBlur = 10;
+          targetCtx.shadowOffsetY = 3;
+          targetCtx.fillText('✆ WhatsApp +66 095 882 5573', cx, btnY + 56);
+
+          // Highlights Piatto e Servizio d'Impatto (Font 26px - 29px Bold)
+          targetCtx.font = '900 29px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#ffffff';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.90)';
           targetCtx.shadowBlur = 8;
-          targetCtx.fillText('✆ WhatsApp +66 095 882 5573', cx, btnY + 47);
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('🍕 Authentic Italian Pizza & Homemade Pasta', cx, boxY + 270);
 
-          targetCtx.font = '800 25px "Inter", sans-serif';
+          targetCtx.font = '800 28px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#fbbf24';
-          targetCtx.fillText('🛵 Fast Island Delivery in Koh Phayam', cx, boxY + 215);
+          targetCtx.fillText('🛵 Fast Island Delivery to Your Resort', cx, boxY + 350);
 
-          targetCtx.font = '800 25px "Inter", sans-serif';
+          targetCtx.font = '800 26px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#38bdf8';
-          targetCtx.fillText('🍕 Authentic Italian Pizza & Homemade Pasta', cx, boxY + 280);
+          targetCtx.fillText('🌴 Buffalo Bay (Ao Khao Kwai) · Koh Phayam', cx, boxY + 430);
 
-          targetCtx.font = '700 22px "Inter", sans-serif';
+          targetCtx.font = '800 26px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#e2e8f0';
-          targetCtx.fillText('🌴 Buffalo Bay (Ao Khao Kwai) · Koh Phayam', cx, boxY + 360);
+          targetCtx.fillText('🌐 www.flowerpowervillage.com', cx, boxY + 510);
         } else if (brand === 'pizza') {
-          // Disegno QR Code Ufficiale LINE (Colonna Sinistra 185x185)
-          const qrSize = 185;
-          const qrX = boxX + 24;
-          const qrY = boxY + 76;
+          // Disegno QR Code Ufficiale LINE (Colonna Sinistra 215x215)
+          const qrSize = 215;
+          const qrX = boxX + 26;
+          const qrY = boxY + 115;
 
           targetCtx.save();
           targetCtx.beginPath();
           if (typeof targetCtx.roundRect === 'function') {
-            targetCtx.roundRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20, 18);
+            targetCtx.roundRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20, 20);
           } else {
             targetCtx.rect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
           }
           targetCtx.fillStyle = '#ffffff';
           targetCtx.fill();
-          targetCtx.shadowColor = 'rgba(0,0,0,0.6)';
-          targetCtx.shadowBlur = 18;
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+          targetCtx.shadowBlur = 20;
 
           // Disegna il QR Code Ufficiale LINE
           if (lineQrImg.complete && lineQrImg.naturalWidth > 0) {
@@ -743,97 +798,602 @@ export function AutoCutLabPlayer({
           targetCtx.restore();
 
           // Didascalia sotto al QR Code (Grande & Incisiva)
-          targetCtx.font = '900 18px "Inter", sans-serif';
+          targetCtx.font = '900 21px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#fbbf24';
           targetCtx.textAlign = 'center';
-          targetCtx.fillText('📲 Scan to Order', qrX + (qrSize / 2), qrY + qrSize + 30);
-          targetCtx.font = '800 17px "Prompt", sans-serif';
+          targetCtx.fillText('📲 Scan to Order', qrX + (qrSize / 2), qrY + qrSize + 34);
+          targetCtx.font = '800 19px "Prompt", sans-serif';
           targetCtx.fillStyle = '#ffffff';
-          targetCtx.fillText('สแกนสั่งอาหาร', qrX + (qrSize / 2), qrY + qrSize + 56);
+          targetCtx.fillText('สแกนสั่งอาหารทันที', qrX + (qrSize / 2), qrY + qrSize + 60);
 
           // Dati di Contatto & Ordine (Colonna Destra - Grandi & Incisivi con ampio respiro)
-          const infoX = boxX + 242;
+          const infoX = boxX + 272;
           targetCtx.textAlign = 'left';
 
-          targetCtx.font = '900 28px "Outfit", "Inter", sans-serif';
+          targetCtx.font = '900 30px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#ffffff';
-          targetCtx.fillText('🌐 flowerpowerpizza.com', infoX, boxY + 120);
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.90)';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('🌐 flowerpowerpizza.com', infoX, boxY + 155);
 
-          targetCtx.font = '800 24px "Inter", sans-serif';
+          targetCtx.font = '900 26px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#10b981';
-          targetCtx.fillText('💚 LINE: @flowerpowerpizza', infoX, boxY + 178);
+          targetCtx.fillText('💚 LINE: @flowerpowerpizza', infoX, boxY + 220);
 
-          targetCtx.font = '800 21px "Inter", sans-serif';
+          targetCtx.font = '800 24px "Outfit", "Prompt", sans-serif';
           targetCtx.fillStyle = '#fbbf24';
-          targetCtx.fillText('🎁 10% Off 1st Order · ลด 10%', infoX, boxY + 234);
+          targetCtx.fillText('🎁 10% Off 1st Order · ลด 10%', infoX, boxY + 282);
 
-          targetCtx.font = '800 21px "Inter", sans-serif';
+          targetCtx.font = '800 24px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#38bdf8';
-          targetCtx.fillText('👆 Link in Bio ➔ Order Now', infoX, boxY + 288);
+          targetCtx.fillText('👆 Link in Bio ➔ Order Now', infoX, boxY + 344);
 
-          targetCtx.font = '700 17px "Inter", sans-serif';
-          targetCtx.fillStyle = '#94a3b8';
-          targetCtx.fillText('🔥 Hot & Fresh in Thermal Box', infoX, boxY + 340);
+          targetCtx.font = '700 22px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#cbd5e1';
+          targetCtx.fillText('🔥 Hot & Fresh in Thermal Box', infoX, boxY + 406);
+
+          // Orari di Consegna (Centrato a piena larghezza)
+          targetCtx.textAlign = 'center';
+          targetCtx.font = '800 24px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.90)';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('🛵 Delivery Hours: 11:30 - 21:30 · Open Every Day', cx, boxY + 510);
         } else {
           // Modalità Villaggio (Koh Phayam): Layout Diretto, Visivo e Gigante
-          const btnW = 560;
-          const btnH = 72;
+          const btnW = 616;
+          const btnH = 88;
           const btnX = cx - (btnW / 2);
-          const btnY = boxY + 76;
+          const btnY = boxY + 104;
 
           targetCtx.save();
           targetCtx.beginPath();
           if (typeof targetCtx.roundRect === 'function') {
-            targetCtx.roundRect(btnX, btnY, btnW, btnH, 20);
+            targetCtx.roundRect(btnX, btnY, btnW, btnH, 22);
           } else {
             targetCtx.rect(btnX, btnY, btnW, btnH);
           }
-          targetCtx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+          const btnGrad = targetCtx.createLinearGradient(btnX, btnY, btnX, btnY + btnH);
+          btnGrad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+          btnGrad.addColorStop(1, 'rgba(5, 150, 105, 0.22)');
+          targetCtx.fillStyle = btnGrad;
           targetCtx.fill();
           targetCtx.lineWidth = 2.5;
           targetCtx.strokeStyle = '#34d399';
-          targetCtx.shadowColor = 'rgba(52, 211, 153, 0.55)';
-          targetCtx.shadowBlur = 18;
+          targetCtx.shadowColor = 'rgba(52, 211, 153, 0.60)';
+          targetCtx.shadowBlur = 20;
           targetCtx.stroke();
           targetCtx.restore();
 
           targetCtx.textAlign = 'center';
-          targetCtx.font = '900 34px "Outfit", "Inter", sans-serif';
+          targetCtx.font = '900 36px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#ffffff';
-          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-          targetCtx.shadowBlur = 8;
-          targetCtx.fillText('🌐 flowerpowervillage.com', cx, btnY + 47);
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+          targetCtx.shadowBlur = 10;
+          targetCtx.shadowOffsetY = 3;
+          targetCtx.fillText('🌐 flowerpowervillage.com', cx, btnY + 56);
 
-          targetCtx.font = '800 25px "Inter", sans-serif';
+          // Highlights Resort (Font 26px - 29px Bold)
+          targetCtx.font = '900 29px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#fbbf24';
-          targetCtx.fillText('✨ Best Rate Guaranteed Online', cx, boxY + 215);
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.90)';
+          targetCtx.shadowBlur = 8;
+          targetCtx.shadowOffsetY = 2;
+          targetCtx.fillText('✨ Best Rate Guaranteed Online (-10% Direct)', cx, boxY + 270);
 
-          targetCtx.font = '800 25px "Inter", sans-serif';
+          targetCtx.font = '800 28px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#38bdf8';
-          targetCtx.fillText('👉 Link in Bio ➔ Book Your Stay', cx, boxY + 280);
+          targetCtx.fillText('👉 Link in Bio ➔ Instant Room Confirmation', cx, boxY + 350);
 
-          targetCtx.font = '700 22px "Inter", sans-serif';
+          targetCtx.font = '800 26px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#34d399';
+          targetCtx.fillText('🌺 Eco Wooden Bungalows & Breezy Suites', cx, boxY + 430);
+
+          targetCtx.font = '800 26px "Outfit", "Inter", sans-serif';
           targetCtx.fillStyle = '#e2e8f0';
-          targetCtx.fillText('🌺 Eco Wooden Bungalows & Breezy Suites', cx, boxY + 360);
+          targetCtx.fillText('🏝️ Buffalo Bay (Ao Khao Kwai) · Koh Phayam', cx, boxY + 510);
         }
 
-        // Payoff Footer Card (Sicuro all'interno del box)
+        // Linea divisoria sottile ed elegante
+        targetCtx.save();
+        const sepGrad = targetCtx.createLinearGradient(boxX + 60, boxY + 575, boxX + boxW - 60, boxY + 575);
+        sepGrad.addColorStop(0, (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0)' : 'rgba(52, 211, 153, 0)');
+        sepGrad.addColorStop(0.5, (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0.45)' : 'rgba(52, 211, 153, 0.45)');
+        sepGrad.addColorStop(1, (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0)' : 'rgba(52, 211, 153, 0)');
+        targetCtx.strokeStyle = sepGrad;
+        targetCtx.lineWidth = 1.5;
+        targetCtx.beginPath();
+        targetCtx.moveTo(boxX + 60, boxY + 575);
+        targetCtx.lineTo(boxX + boxW - 60, boxY + 575);
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        // Payoff Footer Card (Sicuro all'interno del box, ad alto contrasto 22px)
         targetCtx.textAlign = 'center';
-        targetCtx.font = '800 19px "Inter", sans-serif';
-        targetCtx.fillStyle = '#f1f5f9';
+        targetCtx.font = '800 22px "Outfit", "Inter", sans-serif';
+        targetCtx.fillStyle = '#f8fafc';
+        targetCtx.shadowColor = 'rgba(0, 0, 0, 0.90)';
+        targetCtx.shadowBlur = 6;
+        targetCtx.shadowOffsetY = 2;
         targetCtx.fillText(
           mode === 'R1'
-            ? '🇮🇹 Authentic Traditional Italian Pizza & Kitchen in Koh Phayam'
+            ? '🇮🇹 Authentic Italian Traditional Pizza & Homemade Kitchen'
             : (brand === 'pizza'
               ? '🇮🇹 Authentic Traditional Italian Pizza in Ranong'
               : '🌴 Tropical Island Resort & Eco Sanctuary in Koh Phayam'),
           cx,
-          boxY + boxH - 26
+          boxY + 645
         );
 
         targetCtx.restore();
       }
       targetCtx.restore();
+    };
+
+    // 🖥️ Helper per disegnare l'Outro 4:3 per Google Business & Facebook Feed
+    const draw43OutroToContext = (
+      targetCtx: CanvasRenderingContext2D,
+      w: number,
+      h: number,
+      outroElapsed: number
+    ) => {
+      targetCtx.save();
+      targetCtx.scale(w / 960, h / 720);
+      const w43 = 960;
+      const h43 = 720;
+      const cx43 = w43 / 2;
+      // 🛡️ Sfondo 100% nero opaco per azzerare categoricamente qualsiasi residuo del frame precedente o del box prezzo
+      targetCtx.fillStyle = '#000000';
+      targetCtx.fillRect(0, 0, w43, h43);
+
+      const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
+      if (comp43Logo) {
+        const lSize = 130;
+        targetCtx.save();
+        targetCtx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+        targetCtx.shadowBlur = 20;
+        targetCtx.drawImage(comp43Logo, cx43 - lSize / 2, 100, lSize, lSize);
+        targetCtx.restore();
+      }
+
+      targetCtx.font = '900 32px "Outfit", "Inter", sans-serif';
+      targetCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
+      targetCtx.textAlign = 'center';
+      targetCtx.fillText(
+        mode === 'R1' ? 'FLOWER POWER RESTAURANT' : (brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE'),
+        cx43,
+        275
+      );
+
+      targetCtx.font = '800 20px "Inter", sans-serif';
+      targetCtx.fillStyle = '#ffffff';
+      targetCtx.fillText(
+        (mode === 'R1' || brand === 'village') ? 'KOH PHAYAM · THAILAND' : 'RANONG · THAILAND',
+        cx43,
+        315
+      );
+
+      targetCtx.font = '600 16px "Inter", sans-serif';
+      targetCtx.fillStyle = '#cbd5e1';
+      targetCtx.fillText(
+        mode === 'R1' ? 'Italian Restaurant & Island Delivery' : (brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary'),
+        cx43,
+        348
+      );
+
+      const cardW = 600;
+      const cardH = 150;
+      const cardX = cx43 - (cardW / 2);
+      const cardY = 390;
+      targetCtx.save();
+      targetCtx.beginPath();
+      targetCtx.fillStyle = 'rgba(11, 17, 32, 0.94)';
+      if (typeof targetCtx.roundRect === 'function') {
+        targetCtx.roundRect(cardX, cardY, cardW, cardH, 20);
+      } else {
+        targetCtx.rect(cardX, cardY, cardW, cardH);
+      }
+      targetCtx.fill();
+      targetCtx.strokeStyle = (brand === 'pizza' && mode !== 'R1') ? 'rgba(245, 158, 11, 0.65)' : 'rgba(52, 211, 153, 0.75)';
+      targetCtx.lineWidth = 2.5;
+      targetCtx.stroke();
+      targetCtx.restore();
+
+      targetCtx.font = '900 24px "Inter", sans-serif';
+      targetCtx.fillStyle = '#ffffff';
+      targetCtx.textAlign = 'center';
+      targetCtx.fillText(
+        mode === 'R1' ? '✆ WhatsApp +66 095 882 5573' : (brand === 'pizza' ? '🌐 flowerpowerpizza.com' : '🌐 flowerpowervillage.com'),
+        cx43,
+        cardY + 46
+      );
+
+      targetCtx.font = '800 18px "Inter", sans-serif';
+      targetCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
+      targetCtx.fillText(
+        mode === 'R1' ? '🛵 Fast Island Delivery in Koh Phayam' : (brand === 'pizza' ? '🛵 Fast Delivery Ranong · 10% Off 1st Order' : '🌴 Direct Booking · Best Rates Guaranteed'),
+        cx43,
+        cardY + 86
+      );
+
+      targetCtx.font = '600 15px "Inter", sans-serif';
+      targetCtx.fillStyle = '#94a3b8';
+      targetCtx.fillText(
+        mode === 'R1' ? 'Buffalo Bay (Ao Khao Kwai) · Koh Phayam' : (brand === 'pizza' ? 'Order Online or Visit us near Hot Springs' : 'Koh Phayam Island · Thailand'),
+        cx43,
+        cardY + 118
+      );
+
+      targetCtx.restore();
+    };
+
+    // 🖥️ Helper per disegnare gli overlay 4:3 con proporzioni 100% IDENTICHE all'anteprima DOM (Image 1)
+    const render43OverlaysToContext = (
+      oCtx: CanvasRenderingContext2D,
+      w: number,
+      h: number,
+      scene: AutoCutScene,
+      tElapsed: number = 0
+    ) => {
+      if (!scene) return;
+      // 🛡️ Se il video è nella fase di Outro finale o in dissolvenza verso l'Outro, azzera categoricamente ogni overlay
+      if (tElapsed >= outroStartTime - 0.35) return;
+      oCtx.beginPath();
+      const s = w / 960; // Su 1440x1080: s = 1.5
+
+      // Helper universale per testo 4:3 con contorno nero solido a 360° e ombra profonda
+      const drawTextWithShadow43 = (
+        text: string,
+        x: number,
+        y: number,
+        fillStyle: string,
+        strokeWidth: number = 5.0 * s
+      ) => {
+        oCtx.save();
+        oCtx.strokeStyle = '#000000';
+        oCtx.lineWidth = strokeWidth;
+        oCtx.lineJoin = 'round';
+        oCtx.miterLimit = 2;
+        oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
+        oCtx.shadowBlur = 10 * s;
+        oCtx.shadowOffsetY = 2.5 * s;
+        oCtx.strokeText(text, x, y);
+        oCtx.restore();
+
+        oCtx.save();
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        oCtx.shadowBlur = 4 * s;
+        oCtx.shadowOffsetY = 1.5 * s;
+        oCtx.fillStyle = fillStyle;
+        oCtx.fillText(text, x, y);
+        oCtx.restore();
+      };
+
+      // 1. Watermark Logo Top-Left (Calibrato al 16% della larghezza schermo come nell'anteprima DOM)
+      const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
+      const logoSize = Math.round(155 * s); // ~232px su 1440p (16.1% della larghezza, identico all'anteprima)
+      const posX = 32 * s;
+      const posY = 26 * s;
+
+      if (comp43Logo) {
+        oCtx.save();
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        oCtx.shadowBlur = 18 * s;
+        oCtx.shadowOffsetY = 3.5 * s;
+        oCtx.drawImage(comp43Logo, posX, posY, logoSize, logoSize);
+        oCtx.restore();
+      }
+
+      // Testi Brand Watermark a Destra del Logo (Proporzioni identiche all'anteprima DOM)
+      oCtx.save();
+      const textX = posX + logoSize + (18 * s);
+      oCtx.textAlign = 'left';
+      oCtx.textBaseline = 'top';
+
+      // Riga 1: FLOWER POWER (50 * s = 75px su 1440p, 5.2% larghezza schermo)
+      const fpFontSize = Math.round(50 * s);
+      oCtx.font = `900 ${fpFontSize}px "Outfit", sans-serif`;
+      drawTextWithShadow43('FLOWER POWER', textX, posY + (2 * s), '#ffffff', 5.5 * s);
+
+      // Riga 2: Pizza / Village (40 * s = 60px su 1440p)
+      const subFontSize = Math.round(40 * s);
+      oCtx.font = `italic 500 ${subFontSize}px "Outfit", sans-serif`;
+      const subColor = brand === 'pizza' ? '#f87171' : '#34d399';
+      drawTextWithShadow43(brand === 'pizza' ? 'Pizza' : 'Village', textX, posY + (52 * s), subColor, 4.8 * s);
+
+      // Riga 3: Delivery / Direct Booking (32 * s = 48px su 1440p)
+      const infoFontSize = Math.round(32 * s);
+      oCtx.font = `700 ${infoFontSize}px "Outfit", sans-serif`;
+      const infoText = brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off';
+      drawTextWithShadow43(infoText, textX, posY + (100 * s), '#fbbf24', 4.2 * s);
+      oCtx.restore();
+
+      // 2. Prezzo Ufficiale & Disponibilità:
+      const isPriceAllowed = tElapsed < (outroStartTime - 0.50);
+      const hasPrice = isPriceAllowed && mode !== 'V2' && mode !== 'V3' && (!!scene.priceLabel || !!scene.pizzaSizes);
+
+      let priceText = '';
+      if (hasPrice) {
+        if (scene.pizzaSizes) {
+          priceText = `8" ${scene.pizzaSizes.size8Price}฿  •  12" ${scene.pizzaSizes.size12Price}฿`;
+        } else if (scene.priceLabel) {
+          priceText = scene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
+        }
+      }
+
+      // 3. Testi Inferiori a Sinistra (Calibrati identici all'anteprima DOM)
+      const leftX = 32 * s;
+      const bottomBaseY = h - (32 * s);
+
+      const isPriceOnLeft = mode === 'LM1' || brand === 'village';
+      const maxBottomTextW = isPriceOnLeft
+        ? (w - leftX - (60 * s))
+        : (w - leftX - (360 * s));
+
+      const wrapTextToWidth = (text: string, maxW: number, font: string): string[] => {
+        oCtx.font = font;
+        const rawLines = text.split('\n').filter(Boolean);
+        const result: string[] = [];
+        for (const rawLine of rawLines) {
+          if (oCtx.measureText(rawLine).width <= maxW) {
+            result.push(rawLine);
+            continue;
+          }
+          const words = rawLine.split(' ');
+          if (words.length > 1) {
+            let cur = '';
+            for (const word of words) {
+              const test = cur ? `${cur} ${word}` : word;
+              if (oCtx.measureText(test).width <= maxW) {
+                cur = test;
+              } else {
+                if (cur) result.push(cur);
+                cur = word;
+              }
+            }
+            if (cur) result.push(cur);
+          } else {
+            let cur = '';
+            for (let c = 0; c < rawLine.length; c++) {
+              const char = rawLine[c];
+              const test = cur + char;
+              if (oCtx.measureText(test).width <= maxW) {
+                cur = test;
+              } else {
+                if (cur) result.push(cur);
+                cur = char;
+              }
+            }
+            if (cur) result.push(cur);
+          }
+        }
+        return result;
+      };
+
+      oCtx.save();
+      oCtx.textAlign = 'left';
+      oCtx.textBaseline = 'top';
+
+      if (brand === 'pizza' || mode === 'P1' || mode === 'R1') {
+        const thaiFontSize = Math.round(44 * s);
+        const thaiLineStep = Math.round(54 * s);
+        const engFontSize = Math.round(36 * s);
+        const engLineStep = Math.round(44 * s);
+        const catFontSize = Math.round(28 * s);
+
+        const rawThai = formatSemanticThaiDishTitle(scene.titlePrimary || '');
+        const rawEng = formatSemanticEnglishDishTitle(scene.titleSecondary || '');
+        const thaiLines = wrapTextToWidth(rawThai, maxBottomTextW, `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`);
+        const engLines = wrapTextToWidth(rawEng, maxBottomTextW, `800 ${engFontSize}px "Outfit", sans-serif`);
+
+        const hasBadge = !!scene.badgeCategory;
+        const catH = hasBadge ? (38 * s) : 0;
+        const thaiH = thaiLines.length * thaiLineStep;
+        const engH = engLines.length * engLineStep;
+        const totalTextH = catH + thaiH + engH;
+
+        let curY = bottomBaseY - totalTextH;
+
+        if (hasBadge) {
+          let catText = scene.badgeCategory || '';
+          if (catText.toUpperCase().includes('TRADITIONAL ITALIAN PIZZA') || catText.toUpperCase() === 'TRADITIONAL PIZZA') {
+            catText = 'ITALIAN PIZZA';
+          }
+          const cleanCat = catText.replace(/^[✦⭐✨\s*]+/, '').trim().toUpperCase();
+          oCtx.font = `900 ${catFontSize}px "Outfit", sans-serif`;
+          drawTextWithShadow43('✦', leftX, curY, '#dc2626', 5.0 * s);
+          drawTextWithShadow43(cleanCat, leftX + (26 * s), curY, '#ffffff', 5.0 * s);
+          curY += catFontSize + (10 * s);
+        }
+
+        oCtx.font = `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
+        thaiLines.forEach(line => {
+          drawTextWithShadow43(line, leftX, curY, '#fcd34d', 5.5 * s);
+          curY += thaiLineStep;
+        });
+
+        oCtx.font = `800 ${engFontSize}px "Outfit", sans-serif`;
+        engLines.forEach(line => {
+          drawTextWithShadow43(line, leftX, curY, '#f8fafc', 5.0 * s);
+          curY += engLineStep;
+        });
+
+        if (hasPrice) {
+          oCtx.save();
+          oCtx.beginPath();
+          const pFontSize = Math.round(42 * s);
+          oCtx.font = `900 ${pFontSize}px "Kanit", sans-serif`;
+          const pTextW = oCtx.measureText(priceText).width;
+          const boxPadX = 24 * s;
+          const priceBoxH = Math.round(68 * s);
+          const priceBoxW = Math.round(pTextW + (boxPadX * 2));
+          const priceMarginRight = 32 * s;
+          const priceBoxX = w - priceMarginRight - priceBoxW;
+          const priceBoxY = bottomBaseY - (4 * s) - priceBoxH;
+          const boxRadius = 12 * s;
+
+          oCtx.fillStyle = '#000000';
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(priceBoxX + 4 * s, priceBoxY + 4 * s, priceBoxW, priceBoxH, boxRadius);
+          } else {
+            oCtx.rect(priceBoxX + 4 * s, priceBoxY + 4 * s, priceBoxW, priceBoxH);
+          }
+          oCtx.fill();
+
+          oCtx.beginPath();
+          oCtx.fillStyle = '#FFE500';
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(priceBoxX, priceBoxY, priceBoxW, priceBoxH, boxRadius);
+          } else {
+            oCtx.rect(priceBoxX, priceBoxY, priceBoxW, priceBoxH);
+          }
+          oCtx.fill();
+
+          oCtx.strokeStyle = '#000000';
+          oCtx.lineWidth = 3 * s;
+          oCtx.stroke();
+
+          oCtx.textAlign = 'center';
+          oCtx.textBaseline = 'middle';
+          const pCx = priceBoxX + (priceBoxW / 2);
+          const pCy = priceBoxY + (priceBoxH / 2) + Math.round(2 * s);
+
+          oCtx.font = `900 ${pFontSize}px "Kanit", sans-serif`;
+          oCtx.lineWidth = 4.5 * s;
+          oCtx.strokeStyle = '#ffffff';
+          oCtx.lineJoin = 'round';
+          oCtx.strokeText(priceText, pCx, pCy);
+
+          oCtx.fillStyle = '#000000';
+          oCtx.shadowColor = 'transparent';
+          oCtx.shadowBlur = 0;
+          oCtx.fillText(priceText, pCx, pCy);
+          oCtx.restore();
+        }
+
+      } else {
+        // Modalità Alloggi Villaggio (LM1, V1): Proporzioni identiche all'anteprima DOM (Image 1)
+        const titleFontSize = Math.round(52 * s); // ~78px su 1440p (5.4% della larghezza)
+        const titleLineStep = Math.round(64 * s);
+        const subFontSize = Math.round(38 * s);   // ~57px su 1440p
+        const subLineStep = Math.round(48 * s);
+        const thaiFontSize = Math.round(33 * s);  // ~50px su 1440p
+        const thaiLineStep = Math.round(42 * s);
+        const catFontSize = Math.round(33 * s);   // ~50px su 1440p
+
+        const lodgingTitle = scene.lodgingTitle || scene.titlePrimary || '';
+        const titleLines = wrapTextToWidth(lodgingTitle, maxBottomTextW, `900 ${titleFontSize}px "Outfit", sans-serif`);
+        const subLines = scene.lodgingSubtitle ? wrapTextToWidth(scene.lodgingSubtitle, maxBottomTextW, `700 ${subFontSize}px "Outfit", sans-serif`) : [];
+        const thaiLines = wrapTextToWidth(scene.titleSecondary || '', maxBottomTextW, `600 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`);
+
+        const hasBadge = !!scene.badgeCategory;
+        const catH = hasBadge ? (44 * s) : 0;
+        const titleH = titleLines.length * titleLineStep;
+        const subH = subLines.length * subLineStep;
+        const thaiH = thaiLines.length * thaiLineStep;
+
+        // PUNTO 4: Prezzo posizionato in BASSO A SINISTRA sotto la descrizione Thai
+        const priceBoxH = Math.round(68 * s);
+        const priceMarginTop = 16 * s;
+        const priceTotalH = (hasPrice && isPriceOnLeft) ? (priceBoxH + priceMarginTop) : 0;
+        const totalTextH = catH + titleH + subH + thaiH + priceTotalH;
+
+        let curY = bottomBaseY - totalTextH;
+
+        // Categoria Alloggio (✦ 🔥 AVAILABLE TONIGHT)
+        if (hasBadge) {
+          const cleanCat = (scene.badgeCategory || '').replace(/^[✦⭐✨\s*]+/, '').trim().toUpperCase();
+          oCtx.font = `900 ${catFontSize}px "Outfit", sans-serif`;
+          drawTextWithShadow43('✦', leftX, curY, '#dc2626', 5.0 * s);
+          drawTextWithShadow43(cleanCat, leftX + (30 * s), curY, '#ffffff', 5.0 * s);
+          curY += catFontSize + (12 * s);
+        }
+
+        // Titolo Alloggio (Villa Penthouse - Outfit 900)
+        oCtx.font = `900 ${titleFontSize}px "Outfit", sans-serif`;
+        titleLines.forEach(line => {
+          drawTextWithShadow43(line, leftX, curY, '#ffffff', 6.0 * s);
+          curY += titleLineStep;
+        });
+
+        // Sottotitolo Alloggio (Breezy Suite - Outfit 700 Ambra)
+        if (subLines.length > 0) {
+          oCtx.font = `700 ${subFontSize}px "Outfit", sans-serif`;
+          subLines.forEach(line => {
+            drawTextWithShadow43(line, leftX, curY, '#fcd34d', 5.2 * s);
+            curY += subLineStep;
+          });
+        }
+
+        // Descrizione Thai (Prompt 600)
+        if (thaiLines.length > 0) {
+          oCtx.font = `600 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
+          thaiLines.forEach(line => {
+            drawTextWithShadow43(line, leftX, curY, 'rgba(241, 245, 249, 0.98)', 4.8 * s);
+            curY += thaiLineStep;
+          });
+        }
+
+        // 🎯 PUNTO 4: Prezzo Ufficiale Spostato in BASSO A SINISTRA (sotto la descrizione Thai)
+        if (hasPrice && isPriceOnLeft) {
+          curY += priceMarginTop;
+          oCtx.save();
+          oCtx.beginPath();
+          const pFontSize = Math.round(42 * s); // ~63px su 1440p
+          oCtx.font = `900 ${pFontSize}px "Kanit", sans-serif`;
+          const pTextW = oCtx.measureText(priceText).width;
+          const boxPadX = 24 * s;
+          const boxW = Math.round(pTextW + (boxPadX * 2));
+          const boxRadius = 14 * s;
+          const boxX = leftX;
+          const boxY = curY;
+
+          // Ombra solida d'angolo nera 4.5px 4.5px
+          oCtx.fillStyle = '#000000';
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(boxX + 4.5 * s, boxY + 4.5 * s, boxW, priceBoxH, boxRadius);
+          } else {
+            oCtx.rect(boxX + 4.5 * s, boxY + 4.5 * s, boxW, priceBoxH);
+          }
+          oCtx.fill();
+
+          // Sfondo giallo dorato #FFE500
+          oCtx.beginPath();
+          oCtx.fillStyle = '#FFE500';
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(boxX, boxY, boxW, priceBoxH, boxRadius);
+          } else {
+            oCtx.rect(boxX, boxY, boxW, priceBoxH);
+          }
+          oCtx.fill();
+
+          // Bordo nero solido 3px
+          oCtx.strokeStyle = '#000000';
+          oCtx.lineWidth = 3.2 * s;
+          oCtx.stroke();
+
+          // Testo cifra in nero con outline bianco centrato
+          oCtx.textAlign = 'center';
+          oCtx.textBaseline = 'middle';
+          const pCx = boxX + (boxW / 2);
+          const pCy = boxY + (priceBoxH / 2) + Math.round(2.5 * s);
+
+          oCtx.lineWidth = 4.5 * s;
+          oCtx.strokeStyle = '#ffffff';
+          oCtx.lineJoin = 'round';
+          oCtx.strokeText(priceText, pCx, pCy);
+
+          oCtx.fillStyle = '#000000';
+          oCtx.shadowColor = 'transparent';
+          oCtx.shadowBlur = 0;
+          oCtx.fillText(priceText, pCx, pCy);
+
+          oCtx.restore();
+        }
+      }
+      oCtx.restore();
     };
 
     const renderFrame = (elapsed: number) => {
@@ -964,88 +1524,7 @@ export function AutoCutLabPlayer({
 
         // Rendering Outro specifico anche per Canvas 4:3 Companion
         if (canvas43 && ctx43) {
-          const w43 = canvas43.width;
-          const h43 = canvas43.height;
-          const cx43 = w43 / 2;
-          ctx43.fillStyle = `rgba(0, 0, 0, ${darkAlpha})`;
-          ctx43.fillRect(0, 0, w43, h43);
-
-          const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
-          if (comp43Logo) {
-            const lSize = 130;
-            ctx43.save();
-            ctx43.shadowColor = 'rgba(0, 0, 0, 0.9)';
-            ctx43.shadowBlur = 20;
-            ctx43.drawImage(comp43Logo, cx43 - lSize / 2, 100, lSize, lSize);
-            ctx43.restore();
-          }
-
-          ctx43.font = '900 32px "Outfit", "Inter", sans-serif';
-          ctx43.fillStyle = brand === 'pizza' ? '#fbbf24' : '#34d399';
-          ctx43.textAlign = 'center';
-          ctx43.fillText(
-            brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE',
-            cx43,
-            275
-          );
-
-          ctx43.font = '800 20px "Inter", sans-serif';
-          ctx43.fillStyle = '#ffffff';
-          ctx43.fillText(
-            brand === 'pizza' ? 'RANONG · THAILAND' : 'KOH PHAYAM · THAILAND',
-            cx43,
-            315
-          );
-
-          ctx43.font = '600 16px "Inter", sans-serif';
-          ctx43.fillStyle = '#cbd5e1';
-          ctx43.fillText(
-            brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary',
-            cx43,
-            348
-          );
-
-          const cardW = 600;
-          const cardH = 150;
-          const cardX = cx43 - (cardW / 2);
-          const cardY = 390;
-          ctx43.save();
-          ctx43.fillStyle = 'rgba(11, 17, 32, 0.94)';
-          if (typeof ctx43.roundRect === 'function') {
-            ctx43.roundRect(cardX, cardY, cardW, cardH, 20);
-          } else {
-            ctx43.rect(cardX, cardY, cardW, cardH);
-          }
-          ctx43.fill();
-          ctx43.strokeStyle = brand === 'pizza' ? 'rgba(245, 158, 11, 0.65)' : 'rgba(52, 211, 153, 0.75)';
-          ctx43.lineWidth = 2.5;
-          ctx43.stroke();
-          ctx43.restore();
-
-          ctx43.font = '900 24px "Inter", sans-serif';
-          ctx43.fillStyle = '#ffffff';
-          ctx43.textAlign = 'center';
-          ctx43.fillText(
-            brand === 'pizza' ? '🌐 flowerpowerpizza.com' : '🌐 flowerpowervillage.com',
-            cx43,
-            cardY + 46
-          );
-
-          ctx43.font = '800 18px "Inter", sans-serif';
-          ctx43.fillStyle = brand === 'pizza' ? '#fbbf24' : '#34d399';
-          ctx43.fillText(
-            brand === 'pizza' ? '🛵 Fast Delivery Ranong · 10% Off 1st Order' : '🌴 Direct Booking · Best Rates Guaranteed',
-            cx43,
-            cardY + 86
-          );
-
-          ctx43.font = '600 15px "Inter", sans-serif';
-          ctx43.fillStyle = '#94a3b8';
-          ctx43.fillText(
-            brand === 'pizza' ? 'Order Online or Visit us near Hot Springs' : 'Koh Phayam Island · Thailand',
-            cx43,
-            cardY + 118
-          );
+          draw43OutroToContext(ctx43, canvas43.width, canvas43.height, outroElapsed);
         }
 
 
@@ -1118,28 +1597,7 @@ export function AutoCutLabPlayer({
       if (isOutro || !scene) return;
       const s = w / 395; // Proporzione fedele 1:1 rispetto alla preview del container reale a 395px
 
-      // 1. Top Vignette Fade cinematografico ad alto contrasto (protegge watermark logo e scritte contro sfondi chiari, paglia o sole)
-      const topFadeH = 340 * s;
-      const topGrad = oCtx.createLinearGradient(0, 0, 0, topFadeH);
-      topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.92)');
-      topGrad.addColorStop(0.35, 'rgba(0, 0, 0, 0.70)');
-      topGrad.addColorStop(0.70, 'rgba(0, 0, 0, 0.35)');
-      topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      oCtx.fillStyle = topGrad;
-      oCtx.fillRect(0, 0, w, topFadeH);
-
-      // 2. Bottom Vignette Fade cinematografica profonda: protegge interamente la card testi (categoria cibi, titoli bilingui e prezzo con ombra nera continua)
-      const btmFadeH = 520 * s;
-      const btmGrad = oCtx.createLinearGradient(0, h - btmFadeH, 0, h);
-      btmGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      btmGrad.addColorStop(0.18, 'rgba(0, 0, 0, 0.35)');
-      btmGrad.addColorStop(0.40, 'rgba(0, 0, 0, 0.68)');
-      btmGrad.addColorStop(0.68, 'rgba(0, 0, 0, 0.88)');
-      btmGrad.addColorStop(1, 'rgba(0, 0, 0, 0.96)');
-      oCtx.fillStyle = btmGrad;
-      oCtx.fillRect(0, h - btmFadeH, w, btmFadeH);
-
-      // 3. Header Top: Logo a sinistra (+20%) + Testi a destra (SEMPRE CENTRATI SULL'ASSE VERTICALE IN TUTTI I FORMATI)
+      // 1. Header Top: Logo a sinistra (+20%) + Testi a destra (SEMPRE CENTRATI SULL'ASSE VERTICALE IN TUTTI I FORMATI)
       const logoSize = 91 * s; // Ingrandito del +20% (era 76 * s)
       const logoY = 24 * s;    // Ancoraggio superiore
       const gap = 12 * s;
@@ -2150,8 +2608,11 @@ export function AutoCutLabPlayer({
       }
     };
 
-    // Espone l'esportatore del fotogramma composito 9:16 e del VIDEO MP4 Full HD (1080x1920)
+    // Espone l'esportatore del fotogramma composito 9:16 e del VIDEO MP4 Full HD (1080x1920 / 1440x1080)
     if (typeof window !== 'undefined') {
+      (window as any).__autoCutCurrentMode = mode;
+      (window as any).__lastAutoCutTestRun = testRun;
+
       (window as any).__autoCutGetCanvas = () => {
         const c = canvasRef.current;
         const off = document.createElement('canvas');
@@ -2179,12 +2640,20 @@ export function AutoCutLabPlayer({
         return off;
       };
 
-      // 🎬 Generatore Video MP4 Full HD con MediaRecorder a 30fps con Audio Muxato, Font Originali e Outro Ufficiale Completo
-      (window as any).__autoCutGetVideo = async (onProgress?: (pct: number, stepIndex?: number, stepLabel?: string) => void): Promise<string | null> => {
+      // 🎬 Generatore Video MP4 Full HD con WebCodecs 60fps (o MediaRecorder) con Audio Muxato, Font Originali e Outro Ufficiale
+      // Supporta sia 9:16 (1080x1920) sia 4:3 (1440x1080)
+      (window as any).__autoCutGetVideo = async (
+        onProgress?: (pct: number, stepIndex?: number, stepLabel?: string) => void,
+        options?: { aspectRatio?: '9:16' | '4:3' }
+      ): Promise<string | null> => {
         const c = canvasRef.current;
         if (!c) return null;
 
-        if (onProgress) onProgress(3, 0, 'Inizializzazione motore video Full HD 1080x1920...');
+        const is43 = options?.aspectRatio === '4:3';
+        const targetW = is43 ? 1440 : 1080;
+        const targetH = is43 ? 1080 : 1920;
+
+        if (onProgress) onProgress(3, 0, `Inizializzazione motore video Full HD ${targetW}x${targetH} (${is43 ? '4:3 Landscape' : '9:16 Vertical'} )...`);
 
         // Assicura che tutti i web font ufficiali (Outfit, Prompt, Kanit, Inter) siano scaricati e pronti
         if (typeof document !== 'undefined' && document.fonts) {
@@ -2246,13 +2715,13 @@ export function AutoCutLabPlayer({
         }
 
         const off = document.createElement('canvas');
-        off.width = 1080;
-        off.height = 1920;
+        off.width = targetW;
+        off.height = targetH;
         off.style.position = 'fixed';
         off.style.left = '0px';
         off.style.top = '0px';
-        off.style.width = '1080px';
-        off.style.height = '1920px';
+        off.style.width = `${targetW}px`;
+        off.style.height = `${targetH}px`;
         off.style.zIndex = '-99999';
         off.style.opacity = '0.01';
         off.style.pointerEvents = 'none';
@@ -2300,9 +2769,9 @@ export function AutoCutLabPlayer({
           const activeSc = scenes[curIdx] || scenes[0];
           const activeImg = loadedImages[curIdx] || loadedImages[0];
 
-          offCtx.clearRect(0, 0, 1080, 1920);
+          offCtx.clearRect(0, 0, targetW, targetH);
           if (activeImg && activeSc) {
-            drawSceneToCanvas(off, offCtx, activeImg, activeSc, subT, 1.0, false);
+            drawSceneToCanvas(off, offCtx, activeImg, activeSc, subT, 1.0, is43);
           }
 
           // Crossfade con la scena successiva: SOLTANTO L'IMMAGINE DI FONDO DISSOLVE, L'HEADER RIMANE FISSO!
@@ -2321,7 +2790,7 @@ export function AutoCutLabPlayer({
               const nSubT = INCOMING_OFFSET + (nRawSubT * (1.0 - INCOMING_OFFSET));
               const crossRatio = Math.min(1.0, Math.max(0.0, (tElapsed - transThreshold) / effDissolve));
               const nOpacity = 0.5 - 0.5 * Math.cos(crossRatio * Math.PI);
-              drawSceneToCanvas(off, offCtx, nextImg, nextSc, nSubT, nOpacity, false);
+              drawSceneToCanvas(off, offCtx, nextImg, nextSc, nSubT, nOpacity, is43);
               if (crossRatio >= 0.5) {
                 dominantIdx = nextIdx;
               }
@@ -2329,14 +2798,14 @@ export function AutoCutLabPlayer({
           }
 
           // Overlay gradiente cinematografico per contrasto tipografico
-          if (tElapsed < outroStartTime) {
-            const grad = offCtx.createLinearGradient(0, 0, 0, 1920);
+          if (!is43 && tElapsed < outroStartTime) {
+            const grad = offCtx.createLinearGradient(0, 0, 0, targetH);
             grad.addColorStop(0, 'rgba(0,0,0,0.25)');
             grad.addColorStop(0.20, 'rgba(0,0,0,0.0)');
             grad.addColorStop(0.80, 'rgba(0,0,0,0.0)');
             grad.addColorStop(1, 'rgba(0,0,0,0.35)');
             offCtx.fillStyle = grad;
-            offCtx.fillRect(0, 0, 1080, 1920);
+            offCtx.fillRect(0, 0, targetW, targetH);
           }
 
           // 2. Disegna gli overlay identici alla preview (con dissolvenza dolce prima dell'outro) o l'Outro finale animato
@@ -2348,10 +2817,21 @@ export function AutoCutLabPlayer({
             }
             offCtx.save();
             offCtx.globalAlpha = overlayAlpha;
-            renderOverlaysToContext(offCtx, 1080, 1920, scenes[dominantIdx] || activeSc, false, tElapsed);
+            if (is43) {
+              render43OverlaysToContext(offCtx, targetW, targetH, scenes[dominantIdx] || activeSc, tElapsed);
+            } else {
+              renderOverlaysToContext(offCtx, 1080, 1920, scenes[dominantIdx] || activeSc, false, tElapsed);
+            }
             offCtx.restore();
           } else {
-            drawFullOutroToContext(offCtx, 1080, 1920, tElapsed - outroStartTime);
+            offCtx.beginPath();
+            offCtx.fillStyle = '#000000';
+            offCtx.fillRect(0, 0, targetW, targetH);
+            if (is43) {
+              draw43OutroToContext(offCtx, targetW, targetH, tElapsed - outroStartTime);
+            } else {
+              drawFullOutroToContext(offCtx, 1080, 1920, tElapsed - outroStartTime);
+            }
           }
         };
 
@@ -2359,14 +2839,14 @@ export function AutoCutLabPlayer({
         // Zero scatti, zero frame drop, 100% identico alla preview canvas del Social Studio!
         if (typeof window !== 'undefined' && typeof (window as any).VideoEncoder === 'function') {
           try {
-            if (onProgress) onProgress(6, 1, 'Inizializzazione encoder hardware WebCodecs 60 FPS...');
+            if (onProgress) onProgress(6, 1, `Inizializzazione encoder hardware WebCodecs 60 FPS (${targetW}x${targetH})...`);
 
             const muxer = new Muxer({
               target: new ArrayBufferTarget(),
               video: {
                 codec: 'avc',
-                width: 1080,
-                height: 1920
+                width: targetW,
+                height: targetH
               },
               fastStart: 'in-memory'
             });
@@ -2383,9 +2863,9 @@ export function AutoCutLabPlayer({
             const targetBitrate = Math.min(5_500_000, Math.max(1_800_000, Math.floor(safeMaxBits / targetDuration)));
 
             encoder.configure({
-              codec: 'avc1.64002a', // H.264 High Profile Level 4.2 Full HD 1080x1920
-              width: 1080,
-              height: 1920,
+              codec: 'avc1.64002a', // H.264 High Profile Level 4.2
+              width: targetW,
+              height: targetH,
               bitrate: targetBitrate,
               framerate: 60,
               latencyMode: 'quality'
@@ -3085,11 +3565,6 @@ export function AutoCutLabPlayer({
         </div>
       )}
 
-      {/* Sfondo sfumato nero in alto (Top Vignette Fade ad alto contrasto per proteggere logo e testi contro qualsiasi sfondo) */}
-      <div className={`absolute top-0 left-0 right-0 h-80 bg-gradient-to-b from-black/92 via-black/65 via-50% via-black/25 via-80% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
-        isInOutro ? 'opacity-0' : 'opacity-100'
-      }`} />
-
       {/* 👑 WATERMARK & HEADER UFFICIALE 9:16 (Logo +20% + testi) SEMPRE CENTRATO SULL'ASSE VERTICALE IN TUTTI I FORMATI */}
       {!isInOutro && (
         <div className="absolute top-6 left-1/2 -translate-x-1/2 w-max z-30 pointer-events-none transition-all duration-300">
@@ -3337,11 +3812,6 @@ export function AutoCutLabPlayer({
           )}
         </div>
       )}
-
-      {/* Sfondo sfumato nero in basso (Bottom Vignette Fade cinematografica profonda: protegge categoria, titoli bilingui e prezzo con ombra nera continua) */}
-      <div className={`absolute bottom-0 left-0 right-0 h-[520px] bg-gradient-to-t from-black/95 via-black/85 via-45% via-black/55 via-72% via-black/25 via-88% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
-        isInOutro ? 'opacity-0' : 'opacity-100'
-      }`} />
 
       {/* 🏷️ GERARCHIA TIPOGRAFICA RIGOROSA (SAFE ZONE IN BASSO PROPORZIONATA - ALZATA A 65px PER LE PIZZE) */}
       {!testRun.isEmptyShowcase && currentScene && (
@@ -3779,50 +4249,42 @@ export function AutoCutLabPlayer({
               className="w-full h-full object-cover"
             />
 
-            {/* Sfondo sfumato nero in alto (Top Vignette Fade per massima leggibilità watermark) */}
-            <div className={`absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-black/92 via-black/55 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
-              isInOutro ? 'opacity-0' : 'opacity-100'
-            }`} />
-
-            {/* Sfondo sfumato nero in basso 4:3 (Bottom Vignette Fade: protegge categoria, titoli e prezzo con ombra nera continua) */}
-            <div className={`absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/95 via-black/75 via-45% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
-              isInOutro ? 'opacity-0' : 'opacity-100'
-            }`} />
-
-            {/* Watermark Ufficiale 4:3 (Logo +20% ulteriore = 60px + Titolo con riverbero nero + Sottotitolo - Ingrandito del 20%, posizione top-3 left-3 invariata) */}
-            <div className={`absolute top-3 left-3 z-30 flex items-center gap-3.5 pointer-events-none transition-all duration-300 ${
-              isInOutro ? 'opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'
-            }`}>
-              <img
-                crossOrigin="anonymous"
-                src={brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64}
-                alt="Logo"
-                className="w-[60px] h-[60px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0"
-              />
-              <div className="flex flex-col text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
-                <div className="flex flex-col text-left leading-none">
-                  <span className="text-[19px] sm:text-[21.5px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
-                    FLOWER POWER
-                  </span>
-                  <span className={`font-light italic text-[21px] sm:text-[22px] capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
-                    {brand === 'pizza' ? 'Pizza' : 'Village'}
+            {/* Watermark Ufficiale 4:3 (Preview proporzionata all'altezza ridotta di 285px del container) */}
+            {!isInOutro && (
+              <div className={`absolute top-[12px] left-[14px] z-30 flex items-center gap-2.5 pointer-events-none transition-all duration-300 ${
+                isInOutro ? 'hidden opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'
+              }`}>
+                <img
+                  crossOrigin="anonymous"
+                  src={brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64}
+                  alt="Logo"
+                  className="w-[62px] h-[62px] object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] shrink-0"
+                />
+                <div className="flex flex-col text-left drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
+                  <div className="flex flex-col text-left leading-none">
+                    <span className="text-[19px] sm:text-[21px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_6px_rgba(0,0,0,1)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] font-['Outfit',sans-serif]">
+                      FLOWER POWER
+                    </span>
+                    <span className={`font-light italic text-[16px] sm:text-[18px] capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 font-['Outfit',sans-serif] ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
+                      {brand === 'pizza' ? 'Pizza' : 'Village'}
+                    </span>
+                  </div>
+                  <span className="text-[12.5px] sm:text-[14px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_3px_rgba(0,0,0,1)] drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] text-amber-300 font-['Outfit',sans-serif]">
+                    {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off'}
                   </span>
                 </div>
-                <span className="text-[15px] sm:text-[17px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
-                  {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking'}
-                </span>
               </div>
-            </div>
+            )}
 
-            {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA (Sollevata di 3px a bottom-[15px], testi e prezzo ingranditi del 25%) */}
-            {currentScene && (
-              <div className={`absolute left-3 right-3 bottom-[15px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
-                isInOutro ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
+            {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA 4:3 (Preview proporzionata a vista) */}
+            {!isInOutro && currentScene && (
+              <div className={`absolute left-[14px] right-[14px] bottom-[14px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
+                isInOutro ? 'hidden opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
                 {/* Caso CIBO / PIATTI (P1): Categoria, Thai sopra in grande, Inglese sotto a scalare, prezzo */}
                 {(mode === 'P1' || mode === 'R1') && (
                   <div className="w-full flex items-end justify-between gap-2">
-                    {/* Blocco Titoli (Sinistra) - Ingrandito del 25% */}
+                    {/* Blocco Titoli (Sinistra) */}
                     <div className="flex-1 min-w-0 pr-1">
                       {currentScene.badgeCategory && (() => {
                         let catText = currentScene.badgeCategory;
@@ -3830,25 +4292,25 @@ export function AutoCutLabPlayer({
                           catText = 'ITALIAN PIZZA';
                         }
                         return (
-                          <div className="inline-flex items-center gap-1 text-[14px] sm:text-[15px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
-                            <span className="text-rose-500 font-black text-[14px] drop-shadow-[0_0_6px_rgba(244,63,94,0.95)] [text-shadow:_0_2px_4px_rgba(0,0,0,1)]">✦</span>
-                            <span className="[text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_1px_1px_2px_rgba(0,0,0,1)]">{catText.replace(/^[✦⭐\s*]+/, '')}</span>
+                          <div className="inline-flex items-center gap-1.5 text-[13px] sm:text-[14px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_6px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
+                            <span className="text-rose-500 font-black text-[14px] drop-shadow-[0_0_8px_rgba(244,63,94,0.95)] [text-shadow:_0_2px_4px_rgba(0,0,0,1)]">✦</span>
+                            <span className="[text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1)]">{catText.replace(/^[✦⭐\s*]+/, '')}</span>
                           </div>
                         );
                       })()}
 
-                      {/* THAI IN GRANDE SOPRA (+25%) */}
-                      <h3 className="text-[17.5px] sm:text-[20px] font-black text-amber-300 leading-tight mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1),_0_0_24px_rgba(0,0,0,0.95),_1px_1px_3px_rgba(0,0,0,1)] drop-shadow-[0_3px_10px_rgba(0,0,0,1)]">
-                        {(mode === 'P1' ? format43DishTitle(currentScene.titlePrimary, 'th') : currentScene.titlePrimary.split('\n')).map((line, idx) => (
+                      {/* THAI IN GRANDE SOPRA */}
+                      <h3 className="text-[18px] sm:text-[20px] font-black text-amber-300 leading-tight mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1)] drop-shadow-[0_3px_10px_rgba(0,0,0,1)]">
+                        {formatSemanticThaiDishTitle(currentScene.titlePrimary || '').split('\n').filter(Boolean).map((line, idx) => (
                           <span key={idx} className="block leading-tight whitespace-nowrap">
                             {line}
                           </span>
                         ))}
                       </h3>
 
-                      {/* INGLESE SOTTO (+25%) */}
-                      <div className="text-[14px] sm:text-[15px] font-semibold text-white/95 leading-snug [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_3px_rgba(0,0,0,1)] drop-shadow-[0_2px_8px_rgba(0,0,0,1)]">
-                        {(mode === 'P1' ? format43DishTitle(currentScene.titleSecondary, 'en') : currentScene.titleSecondary.split('\n')).map((line, idx) => (
+                      {/* INGLESE SOTTO */}
+                      <div className="text-[14px] sm:text-[15px] font-semibold text-white/95 leading-snug [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_12px_rgba(0,0,0,1)] drop-shadow-[0_2px_8px_rgba(0,0,0,1)] mt-0.5">
+                        {formatSemanticEnglishDishTitle(currentScene.titleSecondary || '').split('\n').filter(Boolean).map((line, idx) => (
                           <span key={idx} className="block leading-snug whitespace-nowrap">
                             {line}
                           </span>
@@ -3856,41 +4318,26 @@ export function AutoCutLabPlayer({
                       </div>
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (TASSATIVAMENTE UNO SOPRA L'ALTRO, INGRANDITO DEL 25%) */}
-                    <div 
-                      className="w-fit shrink-0 pb-0.5"
-                      style={{
-                        transform: currentScene.pizzaSizes && mode !== 'R1' ? 'scale(0.756)' : 'scale(0.938)',
-                        transformOrigin: 'bottom right'
-                      }}
-                    >
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" */}
+                    <div className="w-fit shrink-0 pb-0.5">
                       {currentScene.pizzaSizes && mode !== 'R1' ? (
                         <div className="flex flex-col items-end gap-1">
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                            <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
-                            <span
-                              className="font-['Kanit',sans-serif] text-[19px] sm:text-[21px] font-black leading-none tracking-tight"
-                              style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
-                            >
+                            <span className="font-['Kanit',sans-serif] text-xs font-black bg-black text-white px-1 py-0.5 rounded-[3px] leading-none">8"</span>
+                            <span className="font-['Kanit',sans-serif] text-[17px] font-black leading-none" style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.5px #ffffff' }}>
                               {currentScene.pizzaSizes.size8Price}฿
                             </span>
                           </div>
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                            <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
-                            <span
-                              className="font-['Kanit',sans-serif] text-[19px] sm:text-[21px] font-black leading-none tracking-tight"
-                              style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
-                            >
+                            <span className="font-['Kanit',sans-serif] text-xs font-black bg-black text-white px-1 py-0.5 rounded-[3px] leading-none">12"</span>
+                            <span className="font-['Kanit',sans-serif] text-[17px] font-black leading-none" style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.5px #ffffff' }}>
                               {currentScene.pizzaSizes.size12Price}฿
                             </span>
                           </div>
                         </div>
                       ) : currentScene.priceLabel ? (
-                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                          <span
-                            className="font-['Kanit',sans-serif] text-[24px] sm:text-[26px] font-black leading-none tracking-tight"
-                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
-                          >
+                        <div className="inline-flex items-center px-2 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                          <span className="font-['Kanit',sans-serif] text-[20px] font-black leading-none" style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}>
                             {currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
                           </span>
                         </div>
@@ -3899,34 +4346,55 @@ export function AutoCutLabPlayer({
                   </div>
                 )}
 
-                {/* Caso ALLOGGI (V1, LM1): Nome Alloggio, Sottotitolo, Thai + Prezzo Last Minute a destra (se LM1) */}
+                {/* Caso ALLOGGI (V1, LM1): Layout proporzionato ai 285px di altezza del player */}
                 {(mode === 'V1' || mode === 'LM1') && (
-                  <div className="w-full flex items-end justify-between gap-2">
-                    {/* Blocco Titoli (Sinistra) */}
-                    <div className="flex-1 min-w-0 pr-1 space-y-0.5">
-                      <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                        <h3 className="text-[17.5px] sm:text-[20px] font-black text-white leading-tight">
-                          {currentScene.lodgingTitle || currentScene.titlePrimary}
-                        </h3>
-                        {currentScene.lodgingSubtitle && (
-                          <p className="text-[14px] sm:text-[15px] font-bold text-amber-300 leading-tight mt-0.5">
-                            {currentScene.lodgingSubtitle}
-                          </p>
-                        )}
+                  <div className="w-full flex flex-col items-start gap-0.5">
+                    {/* Categoria Alloggio se presente (✦ AVAILABLE TONIGHT) */}
+                    {currentScene.badgeCategory && (
+                      <div className="inline-flex items-center gap-1 text-[13px] sm:text-[14px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_6px_rgba(0,0,0,1)] whitespace-nowrap">
+                        <span className="text-rose-500 font-black text-[14px] drop-shadow-[0_0_8px_rgba(244,63,94,0.95)]">✦</span>
+                        <span className="[text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_8px_rgba(0,0,0,1)]">
+                          {currentScene.badgeCategory.replace(/^[✦⭐\s*]+/, '')}
+                        </span>
                       </div>
+                    )}
 
-                      <p className="text-[12.5px] sm:text-[14px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
-                        {currentScene.titleSecondary}
-                      </p>
+                    {/* Blocco Titolo e Sottotitolo */}
+                    <div className="leading-tight [text-shadow:_0_2px_6px_rgba(0,0,0,1)] drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
+                      <h3 className="text-[20px] sm:text-[22px] font-black text-white leading-tight font-['Outfit',sans-serif]">
+                        {(currentScene.lodgingTitle || currentScene.titlePrimary || '').split('\n').filter(Boolean).map((line, idx) => (
+                          <span key={idx} className="block leading-tight whitespace-nowrap">
+                            {line}
+                          </span>
+                        ))}
+                      </h3>
+                      {currentScene.lodgingSubtitle && (
+                        <div className="text-[15px] sm:text-[16px] font-bold text-amber-300 leading-tight font-['Outfit',sans-serif]">
+                          {currentScene.lodgingSubtitle.split('\n').filter(Boolean).map((line, idx) => (
+                            <span key={idx} className="block leading-tight whitespace-nowrap">
+                              {line}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Prezzo Octorate Last Minute a Destra (se LM1) con la stessa impaginazione e stile di P1 */}
+                    {/* Descrizione Thai */}
+                    <div className="text-[13px] sm:text-[14px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_6px_rgba(0,0,0,1)] drop-shadow-[0_2px_4px_rgba(0,0,0,1)] max-w-full">
+                      {(currentScene.titleSecondary || '').split('\n').filter(Boolean).map((line, idx) => (
+                        <span key={idx} className="block leading-snug">
+                          {line}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* PUNTO 4: Prezzo Octorate Last Minute SOTTO A SINISTRA (Compatto ed elegante) */}
                     {mode === 'LM1' && currentScene.priceLabel && (
-                      <div className="w-fit shrink-0 pb-0.5">
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                      <div className="pt-1">
+                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                           <span
-                            className="font-['Kanit',sans-serif] text-[17px] sm:text-[19px] font-black leading-none tracking-tight"
-                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.8px #ffffff' }}
+                            className="font-['Kanit',sans-serif] text-[16px] sm:text-[17px] font-black leading-none tracking-tight"
+                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.5px #ffffff' }}
                           >
                             {currentScene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
                           </span>

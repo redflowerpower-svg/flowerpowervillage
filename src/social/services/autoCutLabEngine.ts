@@ -996,9 +996,7 @@ export function generateV2Test(): AutoCutTestRun {
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / 5;
 
-  const priceLabel = `Last Minute Price: ${lodging.octoratePrice.toLocaleString('en-US')} ฿`;
-
-  // 🛡️ Filtro rigoroso: solo foto pulite dello STESSO alloggio, categoricamente ZERO bagni
+  // 🛡️ Filtro rigoroso: solo foto pulite dello STESSO alloggio, categoricamente ZERO bagni (V2 è galleria pura senza prezzo)
   const purePhotos = lodging.gallery.filter(photo => !isBathroomPhoto(photo.file)).slice(0, 5);
 
   const scenes: AutoCutScene[] = purePhotos.map((photo, idx) => ({
@@ -1007,8 +1005,8 @@ export function generateV2Test(): AutoCutTestRun {
     titleSecondary: photo.labelTh, // 🇹🇭 Traduzione secca in Thai (ZERO riscrittura dell'inglese prima!)
     lodgingTitle: lodging.lodgingTitle,
     lodgingSubtitle: lodging.lodgingSubtitle,
-    priceLabel,
-    priceValue: lodging.octoratePrice,
+    priceLabel: '', // V2: Nessun prezzo esposto (galleria alloggio puro)
+    priceValue: 0,
     trajectory: TRAJECTORIES_SEQUENCE[idx % TRAJECTORIES_SEQUENCE.length],
     badgeCategory: lodging.category,
     sourceName: photo.labelEn

@@ -509,19 +509,36 @@ La buona cucina italiana nel cuore dell'isola di Koh Phayam!
     crossTag = `@flowerpowerphayam`;
 
   } else if (testRun.mode === 'LM1') {
-    // 🔥 LM1: STORIES LAST MINUTE KOH PHAYAM (ALLOGGI LIBERI OGGI)
+    // 🔥 LM1: STORIES LAST MINUTE KOH PHAYAM (ALLOGGI LIBERI OGGI, TARIFFE ONLINE ➔ SCONTO DIRETTO -10%)
     const cleanEnProverb = proverb.en.replace(/["']/g, '');
 
+    const simplifyLodgingName = (name: string): string => {
+      return (name || '')
+        .replace(/\b(Breezy Suite|Breezy|Suite|Sweet|Tropical Garden View|Tropical Garden|Garden View|Eco-Glamping Sanctuary|Eco-Glamping|Glamping Sanctuary|Glamping|Sanctuary|Panoramic Terrace|Panoramic)\b/gi, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    };
+
     const lm1ThRooms = testRun.scenes.map(s => {
-      const name = cleanInlineTitle(s.titleSecondary || s.titlePrimary);
-      const price = s.priceValue ? ` (${s.priceValue}฿ / คืน)` : '';
-      return `• ${name}${price}`;
+      const rawName = cleanInlineTitle(s.titleSecondary || s.titlePrimary);
+      const name = simplifyLodgingName(rawName);
+      const basePrice = s.priceValue || 0;
+      const directPrice = basePrice ? Math.round(basePrice * 0.90) : 0;
+      const priceText = basePrice
+        ? `: ${basePrice}฿ ➔ ${directPrice}฿ (-10%)`
+        : '';
+      return `• ${name}${priceText}`;
     }).join('\n');
 
     const lm1EnRooms = testRun.scenes.map(s => {
-      const name = cleanInlineTitle(s.titlePrimary);
-      const price = s.priceValue ? ` (${s.priceValue}฿ / night)` : '';
-      return `• ${name}${price}`;
+      const rawName = cleanInlineTitle(s.titlePrimary);
+      const name = simplifyLodgingName(rawName);
+      const basePrice = s.priceValue || 0;
+      const directPrice = basePrice ? Math.round(basePrice * 0.90) : 0;
+      const priceText = basePrice
+        ? `: ${basePrice}฿ ➔ ${directPrice}฿ (-10%)`
+        : '';
+      return `• ${name}${priceText}`;
     }).join('\n');
 
     const lm1ThHooks = [
@@ -540,7 +557,7 @@ La buona cucina italiana nel cuore dell'isola di Koh Phayam!
 
     thaiContent = `${lm1ThHooks[lmIdx]}
 
-🏠 ห้องว่างคืนนี้ (ราคาพิเศษ Last Minute):
+🏠 ห้องว่างคืนนี้ (ราคาพิเศษ Last Minute + รับส่วนลดเพิ่ม 10% เมื่อจองตรง):
 ${lm1ThRooms}
 
 สัมผัสความเงียบสงบ หลีกหนีความวุ่นวาย มานอนฟังเสียงคลื่นริมทะเลกันนะครับ มีจำนวนจำกัดเฉพาะคืนนี้เท่านั้น! 🌺🌊
@@ -548,12 +565,13 @@ ${lm1ThRooms}
 คนโบราณกล่าวไว้: "${proverb.thai}"
 วันหยุดทั้งที ต้องให้ธรรมชาติบำบัดหัวใจและเติมพลังชีวิตนะครับ!
 
-🎁 จองด่วนตรงกับเราที่ www.flowerpowervillage.com
-รับราคาดีที่สุดทันทีครับ! 🥥✨`;
+🎁 รับส่วนลดพิเศษเพิ่มอีก 10% ทันทีเมื่อจองผ่านเว็บไซต์ของเรา:
+👉 www.flowerpowervillage.com
+💬 หรือติดต่อด่วนทาง WhatsApp: +66 095 882 5573`;
 
     englishContent = `${lm1EnHooks[lmIdx]}
 
-🏠 Available Tonight (Special Last Minute Rates):
+🏠 Available Tonight (Special Last Minute + Extra 10% Direct Discount):
 ${lm1EnRooms}
 
 Wake up to the sound of ocean waves and peaceful island breezes. Limited rooms available for tonight! 🌺🌊
@@ -561,12 +579,14 @@ Wake up to the sound of ocean waves and peaceful island breezes. Limited rooms a
 Remember: ${cleanEnProverb}
 Pack your flip-flops and let nature recharge your soul! 🤙
 
-🎁 Book directly on www.flowerpowervillage.com
-Secure your instant booking at the guaranteed best rate! 🥥✨`;
+🎁 DIRECT BOOKING PRIVILEGE:
+Get an EXTRA -10% OFF automatically when booking on our official website:
+👉 www.flowerpowervillage.com
+💬 Or message us on WhatsApp: +66 095 882 5573`;
 
     italianContent = `🇮🇹 Offerta Last Minute per stanotte a Buffalo Bay, Koh Phayam! 🌴🔥✨
 
-🏠 Alloggi disponibili stasera:
+🏠 Alloggi disponibili stasera (Tariffa Online ➔ Sconto Diretto -10%):
 ${lm1EnRooms}
 
 Fuga spontanea sull'isola per staccare la spina tra natura tropicale e brezza marina! 🌺🌊
@@ -574,8 +594,9 @@ Fuga spontanea sull'isola per staccare la spina tra natura tropicale e brezza ma
 Come dice un saggio proverbio: "${proverb.it}"
 Camere limitate disponibili solo per questa notte!
 
-🎁 Prenota direttamente su www.flowerpowervillage.com
-Miglior tariffa garantita online! 🥥✨`;
+🎁 Approfitta del 10% di sconto extra automatico sul nostro sito:
+👉 www.flowerpowervillage.com
+💬 WhatsApp: +66 095 882 5573`;
 
     fixedLink = `🌴 FLOWER POWER VILLAGE 🌸 - Buffalo Bay, Koh Phayam\n📍 Google Maps: https://maps.app.goo.gl/mugY88Wpuzjeebf56\n🌐 www.flowerpowervillage.com`;
     crossTag = `@flowerpowerpizzaranong`;

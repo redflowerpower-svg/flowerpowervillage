@@ -885,6 +885,31 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     }
   }
 
+  // 0a. GET/POST /api/social-publisher?action=deepseek_balance
+  if (action === "deepseek_balance") {
+    const apiKey = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      return res.status(200).json({ success: false, error: 'DEEPSEEK_API_KEY non configurata' });
+    }
+
+    try {
+      const bRes = await fetch('https://api.deepseek.com/user/balance', {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (!bRes.ok) {
+        const errTxt = await bRes.text();
+        return res.status(200).json({ success: false, error: `DeepSeek balance HTTP ${bRes.status}: ${errTxt}` });
+      }
+      const bData = await bRes.json();
+      return res.status(200).json({ success: true, balance: bData });
+    } catch (err: any) {
+      return res.status(200).json({ success: false, error: err.message || 'Errore fetch balance' });
+    }
+  }
+
   // 0. POST /api/social-publisher?action=generate_ai_post_copy
   if (action === "generate_ai_post_copy") {
     const apiKey = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY;
@@ -945,8 +970,24 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
         }
       }
 
+      const simplifyLodgingName = (name: string): string => {
+        return (name || '')
+          .replace(/\b(Breezy Suite|Breezy|Suite|Sweet|Tropical Garden View|Tropical Garden|Garden View|Eco-Glamping Sanctuary|Eco-Glamping|Glamping Sanctuary|Glamping|Sanctuary|Panoramic Terrace|Panoramic)\b/gi, '')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+      };
+
       const dishListText = dishDetails && dishDetails.length > 0
-        ? dishDetails.map((d: any) => `- ${d.name} (${d.nameTh}): ${d.description || 'Autentica ricetta artigianale'}`).join('\n')
+        ? dishDetails.map((d: any) => {
+            const basePrice = d.priceValue || (d.priceLabel ? parseInt(String(d.priceLabel).replace(/[^\d]/g, ''), 10) : 0);
+            const directPrice = basePrice ? Math.round(basePrice * 0.90) : 0;
+            const cleanName = mode === 'LM1' ? simplifyLodgingName(d.name) : d.name;
+            const cleanNameTh = mode === 'LM1' ? simplifyLodgingName(d.nameTh || '') : (d.nameTh || '');
+            const priceInfo = basePrice
+              ? `${basePrice}฿ ➔ ${directPrice}฿ (-10%)`
+              : (d.description || 'Autentica ricetta o alloggio');
+            return `- ${cleanName}${cleanNameTh ? ` (${cleanNameTh})` : ''}: ${priceInfo}`;
+          }).join('\n')
         : dishes.map((d: string) => `- ${d}`).join('\n');
 
       const pizzaPrompt = `Sei il copywriter creativo di Flower Power Pizza a Ranong, Thailandia (autentica pizzeria tradizionale e cucina artigianale italiana).
@@ -1068,32 +1109,41 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
   "proverbEnglish": "..."
 }`;
 
-      // 🔥 LM1: STORIES LAST MINUTE KOH PHAYAM (ALLOGGI LIBERI OGGI & PREZZO REALE OCTORATE)
+      // 🔥 LM1: STORIES & POST LAST MINUTE KOH PHAYAM (ALLOGGI LIBERI OGGI, TARIFFE ONLINE ➔ SCONTO DIRETTO -10%)
       const lm1Prompt = `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale ad Aow Khao Kwai / Buffalo Bay).
-Scrivi un micro-post / Story LAST MINUTE biculturale (INGLESE in alto + THAI in basso) ad altissima conversione, magnetico e dal ritmo vivace.
+Scrivi un micro-post / Story LAST MINUTE biculturale (INGLESE in alto + THAI in basso) ad altissima conversione, magnetico, trasparente e dal ritmo vivace, pensato per Facebook, Instagram e TikTok.
 
 CONTESTO ATTUALE:
-- Alloggi LIBERI STASERA con tariffe Last Minute certificate dal calendario Octorate:
+- Alloggi LIBERI STASERA con tariffe Last Minute Octorate e SCONTO PRENOTAZIONE DIRETTA -10%:
 ${dishListText}
 - Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
 - Fascia oraria: ${mealMoment}
 - Situazione meteo del momento: ${weatherAngle}
 - Stagione: ${season || 'Stagione tropicale'}
-- Sito ufficiale per prenotazione istantanea: www.flowerpowervillage.com
+- Sito ufficiale per prenotazione istantanea al miglior prezzo garantito: www.flowerpowervillage.com
+- Canale WhatsApp per contatto rapido: +66 095 882 5573
 
 REGOLE FONDAMENTALI DI SCRITTURA:
 1. TEMA LAST MINUTE & URGENZA POSITIVA:
-   Comunica con entusiasmo che ci sono camere e bungalow liberi per stanotte a prezzi speciali a cascata. Chi si trova a Koh Phayam o nelle vicinanze può cogliere l'occasione al volo per una notte magica a Buffalo Bay.
-2. CITARE LA DISPONIBILITÀ DELLE CAMERE:
-   Menziona le opzioni disponibili stanotte (es. bungalow nel verde o tende glamping) e il vantaggio del prezzo speciale last minute verificato.
-3. STRUTTURA & LUNGHEZZA:
-   - MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Spaziatura ariosa, zero muri di parole.
-   - Nomi alloggi: locuzione continua su singola riga.
-   - Proverbio del Giorno: proverbio evocativo sul cogliere l'attimo, il viaggio o il relax.
-   - Chiusura: invito a prenotare subito su www.flowerpowervillage.com prima che si esauriscano.
+   Comunica con entusiasmo che ci sono camere e bungalow liberi per stanotte a Buffalo Bay. Chi si trova a Koh Phayam, al porto o nelle vicinanze può cogliere l'occasione al volo per una notte magica tra palme tropicali e brezza marina.
+2. ELENCO ALLOGGI LIBERI CON NOME SECCO E PREZZO (ONLINE ➔ SITO DIRETTO -10%):
+   Usa TASSATIVAMENTE il nome secco ed essenziale dell'alloggio (es. 'Penthouse Villa', 'Yellow Bungalow', 'Camel Tent', 'Peace & Love Villa', 'Green Bungalow'), ELIMINANDO qualsiasi appellativo lungo come 'Breezy Suite', 'Suite', 'Sweet', 'Tropical Garden', 'View' o descrizioni prolisse per far entrare ogni alloggio su una singola riga compatta da smartphone.
+   Formato riga:
+   • [Nome Secco]: [Prezzo Online]฿ ➔ [Prezzo Scontato]฿ (-10%)
+3. PRIVILEGIO PRENOTAZIONE DIRETTA (DISINTERMEDIAZIONE BOOKING/AGODA):
+   Evidenzia chiaramente che prenotando direttamente sul nostro sito ufficiale www.flowerpowervillage.com si ottiene automaticamente un ulteriore -10% di sconto reale rispetto alle tariffe online!
+4. UNICO LINK DIRETTO PULITO & WHATSAPP (DIVIETO ASSOLUTO LINK MULTIPLI):
+   NON mettere link diversi o confusi per ogni camera. Inserisci ESCLUSIVAMENTE:
+   👉 www.flowerpowervillage.com
+   💬 WhatsApp: +66 095 882 5573
+5. STRUTTURA & LUNGHEZZA:
+   - MASSIMO 4-5 RIGHE AD ALTO IMPATTO per lingua (inclusa la lista alloggi). Spaziatura ariosa, zero muri di parole.
+   - Nomi alloggi: locuzione continua su singola riga secca (mai spezzata a metà).
+   - Proverbio del Giorno: proverbio evocativo sul cogliere l'attimo, il viaggio, la natura o il mare (Thai: 📜 สุภาษิต: "..." | Inglese: 📜 Proverb: "...").
    - Bandiera: 🇬🇧 per l'Inglese in alto, 🇹🇭 per il Thai in basso.
-   - Zero hashtag nel testo. Zero forno a legna. ZERO menzione di sunset/tramonto.
-   - Emoji contestuali distribuite nel testo, MAI raggruppate alla fine della frase.
+   - Zero hashtag nel corpo del testo (vengono aggiunti dal sistema in fondo al post).
+   - Zero forno a legna. ZERO menzione di sunset/tramonto.
+   - Emoji contestuali distribuite nel testo, MAI 3 o 4 raggruppate alla fine della frase.
 
 Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 {
@@ -1216,7 +1266,8 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
           ...parsed,
           thaiContent,
           englishContent,
-          promptSent: prompt
+          promptSent: prompt,
+          usage: aiData?.usage || null
         } 
       });
     } catch (err: any) {

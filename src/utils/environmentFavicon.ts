@@ -1,17 +1,20 @@
 /**
  * Dynamic Environment & Department Favicon Engine
- * - Genera favicon dinamiche su Canvas ad altissima leggibilità con SIGLE GIGANTI (2-3 lettere) per massimo riconoscimento a 16px:
- *   • SS   (/social, /autocut)     -> Social Studio (Viola/Fucsia Profondo con scritta SS bianca)
- *   • AD   (/admin)                -> Admin Console (Grafite/Ardesia con scritta AD in ambra/oro)
- *   • DT   (/dining, /tavoli)      -> Dining Table  (Blu Mare Profondo con scritta DT bianca)
- *   • KM   (/kitchen, /kds)        -> Kitchen Monitor (Arancio/Rosso Fiamma con scritta KM bianca)
- *   • PIZ  (/pizza, delivery)      -> Pizzeria (Rosso Tradizionale con scritta PIZ in giallo oro)
- *   • VLG  (/village, booking)     -> Village (Verde Tropicale Smeraldo con scritta VLG bianca)
- *   • WR   (/docs, /reader)        -> Web Reader (Blu Notte con scritta WR in celeste ghiaccio)
- * - Bordo Ambiente di contrasto:
- *   • Locale (localhost / 127.0.0.1)  -> Bordo ROSSO brillante (🔴 #EF4444)
- *   • Staging / Virtuale (*.vercel.app)-> Bordo VERDE SMERALDO (🟢 #10B981)
- *   • Produzione Ufficiale            -> Bordo ORO / Pulito (🟡 #F59E0B)
+ * - 1. Produzione Ufficiale (flowerpowerpizza.com / flowerpowervillage.com):
+ *   • Favicon pulita con il LOGO UFFICIALE del brand su tutte le pagine:
+ *     - Flower Power Pizza   -> /flower-power-pizza-logo-256.png
+ *     - Flower Power Village -> /FP_04_-_LOGO_OFFICIAL_HD.png
+ * - 2. Staging / Virtuale (staging.flowerpowerpizza.com / *.vercel.app):
+ *   • Favicon del rispettivo reparto BORDATA DI ROSSO brillante (🔴 #EF4444)
+ * - 3. Locale (localhost / 127.0.0.1):
+ *   • Badge personalizzati ad altissima leggibilità con SIGLE GIGANTI (2-3 lettere) e bordo ROSSO (🔴 #EF4444):
+ *     • SS   (/social, /autocut)     -> Social Studio (Viola/Fucsia Profondo con scritta SS bianca)
+ *     • AD   (/admin)                -> Admin Console (Grafite/Ardesia con scritta AD in ambra/oro)
+ *     • DT   (/dining, /tavoli)      -> Dining Table  (Blu Mare Profondo con scritta DT bianca)
+ *     • KM   (/kitchen, /kds)        -> Kitchen Monitor (Arancio/Rosso Fiamma con scritta KM bianca)
+ *     • PIZ  (/pizza, delivery)      -> Pizzeria (Rosso Tradizionale con scritta PIZ in giallo oro)
+ *     • VLG  (/village, booking)     -> Village (Verde Tropicale Smeraldo con scritta VLG bianca)
+ *     • WR   (/docs, /reader)        -> Web Reader (Blu Notte con scritta WR in celeste ghiaccio)
  */
 
 export type SectionType =
@@ -170,6 +173,123 @@ function drawRoundedRect(
 }
 
 /**
+ * Aggiorna in modo sicuro l'href della favicon nel tag <link rel="icon">
+ */
+function setFaviconHref(href: string): void {
+  if (typeof document === 'undefined') return;
+  let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'shortcut icon';
+    document.head.appendChild(link);
+  }
+  if (link.getAttribute('href') !== href) {
+    link.type = 'image/png';
+    link.href = href;
+  }
+}
+
+/**
+ * Determina se il contesto corrente appartiene al reparto Flower Power Pizza oppure Village
+ */
+export function isPizzaDepartment(hostname: string, section?: SectionType): boolean {
+  if (hostname.includes('flowerpowerpizza.com')) return true;
+  if (hostname.includes('flowerpowervillage.com')) return false;
+
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname.toLowerCase();
+    if (
+      path.startsWith('/village') ||
+      path.startsWith('/rooms') ||
+      path.startsWith('/booking') ||
+      path.startsWith('/bungalow') ||
+      path.startsWith('/villa') ||
+      path.startsWith('/chalet')
+    ) {
+      return false;
+    }
+    if (
+      path.startsWith('/pizza') ||
+      path.startsWith('/dining') ||
+      path.startsWith('/kitchen') ||
+      path.startsWith('/menu') ||
+      path.startsWith('/tavoli')
+    ) {
+      return true;
+    }
+  }
+
+  if (section === 'village') return false;
+  return true; // Default Pizza
+}
+
+// Cache in memoria delle favicon Staging generate con bordo rosso
+const stagingLogoCache: Record<'pizza' | 'village', string> = {
+  pizza: '',
+  village: '',
+};
+
+/**
+ * Renderizza su Canvas il logo ufficiale del reparto bordato di rosso per lo Staging
+ */
+function applyStagingFavicon(isPizza: boolean): void {
+  const key = isPizza ? 'pizza' : 'village';
+  if (stagingLogoCache[key]) {
+    setFaviconHref(stagingLogoCache[key]);
+    return;
+  }
+
+  const logoSrc = isPizza
+    ? '/flower-power-pizza-logo-256.png'
+    : '/FP_04_-_LOGO_OFFICIAL_HD.png';
+
+  const size = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const img = new Image();
+  img.src = logoSrc;
+  img.onload = () => {
+    ctx.clearRect(0, 0, size, size);
+
+    // 1. Sfondo squircle elegante a contrasto
+    ctx.beginPath();
+    drawRoundedRect(ctx, 2, 2, size - 4, size - 4, 14);
+    ctx.fillStyle = isPizza ? '#1c1917' : '#06281e';
+    ctx.fill();
+
+    // 2. Disegna il logo centrato e protetto
+    ctx.save();
+    ctx.beginPath();
+    drawRoundedRect(ctx, 4, 4, size - 8, size - 8, 12);
+    ctx.clip();
+    ctx.drawImage(img, 4, 4, size - 8, size - 8);
+    ctx.restore();
+
+    // 3. Bordo ROSSO Staging brillante e visibile (🔴 #EF4444)
+    ctx.beginPath();
+    drawRoundedRect(ctx, 2, 2, size - 4, size - 4, 14);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#EF4444';
+    ctx.stroke();
+
+    // 4. Ombra/stroke interna per nitidezza e stacco
+    ctx.beginPath();
+    drawRoundedRect(ctx, 4.5, 4.5, size - 9, size - 9, 11);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.stroke();
+
+    const dataUrl = canvas.toDataURL('image/png');
+    stagingLogoCache[key] = dataUrl;
+    setFaviconHref(dataUrl);
+  };
+}
+
+/**
  * Applica la favicon dinamica in base al reparto e all'ambiente
  */
 export function applyEnvironmentFavicon(): void {
@@ -180,32 +300,44 @@ export function applyEnvironmentFavicon(): void {
     hostname === 'localhost' ||
     hostname === '127.0.0.1' ||
     hostname.endsWith('.local');
+
+  const isStaging =
+    !isLocal &&
+    (hostname.startsWith('staging.') ||
+      hostname.includes('-staging') ||
+      hostname.includes('.vercel.app') ||
+      hostname.includes('staging.'));
+
   const isOfficial =
-    hostname.includes('flowerpowerpizza.com') ||
-    hostname.includes('flowerpowervillage.com');
-  const isVirtual = !isLocal && !isOfficial;
+    !isLocal &&
+    !isStaging &&
+    (hostname.includes('flowerpowerpizza.com') ||
+      hostname.includes('flowerpowervillage.com'));
 
   const section = getActiveSection();
+  const isPizza = isPizzaDepartment(hostname, section);
 
-  // In produzione ufficiale, solo per la homepage pubblica dei clienti mostriamo il logo ufficiale pulito
-  if (
-    isOfficial &&
-    section === 'public' &&
-    window.location.pathname === '/'
-  ) {
-    const isPizza = hostname.includes('flowerpowerpizza.com');
+  // 1. PRODUZIONE UFFICIALE ONLINE: Solo e sempre il LOGO UFFICIALE del rispettivo brand
+  if (isOfficial) {
     const targetIcon = isPizza
       ? '/flower-power-pizza-logo-256.png'
       : '/FP_04_-_LOGO_OFFICIAL_HD.png';
-    const link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
-    if (link && !link.href.endsWith(targetIcon)) {
-      link.href = targetIcon;
-    }
+    setFaviconHref(targetIcon);
     return;
   }
 
+  // 2. STAGING ONLINE: Logo ufficiale del reparto BORDATO DI ROSSO brillante (🔴 #EF4444)
+  if (isStaging) {
+    if (section === 'public' || section === 'pizza' || section === 'village') {
+      applyStagingFavicon(isPizza);
+      return;
+    }
+    // Per sezioni interne staff aperte su staging (/admin, /social, /kitchen, /dining), prosegue con badge a bordo rosso
+  }
+
+  // 3. LOCALE (e console staff su staging): Manteniamo i badge personalizzati attuali ad altissima leggibilità
   const theme = DEPT_THEMES[section] || DEPT_THEMES.public;
-  const ringColor = isLocal ? '#EF4444' : isVirtual ? '#10B981' : '#F59E0B'; // Rosso Locale | Verde Staging | Oro Produzione
+  const ringColor = '#EF4444'; // Bordo ROSSO brillante di sviluppo
 
   const size = 64; // High-DPI Canvas 64x64 per nitidezza assoluta
   const canvas = document.createElement('canvas');
@@ -222,7 +354,7 @@ export function applyEnvironmentFavicon(): void {
   ctx.fillStyle = theme.bg;
   ctx.fill();
 
-  // 2. Bordo ambiente ad alto contrasto (Rosso Local / Verde Staging / Oro Prod)
+  // 2. Bordo ambiente ad alto contrasto (Rosso #EF4444)
   ctx.lineWidth = 3.5;
   ctx.strokeStyle = ringColor;
   ctx.stroke();
@@ -243,7 +375,6 @@ export function applyEnvironmentFavicon(): void {
   ctx.globalAlpha = 1.0;
 
   // 5. SIGLA DEL REPARTO GIGANTE, ULTRA-BOLD E CRISTALLINA
-  // Per 2 lettere (SS, AD, KM, DT, WR) usiamo 35px; per 3 lettere (PIZ, VLG) usiamo 27px
   let fontSize = theme.label.length <= 2 ? 35 : 27;
 
   ctx.font = `900 ${fontSize}px "Outfit", "Arial Black", -apple-system, BlinkMacSystemFont, sans-serif`;
@@ -281,14 +412,7 @@ export function applyEnvironmentFavicon(): void {
 
   // 7. Aggiornamento istantaneo del tag favicon nel DOM
   const dataUrl = canvas.toDataURL('image/png');
-  let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
-  if (!link) {
-    link = document.createElement('link');
-    link.rel = 'shortcut icon';
-    document.head.appendChild(link);
-  }
-  link.type = 'image/png';
-  link.href = dataUrl;
+  setFaviconHref(dataUrl);
 }
 
 /**
