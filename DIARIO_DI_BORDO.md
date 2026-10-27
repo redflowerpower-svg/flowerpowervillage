@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 16:55] · BLINDATURA TOTALE CPU & PREVENZIONE BLOCCO COMPUTER (THROTTLE FFMPEG & PROCESS LOCK)
+- **Cosa abbiamo fatto:** 
+  1. 🧹 **Verifica & Pulizia Processi Zombie**:
+     - Verificato che i processi multipli di `ffmpeg.exe` e `chrome-headless-shell.exe` che avevano saturato la CPU al 96% si sono chiusi e che il carico del sistema è rientrato stabilmente sotto controllo.
+  2. 🛑 **Limitazione Matematica CPU (`-threads 2`) in FFmpeg**:
+     - Nello script di registrazione [record-tiktok-demo.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scratch/record-tiktok-demo.mjs), imposto esplicitamente il parametro `-threads 2`: impedisce a FFmpeg di usare tutti i core della macchina e riserva la maggior parte della CPU per Windows, browser e utente, azzerando qualsiasi rischio di congelamento del PC.
+  3. 🔒 **Lock File Anti-Duplicazione (`.recording.lock`)**:
+     - Implementato un meccanismo di mutua esclusione basato su lockfile: se una sessione è già attiva, qualsiasi ulteriore lancio viene respinto all'istante, impedendo categoricamente l'apertura di più browser o processi di rendering simultanei.
+  4. 🛡️ **Chiusura Garantita in `finally`**:
+     - Incapsulata l'intera pipeline in blocchi `try ... finally` con listener per `SIGINT` e `SIGTERM`: anche in caso di arresto brusco o errore, i browser Chromium e i processi figli vengono chiusi tassativamente senza lasciare processi orfani in background.
+- **Effetto reale:** Il computer non si impallerà mai più durante la registrazione del filmino demo o l'uso di AutoCut, mantenendo la CPU sempre leggera e fluida.
+- **Stato:** ✅ Compilato, verificato a 0 errori (`npx tsc --noEmit` exit 0), rilasciato su `staging`.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 15:42] · PUBBLICAZIONE DIRETTA STORIE INSTAGRAM (ZERO DELEGA TELEGRAM & MEDIA_TYPE: STORIES)
 - **Cosa abbiamo fatto:** 
   1. 🔍 **Diagnosi Disallineamento Canale Instagram Stories**:
