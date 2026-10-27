@@ -279,7 +279,7 @@ export function AutoCutDistributionPanel({
         }
       }
 
-      // Invio REALE alla Pagina Facebook (Post Video di Pagina o Reels)
+      // 1. Invio REALE alla Pagina Facebook (Post Video di Pagina o Reels)
       let publishedFacebookUrl: string | undefined = undefined;
       if (activeChannel === 'facebook' && (formats.facebook === 'post' || formats.facebook === 'reels')) {
         if (environment === 'production') {
@@ -305,6 +305,93 @@ export function AutoCutDistributionPanel({
           }
           publishedFacebookUrl = fbData.postUrl;
           console.log('[AutoCutDistributionPanel] Pubblicazione Facebook completata con successo:', fbData);
+        }
+      }
+
+      // 2. Invio REALE a Instagram Reels / Feed
+      let publishedInstagramId: string | undefined = undefined;
+      if (activeChannel === 'instagram' && (formats.instagram === 'reels' || formats.instagram === 'feed')) {
+        if (environment === 'production') {
+          setPublishStatus({
+            type: null,
+            message: `Caricamento e pubblicazione Reels su Instagram (${selectedBrand === 'pizza' ? '@flowerpowerpizza' : '@flowerpowervillage'})...`
+          });
+          const copyResult = generatePostCopy(testRun, 0);
+          const captionText = liveCaptions?.instagram || copyResult.fullCaptionInstagram;
+          const igRes = await fetch('/api/social-publisher?action=publish_instagram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              videoUrl: finalMediaUrl,
+              caption: captionText,
+              brand: selectedBrand
+            })
+          });
+          const igData = await igRes.json();
+          if (!igRes.ok || !igData.success) {
+            throw new Error(igData.error || 'Errore durante la pubblicazione su Instagram');
+          }
+          publishedInstagramId = igData.mediaId;
+          console.log('[AutoCutDistributionPanel] Pubblicazione Instagram completata con successo:', igData);
+        }
+      }
+
+      // 3. Invio REALE a TikTok (Feed Video)
+      let publishedTikTokId: string | undefined = undefined;
+      if (activeChannel === 'tiktok' && formats.tiktok === 'feed') {
+        if (environment === 'production') {
+          setPublishStatus({
+            type: null,
+            message: `Trasmissione video a TikTok Content Posting API (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`
+          });
+          const copyResult = generatePostCopy(testRun, 0);
+          const captionText = liveCaptions?.tiktok || copyResult.fullCaptionTikTok;
+          const ttRes = await fetch('/api/social-publisher?action=publish_video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              videoUrl: finalMediaUrl,
+              title: captionText,
+              brand: selectedBrand
+            })
+          });
+          const ttData = await ttRes.json();
+          if (!ttRes.ok || !ttData.success) {
+            throw new Error(ttData.error || 'Errore durante la pubblicazione su TikTok');
+          }
+          publishedTikTokId = ttData.publish_id;
+          console.log('[AutoCutDistributionPanel] Pubblicazione TikTok completata con successo:', ttData);
+        }
+      }
+
+      // 4. Invio REALE a Google Business Profile
+      let publishedGooglePostId: string | undefined = undefined;
+      if (activeChannel === 'google') {
+        if (environment === 'production') {
+          setPublishStatus({
+            type: null,
+            message: `Pubblicazione scheda su Google Business Profile (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`
+          });
+          const copyResult = generatePostCopy(testRun, 0);
+          const captionText = liveCaptions?.google || copyResult.fullCaptionInstagram;
+          const gRes = await fetch('/api/social-publisher?action=publish_google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              summary: captionText,
+              brand: selectedBrand,
+              mediaUrl: finalMediaUrl,
+              topicType: formats.google === 'offer' ? 'OFFER' : 'STANDARD',
+              actionType: selectedBrand === 'village' ? 'BOOK' : 'ORDER',
+              actionUrl: selectedBrand === 'village' ? 'https://flowerpowervillage.com' : 'https://flowerpowerpizza.com'
+            })
+          });
+          const gData = await gRes.json();
+          if (!gRes.ok || !gData.success) {
+            throw new Error(gData.error || 'Errore durante la pubblicazione su Google Business Profile');
+          }
+          publishedGooglePostId = gData.postId || gData.post?.name;
+          console.log('[AutoCutDistributionPanel] Pubblicazione Google completata con successo:', gData);
         }
       }
 
@@ -348,6 +435,24 @@ export function AutoCutDistributionPanel({
               ? [
                   `Video MP4 e didascalia bilingue pubblicati sulla Pagina Facebook ufficiale!`,
                   publishedFacebookUrl ? `Link Facebook Post: ${publishedFacebookUrl}` : ''
+                ].filter(Boolean)
+              : []),
+            ...(activeChannel === 'instagram' && (formats.instagram === 'reels' || formats.instagram === 'feed')
+              ? [
+                  `Video Reels pubblicato su Instagram (@${selectedBrand === 'pizza' ? 'flowerpowerpizza' : 'flowerpowervillage'})!`,
+                  publishedInstagramId ? `Media ID: ${publishedInstagramId}` : ''
+                ].filter(Boolean)
+              : []),
+            ...(activeChannel === 'tiktok' && formats.tiktok === 'feed'
+              ? [
+                  `Video pubblicato su TikTok (@${selectedBrand === 'pizza' ? 'flowerpowerpizza_ranong' : 'flowerpowervillage'})!`,
+                  publishedTikTokId ? `Publish ID: ${publishedTikTokId}` : ''
+                ].filter(Boolean)
+              : []),
+            ...(activeChannel === 'google'
+              ? [
+                  `Scheda pubblicata su Google Business Profile!`,
+                  publishedGooglePostId ? `Post ID: ${publishedGooglePostId}` : ''
                 ].filter(Boolean)
               : []),
             ...(activeChannel === 'facebook' && formats.facebook === 'group'

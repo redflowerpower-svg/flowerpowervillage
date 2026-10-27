@@ -1621,6 +1621,144 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     }
   }
 
+  // 2c. POST /api/social-publisher?action=publish_instagram
+  if (action === "publish_instagram") {
+    const {
+      videoUrl,
+      caption = "",
+      brand = "pizza"
+    } = body;
+
+    const isPizza = brand === "pizza";
+    const igId = isPizza
+      ? (process.env.META_PIZZA_IG_ID || "17841469176521344")
+      : (process.env.META_VILLAGE_IG_ID || "17841444373676743");
+    const pageToken = isPizza
+      ? process.env.META_PIZZA_PAGE_TOKEN
+      : process.env.META_VILLAGE_PAGE_TOKEN;
+
+    if (!pageToken || !igId) {
+      return res.status(400).json({
+        success: false,
+        error: `Credenziali Instagram non configurate per ${isPizza ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}.`
+      });
+    }
+
+    if (!videoUrl) {
+      return res.status(400).json({
+        success: false,
+        error: "Parametro videoUrl mancante per Instagram Reels."
+      });
+    }
+
+    try {
+      console.log(`[SocialPublisher] Creazione container Instagram Reels (IG ID: ${igId}, Video: ${videoUrl})...`);
+
+      const cParams = new URLSearchParams();
+      cParams.append("access_token", pageToken);
+      cParams.append("media_type", "REELS");
+      cParams.append("video_url", videoUrl);
+      if (caption) cParams.append("caption", caption.slice(0, 2200));
+
+      const cRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media`, {
+        method: "POST",
+        body: cParams
+      });
+      const cData = await cRes.json();
+      console.log("[SocialPublisher] Instagram container response:", cData);
+
+      if (!cRes.ok || !cData.id) {
+        return res.status(cRes.status || 400).json({
+          success: false,
+          error: cData.error?.message || "Errore creazione container Instagram",
+          details: cData.error
+        });
+      }
+
+      const creationId = cData.id;
+
+      // Attesa breve elaborazione video su server Meta Instagram
+      await new Promise(r => setTimeout(r, 3500));
+
+      const pParams = new URLSearchParams();
+      pParams.append("access_token", pageToken);
+      pParams.append("creation_id", creationId);
+
+      const pRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media_publish`, {
+        method: "POST",
+        body: pParams
+      });
+      const pData = await pRes.json();
+      console.log("[SocialPublisher] Instagram publish response:", pData);
+
+      if (!pRes.ok || !pData.id) {
+        return res.status(pRes.status || 400).json({
+          success: false,
+          error: pData.error?.message || "Errore pubblicazione Instagram Reels",
+          details: pData.error
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        mediaId: pData.id,
+        raw: pData
+      });
+    } catch (err: any) {
+      console.error("[SocialPublisher] Instagram publish exception:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Eccezione pubblicazione Instagram",
+        message: err.message
+      });
+    }
+  }
+
+  // 2d. POST /api/social-publisher?action=publish_thought (Post di solo testo / pensieri su Facebook Page e Google)
+  if (action === "publish_thought") {
+    const {
+      text = "",
+      brand = "pizza",
+      publishToFacebook = true
+    } = body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ success: false, error: "Il testo del pensiero non può essere vuoto." });
+    }
+
+    const isPizza = brand === "pizza";
+    const pageId = isPizza
+      ? (process.env.META_PIZZA_PAGE_ID || "410856732111386")
+      : (process.env.META_VILLAGE_PAGE_ID || "106883044573670");
+    const pageToken = isPizza
+      ? process.env.META_PIZZA_PAGE_TOKEN
+      : process.env.META_VILLAGE_PAGE_TOKEN;
+
+    const results: any = {};
+
+    if (publishToFacebook && pageToken) {
+      try {
+        const params = new URLSearchParams();
+        params.append("access_token", pageToken);
+        params.append("message", text.trim());
+
+        const fbRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/feed`, {
+          method: "POST",
+          body: params
+        });
+        const fbData = await fbRes.json();
+        results.facebook = fbData;
+      } catch (fbErr: any) {
+        results.facebook = { error: fbErr.message };
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      results
+    });
+  }
+
   // 3. POST /api/social-publisher?action=check_status
   if (action === "check_status") {
     const { publishId, accessToken } = body;
