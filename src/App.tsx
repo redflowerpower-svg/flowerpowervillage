@@ -180,6 +180,8 @@ function App() {
           <Route path="/policies" element={<Navigate to="/terms" replace />} />
           <Route path="/social" element={<SocialStudioPage />} />
           <Route path="/social/*" element={<SocialStudioPage />} />
+          <Route path="/social-studio" element={<AutoCutStudioPage />} />
+          <Route path="/social-studio/*" element={<AutoCutStudioPage />} />
           <Route path="/autocut" element={<AutoCutStudioPage />} />
           <Route path="/autocut/*" element={<AutoCutStudioPage />} />
           <Route path="/flowerpowerpizzaranong/*" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
