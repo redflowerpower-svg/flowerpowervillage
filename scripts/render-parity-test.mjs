@@ -186,7 +186,7 @@ async function main() {
   });
 
   log(`Apro ${base}/social-studio (mode ${mode})`);
-  await page.goto(`${base}/social-studio`, { waitUntil: 'domcontentloaded', timeout: 120000 });
+  await page.goto(`${base}/social-studio?mode=${mode}`, { waitUntil: 'domcontentloaded', timeout: 120000 });
   await page.waitForFunction(() => typeof window.__autoCutGetVideo === 'function', null, { timeout: 120000 });
 
   // Capacità del browser (decisiva per il cloud)

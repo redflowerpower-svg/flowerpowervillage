@@ -27,6 +27,11 @@ export function AutoCutLabView() {
   const [activeMode, setActiveMode] = useState<AutoCutLabMode>(() => {
     if (typeof window !== 'undefined') {
       try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const qMode = urlParams.get('mode')?.toUpperCase() as AutoCutLabMode | null;
+        if (qMode && ['P1', 'P2', 'P3', 'DS', 'R1', 'LM1', 'V1', 'V2', 'V3'].includes(qMode)) {
+          return qMode;
+        }
         const saved = localStorage.getItem('autocut_active_mode') as AutoCutLabMode | null;
         if (saved) return saved;
       } catch (e) {}
@@ -57,6 +62,16 @@ export function AutoCutLabView() {
   const [currentTest, setCurrentTest] = useState<AutoCutTestRun>(() => {
     if (typeof window !== 'undefined') {
       try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const qMode = urlParams.get('mode')?.toUpperCase() as AutoCutLabMode | null;
+        if (qMode && ['P1', 'P2', 'P3', 'DS', 'R1', 'LM1', 'V1', 'V2', 'V3'].includes(qMode)) {
+          const saved = localStorage.getItem('autocut_tests_by_mode');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && parsed[qMode]) return parsed[qMode];
+          }
+          return generateAutoCutTestByMode(qMode);
+        }
         const savedCurrent = localStorage.getItem('autocut_current_test');
         if (savedCurrent) {
           const parsed = JSON.parse(savedCurrent);

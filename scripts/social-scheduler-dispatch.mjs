@@ -57,10 +57,46 @@ function getBangkokTime() {
   return { date: bangkok, timeStr: `${hh}:${mm}`, hour: bangkok.getHours(), min: bangkok.getMinutes() };
 }
 
-const currentBk = getBangkokTime();
-const targetSlot = getArg('slot', currentBk.timeStr);
+const OFFICIAL_SLOTS = [
+  '08:00', '09:30', '11:30', '12:30',
+  '16:00', '17:00', '18:00', '18:30',
+  '19:30', '20:00', '21:00'
+];
 
-console.log(`[scheduler-dispatch] Orario attuale Bangkok: ${currentBk.timeStr} · Slot richiesto: ${targetSlot} (Dry Run: ${dryRun})`);
+function timeToMinutes(str) {
+  const [h, m] = str.split(':').map(Number);
+  return h * 60 + (m || 0);
+}
+
+function resolveTargetSlot(rawSlot, bkTime) {
+  if (rawSlot && rawSlot !== 'auto' && OFFICIAL_SLOTS.includes(rawSlot)) {
+    return rawSlot;
+  }
+  const nowMins = bkTime.hour * 60 + bkTime.min;
+  let bestSlot = null;
+  let bestDist = Infinity;
+
+  for (const s of OFFICIAL_SLOTS) {
+    const sMins = timeToMinutes(s);
+    const dist = Math.abs(nowMins - sMins);
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestSlot = s;
+    }
+  }
+
+  // Se GitHub Actions cron scatta con un ritardo fisiologico (fino a 25 min), aggancia lo slot corretto
+  if (bestDist <= 25) {
+    return bestSlot;
+  }
+  return rawSlot || bkTime.timeStr;
+}
+
+const currentBk = getBangkokTime();
+const rawSlotArg = getArg('slot', '');
+const targetSlot = resolveTargetSlot(rawSlotArg, currentBk);
+
+console.log(`[scheduler-dispatch] Orario attuale Bangkok: ${currentBk.timeStr} · Slot identificato: ${targetSlot} (Arg: "${rawSlotArg}", Dry Run: ${dryRun})`);
 
 const supabaseUrl = env.VITE_SUPABASE_URL || env.SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co';
 const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY;
