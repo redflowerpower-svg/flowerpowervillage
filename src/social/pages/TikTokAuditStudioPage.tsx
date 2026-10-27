@@ -720,9 +720,11 @@ export default function TikTokAuditStudioPage() {
           
           {/* Brand Logo & SaaS Title */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 via-pink-500 to-amber-400 flex items-center justify-center shadow-lg shadow-rose-950/40">
-              <Share2 className="w-4 h-4 text-white" />
-            </div>
+            <img
+              src="/flower-power-social-studio-logo.png"
+              alt="Flower Power Social Studio"
+              className="w-10 h-10 rounded-full object-cover shadow-lg shadow-rose-950/50 ring-2 ring-amber-400/50 hover:scale-105 transition-transform"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-base font-bold tracking-tight text-white">{t.appTitle}</span>
@@ -824,7 +826,14 @@ export default function TikTokAuditStudioPage() {
 
       {/* Hero Section */}
       <section className="border-b border-slate-800/80 bg-gradient-to-b from-[#0f172a]/70 via-[#0b0f17] to-[#0b0f17] px-4 lg:px-8 py-10 lg:py-14 text-center">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto flex flex-col items-center">
+          <div className="mb-4">
+            <img
+              src="/flower-power-social-studio-logo.png"
+              alt="Flower Power Social Studio Emblem"
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full mx-auto shadow-2xl ring-4 ring-amber-400/40 object-cover hover:rotate-3 transition-transform duration-300"
+            />
+          </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs font-medium mb-4">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>{t.heroBadge}</span>
@@ -982,7 +991,18 @@ export default function TikTokAuditStudioPage() {
                     )}
                   </div>
                   <span className="text-sm font-bold text-white">TikTok</span>
-                  <span className="text-[10px] text-rose-400 font-mono mt-0.5">{t.tiktokStatus}</span>
+                  <div className="flex items-center justify-between w-full mt-1">
+                    <span className="text-[10px] text-rose-400 font-mono">{t.tiktokStatus}</span>
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowConnectModal(true);
+                      }}
+                      className="text-[10px] text-slate-400 hover:text-white underline cursor-pointer"
+                    >
+                      OAuth 🔑
+                    </span>
+                  </div>
                 </button>
 
                 {/* Instagram Card */}
@@ -1725,9 +1745,11 @@ export default function TikTokAuditStudioPage() {
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center text-xl">
-                🍽️
-              </div>
+              <img
+                src="/flower-power-social-studio-logo.png"
+                alt="Flower Power Social Studio"
+                className="w-12 h-12 rounded-full object-cover ring-2 ring-rose-500/40 shadow-lg"
+              />
               <div>
                 <h3 className="text-base font-bold text-white">{t.modalAddRestTitle}</h3>
                 <p className="text-xs text-slate-400">{t.modalAddRestSubtitle}</p>
@@ -1972,9 +1994,11 @@ export default function TikTokAuditStudioPage() {
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center text-xl">
-                🔐
-              </div>
+              <img
+                src="/flower-power-social-studio-logo.png"
+                alt="Flower Power Social Studio"
+                className="w-12 h-12 rounded-full object-cover ring-2 ring-indigo-500/40 shadow-lg"
+              />
               <div>
                 <h3 className="text-base font-bold text-white">{t.authModalTitle}</h3>
                 <p className="text-xs text-slate-400">{t.authModalSubtitle}</p>
@@ -2043,6 +2067,154 @@ export default function TikTokAuditStudioPage() {
                   {t.closeBtn}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 6: Platform Features Overview */}
+      {showFeaturesModal && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#121826] border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setShowFeaturesModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer"
+            >
+              &times;
+            </button>
+
+            <div className="text-center mb-6">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                Core Engine
+              </span>
+              <h3 className="text-xl font-bold text-white mt-2">
+                {uiLang === 'EN' ? 'Platform Features & Capabilities' : 'Funzionalità della Piattaforma'}
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                {uiLang === 'EN' ? 'Designed exclusively for restaurants, pizzerias, food trucks and hospitality brands' : 'Progettato specificamente per ristoranti, pizzerie, food creator e resort'}
+              </p>
+            </div>
+
+            <div className="space-y-3.5 mb-6">
+              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-start gap-3">
+                <span className="text-2xl">🎬</span>
+                <div>
+                  <h4 className="text-xs font-bold text-white">
+                    {uiLang === 'EN' ? 'Automated 9:16 Vertical Video Rendering' : 'Motore Video Verticale 9:16 Automatico'}
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                    {uiLang === 'EN'
+                      ? 'Converts high-resolution dish photography into cinematic Ken Burns micro-animations tailored for TikTok, Instagram Reels and Facebook Feed.'
+                      : 'Trasforma foto ad alta risoluzione dei tuoi piatti in micro-animazioni cinematografiche pronte per TikTok, Instagram Reel e Facebook.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-start gap-3">
+                <span className="text-2xl">✨</span>
+                <div>
+                  <h4 className="text-xs font-bold text-white">
+                    {uiLang === 'EN' ? 'DeepSeek AI Multilingual Copywriter' : 'Copywriter Bilingue con DeepSeek AI'}
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                    {uiLang === 'EN'
+                      ? 'Creates mouth-watering bilingual captions (Thai, English, Italian, German) with contextual emojis, culinary hashtags, and organic line breaks.'
+                      : 'Genera descrizioni coinvolgenti in thailandese, inglese e italiano, arricchite con emoji contestuali e hashtag gastronomici.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-start gap-3">
+                <span className="text-2xl">🚀</span>
+                <div>
+                  <h4 className="text-xs font-bold text-white">
+                    {uiLang === 'EN' ? 'Certified TikTok Content Posting API v2' : 'Integrazione TikTok Content Posting API v2'}
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                    {uiLang === 'EN'
+                      ? '1-Click Direct Post or Draft upload using TikTok Content Posting API v2 with complete compliance for privacy levels and AI disclosure.'
+                      : 'Pubblicazione diretta o salvataggio in bozza su TikTok tramite API ufficiali con gestione completa di privacy ed etichetta AI.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setShowFeaturesModal(false)}
+                className="py-2 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+              >
+                {t.closeBtn}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 7: Developer API Documentation */}
+      {showDocsModal && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#121826] border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setShowDocsModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer"
+            >
+              &times;
+            </button>
+
+            <div className="text-center mb-6">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                Developer Documentation
+              </span>
+              <h3 className="text-xl font-bold text-white mt-2">
+                {uiLang === 'EN' ? 'TikTok & Meta API Integration Specs' : 'Specifiche Integrazione API TikTok & Meta'}
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                {uiLang === 'EN' ? 'Endpoints, OAuth scopes and architecture used by Flower Power Social Studio' : 'Endpoint, permessi OAuth e architettura utilizzati da Flower Power Social Studio'}
+              </p>
+            </div>
+
+            <div className="space-y-3.5 text-xs text-slate-300 mb-6 font-mono">
+              <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                <div className="flex items-center justify-between text-rose-400 font-bold">
+                  <span>POST /v2/post/publish/video/init/</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/20">TikTok API v2</span>
+                </div>
+                <p className="text-[11px] text-slate-400 font-sans">
+                  Initiates server-to-server video upload with source_info: PULL_FROM_URL and verified video parameters.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                <div className="flex items-center justify-between text-indigo-400 font-bold">
+                  <span>POST /v2/post/publish/status/fetch/</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20">TikTok API v2</span>
+                </div>
+                <p className="text-[11px] text-slate-400 font-sans">
+                  Polls the async transcoding state of the video until final STATUS: SUCCESS or PUBLISH_COMPLETE.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                <div className="flex items-center justify-between text-pink-400 font-bold">
+                  <span>POST /{`{ig_user_id}`}/media & /media_publish</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-pink-500/20">Meta Graph</span>
+                </div>
+                <p className="text-[11px] text-slate-400 font-sans">
+                  Two-phase Instagram Reels container creation and immediate publication.
+                </p>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setShowDocsModal(false)}
+                className="py-2 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+              >
+                {t.closeBtn}
+              </button>
             </div>
           </div>
         </div>

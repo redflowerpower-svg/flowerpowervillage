@@ -224,10 +224,78 @@ export function isPizzaDepartment(hostname: string, section?: SectionType): bool
 }
 
 // Cache in memoria delle favicon Staging generate con bordo rosso
-const stagingLogoCache: Record<'pizza' | 'village', string> = {
+const stagingLogoCache: Record<'pizza' | 'village' | 'social', string> = {
   pizza: '',
   village: '',
+  social: '',
 };
+
+/**
+ * Renderizza o assegna la favicon specifica di Flower Power Social Studio
+ */
+function applySocialFavicon(isOfficial: boolean): void {
+  const logoSrc = '/flower-power-social-studio-logo.png';
+  if (isOfficial) {
+    setFaviconHref(logoSrc);
+    return;
+  }
+
+  if (stagingLogoCache.social) {
+    setFaviconHref(stagingLogoCache.social);
+    return;
+  }
+
+  const size = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    setFaviconHref(logoSrc);
+    return;
+  }
+
+  const img = new Image();
+  img.src = logoSrc;
+  img.onload = () => {
+    ctx.clearRect(0, 0, size, size);
+
+    // 1. Sfondo squircle elegante a contrasto
+    ctx.beginPath();
+    drawRoundedRect(ctx, 2, 2, size - 4, size - 4, 14);
+    ctx.fillStyle = '#0f172a';
+    ctx.fill();
+
+    // 2. Disegna il logo centrato e protetto
+    ctx.save();
+    ctx.beginPath();
+    drawRoundedRect(ctx, 4, 4, size - 8, size - 8, 12);
+    ctx.clip();
+    ctx.drawImage(img, 4, 4, size - 8, size - 8);
+    ctx.restore();
+
+    // 3. Bordo ROSSO Staging / Dev (🔴 #EF4444)
+    ctx.beginPath();
+    drawRoundedRect(ctx, 2, 2, size - 4, size - 4, 14);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#EF4444';
+    ctx.stroke();
+
+    // 4. Ombra/stroke interna per nitidezza e stacco
+    ctx.beginPath();
+    drawRoundedRect(ctx, 4.5, 4.5, size - 9, size - 9, 11);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.stroke();
+
+    const dataUrl = canvas.toDataURL('image/png');
+    stagingLogoCache.social = dataUrl;
+    setFaviconHref(dataUrl);
+  };
+  img.onerror = () => {
+    setFaviconHref(logoSrc);
+  };
+}
 
 /**
  * Renderizza su Canvas il logo ufficiale del reparto bordato di rosso per lo Staging
@@ -317,6 +385,12 @@ export function applyEnvironmentFavicon(): void {
   const section = getActiveSection();
   const isPizza = isPizzaDepartment(hostname, section);
 
+  // 0. REPARTO SOCIAL STUDIO (/social, /autocut): Logo ufficiale specifico del Social Studio!
+  if (section === 'social') {
+    applySocialFavicon(isOfficial);
+    return;
+  }
+
   // 1. PRODUZIONE UFFICIALE ONLINE: Solo e sempre il LOGO UFFICIALE del rispettivo brand
   if (isOfficial) {
     const targetIcon = isPizza
@@ -332,7 +406,7 @@ export function applyEnvironmentFavicon(): void {
       applyStagingFavicon(isPizza);
       return;
     }
-    // Per sezioni interne staff aperte su staging (/admin, /social, /kitchen, /dining), prosegue con badge a bordo rosso
+    // Per sezioni interne staff aperte su staging (/admin, /kitchen, /dining), prosegue con badge a bordo rosso
   }
 
   // 3. LOCALE (e console staff su staging): Manteniamo i badge personalizzati attuali ad altissima leggibilità
