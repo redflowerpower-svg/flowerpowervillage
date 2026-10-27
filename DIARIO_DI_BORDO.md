@@ -1098,6 +1098,16 @@
 - **Effetto reale:** Hai ora la garanzia assoluta di seguire lo stato dei lavori in tempo reale all'interno dell'IDE, in italiano semplice e comprensibile, a zero costo e senza spreco di token.
 - **Stato:** ✅ Testato, verificato (0 secrets, 0 errori TypeScript) e consolidato su branch locale `staging`.
 
+### 🟩 [27/10/2026 - ORE 12:12] · MOTORE VIDEO 4:3 (OUTRO DISSOLVE & PARITÀ TIPOGRAFICA OUTFIT)
+- **Cosa abbiamo fatto:** 
+  1. Rimossi i tagli prematuri a ghigliottina in `render43OverlaysToContext` (il `return` anticipato a `-0.35s` e il blocco a `-0.50s` del prezzo).
+  2. Sostituito il font estraneo `"Inter"` con il font ufficiale `"Outfit", "Prompt", sans-serif` in tutte le righe dell'outro card 4:3 (`draw43OutroToContext`) e nell'header di P1 per il testo Thai (`ส่งถึงบ้าน`).
+- **Cosa è cambiato:** 
+  1. Nei video 4:3 esportati (`P1`, `V1`, `LM1`), tutti i testi, il prezzo e l'header sfumano armoniosamente e gradualmente fino all'ultimo millisecondo (`globalAlpha`) insieme alla transizione dell'outro, eliminando l'interruzione brusca e il momento "a video nudo".
+  2. La tipografia dell'intero video e del banner finale rimane solida, coerente e fedele al brand identity (Outfit), senza cali o sostituzioni con caratteri di sistema (Arial).
+- **Effetto reale:** Piena parità visiva tra ciò che si vede nell'anteprima di Social Studio e il video Full HD renderizzato inviato a Telegram / Google Business / Facebook Feed.
+- **Stato:** ✅ Compilato (`npx tsc --noEmit` exit 0), committato e rilasciato su branch `staging`.
+
 ---
 
 ### 🟩 [24/10/2026 - ORE 22:07] · GRIGLIA PRODOTTI TABLET 10" VERTICALE
