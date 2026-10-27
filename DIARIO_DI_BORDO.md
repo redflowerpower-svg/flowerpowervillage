@@ -3,6 +3,25 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 18:55] · CANALI TELEGRAM DEDICATI «PUBLISHED» & «FAILED» COLLEGATI ALLO SCHEDULER
+- **Cosa abbiamo fatto:** 
+  1. 🎯 **Rilevamento & Integrazione Dinamica dei Due Topic nel Supergruppo Social Studio**:
+     - Scansionati e verificati direttamente tramite Telegram Bot API i due nuovi topic creati dall'amministratore nel supergruppo:
+       - 🟢 **Topic «Published»** (`threadId: 286`): archivio cronologico ordinato di tutte le pubblicazioni andate a buon fine su tutti i canali.
+       - 🚨 **Topic «Failed»** (`threadId: 301`): canale allarmi con evidenziazione rossa immediata e dettagli tecnici completi se qualche pubblicazione o singolo canale riscontra errori.
+  2. ⚙️ **Aggiornamento Architettura Configurazione & Dispatcher**:
+     - In [telegramStudioConfig.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/config/telegramStudioConfig.ts), aggiunti i mapping ufficiali per i topic `published` (286) e `failed` (301).
+     - In [telegramStudioDispatcher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/telegramStudioDispatcher.ts), creata la funzione `dispatchPublishReportToTelegram()` che smista in modo intelligente:
+       - Se tutti i canali attivi hanno successo ➔ invia il report di conferma verde su **`Published`**.
+       - Se 1 o più canali falliscono ➔ invia l'allarme rosso con diagnosi precisa su **`Failed`**.
+  3. 🔗 **Integrazione nei Punti di Pubblicazione**:
+     - Collegato in [AutoCutStudioPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/pages/AutoCutStudioPage.tsx) alla pubblicazione dei post programmati da calendario (`handlePublishScheduledPost`).
+     - Collegato in [AutoCutDistributionPanel.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutDistributionPanel.tsx) sia in caso di successo live sia nel blocco di cattura errori `catch`.
+- **Effetto reale:** Appena un post viene pubblicato o programmato, la conferma arriva pulita e ordinata in «Published». Se un token scade o una piattaforma risponde con errore, l'avviso suona immediatamente in «Failed» indicando esattamente cosa è successo e come risolverlo.
+- **Stato:** ✅ Testato con messaggi di benvenuto reali nei due topic, compilato con `npm run build` a 0 errori (`built in 4.91s`), pronto al rilascio.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 18:25] · RICHIESTA QUOTA GOOGLE BUSINESS PROFILE INVIATA (CASE ID: 2-3532000041993) & ISOLAMENTO OAUTH COMPLETATO
 - **Cosa abbiamo fatto:** 
   1. 🛡️ **Isolamento Totale Credenziali OAuth 2.0 (Google Business vs Google Drive)**:
