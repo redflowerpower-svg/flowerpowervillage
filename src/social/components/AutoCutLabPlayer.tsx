@@ -4257,27 +4257,27 @@ export function AutoCutLabPlayer({
               className="w-full h-full object-cover"
             />
 
-            {/* Watermark Ufficiale 4:3 (Preview proporzionata) */}
+            {/* Watermark Ufficiale 4:3 (Preview proporzionata: PUNTO 1 ingrandito del +50%) */}
             {!isInOutro && (
-              <div className={`absolute top-[17px] left-[17px] z-30 flex items-center gap-3 pointer-events-none transition-all duration-300 ${
+              <div className={`absolute top-[17px] left-[17px] z-30 flex items-center gap-4 pointer-events-none transition-all duration-300 ${
                 isInOutro ? 'hidden opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
                 <img
                   crossOrigin="anonymous"
                   src={brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64}
                   alt="Logo"
-                  className="w-[90px] h-[90px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0"
+                  className="w-[135px] h-[135px] object-contain drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)] shrink-0"
                 />
                 <div className="flex flex-col text-left drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
                   <div className="flex flex-col text-left leading-none">
-                    <span className="text-[25px] sm:text-[27px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] font-['Outfit',sans-serif]">
+                    <span className="text-[36px] sm:text-[39px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] font-['Outfit',sans-serif]">
                       FLOWER POWER
                     </span>
-                    <span className={`font-light italic text-[22px] sm:text-[24px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
+                    <span className={`font-light italic text-[31px] sm:text-[34px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
                       {brand === 'pizza' ? 'Pizza' : 'Village'}
                     </span>
                   </div>
-                  <span className="text-[18px] sm:text-[20px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300 font-['Outfit',sans-serif]">
+                  <span className="text-[25px] sm:text-[28px] font-bold leading-tight mt-1.5 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300 font-['Outfit',sans-serif]">
                     {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off'}
                   </span>
                 </div>
@@ -4363,46 +4363,55 @@ export function AutoCutLabPlayer({
                   </div>
                 )}
 
-                {/* Caso ALLOGGI (V1, LM1): Nome Alloggio, Sottotitolo, Thai + Prezzo Last Minute a destra (se LM1) */}
+                {/* Caso ALLOGGI (V1, LM1): PUNTO 3 Ingrandito +30% & PUNTO 4 Prezzo in Basso a Sinistra sotto il Thai */}
                 {(mode === 'V1' || mode === 'LM1') && (
-                  <div className="w-full flex items-end justify-between gap-2">
-                    {/* Blocco Titoli (Sinistra) */}
-                    <div className="flex-1 min-w-0 pr-1 space-y-0.5">
-                      <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                        <h3 className="text-[21px] sm:text-[24px] font-black text-white leading-tight">
-                          {(currentScene.lodgingTitle || currentScene.titlePrimary || '').split('\n').filter(Boolean).map((line, idx) => (
+                  <div className="w-full flex flex-col items-start gap-1">
+                    {/* Categoria Alloggio se presente (✦ AVAILABLE TONIGHT) */}
+                    {currentScene.badgeCategory && (
+                      <div className="inline-flex items-center gap-1.5 text-[17px] sm:text-[19px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_6px_rgba(0,0,0,1)] whitespace-nowrap">
+                        <span className="text-rose-500 font-black text-[18px] drop-shadow-[0_0_8px_rgba(244,63,94,0.95)]">✦</span>
+                        <span className="[text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1)]">
+                          {currentScene.badgeCategory.replace(/^[✦⭐\s*]+/, '')}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Blocco Titolo e Sottotitolo (PUNTO 3: Ingranditi del +30%) */}
+                    <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                      <h3 className="text-[28px] sm:text-[32px] font-black text-white leading-tight font-['Outfit',sans-serif]">
+                        {(currentScene.lodgingTitle || currentScene.titlePrimary || '').split('\n').filter(Boolean).map((line, idx) => (
+                          <span key={idx} className="block leading-tight whitespace-nowrap">
+                            {line}
+                          </span>
+                        ))}
+                      </h3>
+                      {currentScene.lodgingSubtitle && (
+                        <div className="text-[21px] sm:text-[24px] font-bold text-amber-300 leading-tight mt-0.5 font-['Outfit',sans-serif]">
+                          {currentScene.lodgingSubtitle.split('\n').filter(Boolean).map((line, idx) => (
                             <span key={idx} className="block leading-tight whitespace-nowrap">
                               {line}
                             </span>
                           ))}
-                        </h3>
-                        {currentScene.lodgingSubtitle && (
-                          <div className="text-[16px] sm:text-[18px] font-bold text-amber-300 leading-tight mt-0.5">
-                            {currentScene.lodgingSubtitle.split('\n').filter(Boolean).map((line, idx) => (
-                              <span key={idx} className="block leading-tight whitespace-nowrap">
-                                {line}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="text-[15px] sm:text-[17px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
-                        {(currentScene.titleSecondary || '').split('\n').filter(Boolean).map((line, idx) => (
-                          <span key={idx} className="block leading-snug whitespace-nowrap">
-                            {line}
-                          </span>
-                        ))}
-                      </div>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Prezzo Octorate Last Minute a Destra (se LM1) */}
+                    {/* Descrizione Thai (PUNTO 3: Ingrandito del +30% a 20px-22px) */}
+                    <div className="text-[19px] sm:text-[22px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] max-w-full">
+                      {(currentScene.titleSecondary || '').split('\n').filter(Boolean).map((line, idx) => (
+                        <span key={idx} className="block leading-snug">
+                          {line}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* PUNTO 4: Prezzo Octorate Last Minute SOTTO A SINISTRA (subito dopo la riga Thai) */}
                     {mode === 'LM1' && currentScene.priceLabel && (
-                      <div className="w-fit shrink-0 pb-0.5">
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                      <div className="pt-2 pb-0.5">
+                        <div className="inline-flex items-center px-3.5 py-1 rounded-lg bg-[#FFE500] border-2 border-black shadow-[3px_3px_0px_#000000] text-black">
                           <span
-                            className="font-['Kanit',sans-serif] text-[17px] sm:text-[19px] font-black leading-none tracking-tight"
-                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '2.8px #ffffff' }}
+                            className="font-['Kanit',sans-serif] text-[20px] sm:text-[23px] font-black leading-none tracking-tight"
+                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
                           >
                             {currentScene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
                           </span>

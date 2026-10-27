@@ -885,6 +885,31 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     }
   }
 
+  // 0a. GET/POST /api/social-publisher?action=deepseek_balance
+  if (action === "deepseek_balance") {
+    const apiKey = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      return res.status(200).json({ success: false, error: 'DEEPSEEK_API_KEY non configurata' });
+    }
+
+    try {
+      const bRes = await fetch('https://api.deepseek.com/user/balance', {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (!bRes.ok) {
+        const errTxt = await bRes.text();
+        return res.status(200).json({ success: false, error: `DeepSeek balance HTTP ${bRes.status}: ${errTxt}` });
+      }
+      const bData = await bRes.json();
+      return res.status(200).json({ success: true, balance: bData });
+    } catch (err: any) {
+      return res.status(200).json({ success: false, error: err.message || 'Errore fetch balance' });
+    }
+  }
+
   // 0. POST /api/social-publisher?action=generate_ai_post_copy
   if (action === "generate_ai_post_copy") {
     const apiKey = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY;
@@ -1241,7 +1266,8 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
           ...parsed,
           thaiContent,
           englishContent,
-          promptSent: prompt
+          promptSent: prompt,
+          usage: aiData?.usage || null
         } 
       });
     } catch (err: any) {

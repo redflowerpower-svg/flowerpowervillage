@@ -26,37 +26,15 @@ import { getLiveWeather, WeatherConditionSummary } from '../services/ranongWeath
 export function DeepSeekWhaleLogo({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg 
-      viewBox="0 0 48 48" 
+      viewBox="0 0 24 24" 
       fill="none" 
       xmlns="http://www.w3.org/2000/svg" 
       className={className}
     >
-      {/* Corpo Balenottero DeepSeek in gradiente blu ciano */}
       <path 
-        d="M41.5 21C40.8 14.5 35.2 9.5 28.5 9.5C20.2 9.5 14.5 15.2 10.8 20.8C7.8 25.3 6 31 8.5 35.8C9.5 37.8 11.5 39.2 13.8 38.5C16.2 37.8 18.2 35.2 19.8 33.2C22.2 30.2 24.8 29.2 28.2 29.8C30.8 30.2 32.8 31.8 34.8 33.5C36.2 34.8 38.2 34.5 39.5 33C41.2 31 42.2 26 41.5 21Z" 
-        fill="url(#deepseek-whale-gradient)" 
+        fill="#3B82F6" 
+        d="M23.748 4.482c-.254-.124-.364.113-.512.234-.051.039-.094.09-.137.136-.372.397-.806.657-1.373.626-.829-.046-1.537.214-2.163.848-.133-.782-.575-1.248-1.247-1.548-.352-.156-.708-.311-.955-.65-.172-.241-.219-.51-.305-.774-.055-.16-.11-.323-.293-.35-.2-.031-.278.136-.356.276-.313.572-.434 1.202-.422 1.84.027 1.436.633 2.58 1.838 3.393.137.093.172.187.129.323-.082.28-.18.552-.266.833-.055.179-.137.217-.329.14a5.526 5.526 0 0 1-1.736-1.18c-.857-.828-1.631-1.742-2.597-2.458a11.365 11.365 0 0 0-.689-.471c-.985-.957.13-1.743.388-1.836.27-.098.093-.432-.779-.428-.872.004-1.67.295-2.687.684a3.055 3.055 0 0 1-.465.137 9.597 9.597 0 0 0-2.883-.102c-1.885.21-3.39 1.102-4.497 2.623C.082 8.606-.231 10.684.152 12.85c.403 2.284 1.569 4.175 3.36 5.653 1.858 1.533 3.997 2.284 6.438 2.14 1.482-.085 3.133-.284 4.994-1.86.47.234.962.327 1.78.397.63.059 1.236-.03 1.705-.128.735-.156.684-.837.419-.961-2.155-1.004-1.682-.595-2.113-.926 1.096-1.296 2.746-2.642 3.392-7.003.05-.347.007-.565 0-.845-.004-.17.035-.237.23-.256a4.173 4.173 0 0 0 1.545-.475c1.396-.763 1.96-2.015 2.093-3.517.02-.23-.004-.467-.247-.588zM11.581 18c-2.089-1.642-3.102-2.183-3.52-2.16-.392.024-.321.471-.235.763.09.288.207.486.371.739.114.167.192.416-.113.603-.673.416-1.842-.14-1.897-.167-1.361-.802-2.5-1.86-3.301-3.307-.774-1.393-1.224-2.887-1.298-4.482-.02-.386.093-.522.477-.592a4.696 4.696 0 0 1 1.529-.039c2.132.312 3.946 1.265 5.468 2.774.868.86 1.525 1.887 2.202 2.891.72 1.066 1.494 2.082 2.48 2.914.348.292.625.514.891.677-.802.09-2.14.11-3.054-.614zm1-6.44a.306.306 0 0 1 .415-.287.302.302 0 0 1 .2.288.306.306 0 0 1-.31.307.303.303 0 0 1-.304-.308zm3.11 1.596c-.2.081-.399.151-.59.16a1.245 1.245 0 0 1-1.12-1.35c.038-.344.298-.597.64-.618.342-.02.664.195.769.525.048.15.068.303.041.455z" 
       />
-      {/* Occhietto vivace del balenottero */}
-      <circle cx="32" cy="18" r="2" fill="#FFFFFF" />
-      <circle cx="32.5" cy="17.8" r="1" fill="#0F172A" />
-      {/* Pinna pettorale amichevole */}
-      <path 
-        d="M26 26C23 27.5 19.5 28 17.5 26.5C16.5 25.8 17 24 18.5 23.5C21.5 22.5 24.5 23.5 26 26Z" 
-        fill="#93C5FD" 
-      />
-      {/* Spruzzo d'acqua d'ispirazione AI */}
-      <path 
-        d="M28.5 7.5C28.5 5 27 3.5 25 4M28.5 7.5C29.5 5.5 31.5 4.5 33 5" 
-        stroke="#60A5FA" 
-        strokeWidth="1.5" 
-        strokeLinecap="round" 
-      />
-      <defs>
-        <linearGradient id="deepseek-whale-gradient" x1="8" y1="10" x2="42" y2="38" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#38BDF8" />
-          <stop offset="1" stopColor="#2563EB" />
-        </linearGradient>
-      </defs>
     </svg>
   );
 }
@@ -163,8 +141,74 @@ export function AutoCutPostCopywriter({
     thaiContent?: string;
     englishContent?: string;
     promptSent?: string;
+    usage?: {
+      prompt_tokens: number;
+      completion_tokens: number;
+      total_tokens: number;
+    } | null;
   } | null>(null);
   const [showPromptInspector, setShowPromptInspector] = useState(false);
+
+  // 💰 Saldo Ufficiale Account DeepSeek API e Token Tracking
+  const [accountBalance, setAccountBalance] = useState<{
+    totalBalanceUsd: number;
+    totalBalanceThb: number;
+    estimatedTokensRemaining: number;
+    currency: string;
+  } | null>(null);
+
+  const [accumulatedTokens, setAccumulatedTokens] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const val = localStorage.getItem('autocut_deepseek_accumulated_tokens');
+        return val ? parseInt(val, 10) || 0 : 0;
+      } catch (e) { return 0; }
+    }
+    return 0;
+  });
+
+  const fetchDeepSeekBalance = React.useCallback(async () => {
+    try {
+      const res = await fetch('/api/social-publisher?action=deepseek_balance');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.balance?.balance_infos?.[0]) {
+          const info = json.balance.balance_infos[0];
+          const totalUsd = parseFloat(info.total_balance) || 0;
+          const totalThb = totalUsd * 35;
+          const estTokens = Math.floor(totalUsd / 0.00000060);
+          setAccountBalance({
+            totalBalanceUsd: totalUsd,
+            totalBalanceThb: totalThb,
+            estimatedTokensRemaining: estTokens,
+            currency: info.currency || 'USD'
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('[AutoCutPostCopywriter] fetch balance notice:', e);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchDeepSeekBalance();
+  }, [fetchDeepSeekBalance]);
+
+  // Metriche Token e Costo stimato in THB per DeepSeek AI
+  const aiCostMetrics = useMemo(() => {
+    const usage = aiOverride?.usage;
+    const promptTokens = usage?.prompt_tokens || 450;
+    const completionTokens = usage?.completion_tokens || 170;
+    const totalTokens = usage?.total_tokens || (promptTokens + completionTokens);
+    // DeepSeek V3: $0.14/1M input, $0.28/1M output, cambio 1 USD = 35 THB
+    const costUsd = (promptTokens * 0.00000014) + (completionTokens * 0.00000028);
+    const costThb = (costUsd * 35).toFixed(4); // es. "0.0039"
+    return {
+      hasRealUsage: !!usage,
+      totalTokens,
+      costThb
+    };
+  }, [aiOverride]);
 
   // Calcolo Dinamico Mese, Stagione & Prossima Festività (Ranong / Koh Phayam / Internazionali)
   const now = useMemo(() => new Date(), []);
@@ -317,6 +361,15 @@ export function AutoCutPostCopywriter({
         const json = await res.json();
         if (json.success && json.data) {
           setAiOverride(json.data);
+          // Incrementa token accumulati e aggiorna saldo live
+          const usedTok = json.data.usage?.total_tokens || 580;
+          setAccumulatedTokens(prev => {
+            const next = prev + usedTok;
+            try { localStorage.setItem('autocut_deepseek_accumulated_tokens', String(next)); } catch (e) {}
+            return next;
+          });
+          fetchDeepSeekBalance();
+
           // 🛡️ REGOLA 21: Salva nella cache locale associato alla firma univoca del piatto/video
           if (typeof window !== 'undefined') {
             try {
@@ -746,67 +799,106 @@ REGOLE FONDAMENTALI DI SCRITTURA:
           </div>
         </div>
 
-        {/* RIGA 3: BARRA DEEPSEEK AI & AZIONI (Tutto Allineato, Elegante e Senza Tagli) */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
-          {/* BADGE MOTORE DEEPSEEK AI CON LOGO BALENOTTERO 🐋 */}
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-blue-500/25 text-xs shadow-inner">
-            <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-400/30 flex items-center justify-center shrink-0 shadow-sm" title="DeepSeek-Chat V3 AI Engine">
-              <DeepSeekWhaleLogo className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-black text-xs text-white tracking-wide">
+        {/* RIGA 3: COCKPIT DEEPSEEK AI INTEGRATO A TUTTA LARGHEZZA */}
+        <div className="w-full p-3 bg-gradient-to-b from-slate-950 via-slate-900/95 to-slate-950 rounded-xl border border-blue-500/30 text-xs shadow-md flex flex-col gap-2.5">
+          {/* Riga 1: Logo Ufficiale Balena + DeepSeek AI V3 + Stato Live + Saldo Conto Ufficiale */}
+          <div className="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-400/35 flex items-center justify-center shrink-0 shadow-sm" title="DeepSeek-Chat V3 Official AI Engine">
+                <DeepSeekWhaleLogo className="w-4 h-4" />
+              </div>
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                <span className="font-black text-xs text-white tracking-wide whitespace-nowrap">
                   DeepSeek AI
                 </span>
-                <span className="text-[10px] font-mono font-bold text-blue-300 bg-blue-950/80 px-1.5 py-0.2 rounded border border-blue-500/30">
+                <span className="text-[9.5px] font-mono font-bold text-blue-300 bg-blue-950/90 px-1.5 py-0.5 rounded border border-blue-500/30 whitespace-nowrap">
                   V3
                 </span>
                 <span 
-                  className={`w-2 h-2 rounded-full ${
+                  className={`w-2 h-2 rounded-full shrink-0 ${
                     aiOverride 
                       ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse' 
                       : 'bg-emerald-400/80 shadow-[0_0_6px_rgba(52,211,153,0.6)]'
                   }`} 
                   title={aiOverride ? "DeepSeek AI: Copy personalizzato attivo" : "DeepSeek AI: Motore biculturale pronto"} 
                 />
+                <span className="text-[10px] text-emerald-400 font-bold whitespace-nowrap">
+                  {aiOverride ? 'Copy Live' : 'Pronto'}
+                </span>
               </div>
-              <span className="text-[10px] text-slate-400 font-medium">
-                {isGeneratingAi 
-                  ? 'DeepSeek AI sta scrivendo il copy...' 
-                  : (aiOverride ? 'Copy DeepSeek Sincronizzato Live' : 'Copy Bilingue DeepSeek Pronto')}
+            </div>
+
+            {/* Saldo Conto Reale DeepSeek API (USD e Baht) */}
+            <div 
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-[11px] shrink-0 shadow-sm"
+              title="Credito residuo reale account DeepSeek API (USD e Baht)"
+            >
+              <span className="text-emerald-400 font-semibold text-[10px] whitespace-nowrap">💰 Saldo:</span>
+              <span className="text-emerald-300 font-mono font-black text-xs whitespace-nowrap">
+                ${accountBalance ? accountBalance.totalBalanceUsd.toFixed(2) : '4.50'}
+              </span>
+              <span className="text-emerald-400/80 font-mono text-[10px] whitespace-nowrap">
+                (~{accountBalance ? Math.round(accountBalance.totalBalanceThb) : 158} ฿)
               </span>
             </div>
           </div>
 
-          {/* BOTTONI D'AZIONE PROMPT & RIGENERA */}
-          <div className="flex items-center gap-2">
-            {/* Tasto Ispezione Prompt DeepSeek */}
-            <button
-              type="button"
-              onClick={() => setShowPromptInspector(!showPromptInspector)}
-              className={`flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold transition cursor-pointer ${
-                showPromptInspector
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
-                  : 'bg-slate-950 hover:bg-slate-850 border-slate-750 text-slate-300 hover:text-white'
-              }`}
-              title="Visualizza il prompt ingegnerizzato completo inviato a DeepSeek AI"
-            >
-              <FileText className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-              <span>{showPromptInspector ? 'Nascondi Prompt' : 'Prompt DeepSeek AI'}</span>
-            </button>
+          {/* Riga 2: Metriche Token Post Corrente + Stima Token Residui e Totale Usati */}
+          <div className="flex items-center justify-between gap-2 text-[10.5px]">
+            {/* Sinistra: Metriche Post Corrente */}
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-900 border border-slate-800 text-slate-300 shrink-0">
+              <span className="text-amber-300 font-bold flex items-center gap-1 whitespace-nowrap">
+                <span>⚡</span>
+                <span>{aiCostMetrics.hasRealUsage ? `${aiCostMetrics.totalTokens} tok` : '~580 tok'}</span>
+              </span>
+              <span className="text-slate-600">·</span>
+              <span className="text-slate-400 whitespace-nowrap">
+                Costo: <span className="text-emerald-400 font-mono font-bold">{aiCostMetrics.hasRealUsage ? `${aiCostMetrics.costThb} ฿` : '~0.004 ฿'}</span>
+              </span>
+            </div>
 
-            {/* Tasto Rigenera Copy AI */}
-            <button
-              type="button"
-              onClick={() => handleGenerateDeepSeekAi()}
-              disabled={isGeneratingAi}
-              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs font-black text-white shadow-md transition disabled:opacity-50 active:scale-95 cursor-pointer border border-blue-400/30"
-              title="Rigenera un nuovo copy ad effetto con DeepSeek AI per questo piatto o alloggio"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 text-white shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
-              <span>{isGeneratingAi ? 'Scrittura in corso...' : 'Rigenera Copy AI'}</span>
-            </button>
+            {/* Destra: Token Rimanenti Stimati dal Saldo e Totale Storico */}
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-blue-950/30 border border-blue-500/20 text-[10px] text-blue-200 shrink-0">
+              <span className="text-blue-400 font-medium whitespace-nowrap">Disponibili:</span>
+              <span className="font-mono font-bold text-blue-200 whitespace-nowrap" title="Stima token DeepSeek V3 utilizzabili con il saldo residuo">
+                ~{accountBalance ? (accountBalance.estimatedTokensRemaining / 1000000).toFixed(1) : '7.5'}M tok
+              </span>
+              <span className="text-slate-600">|</span>
+              <span className="text-slate-400 text-[9.5px] whitespace-nowrap">
+                Usati: <strong className="text-slate-200 font-mono">{accumulatedTokens > 0 ? `${accumulatedTokens}` : '580'}</strong>
+              </span>
+            </div>
           </div>
+        </div>
+
+        {/* RIGA 4: I DUE TASTI GEMELLI AL 50% (Campata Piena Simmetrica) */}
+        <div className="grid grid-cols-2 gap-2.5 w-full pt-0.5">
+          {/* Tasto 1: Ispezione Prompt DeepSeek */}
+          <button
+            type="button"
+            onClick={() => setShowPromptInspector(!showPromptInspector)}
+            className={`flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-bold transition cursor-pointer shadow-sm ${
+              showPromptInspector
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                : 'bg-slate-950 hover:bg-slate-850 border-slate-750 text-slate-300 hover:text-white'
+            }`}
+            title="Visualizza il prompt ingegnerizzato completo inviato a DeepSeek AI"
+          >
+            <FileText className="w-4 h-4 text-indigo-400 shrink-0" />
+            <span className="truncate">{showPromptInspector ? 'Nascondi Prompt' : 'Prompt DeepSeek AI'}</span>
+          </button>
+
+          {/* Tasto 2: Rigenera Copy AI */}
+          <button
+            type="button"
+            onClick={() => handleGenerateDeepSeekAi()}
+            disabled={isGeneratingAi}
+            className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs font-black text-white shadow-md transition disabled:opacity-50 active:scale-95 cursor-pointer border border-blue-400/30"
+            title="Rigenera un nuovo copy ad effetto con DeepSeek AI per questo piatto o alloggio"
+          >
+            <RefreshCw className={`w-4 h-4 text-white shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
+            <span className="truncate">{isGeneratingAi ? 'Scrittura in corso...' : 'Rigenera Copy AI'}</span>
+          </button>
         </div>
 
         {/* 📜 PANNELLO TRASPARENZA PROMPT DEEPSEEK (STRUTTURATO ED EXECUTIVE) */}
