@@ -958,7 +958,7 @@ export function AutoCutLabPlayer({
         targetCtx.restore();
       }
 
-      targetCtx.font = '900 32px "Outfit", "Inter", sans-serif';
+      targetCtx.font = '900 32px "Outfit", sans-serif';
       targetCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
       targetCtx.textAlign = 'center';
       targetCtx.fillText(
@@ -967,7 +967,7 @@ export function AutoCutLabPlayer({
         275
       );
 
-      targetCtx.font = '800 20px "Inter", sans-serif';
+      targetCtx.font = '800 20px "Outfit", sans-serif';
       targetCtx.fillStyle = '#ffffff';
       targetCtx.fillText(
         (mode === 'R1' || brand === 'village') ? 'KOH PHAYAM · THAILAND' : 'RANONG · THAILAND',
@@ -975,7 +975,7 @@ export function AutoCutLabPlayer({
         315
       );
 
-      targetCtx.font = '600 16px "Inter", sans-serif';
+      targetCtx.font = '600 16px "Outfit", sans-serif';
       targetCtx.fillStyle = '#cbd5e1';
       targetCtx.fillText(
         mode === 'R1' ? 'Italian Restaurant & Island Delivery' : (brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary'),
@@ -1001,7 +1001,7 @@ export function AutoCutLabPlayer({
       targetCtx.stroke();
       targetCtx.restore();
 
-      targetCtx.font = '900 24px "Inter", sans-serif';
+      targetCtx.font = '900 24px "Outfit", sans-serif';
       targetCtx.fillStyle = '#ffffff';
       targetCtx.textAlign = 'center';
       targetCtx.fillText(
@@ -1010,7 +1010,7 @@ export function AutoCutLabPlayer({
         cardY + 46
       );
 
-      targetCtx.font = '800 18px "Inter", sans-serif';
+      targetCtx.font = '800 18px "Outfit", "Prompt", sans-serif';
       targetCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
       targetCtx.fillText(
         mode === 'R1' ? '🛵 Fast Island Delivery in Koh Phayam' : (brand === 'pizza' ? '🛵 Fast Delivery Ranong · 10% Off 1st Order' : '🌴 Direct Booking · Best Rates Guaranteed'),
@@ -1018,7 +1018,7 @@ export function AutoCutLabPlayer({
         cardY + 86
       );
 
-      targetCtx.font = '600 15px "Inter", sans-serif';
+      targetCtx.font = '600 15px "Outfit", sans-serif';
       targetCtx.fillStyle = '#94a3b8';
       targetCtx.fillText(
         mode === 'R1' ? 'Buffalo Bay (Ao Khao Kwai) · Koh Phayam' : (brand === 'pizza' ? 'Order Online or Visit us near Hot Springs' : 'Koh Phayam Island · Thailand'),
@@ -1038,8 +1038,8 @@ export function AutoCutLabPlayer({
       tElapsed: number = 0
     ) => {
       if (!scene) return;
-      // 🛡️ Se il video è nella fase di Outro finale o in dissolvenza verso l'Outro, azzera categoricamente ogni overlay
-      if (tElapsed >= outroStartTime - 0.35) return;
+      // 🛡️ Solo se il video ha superato l'inizio dell'Outro, interrompi gli overlay (la dissolvenza dolce negli ultimi 0.35s è gestita da globalAlpha)
+      if (tElapsed >= outroStartTime) return;
       oCtx.beginPath();
       const s = w / 960; // Su 1440x1080: s = 1.5
 
@@ -1105,13 +1105,13 @@ export function AutoCutLabPlayer({
 
       // Riga 3: Delivery / Direct Booking (32 * s = 48px su 1440p)
       const infoFontSize = Math.round(32 * s);
-      oCtx.font = `700 ${infoFontSize}px "Outfit", sans-serif`;
+      oCtx.font = `700 ${infoFontSize}px "Outfit", "Prompt", sans-serif`;
       const infoText = brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking · 10% Off';
       drawTextWithShadow43(infoText, textX, posY + (100 * s), '#fbbf24', 4.2 * s);
       oCtx.restore();
 
-      // 2. Prezzo Ufficiale & Disponibilità:
-      const isPriceAllowed = tElapsed < (outroStartTime - 0.50);
+      // 2. Prezzo Ufficiale & Disponibilità (sfuma dolcemente insieme agli altri overlay tramite globalAlpha):
+      const isPriceAllowed = tElapsed < outroStartTime;
       const hasPrice = isPriceAllowed && mode !== 'V2' && mode !== 'V3' && (!!scene.priceLabel || !!scene.pizzaSizes);
 
       let priceText = '';
