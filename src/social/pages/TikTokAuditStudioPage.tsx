@@ -76,7 +76,7 @@ const I18N = {
   EN: {
     appTitle: 'Flower Power Social Studio',
     appBadge: 'TikTok v2 & Meta',
-    appSubtitle: 'Dedicated Multichannel Publisher · Pizzeria Ranong · Koh Phayam Village',
+    appSubtitle: 'Social Media Management Platform · Multi-Brand Workspace · Restaurants & Food Creators',
     brandPizza: 'Pizzeria Ranong',
     brandVillage: 'Koh Phayam Village',
     guideBtn: 'TikTok Demo Video Guide',
@@ -189,7 +189,7 @@ const I18N = {
   IT: {
     appTitle: 'Flower Power Social Studio',
     appBadge: 'TikTok v2 & Meta',
-    appSubtitle: 'Piattaforma Multicanale Stagna · Pizzeria Ranong · Koh Phayam',
+    appSubtitle: 'Piattaforma di Social Media Management · Workspace Multi-Brand · Ristoranti e Food Creator',
     brandPizza: 'Pizzeria Ranong',
     brandVillage: 'Koh Phayam Village',
     guideBtn: 'Guida Video Demo TikTok',

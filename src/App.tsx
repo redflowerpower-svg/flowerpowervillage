@@ -85,13 +85,13 @@ function DynamicHeadManager() {
         document.title = 'Flower Power Social Studio — TikTok & Meta Publisher';
         if (manifestLink) manifestLink.href = '/manifest.json';
         if (metaDesc) {
-          metaDesc.content = 'Flower Power Social Studio: Automated multichannel publishing and scheduling for TikTok Content Posting API v2, Instagram Reels, and Facebook Pages.';
+          metaDesc.content = 'Flower Power Social Studio: Social media management platform designed for restaurants, culinary creators, and hospitality businesses to schedule and publish video content across TikTok, Instagram, and Facebook.';
         }
       } else if (isLegal) {
         document.title = 'Flower Power — Terms of Service & Privacy Policy';
         if (manifestLink) manifestLink.href = '/manifest.json';
         if (metaDesc) {
-          metaDesc.content = 'Official Terms of Service, Privacy Policy (PDPA & GDPR), and TikTok Content Posting API compliance for Flower Power Pizza Ranong and Flower Power Farm Village Koh Phayam.';
+          metaDesc.content = 'Official Terms of Service, Privacy Policy (PDPA & GDPR), and TikTok Content Posting API compliance for Flower Power platform users, culinary creators, and hospitality guests.';
         }
       } else if (isKitchen) {
         document.title = 'Flower Power Pizza — Kitchen KDS';

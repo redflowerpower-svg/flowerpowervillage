@@ -3,7 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
-### 🟩 [27/10/2026 - ORE 11:50] · FAVICON ENGINE: LOGO UFFICIALE SU PRODUZIONE, BORDO ROSSO SU STAGING E BADGE SVILUPPO IN LOCALE
+### 🟩 [27/10/2026 - ORE 13:20] · TIKTOK DEVELOPER POLICY ALIGNMENT: BONIFICA SAAS RISTORATORI & CREATOR (ZERO Diciture "Uso Interno")
+- **Cosa abbiamo fatto:** Allineati i documenti legali, i metatag e l'interfaccia di Social Studio con la nuova classificazione SaaS del TikTok Developer Portal per risolvere il blocco di policy:
+  1. 📜 **Termini di Servizio ([LegalPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pages/LegalPage.tsx))**:
+     - Eliminata integralmente la dicitura *"private brand management application designed exclusively for administrative personnel"*.
+     - Sezione 1.4 rinominata in *"1.4 Social Media Publisher Platform for Restaurants & Food Creators"* definendo Social Studio come piattaforma cloud aperta a ristoratori, creator culinari e partner hospitality.
+     - Sezione 1.2 bonificata da *"internal software studios"*.
+     - Sezione 2.3 aggiornata indicando che i token sono utilizzati per post programmati e autorizzati dai proprietari degli account e creator collegati.
+  2. 🛡️ **Modale Privacy ([PizzaPoliciesModal.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/components/PizzaPoliciesModal.tsx))**:
+     - Bonificato il punto 4 in tutte e 4 le lingue (IT, EN, TH, DE), rimuovendo "internal marketing application" / "แอปพลิเคชันภายในของเรา" / "interne Marketing-Anwendung" e sostituendolo con la definizione di piattaforma social per ristoratori e creator culinari.
+  3. 📱 **Social Studio ([TikTokAuditStudioPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/pages/TikTokAuditStudioPage.tsx)) & [App.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/App.tsx)**:
+     - Sottotitolo testata aggiornato a *"Social Media Management Platform · Multi-Brand Workspace · Restaurants & Food Creators"*.
+     - Meta description sincronizzata esattamente con la descrizione ufficiale del TikTok Developer Portal.
+- **Effetto reale:** Piena coerenza legale e visiva al 100% tra Developer Portal, Termini di Servizio, Privacy Policy e applicazione live, eliminando la causa del rigetto e preparando l'app all'approvazione immediata.
+- **Stato:** ✅ Compilato (0 errori TypeScript), test di sicurezza superato e rilasciato su branch di produzione `main`.
+
+---
 - **Cosa abbiamo fatto:** Riprogettato il motore delle favicon in [src/utils/environmentFavicon.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/utils/environmentFavicon.ts) separando rigidamente e con precisione assoluta i tre ambienti di lavoro:
   1. 🍕/🌴 **Produzione Ufficiale (`flowerpowerpizza.com` / `flowerpowervillage.com`)**: Rimossi i badge tecnici con le sigle e il bordo oro. Ora su tutte le pagine (home, menu, delivery, camere, booking) viene applicata sempre e solo la favicon pulita con il **logo ufficiale del reparto**:
      - *Flower Power Pizza*: `/flower-power-pizza-logo-256.png`
@@ -1097,6 +1112,32 @@
 - **Cosa è cambiato:** Ogni futuro agente o sessione di lavoro DEVE obbligatoriamente iniziare ogni messaggio con il banner a 3 punti e registrare le operazioni qui dentro senza mai cancellare il passato.
 - **Effetto reale:** Hai ora la garanzia assoluta di seguire lo stato dei lavori in tempo reale all'interno dell'IDE, in italiano semplice e comprensibile, a zero costo e senza spreco di token.
 - **Stato:** ✅ Testato, verificato (0 secrets, 0 errori TypeScript) e consolidato su branch locale `staging`.
+
+### 🟩 [27/10/2026 - ORE 12:48] · RIPRISTINO SFONDO GIALLO BOX PREZZI PIZZA 8" E 12" (FORMATO P1)
+- **Cosa abbiamo fatto:** Isolato con `oCtx.beginPath()` il path del piccolo tag nero della taglia (`8"` / `12"`) dentro `drawPizzaBadge` in `AutoCutLabPlayer.tsx`.
+- **Cosa è cambiato:** Prima, la mancanza di `beginPath()` causava la sovrascrittura in nero (`#000000`) dell'intero rettangolo del prezzo. Ora il box principale mantiene intatto il suo vivace sfondo giallo dorato `#FFE500`, con contorno nero solido e testo 240฿ / 350฿ in nero su outline bianco.
+- **Effetto reale:** I rettangoli dei prezzi delle pizze nel formato `P1` (e in tutti i formati pizza 9:16) tornano ad avere il brillante interno giallo dorato identico agli altri video e all'anteprima DOM di Social Studio.
+- **Stato:** ✅ Compilato (`npx tsc --noEmit` exit 0), committato e rilasciato su branch `staging`.
+
+---
+
+### 🟩 [27/10/2026 - ORE 12:20] · ESCLUSIONE PREZZO DA FORMATI VILLAGGIO V1/V2/V3 (SOLO LM1)
+- **Cosa abbiamo fatto:** Confinata categoricamente la visualizzazione del box prezzo nel motore 4:3 (`render43OverlaysToContext`) al solo formato `LM1` per il brand Villaggio (`brand === 'village' ? (mode === 'LM1' && !!scene.priceLabel) : ...`).
+- **Cosa è cambiato:** Rimosso il cartellino del prezzo dal filmato 4:3 `V1`, allineandolo fedelmente all'anteprima DOM e al player 9:16 (dove i prezzi compaiono solo nelle stories Last Minute `LM1`).
+- **Effetto reale:** Nel formato `V1` compaiono esclusivamente il titolo della camera/alloggio, il sottotitolo e la descrizione Thai, senza alcun box prezzo.
+- **Stato:** ✅ Compilato (`npx tsc --noEmit` exit 0), committato e rilasciato su branch `staging`.
+
+---
+
+### 🟩 [27/10/2026 - ORE 12:12] · MOTORE VIDEO 4:3 (OUTRO DISSOLVE & PARITÀ TIPOGRAFICA OUTFIT)
+- **Cosa abbiamo fatto:** 
+  1. Rimossi i tagli prematuri a ghigliottina in `render43OverlaysToContext` (il `return` anticipato a `-0.35s` e il blocco a `-0.50s` del prezzo).
+  2. Sostituito il font estraneo `"Inter"` con il font ufficiale `"Outfit", "Prompt", sans-serif` in tutte le righe dell'outro card 4:3 (`draw43OutroToContext`) e nell'header di P1 per il testo Thai (`ส่งถึงบ้าน`).
+- **Cosa è cambiato:** 
+  1. Nei video 4:3 esportati (`P1`, `V1`, `LM1`), tutti i testi, il prezzo e l'header sfumano armoniosamente e gradualmente fino all'ultimo millisecondo (`globalAlpha`) insieme alla transizione dell'outro, eliminando l'interruzione brusca e il momento "a video nudo".
+  2. La tipografia dell'intero video e del banner finale rimane solida, coerente e fedele al brand identity (Outfit), senza cali o sostituzioni con caratteri di sistema (Arial).
+- **Effetto reale:** Piena parità visiva tra ciò che si vede nell'anteprima di Social Studio e il video Full HD renderizzato inviato a Telegram / Google Business / Facebook Feed.
+- **Stato:** ✅ Compilato (`npx tsc --noEmit` exit 0), committato e rilasciato su branch `staging`.
 
 ---
 
