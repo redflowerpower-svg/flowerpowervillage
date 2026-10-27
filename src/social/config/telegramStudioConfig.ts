@@ -35,6 +35,22 @@ export const TELEGRAM_STUDIO_CONFIG = {
       icon: '📥',
       description: 'Upload multimediale mobile verso lo storage Google Drive 5TB',
     },
+
+    /** Topic 286: Cronologia pubblicazioni andate a buon fine (Published) */
+    published: {
+      threadId: 286,
+      name: 'Published',
+      icon: '🟢',
+      description: 'Archivio cronologico ordinato di tutte le pubblicazioni andate a buon fine',
+    },
+
+    /** Topic 301: Allarmi ed errori di pubblicazione (Failed) */
+    failed: {
+      threadId: 301,
+      name: 'Failed',
+      icon: '🚨',
+      description: 'Segnalazione tempestiva e dettagliata di eventuali problemi o fallimenti sui canali',
+    },
   },
 } as const;
 

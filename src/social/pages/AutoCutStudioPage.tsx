@@ -24,6 +24,7 @@ import {
   ScheduledSocialPost, 
   generateAutopilotCampaign 
 } from '../services/autoContentEngine';
+import { dispatchPublishReportToTelegram } from '../services/telegramStudioDispatcher';
 
 export type UILanguage = 'EN' | 'IT';
 type BrandType = 'pizza' | 'village';
@@ -401,6 +402,19 @@ export default function AutoCutStudioPage() {
         ? `"${post.title}" published successfully across selected channels!` 
         : `"${post.title}" pubblicato con successo sui canali selezionati!`
     });
+
+    // 🟢 Invio Automatico Resoconto ai Topic Telegram dedicati (Published 286 / Failed 301)
+    dispatchPublishReportToTelegram({
+      title: post.title,
+      format: post.format,
+      brand: post.brand,
+      scheduledTime: post.scheduledTime,
+      channelResults: (post.platforms || ['instagram', 'facebook']).map(plat => ({
+        channel: plat as any,
+        status: 'success',
+        details: 'Pubblicazione da calendario registrata con successo'
+      }))
+    }).catch(err => console.warn('[AutoCutStudioPage] Telegram report dispatch failed:', err));
   };
 
   // Full End-to-End Simulation specifically designed for the TikTok App Review Demo Video!

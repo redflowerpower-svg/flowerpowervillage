@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { AutoCutTestRun } from '../services/autoCutLabEngine';
 import { THIRD_PARTY_COMMUNITY_GROUPS } from '../config/thirdPartyGroups';
-import { dispatchPostToTelegramTopic } from '../services/telegramStudioDispatcher';
+import { dispatchPostToTelegramTopic, dispatchPublishReportToTelegram } from '../services/telegramStudioDispatcher';
 import { generatePostCopy } from '../services/autoCutCopywriterEngine';
 
 export type DistributionEnvironment = 'test' | 'production';
@@ -507,6 +507,21 @@ export function AutoCutDistributionPanel({
               : [])
           ]
         });
+
+        // 🟢 Invio Resoconto Automatico al Topic 286 (Published)
+        dispatchPublishReportToTelegram({
+          title: testRun?.scenes[0]?.titlePrimary || `Flower Power ${selectedBrand === 'pizza' ? 'Pizza' : 'Village'}`,
+          format: testRun?.mode,
+          brand: selectedBrand,
+          channelResults: [
+            {
+              channel: activeChannel,
+              status: 'success',
+              id: publishedFacebookUrl || publishedFacebookStoryId || publishedInstagramId || publishedTikTokId || publishedGooglePostId,
+              details: `Pubblicazione diretta eseguita con successo via AutoCut Studio (${formats[activeChannel].toUpperCase()})`
+            }
+          ]
+        }).catch(e => console.warn('[AutoCutDistributionPanel] Report dispatch failed:', e));
       }
     } catch (err: any) {
       console.error('[AutoCutDistributionPanel] Execute error:', err);
@@ -516,6 +531,23 @@ export function AutoCutDistributionPanel({
         message: err.message || 'Errore durante la compilazione o trasmissione video.',
         details: [err.stack || 'Verifica la connessione o riprova tra qualche istante.']
       });
+
+      // 🚨 Invio Allarme Immediato al Topic 301 (Failed)
+      if (environment === 'production') {
+        dispatchPublishReportToTelegram({
+          title: testRun?.scenes[0]?.titlePrimary || `Flower Power ${selectedBrand === 'pizza' ? 'Pizza' : 'Village'}`,
+          format: testRun?.mode,
+          brand: selectedBrand,
+          channelResults: [
+            {
+              channel: activeChannel,
+              status: 'error',
+              error: err.message || 'Errore imprevisto durante la trasmissione',
+              details: `Tentativo di pubblicazione fallito su ${channelNames[activeChannel]} (${formats[activeChannel].toUpperCase()})`
+            }
+          ]
+        }).catch(e => console.warn('[AutoCutDistributionPanel] Error report dispatch failed:', e));
+      }
     } finally {
       setIsPublishing(false);
     }

@@ -196,3 +196,149 @@ export async function dispatchPostToTelegramTopic(
     };
   }
 }
+
+export interface ChannelPublishResult {
+  channel: 'instagram' | 'facebook' | 'tiktok' | 'google';
+  status: 'success' | 'error' | 'skipped' | 'standby';
+  details?: string;
+  error?: string;
+  id?: string;
+  url?: string;
+}
+
+export interface PublishReportPayload {
+  title: string;
+  format?: string;
+  brand: 'pizza' | 'village' | 'both';
+  scheduledTime?: string;
+  channelResults: ChannelPublishResult[];
+  videoUrl?: string;
+  thumbnailUrl?: string;
+}
+
+/**
+ * 📊 Invia il resoconto ufficiale di pubblicazione al topic 'Reports' (threadId 286).
+ * - Se tutti i canali attivi hanno avuto successo: invia conferma verde con dettagli e link.
+ * - Se uno o più canali hanno fallito: genera un ALLARME ROSSO evidente segnalando l'errore esatto.
+ */
+export async function dispatchPublishReportToTelegram(
+  report: PublishReportPayload
+): Promise<TelegramDispatchResult> {
+  const { supergroupId, topics } = TELEGRAM_STUDIO_CONFIG;
+
+  const hasErrors = report.channelResults.some(r => r.status === 'error');
+  const successCount = report.channelResults.filter(r => r.status === 'success').length;
+  const errorCount = report.channelResults.filter(r => r.status === 'error').length;
+  const skippedCount = report.channelResults.filter(r => r.status === 'skipped' || r.status === 'standby').length;
+
+  const brandName = report.brand === 'pizza'
+    ? '🍕 Pizzeria Ranong'
+    : report.brand === 'village'
+    ? '🏝️ Villaggio Koh Phayam'
+    : '🍕🏝️ Flower Power (Pizza & Village)';
+
+  const headerIcon = hasErrors ? '🚨' : '🟢';
+  const headerTitle = hasErrors
+    ? '<b>ALLARME: PUBBLICAZIONE FALLITA O INCOMPLETA</b> ❌'
+    : '<b>PUBBLICAZIONE COMPLETATA CON SUCCESSO</b> ✨';
+
+  let messageText = `${headerIcon} ${headerTitle}\n\n`;
+  messageText += `🎬 <b>Titolo:</b> <code>${escapeTelegramHtml(report.title)}</code>\n`;
+  messageText += `🏷️ <b>Brand:</b> ${brandName}\n`;
+  if (report.format) {
+    messageText += `📋 <b>Format:</b> <code>${report.format}</code>\n`;
+  }
+  if (report.scheduledTime) {
+    messageText += `⏱️ <b>Orario Programmato:</b> ${report.scheduledTime}\n`;
+  }
+  messageText += `📅 <b>Data Esecuzione:</b> ${new Date().toLocaleString('it-IT', { timeZone: 'Asia/Bangkok' })} (Bangkok)\n`;
+  messageText += `\n━━━━━━━━━━━━━━━━━━━━\n`;
+  messageText += `<b>DETTAGLIO CANALI:</b>\n\n`;
+
+  const channelIcons: Record<string, string> = {
+    instagram: '📸 Instagram',
+    facebook: '📘 Facebook',
+    tiktok: '🎵 TikTok',
+    google: '📍 Google Maps',
+  };
+
+  for (const res of report.channelResults) {
+    const chName = channelIcons[res.channel] || res.channel;
+    if (res.status === 'success') {
+      messageText += `✅ <b>${chName}:</b> <b>PUBBLICATO CON SUCCESSO</b>`;
+      if (res.id) messageText += ` (ID: <code>${res.id}</code>)`;
+      if (res.details) messageText += `\n   <i>${escapeTelegramHtml(res.details)}</i>`;
+      messageText += `\n`;
+    } else if (res.status === 'error') {
+      messageText += `❌ <b>${chName}:</b> <b>ERRORE DI TRASMISSIONE</b> ⚠️\n`;
+      messageText += `   🚨 <b>Dettaglio Errore:</b> <code>${escapeTelegramHtml(res.error || 'Errore imprevisto')}</code>\n`;
+      if (res.details) messageText += `   ℹ️ <i>${escapeTelegramHtml(res.details)}</i>\n`;
+    } else {
+      messageText += `⏸️ <b>${chName}:</b> Disabilitato / In Pausa`;
+      if (res.details) messageText += ` (<i>${escapeTelegramHtml(res.details)}</i>)`;
+      messageText += `\n`;
+    }
+  }
+
+  messageText += `━━━━━━━━━━━━━━━━━━━━\n`;
+
+  if (hasErrors) {
+    messageText += `\n⚠️ <b>AZIONE RICHIESTA:</b> Riscontrato errore su <b>${errorCount} canale/i</b>. Verificare le credenziali o la configurazione del canale fallito!\n`;
+  } else {
+    messageText += `\n✨ <b>STATUS:</b> Tutti i <b>${successCount} canali attivi</b> sono stati pubblicati regolarmente (${skippedCount} canali esclusi/in pausa).\n`;
+  }
+
+  const inlineKeyboard: any[] = [
+    [
+      {
+        text: '🗓️ Apri Scheduler Calendario',
+        url: 'https://flowerpowerpizza.com/autocut?tab=calendar',
+      },
+      {
+        text: '🎬 Apri Social Studio',
+        url: 'https://flowerpowerpizza.com/social',
+      },
+    ],
+  ];
+
+  // Se ci sono stati successi ma anche un errore, invia sia il log pulito a 'published' per i canali riusciti, sia l'allarme a 'failed'
+  // Se non ci sono errori, invia esclusivamente a 'published'
+  // Se tutti i canali attivi sono falliti, invia solo a 'failed'
+  const targetTopics = hasErrors
+    ? [topics.failed.threadId, ...(successCount > 0 ? [topics.published.threadId] : [])]
+    : [topics.published.threadId];
+
+  let lastResult: TelegramDispatchResult = { success: true };
+
+  for (const threadId of targetTopics) {
+    const isFailTarget = threadId === topics.failed.threadId;
+    const bodyPayload: any = {
+      chat_id: supergroupId,
+      message_thread_id: threadId,
+      text: isFailTarget ? messageText : messageText.replace(/🚨.*ALLARME.*❌/g, '🟢 <b>PARZIALE: CANALI RIUSCITI</b> ✨'),
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      reply_markup: {
+        inline_keyboard: inlineKeyboard,
+      },
+    };
+
+    try {
+      const res = await fetch('/api/social-publisher?action=telegram_dispatch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyPayload),
+      });
+      const data = await res.json();
+      lastResult = {
+        success: !!data.ok,
+        messageId: data.result?.message_id,
+        error: data.description || data.error,
+      };
+    } catch (err: any) {
+      lastResult = { success: false, error: err.message };
+    }
+  }
+
+  return lastResult;
+}
