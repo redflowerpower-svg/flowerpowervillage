@@ -24,6 +24,8 @@ export interface TelegramDispatchResult {
 function stripHtmlTags(str: string): string {
   if (!str) return '';
   return str
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
     .replace(/<br\s*[\/]?>/gi, '\n')
     .replace(/<\/p>/gi, '\n\n')
     .replace(/<[^>]+>/g, '')
@@ -77,19 +79,21 @@ export async function dispatchPostToTelegramTopic(
   }
   messageText += `\n━━━━━━━━━━━━━━━━━━━━\n`;
   messageText += `📋 <b>TESTO DA COPIARE PER IL POST:</b>\n`;
-  messageText += `<i>👇 Tocca il riquadro qui sotto: il testo verrà copiato istantaneamente negli appunti del telefono!</i>\n\n`;
+  messageText += `<i>👇 Clicca o tocca il riquadro qui sotto: il testo viene copiato istantaneamente negli appunti!</i>\n\n`;
   messageText += `<pre>${escapeTelegramHtml(rawCleanCopy)}</pre>\n`;
   messageText += `━━━━━━━━━━━━━━━━━━━━\n\n`;
 
   // Guida rapida contestuale in base al canale
   if (payload.topic === 'kohPhayamGroup') {
     messageText += `👉 <b>Come pubblicare in 3 secondi:</b>\n`;
-    messageText += `1️⃣ Tocca il riquadro col testo sopra per copiarlo negli appunti\n`;
-    messageText += `2️⃣ Salva l'immagine HD (con scritte e logo) nel rullino del telefono\n`;
-    messageText += `3️⃣ Clicca sul tasto sotto <b>"🌐 Vai al Gruppo Koh Phayam"</b> e incolla! 🚀`;
+    messageText += `1️⃣ Clicca sul riquadro col testo sopra per copiarlo negli appunti\n`;
+    messageText += `2️⃣ Clicca sul tasto sotto <b>"🌐 Vai al Gruppo Koh Phayam"</b>\n`;
+    messageText += `3️⃣ <b>Incolla nel post Facebook:</b>\n`;
+    messageText += `   • 💻 <i>Da Computer (PC/Mac):</i> premi <code>Ctrl + Shift + V</code> (oppure tasto destro ➔ <i>"Incolla come testo normale"</i>) per mantenere gli a capo perfetti ed evitare che Facebook fonda le righe!\n`;
+    messageText += `   • 📱 <i>Da Telefono/Tablet:</i> incolla normalmente tenendo premuto sullo schermo! 🚀`;
   } else if (payload.topic === 'tikTokStories') {
     messageText += `👉 <b>Come pubblicare nelle Stories in 3 secondi:</b>\n`;
-    messageText += `1️⃣ Tocca il riquadro con il testo per copiarlo\n`;
+    messageText += `1️⃣ Clicca o tocca il riquadro con il testo per copiarlo\n`;
     messageText += `2️⃣ Salva il video o la foto nella galleria\n`;
     messageText += `3️⃣ Tocca <b>"📱 Apri TikTok"</b> o <b>"📸 Apri Instagram"</b>, seleziona Story e incolla il testo! 🚀`;
   }

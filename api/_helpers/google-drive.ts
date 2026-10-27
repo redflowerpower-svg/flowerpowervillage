@@ -16,8 +16,8 @@ export interface GoogleDriveConfig {
  * (Zero hardcoded secrets to guarantee complete security)
  */
 export async function getGoogleDriveConfig(): Promise<GoogleDriveConfig> {
-  let clientId = process.env.GOOGLE_CLIENT_ID || "";
-  let clientSecret = process.env.GOOGLE_CLIENT_SECRET || "";
+  let clientId = process.env.GOOGLE_DRIVE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || "";
+  let clientSecret = process.env.GOOGLE_DRIVE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || "";
   let refreshToken = process.env.GOOGLE_DRIVE_REFRESH_TOKEN || "";
   let folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || "";
 
