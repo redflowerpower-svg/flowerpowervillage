@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 15:00] · RISOLUZIONE ERRORE INSTAGRAM REELS (ID ACCOUNT DINAMICO & POLLING INTELLIGENTE)
+- **Cosa abbiamo fatto:** 
+  1. 🔍 **Diagnosi Errore `(#10) Application does not have permission for this action`**:
+     - L'errore era causato dall'ID Instagram memorizzato nel file d'ambiente (`17841469176521344`), che non corrispondeva all'effettivo Instagram Business Account collegato alla Pagina Facebook di Flower Power Pizza.
+     - Interrogando Meta Graph API, l'account ufficiale reale collegato alla Pagina è **`17841468753633265`** (`@flowerpowerpizzaranong`), e per il Villaggio è **`17841404137072110`** (`@flowerpowerphayam`).
+  2. 🔄 **Risoluzione Dinamica & Sincronizzazione Automatica**:
+     - In [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts), prima di pubblicare, l'endpoint interroga direttamente Meta (`GET /{pageId}?fields=instagram_business_account`) ottenendo istantaneamente e con precisione matematica l'ID corretto dell'account Instagram collegato, rendendo il sistema a prova di errore.
+     - Aggiornati i file d'ambiente e i fallback con gli ID verificati.
+  3. ⏱️ **Polling Intelligente `status_code`**:
+     - Sostituita la pausa fissa con un ciclo di polling (fino a 36 secondi) che verifica `status_code === 'FINISHED'` prima di chiamare `media_publish`, garantendo che il video sia stato interamente elaborato dai server di Instagram prima della pubblicazione.
+- **Effetto reale:** La creazione del container e la pubblicazione dei Reels su Instagram (`@flowerpowerpizzaranong` e `@flowerpowerphayam`) ora ricevono luce verde da Meta Graph API senza più blocchi di permessi.
+- **Stato:** ✅ Testato con successo (container creato con esito positivo), compilato (`npx tsc --noEmit` exit 0), rilasciato su `staging`.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 14:55] · INTEGRAZIONE LOGO UFFICIALE FLOWER POWER SOCIAL STUDIO NELLA FAVICON & NEL PANNELLO
 - **Cosa abbiamo fatto:** 
   1. 🎨 **Emblema Ufficiale Social Studio**:

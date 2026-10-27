@@ -1410,12 +1410,12 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
           connected: hasMetaPizza || hasMetaVillage,
           pizza: {
             pageId: process.env.META_PIZZA_PAGE_ID || "410856732111386",
-            igId: process.env.META_PIZZA_IG_ID || "17841469176521344",
+            igId: process.env.META_PIZZA_IG_ID || "17841468753633265",
             connected: hasMetaPizza
           },
           village: {
             pageId: process.env.META_VILLAGE_PAGE_ID || "106883044573670",
-            igId: process.env.META_VILLAGE_IG_ID || "17841444373676743",
+            igId: process.env.META_VILLAGE_IG_ID || "17841404137072110",
             connected: hasMetaVillage
           }
         }
@@ -1707,17 +1707,17 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     } = body;
 
     const isPizza = brand === "pizza";
-    const igId = isPizza
-      ? (process.env.META_PIZZA_IG_ID || "17841469176521344")
-      : (process.env.META_VILLAGE_IG_ID || "17841444373676743");
+    const pageId = isPizza
+      ? (process.env.META_PIZZA_PAGE_ID || "410856732111386")
+      : (process.env.META_VILLAGE_PAGE_ID || "106883044573670");
     const pageToken = isPizza
       ? process.env.META_PIZZA_PAGE_TOKEN
       : process.env.META_VILLAGE_PAGE_TOKEN;
 
-    if (!pageToken || !igId) {
+    if (!pageToken) {
       return res.status(400).json({
         success: false,
-        error: `Credenziali Instagram non configurate per ${isPizza ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}.`
+        error: `Meta Page Access Token non configurato per ${isPizza ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}.`
       });
     }
 
@@ -1726,6 +1726,24 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
         success: false,
         error: "Parametro videoUrl mancante per Instagram Reels."
       });
+    }
+
+    // Risoluzione dinamica e verificata dell'Instagram Business Account collegato alla Pagina Facebook
+    let igId = isPizza
+      ? (process.env.META_PIZZA_IG_ID || "17841468753633265")
+      : (process.env.META_VILLAGE_IG_ID || "17841404137072110");
+
+    try {
+      const pageInfoRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}?fields=instagram_business_account&access_token=${pageToken}`);
+      if (pageInfoRes.ok) {
+        const pageInfo = await pageInfoRes.json();
+        if (pageInfo?.instagram_business_account?.id) {
+          igId = pageInfo.instagram_business_account.id;
+          console.log(`[SocialPublisher] Instagram Business Account collegato a Pagina ${pageId}: ${igId}`);
+        }
+      }
+    } catch (dynErr) {
+      console.warn("[SocialPublisher] Risoluzione dinamica IG fallita, uso fallback:", igId);
     }
 
     try {
@@ -1754,8 +1772,33 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 
       const creationId = cData.id;
 
-      // Attesa breve elaborazione video su server Meta Instagram
-      await new Promise(r => setTimeout(r, 3500));
+      // Polling intelligente elaborazione video su server Meta Instagram (fino a FINISHED)
+      let isReady = false;
+      let attempts = 0;
+      const maxAttempts = 12; // fino a 36 secondi
+      while (!isReady && attempts < maxAttempts) {
+        attempts++;
+        await new Promise(r => setTimeout(r, 3000));
+        try {
+          const sRes = await fetch(`https://graph.facebook.com/v19.0/${creationId}?fields=status_code,status&access_token=${pageToken}`);
+          if (sRes.ok) {
+            const sData = await sRes.json();
+            console.log(`[SocialPublisher] Polling Instagram container status (${attempts}/${maxAttempts}):`, sData);
+            if (sData.status_code === "FINISHED") {
+              isReady = true;
+              break;
+            } else if (sData.status_code === "ERROR") {
+              return res.status(400).json({
+                success: false,
+                error: `Errore elaborazione video su Instagram: ${sData.status || sData.status_code}`,
+                details: sData
+              });
+            }
+          }
+        } catch (pollErr) {
+          console.warn("[SocialPublisher] Errore polling container Instagram:", pollErr);
+        }
+      }
 
       const pParams = new URLSearchParams();
       pParams.append("access_token", pageToken);
