@@ -351,7 +351,7 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
             grant_type: "refresh_token",
             refresh_token: tokenData.refresh_token,
             client_id: process.env.VITE_OCTORATE_CLIENT_ID || "",
-            client_secret: process.env.VITE_OCTORATE_SECRET_KEY || "",
+            client_secret: process.env.OCTORATE_SECRET_KEY || process.env.VITE_OCTORATE_SECRET_KEY || "",
           });
 
           if (refreshRaw.status >= 200 && refreshRaw.status < 300) {
