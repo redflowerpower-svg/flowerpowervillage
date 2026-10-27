@@ -949,31 +949,31 @@ export function SocialCalendarView({
         </div>
       </div>
 
-      {/* Top Calendar Toolbar */}
-      <div className="bg-[#121826] border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-4">
+      {/* Top Calendar Toolbar (Ultra-Compact, Slim & Single Row) */}
+      <div className="bg-[#121826]/95 border border-slate-800 rounded-xl px-3 py-1.5 shadow-md flex items-center justify-between gap-2 overflow-x-auto scrollbar-none flex-nowrap">
         
-        {/* Month Navigator */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-slate-900 border border-slate-700 rounded-xl p-1">
+        {/* Left: Nav, Month/Year Picker & Status */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center bg-slate-900 border border-slate-700/80 rounded-lg p-0.5">
             <button
               onClick={handlePrevMonth}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition"
               title="Previous Month"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={handleToday}
-              className="px-3 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition"
+              className="px-2 py-0.5 rounded text-[11px] font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition"
             >
               {uiLang === 'EN' ? 'Today' : 'Oggi'}
             </button>
             <button
               onClick={handleNextMonth}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition"
               title="Next Month"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
@@ -985,14 +985,14 @@ export function SocialCalendarView({
                 setPopupViewDate(new Date(currentDate.getTime()));
                 setShowDatePickerPopup(!showDatePickerPopup);
               }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500 text-white transition cursor-pointer shadow-md group"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500 text-white transition cursor-pointer text-xs font-bold whitespace-nowrap group"
               title="Apri calendario interattivo: scegli direttamente qualsiasi giorno, mese o anno"
             >
-              <CalendarIcon className="w-4 h-4 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
-              <span className="text-base sm:text-lg font-black tracking-wide">
+              <CalendarIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
+              <span className="whitespace-nowrap font-bold tracking-tight">
                 {MONTH_NAMES[uiLang][month]} {year}
               </span>
-              <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-white transition-transform duration-200 ${showDatePickerPopup ? 'rotate-180 text-indigo-400' : ''}`} />
+              <ChevronDown className={`w-3 h-3 text-slate-400 group-hover:text-white transition-transform duration-200 ${showDatePickerPopup ? 'rotate-180 text-indigo-400' : ''}`} />
             </button>
 
             {/* POPOVER CALENDARIO INTERATTIVO */}
@@ -1002,7 +1002,7 @@ export function SocialCalendarView({
                   className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px]" 
                   onClick={() => setShowDatePickerPopup(false)} 
                 />
-                <div className="absolute top-full left-0 mt-2 z-50 w-[310px] sm:w-[350px] bg-[#121826] border border-indigo-500/40 rounded-2xl shadow-2xl p-4 text-white space-y-3.5 select-none animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute top-full left-0 mt-1.5 z-50 w-[310px] sm:w-[350px] bg-[#121826] border border-indigo-500/40 rounded-2xl shadow-2xl p-4 text-white space-y-3.5 select-none animate-in fade-in zoom-in-95 duration-150">
                   
                   {/* Header Popover: Selettore Mese, Anno e Tasti Avanti/Indietro */}
                   <div className="flex items-center justify-between gap-1.5 border-b border-slate-800 pb-2.5">
@@ -1135,26 +1135,26 @@ export function SocialCalendarView({
             )}
           </div>
 
-          {/* 🛡️ MASTER SWITCH: FERMO (STANDBY) vs IN PRODUZIONE (CON DOPPIA CONFERMA) */}
+          {/* 🛡️ MASTER SWITCH: FERMO (STANDBY) vs IN PRODUZIONE */}
           <button
             type="button"
             onClick={handleToggleSchedulerMode}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs font-black transition cursor-pointer shadow-md select-none ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold transition cursor-pointer select-none whitespace-nowrap ${
               schedulerMode === 'production'
-                ? 'bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-400 text-emerald-300 shadow-emerald-950/40'
+                ? 'bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-400 text-emerald-300'
                 : confirmingProduction
-                  ? 'bg-rose-500/25 hover:bg-rose-500/35 border-rose-400 text-rose-200 ring-2 ring-rose-400/60 shadow-lg shadow-rose-950/50 animate-pulse'
-                  : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-amber-950/30'
+                  ? 'bg-rose-500/25 hover:bg-rose-500/35 border-rose-400 text-rose-200 ring-2 ring-rose-400/60 animate-pulse'
+                  : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-300'
             }`}
             title={
               schedulerMode === 'production'
-                ? 'Scheduler ATTIVO in Produzione: i post possono essere inviati. Clicca per disattivare e tornare in Standby.'
+                ? 'Scheduler ATTIVO in Produzione: i post possono essere inviati. Clicca per tornare in Standby.'
                 : confirmingProduction
                   ? 'Clicca una seconda volta per confermare il passaggio a IN PRODUZIONE (scade tra 5s)'
-                  : 'Scheduler in STANDBY (Fermo): nessuna pubblicazione possibile. Clicca due volte per attivare lo stato di Produzione.'
+                  : 'Scheduler in STANDBY (Fermo). Clicca due volte per attivare lo stato di Produzione.'
             }
           >
-            <span className={`w-2.5 h-2.5 rounded-full ${
+            <span className={`w-2 h-2 rounded-full ${
               schedulerMode === 'production' 
                 ? 'bg-emerald-400 animate-pulse' 
                 : confirmingProduction
@@ -1163,22 +1163,21 @@ export function SocialCalendarView({
             }`} />
             <span>
               {schedulerMode === 'production'
-                ? (uiLang === 'EN' ? '🟢 STATUS: LIVE IN PRODUCTION' : '🟢 STATO: IN PRODUZIONE')
+                ? (uiLang === 'EN' ? 'LIVE IN PROD' : 'PRODUZIONE')
                 : confirmingProduction
-                  ? (uiLang === 'EN' ? '⚠️ CONFIRM LIVE? CLICK AGAIN' : '⚠️ CONFERMI PRODUZIONE? CLICCA ANCORA')
-                  : (uiLang === 'EN' ? '⏸️ STATUS: STANDBY (PAUSED)' : '⏸️ STATO: FERMO (STANDBY)')}
+                  ? (uiLang === 'EN' ? 'CONFERMI?' : 'CONFERMI?')
+                  : (uiLang === 'EN' ? 'STANDBY' : 'STANDBY')}
             </span>
           </button>
         </div>
 
-        {/* Filters & Actions */}
-        <div className="flex flex-wrap items-center gap-2">
-          
+        {/* Right: Filters & Actions */}
+        <div className="flex items-center gap-1.5 shrink-0 flex-nowrap">
           {/* Brand Filter */}
-          <div className="flex items-center bg-slate-900 border border-slate-800 p-1 rounded-xl">
+          <div className="flex items-center bg-slate-900 border border-slate-800 p-0.5 rounded-lg">
             <button
               onClick={() => setSelectedBrandFilter('all')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+              className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
                 selectedBrandFilter === 'all'
                   ? 'bg-indigo-600 text-white shadow'
                   : 'text-slate-400 hover:text-white'
@@ -1188,7 +1187,7 @@ export function SocialCalendarView({
             </button>
             <button
               onClick={() => setSelectedBrandFilter('pizza')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+              className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold transition ${
                 selectedBrandFilter === 'pizza'
                   ? 'bg-rose-600 text-white shadow'
                   : 'text-slate-400 hover:text-white'
@@ -1198,7 +1197,7 @@ export function SocialCalendarView({
             </button>
             <button
               onClick={() => setSelectedBrandFilter('village')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+              className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold transition ${
                 selectedBrandFilter === 'village'
                   ? 'bg-emerald-600 text-white shadow'
                   : 'text-slate-400 hover:text-white'
@@ -1208,13 +1207,13 @@ export function SocialCalendarView({
             </button>
             <button
               onClick={() => setSelectedBrandFilter('capcut')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+              className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold transition ${
                 selectedBrandFilter === 'capcut'
                   ? 'bg-purple-600 text-white shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>🎬 CapCut CC1</span>
+              <span>🎬 CapCut</span>
             </button>
           </div>
 
@@ -1222,18 +1221,18 @@ export function SocialCalendarView({
           <button
             type="button"
             onClick={handleLoadDailyRoutine}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 hover:from-amber-400 hover:to-rose-500 text-white font-black text-xs shadow-lg shadow-rose-950/50 transition cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 hover:from-amber-400 hover:to-rose-500 text-white font-bold text-[11px] shadow whitespace-nowrap transition cursor-pointer"
             title="Popola automaticamente il mese con la routine strategica concordata (09:00 LM1, 11:30 Pranzo, 14:30 Reel, 17:00 R1, 17:45 Cena, Google)"
           >
-            <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
-            <span>{uiLang === 'EN' ? '⚡ Load Daily Routine (6/Day)' : '⚡ Carica Routine Quotidiana (6/Giorno)'}</span>
+            <Zap className="w-3 h-3 text-amber-300 fill-amber-300" />
+            <span>{uiLang === 'EN' ? 'Routine (6/D)' : 'Routine (6/G)'}</span>
           </button>
 
           {/* Reset / Clear */}
           <button
             type="button"
             onClick={() => onUpdatePosts([])}
-            className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 text-xs font-semibold transition"
+            className="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 text-[11px] font-semibold transition whitespace-nowrap"
             title="Svuota il calendario per ripartire da zero"
           >
             Svuota
