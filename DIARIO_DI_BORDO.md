@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 18:25] · RICHIESTA QUOTA GOOGLE BUSINESS PROFILE INVIATA (CASE ID: 2-3532000041993) & ISOLAMENTO OAUTH COMPLETATO
+- **Cosa abbiamo fatto:** 
+  1. 🛡️ **Isolamento Totale Credenziali OAuth 2.0 (Google Business vs Google Drive)**:
+     - Creato su Google Cloud Console e integrato nel sistema il nuovo Client ID dedicato esclusivamente a Google Maps: `129023399780-dlg8mi7unu94rmt3nt5skhdl9s1ehhvf.apps.googleusercontent.com`.
+     - Separate le variabili d'ambiente locali e cloud (`GOOGLE_BUSINESS_CLIENT_ID` e `GOOGLE_BUSINESS_CLIENT_SECRET`), blindando Google Drive con le sue chiavi indipendenti. I due servizi non potranno mai più sovrascrivere o revocare i rispettivi refresh token.
+     - Aggiunto il parametro di autorizzazione incrementale `include_granted_scopes=true` al flusso di login.
+  2. 📝 **Invio Richiesta Accesso & Quota a Google (Case ID: 2-3532000041993)**:
+     - Compilato e inviato con successo il modulo ufficiale *Google Business Profile API Access Request Form* per il progetto `129023399780`.
+     - Ticket di supporto aperto: **Case ID 2-3532000041993**.
+     - Tempi di revisione e allowlist stimati da Google Trust & Safety: **7-10 giorni lavorativi** per lo sblocco della quota standard da 0 a 300 QPM.
+  3. 🧪 **Ambiente di Simulazione e Test Attivo (Zero Blocchi)**:
+     - Configurato il backend per gestire la modalità Sandbox con feedback trasparente e dettagliato.
+     - L'intero flusso di generazione video 9:16 HD, formattazione copy bilingue, upload S3 e inoltro Telegram ai canali staff Topic 3 è funzionante e testabile all'istante attivando lo switch `Test (Sandbox)` in `/autocut`.
+- **Effetto reale:** L'infrastruttura è pronta al 100%. Appena Google elabora il ticket e sblocca la quota, la pubblicazione su Google Maps passerà in produzione live senza dover toccare una sola riga di codice.
+- **Stato:** ✅ Configurato, salvato in Supabase e `.env.local`, rilasciato su `main` e `staging`.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 16:55] · BLINDATURA TOTALE CPU & PREVENZIONE BLOCCO COMPUTER (THROTTLE FFMPEG & PROCESS LOCK)
 - **Cosa abbiamo fatto:** 
   1. 🧹 **Verifica & Pulizia Processi Zombie**:
