@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 11:45] · SOCIAL STUDIO LM1 4:3: SINCRONIZZAZIONE PROPORZIONALE 1440x1080 (IDENTICA A PREVIEW) & RISOLUZIONE BUG RETTANGOLO VERDE OUTRO (BEGINPATH)
+- **Cosa abbiamo fatto:** Risolti i due problemi chiave segnalati negli screenshot di confronto tra l'anteprima DOM e il video esportato per Telegram in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  1. 📐 **Sincronizzazione Proporzioni 1440x1080 (Identica all'Anteprima)**:
+     - Calibrati matematicamente i font e il watermark del canvas offscreen 1440x1080 per corrispondere alla stessa esatta percentuale di occupazione dello schermo dell'anteprima DOM:
+     - Logo Watermark portato da 96px a 155px (`logoSize = 155 * s`, 232px su 1440p = 16.1% della larghezza schermo).
+     - Testo `FLOWER POWER` portato a 50*s (75px), `Village` a 40*s (60px) e `Direct Booking` a 32*s (48px).
+     - Titoli alloggio portati a 52*s (78px, 5.4% della larghezza), sottotitolo a 38*s (57px) e riga Thai a 33*s (50px).
+     - Box prezzo calibrato a 42*s (63px) con altezza 68*s e padding proporzionato.
+  2. 🛡️ **Risoluzione Radicale Bug Rettangolo Verde Outro (`beginPath`)**:
+     - Individuata la causa della scatola fantasma verde apparsa in basso a sinistra nell'Outro: in `draw43OutroToContext` mancava la chiamata `targetCtx.beginPath()` prima del disegno della card centrale. Di conseguenza, il canvas buffer conservava il subpath del box prezzo della scena precedente e lo riempiva/contornava con lo stile verde della card centrale.
+     - Aggiunto `beginPath()` sistematico sia in `draw43OutroToContext` sia in `renderFrameToOffscreen` all'ingresso dell'Outro, azzerando categoricamente qualsiasi memoria del path precedente.
+- **Effetto reale:** Il video MP4 generato per Telegram e social media a 1440x1080 ora ha testi e logo con la stessa identica grandezza, imponenza e proporzione visiva che si ammira nell'anteprima del Social Studio. La schermata finale di Outro è ora completamente pulita, priva di qualsiasi rettangolo residuo nell'angolo in basso a sinistra.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 11:00] · SOCIAL STUDIO LM1 4:3: ALLINEAMENTO TOTALE ANTEPRIMA A SCHERMO & PRODUZIONE FINALE (WYSIWYG 100%)
 - **Cosa abbiamo fatto:** Allineata l'anteprima a schermo del player Companion 4:3 (`Google Business 4:3`) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) con la pipeline di rendering finale:
   1. 🖼️ **Punto 1 (Watermark Top-Left +50% a Schermo)**: Logo portato da 90px a 135px, `FLOWER POWER` a 36px/39px, `Village` a 31px/34px e `Direct Booking` a 25px/28px direttamente nel DOM a video.
