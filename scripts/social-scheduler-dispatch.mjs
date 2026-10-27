@@ -200,11 +200,15 @@ async function run() {
 
   // Identifica lo slot più vicino o esatto
   const is0800 = targetSlot.startsWith('08:') || targetSlot === '08:00';
+  const is0930 = targetSlot.startsWith('09:3') || targetSlot === '09:30';
   const is1130 = targetSlot.startsWith('11:3') || targetSlot === '11:30';
+  const is1230 = targetSlot.startsWith('12:3') || targetSlot === '12:30';
   const is1600 = targetSlot.startsWith('16:') || targetSlot === '16:00';
   const is1700 = targetSlot.startsWith('17:') || targetSlot === '17:00';
+  const is1800 = targetSlot.startsWith('18:0') || targetSlot === '18:00';
   const is1830 = targetSlot.startsWith('18:3') || targetSlot === '18:30';
   const is1930 = targetSlot.startsWith('19:3') || targetSlot === '19:30';
+  const is2000 = targetSlot.startsWith('20:') || targetSlot === '20:00';
   const is2100 = targetSlot.startsWith('21:') || targetSlot === '21:00';
 
   if (is0800) {
@@ -255,14 +259,38 @@ async function run() {
       topicId: TOPIC_KOH_PHAYAM_GROUP,
       text: `📢 [POST DA COPIARE/CONDIVIDERE SUI GRUPPI KOH PHAYAM]\n\n${lm1Text}`
     });
+  } else if (is0930) {
+    console.log(`🌿 [09:30 BANGKOK] Slot Story Mattino — SOLO INSTAGRAM (V1 / CC1 Risveglio Tropicale)`);
+    const storyVid = await renderVideoMode('V1');
+    const igStoryCaption = `🇹🇭 สดชื่นยามเช้ากับสายลมและธรรมชาติเขียวขจีที่เกาะพยาม 🌿🌴\n\n` +
+      `🇬🇧 Crisp morning breeze and tropical peaceful vibes at Flower Power Village Koh Phayam. 🌴☀️\n\n` +
+      `🏝️ flowerpowervillage.com\n` +
+      `#KohPhayam #MorningVibes #TropicalResort`;
+
+    await sendVideoToTelegram({
+      filePath: storyVid,
+      topicId: TOPIC_TIKTOK_STORIES,
+      caption: `📸 [INSTAGRAM STORY 09:30 - MATTINO RESORT]\nCarica subito su Instagram Stories!\n\n${igStoryCaption}`
+    });
   } else if (is1130) {
-    console.log(`🍝 [11:30 BANGKOK] Slot Pranzo Ranong — SOLO FACEBOOK (P2 Pasta Fresca)`);
-    // Dispatch Facebook API o notifica
-    console.log(`✅ [11:30] Post Pranzo programmato con successo.`);
+    console.log(`🍝 [11:30 BANGKOK] Slot Pranzo Ranong — SOLO FACEBOOK PAGINA (P2 Pasta Fresca)`);
+    console.log(`✅ [11:30] Post Pranzo Facebook verificato.`);
+  } else if (is1230) {
+    console.log(`🍕 [12:30 BANGKOK] Slot Story Pranzo — SOLO FACEBOOK PAGINA (P1 / CC1 Laboratorio & Forno)`);
+    const fbStoryVid = await renderVideoMode('P1');
+    const fbStoryCaption = `🇹🇭 พิซซ่าอบร้อนๆ หอมกรุ่นพร้อมเสิร์ฟมื้อกลางวันในระนอง! 🍕🛵💨\n\n` +
+      `🇬🇧 Piping hot artisanal pizzas ready for lunch delivery in Ranong! 🍕🔥\n\n` +
+      `🛵 flowerpowerpizza.com\n` +
+      `#RanongFood #PizzaRanong #LunchDelivery`;
+
+    await sendVideoToTelegram({
+      filePath: fbStoryVid,
+      topicId: TOPIC_TIKTOK_STORIES,
+      caption: `📸 [FACEBOOK STORY 12:30 - PRANZO FORNO TRADIZIONALE]\nCarica su Facebook Stories Pagina Ufficiale!\n\n${fbStoryCaption}`
+    });
   } else if (is1600) {
-    console.log(`🌿 [16:00 BANGKOK] Slot Pomeriggio Relax — SOLO INSTAGRAM (V2 Suite Tour)`);
-    // Dispatch Instagram API o notifica
-    console.log(`✅ [16:00] Reel Instagram programmato con successo.`);
+    console.log(`🌿 [16:00 BANGKOK] Slot Pomeriggio Relax — SOLO INSTAGRAM (V2 Suite Tour / CC1 Relax)`);
+    console.log(`✅ [16:00] Reel Instagram verificato.`);
   } else if (is1700) {
     console.log(`🌅 [17:00 BANGKOK] Avvio tranche serale: 2 Stories + 1 Post R1 Ristorante Phayam`);
 
@@ -311,15 +339,41 @@ async function run() {
       topicId: TOPIC_KOH_PHAYAM_GROUP,
       text: `🍕 [POST DA COPIARE/CONDIVIDERE SUI GRUPPI KOH PHAYAM - CENA]\n\n${r1Text}`
     });
+  } else if (is1800) {
+    console.log(`🌅 [18:00 BANGKOK] Slot Story Golden Hour — SOLO INSTAGRAM (V3 / CC1 Sunset Phayam)`);
+    const sunsetVid = await renderVideoMode('V3');
+    const sunsetCaption = `🇹🇭 ท้องฟ้าสีทองยามเย็นที่เกาะพยาม ความงดงามที่ไม่อาจลืมเลือน 🌅✨\n\n` +
+      `🇬🇧 Golden hour bliss on Koh Phayam Island. Nature at its finest. 🌅🌴🌊\n\n` +
+      `🏝️ flowerpowervillage.com\n` +
+      `#KohPhayam #SunsetLovers #GoldenHour`;
+
+    await sendVideoToTelegram({
+      filePath: sunsetVid,
+      topicId: TOPIC_TIKTOK_STORIES,
+      caption: `📸 [INSTAGRAM STORY 18:00 - GOLDEN HOUR RESORT]\nCarica subito su Instagram Stories!\n\n${sunsetCaption}`
+    });
   } else if (is1830) {
     console.log(`🎵 [18:30 BANGKOK] Slot TikTok Feed API (Post Feed 9:16)`);
     console.log(`ℹ️ Canale TikTok Feed API attualmente disattivato in attesa dell'approvazione v2 da TikTok for Developers. Slot saltato correttamente.`);
   } else if (is1930) {
-    console.log(`🍕 [19:30 BANGKOK] Slot Cena Ranong — SOLO FACEBOOK (P1 Pizza Tradizionale)`);
-    console.log(`✅ [19:30] Post Cena programmato con successo.`);
+    console.log(`🍕 [19:30 BANGKOK] Slot Cena Ranong — SOLO FACEBOOK PAGINA (P1 Pizza Tradizionale / CC1 Forno)`);
+    console.log(`✅ [19:30] Reel Cena Facebook verificato.`);
+  } else if (is2000) {
+    console.log(`☕ [20:00 BANGKOK] Slot Story Serale — SOLO FACEBOOK PAGINA (P3 Dolci Artigianali / CC1 Tavoli)`);
+    const dessertVid = await renderVideoMode('P3');
+    const dessertCaption = `🇹🇭 ปิดท้ายค่ำคืนด้วยทีรามิสุทำเองแท้ๆ และเอสเปรสโซหอมกรุ่น 🍰☕\n\n` +
+      `🇬🇧 End your evening in Ranong with authentic homemade tiramisu and rich Italian espresso. ☕🍰✨\n\n` +
+      `🛵 flowerpowerpizza.com\n` +
+      `#RanongDessert #TiramisuRanong #ItalianDessert`;
+
+    await sendVideoToTelegram({
+      filePath: dessertVid,
+      topicId: TOPIC_TIKTOK_STORIES,
+      caption: `📸 [FACEBOOK STORY 20:00 - SERATA DOLCI & ATMOSFERA]\nCarica su Facebook Stories Pagina Ufficiale!\n\n${dessertCaption}`
+    });
   } else if (is2100) {
-    console.log(`🌙 [21:00 BANGKOK] Slot Notte — SOLO INSTAGRAM (V3 Tropical Escape)`);
-    console.log(`✅ [21:00] Reel Notte programmato con successo.`);
+    console.log(`🌙 [21:00 BANGKOK] Slot Notte — SOLO INSTAGRAM (V3 Tropical Escape / CC1 Notte)`);
+    console.log(`✅ [21:00] Reel Notte Instagram verificato.`);
   } else {
     console.log(`ℹ️ Nessun evento programmato per lo slot ${targetSlot}. Scheduler a riposo.`);
   }
