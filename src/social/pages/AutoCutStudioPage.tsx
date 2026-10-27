@@ -24,7 +24,7 @@ import {
   ScheduledSocialPost, 
   generateAutopilotCampaign 
 } from '../services/autoContentEngine';
-import { dispatchPublishReportToTelegram } from '../services/telegramStudioDispatcher';
+import { dispatchPublishReportToTelegram, ChannelPublishResult } from '../services/telegramStudioDispatcher';
 
 export type UILanguage = 'EN' | 'IT';
 type BrandType = 'pizza' | 'village';
@@ -382,38 +382,161 @@ export default function AutoCutStudioPage() {
   };
 
   // Publish a scheduled post from the visual calendar
-  const handlePublishScheduledPost = (post: ScheduledSocialPost) => {
+  const handlePublishScheduledPost = async (post: ScheduledSocialPost) => {
+    setIsPublishing(true);
+    const activePlatforms = post.platforms || ['instagram', 'facebook'];
+    const channelResults: ChannelPublishResult[] = [];
+    let hasFailure = false;
+
+    // 1. Pubblicazione su Facebook
+    if (activePlatforms.includes('facebook')) {
+      try {
+        const isStory = post.format === 'story';
+        const fbRes = await fetch('/api/social-publisher?action=publish_facebook', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            videoUrl: post.media_url,
+            title: post.title,
+            caption: post.caption,
+            brand: post.brand,
+            isStory
+          })
+        });
+        const fbData = await fbRes.json();
+        if (fbRes.ok && fbData.success) {
+          channelResults.push({
+            channel: 'facebook',
+            status: 'success',
+            id: fbData.storyId || fbData.postUrl || fbData.id,
+            details: `Pubblicazione Facebook ${isStory ? 'Story 24h' : 'Post/Reel'} riuscita (${post.brand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})`
+          });
+        } else {
+          hasFailure = true;
+          channelResults.push({
+            channel: 'facebook',
+            status: 'error',
+            error: fbData.error || 'Errore risposta Meta Graph API per Facebook'
+          });
+        }
+      } catch (fbErr: any) {
+        hasFailure = true;
+        channelResults.push({
+          channel: 'facebook',
+          status: 'error',
+          error: fbErr.message || 'Eccezione di rete Facebook'
+        });
+      }
+    }
+
+    // 2. Pubblicazione su Instagram
+    if (activePlatforms.includes('instagram')) {
+      try {
+        const isStory = post.format === 'story';
+        const igRes = await fetch('/api/social-publisher?action=publish_instagram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            videoUrl: post.media_url,
+            caption: post.caption,
+            brand: post.brand,
+            isStory
+          })
+        });
+        const igData = await igRes.json();
+        if (igRes.ok && igData.success) {
+          channelResults.push({
+            channel: 'instagram',
+            status: 'success',
+            id: igData.mediaId,
+            details: `Pubblicazione Instagram ${isStory ? 'Story 24h' : 'Reel'} riuscita (${post.brand === 'pizza' ? '@flowerpowerpizzaranong' : '@flowerpowervillage'})`
+          });
+        } else {
+          hasFailure = true;
+          channelResults.push({
+            channel: 'instagram',
+            status: 'error',
+            error: igData.error || 'Errore risposta Meta Graph API per Instagram'
+          });
+        }
+      } catch (igErr: any) {
+        hasFailure = true;
+        channelResults.push({
+          channel: 'instagram',
+          status: 'error',
+          error: igErr.message || 'Eccezione di rete Instagram'
+        });
+      }
+    }
+
+    // 3. Pubblicazione su Google (se attivo tra i canali)
+    if (activePlatforms.includes('google')) {
+      try {
+        const gRes = await fetch('/api/social-publisher?action=publish_google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            summary: post.caption,
+            brand: post.brand,
+            mediaUrl: post.media_url,
+            actionUrl: post.brand === 'village' ? 'https://flowerpowervillage.com' : 'https://flowerpowerpizza.com'
+          })
+        });
+        const gData = await gRes.json();
+        if (gRes.ok && gData.success) {
+          channelResults.push({
+            channel: 'google',
+            status: 'success',
+            id: gData.postId,
+            details: 'Scheda Google Maps pubblicata con successo'
+          });
+        } else {
+          hasFailure = true;
+          channelResults.push({
+            channel: 'google',
+            status: 'error',
+            error: gData.error || 'Errore Google Business Profile'
+          });
+        }
+      } catch (gErr: any) {
+        hasFailure = true;
+        channelResults.push({
+          channel: 'google',
+          status: 'error',
+          error: gErr.message || 'Eccezione Google'
+        });
+      }
+    }
+
+    setIsPublishing(false);
+
     const newLog = {
       id: `pub_${Date.now()}`,
       brand: post.brand,
-      platform: post.platforms[0] || 'tiktok',
+      platform: activePlatforms[0] || 'instagram',
       title: post.title,
       caption: post.caption,
-      status: 'published',
+      status: hasFailure ? 'failed' : 'published',
       published_at: uiLang === 'EN' ? 'Just now' : 'Adesso',
       publish_id: `v_pub_auto~${Date.now().toString(36)}`,
-      views: '1 (New)'
+      views: hasFailure ? 'Error' : '1 (New)'
     };
     setRecentPosts([newLog, ...recentPosts]);
-    setScheduledPosts(scheduledPosts.map(p => p.id === post.id ? { ...p, status: 'published' } : p));
+    setScheduledPosts(scheduledPosts.map(p => p.id === post.id ? { ...p, status: hasFailure ? 'failed' : 'published' } : p));
     setPublishResult({
-      type: 'success',
-      message: uiLang === 'EN' 
-        ? `"${post.title}" published successfully across selected channels!` 
-        : `"${post.title}" pubblicato con successo sui canali selezionati!`
+      type: hasFailure ? 'error' : 'success',
+      message: hasFailure
+        ? (uiLang === 'EN' ? `Error publishing "${post.title}". Check Telegram Failed topic!` : `Errore durante la pubblicazione di "${post.title}". Controlla il canale Failed su Telegram!`)
+        : (uiLang === 'EN' ? `"${post.title}" published successfully across selected channels!` : `"${post.title}" pubblicato con successo sui canali selezionati!`)
     });
 
-    // 🟢 Invio Automatico Resoconto ai Topic Telegram dedicati (Published 286 / Failed 301)
+    // 📡 Invio Automatico Resoconto ai Topic Telegram dedicati (Published 286 / Failed 301)
     dispatchPublishReportToTelegram({
       title: post.title,
       format: post.format,
       brand: post.brand,
       scheduledTime: post.scheduledTime,
-      channelResults: (post.platforms || ['instagram', 'facebook']).map(plat => ({
-        channel: plat as any,
-        status: 'success',
-        details: 'Pubblicazione da calendario registrata con successo'
-      }))
+      channelResults
     }).catch(err => console.warn('[AutoCutStudioPage] Telegram report dispatch failed:', err));
   };
 
