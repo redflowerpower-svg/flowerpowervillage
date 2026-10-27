@@ -64,10 +64,23 @@ export const SCHEDULER_FORMAT_DEFINITIONS = [
 ];
 
 // ⚡ GENERATORE UFFICIALE DELLA ROUTINE MENSILE SOCIAL STUDIO (FASCIA ORARIA 08:00 - 17:00 RIGOROSA)
+// 🛡️ REGOLA FONDAMENTALE: La programmazione dei post si ferma tassativamente il 31 Ottobre 2026.
 export function generateOfficialMonthlyRoutine(year: number, month: number): ScheduledSocialPost[] {
+  // Se l'anno o il mese è successivo a Ottobre 2026 (month > 9 nel 2026 o anno > 2026), non genera alcun post
+  if (year > 2026 || (year === 2026 && month > 9)) {
+    return [];
+  }
+  // Se prima di Ottobre 2026, non genera
+  if (year < 2026 || (year === 2026 && month < 9)) {
+    return [];
+  }
+
   const routinePosts: ScheduledSocialPost[] = [];
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
   const villageAssets = VILLAGE_SOCIAL_ASSETS;
+
+  // Si programma solo a partire da domani (28 Ottobre) fino al 31 Ottobre 2026 (compreso)
+  const startDay = 28;
+  const endDay = 31; // Tassativamente 31 Ottobre (la programmazione si ferma qui)
 
   const realFoodDatabase = [
     {
@@ -121,7 +134,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
     }
   ];
 
-  for (let day = 1; day <= daysInMonth; day++) {
+  for (let day = startDay; day <= endDay; day++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const dayDate = new Date(year, month, day, 12, 0, 0);
     const dayOfWeek = dayDate.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
@@ -662,6 +675,7 @@ export function SocialCalendarView({
 
   const today = new Date();
   const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
 
   // Helper per estrarre la sigla del blocchetto (P1, LM1, CC1...)
   const getFormatCode = (post: ScheduledSocialPost) => {
@@ -1075,6 +1089,8 @@ export function SocialCalendarView({
                       const dayNum = i + 1;
                       const isDayToday = today.getFullYear() === popupYear && today.getMonth() === popupMonth && today.getDate() === dayNum;
                       const isSelected = year === popupYear && month === popupMonth && (selectedDayFocus ? selectedDayFocus === dayNum : today.getDate() === dayNum);
+                      const popupCellMidnight = new Date(popupYear, popupMonth, dayNum).getTime();
+                      const isPopupPast = popupCellMidnight < todayMidnight;
                       
                       // Calcolo post programmati per questo giorno
                       const postsCount = scheduledPosts.filter(p => {
@@ -1092,6 +1108,8 @@ export function SocialCalendarView({
                               ? 'bg-indigo-600 text-white font-black shadow-lg shadow-indigo-950/60 ring-2 ring-indigo-400'
                               : isDayToday
                               ? 'bg-indigo-950/50 text-indigo-300 font-extrabold border border-indigo-500/50 hover:bg-indigo-900/60'
+                              : isPopupPast
+                              ? 'bg-slate-950/40 text-slate-600 opacity-25 grayscale border border-slate-900 hover:opacity-50'
                               : 'bg-slate-900/80 text-slate-200 hover:bg-slate-800 hover:text-white border border-slate-800/80'
                           }`}
                           title={`${dayNum} ${MONTH_NAMES[uiLang][popupMonth]} ${popupYear} (${postsCount} post)`}
@@ -1267,12 +1285,16 @@ export function SocialCalendarView({
             const isToday = isCurrentMonth && today.getDate() === dayNum;
             const isFocused = selectedDayFocus === dayNum && isCurrentMonth;
             const dayPosts = postsByDay[dayNum] || [];
+            const cellMidnight = new Date(year, month, dayNum).getTime();
+            const isPast = cellMidnight < todayMidnight;
 
             return (
               <div 
                 key={`day-${dayNum}`} 
                 className={`min-h-[160px] p-2 flex flex-col justify-between transition-colors ${
-                  isFocused
+                  isPast
+                    ? 'bg-slate-950/90 border-slate-900/90 opacity-20 grayscale hover:opacity-35 select-none cursor-default'
+                    : isFocused
                     ? 'bg-indigo-950/40 ring-2 ring-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]'
                     : isToday 
                     ? 'bg-indigo-950/20 ring-1 ring-inset ring-indigo-500/30' 
@@ -1282,7 +1304,9 @@ export function SocialCalendarView({
                 {/* Day Header */}
                 <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-850">
                   <span className={`text-xs font-black w-6 h-6 rounded-full flex items-center justify-center ${
-                    isFocused
+                    isPast
+                      ? 'text-slate-600 bg-transparent'
+                      : isFocused
                       ? 'bg-indigo-500 text-white shadow-md ring-2 ring-white/50'
                       : isToday 
                       ? 'bg-indigo-600 text-white shadow-md' 
@@ -1293,18 +1317,24 @@ export function SocialCalendarView({
 
                   <div className="flex items-center gap-1.5">
                     {dayPosts.length > 0 && (
-                      <span className="text-[10px] font-mono text-slate-400 bg-slate-900/80 px-1.5 py-0.5 rounded border border-slate-800">
+                      <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${
+                        isPast
+                          ? 'text-slate-600 bg-slate-950 border-slate-900'
+                          : 'text-slate-400 bg-slate-900/80 border-slate-800'
+                      }`}>
                         {dayPosts.length}
                       </span>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => handleOpenAddBlockModal(dayNum)}
-                      className="w-5 h-5 rounded flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800 transition"
-                      title={`Aggiungi blocchetto al ${dayNum} ${MONTH_NAMES.IT[month]}`}
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
+                    {!isPast && (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenAddBlockModal(dayNum)}
+                        className="w-5 h-5 rounded flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800 transition"
+                        title={`Aggiungi blocchetto al ${dayNum} ${MONTH_NAMES.IT[month]}`}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
 
