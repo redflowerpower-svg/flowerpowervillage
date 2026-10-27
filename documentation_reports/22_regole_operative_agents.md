@@ -393,25 +393,13 @@ Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi
    - `git merge staging -m "Release: <descrizione_rilascio>"`
    - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
    - Ritorno automatico su `staging` (`git checkout staging`).
-3. **Fase 3 - Report Handoff a 5 Punti per Gemini Notebook**:
+3. **Fase 3 - Isolamento /social vs /social-studio**:
+   - Sul dominio di produzione, `/social` rimane **TASSATIVAMENTE CONGELATO** sulla versione per la revisione TikTok (`TikTokAuditStudioPage.tsx`).
+   - La suite ufficiale e attiva per lo staff è ora raggiungibile su `/social-studio` (`AutoCutStudioPage.tsx`), garantendo zero interferenze con TikTok.
+4. **Fase 4 - Report Handoff a 5 Punti per Gemini Notebook**:
    - Emissione del report compatto per il taccuino Gemini e conferma dell'allineamento globale.
 
 ---
-
-### 5. `MARKDOWN-WAIT` (Identico al 100% a MARKDOWN-PROJECT + Freeze Social TikTok Online + Report Gemini)
-Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WAIT`** (o *markdown wait*):
-È **TASSATIVAMENTE IDENTICO IN OGNI SINGOLO MILLIMETRO A `MARKDOWN-PROJECT`**, eseguendo SEMPRE E SENZA ECCEZIONI:
-1. **Aggiornamento Documentazione & Diario**: Aggiornamento fisico dei file in `/documentation_reports/` e di `DIARIO_DI_BORDO.md`.
-2. **Typecheck & Sicurezza**: `npx tsc --noEmit` a zero errori e audit segreti.
-3. **Deploy Simultaneo su Entrambi gli Ambienti (Staging + Produzione `main`)**:
-   - Commit delle modifiche sul branch `staging`.
-   - `git push origin staging` (Aggiorna `staging.flowerpowerpizza.com`).
-   - `git checkout main`
-   - `git merge staging -m "Release: <descrizione_rilascio>"`
-   - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
-   - Ritorno automatico su `staging` (`git checkout staging`).
-4. **Report Completo per Gemini NotebookLM**: Emissione del report dettagliato con l'elenco esatto dei file `.md` aggiornati da copiare su Google Gemini Notebook.
-5. **UNICA ECCEZIONE CATEGORICA**: Sul dominio di produzione `https://www.flowerpowerpizza.com/social`, la rotta `/social` rimane **TASSATIVAMENTE INTOCCATA E CONGELATA** sulla versione primordiale `TikTokAuditStudioPage.tsx` per i revisori di TikTok (grazie al discriminatore d'ambiente in `SocialStudioPage.tsx`), mentre in locale e su staging lo sviluppo continua liberamente.
 
 
 

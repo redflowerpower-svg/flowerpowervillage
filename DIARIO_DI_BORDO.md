@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 19:25] · RIPRISTINO UNIFICATO «MARKDOWN-PROJECT», ELIMINAZIONE «MARKDOWN-WAIT» & FAVICON TONDA SCONTORNATA
+- **Cosa abbiamo fatto:** 
+  1. 🔄 **Ripristino Unico Master Workflow «MARKDOWN-PROJECT»**:
+     - Eliminato definitivamente il comando temporaneo `MARKDOWN-WAIT` dalle regole di sistema e dalla documentazione operativa.
+     - Avendo isolato la rotta `/social` esclusivamente come vetrina congelata per la revisione TikTok (`TikTokAuditStudioPage.tsx`), e avendo dedicato la rotta `/social-studio` come console live per lo staff, non è più necessario alcun comando sdoppiato di congelamento.
+     - `MARKDOWN-PROJECT` torna ad essere l'unico e insostituibile comando master a 360° per tutto il progetto: cifratura cassaforte (`vault-sync`), security audit segreti, typecheck TypeScript, sincronizzazione documentazione, deploy su `staging` e deploy immediato su produzione `main`.
+  2. 🎨 **Favicon Tonda Scontornata su Fondo 100% Trasparente (Zero Fondo Nero)**:
+     - Ritagliati ed eliminati tutti e 4 gli angoli neri dal logo di Social Studio ([flower-power-social-studio-logo.png](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/public/flower-power-social-studio-logo.png), `-256.png`, `-64.png`), convertito in vero Truecolor RGBA con canale alfa a 32-bit.
+  3. 🛡️ **Blindatura Regola a 3 Livelli Favicon**:
+     - **In Locale**: SEMPRE e rigorosamente la sigla del reparto (per Social Studio: **SS** su sfondo porpora con accento neon e bordo rosso sviluppo). Nessun logo in locale!
+     - **In Staging**: Logo del Social Studio rotondo e trasparente bordato dal solo anello circolare ROSSO brillante (🔴 #EF4444).
+     - **In Produzione Online**: Logo del Social Studio rotondo puro senza bordo e senza fondo nero.
+- **Effetto reale:** Flusso di sviluppo e deploy pulito e lineare con il solo comando `MARKDOWN-PROJECT`. La favicon online di Social Studio risplende tonda e trasparente, mentre in locale rimane fissa e chiara la sigla **SS**.
+- **Stato:** ✅ Compilato a zero errori, documentazione allineata, rilasciato su `staging` e `main`.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 19:05] · DATEPICKER POPOVER INTERATTIVO & BLOCCHETTI SCHEDULER DISATTIVATI TRASPARENTI
 - **Cosa abbiamo fatto:** 
   1. 🗓️ **Calendario Pop-up Interattivo (DatePicker Integrato)**:
