@@ -1110,9 +1110,13 @@ export function AutoCutLabPlayer({
       drawTextWithShadow43(infoText, textX, posY + (100 * s), '#fbbf24', 4.2 * s);
       oCtx.restore();
 
-      // 2. Prezzo Ufficiale & Disponibilità (sfuma dolcemente insieme agli altri overlay tramite globalAlpha):
+      // 2. Prezzo Ufficiale & Disponibilità (Per Village SOLO ed ESCLUSIVAMENTE in LM1; per Pizza in P1, P2, P3, DS, R1):
       const isPriceAllowed = tElapsed < outroStartTime;
-      const hasPrice = isPriceAllowed && mode !== 'V2' && mode !== 'V3' && (!!scene.priceLabel || !!scene.pizzaSizes);
+      const hasPrice = isPriceAllowed && (
+        brand === 'pizza'
+          ? (!!scene.priceLabel || !!scene.pizzaSizes)
+          : (mode === 'LM1' && !!scene.priceLabel)
+      );
 
       let priceText = '';
       if (hasPrice) {

@@ -1098,6 +1098,14 @@
 - **Effetto reale:** Hai ora la garanzia assoluta di seguire lo stato dei lavori in tempo reale all'interno dell'IDE, in italiano semplice e comprensibile, a zero costo e senza spreco di token.
 - **Stato:** ✅ Testato, verificato (0 secrets, 0 errori TypeScript) e consolidato su branch locale `staging`.
 
+### 🟩 [27/10/2026 - ORE 12:20] · ESCLUSIONE PREZZO DA FORMATI VILLAGGIO V1/V2/V3 (SOLO LM1)
+- **Cosa abbiamo fatto:** Confinata categoricamente la visualizzazione del box prezzo nel motore 4:3 (`render43OverlaysToContext`) al solo formato `LM1` per il brand Villaggio (`brand === 'village' ? (mode === 'LM1' && !!scene.priceLabel) : ...`).
+- **Cosa è cambiato:** Rimosso il cartellino del prezzo dal filmato 4:3 `V1`, allineandolo fedelmente all'anteprima DOM e al player 9:16 (dove i prezzi compaiono solo nelle stories Last Minute `LM1`).
+- **Effetto reale:** Nel formato `V1` compaiono esclusivamente il titolo della camera/alloggio, il sottotitolo e la descrizione Thai, senza alcun box prezzo.
+- **Stato:** ✅ Compilato (`npx tsc --noEmit` exit 0), committato e rilasciato su branch `staging`.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 12:12] · MOTORE VIDEO 4:3 (OUTRO DISSOLVE & PARITÀ TIPOGRAFICA OUTFIT)
 - **Cosa abbiamo fatto:** 
   1. Rimossi i tagli prematuri a ghigliottina in `render43OverlaysToContext` (il `return` anticipato a `-0.35s` e il blocco a `-0.50s` del prezzo).
