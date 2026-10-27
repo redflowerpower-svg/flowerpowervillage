@@ -3,6 +3,25 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 20:53] · ROTAZIONE OCTORATE CLIENT SECRET, BLINDATURA SICUREZZA & RIPRISTINO TOKEN
+- **Cosa abbiamo fatto:** 
+  1. 🔑 **Rotazione Immediata Credenziali Octorate Channel Manager**:
+     - Recepito il nuovo `client_secret` comunicato da Octorate a seguito della scadenza periodica di sicurezza delle chiavi API.
+     - Aggiornato nei file locali protetti (`.env` e `.env.local` esclusi e blindati da `.gitignore`).
+     - Aggiornato direttamente su Vercel Environment Variables sia in **Production** che in **Preview** con tipologia rigorosamente `Secret` (Hidden).
+     - Rimosso definitivamente `VITE_OCTORATE_SECRET_KEY` da Vercel per eliminare qualsiasi rischio di esposizione al client, e aggiornato il fallback in `api/_handlers/verify.ts` per privilegiare `OCTORATE_SECRET_KEY` privato.
+  2. ⚡ **Collaudo Refresh Token & Sincronizzazione Supabase**:
+     - Eseguito test immediato di rinnovo token verso l'endpoint live di Octorate (`/identity/refresh`).
+     - Ricevuto HTTP 200 con successo e generato nuovo `access_token` fresco e attivo.
+     - Aggiornata la riga `singleton` nella tabella Supabase `octorate_tokens`, rendendo il nuovo token accessibile all'istante a tutte le funzioni server.
+     - Verificato con successo l'endpoint del booking engine (`/api/octorate-grid`), ricevendo la risposta completa con 246 sistemazioni.
+  3. 🚀 **Deploy Immediato in Produzione**:
+     - Eseguito il commit su `staging` e rilasciato il build in produzione su Vercel (`Ready`, deploy `dpl_BowNyMS5aiffPq9xR9akorNsK55b`).
+- **Effetto reale:** Nessuna interruzione per gli ospiti che prenotano sul villaggio né per i format social last-minute (LM1): la sincronizzazione dei prezzi, del calendario e della disponibilità delle camere con Octorate è perfettamente attiva, sicura e operativa al 100%.
+- **Stato:** ✅ Test live superato con status 200, segreti blindati, deploy produzione Vercel completato.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 19:35] · TOOLBAR SOTTILE SU RIGA SINGOLA, GIORNI PASSATI GRIGI & ROUTINE FINO AL 31 OTTOBRE
 - **Cosa abbiamo fatto:** 
   1. 📏 **Toolbar Compatta Ultra-Sottile su 1 Sola Riga**:
