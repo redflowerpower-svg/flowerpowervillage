@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 15:42] · PUBBLICAZIONE DIRETTA STORIE INSTAGRAM (ZERO DELEGA TELEGRAM & MEDIA_TYPE: STORIES)
+- **Cosa abbiamo fatto:** 
+  1. 🔍 **Diagnosi Disallineamento Canale Instagram Stories**:
+     - Analogamente a quanto avvenuto per Facebook, l'opzione *"Instagram -> Stories"* era intrappolata in un vecchio fallback di [AutoCutDistributionPanel.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutDistributionPanel.tsx) che inviava il video al bot Telegram Topic 3 (`tikTokStories`), senza mai chiamare l'API di Instagram.
+  2. 🎬 **Attivazione Endpoint Ufficiale Meta Graph `media_type: STORIES`**:
+     - Programmato in [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts) il supporto a `media_type: "STORIES"`:
+       1. Creazione container specifico per Storie Instagram via `POST /{igId}/media?media_type=STORIES&video_url=...`.
+       2. Polling automatico dello stato del video su Meta (`status_code === 'FINISHED'`).
+       3. Pubblicazione istantanea della Storia 24h tramite `POST /{igId}/media_publish`.
+  3. 🔗 **Collegamento Diretto & Bonifica Telegram**:
+     - Rimosso Instagram Stories dalla deviazione Telegram in `AutoCutDistributionPanel.tsx`. Ora premendo "Pubblica Subito" con opzione Storia attiva, il video viene caricato direttamente e realmente tra le Storie del profilo Instagram ufficiale (`@flowerpowerpizzaranong` / `@flowerpowerphayam`).
+- **Effetto reale:** Selezionando Instagram -> Stories, il video va direttamente nelle Storie di Instagram (24h) e non viene più inviato su Telegram con l'etichetta TikTok.
+- **Stato:** ✅ Testato con successo (container Stories creato con esito positivo), compilato (`npx tsc --noEmit` exit 0), rilasciato su `staging`.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 15:00] · RISOLUZIONE ERRORE INSTAGRAM REELS (ID ACCOUNT DINAMICO & POLLING INTELLIGENTE)
 - **Cosa abbiamo fatto:** 
   1. 🔍 **Diagnosi Errore `(#10) Application does not have permission for this action`**:

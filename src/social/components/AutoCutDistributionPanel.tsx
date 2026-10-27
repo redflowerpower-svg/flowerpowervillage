@@ -249,19 +249,14 @@ export function AutoCutDistributionPanel({
         }
       }
 
-      // Invio REALE al bot Telegram Staff se Stories TikTok o Stories Instagram è selezionata (Topic 3)
-      if (
-        (activeChannel === 'tiktok' && formats.tiktok === 'story') ||
-        (activeChannel === 'instagram' && formats.instagram === 'story')
-      ) {
+      // Invio REALE al bot Telegram Staff SOLO se Stories TikTok è selezionata (Topic 3)
+      if (activeChannel === 'tiktok' && formats.tiktok === 'story') {
         const copyResult = generatePostCopy(testRun, 0);
-        const captionText = activeChannel === 'instagram'
-          ? (liveCaptions?.instagram || copyResult.fullCaptionInstagram)
-          : (liveCaptions?.tiktok || copyResult.fullCaptionTikTok);
+        const captionText = liveCaptions?.tiktok || copyResult.fullCaptionTikTok;
         const brandLabel = selectedBrand === 'pizza' ? 'Flower Power Pizza (Ranong)' : 'Flower Power Farm Village (Koh Phayam)';
         const tgRes = await dispatchPostToTelegramTopic({
           topic: 'tikTokStories',
-          title: `Stories Video ${activeChannel === 'instagram' ? 'Instagram' : 'TikTok'} & Reels · Format ${testRun.mode}`,
+          title: `Stories Video TikTok & Reels · Format ${testRun.mode}`,
           copyText: `Profilo Target: ${brandLabel}\n\n${captionText}`,
           format: testRun.mode,
           brand: selectedBrand,
@@ -315,13 +310,16 @@ export function AutoCutDistributionPanel({
         }
       }
 
-      // 2. Invio REALE a Instagram Reels / Feed
+      // 2. Invio REALE a Instagram Reels / Feed / Stories 24h
       let publishedInstagramId: string | undefined = undefined;
-      if (activeChannel === 'instagram' && (formats.instagram === 'reels' || formats.instagram === 'feed')) {
+      if (activeChannel === 'instagram' && (formats.instagram === 'reels' || formats.instagram === 'feed' || formats.instagram === 'story')) {
         if (environment === 'production') {
+          const isStory = formats.instagram === 'story';
           setPublishStatus({
             type: null,
-            message: `Caricamento e pubblicazione Reels su Instagram (${selectedBrand === 'pizza' ? '@flowerpowerpizza' : '@flowerpowervillage'})...`
+            message: isStory
+              ? `Caricamento e pubblicazione Storia 24h su Instagram (${selectedBrand === 'pizza' ? '@flowerpowerpizzaranong' : '@flowerpowerphayam'})...`
+              : `Caricamento e pubblicazione Reels su Instagram (${selectedBrand === 'pizza' ? '@flowerpowerpizzaranong' : '@flowerpowerphayam'})...`
           });
           const copyResult = generatePostCopy(testRun, 0);
           const captionText = liveCaptions?.instagram || copyResult.fullCaptionInstagram;
@@ -331,7 +329,8 @@ export function AutoCutDistributionPanel({
             body: JSON.stringify({
               videoUrl: finalMediaUrl,
               caption: captionText,
-              brand: selectedBrand
+              brand: selectedBrand,
+              isStory
             })
           });
           const igData = await igRes.json();
@@ -452,7 +451,13 @@ export function AutoCutDistributionPanel({
               : []),
             ...(activeChannel === 'instagram' && (formats.instagram === 'reels' || formats.instagram === 'feed')
               ? [
-                  `Video Reels pubblicato su Instagram (@${selectedBrand === 'pizza' ? 'flowerpowerpizza' : 'flowerpowervillage'})!`,
+                  `Video Reels pubblicato su Instagram (@${selectedBrand === 'pizza' ? 'flowerpowerpizzaranong' : 'flowerpowerphayam'})!`,
+                  publishedInstagramId ? `Media ID: ${publishedInstagramId}` : ''
+                ].filter(Boolean)
+              : []),
+            ...(activeChannel === 'instagram' && formats.instagram === 'story'
+              ? [
+                  `Storia Video 24h pubblicata con successo su Instagram (@${selectedBrand === 'pizza' ? 'flowerpowerpizzaranong' : 'flowerpowerphayam'})!`,
                   publishedInstagramId ? `Media ID: ${publishedInstagramId}` : ''
                 ].filter(Boolean)
               : []),
@@ -801,7 +806,7 @@ export function AutoCutDistributionPanel({
             )}
           </div>
           <div className="text-[10px] text-pink-300/80 font-mono pl-6 pt-0.5">
-            Account: {selectedBrand === 'pizza' ? '@flowerpowerpizza' : '@flowerpowervillage'}
+            Account: {selectedBrand === 'pizza' ? '@flowerpowerpizzaranong' : '@flowerpowerphayam'}
           </div>
 
           {activeChannel === 'instagram' && (

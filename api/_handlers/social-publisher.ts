@@ -1703,7 +1703,8 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     const {
       videoUrl,
       caption = "",
-      brand = "pizza"
+      brand = "pizza",
+      isStory = false
     } = body;
 
     const isPizza = brand === "pizza";
@@ -1724,7 +1725,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     if (!videoUrl) {
       return res.status(400).json({
         success: false,
-        error: "Parametro videoUrl mancante per Instagram Reels."
+        error: `Parametro videoUrl mancante per Instagram ${isStory ? 'Stories' : 'Reels'}.`
       });
     }
 
@@ -1747,20 +1748,22 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     }
 
     try {
-      console.log(`[SocialPublisher] Creazione container Instagram Reels (IG ID: ${igId}, Video: ${videoUrl})...`);
+      console.log(`[SocialPublisher] Creazione container Instagram ${isStory ? 'STORIES' : 'REELS'} (IG ID: ${igId}, Video: ${videoUrl})...`);
 
       const cParams = new URLSearchParams();
       cParams.append("access_token", pageToken);
-      cParams.append("media_type", "REELS");
+      cParams.append("media_type", isStory ? "STORIES" : "REELS");
       cParams.append("video_url", videoUrl);
-      if (caption) cParams.append("caption", caption.slice(0, 2200));
+      if (!isStory && caption) {
+        cParams.append("caption", caption.slice(0, 2200));
+      }
 
       const cRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media`, {
         method: "POST",
         body: cParams
       });
       const cData = await cRes.json();
-      console.log("[SocialPublisher] Instagram container response:", cData);
+      console.log(`[SocialPublisher] Instagram ${isStory ? 'STORIES' : 'REELS'} container response:`, cData);
 
       if (!cRes.ok || !cData.id) {
         return res.status(cRes.status || 400).json({

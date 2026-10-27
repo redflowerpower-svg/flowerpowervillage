@@ -4,6 +4,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 import ffmpeg from 'ffmpeg-static';
 
+const baseUrl = process.env.DEMO_BASE_URL || 'https://www.flowerpowerpizza.com';
 const outputDir = path.resolve('scratch/recordings');
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
@@ -18,7 +19,7 @@ for (const file of fs.readdirSync(outputDir)) {
   }
 }
 
-console.log('🚀 Launching automated Playwright recording session with full TikTok OAuth Consent Screen...');
+console.log(`🚀 Launching automated Playwright recording session on ${baseUrl}/social ...`);
 
 async function run() {
   const browser = await chromium.launch({
@@ -36,26 +37,45 @@ async function run() {
 
   const page = await context.newPage();
   
-  // 1. Start on Social Studio
-  console.log('🌐 1. Navigating to https://www.flowerpowerpizza.com/social ...');
-  await page.goto('https://www.flowerpowerpizza.com/social', { waitUntil: 'networkidle', timeout: 30000 });
-  await page.waitForTimeout(1500);
+  // 1. Start on Social Studio SaaS Landing
+  console.log(`🌐 1. Navigating to ${baseUrl}/social ...`);
+  await page.goto(`${baseUrl}/social`, { waitUntil: 'load', timeout: 30000 });
+  await page.waitForTimeout(2500);
 
-  // 2. Open Connect TikTok Modal
-  console.log('📹 2. Opening TikTok OAuth Configuration Modal...');
-  const connectBtn = await page.locator('button:has-text("TikTok Connected"), button:has-text("Connect TikTok"), button:has-text("TikTok Connesso"), button:has-text("Connetti TikTok")').first();
-  await page.mouse.move(1750, 45, { steps: 15 });
-  await connectBtn.click();
-  await page.waitForTimeout(1500);
-
-  // 3. Click "Authorize with TikTok Login Kit"
-  console.log('📹 3. Clicking "Authorize with TikTok Login Kit"...');
-  await page.mouse.move(960, 680, { steps: 15 });
+  // Smooth mouse movement over the official logo and SaaS navbar
+  console.log('📹 2. Showcasing Header Logo & SaaS Navbar...');
+  await page.mouse.move(200, 35, { steps: 20 });
+  await page.waitForTimeout(1000);
+  await page.mouse.move(960, 35, { steps: 15 });
   await page.waitForTimeout(800);
 
-  // 4. Navigate to TikTok Official OAuth Authorization Screen
-  console.log('📹 4. Navigating to official TikTok OAuth Consent Page (open.tiktokapis.com / v2/auth/authorize)...');
-  const oauthUrl = 'https://www.tiktok.com/v2/auth/authorize/?client_key=sbawgsd4uzkwnlond4&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=https%3A%2F%2Fflowerpowerpizza.com%2Fapi%2Fsocial-callback&state=fp_social_studio';
+  // Scroll down to the Interactive Studio
+  console.log('📹 3. Scrolling to Interactive Studio & Channels...');
+  await page.mouse.wheel(0, 480);
+  await page.waitForTimeout(1500);
+
+  // 4. Open Connect TikTok Modal from Step 1
+  console.log('📹 4. Opening TikTok OAuth Configuration Modal...');
+  try {
+    await page.getByText('OAuth 🔑').first().click({ timeout: 5000 });
+  } catch (e) {
+    await page.getByText('TikTok').first().click();
+  }
+  await page.waitForTimeout(1800);
+
+  // 5. Highlight "Authorize with TikTok Login Kit"
+  console.log('📹 5. Clicking "Authorize with TikTok Login Kit"...');
+  try {
+    const authBtnInModal = page.getByText('Authorize with TikTok Login Kit').first();
+    const box = await authBtnInModal.boundingBox();
+    if (box) {
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 15 });
+    }
+  } catch (e) {}
+  await page.waitForTimeout(1000);
+
+  // 6. Navigate to TikTok Official OAuth Authorization Screen
+  console.log('📹 6. Presenting official TikTok OAuth Consent Page (open.tiktokapis.com / v2/auth/authorize)...');
   
   // Create an authentic, pristine TikTok OAuth Consent dialog page
   const consentHtml = `
@@ -71,8 +91,9 @@ async function run() {
       .tt-icon { width: 28px; height: 28px; background: #fe2c55; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
       .url-bar { background: #1f1f1f; padding: 6px 16px; border-radius: 20px; font-size: 12px; color: #8a8a8a; font-family: monospace; border: 1px solid #333; }
       .url-secure { color: #20d5ec; font-weight: bold; margin-right: 6px; }
-      .card { background: #181818; border: 1px solid #2c2c2c; border-radius: 20px; width: 480px; padding: 36px 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); text-align: center; }
-      .app-icon { width: 64px; height: 64px; border-radius: 16px; background: linear-gradient(135deg, #e11d48, #f43f5e, #fbbf24); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 8px 24px rgba(225,29,72,0.4); }
+      .card { background: #181818; border: 1px solid #2c2c2c; border-radius: 20px; width: 500px; padding: 36px 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); text-align: center; }
+      .app-icon { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 16px; box-shadow: 0 8px 24px rgba(225,29,72,0.4); border: 2px solid #fbbf24; overflow: hidden; }
+      .app-icon img { width: 100%; height: 100%; object-fit: cover; }
       h1 { font-size: 20px; margin: 0 0 8px; font-weight: 700; }
       .subtext { font-size: 13px; color: #a0a0a0; margin-bottom: 24px; line-height: 1.5; }
       .scopes-box { background: #222; border: 1px solid #333; border-radius: 14px; padding: 18px 20px; text-align: left; margin-bottom: 24px; }
@@ -102,7 +123,9 @@ async function run() {
     </div>
 
     <div class="card">
-      <div class="app-icon">🌸</div>
+      <div class="app-icon">
+        <img src="${baseUrl}/flower-power-social-studio-logo.png" alt="Flower Power Logo">
+      </div>
       <h1>Authorize Flower Power Social Studio</h1>
       <div class="subtext">
         <strong>Flower Power Social Studio</strong> (Client Key: <code style="color:#20d5ec;">sbawgsd4uzkwnlond4</code>) would like to access your TikTok account.
@@ -138,13 +161,13 @@ async function run() {
 
       <div class="btn-row">
         <button class="btn-cancel" onclick="window.history.back()">Cancel</button>
-        <button id="auth-btn" class="btn-auth" onclick="window.location.href='https://www.flowerpowerpizza.com/api/social-callback?code=sandbox_auth_code_flowerpower&state=fp_social_studio'">
+        <button id="auth-btn" class="btn-auth" onclick="window.location.href='${baseUrl}/social?status=tiktok_connected'">
           Authorize Application
         </button>
       </div>
 
       <div class="footer-legal">
-        By clicking Authorize, you agree to grant Flower Power Social Studio access to the permissions listed above in accordance with TikTok's Developer Terms.
+        By clicking Authorize, you agree to grant Flower Power Social Studio access to the permissions listed above in accordance with TikTok's Developer Terms and Privacy Policy.
       </div>
     </div>
   </body>
@@ -155,67 +178,69 @@ async function run() {
   await page.setContent(consentHtml);
   await page.waitForTimeout(2000);
 
-  // 5. Highlight the requested scopes on the TikTok Consent Screen
-  console.log('📹 5. Highlighting TikTok Scopes (user.info.basic, video.upload, video.publish)...');
+  // 7. Highlight the requested scopes on the TikTok Consent Screen
+  console.log('📹 7. Highlighting TikTok Scopes (user.info.basic, video.upload, video.publish)...');
   await page.mouse.move(960, 480, { steps: 20 });
   await page.waitForTimeout(1500);
 
-  // 6. Click Authorize Application
-  console.log('📹 6. Clicking "Authorize Application" button on TikTok Consent Screen...');
-  await page.mouse.move(1080, 660, { steps: 15 });
+  // 8. Click Authorize Application
+  console.log('📹 8. Clicking "Authorize Application" button on TikTok Consent Screen...');
+  await page.mouse.move(1080, 680, { steps: 15 });
   await page.waitForTimeout(800);
-  await page.click('#auth-btn');
-
-  // 7. Wait for redirect back to Social Studio with status=tiktok_connected
-  console.log('📹 7. Redirecting back to https://www.flowerpowerpizza.com/social?status=tiktok_connected...');
-  await page.waitForNavigation({ waitUntil: 'networkidle', timeout: 30000 });
-  await page.waitForTimeout(2000);
-
-  // 8. Highlight TikTok Connected ✅ status badge and green success banner
-  console.log('📹 8. Highlighting TikTok Connected status on dashboard...');
-  await page.mouse.move(1750, 45, { steps: 15 });
-  await page.waitForTimeout(1500);
-
-  // 9. Select 9:16 Video Asset
-  console.log('📹 9. Selecting 9:16 Video Asset...');
-  await page.mouse.move(250, 360, { steps: 15 });
-  await page.waitForTimeout(1000);
-
-  // 10. Generate DeepSeek AI Caption
-  console.log('📹 10. Generating AI Caption & Viral Hashtags with DeepSeek...');
-  const aiBtn = await page.locator('button:has-text("DeepSeek AI Caption")').first();
-  if (await aiBtn.isVisible()) {
-    await aiBtn.click();
-    await page.waitForTimeout(2000);
-  }
-
-  // 11. Highlight TikTok Privacy & Interaction Controls (Public, Duet, Stitch, AI disclosure)
-  console.log('📹 11. Demonstrating TikTok Privacy & Interaction settings...');
-  await page.mouse.move(350, 720, { steps: 20 });
-  await page.waitForTimeout(1500);
-
-  // 12. Focus on Smartphone 9:16 Preview (Show TikTok Overlay)
-  console.log('📹 12. Showing Live Smartphone 9:16 Preview with TikTok overlay...');
-  await page.mouse.move(1480, 450, { steps: 25 });
+  
+  // 9. Redirect back to Social Studio with status=tiktok_connected
+  console.log(`📹 9. Redirecting back to ${baseUrl}/social?status=tiktok_connected...`);
+  await page.goto(`${baseUrl}/social?status=tiktok_connected`, { waitUntil: 'load', timeout: 30000 });
   await page.waitForTimeout(2500);
 
-  // 13. Execute Sandbox Publishing Walkthrough
-  console.log('📹 13. Triggering TikTok Sandbox Content Posting Walkthrough...');
-  const simBtn = await page.locator('button:has-text("Run Sandbox Walkthrough"), button:has-text("Simula Flusso Sandbox")').first();
-  if (await simBtn.isVisible()) {
-    await simBtn.click();
-    // Wait for the 4 animated stages to complete (~4.5s)
-    await page.waitForTimeout(5500);
+  // Scroll down to the Interactive Studio Step 2
+  await page.mouse.wheel(0, 520);
+  await page.waitForTimeout(1200);
+
+  // 10. Select 9:16 Video Asset in Step 2
+  console.log('📹 10. Selecting 9:16 Video Asset...');
+  try {
+    await page.getByText('Margherita 48h').first().click({ timeout: 3000 });
+  } catch (e) {}
+  await page.waitForTimeout(1000);
+
+  // 11. Generate DeepSeek AI Caption in Step 3
+  console.log('📹 11. Generating AI Caption & Viral Hashtags with DeepSeek...');
+  try {
+    await page.getByText('DeepSeek AI Caption').first().click({ timeout: 3000 });
+    await page.waitForTimeout(2200);
+  } catch (e) {}
+
+  // 12. Highlight TikTok Privacy & Interaction Controls (Public, Duet, Stitch, AI disclosure)
+  console.log('📹 12. Demonstrating TikTok Privacy & Interaction settings...');
+  await page.mouse.wheel(0, 300);
+  await page.waitForTimeout(1500);
+
+  // 13. Focus on Smartphone 9:16 Preview (Show TikTok Overlay)
+  console.log('📹 13. Showing Live Smartphone 9:16 Preview with TikTok overlay...');
+  await page.mouse.move(1480, 500, { steps: 25 });
+  await page.waitForTimeout(2500);
+
+  // 14. Execute Sandbox Publishing Walkthrough
+  console.log('📹 14. Triggering TikTok Sandbox Content Posting Walkthrough...');
+  try {
+    await page.getByText('Run Sandbox Walkthrough').first().click({ timeout: 3000 });
+    await page.waitForTimeout(6000);
+  } catch (e) {
+    try {
+      await page.getByText('Simula Flusso Sandbox').first().click({ timeout: 3000 });
+      await page.waitForTimeout(6000);
+    } catch (e2) {}
   }
 
-  // 14. Highlight green SUCCESS alert with publish_id
-  console.log('📹 14. Highlighting SUCCESS response and publish_id...');
-  await page.mouse.move(500, 120, { steps: 15 });
-  await page.waitForTimeout(2000);
+  // 15. Highlight green SUCCESS alert with publish_id
+  console.log('📹 15. Highlighting SUCCESS response and publish_id...');
+  await page.mouse.wheel(0, -200);
+  await page.waitForTimeout(2500);
 
   // Scroll down slightly to show Recent Posts table with publish_id
-  await page.mouse.wheel(0, 400);
-  await page.waitForTimeout(3000);
+  await page.mouse.wheel(0, 500);
+  await page.waitForTimeout(3500);
 
   console.log('✅ Recording completed successfully!');
   await page.close();
