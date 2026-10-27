@@ -4,7 +4,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 import ffmpeg from 'ffmpeg-static';
 
-const baseUrl = process.env.DEMO_BASE_URL || 'https://www.flowerpowerpizza.com';
+const baseUrl = process.env.DEMO_BASE_URL || 'http://127.0.0.1:5173';
 const outputDir = path.resolve('scratch/recordings');
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
@@ -37,9 +37,9 @@ async function run() {
 
   const page = await context.newPage();
   
-  // 1. Start on Social Studio SaaS Landing
-  console.log(`🌐 1. Navigating to ${baseUrl}/social ...`);
-  await page.goto(`${baseUrl}/social`, { waitUntil: 'load', timeout: 30000 });
+  // 1. Start on Social Studio SaaS Landing (TikTok Audit View)
+  console.log(`🌐 1. Navigating to ${baseUrl}/social?view=audit ...`);
+  await page.goto(`${baseUrl}/social?view=audit`, { waitUntil: 'load', timeout: 30000 });
   await page.waitForTimeout(2500);
 
   // Smooth mouse movement over the official logo and SaaS navbar
@@ -161,7 +161,7 @@ async function run() {
 
       <div class="btn-row">
         <button class="btn-cancel" onclick="window.history.back()">Cancel</button>
-        <button id="auth-btn" class="btn-auth" onclick="window.location.href='${baseUrl}/social?status=tiktok_connected'">
+        <button id="auth-btn" class="btn-auth" onclick="window.location.href='${baseUrl}/social?view=audit&status=tiktok_connected'">
           Authorize Application
         </button>
       </div>
@@ -189,8 +189,8 @@ async function run() {
   await page.waitForTimeout(800);
   
   // 9. Redirect back to Social Studio with status=tiktok_connected
-  console.log(`📹 9. Redirecting back to ${baseUrl}/social?status=tiktok_connected...`);
-  await page.goto(`${baseUrl}/social?status=tiktok_connected`, { waitUntil: 'load', timeout: 30000 });
+  console.log(`📹 9. Redirecting back to ${baseUrl}/social?view=audit&status=tiktok_connected...`);
+  await page.goto(`${baseUrl}/social?view=audit&status=tiktok_connected`, { waitUntil: 'load', timeout: 30000 });
   await page.waitForTimeout(2500);
 
   // Scroll down to the Interactive Studio Step 2
