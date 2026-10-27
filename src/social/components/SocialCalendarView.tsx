@@ -28,8 +28,25 @@ import { AutoCutReelPlayer } from './AutoCutReelPlayer';
 export interface SchedulerChannelToggles {
   instagram: boolean;
   facebook: boolean;
-  tiktok: boolean;
+  tiktokStories: boolean;
+  tiktokFeedApi: boolean;
   google: boolean;
+  tiktok?: boolean;
+}
+
+export function isChannelActiveForPost(
+  p: string,
+  post: ScheduledSocialPost,
+  toggles: SchedulerChannelToggles
+): boolean {
+  if (p === 'tiktok') {
+    const isFeedApi = post.tags?.includes('tiktokFeedApi') || (post.format !== 'story' && !post.tags?.includes('Stories'));
+    return isFeedApi ? (toggles.tiktokFeedApi ?? false) : (toggles.tiktokStories ?? true);
+  }
+  if (p === 'instagram') return toggles.instagram ?? true;
+  if (p === 'facebook') return toggles.facebook ?? true;
+  if (p === 'google') return toggles.google ?? false;
+  return true;
 }
 
 interface SocialCalendarViewProps {
@@ -134,7 +151,7 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
     const pastaItem = realFoodDatabase[(rot % 2 === 0 ? 2 : 3)]; // Spaghetti allo scoglio o Tagliatelle al nero
     const isAltCapCut = (rot % 2 === 0);
 
-    // 1. ORE 08:00 · 🎵 TikTok Story Pizzeria Ranong (✋ Azione Manuale Staff - Cerchio Giallo)
+    // 1. ORE 08:00 · 🎵 TikTok & IG Story Pizzeria Ranong (✋ Azione Manuale Staff via Telegram Topic 3)
     routinePosts.push({
       id: `routine_tiktok_pizza_${dateStr}`,
       brand: 'pizza',
@@ -147,12 +164,12 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       media_url: pizzaItem.image,
       source_item_id: pizzaItem.id,
       status: 'scheduled',
-      tags: ['P1', 'TikTok', 'Manuale', 'Stories'],
+      tags: ['P1', 'TikTok', 'Manuale', 'Stories', 'tiktokStories'],
       cta_url: 'https://flowerpowerpizza.com',
       badge: '✋ UPLOAD TIKTOK PIZZA'
     });
 
-    // 2. ORE 08:00 (CONTEMPORANEA) · 🎵 TikTok Story Villaggio Koh Phayam (✋ Azione Manuale Staff - Cerchio Giallo)
+    // 2. ORE 08:00 (CONTEMPORANEA) · 🎵 TikTok & IG Story Villaggio Koh Phayam (✋ Azione Manuale Staff via Telegram Topic 3)
     routinePosts.push({
       id: `routine_tiktok_village_${dateStr}`,
       brand: 'village',
@@ -165,19 +182,19 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       media_url: villageAsset.image,
       source_item_id: villageAsset.id,
       status: 'scheduled',
-      tags: ['V1', 'TikTok', 'Manuale', 'Stories'],
+      tags: ['V1', 'TikTok', 'Manuale', 'Stories', 'tiktokStories'],
       cta_url: 'https://flowerpowervillage.com',
       badge: '✋ UPLOAD TIKTOK VILLAGE'
     });
 
-    // 3. ORE 08:45 · 👥 Gruppo Facebook Koh Phayam: REEL Alloggi Liberi Oggi (✋ Azione Manuale Staff - Cerchio Giallo)
+    // 3. ORE 08:00 (CONTEMPORANEA) · 👥 Gruppo Facebook Koh Phayam: REEL LM1 Alloggi Liberi Oggi (✋ Azione Manuale Staff via Telegram Topic 2)
     routinePosts.push({
       id: `routine_fb_group_alloggi_${dateStr}`,
       brand: 'village',
       platforms: ['facebook'],
       format: 'reel',
       editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T08:45:00`,
+      scheduled_for: `${dateStr}T08:00:00`,
       title: `LM1 Alloggi Liberi Oggi a Phayam: ${villageAsset.name}`,
       caption: `🌴 ALLOGGI DISPONIBILI OGGI a Koh Phayam! Sei sull'isola o stai sbarcando al molo? ${villageAsset.name} e bungalow nel verde tropicale con sconto diretto su flowerpowervillage.com o WhatsApp: +66 095 882 5573.`,
       media_url: villageAsset.image,
@@ -190,27 +207,7 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       badge: '🟡 GRUPPO PHAYAM ALLOGGI'
     });
 
-    // 4. ORE 09:30 · 📸 Instagram & FB Story: Risveglio & Colazione Tropicale (Alternanza con Filmini Spontanei CC1)
-    routinePosts.push({
-      id: `routine_story_morning_${dateStr}`,
-      brand: 'village',
-      platforms: ['instagram', 'facebook'],
-      format: 'story',
-      editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T09:30:00`,
-      title: isAltCapCut ? `CC1 Video Clip: Brezza del Mattino a Phayam` : `V1 Risveglio Tropicale: ${villageAsset.name}`,
-      caption: isAltCapCut 
-        ? `Il suono del vento tra le palme e la quiete del mattino a Koh Phayam. 🌴✨ #KohPhayam #TropicalVibes` 
-        : `Buongiorno da Flower Power Village. Colazione all'aperto circondati dal verde tropicale. #IslandLife`,
-      media_url: villageAsset.image,
-      source_item_id: villageAsset.id,
-      status: 'scheduled',
-      tags: isAltCapCut ? ['CC1', 'CapCut', 'story'] : ['V1', 'story', 'Resort'],
-      cta_url: 'https://flowerpowervillage.com',
-      badge: isAltCapCut ? '🎬 CC1 MORNING CLIP' : '🌿 TROPICAL MORNING'
-    });
-
-    // 5. ORE 10:00 · 📍 Google Business Novità 4:3 (Martedì P1 Pizza / Venerdì V1 Villaggio)
+    // 4. ORE 10:00 · 📍 Google Business Novità 4:3 (Martedì P1 Pizza / Venerdì V1 Villaggio)
     if (dayOfWeek === 2) {
       routinePosts.push({
         id: `routine_google_pizza_${dateStr}`,
@@ -220,7 +217,7 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
         editorial_format: 'static_post',
         scheduled_for: `${dateStr}T10:00:00`,
         title: `P1 Google Scheda 4:3: Pizza Tradizionale Ranong`,
-        caption: `Scopri la vera pizza italiana a lenta lievitazione e le paste artigianali a Ranong. Consegna rapida a casa tua. 10% di sconto sul primo ordine con coupon GOOGLE10.`,
+        caption: `Scopri la vera pizza tradizionale italiana a lenta lievitazione e le paste artigianali a Ranong. Consegna rapida a casa tua. 10% di sconto sul primo ordine con coupon GOOGLE10.`,
         media_url: pizzaItem.image,
         source_item_id: pizzaItem.id,
         price: pizzaItem.price,
@@ -249,54 +246,34 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       });
     }
 
-    // 6. ORE 11:00 · 🎬 Instagram & FB REEL: Pranzo Pasta Fresca Ranong (Lead time 45m prima del picco 11:45)
+    // 5. ORE 11:30 · 🎬 Facebook REEL: Pranzo Pasta Fresca Ranong (SOLO FACEBOOK)
     routinePosts.push({
-      id: `routine_lunch_reel_${dateStr}`,
+      id: `routine_fb_lunch_${dateStr}`,
       brand: 'pizza',
-      platforms: ['instagram', 'facebook'],
+      platforms: ['facebook'],
       format: 'reel',
       editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T11:00:00`,
+      scheduled_for: `${dateStr}T11:30:00`,
       title: `P2 Pranzo Artigianale: ${pastaItem.name}`,
       caption: `Cosa mangi a pranzo oggi a Ranong? 🍝 Pasta fresca fatta in casa, sughi espressi e piatti caldi fumanti. Consegna rapida a casa o in ufficio su flowerpowerpizza.com! 🛵💨`,
       media_url: pastaItem.image,
       source_item_id: pastaItem.id,
       price: pastaItem.price,
       status: 'scheduled',
-      tags: ['P2', 'PastaReel', 'Lunch', 'Ranong', 'reel'],
+      tags: ['P2', 'PastaReel', 'Lunch', 'Ranong', 'FacebookOnly', 'reel'],
       cta_url: 'https://flowerpowerpizza.com',
       title_en: pastaItem.name,
-      badge: '🍝 PRANZO ARTIGIANALE'
+      badge: '🍝 PRANZO FACEBOOK'
     });
 
-    // 7. ORE 12:00 · 📸 LM1 Stories Last Minute Alloggi (Instagram & Facebook Stories)
+    // 6. ORE 16:00 · 🎬 Instagram REEL: V2 Suite Tour / Relax Pomeridiano Phayam (SOLO INSTAGRAM)
     routinePosts.push({
-      id: `routine_lm1_${dateStr}`,
+      id: `routine_ig_afternoon_${dateStr}`,
       brand: 'village',
-      platforms: ['instagram', 'facebook'],
-      format: 'story',
-      editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T12:00:00`,
-      title: `LM1 Available Tonight: ${villageAsset.name}`,
-      caption: `🔥 AVAILABLE TONIGHT a Flower Power Village! ${villageAsset.name} disponibile con sconto prenotazione diretta a cascata su flowerpowervillage.com.`,
-      media_url: villageAsset.image,
-      source_item_id: villageAsset.id,
-      price: villageAsset.price,
-      status: 'scheduled',
-      tags: ['LM1', 'LastMinute', 'story', 'Resort'],
-      cta_url: villageAsset.cta_url || 'https://flowerpowervillage.com',
-      title_en: villageAsset.name,
-      badge: '🔥 AVAILABLE TONIGHT'
-    });
-
-    // 8. ORE 14:30 · 🎬 Instagram & FB REEL: V2 Suite Tour / CC1 Relax Pomeridiano (Alternanza 1:1)
-    routinePosts.push({
-      id: `routine_village_reel_${dateStr}`,
-      brand: 'village',
-      platforms: ['instagram', 'facebook'],
+      platforms: ['instagram'],
       format: 'reel',
       editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T14:30:00`,
+      scheduled_for: `${dateStr}T16:00:00`,
       title: isAltCapCut ? `CC1 CapCut Clip: Relax Koh Phayam` : `V2 Suite Tour: ${villageAsset.name}`,
       caption: isAltCapCut 
         ? `Momenti di pura pace a Koh Phayam Island. Amache, brezze tropicali e natura incontaminata. #KohPhayam` 
@@ -305,33 +282,49 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       source_item_id: villageAsset.id,
       price: villageAsset.price,
       status: 'scheduled',
-      tags: isAltCapCut ? ['CC1', 'CapCut', 'reel'] : ['V2', 'SuiteTour', 'reel'],
+      tags: isAltCapCut ? ['CC1', 'CapCut', 'reel', 'InstagramOnly'] : ['V2', 'SuiteTour', 'reel', 'InstagramOnly'],
       cta_url: villageAsset.cta_url || 'https://flowerpowervillage.com',
       title_en: villageAsset.name,
-      badge: isAltCapCut ? '🎬 CC1 CAPCUT CLIP' : '🌿 SUITE BREEZY TOUR'
+      badge: isAltCapCut ? '🎬 CC1 RELAX REEL' : '🌿 SUITE INSTAGRAM'
     });
 
-    // 9. ORE 15:45 · 📸 Instagram & FB Story: Merenda Dolci & Caffè Italiano (Alternanza con Clip Cucina CC1)
+    // 7. ORE 17:00 (5 DI SERA) · 🎵 TikTok & IG Story Pizzeria Ranong (✋ Azione Manuale Staff via Telegram Topic 3)
     routinePosts.push({
-      id: `routine_story_dessert_${dateStr}`,
+      id: `routine_tiktok_dinner_${dateStr}`,
       brand: 'pizza',
-      platforms: ['instagram', 'facebook'],
+      platforms: ['tiktok'],
       format: 'story',
       editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T15:45:00`,
-      title: isAltCapCut ? `CC1 Video Clip: Mani in Pasta & Laboratorio` : `P3 Dolci Artigianali: Tiramisù & Caffè Espresso`,
-      caption: isAltCapCut 
-        ? `Lavorazione artigianale e stesura a mano nel laboratorio di Flower Power Pizza. 🍕✨ #Artigianale` 
-        : `Pausa pomeridiana con autentico caffè espresso italiano e tiramisù della casa. ☕🍰 #Ranong #DolciItaliani`,
-      media_url: isAltCapCut ? pizzaItem.image : 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/01-affogato-al-caffe.webp',
-      source_item_id: isAltCapCut ? pizzaItem.id : 'affogato-caffe',
+      scheduled_for: `${dateStr}T17:00:00`,
+      title: `P1 TikTok Story: Cena & Delivery Ranong - ${pizzaItem.name}`,
+      caption: `Fame di vera pizza stasera a Ranong? 🍕 Impasto a lievitazione naturale 48h, forno professionale a pietra refrattaria e consegna calda e rapida a casa tua! Ordina su flowerpowerpizza.com 🛵💨`,
+      media_url: pizzaItem.image,
+      source_item_id: pizzaItem.id,
       status: 'scheduled',
-      tags: isAltCapCut ? ['CC1', 'CapCut', 'story'] : ['P3', 'Dessert', 'story'],
+      tags: ['P1', 'TikTok', 'Manuale', 'Dinner', 'Stories', 'tiktokStories'],
       cta_url: 'https://flowerpowerpizza.com',
-      badge: isAltCapCut ? '🎬 CC1 KITCHEN CLIP' : '☕ PAUSA ESPRESSO'
+      badge: '✋ UPLOAD TIKTOK CENA'
     });
 
-    // 10. ORE 17:00 (5 DI SERA) · 👥 Gruppo Facebook Koh Phayam: REEL R1 Ristorante & Cena (✋ Azione Manuale Staff - Cerchio Giallo)
+    // 8. ORE 17:00 (CONTEMPORANEA) · 🎵 TikTok & IG Story Tramonto Villaggio (✋ Azione Manuale Staff via Telegram Topic 3)
+    routinePosts.push({
+      id: `routine_tiktok_village_sunset_${dateStr}`,
+      brand: 'village',
+      platforms: ['tiktok'],
+      format: 'story',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T17:00:00`,
+      title: `V3 TikTok Story: Tramonto Tropicale a Phayam`,
+      caption: `Il cielo che si colora di fuoco e la quiete serale sull'oceano a Koh Phayam. 🌅🌴 #KohPhayam #SunsetLovers`,
+      media_url: villageAsset.image,
+      source_item_id: villageAsset.id,
+      status: 'scheduled',
+      tags: ['V3', 'TikTok', 'Manuale', 'Sunset', 'Stories', 'tiktokStories'],
+      cta_url: 'https://flowerpowervillage.com',
+      badge: '✋ UPLOAD TIKTOK TRAMONTO'
+    });
+
+    // 9. ORE 17:00 (CONTEMPORANEA) · 👥 Gruppo Facebook Koh Phayam: REEL R1 Ristorante & Cena (✋ Azione Manuale Staff via Telegram Topic 2)
     routinePosts.push({
       id: `routine_fb_group_dinner_${dateStr}`,
       brand: 'village',
@@ -350,80 +343,64 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       badge: '🛵 DELIVERY ISOLA'
     });
 
-    // 11. ORE 17:15 · 🎵 TikTok Story Cena Pizzeria Ranong (✋ Azione Manuale Staff - Cerchio Giallo)
+    // 10. ORE 18:30 · 🎵 TikTok Feed Post Ufficiale (API Ufficiale TikTok - Disattivato di default fino ad approvazione v2)
     routinePosts.push({
-      id: `routine_tiktok_dinner_${dateStr}`,
+      id: `routine_tiktok_feed_${dateStr}`,
       brand: 'pizza',
       platforms: ['tiktok'],
-      format: 'story',
-      editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T17:15:00`,
-      title: `P1 TikTok Story: Cena & Delivery Ranong - ${pizzaItem.name}`,
-      caption: `Fame di vera pizza stasera a Ranong? 🍕 Impasto a lievitazione naturale 48h, forno professionale a pietra refrattaria e consegna calda e rapida a casa tua! Ordina su flowerpowerpizza.com 🛵💨`,
-      media_url: pizzaItem.image,
-      source_item_id: pizzaItem.id,
-      status: 'scheduled',
-      tags: ['P1', 'TikTok', 'Manuale', 'Dinner', 'Stories'],
-      cta_url: 'https://flowerpowerpizza.com',
-      badge: '✋ UPLOAD TIKTOK CENA'
-    });
-
-    // 12. ORE 17:45 · 🍕 Instagram & FB REEL: P1 Pizza Tradizionale Ranong 48h (Cena a Domicilio)
-    routinePosts.push({
-      id: `routine_dinner_${dateStr}`,
-      brand: 'pizza',
-      platforms: ['instagram', 'facebook'],
       format: 'reel',
       editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T17:45:00`,
-      title: `P1 Pizza Tradizionale: ${pizzaItem.name}`,
-      caption: `Impasto a lievitazione naturale 48h, cornicione fragrante e ingredienti italiani DOP. Consegna a Ranong su flowerpowerpizza.com 🍕🛵💨`,
+      scheduled_for: `${dateStr}T18:30:00`,
+      title: `P1 TikTok Feed: ${pizzaItem.name} Impasto Tradizionale 48h`,
+      caption: `Autentica pizza tradizionale italiana a Ranong! 🍕 Farina italiana, lievitazione naturale 48h e forno su pietra refrattaria. Ordina su flowerpowerpizza.com 🛵💨 #Ranong #TraditionalItalianPizza`,
       media_url: pizzaItem.image,
       source_item_id: pizzaItem.id,
       price: pizzaItem.price,
       status: 'scheduled',
-      tags: ['P1', 'PizzaReel', 'Ranong', 'reel'],
+      tags: ['P1', 'TikTokFeed', 'reel', 'tiktokFeedApi', 'API'],
       cta_url: 'https://flowerpowerpizza.com',
       title_en: pizzaItem.name,
-      badge: '🍕 48H NATURAL PROOFING'
+      badge: '🎵 TIKTOK FEED POST'
     });
 
-    // 13. ORE 18:30 · 🌅 Instagram & FB Story: Sunset Golden Hour Koh Phayam (CC1 Filmato Reale Tramonto)
+    // 11. ORE 19:30 · 🍕 Facebook REEL: P1 Pizza Tradizionale Ranong 48h (SOLO FACEBOOK)
     routinePosts.push({
-      id: `routine_story_sunset_${dateStr}`,
-      brand: 'village',
-      platforms: ['instagram', 'facebook'],
-      format: 'story',
-      editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T18:30:00`,
-      title: `CC1 Sunset Golden Hour: Tramonto Tropicale a Phayam`,
-      caption: `Il cielo che si colora di fuoco e la brezza serale sull'oceano. Questo è il tramonto a Koh Phayam. 🌅🌴 #KohPhayam #SunsetLovers`,
-      media_url: villageAsset.image,
-      source_item_id: villageAsset.id,
-      status: 'scheduled',
-      tags: ['CC1', 'Sunset', 'story', 'Resort'],
-      cta_url: 'https://flowerpowervillage.com',
-      badge: '🌅 CC1 SUNSET TROPICALE'
-    });
-
-    // 14. ORE 23:00 (NOTTE ASIA = PRIME TIME EUROPA 17:00/18:00 CET) · 🌙 Instagram & Facebook REEL: V3 Tropical Escape Villaggio
-    routinePosts.push({
-      id: `routine_europe_night_${dateStr}`,
-      brand: 'village',
-      platforms: ['instagram', 'facebook'],
+      id: `routine_fb_dinner_${dateStr}`,
+      brand: 'pizza',
+      platforms: ['facebook'],
       format: 'reel',
       editorial_format: 'video_reel',
-      scheduled_for: `${dateStr}T23:00:00`,
-      title: `V3 Prime Time Europa: Koh Phayam Dream - ${villageAsset.name}`,
+      scheduled_for: `${dateStr}T19:30:00`,
+      title: `P1 Pizza Tradizionale Ranong: ${pizzaItem.name}`,
+      caption: `Impasto a lievitazione naturale 48h, cornicione fragrante e ingredienti italiani DOP. Consegna calda a Ranong su flowerpowerpizza.com 🍕🛵💨`,
+      media_url: pizzaItem.image,
+      source_item_id: pizzaItem.id,
+      price: pizzaItem.price,
+      status: 'scheduled',
+      tags: ['P1', 'PizzaReel', 'Dinner', 'Ranong', 'FacebookOnly', 'reel'],
+      cta_url: 'https://flowerpowerpizza.com',
+      title_en: pizzaItem.name,
+      badge: '🍕 CENA FACEBOOK'
+    });
+
+    // 12. ORE 21:00 · 🌙 Instagram REEL: V3 Tropical Escape Villaggio Koh Phayam (SOLO INSTAGRAM)
+    routinePosts.push({
+      id: `routine_ig_night_${dateStr}`,
+      brand: 'village',
+      platforms: ['instagram'],
+      format: 'reel',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T21:00:00`,
+      title: `V3 Tropical Escape Phayam: ${villageAsset.name}`,
       caption: `Winter is coming in Europe... Escape to Koh Phayam Island! 🌴☀️ Wake up surrounded by tropical nature, turquoise waters and peaceful silence. Direct booking discounts on flowerpowervillage.com #KohPhayam #ThailandTravel #EscapeWinter #TropicalResort`,
       media_url: villageAsset.image,
       source_item_id: villageAsset.id,
       price: villageAsset.price,
       status: 'scheduled',
-      tags: ['V3', 'EuropeNight', 'Reels', 'Automated', 'reel'],
+      tags: ['V3', 'NightEscape', 'KohPhayam', 'InstagramOnly', 'reel'],
       cta_url: 'https://flowerpowervillage.com',
       title_en: villageAsset.name,
-      badge: '🌙 PRIME TIME EUROPA'
+      badge: '🌙 NOTTE INSTAGRAM'
     });
   }
 
@@ -472,7 +449,8 @@ export function SocialCalendarView({
     const defaults: SchedulerChannelToggles = {
       instagram: true,
       facebook: true,
-      tiktok: false,
+      tiktokStories: true,
+      tiktokFeedApi: false,
       google: false
     };
     if (typeof window !== 'undefined') {
@@ -808,7 +786,7 @@ export function SocialCalendarView({
               <h3 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
                 <span>{uiLang === 'EN' ? 'Active Scheduler Channels' : 'Canali Scheduler Attivi'}</span>
                 <span className="text-[10px] font-mono font-bold bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full">
-                  {Object.values(channelToggles).filter(Boolean).length} / 4 {uiLang === 'EN' ? 'Active' : 'Attivi'}
+                  {Object.values(channelToggles).filter(Boolean).length} / 5 {uiLang === 'EN' ? 'Active' : 'Attivi'}
                 </span>
               </h3>
               <p className="text-[10px] text-slate-400">
@@ -820,8 +798,8 @@ export function SocialCalendarView({
           </div>
         </div>
 
-        {/* I 4 INTERRUTTORI */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* I 5 INTERRUTTORI CANALI */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
           
           {/* 1. INSTAGRAM */}
           <div 
@@ -833,23 +811,23 @@ export function SocialCalendarView({
             }`}
           >
             <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <InstagramIcon className="w-4 h-4" />
                 <span className="text-xs font-bold text-white">Instagram</span>
               </div>
               <button 
                 type="button"
-                className={`w-10 h-5 rounded-full transition-colors relative flex items-center px-0.5 ${
+                className={`w-9 h-4.5 rounded-full transition-colors relative flex items-center px-0.5 ${
                   channelToggles.instagram ? 'bg-gradient-to-r from-pink-500 to-purple-600' : 'bg-slate-700'
                 }`}
               >
-                <span className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                  channelToggles.instagram ? 'translate-x-5' : 'translate-x-0'
+                <span className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform ${
+                  channelToggles.instagram ? 'translate-x-4.5' : 'translate-x-0'
                 }`} />
               </button>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] text-slate-300">Reels diretti & Storie 24h</p>
+              <p className="text-[10px] text-slate-300">Reels & Post Pomeriggio/Sera</p>
               <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
                 channelToggles.instagram 
                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
@@ -870,23 +848,23 @@ export function SocialCalendarView({
             }`}
           >
             <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <FacebookIcon className="w-4 h-4" />
                 <span className="text-xs font-bold text-white">Facebook</span>
               </div>
               <button 
                 type="button"
-                className={`w-10 h-5 rounded-full transition-colors relative flex items-center px-0.5 ${
+                className={`w-9 h-4.5 rounded-full transition-colors relative flex items-center px-0.5 ${
                   channelToggles.facebook ? 'bg-blue-600' : 'bg-slate-700'
                 }`}
               >
-                <span className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                  channelToggles.facebook ? 'translate-x-5' : 'translate-x-0'
+                <span className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform ${
+                  channelToggles.facebook ? 'translate-x-4.5' : 'translate-x-0'
                 }`} />
               </button>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] text-slate-300">Pagina Ufficiale & Gruppo Phayam</p>
+              <p className="text-[10px] text-slate-300">Pranzo, Cena & Gruppo Phayam</p>
               <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
                 channelToggles.facebook 
                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
@@ -897,44 +875,81 @@ export function SocialCalendarView({
             </div>
           </div>
 
-          {/* 3. TIKTOK */}
+          {/* 3. TIKTOK STORIES (TELEGRAM TOPIC 3) */}
           <div 
-            onClick={() => handleToggleChannel('tiktok')}
+            onClick={() => handleToggleChannel('tiktokStories')}
             className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
-              channelToggles.tiktok 
+              channelToggles.tiktokStories 
                 ? 'bg-gradient-to-br from-cyan-950/30 to-slate-900 border-cyan-500/50 shadow-lg shadow-cyan-950/30' 
                 : 'bg-slate-900/60 border-slate-800/80 opacity-70 hover:opacity-90'
             }`}
           >
             <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <TikTokIcon className="w-4 h-4 text-cyan-400" />
-                <span className="text-xs font-bold text-white">TikTok</span>
+                <span className="text-xs font-bold text-white">Stories TikTok</span>
               </div>
               <button 
                 type="button"
-                className={`w-10 h-5 rounded-full transition-colors relative flex items-center px-0.5 ${
-                  channelToggles.tiktok ? 'bg-cyan-500' : 'bg-slate-700'
+                className={`w-9 h-4.5 rounded-full transition-colors relative flex items-center px-0.5 ${
+                  channelToggles.tiktokStories ? 'bg-cyan-500' : 'bg-slate-700'
                 }`}
               >
-                <span className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                  channelToggles.tiktok ? 'translate-x-5' : 'translate-x-0'
+                <span className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform ${
+                  channelToggles.tiktokStories ? 'translate-x-4.5' : 'translate-x-0'
                 }`} />
               </button>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] text-slate-300">Feed Video 9:16 & Content Posting v2</p>
+              <p className="text-[10px] text-slate-300">Stories Telegram (08:00 & 17:00)</p>
               <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
-                channelToggles.tiktok 
+                channelToggles.tiktokStories 
                   ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' 
-                  : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                  : 'bg-slate-800 text-slate-400'
               }`}>
-                {channelToggles.tiktok ? '🟢 Attivo (Sandbox/Live)' : '🟡 In Attesa Approvazione v2'}
+                {channelToggles.tiktokStories ? '🟢 Zero API (Telegram)' : '⏸️ In Pausa'}
               </span>
             </div>
           </div>
 
-          {/* 4. GOOGLE BUSINESS PROFILE & MAPS */}
+          {/* 4. TIKTOK FEED API (CONGELATO / IN ATTESA APPROVAZIONE) */}
+          <div 
+            onClick={() => handleToggleChannel('tiktokFeedApi')}
+            className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+              channelToggles.tiktokFeedApi 
+                ? 'bg-gradient-to-br from-pink-950/30 to-cyan-950/20 border-pink-500/50 shadow-lg shadow-pink-950/30' 
+                : 'bg-slate-900/60 border-slate-800/80 opacity-70 hover:opacity-90'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-1.5">
+                <TikTokIcon className="w-4 h-4 text-pink-400" />
+                <span className="text-xs font-bold text-white">TikTok Feed API</span>
+              </div>
+              <button 
+                type="button"
+                className={`w-9 h-4.5 rounded-full transition-colors relative flex items-center px-0.5 ${
+                  channelToggles.tiktokFeedApi ? 'bg-pink-500' : 'bg-slate-700'
+                }`}
+              >
+                <span className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform ${
+                  channelToggles.tiktokFeedApi ? 'translate-x-4.5' : 'translate-x-0'
+                }`} />
+              </button>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-slate-300">Post Feed 18:30 via API v2</p>
+              <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                channelToggles.tiktokFeedApi 
+                  ? 'bg-pink-500/20 text-pink-300 border border-pink-500/30' 
+                  : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+              }`}>
+                {channelToggles.tiktokFeedApi ? '🟢 Attivo (Live API)' : '🟡 In Attesa Approvazione'}
+              </span>
+            </div>
+          </div>
+
+          {/* 5. GOOGLE BUSINESS PROFILE & MAPS */}
           <div 
             onClick={() => handleToggleChannel('google')}
             className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
@@ -944,29 +959,29 @@ export function SocialCalendarView({
             }`}
           >
             <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <GoogleMapsIcon className="w-4 h-4" />
                 <span className="text-xs font-bold text-white">Google Maps</span>
               </div>
               <button 
                 type="button"
-                className={`w-10 h-5 rounded-full transition-colors relative flex items-center px-0.5 ${
+                className={`w-9 h-4.5 rounded-full transition-colors relative flex items-center px-0.5 ${
                   channelToggles.google ? 'bg-emerald-500' : 'bg-slate-700'
                 }`}
               >
-                <span className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                  channelToggles.google ? 'translate-x-5' : 'translate-x-0'
+                <span className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform ${
+                  channelToggles.google ? 'translate-x-4.5' : 'translate-x-0'
                 }`} />
               </button>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] text-slate-300">Aggiornamenti & Novità con CTA</p>
+              <p className="text-[10px] text-slate-300">Scheda Profilo & Novità 4:3</p>
               <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md ${
                 channelToggles.google 
                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
                   : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
               }`}>
-                {channelToggles.google ? '🟢 Quota Attiva' : '⏳ Attesa Quota (Case 2-3532000041993)'}
+                {channelToggles.google ? '🟢 Quota Attiva' : '⏳ In Attesa Quota'}
               </span>
             </div>
           </div>
@@ -1360,7 +1375,7 @@ export function SocialCalendarView({
                     const blockBorder = getBlockBorderColor(post);
                     const contentType = getContentBadge(post);
                     
-                    const activePlatforms = post.platforms.filter((p) => channelToggles[p as keyof SchedulerChannelToggles] ?? true);
+                    const activePlatforms = post.platforms.filter((p) => isChannelActiveForPost(p, post, channelToggles));
                     const isFullyDisabled = activePlatforms.length === 0;
                     const isPartiallyDisabled = activePlatforms.length > 0 && activePlatforms.length < post.platforms.length;
 
@@ -1412,7 +1427,7 @@ export function SocialCalendarView({
                         {/* 2° SCOMPARTO: ICONA SOCIAL (LARGHEZZA FISSA 36px - ALLINEAMENTO VERTICALE UNIFORME PER 1 O 2 CANALI) */}
                         <div className="w-[36px] min-w-[36px] max-w-[36px] bg-black/30 flex items-center justify-center shrink-0 border-r border-white/10 gap-0.5">
                           {post.platforms.map((p) => {
-                            const isChannelActive = channelToggles[p as keyof SchedulerChannelToggles] ?? true;
+                            const isChannelActive = isChannelActiveForPost(p, post, channelToggles);
                             return (
                               <span 
                                 key={p} 
@@ -1717,7 +1732,7 @@ export function SocialCalendarView({
                     onClick={() => {
                       if (schedulerMode === 'standby') return;
                       // Filtra solo le piattaforme attive negli interruttori
-                      const activePlatforms = inspectingPost.platforms.filter(p => channelToggles[p as keyof SchedulerChannelToggles] ?? true);
+                      const activePlatforms = inspectingPost.platforms.filter(p => isChannelActiveForPost(p, inspectingPost, channelToggles));
                       if (activePlatforms.length === 0) {
                         alert(uiLang === 'EN' 
                           ? 'All destination platforms for this post are currently paused. Please enable at least one channel in the top switches.' 

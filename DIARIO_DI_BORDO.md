@@ -3,6 +3,50 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 21:50] · TIMETABLE STAGGERED SEPARAZIONE INSTAGRAM/FACEBOOK, INTERRUTTORI SDOPPIATI TIKTOK & SCHEDULER SERVERLESS 24/7
+- **Cosa abbiamo fatto:** 
+  1. 🗓️ **Separazione Rigorosa & Scaglionata Instagram / Facebook**:
+     - Eliminata qualsiasi pubblicazione simultanea tra Facebook e Instagram: ogni canale ha ora le sue fasce orarie dedicate per massimizzare la visibilità (pranzo, pomeriggio, cena, notte).
+     - **08:00 (Punti fermi mattutini)**: 2 Stories (Pizzeria + Villaggio) inviate a Telegram Topic 3 (`tikTokStories`) + 1 Post LM1 Alloggi Liberi Oggi inviato a Telegram Topic 2 (`kohPhayamGroup`).
+     - **11:30 (SOLO Facebook)**: Post/Reel Pasta Fresca Ranong (`P2`).
+     - **16:00 (SOLO Instagram)**: Reel Pomeriggio Relax & Suite Tour Koh Phayam (`V2`/`CC1`).
+     - **17:00 (Punti fermi pomeridiani)**: 2 Stories (Pizzeria + Villaggio) inviate a Telegram Topic 3 + 1 Post Ristorante Phayam (`R1`) inviato a Telegram Topic 2.
+     - **18:30 (TikTok Feed Post API)**: Programmato per l'API ufficiale (congelato e gestito da switch).
+     - **19:30 (SOLO Facebook)**: Post/Reel Pizza Tradizionale Ranong 48h (`P1`).
+     - **21:00 (SOLO Instagram)**: Reel Notte Tropical Escape Phayam (`V3`).
+  2. 🎛️ **Interruttori Canali Sdoppiati per TikTok (Stories vs Feed API)**:
+     - Sdoppiato l'interruttore TikTok in due switch indipendenti:
+       * 🟢 **Stories TikTok** (Telegram Topic 3, zero API, attivo subito di default).
+       * 🟡 **TikTok Feed API** (in attesa approvazione v2 da TikTok for Developers, disattivato di default).
+     - La griglia del calendario mostra 5 canali attivi (`X / 5 Attivi`) e il filtro applica la disattivazione mirata solo ai rispettivi post.
+  3. 🎵 **Muxing Audio Istantaneo su Runner & Zero Timeout Vercel**:
+     - Intercettato `action=attach_audio_to_story` direttamente nei robot di rendering per eseguire il mux audio (jingle + outro SFX) con FFmpeg locale in 0.3 secondi, azzerando i timeout (HTTP 504) di Vercel.
+  4. 🤖 **Dispatcher Serverless & GitHub Actions Cron 24/7**:
+     - Creato [scripts/social-scheduler-dispatch.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/social-scheduler-dispatch.mjs) e workflow [.github/workflows/social-scheduler-cron.yml](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/.github/workflows/social-scheduler-cron.yml) per l'esecuzione automatizzata autonoma giorno e notte a costo zero.
+- **Effetto reale:** Flusso social impeccabile: nessuna sovrapposizione tra Facebook e Instagram, orari di punta rispettati, stories pronte ogni mattina alle 08:00 e ogni pomeriggio alle 17:00 su Telegram, e TikTok pronto per essere sbloccato non appena arriva l'approvazione formale.
+- **Stato:** ✅ Test visivo approvato, timetable aggiornata, 5 canali configurati, scheduler predisposto.
+
+---
+
+### 🟩 [27/10/2026 - ORE 20:53] · ROTAZIONE OCTORATE CLIENT SECRET, BLINDATURA SICUREZZA & RIPRISTINO TOKEN
+- **Cosa abbiamo fatto:** 
+  1. 🔑 **Rotazione Immediata Credenziali Octorate Channel Manager**:
+     - Recepito il nuovo `client_secret` comunicato da Octorate a seguito della scadenza periodica di sicurezza delle chiavi API.
+     - Aggiornato nei file locali protetti (`.env` e `.env.local` esclusi e blindati da `.gitignore`).
+     - Aggiornato direttamente su Vercel Environment Variables sia in **Production** che in **Preview** con tipologia rigorosamente `Secret` (Hidden).
+     - Rimosso definitivamente `VITE_OCTORATE_SECRET_KEY` da Vercel per eliminare qualsiasi rischio di esposizione al client, e aggiornato il fallback in `api/_handlers/verify.ts` per privilegiare `OCTORATE_SECRET_KEY` privato.
+  2. ⚡ **Collaudo Refresh Token & Sincronizzazione Supabase**:
+     - Eseguito test immediato di rinnovo token verso l'endpoint live di Octorate (`/identity/refresh`).
+     - Ricevuto HTTP 200 con successo e generato nuovo `access_token` fresco e attivo.
+     - Aggiornata la riga `singleton` nella tabella Supabase `octorate_tokens`, rendendo il nuovo token accessibile all'istante a tutte le funzioni server.
+     - Verificato con successo l'endpoint del booking engine (`/api/octorate-grid`), ricevendo la risposta completa con 246 sistemazioni.
+  3. 🚀 **Deploy Immediato in Produzione**:
+     - Eseguito il commit su `staging` e rilasciato il build in produzione su Vercel (`Ready`, deploy `dpl_BowNyMS5aiffPq9xR9akorNsK55b`).
+- **Effetto reale:** Nessuna interruzione per gli ospiti che prenotano sul villaggio né per i format social last-minute (LM1): la sincronizzazione dei prezzi, del calendario e della disponibilità delle camere con Octorate è perfettamente attiva, sicura e operativa al 100%.
+- **Stato:** ✅ Test live superato con status 200, segreti blindati, deploy produzione Vercel completato.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 19:35] · TOOLBAR SOTTILE SU RIGA SINGOLA, GIORNI PASSATI GRIGI & ROUTINE FINO AL 31 OTTOBRE
 - **Cosa abbiamo fatto:** 
   1. 📏 **Toolbar Compatta Ultra-Sottile su 1 Sola Riga**:
@@ -1424,3 +1468,16 @@
 - **Cosa è cambiato:** Creati e integrati due nuovi effetti sonori dedicati di chiusura (`sfx-outro-pizza.wav` e `sfx-outro-village.wav`).
 - **Effetto reale:** Le musiche sono riproducibili a ciclo continuo e fruibili anche a computer spento per la generazione video automatica in cloud.
 - **Stato:** ✅ Caricato su Cloud Supabase e archiviato in locale.
+
+### 🟩 [27/10/2026 - ORE 21:25] · SOCIAL MEDIA STUDIO: VALIDAZIONE RENDER CLOUD 100% AUTONOMO CON COLONNA SONORA E SFX OUTRO
+- **Cosa abbiamo fatto:**
+  1. 🎬 **Analisi Completa Log GitHub Actions (Run #1)**:
+     - Verificato che il motore WebCodecs esporta il video a 60 FPS nel cloud Linux in soli 45 secondi.
+     - Verificata la qualità visiva dei font Thai (Prompt/Kanit) e dell'header Outfit: approvata dall'utente come 'eccellente e perfetta'.
+  2. 🎵 **Risoluzione Muxing Audio & SFX Outro**:
+     - Identificato il motivo per cui l'mp3 era assente nel primo test: la chiamata verso Vercel serverless andava in 504 Gateway Timeout (limite 15s di Vercel).
+     - Eseguito il muxing audio istantaneo (0.3s) con FFmpeg locale sincronizzando la traccia 'Yeah!' e l'effetto sonoro pizza ('sfx-outro-pizza.wav') a 8.85s.
+  3. 🚀 **Integrazione Definitiva Telegram**:
+     - Inviato sul Supergruppo Staff (Topic 3) il video finale completo di audio per la verifica d'ascolto.
+- **Effetto reale:** Confermata la fattibilità al 100% del rendering automatico a costo zero a PC spento (GitHub Actions) con qualità video e audio identiche a quelle del browser.
+- **Stato:** ✅ Qualità video e audio validate con successo.
