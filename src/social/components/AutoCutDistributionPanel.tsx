@@ -108,8 +108,8 @@ export function AutoCutDistributionPanel({
     }
   }, [testRun.brand, testRun.mode]);
 
-  // 1. Switch Ambiente (Test Sandbox vs Produzione Live)
-  const [environment, setEnvironment] = useState<DistributionEnvironment>('test');
+  // 1. Switch Ambiente (Default: Produzione Live - l'utente può passare a Test Sandbox se desiderato)
+  const [environment, setEnvironment] = useState<DistributionEnvironment>('production');
 
   // 2. Canale Attivo (singola scelta che pilota il form al centro)
   const [internalChannel, setInternalChannel] = useState<DistributionChannelId>('tiktok');
@@ -279,6 +279,35 @@ export function AutoCutDistributionPanel({
         }
       }
 
+      // Invio REALE alla Pagina Facebook (Post Video di Pagina o Reels)
+      let publishedFacebookUrl: string | undefined = undefined;
+      if (activeChannel === 'facebook' && (formats.facebook === 'post' || formats.facebook === 'reels')) {
+        if (environment === 'production') {
+          setPublishStatus({
+            type: null,
+            message: `Trasmissione video a Meta Graph API (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`
+          });
+          const copyResult = generatePostCopy(testRun, 0);
+          const captionText = liveCaptions?.facebook || liveCaptions?.instagram || copyResult.fullCaptionInstagram;
+          const fbRes = await fetch('/api/social-publisher?action=publish_facebook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              videoUrl: finalMediaUrl,
+              title: testRun.scenes[0]?.titlePrimary || `Flower Power ${selectedBrand === 'pizza' ? 'Pizza' : 'Village'}`,
+              caption: captionText,
+              brand: selectedBrand
+            })
+          });
+          const fbData = await fbRes.json();
+          if (!fbRes.ok || !fbData.success) {
+            throw new Error(fbData.error || 'Errore durante la pubblicazione del video su Facebook');
+          }
+          publishedFacebookUrl = fbData.postUrl;
+          console.log('[AutoCutDistributionPanel] Pubblicazione Facebook completata con successo:', fbData);
+        }
+      }
+
       setPublishProgressPct(100);
       updateStep(7, 'done');
 
@@ -315,6 +344,12 @@ export function AutoCutDistributionPanel({
           details: [
             `Video MP4 e didascalia trasmessi alle API ufficiali`,
             `Profilo aziendale: ${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}`,
+            ...(activeChannel === 'facebook' && (formats.facebook === 'post' || formats.facebook === 'reels')
+              ? [
+                  `Video MP4 e didascalia bilingue pubblicati sulla Pagina Facebook ufficiale!`,
+                  publishedFacebookUrl ? `Link Facebook Post: ${publishedFacebookUrl}` : ''
+                ].filter(Boolean)
+              : []),
             ...(activeChannel === 'facebook' && formats.facebook === 'group'
               ? ['Video inviato con successo al Topic 2 "Koh Phayam Group" con testo copiabile a 1 tocco e link al gruppo FB!']
               : []),

@@ -1546,6 +1546,81 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     }
   }
 
+  // 2b. POST /api/social-publisher?action=publish_facebook
+  if (action === "publish_facebook") {
+    const {
+      videoUrl,
+      title = "",
+      caption = "",
+      brand = "pizza"
+    } = body;
+
+    const isPizza = brand === "pizza";
+    const pageId = isPizza
+      ? (process.env.META_PIZZA_PAGE_ID || "410856732111386")
+      : (process.env.META_VILLAGE_PAGE_ID || "106883044573670");
+    const pageToken = isPizza
+      ? process.env.META_PIZZA_PAGE_TOKEN
+      : process.env.META_VILLAGE_PAGE_TOKEN;
+
+    if (!pageToken) {
+      return res.status(400).json({
+        success: false,
+        error: `Meta Page Access Token non configurato per ${isPizza ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}.`
+      });
+    }
+
+    if (!videoUrl) {
+      return res.status(400).json({
+        success: false,
+        error: "Parametro videoUrl mancante per la pubblicazione su Facebook."
+      });
+    }
+
+    try {
+      console.log(`[SocialPublisher] Invio video su Pagina Facebook (Brand: ${brand}, Page ID: ${pageId}, Video: ${videoUrl})...`);
+
+      const postDescription = (caption || title || "").slice(0, 5000);
+      const postTitle = (title || "").slice(0, 255);
+
+      const params = new URLSearchParams();
+      params.append("access_token", pageToken);
+      params.append("file_url", videoUrl);
+      if (postDescription) params.append("description", postDescription);
+      if (postTitle) params.append("title", postTitle);
+
+      const fbRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/videos`, {
+        method: "POST",
+        body: params
+      });
+
+      const fbData = await fbRes.json();
+      console.log("[SocialPublisher] Facebook Graph API response:", fbData);
+
+      if (!fbRes.ok || fbData.error) {
+        return res.status(fbRes.status || 400).json({
+          success: false,
+          error: fbData.error?.message || "Errore durante la pubblicazione del video su Facebook",
+          details: fbData.error
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        videoId: fbData.id,
+        postUrl: `https://www.facebook.com/${fbData.id}`,
+        raw: fbData
+      });
+    } catch (err: any) {
+      console.error("[SocialPublisher] Facebook publish exception:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Eccezione durante la pubblicazione su Facebook",
+        message: err.message
+      });
+    }
+  }
+
   // 3. POST /api/social-publisher?action=check_status
   if (action === "check_status") {
     const { publishId, accessToken } = body;

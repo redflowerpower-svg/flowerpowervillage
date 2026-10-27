@@ -3,6 +3,16 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [27/10/2026 - ORE 13:40] · PUBBLICAZIONE REALE FACEBOOK PAGE VIA META GRAPH API & DEFAULT PRODUZIONE LIVE
+- **Cosa abbiamo fatto:** 
+  1. 🚀 **Default Produzione Live**: Impostato `production` come ambiente predefinito in [AutoCutDistributionPanel.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutDistributionPanel.tsx#L112) ("Pubblica Subito su Facebook / TikTok / Google"). Se l'utente vuole effettuare simulazioni sandbox, può commutare su Test manualmente.
+  2. 🎬 **Endpoint Reale `publish_facebook`**: Programmata in [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts) l'azione `publish_facebook` che invia video MP4 (`file_url`), titolo e didascalia bilingue direttamente a `https://graph.facebook.com/v19.0/{page_id}/videos` utilizzando il Page Access Token convalidato (`META_PIZZA_PAGE_TOKEN` per Pizzeria Ranong e `META_VILLAGE_PAGE_TOKEN` per Villaggio Koh Phayam).
+  3. 🔗 **Collegamento Frontend Esecutivo**: Connesso il tasto "Pubblica Subito" del pannello all'endpoint per i formati "Post Video di Pagina" e "Facebook Reels", visualizzando l'ID del post pubblicato e il link diretto di Facebook.
+- **Effetto reale:** Quando premi "Pubblica Subito", il video MP4 renderizzato e la didascalia vengono caricati e pubblicati istantaneamente e realmente sulla bacheca della Pagina Facebook di Flower Power Pizza / Village.
+- **Stato:** ✅ Compilato (`npx tsc --noEmit` exit 0), endpoint testato con successo, committato e rilasciato su branch `staging`.
+
+---
+
 ### 🟩 [27/10/2026 - ORE 13:20] · TIKTOK DEVELOPER POLICY ALIGNMENT: BONIFICA SAAS RISTORATORI & CREATOR (ZERO Diciture "Uso Interno")
 - **Cosa abbiamo fatto:** Allineati i documenti legali, i metatag e l'interfaccia di Social Studio con la nuova classificazione SaaS del TikTok Developer Portal per risolvere il blocco di policy:
   1. 📜 **Termini di Servizio ([LegalPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pages/LegalPage.tsx))**:
