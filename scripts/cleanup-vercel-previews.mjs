@@ -1,22 +1,21 @@
 import { execSync } from 'child_process';
 
 async function main() {
-  console.log('🔍 [Vercel Cleaner] Recupero lista preview deployments...');
-  const jsonStr = execSync('npx vercel list --environment preview --limit 100 --format json', { encoding: 'utf8' });
+  console.log('🔍 [Vercel Cleaner] Recupero lista completa di tutti i deployments (preview + production)...');
+  const jsonStr = execSync('npx vercel list --limit 100 --format json', { encoding: 'utf8' });
   const data = JSON.parse(jsonStr);
   const deployments = data.deployments || [];
 
-  console.log(`📊 Trovate ${deployments.length} preview deployments.`);
+  console.log(`📊 Trovati ${deployments.length} deployments totali.`);
   if (deployments.length <= 2) {
-    console.log('✅ Nessuna vecchia preview da pulire.');
+    console.log('✅ Nessun vecchio deployment da pulire.');
     return;
   }
 
-  // Conserviamo solo le 2 preview più recenti, eliminiamo tutte le altre (più vecchie)
+  // Conserviamo solo i 2 deployment più recenti (la produzione corrente e l'ultima anteprima)
   const toDelete = deployments.slice(2);
-  console.log(`🧹 Avvio rimozione di ${toDelete.length} vecchie preview deployments con flag --safe...`);
+  console.log(`🧹 Avvio rimozione di ${toDelete.length} vecchi deployments (produzione passata e preview) con flag --safe...`);
 
-  // Eseguiamo a blocchi di 5 per velocità ed efficienza
   const chunkSize = 5;
   let removedCount = 0;
 
@@ -32,7 +31,7 @@ async function main() {
     }
   }
 
-  console.log(`\n🎉 [Vercel Cleaner] Completato! Rimosse ${removedCount} preview deployments.`);
+  console.log(`\n🎉 [Vercel Cleaner] Completato! Rimosse ${removedCount} deployments storiche.`);
 }
 
 main().catch(err => {
