@@ -86,7 +86,7 @@ function resolveTargetSlot(rawSlot, bkTime) {
   }
 
   // Se GitHub Actions cron scatta con un ritardo fisiologico (fino a 25 min), aggancia lo slot corretto
-  if (bestDist <= 25) {
+  if (bestDist <= 15) {
     return bestSlot;
   }
   return rawSlot || bkTime.timeStr;
@@ -655,18 +655,18 @@ async function run() {
   console.log(`🚀 ESECUZIONE SLOT: ${targetSlot}`);
   console.log(`======================================================\n`);
 
-  // Identifica lo slot più vicino o esatto
-  const is0800 = targetSlot.startsWith('08:') || targetSlot === '08:00';
-  const is0930 = targetSlot.startsWith('09:3') || targetSlot === '09:30';
-  const is1130 = targetSlot.startsWith('11:3') || targetSlot === '11:30';
-  const is1230 = targetSlot.startsWith('12:3') || targetSlot === '12:30';
-  const is1600 = targetSlot.startsWith('16:') || targetSlot === '16:00';
-  const is1700 = targetSlot.startsWith('17:') || targetSlot === '17:00';
-  const is1800 = targetSlot.startsWith('18:0') || targetSlot === '18:00';
-  const is1830 = targetSlot.startsWith('18:3') || targetSlot === '18:30';
-  const is1930 = targetSlot.startsWith('19:3') || targetSlot === '19:30';
-  const is2000 = targetSlot.startsWith('20:') || targetSlot === '20:00';
-  const is2100 = targetSlot.startsWith('21:') || targetSlot === '21:00';
+  // Identifica lo slot esatto (risolto deterministicamente da resolveTargetSlot entro ±15 min)
+  const is0800 = targetSlot === '08:00';
+  const is0930 = targetSlot === '09:30';
+  const is1130 = targetSlot === '11:30';
+  const is1230 = targetSlot === '12:30';
+  const is1600 = targetSlot === '16:00';
+  const is1700 = targetSlot === '17:00';
+  const is1800 = targetSlot === '18:00';
+  const is1830 = targetSlot === '18:30';
+  const is1930 = targetSlot === '19:30';
+  const is2000 = targetSlot === '20:00';
+  const is2100 = targetSlot === '21:00';
 
   if (is0800) {
     console.log(`🌅 [08:00 BANGKOK] Avvio tranche mattutina: 2 Stories TikTok/IG + 1 Reel Gruppo Phayam`);
@@ -742,10 +742,6 @@ async function run() {
     const { videoUrl } = await ensureCloudVideoUrl(storyVid);
     try {
       const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
-      await sendMessageToTelegram({
-        topicId: TOPIC_TIKTOK_STORIES,
-        text: `✅ [09:30 BANGKOK] Storia Instagram pubblicata automaticamente via Meta Graph API!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
-      });
       await sendPublishedLog({
         brand: 'village',
         channel: '📸 Instagram Stories',
@@ -792,10 +788,6 @@ async function run() {
         isStory: false
       });
 
-      await sendMessageToTelegram({
-        topicId: TOPIC_KOH_PHAYAM_GROUP,
-        text: `✅ [11:30 BANGKOK] Reel Pranzo Pasta Fresca pubblicato automaticamente su Pagina Facebook!\nLink: ${fbRes.postUrl || fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
-      });
       await sendPublishedLog({
         brand: 'pizza',
         channel: '📘 Facebook Pagina (Reel Pranzo)',
@@ -834,10 +826,6 @@ async function run() {
         isStory: true
       });
 
-      await sendMessageToTelegram({
-        topicId: TOPIC_TIKTOK_STORIES,
-        text: `✅ [12:30 BANGKOK] Storia Facebook pubblicata automaticamente via Meta Graph API!\nID Post: ${fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
-      });
       await sendPublishedLog({
         brand: 'pizza',
         channel: '📘 Facebook Pagina (Story Pranzo)',
@@ -883,10 +871,6 @@ async function run() {
         isStory: false
       });
 
-      await sendMessageToTelegram({
-        topicId: TOPIC_TIKTOK_STORIES,
-        text: `✅ [16:00 BANGKOK] Reel Pomeriggio Relax pubblicato automaticamente su Instagram!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
-      });
       await sendPublishedLog({
         brand: 'village',
         channel: '📸 Instagram Reels',
@@ -986,10 +970,6 @@ async function run() {
     const { videoUrl } = await ensureCloudVideoUrl(sunsetVid);
     try {
       const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
-      await sendMessageToTelegram({
-        topicId: TOPIC_TIKTOK_STORIES,
-        text: `✅ [18:00 BANGKOK] Storia Instagram Golden Hour pubblicata automaticamente via Meta Graph API!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
-      });
       await sendPublishedLog({
         brand: 'village',
         channel: '📸 Instagram Stories',
@@ -1039,10 +1019,6 @@ async function run() {
         isStory: false
       });
 
-      await sendMessageToTelegram({
-        topicId: TOPIC_KOH_PHAYAM_GROUP,
-        text: `✅ [19:30 BANGKOK] Reel Cena Pizza Tradizionale pubblicato automaticamente su Pagina Facebook!\nLink: ${fbRes.postUrl || fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
-      });
       await sendPublishedLog({
         brand: 'pizza',
         channel: '📘 Facebook Pagina (Reel Cena 48h)',
@@ -1081,10 +1057,6 @@ async function run() {
         isStory: true
       });
 
-      await sendMessageToTelegram({
-        topicId: TOPIC_TIKTOK_STORIES,
-        text: `✅ [20:00 BANGKOK] Storia Facebook Serata pubblicata automaticamente via Meta Graph API!\nID Post: ${fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
-      });
       await sendPublishedLog({
         brand: 'pizza',
         channel: '📘 Facebook Pagina (Story Serale)',
@@ -1130,10 +1102,6 @@ async function run() {
         isStory: false
       });
 
-      await sendMessageToTelegram({
-        topicId: TOPIC_TIKTOK_STORIES,
-        text: `✅ [21:00 BANGKOK] Reel Notte Tropicale pubblicato automaticamente su Instagram!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
-      });
       await sendPublishedLog({
         brand: 'village',
         channel: '📸 Instagram Reels',
