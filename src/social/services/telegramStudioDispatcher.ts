@@ -77,32 +77,28 @@ export async function dispatchPostToTelegramTopic(
   if (payload.priceBadge) {
     messageText += `💰 <b>Prezzo Offerta:</b> ${payload.priceBadge}\n`;
   }
-  messageText += `\n━━━━━━━━━━━━━━━━━━━━\n`;
-  messageText += `📋 <b>TESTO DA COPIARE PER IL POST:</b>\n`;
-  messageText += `<i>👇 Clicca o tocca il riquadro qui sotto: il testo viene copiato istantaneamente negli appunti!</i>\n\n`;
-  messageText += `<pre>${escapeTelegramHtml(rawCleanCopy)}</pre>\n`;
-  messageText += `━━━━━━━━━━━━━━━━━━━━\n\n`;
-
-  // Guida rapida contestuale in base al canale
+  // Differenziazione radicale tra Stories (Topic 3, zero box testo) e Post Gruppo (Topic 2, scheda testo completa)
   if (payload.topic === 'kohPhayamGroup') {
+    messageText += `\n━━━━━━━━━━━━━━━━━━━━\n`;
+    messageText += `📋 <b>TESTO DA COPIARE PER IL POST:</b>\n`;
+    messageText += `<i>👇 Clicca o tocca il riquadro qui sotto: il testo viene copiato istantaneamente negli appunti!</i>\n\n`;
+    messageText += `<pre>${escapeTelegramHtml(rawCleanCopy)}</pre>\n`;
+    messageText += `━━━━━━━━━━━━━━━━━━━━\n\n`;
     messageText += `👉 <b>Come pubblicare in 3 secondi:</b>\n`;
     messageText += `1️⃣ Clicca sul riquadro col testo sopra per copiarlo negli appunti\n`;
     messageText += `2️⃣ Clicca sul tasto sotto <b>"🌐 Vai al Gruppo Koh Phayam"</b>\n`;
     messageText += `3️⃣ <b>Incolla nel post Facebook:</b>\n`;
-    messageText += `   • 💻 <i>Da Computer (PC/Mac):</i> premi <code>Ctrl + Shift + V</code> (oppure tasto destro ➔ <i>"Incolla come testo normale"</i>) per mantenere gli a capo perfetti ed evitare che Facebook fonda le righe!\n`;
-    messageText += `   • 📱 <i>Da Telefono/Tablet:</i> incolla normalmente tenendo premuto sullo schermo! 🚀`;
+    messageText += `   • 💻 <i>Da Computer (PC/Mac):</i> premi <code>Ctrl + Shift + V</code>\n`;
+    messageText += `   • 📱 <i>Da Telefono/Tablet:</i> tieni premuto e incolla! 🚀`;
   } else if (payload.topic === 'tikTokStories') {
-    messageText += `👉 <b>Come pubblicare nelle Stories in 3 secondi:</b>\n`;
-    messageText += `1️⃣ Clicca o tocca il riquadro con il testo per copiarlo\n`;
-    messageText += `2️⃣ Salva il video o la foto nella galleria\n`;
-    messageText += `3️⃣ Tocca <b>"📱 Apri TikTok"</b> o <b>"📸 Apri Instagram"</b>, seleziona Story e incolla il testo! 🚀`;
+    messageText += `\n👉 <i>Tocca "Scarica Video MP4" sotto per salvarlo nel rullino, poi apri TikTok o Instagram Stories per pubblicarlo al volo! 🚀</i>`;
   }
 
   // Costruzione della tastiera inline (Bottoni interattivi)
   const inlineKeyboard: any[] = [];
 
-  // 1. Tasto copia testo rapido nativo Telegram (Bot API 7.5+ supporta max 256 caratteri)
-  if (rawCleanCopy && rawCleanCopy.length <= 256) {
+  // 1. Tasto copia testo solo per i post con testo (escluso Stories dove non serve)
+  if (payload.topic !== 'tikTokStories' && rawCleanCopy && rawCleanCopy.length <= 256) {
     inlineKeyboard.push([
       {
         text: '📋 Copia Testo Post (1 Tocco)',

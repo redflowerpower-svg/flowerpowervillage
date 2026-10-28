@@ -306,7 +306,135 @@ function escapeHtml(str) {
 }
 
 // Invia post ufficiale completo a Telegram Topic (Video MP4 + Scheda con blocco <pre> + Bottoni interattivi)
-async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBadge, copyText, filePath, videoUrl }) {
+// Generatore copy bilingue certificato conforme a tutte le 24 regole dello Social Media Studio
+function getBilingualPostCopy(mode, brand, officialCopy) {
+  const isPizza = (brand === 'pizza');
+
+  // 1. Se Chromium ha esportato il copy ufficiale sincronizzato con il montaggio effettivo
+  if (officialCopy && (officialCopy.thaiContent || officialCopy.englishContent)) {
+    const thai = (officialCopy.thaiContent || '').trim();
+    const en = (officialCopy.englishContent || '').trim();
+    const link = (officialCopy.fixedLink || '').trim();
+    const tag = (officialCopy.crossTag || '').trim();
+    const tags = Array.from(new Set([...(officialCopy.englishHashtags || []), ...(officialCopy.thaiHashtags || [])])).join(' ');
+
+    if (isPizza) {
+      // Pizzeria Ranong: 1° Thai 🇹🇭, 2° Inglese 🇬🇧, Link/Tag, Hashtags in fondo
+      return [thai, en, link, tag, tags].filter(Boolean).join('\n\n');
+    } else {
+      // Villaggio & Koh Phayam: 1° Inglese 🇬🇧, 2° Thai 🇹🇭, Link/Tag, Hashtags in fondo (ZERO ITALIANO)
+      return [en, thai, link, tag, tags].filter(Boolean).join('\n\n');
+    }
+  }
+
+  // 2. Fallback biculturale certificato con biculturalismo rigoroso, zero italiano, zero legna e zero tramonto
+  if (mode === 'R1') {
+    return (
+      `🇬🇧 Craving authentic Italian food on Koh Phayam? Flower Power Restaurant 🍝🍕 is cooking for you in Buffalo Bay!\n\n` +
+      `• Artisanal thin-crust Italian pizza 🍕\n` +
+      `• Fresh handmade pasta & savory sauces 🍝\n` +
+      `• Island favorites cooked from scratch with genuine passion 🌿✨\n\n` +
+      `Dine in our lush tropical garden or get hot delivery directly to your resort or bungalow on Koh Phayam! 🛵🌴\n\n` +
+      `🛵 Island Delivery via WhatsApp: +66 095 882 5573\n` +
+      `🌐 Resort & Dining: flowerpowervillage.com\n` +
+      `📍 Buffalo Bay (Ao Khao Kwai), Koh Phayam\n` +
+      `@flowerpowerphayam\n\n` +
+      `🇹🇭 หิวอาหารอิตาเลียนแท้ๆ บนเกาะพยามใช่ไหมครับ? ครัว Flower Power พร้อมเสิร์ฟความอร่อยครบเครื่อง ริมอ่าวเขาควาย 🍝🍕✨\n\n` +
+      `• พิซซ่าอิตาเลียนแท้ แป้งหมักธรรมชาติ 48 ชม. 🍕\n` +
+      `• พาสต้าเส้นสดทำเอง ซอสสูตรดั้งเดิมอิตาเลียน 🍝\n` +
+      `• ปรุงสดใหม่จานต่อจานด้วยวัตถุดิบคุณภาพ 🌿🔥\n\n` +
+      `แวะมาทานที่ร้านท่ามกลางสวนธรรมชาติ หรือสั่งเดลิเวอรี่ส่งตรงถึงที่พักบนเกาะพยามได้เลยครับ! 🛵🌴\n\n` +
+      `🛵 สั่งอาหารและเดลิเวอรี่ผ่าน WhatsApp: +66 095 882 5573\n` +
+      `🌐 ข้อมูลและที่พัก: flowerpowervillage.com\n` +
+      `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
+      `#KohPhayam #KohPhayamRestaurant #KohPhayamFood #PhayamDelivery #ItalianRestaurantPhayam #BuffaloBay #เกาะพยาม #อ่าวเขาควาย`
+    );
+  }
+
+  if (mode === 'LM1') {
+    return (
+      `🇬🇧 Looking for peaceful bungalows surrounded by tropical greenery in Koh Phayam? 🌴✨\n\n` +
+      `Today we have vacant rooms and private wooden bungalows at Buffalo Bay with instant direct booking discount!\n\n` +
+      `• Superior & Deluxe Garden Bungalows 🌿\n` +
+      `• King size beds, private hammocks & high-speed fiber Wi-Fi 📶\n` +
+      `• On-site authentic Italian restaurant & scooter rental 🛵🍕\n\n` +
+      `🏝️ Check live rates & book direct: flowerpowervillage.com\n` +
+      `💬 WhatsApp Staff: +66 095 882 5573\n` +
+      `📍 Buffalo Bay, Koh Phayam Island\n` +
+      `@flowerpowerphayam\n\n` +
+      `🇹🇭 พักผ่อนท่ามกลางสวนธรรมชาติอ่าวเขาควาย เกาะพยาม 🌴 ห้องพักว่างวันนี้พร้อมส่วนลดจองตรงพิเศษ!\n\n` +
+      `• บังกะโลไม้ส่วนตัวและห้องพักในสวนทรอปิคอล 🌿\n` +
+      `• เตียงคิงไซส์ เปลญวนส่วนตัว และ Wi-Fi ไฟเบอร์ความเร็วสูง 📶\n` +
+      `• ร้านอาหารอิตาเลียนในที่พัก และบริการเช่ามอเตอร์ไซค์ 🛵🍕\n\n` +
+      `🏝️ จองตรงราคาดีที่สุด: flowerpowervillage.com\n` +
+      `💬 ติดต่อสอบถามทาง WhatsApp: +66 095 882 5573\n` +
+      `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
+      `#KohPhayam #PhayamBungalow #KohPhayamResort #BuffaloBay #ThailandTravel #เกาะพยาม #ที่พักเกาะพยาม #อ่าวเขาควาย`
+    );
+  }
+
+  if (!isPizza) {
+    // Villaggio: V1, V2, V3 (1° Inglese, 2° Thai, Zero Sunset/Tramonto, Zero Italiano)
+    return (
+      `🇬🇧 Pure island serenity at Buffalo Bay, Koh Phayam! 🌴 Gentle sea breeze, lush tropical garden, king size beds and quiet peace. Escape the ordinary and unwind in nature. 🌊🌿\n\n` +
+      `🏝️ Direct booking: flowerpowervillage.com\n` +
+      `📍 Buffalo Bay, Koh Phayam Island\n` +
+      `@flowerpowerphayam\n\n` +
+      `🇹🇭 ความสุขที่แท้จริงคือความเงียบสงบในธรรมชาติ เกาะพยาม 🌴 พักผ่อนในสวนทรอปิคอลเขียวขจี อ่าวเขาควาย ลมทะเลพัดเย็นสบายและความสงบสุข 🌊🌿✨\n\n` +
+      `🏝️ จองตรงราคาดีที่สุด: flowerpowervillage.com\n` +
+      `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
+      `#KohPhayam #BuffaloBay #PhayamIsland #TropicalResort #RanongTravel #เกาะพยาม #อ่าวเขาควาย #เที่ยวระนอง`
+    );
+  }
+
+  // Pizzeria: P2 Pasta
+  if (mode === 'P2') {
+    return (
+      `🇹🇭 เมนูกลางวันอร่อยๆ ในระนอง! พาสต้าเส้นสดทำเอง ซอสสูตรดั้งเดิมอิตาเลียนแท้ เสิร์ฟร้อนๆ ถึงบ้านหรือออฟฟิศ 🍝🛵💨\n\n` +
+      `🛵 สั่งง่ายๆ ส่งไว: flowerpowerpizza.com\n` +
+      `📍 Ranong Delivery & Takeaway\n` +
+      `@flowerpowerpizzaranong\n\n` +
+      `🇬🇧 Homemade fresh pasta ready for lunch delivery in Ranong! Rich sauces and authentic Italian flavors delivered hot. 🍝🛵💨\n\n` +
+      `🛵 Order now: flowerpowerpizza.com\n` +
+      `📍 Ranong Delivery & Takeaway\n` +
+      `@flowerpowerpizzaranong\n\n` +
+      `#พาสต้าระนอง #RanongPasta #LunchRanong #DeliveryRanong #PastaFresca`
+    );
+  }
+
+  // Pizzeria: P3 Dessert
+  if (mode === 'P3') {
+    return (
+      `🇹🇭 ของหวานโฮมเมดสไตล์อิตาเลียนแท้ ปิดท้ายมื้อค่ำในระนอง! ทิรามิสุคลาสสิกและเค้กอบสดใหม่ หวานนุ่มละมุนลิ้น 🍰☕✨\n\n` +
+      `🛵 สั่งของหวานส่งถึงบ้าน: flowerpowerpizza.com\n` +
+      `📍 Ranong Delivery & Takeaway\n` +
+      `@flowerpowerpizzaranong\n\n` +
+      `🇬🇧 Authentic homemade Italian desserts in Ranong! Classic tiramisù and artisan sweets to end your dinner perfectly. 🍰☕✨\n\n` +
+      `🛵 Order now: flowerpowerpizza.com\n` +
+      `📍 Ranong Delivery & Takeaway\n` +
+      `@flowerpowerpizzaranong\n\n` +
+      `#RanongDessert #TiramisuRanong #ของหวานระนอง #RanongFood #DeliveryRanong`
+    );
+  }
+
+  // Pizzeria: P1 Pizza Tradizionale
+  return (
+    `🇹🇭 พิซซ่าอิตาเลียนแท้ แป้งหมักธรรมชาติ 48 ชม. อบร้อนหอมกรอบบนหิน พร้อมส่งตรงถึงบ้านในเมืองระนอง! 🍕🔥🛵💨\n\n` +
+    `🛵 สั่งง่ายๆ ส่งไว: flowerpowerpizza.com\n` +
+    `📍 Ranong Delivery & Takeaway\n` +
+    `@flowerpowerpizzaranong\n\n` +
+    `🇬🇧 Authentic traditional Italian pizza in Ranong! Slow 48h natural proofing baked hot on stone. Piping hot home delivery! 🍕🔥🛵💨\n\n` +
+    `🛵 Order now: flowerpowerpizza.com\n` +
+    `📍 Ranong Delivery & Takeaway\n` +
+    `@flowerpowerpizzaranong\n\n` +
+    `#พิซซ่าระนอง #RanongPizza #DinnerRanong #RanongFood #DeliveryRanong`
+  );
+}
+
+// Invia post ufficiale completo a Telegram Topic:
+// - Topic 3 (Stories): SOLO VIDEO STREAMING CON PULSANTI SOTTO (Zero box testo ridondante)
+// - Topic 2 (Gruppo FB): VIDEO + SCHEDA TESTO CON <pre> BILINGUE E GUIDA COPIA
+async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBadge, copyText = '', filePath, videoUrl }) {
   if (dryRun) {
     console.log(`[DRY-RUN] Invierei su Telegram Topic ${topicId}: ${format} (${title})\n${copyText}`);
     return { ok: true, dryRun: true };
@@ -322,10 +450,44 @@ async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBa
   }
 
   const isTopic2 = (topicId === TOPIC_KOH_PHAYAM_GROUP);
+  const isStories = (topicId === TOPIC_TIKTOK_STORIES);
   const icon = isTopic2 ? '🌴' : '📱';
   const brandName = brand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam';
 
-  // 1. Invio Video Streaming
+  // 1. Canale Stories (Topic 3): INVIO PULITO DIRETTO DEL SOLO VIDEO CON TASTI RAPIDI (Zero testo ridondante)
+  if (isStories) {
+    const storyButtons = [];
+    if (finalUrl && (finalUrl.startsWith('http://') || finalUrl.startsWith('https://'))) {
+      storyButtons.push([{ text: '⬇️ Scarica Video MP4 (9:16)', url: finalUrl }]);
+    }
+    storyButtons.push([
+      { text: '📱 Apri TikTok Stories', url: 'https://www.tiktok.com/' },
+      { text: '📸 Apri Instagram Stories', url: 'https://www.instagram.com/' }
+    ]);
+
+    console.log(`[scheduler-dispatch] Invio Video Stories MP4 (${format}) con pulsanti rapidi a Topic ${topicId}...`);
+    const vidRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        message_thread_id: topicId,
+        video: finalUrl,
+        caption: `📱 <b>${title}</b>\n🎬 Format: ${format} · 🏷️ Brand: ${brandName}`,
+        parse_mode: 'HTML',
+        supports_streaming: true,
+        width: 1080,
+        height: 1920,
+        reply_markup: { inline_keyboard: storyButtons }
+      })
+    });
+    const vidJson = await vidRes.json();
+    if (!vidJson.ok) console.warn('[scheduler-dispatch] Avviso sendVideo Stories:', vidJson);
+    console.log(`✅ [scheduler-dispatch] Video Stories recapitato con successo a Topic ${topicId} (senza scheda testo ridondante)!`);
+    return { ok: true, vidJson };
+  }
+
+  // 2. Canale Gruppo Facebook (Topic 2): Invio Video Streaming
   if (finalUrl) {
     console.log(`[scheduler-dispatch] Invio file video streaming (${format}) a Topic ${topicId}...`);
     const vidRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
@@ -346,7 +508,7 @@ async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBa
     if (!vidJson.ok) console.warn('[scheduler-dispatch] Avviso sendVideo:', vidJson);
   }
 
-  // 2. Costruzione Scheda Elegante con riquadro <pre> e guida rapida
+  // 3. Canale Gruppo Facebook (Topic 2): Scheda Testo con <pre> e guida rapida
   let messageText = `${icon} <b>${title}</b>\n`;
   messageText += `🎬 <b>Format:</b> ${format} | 🏷️ <b>Brand:</b> ${brandName}\n`;
   if (priceBadge) {
@@ -358,36 +520,19 @@ async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBa
   messageText += `<pre>${escapeHtml(copyText.trim())}</pre>\n`;
   messageText += `━━━━━━━━━━━━━━━━━━━━\n\n`;
 
-  if (isTopic2) {
-    messageText += `👉 <b>Come pubblicare in 3 secondi:</b>\n`;
-    messageText += `1️⃣ Clicca sul riquadro col testo sopra per copiarlo negli appunti\n`;
-    messageText += `2️⃣ Clicca sul tasto sotto <b>"🌐 Vai al Gruppo Koh Phayam"</b>\n`;
-    messageText += `3️⃣ <b>Incolla nel post Facebook allegando il video:</b>\n`;
-    messageText += `   • 💻 <i>Da Computer (PC/Mac):</i> premi <code>Ctrl + Shift + V</code>\n`;
-    messageText += `   • 📱 <i>Da Telefono/Tablet:</i> tieni premuto e incolla! 🚀`;
-  } else {
-    messageText += `👉 <b>Come pubblicare nelle Stories in 3 secondi:</b>\n`;
-    messageText += `1️⃣ Clicca o tocca il riquadro con il testo per copiarlo\n`;
-    messageText += `2️⃣ Salva il video nella galleria (o usa il tasto download sotto)\n`;
-    messageText += `3️⃣ Tocca <b>"📱 Apri TikTok"</b> o <b>"📸 Apri Instagram"</b>, seleziona Story e incolla il testo! 🚀`;
-  }
+  messageText += `👉 <b>Come pubblicare in 3 secondi:</b>\n`;
+  messageText += `1️⃣ Clicca sul riquadro col testo sopra per copiarlo negli appunti\n`;
+  messageText += `2️⃣ Clicca sul tasto sotto <b>"🌐 Vai al Gruppo Koh Phayam"</b>\n`;
+  messageText += `3️⃣ <b>Incolla nel post Facebook allegando il video:</b>\n`;
+  messageText += `   • 💻 <i>Da Computer (PC/Mac):</i> premi <code>Ctrl + Shift + V</code>\n`;
+  messageText += `   • 📱 <i>Da Telefono/Tablet:</i> tieni premuto e incolla! 🚀`;
 
-  // 3. Bottoni Interattivi Inline
   const inlineKeyboard = [];
   const cleanCopy = copyText.trim();
   if (cleanCopy.length <= 256) {
     inlineKeyboard.push([{ text: '📋 Copia Testo Post (1 Tocco)', copy_text: { text: cleanCopy } }]);
   }
-
-  if (isTopic2) {
-    inlineKeyboard.push([{ text: '🌐 Vai al Gruppo Koh Phayam', url: 'https://www.facebook.com/share/g/1Hyh1mJ7Hu/' }]);
-  } else {
-    inlineKeyboard.push([
-      { text: '📱 Apri TikTok Stories', url: 'https://www.tiktok.com/' },
-      { text: '📸 Apri Instagram Stories', url: 'https://www.instagram.com/' }
-    ]);
-  }
-
+  inlineKeyboard.push([{ text: '🌐 Vai al Gruppo Koh Phayam', url: 'https://www.facebook.com/share/g/1Hyh1mJ7Hu/' }]);
   if (finalUrl && (finalUrl.startsWith('http://') || finalUrl.startsWith('https://'))) {
     inlineKeyboard.push([{ text: '⬇️ Scarica Video MP4 (9:16)', url: finalUrl }]);
   }
@@ -414,7 +559,6 @@ async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBa
   return { ok: true, msgJson };
 }
 
-// Retrocompatibilità
 async function sendVideoToTelegram({ filePath, topicId, caption, videoUrl }) {
   return sendOfficialTelegramPost({
     topicId,
@@ -647,7 +791,29 @@ async function renderVideoMode(mode) {
   ];
   const found = candidates.find(c => fs.existsSync(c));
   if (!found) throw new Error(`Video non generato per ${mode}`);
-  return found;
+
+  // Carica il copy ufficiale sincronizzato generato in parità dal player
+  let copy = null;
+  const copyCandidates = [
+    path.join(outDir, `${mode}.copy.json`),
+    path.join(outDir, `${mode}.cloud.copy.json`),
+    path.join(outDir, `${mode}.local.copy.json`)
+  ];
+  const copyFile = copyCandidates.find(c => fs.existsSync(c));
+  if (copyFile) {
+    try {
+      copy = JSON.parse(fs.readFileSync(copyFile, 'utf8'));
+      console.log(`[scheduler-dispatch] Copy ufficiale sincronizzato caricato da ${copyFile}!`);
+    } catch (e) {
+      console.warn('[scheduler-dispatch] Errore lettura copy JSON:', e.message);
+    }
+  }
+
+  return {
+    filePath: found,
+    copy,
+    toString: () => found
+  };
 }
 
 async function run() {
@@ -671,53 +837,29 @@ async function run() {
   if (is0800) {
     console.log(`🌅 [08:00 BANGKOK] Avvio tranche mattutina: 2 Stories TikTok/IG + 1 Reel Gruppo Phayam`);
 
-    // 1. Story Pizzeria Ranong (Topic 3)
-    const pizzaVid = await renderVideoMode('P1');
-    const pizzaCaption = `🇹🇭 พิซซ่าอิตาเลียนแท้ อบใหม่แป้งหมัก 48 ชม. หอมกรอบส่งตรงถึงบ้านคุณในระนอง! 🍕🛵💨\n\n` +
-      `🇬🇧 Authentic traditional Italian pizza in Ranong! Slow 48h proofed dough baked to perfection on stone. Hot home delivery! 🍕🔥🛵💨\n\n` +
-      `🛵 Order now: flowerpowerpizza.com\n` +
-      `📍 Ranong Delivery & Takeaway\n` +
-      `@flowerpowerpizzaranong\n\n` +
-      `#พิซซ่าระนอง #RanongPizza #ItalianFoodRanong #PizzaRanong #RanongFood #DeliveryRanong`;
-
+    // 1. Story Pizzeria Ranong (Topic 3: solo video + tasti)
+    const p1Res = await renderVideoMode('P1');
     await sendOfficialTelegramPost({
       topicId: TOPIC_TIKTOK_STORIES,
       title: 'Pizza Tradizionale Ranong 48h · Stories del Mattino',
       format: 'P1',
       brand: 'pizza',
-      copyText: pizzaCaption,
-      filePath: pizzaVid
+      filePath: p1Res.filePath
     });
 
-    // 2. Story Villaggio Koh Phayam (Topic 3)
-    const villageVid = await renderVideoMode('V1');
-    const villageCaption = `🇹🇭 ตื่นเช้าในอ้อมกอดธรรมชาติบริสุทธิ์ เกาะพยาม 🌴 ทะเลสีคราม สายลมและสวนทรอปิคอลเขียวขจี 🌊✨\n\n` +
-      `🇬🇧 Waking up surrounded by lush tropical nature on Koh Phayam Island! Gentle breeze, king size beds and quiet peace. 🌴🌊🌿\n\n` +
-      `🏝️ Direct booking: flowerpowervillage.com\n` +
-      `📍 Koh Phayam Island, Thailand\n` +
-      `@flowerpowervillage\n\n` +
-      `#KohPhayam #เกาะพยาม #PhayamIsland #RanongTravel #TropicalResort #ThailandTravel`;
-
+    // 2. Story Villaggio Koh Phayam (Topic 3: solo video + tasti)
+    const v1Res = await renderVideoMode('V1');
     await sendOfficialTelegramPost({
       topicId: TOPIC_TIKTOK_STORIES,
       title: 'Risveglio Tropicale a Koh Phayam · Stories del Mattino',
       format: 'V1',
       brand: 'village',
-      copyText: villageCaption,
-      filePath: villageVid
+      filePath: v1Res.filePath
     });
 
-    // 3. Reel Gruppo Facebook Koh Phayam: LM1 Alloggi Liberi Oggi (Topic 2)
-    const lm1Vid = await renderVideoMode('LM1').catch(() => villageVid);
-    const lm1Text = `🌴 ALLOGGI DISPONIBILI OGGI A KOH PHAYAM! (Sconto Diretto Online)\n\n` +
-      `Stai sbarcando al molo di Koh Phayam o cerchi un bungalow silenzioso immerso nel verde tropicale?\n` +
-      `Oggi abbiamo alloggi liberi con sconto immediato a cascata su prenotazione diretta:\n\n` +
-      `✨ Bungalow Superior & Deluxe nel giardino tropicale\n` +
-      `🌿 Letto King Size, amaca privata, WiFi in fibra ottica ad alta velocità\n` +
-      `🛵 Noleggio scooter e ristorante italiano in loco\n\n` +
-      `📱 Verifica prezzi live e prenota subito: flowerpowervillage.com\n` +
-      `💬 WhatsApp Staff: +66 095 882 5573\n\n` +
-      `#KohPhayam #PhayamAccomodation #KohPhayamBungalow #KohPhayamHotels #Ranong`;
+    // 3. Reel Gruppo Facebook Koh Phayam: LM1 Alloggi Liberi Oggi (Topic 2: video + scheda bilingue 🇬🇧+🇹🇭)
+    const lm1Res = await renderVideoMode('LM1').catch(() => v1Res);
+    const lm1Text = getBilingualPostCopy('LM1', 'village', lm1Res.copy);
 
     await sendOfficialTelegramPost({
       topicId: TOPIC_KOH_PHAYAM_GROUP,
@@ -726,7 +868,7 @@ async function run() {
       brand: 'village',
       priceBadge: 'Sconto Cascata Live',
       copyText: lm1Text,
-      filePath: lm1Vid
+      filePath: lm1Res.filePath
     });
 
     await sendPublishedLog({
@@ -734,18 +876,18 @@ async function run() {
       channel: '👥 Gruppo Facebook Koh Phayam + 🎵 TikTok/IG Stories',
       format: 'LM1 / P1 / V1',
       title: 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
-      details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Post Alloggi LM1 su Topic 2 con pulsanti interattivi e testo per copia-incolla rapido'
+      details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Post Alloggi LM1 su Topic 2 con testo bilingue 🇬🇧+🇹🇭 e tasti interattivi'
     });
   } else if (is0930) {
     console.log(`🌿 [09:30 BANGKOK] Slot Story Mattino — PUBBLICAZIONE INSTAGRAM STORIES V1`);
-    const storyVid = await renderVideoMode('V1');
-    const { videoUrl } = await ensureCloudVideoUrl(storyVid);
+    const storyRes = await renderVideoMode('V1');
+    const { videoUrl } = await ensureCloudVideoUrl(storyRes.filePath);
     try {
       const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
       await sendPublishedLog({
         brand: 'village',
         channel: '📸 Instagram Stories',
-        format: 'V1 / CC1',
+        format: 'V1',
         title: 'Risveglio Tropicale a Phayam',
         mediaId: igRes.id
       });
@@ -756,8 +898,7 @@ async function run() {
         title: 'V1 Storia Risveglio Tropicale a Phayam',
         format: 'V1',
         brand: 'village',
-        copyText: 'Risveglio in paradiso a Koh Phayam. Amache all\'ombra e natura rigogliosa. 🌴✨ #FlowerPowerVillage',
-        filePath: storyVid
+        filePath: storyRes.filePath
       });
       await sendFailedAlert({
         brand: 'village',
@@ -765,19 +906,14 @@ async function run() {
         format: 'V1',
         title: 'Risveglio Tropicale a Phayam',
         error: igErr,
-        fallbackAction: 'Video master e copy recapitati su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
+        fallbackAction: 'Video master recapitato su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
       });
     }
   } else if (is1130) {
     console.log(`🍝 [11:30 BANGKOK] Slot Pranzo Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
-    const p2Vid = await renderVideoMode('P2');
-    const { videoUrl } = await ensureCloudVideoUrl(p2Vid);
-    const p2Caption = `🇹🇭 เมนูกลางวันอร่อยๆ ในระนอง! พาสต้าเส้นสดทำเอง ซอสสูตรดั้งเดิมอิตาเลียนแท้ เสิร์ฟร้อนๆ ถึงบ้านหรือออฟฟิศ 🍝🛵💨\n\n` +
-      `🇬🇧 Homemade fresh pasta ready for lunch delivery in Ranong! Rich sauces and authentic Italian flavors delivered hot. 🍝🛵💨\n\n` +
-      `🛵 Order now: flowerpowerpizza.com\n` +
-      `📍 Ranong Delivery & Takeaway\n` +
-      `@flowerpowerpizzaranong\n\n` +
-      `#พาสต้าระนอง #RanongPasta #LunchRanong #DeliveryRanong #PastaFresca`;
+    const p2Res = await renderVideoMode('P2');
+    const { videoUrl } = await ensureCloudVideoUrl(p2Res.filePath);
+    const p2Caption = getBilingualPostCopy('P2', 'pizza', p2Res.copy);
 
     try {
       const fbRes = await publishToFacebook({
@@ -803,7 +939,7 @@ async function run() {
         format: 'P2',
         brand: 'pizza',
         copyText: p2Caption,
-        filePath: p2Vid
+        filePath: p2Res.filePath
       });
       await sendFailedAlert({
         brand: 'pizza',
@@ -811,13 +947,13 @@ async function run() {
         format: 'P2',
         title: 'Pranzo Pasta Fresca Ranong',
         error: fbErr,
-        fallbackAction: 'Video master e testo recapitati su Telegram Topic 2 con link diretto per pubblicazione staff.'
+        fallbackAction: 'Video master e testo bilingue recapitati su Telegram Topic 2 con link diretto per pubblicazione staff.'
       });
     }
   } else if (is1230) {
     console.log(`🍕 [12:30 BANGKOK] Slot Story Pranzo — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK STORIES`);
-    const fbStoryVid = await renderVideoMode('P1');
-    const { videoUrl, buffer } = await ensureCloudVideoUrl(fbStoryVid);
+    const p1StoryRes = await renderVideoMode('P1');
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(p1StoryRes.filePath);
     try {
       const fbRes = await publishToFacebook({
         videoUrl,
@@ -840,8 +976,7 @@ async function run() {
         title: 'P1 Story Pranzo Pizzeria Ranong',
         format: 'P1',
         brand: 'pizza',
-        copyText: 'Buongiorno da Ranong! Mani in pasta e lievitazione naturale 48h in corso per stasera. 🍕✨ #Ranong #PizzaTradizionale',
-        filePath: fbStoryVid
+        filePath: p1StoryRes.filePath
       });
       await sendFailedAlert({
         brand: 'pizza',
@@ -849,19 +984,14 @@ async function run() {
         format: 'P1',
         title: 'Pranzo Pizzeria Ranong 48h',
         error: fbErr,
-        fallbackAction: 'Video master e testo recapitati su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
+        fallbackAction: 'Video master recapitato su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
       });
     }
   } else if (is1600) {
     console.log(`🌿 [16:00 BANGKOK] Slot Pomeriggio Relax — PUBBLICAZIONE INSTAGRAM REEL V2`);
-    const v2Vid = await renderVideoMode('V2');
-    const { videoUrl } = await ensureCloudVideoUrl(v2Vid);
-    const v2Caption = `🇹🇭 ความสุขที่แท้จริงคือความเงียบสงบในธรรมชาติ เกาะพยาม 🌴 พักผ่อนในวิลล่าส่วนตัวพร้อมระเบียงและเปลญวน 🌊✨\n\n` +
-      `🇬🇧 True peace in lush nature at Koh Phayam Island. King size beds, private hammocks and bird songs. 🌿🌴🌊\n\n` +
-      `🏝️ Direct booking: flowerpowervillage.com\n` +
-      `📍 Koh Phayam Island, Thailand\n` +
-      `@flowerpowervillage\n\n` +
-      `#KohPhayam #ThailandResort #TropicalVibe #IslandLiving`;
+    const v2Res = await renderVideoMode('V2');
+    const { videoUrl } = await ensureCloudVideoUrl(v2Res.filePath);
+    const v2Caption = getBilingualPostCopy('V2', 'village', v2Res.copy);
 
     try {
       const igRes = await publishToInstagram({
@@ -879,14 +1009,13 @@ async function run() {
         mediaId: igRes.id
       });
     } catch (igErr) {
-      console.warn('[scheduler-dispatch] Instagram API diretta non autorizzata o timeout, fallback automatico su Telegram Topic 3:', igErr.message);
+      console.warn('[scheduler-dispatch] Instagram API diretta non riuscita, fallback su Telegram Topic 3:', igErr.message);
       await sendOfficialTelegramPost({
         topicId: TOPIC_TIKTOK_STORIES,
         title: 'V2 Reel Relax Pomeriggio a Phayam · Instagram & TikTok',
         format: 'V2',
         brand: 'village',
-        copyText: v2Caption,
-        filePath: v2Vid
+        filePath: v2Res.filePath
       });
       await sendFailedAlert({
         brand: 'village',
@@ -894,67 +1023,43 @@ async function run() {
         format: 'V2',
         title: 'Pomeriggio Relax & Suite Tour a Phayam',
         error: igErr,
-        fallbackAction: 'Video master Full HD archiviato su Google Drive 5TB e consegnato su Telegram Topic 3 con testo bilingue e tasto per pubblicazione immediata con 1 tocco dello staff.'
+        fallbackAction: 'Video master Full HD archiviato su Google Drive 5TB e consegnato su Telegram Topic 3 con tasti per pubblicazione immediata con 1 tocco dello staff.'
       });
     }
   } else if (is1700) {
     console.log(`🌅 [17:00 BANGKOK] Avvio tranche serale: 2 Stories TikTok/IG + 1 Reel R1 Ristorante Gruppo Phayam`);
 
-    // 1. Story Cena Pizzeria Ranong (Topic 3)
-    const pizzaVid = await renderVideoMode('P1');
-    const pizzaCaption = `🇹🇭 เย็นนี้ทานอะไรดี? พิซซ่าอบร้อนๆ หอมกรุ่นพร้อมส่งถึงหน้าบ้านในเมืองระนอง! 🍕🛵💨\n\n` +
-      `🇬🇧 Craving real pizza tonight in Ranong? Freshly baked traditional Italian pizza delivered piping hot to your door! 🍕🛵💨\n\n` +
-      `🛵 Order now: flowerpowerpizza.com\n` +
-      `📍 Ranong Delivery\n` +
-      `@flowerpowerpizzaranong\n\n` +
-      `#พิซซ่าระนอง #RanongPizza #DinnerRanong #RanongFood #DeliveryRanong`;
-
+    // 1. Story Cena Pizzeria Ranong (Topic 3: solo video + tasti)
+    const p1Res = await renderVideoMode('P1');
     await sendOfficialTelegramPost({
       topicId: TOPIC_TIKTOK_STORIES,
       title: 'Cena Pizza Tradizionale Ranong 48h · Stories Serali',
       format: 'P1',
       brand: 'pizza',
-      copyText: pizzaCaption,
-      filePath: pizzaVid
+      filePath: p1Res.filePath
     });
 
-    // 2. Story Tramonto Villaggio (Topic 3)
-    const villageVid = await renderVideoMode('V3');
-    const villageCaption = `🇹🇭 แสงอาทิตย์อัสดงที่เกาะพยาม ท้องฟ้าเปลี่ยนเป็นสีทองและความเงียบสงบยามเย็น 🌅🌴✨\n\n` +
-      `🇬🇧 Golden hour sunset at Koh Phayam Island. Sky on fire, ocean breeze and peaceful silence. 🌅🌊🌴\n\n` +
-      `🏝️ flowerpowervillage.com\n` +
-      `📍 Koh Phayam, Thailand\n` +
-      `@flowerpowervillage\n\n` +
-      `#KohPhayam #PhayamSunset #ThailandSunset #IslandVibes`;
-
+    // 2. Story Serale Villaggio Koh Phayam (Topic 3: solo video + tasti - ZERO TRAMONTO)
+    const v3Res = await renderVideoMode('V3');
     await sendOfficialTelegramPost({
       topicId: TOPIC_TIKTOK_STORIES,
-      title: 'Tramonto Golden Hour a Koh Phayam · Stories Serali',
+      title: 'Atmosfera Serale a Koh Phayam · Stories Serali',
       format: 'V3',
       brand: 'village',
-      copyText: villageCaption,
-      filePath: villageVid
+      filePath: v3Res.filePath
     });
 
-    // 3. Reel Gruppo Facebook Koh Phayam: R1 Ristorante (Topic 2)
-    const r1Vid = await renderVideoMode('R1').catch(() => villageVid);
-    const r1Text = `🍕 CENA ITALIANA & PIZZA A DOMICILIO A KOH PHAYAM! 🛵🌴\n\n` +
-      `Stasera a Koh Phayam pizza artigianale italiana, pasta fresca fatta in casa e secondi caldi fumanti!\n` +
-      `Consegna direttamente al tuo bungalow o cena rilassante nel giardino tropicale di Flower Power.\n\n` +
-      `🌿 Pizze tradizionali italiane con fior di latte\n` +
-      `🍝 Gnocchi, tagliatelle e ravioli fatti a mano\n` +
-      `🛵 Consegna rapida ovunque sull'isola\n\n` +
-      `📱 Ordini & Menu via WhatsApp: +66 095 882 5573\n` +
-      `📍 Flower Power Village, Koh Phayam\n\n` +
-      `#KohPhayam #KohPhayamRestaurant #KohPhayamFood #PhayamDelivery #ItalianRestaurantPhayam`;
+    // 3. Reel Gruppo Facebook Koh Phayam: R1 Ristorante (Topic 2: video + scheda bilingue 🇬🇧+🇹🇭, ZERO ITALIANO)
+    const r1Res = await renderVideoMode('R1').catch(() => v3Res);
+    const r1Text = getBilingualPostCopy('R1', 'village', r1Res.copy);
 
     await sendOfficialTelegramPost({
       topicId: TOPIC_KOH_PHAYAM_GROUP,
-      title: 'Cena Italiana & Consegna a Domicilio a Koh Phayam · Reel & Post Community',
+      title: 'Cena & Pizza a Domicilio a Koh Phayam · Reel & Post Community',
       format: 'R1',
       brand: 'village',
       copyText: r1Text,
-      filePath: r1Vid
+      filePath: r1Res.filePath
     });
 
     await sendPublishedLog({
@@ -962,38 +1067,37 @@ async function run() {
       channel: '👥 Gruppo Facebook Koh Phayam + 🎵 TikTok/IG Stories',
       format: 'R1 / P1 / V3',
       title: 'Stories Serali Ranong & Phayam + Post Ristorante R1',
-      details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V3 Villaggio) e 1 Reel R1 Ristorante su Topic 2 con pulsanti interattivi e testo per copia-incolla rapido'
+      details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V3 Villaggio) e 1 Reel R1 Ristorante su Topic 2 con testo bilingue 🇬🇧+🇹🇭 e tasti interattivi'
     });
   } else if (is1800) {
-    console.log(`🌅 [18:00 BANGKOK] Slot Story Golden Hour — PUBBLICAZIONE INSTAGRAM STORIES V3`);
-    const sunsetVid = await renderVideoMode('V3');
-    const { videoUrl } = await ensureCloudVideoUrl(sunsetVid);
+    console.log(`🌿 [18:00 BANGKOK] Slot Story Serale — PUBBLICAZIONE INSTAGRAM STORIES V3`);
+    const sunsetRes = await renderVideoMode('V3');
+    const { videoUrl } = await ensureCloudVideoUrl(sunsetRes.filePath);
     try {
       const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
       await sendPublishedLog({
         brand: 'village',
         channel: '📸 Instagram Stories',
         format: 'V3',
-        title: 'Tramonto Golden Hour a Koh Phayam',
+        title: 'Atmosfera Tropicale Serale a Koh Phayam',
         mediaId: igRes.id
       });
     } catch (igErr) {
-      console.warn('[scheduler-dispatch] Instagram Story Golden Hour non riuscita, fallback su Telegram Topic 3:', igErr.message);
+      console.warn('[scheduler-dispatch] Instagram Story non riuscita, fallback su Telegram Topic 3:', igErr.message);
       await sendOfficialTelegramPost({
         topicId: TOPIC_TIKTOK_STORIES,
-        title: 'V3 Storia Tramonto Golden Hour a Koh Phayam',
+        title: 'V3 Storia Serale a Koh Phayam',
         format: 'V3',
         brand: 'village',
-        copyText: 'Golden hour sunset at Koh Phayam Island. Sky on fire, ocean breeze and peaceful silence. 🌅🌊🌴 #KohPhayam',
-        filePath: sunsetVid
+        filePath: sunsetRes.filePath
       });
       await sendFailedAlert({
         brand: 'village',
         channel: '📸 Instagram Stories',
         format: 'V3',
-        title: 'Tramonto Golden Hour a Koh Phayam',
+        title: 'Atmosfera Tropicale Serale a Koh Phayam',
         error: igErr,
-        fallbackAction: 'Video master e copy recapitati su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
+        fallbackAction: 'Video master recapitato su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
       });
     }
   } else if (is1830) {
@@ -1001,14 +1105,9 @@ async function run() {
     console.log(`ℹ️ Canale TikTok Feed API attualmente disattivato in attesa dell'approvazione v2 da TikTok for Developers. Slot saltato correttamente.`);
   } else if (is1930) {
     console.log(`🍕 [19:30 BANGKOK] Slot Cena Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
-    const p1Vid = await renderVideoMode('P1');
-    const { videoUrl } = await ensureCloudVideoUrl(p1Vid);
-    const p1Caption = `🇹🇭 พิซซ่าอิตาเลียนแท้ อบใหม่แป้งหมักธรรมชาติ 48 ชม. หอมกรอบส่งตรงถึงบ้านคุณในเมืองระนอง! 🍕🛵💨\n\n` +
-      `🇬🇧 Authentic traditional Italian pizza in Ranong! Slow 48h natural proofing baked hot on stone. Home delivery! 🍕🔥🛵💨\n\n` +
-      `🛵 Order now: flowerpowerpizza.com\n` +
-      `📍 Ranong Delivery & Takeaway\n` +
-      `@flowerpowerpizzaranong\n\n` +
-      `#พิซซ่าระนอง #RanongPizza #DinnerRanong #PizzaRanong #DeliveryRanong`;
+    const p1Res = await renderVideoMode('P1');
+    const { videoUrl } = await ensureCloudVideoUrl(p1Res.filePath);
+    const p1Caption = getBilingualPostCopy('P1', 'pizza', p1Res.copy);
 
     try {
       const fbRes = await publishToFacebook({
@@ -1034,7 +1133,7 @@ async function run() {
         format: 'P1',
         brand: 'pizza',
         copyText: p1Caption,
-        filePath: p1Vid
+        filePath: p1Res.filePath
       });
       await sendFailedAlert({
         brand: 'pizza',
@@ -1042,13 +1141,13 @@ async function run() {
         format: 'P1',
         title: 'Cena Pizza Tradizionale Ranong 48h',
         error: fbErr,
-        fallbackAction: 'Video master e testo recapitati su Telegram Topic 2 con link diretto per pubblicazione staff.'
+        fallbackAction: 'Video master e testo bilingue recapitati su Telegram Topic 2 con link diretto per pubblicazione staff.'
       });
     }
   } else if (is2000) {
     console.log(`☕ [20:00 BANGKOK] Slot Story Serale — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK STORIES`);
-    const dessertVid = await renderVideoMode('P3');
-    const { videoUrl, buffer } = await ensureCloudVideoUrl(dessertVid);
+    const p3Res = await renderVideoMode('P3');
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(p3Res.filePath);
     try {
       const fbRes = await publishToFacebook({
         videoUrl,
@@ -1071,8 +1170,7 @@ async function run() {
         title: 'P3 Story Dolce & Serata Pizzeria Ranong',
         format: 'P3',
         brand: 'pizza',
-        copyText: 'Dolci artigianali fatti in casa stasera a Ranong! Tiramisù classico e dessert italiani. 🍰✨ #RanongDessert',
-        filePath: dessertVid
+        filePath: p3Res.filePath
       });
       await sendFailedAlert({
         brand: 'pizza',
@@ -1080,19 +1178,14 @@ async function run() {
         format: 'P3',
         title: 'Dessert Artigianali & Serata Ranong',
         error: fbErr,
-        fallbackAction: 'Video master e copy recapitati su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
+        fallbackAction: 'Video master recapitato su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
       });
     }
   } else if (is2100) {
     console.log(`🌙 [21:00 BANGKOK] Slot Notte — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM REEL`);
-    const v3Vid = await renderVideoMode('V3');
-    const { videoUrl } = await ensureCloudVideoUrl(v3Vid);
-    const v3Caption = `🇹🇭 ราตรีสวัสดิ์จากเกาะพยาม เสียงคลื่นและสายลมใต้แสงดาว 🌴🌙🌊\n\n` +
-      `🇬🇧 Peaceful tropical nights at Koh Phayam Island. Escape the cold winter and wake up in paradise. 🌴☀️\n\n` +
-      `🏝️ Direct booking discounts: flowerpowervillage.com\n` +
-      `📍 Koh Phayam Island, Thailand\n` +
-      `@flowerpowervillage\n\n` +
-      `#KohPhayam #TropicalEscape #EscapeWinter #IslandNights`;
+    const v3Res = await renderVideoMode('V3');
+    const { videoUrl } = await ensureCloudVideoUrl(v3Res.filePath);
+    const v3Caption = getBilingualPostCopy('V3', 'village', v3Res.copy);
 
     try {
       const igRes = await publishToInstagram({
@@ -1116,8 +1209,7 @@ async function run() {
         title: 'V3 Reel Notte Tropicale a Koh Phayam · Instagram & TikTok',
         format: 'V3',
         brand: 'village',
-        copyText: v3Caption,
-        filePath: v3Vid
+        filePath: v3Res.filePath
       });
       await sendFailedAlert({
         brand: 'village',
@@ -1125,7 +1217,7 @@ async function run() {
         format: 'V3',
         title: 'Notte Tropical Escape Phayam',
         error: igErr,
-        fallbackAction: 'Video master Full HD archiviato su Google Drive 5TB e consegnato su Telegram Topic 3 con testo bilingue e tasto per pubblicazione immediata con 1 tocco dello staff.'
+        fallbackAction: 'Video master Full HD archiviato su Google Drive 5TB e consegnato su Telegram Topic 3 con tasti per pubblicazione immediata con 1 tocco dello staff.'
       });
     }
   } else {

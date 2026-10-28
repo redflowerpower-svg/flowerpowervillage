@@ -253,6 +253,19 @@ async function main() {
     log(`Montaggio salvato: ${trPath}`);
   }
 
+  // Genera ed esporta il copy ufficiale sincronizzato con il montaggio
+  const officialCopy = await page.evaluate((seed) => {
+    if (typeof window.__autoCutGeneratePostCopy === 'function') {
+      return window.__autoCutGeneratePostCopy(seed);
+    }
+    return null;
+  }, Date.now());
+  if (officialCopy) {
+    const cpPath = path.join(outDir, `${mode}.copy.json`);
+    fs.writeFileSync(cpPath, JSON.stringify(officialCopy, null, 2));
+    log(`Copy ufficiale sincronizzato salvato: ${cpPath}`);
+  }
+
   // Esportazione con la funzione ufficiale del player
   log('Esportazione video (può richiedere alcuni minuti)...');
   const t0 = Date.now();

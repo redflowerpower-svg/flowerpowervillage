@@ -5,6 +5,7 @@ import { LINE_QR_CODE_BASE64 } from '../services/lineQrData';
 import { autoCutSoundEngine } from '../services/autoCutSoundEffects';
 import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
 import { VILLAGE_LOGO_512_BASE64, PIZZA_LOGO_512_BASE64 } from '../services/brandLogosBase64';
+import { generatePostCopy, PostCopyResult } from '../services/autoCutCopywriterEngine';
 
 // Immagine QR Code Base64 precaricata e decodificata in memoria all'avvio (zero CORS, zero latenza)
 const globalLineQrImg = new Image();
@@ -2648,6 +2649,11 @@ export function AutoCutLabPlayer({
       // 🛑 Funzione per interrompere/abortire il rendering video
       (window as any).__autoCutAbortVideo = () => {
         (window as any).__autoCutAbortRequested = true;
+      };
+
+      // 📝 Generatore Copy Ufficiale Bilingue Sincronizzato con il Montaggio Effettivo
+      (window as any).__autoCutGeneratePostCopy = (proverbSeed?: number): PostCopyResult => {
+        return generatePostCopy(testRun, proverbSeed ?? 0);
       };
 
       // 🎬 Generatore Video MP4 Full HD con WebCodecs 60fps (o MediaRecorder) con Audio Muxato, Font Originali e Outro Ufficiale
