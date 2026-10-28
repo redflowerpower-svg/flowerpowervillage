@@ -349,6 +349,108 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     }
   }
 
+  // 0b. GET/POST /api/social-publisher?action=cronjob_list (Lista job da cron-job.org)
+  if (action === "cronjob_list") {
+    try {
+      const { listJobs } = await import("../_helpers/cronjob-service.js");
+      const result = await listJobs();
+      return res.status(200).json({ ok: true, jobs: result.jobs || [] });
+    } catch (err: any) {
+      console.error("[social-publisher] cronjob_list error:", err);
+      return res.status(500).json({ ok: false, error: err.message || "Failed to list cron jobs" });
+    }
+  }
+
+  // 0c. POST /api/social-publisher?action=cronjob_sync (Sincronizza o crea il dispatcher Flower Power 24/7 su cron-job.org)
+  if (action === "cronjob_sync") {
+    try {
+      const { listJobs, createJob, updateJob } = await import("../_helpers/cronjob-service.js");
+      const currentList = await listJobs();
+      const existingJob = currentList.jobs?.find(j => j.title.includes("Flower Power") || j.url.includes("action=trigger_scheduler"));
+
+      let expectedSecret = process.env.CRON_SECRET || process.env.SOCIAL_CRON_SECRET || "";
+      if (!expectedSecret && supabase) {
+        try {
+          const { data: secRow } = await supabase.from("telegram_config").select("bot_token").eq("id", "social_cron_secret").single();
+          if (secRow?.bot_token) expectedSecret = secRow.bot_token;
+        } catch {}
+      }
+      if (!expectedSecret) expectedSecret = "fp_cron_secret_phayam_ranong_2026";
+
+      const targetUrl = `https://www.flowerpowerpizza.com/api/social-publisher?action=trigger_scheduler&secret=${encodeURIComponent(expectedSecret)}`;
+
+      if (existingJob) {
+        await updateJob(existingJob.jobId, {
+          title: "Flower Power Social Studio Dispatcher (24/7)",
+          url: targetUrl,
+          enabled: true,
+          schedule: {
+            timezone: "Asia/Bangkok",
+            hours: [-1],
+            minutes: [0, 30]
+          },
+          notification: {
+            onFailure: true,
+            onFailureCount: 2,
+            onSuccess: false,
+            onDisable: true
+          }
+        });
+        return res.status(200).json({
+          ok: true,
+          action: "updated",
+          jobId: existingJob.jobId,
+          url: targetUrl,
+          message: "Job cron-job.org esistente aggiornato con successo alle best practices"
+        });
+      } else {
+        const created = await createJob({
+          title: "Flower Power Social Studio Dispatcher (24/7)",
+          url: targetUrl,
+          enabled: true,
+          schedule: {
+            timezone: "Asia/Bangkok",
+            hours: [-1],
+            minutes: [0, 30]
+          },
+          notification: {
+            onFailure: true,
+            onFailureCount: 2,
+            onSuccess: false,
+            onDisable: true
+          }
+        });
+        return res.status(200).json({
+          ok: true,
+          action: "created",
+          jobId: created.jobId,
+          url: targetUrl,
+          message: "Nuovo job 24/7 creato con successo su cron-job.org"
+        });
+      }
+    } catch (err: any) {
+      console.error("[social-publisher] cronjob_sync error:", err);
+      return res.status(500).json({ ok: false, error: err.message || "Failed to sync cron job" });
+    }
+  }
+
+  // 0d. POST /api/social-publisher?action=cronjob_toggle (Abilita o disabilita un job)
+  if (action === "cronjob_toggle") {
+    try {
+      const { updateJob } = await import("../_helpers/cronjob-service.js");
+      const jobId = Number(body?.jobId || req.query.jobId);
+      const enabled = body?.enabled === true || req.query.enabled === "true";
+      if (!jobId) {
+        return res.status(400).json({ ok: false, error: "Missing jobId parameter" });
+      }
+      await updateJob(jobId, { enabled });
+      return res.status(200).json({ ok: true, jobId, enabled });
+    } catch (err: any) {
+      console.error("[social-publisher] cronjob_toggle error:", err);
+      return res.status(500).json({ ok: false, error: err.message || "Failed to toggle cron job" });
+    }
+  }
+
   // 0. GET/POST /api/social-publisher?action=get_story_upload_url (Signed URL per upload diretto ad alto bitrate)
   if (action === "get_story_upload_url") {
     try {

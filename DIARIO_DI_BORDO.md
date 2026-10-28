@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [28/10/2026 - ORE 14:15] · CLIENT MODULARE CRONJOB.ORG REST API V2 & SINCRONIZZAZIONE AUTOMATICA
+- **Cosa abbiamo fatto:** 
+  1. 🔑 **Configurazione API Key cron-job.org**:
+     - Registrata la variabile `CRONJOB_ORG_API_KEY` in `.env`, `.env.local`, documentata in `.env.example` e salvata nel Vault Supabase per accesso cloud immediato a zero-leak.
+  2. ⚙️ **Modulo Client Tipizzato REST API v2 (`api/_helpers/cronjob-service.ts` & `src/social/services/cronjobService.ts`)**:
+     - Esposte tutte le funzioni richieste: `listJobs()`, `getJobDetails(jobId)`, `createJob(data)`, `updateJob(jobId, data)`, `deleteJob(jobId)`, `getJobHistory(jobId)`.
+     - Standard di default implementati: Fuso orario `Asia/Bangkok`, notifiche anti-spam disattivate su successo (`onSuccess: false`), soglia errori consecutivi a 2 (`onFailureCount: 2`).
+  3. 🌐 **Nuove Azioni Serverless in `api/_handlers/social-publisher.ts`**:
+     - `action=cronjob_list`: recupero in tempo reale di tutti i job registrati.
+     - `action=cronjob_sync`: sincronizzazione o creazione a 1-click del job ufficiale 24/7 collegato al nostro endpoint protetto da `CRON_SECRET`.
+     - `action=cronjob_toggle`: abilitazione/disabilitazione istantanea.
+- **Effetto reale:** Il Social Media Studio è ora in grado di comandare direttamente via software cron-job.org, verificando lo stato, sincronizzando la sveglia a 30 minuti e mantenendo la gestione 100% all'interno del nostro sistema.
+- **Stato:** ✅ Test di connettività superato con HTTP 200, build TypeScript pulito (0 errori), pronto per il deploy su Vercel.
+
+---
+
 ### 🟩 [28/10/2026 - ORE 13:20] · ENDPOINT TRIGGER SCHEDULER VERCEL & PREPARAZIONE CRON-JOB.ORG
 - **Cosa abbiamo fatto:** 
   1. 🌐 **Aggiunta Azione `trigger_scheduler` nell'API Social Publisher**:
