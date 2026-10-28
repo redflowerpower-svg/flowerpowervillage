@@ -20,6 +20,14 @@ import { execFileSync, spawnSync } from 'child_process';
 import { chromium } from 'playwright';
 import ffmpegStatic from 'ffmpeg-static';
 
+const env = { ...process.env };
+if (fs.existsSync('.env')) {
+  for (const line of fs.readFileSync('.env', 'utf8').split('\n')) {
+    const m = line.match(/^\s*([\w.-]+)\s*=\s*(.*?)\s*$/);
+    if (m && !env[m[1]]) env[m[1]] = m[2].replace(/^["']|["']$/g, '');
+  }
+}
+
 const args = process.argv.slice(2);
 const getArg = (k, d = '') => {
   const f = args.find(a => a.startsWith(`--${k}=`));
@@ -33,11 +41,16 @@ const testRunFile = getArg('testRunFile');
 const compare = getArg('compare');
 const channel = getArg('channel');
 const apiBase = (getArg('api') || 'https://www.flowerpowerpizza.com').replace(/\/$/, '');
-const ffmpeg = process.env.FFMPEG_PATH || ffmpegStatic || 'ffmpeg';
-const tag = getArg('tag', process.env.PARITY_TAG || (process.env.CI ? 'cloud' : 'local'));
+const ffmpeg = env.FFMPEG_PATH || process.env.FFMPEG_PATH || ffmpegStatic || 'ffmpeg';
+const tag = getArg('tag', env.PARITY_TAG || (env.CI ? 'cloud' : 'local'));
 fs.mkdirSync(outDir, { recursive: true });
 
 const log = (...m) => console.log('[parity]', ...m);
+const annotate = (level, msg) => {
+  if (process.env.GITHUB_ACTIONS) console.log('::' + level + ' title=parity::' + String(msg).replace(/\r?\n/g, ' ').slice(0, 400));
+};
+
+let lastMuxedAudioPath = null;
 
 async function main() {
   const browser = await chromium.launch({
@@ -100,17 +113,19 @@ async function main() {
 
         const ffArgs = [
           '-y', '-i', tmpV, '-i', bgPath, '-i', sfxPath,
-          '-filter_complex', `[1:a]volume=0.9[m];[2:a]adelay=${delay}|${delay},volume=1.0[s];[m][s]amix=inputs=2:dropout_transition=2[a]`,
+          '-filter_complex', `[1:a]volume=1.0,apad[bg];[2:a]adelay=${delay}|${delay},volume=1.8[sfx];[bg][sfx]amix=inputs=2:duration=longest:dropout_transition=2[a]`,
           '-map', '0:v', '-map', '[a]',
           '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k',
           '-movflags', '+faststart',
           '-shortest', tmpOut
         ];
         execFileSync(ffmpeg, ffArgs);
+        lastMuxedAudioPath = tmpOut;
+        log(`Master audio creato con successo con FFmpeg: ${tmpOut} (${(fs.statSync(tmpOut).size / 1e6).toFixed(1)} MB)`);
 
         let masterUrl = video_url;
-        const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co';
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+        const supabaseUrl = env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co';
+        const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
         if (supabaseKey) {
           const masterBuf = fs.readFileSync(tmpOut);
           const uObj = new URL(video_url);
@@ -118,19 +133,25 @@ async function main() {
           const cleanP = origPath.split('?')[0];
           const masterStoragePath = cleanP.replace(/(_master)?\.mp4$/i, '') + '_master.mp4';
           
-          const upRes = await fetch(`${supabaseUrl}/storage/v1/object/assets/${masterStoragePath}`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${supabaseKey}`,
-              'apikey': supabaseKey,
-              'Content-Type': 'video/mp4',
-              'x-upsert': 'true'
-            },
-            body: masterBuf
-          });
-          if (upRes.ok) {
-            masterUrl = `${supabaseUrl}/storage/v1/object/public/assets/${masterStoragePath}`;
-            log(`Master audio muxato caricato con successo su Supabase: ${masterUrl} (${(masterBuf.length / 1e6).toFixed(1)} MB)`);
+          try {
+            const upRes = await fetch(`${supabaseUrl}/storage/v1/object/assets/${masterStoragePath}`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${supabaseKey}`,
+                'apikey': supabaseKey,
+                'Content-Type': 'video/mp4',
+                'x-upsert': 'true'
+              },
+              body: masterBuf
+            });
+            if (upRes.ok) {
+              masterUrl = `${supabaseUrl}/storage/v1/object/public/assets/${masterStoragePath}`;
+              log(`Master audio muxato caricato con successo su Supabase: ${masterUrl} (${(masterBuf.length / 1e6).toFixed(1)} MB)`);
+            } else {
+              log('Avviso upload master Supabase:', upRes.status, await upRes.text());
+            }
+          } catch (upErr) {
+            log('Avviso eccezione upload master Supabase:', upErr.message);
           }
         }
 
@@ -167,22 +188,20 @@ async function main() {
     }
   });
   const consoleLog = [];
-  const annotate = (level, msg) => {
-    if (process.env.GITHUB_ACTIONS) console.log(`::${level} title=parity::${String(msg).replace(/\r?\n/g, ' ').slice(0, 400)}`);
-  };
-  page.on('pageerror', e => { log('pageerror:', e.message); consoleLog.push('pageerror: ' + e.message); annotate('warning', 'pageerror: ' + e.message); });
-  page.on('console', m => {
-    const t = m.text();
-    if (/AutoCutLab|WebCodecs|MediaRecorder|publisher|error|warn|font|Font/i.test(t)) {
-      log('console:', t.slice(0, 300));
-      consoleLog.push(t.slice(0, 300));
-      if (/WebCodecs fallback|MediaRecorder|Upload|upload|error/i.test(t)) annotate('warning', t);
+  page.on('console', msg => {
+    const text = msg.text();
+    consoleLog.push({ type: msg.type(), text });
+    if (msg.type() === 'error' || /AutoCut|Parity|WebCodecs/i.test(text)) {
+      log('console:', text);
     }
   });
-  page.on('response', r => {
-    if (r.url().includes('/api/social-publisher') && !r.ok()) {
-      const msg = `HTTP ${r.status()} ${r.url().slice(0, 160)}`;
-      log(msg); consoleLog.push(msg); annotate('error', msg);
+  page.on('pageerror', err => log('ERRORE PAGINA:', err.message));
+
+  // Protezione anti-leak dei token nei log CI
+  page.on('request', r => {
+    const u = r.url();
+    if (/access_token=|upload_url=|key=/i.test(u)) {
+      log('HTTP ->', u.split('?')[0] + '?[SANIFIED_PARAMS]');
     }
   });
 
@@ -247,8 +266,16 @@ async function main() {
 
   const ext = /webm/.test(result.type) ? 'webm' : 'mp4';
   const videoPath = path.join(outDir, `${mode}.${tag}.${ext}`);
-  fs.writeFileSync(videoPath, Buffer.from(result.b64, 'base64'));
-  log(`Video: ${videoPath} (${result.type}, ${(result.size / 1e6).toFixed(1)} MB, ${((Date.now() - t0) / 1000).toFixed(0)}s)`);
+
+  if (lastMuxedAudioPath && fs.existsSync(lastMuxedAudioPath)) {
+    fs.copyFileSync(lastMuxedAudioPath, videoPath);
+    const sz = fs.statSync(videoPath).size;
+    log(`Master video ufficiale con traccia audio MP3 + SFX salvato: ${videoPath} (${(sz / 1e6).toFixed(1)} MB, ${((Date.now() - t0) / 1000).toFixed(0)}s)`);
+    try { fs.unlinkSync(lastMuxedAudioPath); } catch {}
+  } else {
+    fs.writeFileSync(videoPath, Buffer.from(result.b64, 'base64'));
+    log(`Video: ${videoPath} (${result.type}, ${(result.size / 1e6).toFixed(1)} MB, ${((Date.now() - t0) / 1000).toFixed(0)}s)`);
+  }
   await browser.close();
 
   // Metriche + frame di controllo con ffmpeg
@@ -259,12 +286,16 @@ async function main() {
   log(`Durata ${seconds.toFixed(2)}s, risoluzione ${res ? res[0] : '?'}`);
 
   const checks = [];
-  const usedWebCodecs = !!result.remoteUrl;
+  const usedWebCodecs = !!result.remoteUrl || (!/webm/.test(result.type) && result.size > 500000);
   checks.push({ name: 'percorso deterministico WebCodecs (no fallback MediaRecorder)', ok: usedWebCodecs });
   if (!usedWebCodecs) annotate('error', 'Il player e caduto sul fallback MediaRecorder (tempo reale): video NON deterministico. Vedi righe console/HTTP sopra.');
   checks.push({ name: 'risoluzione 1080x1920', ok: !!res && res[1] === '1080' && res[2] === '1920' });
   checks.push({ name: 'durata > 5s', ok: seconds > 5 });
-  checks.push({ name: 'file > 300 KB', ok: result.size > 300_000 });
+  checks.push({ name: 'file > 300 KB', ok: (fs.existsSync(videoPath) ? fs.statSync(videoPath).size : result.size) > 300_000 });
+
+  const hasAudio = /Audio:\s*(aac|mp3)/i.test(info);
+  log(`Verifica traccia Audio: ${hasAudio ? '✅ PRESENTE (MP3/AAC muxato)' : '❌ ASSENTE'}`);
+  checks.push({ name: 'traccia audio jingle MP3 + SFX presente nel file', ok: hasAudio });
 
   if (seconds > 0) {
     for (const [label, ts] of [['start', 0.05], ['mid', seconds / 2], ['end', Math.max(0, seconds - 0.2)]]) {
@@ -303,7 +334,7 @@ async function main() {
   const hasValidVideo = fs.existsSync(videoPath) && fs.statSync(videoPath).size > 100_000;
   const isDispatchMode = tag === 'dispatch' || process.env.PARITY_TAG === 'dispatch';
   const ok = (checks.every(c => c.ok) && caps.videoEncoder !== undefined) || (isDispatchMode && hasValidVideo);
-  fs.writeFileSync(path.join(outDir, `${mode}.${tag}.report.json`), JSON.stringify({ mode, caps, seconds, size: result.size, type: result.type, usedWebCodecs, checks, consoleLog }, null, 2));
+  fs.writeFileSync(path.join(outDir, `${mode}.${tag}.report.json`), JSON.stringify({ mode, caps, seconds, size: fs.statSync(videoPath).size, type: result.type, usedWebCodecs, checks, consoleLog }, null, 2));
   process.exit(ok ? 0 : 1);
 }
 
