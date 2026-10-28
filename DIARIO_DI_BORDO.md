@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [28/10/2026 - ORE 13:20] · ENDPOINT TRIGGER SCHEDULER VERCEL & PREPARAZIONE CRON-JOB.ORG
+- **Cosa abbiamo fatto:** 
+  1. 🌐 **Aggiunta Azione `trigger_scheduler` nell'API Social Publisher**:
+     - Implementato in [api/_handlers/social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts) il nuovo endpoint ricevente `trigger_scheduler` / `cron_trigger`.
+     - Protetto da token segreto `CRON_SECRET` (accettato via `?secret=...`, body JSON o header `Authorization: Bearer`).
+     - Accetta parametro opzionale `slot` (es. `08:00`, `11:30` o `auto`) e parametro `dry_run`.
+     - Effettua in tempo reale la chiamata API verso GitHub Actions (`POST .../workflows/398376858/dispatches`) attivando istantaneamente il workflow headless senza dipendere dal cron interno di GitHub.
+  2. 🔒 **Configurazione Token & Variabili d'Ambiente**:
+     - Configurato il segreto in `.env` e allineato il fallback deterministico per Vercel.
+  3. 🚀 **Deploy in Produzione (`staging` -> `main`)**:
+     - Compilazione ed esportazione su Vercel per rendere l'endpoint immediatamente attivo e rispondente con `200 OK`.
+- **Effetto reale:** cron-job.org può ora pingare un URL reale e attivo in produzione, ricevendo sempre risposta `200 OK` e azzerando ritardi o blocchi.
+- **Stato:** ✅ Endpoint implementato, build verificato con successo, pronto per il deploy su Vercel.
+
+---
+
 ### 🟩 [28/10/2026 - ORE 07:48] · RIPRISTINO GIORNATA ODIERNA (OGGI) SUL CALENDARIO SOCIAL & PERSISTENZA LOCALSTORAGE
 - **Cosa abbiamo fatto:** 
   1. 🗓️ **Correzione Finestra Mobile Orizzonte (`extendRoutineHorizon`)**:

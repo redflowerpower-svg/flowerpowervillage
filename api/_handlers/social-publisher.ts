@@ -272,6 +272,83 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
   const action = (req.query.action as string) || req.body?.action || "";
   const body = req.body || {};
 
+  // 0. GET/POST /api/social-publisher?action=trigger_scheduler (Innesco GitHub Actions per Social Media Studio)
+  if (action === "trigger_scheduler" || action === "cron_trigger") {
+    try {
+      const authHeader = req.headers.authorization || "";
+      const bearerToken = authHeader.replace(/^Bearer\s+/i, "").trim();
+      const incomingSecret = String(req.query.secret || body?.secret || bearerToken || "");
+      let expectedSecret = process.env.CRON_SECRET || process.env.SOCIAL_CRON_SECRET || "";
+      if (!expectedSecret && supabase) {
+        try {
+          const { data: secRow } = await supabase.from("telegram_config").select("bot_token").eq("id", "social_cron_secret").single();
+          if (secRow?.bot_token) expectedSecret = secRow.bot_token;
+        } catch {}
+      }
+      if (!expectedSecret) expectedSecret = "fp_cron_secret_phayam_ranong_2026";
+
+      if (!incomingSecret || incomingSecret !== expectedSecret) {
+        console.warn(`[social-publisher] trigger_scheduler rifiutato: secret non valido (${incomingSecret ? 'errato' : 'mancante'})`);
+        return res.status(401).json({ ok: false, error: "Unauthorized: invalid or missing cron secret" });
+      }
+
+      const slot = String(req.query.slot || body?.slot || "auto").trim();
+      const dryRun = (req.query.dry_run === "true" || body?.dry_run === true || body?.dry_run === "true") ? "true" : "false";
+
+      let ghToken = process.env.GITHUB_DISPATCH_TOKEN || process.env.GH_TOKEN || process.env.GITHUB_TOKEN || "";
+      if (!ghToken && supabase) {
+        try {
+          const { data: ghRow } = await supabase.from("telegram_config").select("bot_token").eq("id", "github_dispatch").single();
+          if (ghRow?.bot_token) ghToken = ghRow.bot_token;
+        } catch {}
+      }
+
+      if (!ghToken) {
+        console.error("[social-publisher] GITHUB_DISPATCH_TOKEN non configurato");
+        return res.status(500).json({ ok: false, error: "Server misconfiguration: GitHub dispatch token missing" });
+      }
+
+      const dispatchRes = await fetch("https://api.github.com/repos/redflowerpower-svg/flowerpowervillage/actions/workflows/398376858/dispatches", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${ghToken}`,
+          "User-Agent": "FlowerPower-Social-Scheduler",
+          "Content-Type": "application/json",
+          "Accept": "application/vnd.github.v3+json"
+        },
+        body: JSON.stringify({
+          ref: "main",
+          inputs: {
+            slot,
+            dry_run: dryRun
+          }
+        })
+      });
+
+      if (dispatchRes.status === 204) {
+        console.log(`[social-publisher] ✅ GitHub Actions trigger_scheduler inviato con successo (Slot: ${slot}, DryRun: ${dryRun})`);
+        return res.status(200).json({
+          ok: true,
+          message: "Social Media Studio workflow dispatched successfully on GitHub Actions",
+          slot,
+          dry_run: dryRun === "true",
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        const errText = await dispatchRes.text();
+        console.error(`[social-publisher] ❌ Errore dispatch GitHub Actions (Status: ${dispatchRes.status}):`, errText);
+        return res.status(dispatchRes.status).json({
+          ok: false,
+          error: `GitHub Actions dispatch failed with status ${dispatchRes.status}`,
+          details: errText
+        });
+      }
+    } catch (err: any) {
+      console.error("[social-publisher] trigger_scheduler fatal error:", err);
+      return res.status(500).json({ ok: false, error: err.message || "Internal error triggering scheduler" });
+    }
+  }
+
   // 0. GET/POST /api/social-publisher?action=get_story_upload_url (Signed URL per upload diretto ad alto bitrate)
   if (action === "get_story_upload_url") {
     try {
