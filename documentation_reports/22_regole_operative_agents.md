@@ -130,6 +130,10 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
     - È **SEVERAMENTE, CATEGORICAMENTE E TASSATIVAMENTE VIETATO** usare o menzionare le parole "sunset", "tramonto", "พระอาทิตย์ตก", "Golden Hour Sunset" o alludere al tramonto nei prompt di DeepSeek AI, nei post social (TikTok, Instagram, Facebook, Google Maps, Telegram), nelle didascalie, nei titoli video, nei banner o nei template per il villaggio e per tutti i suoi alloggi.
     - Per la **Villa Penthouse** in particolare, parlare TASSATIVAMENTE ed ESCLUSIVAMENTE di **"Breezy Suite"** / **suite ventilata** con grande terrazza panoramica fresca e arieggiata (`Panoramic Breezy Deck`).
     - Il sistema applica sanitizzatori regex a monte e a valle che convertono qualsiasi residuo di "sunset" in "breezy deck" / "tropical breezes".
+25. **Regola Immodificabile Zero Rendering Locale — 100% Cloud Headless Chromium su GitHub Actions**:
+    - **DIVIETO ASSOLUTO DI RENDERING SULLA MACCHINA LOCALE**: È severamente e categoricamente vietato eseguire rendering video pesanti, pipeline Playwright/FFmpeg o scheduler dispatch di produzione sulla workstation locale dell'utente.
+    - **AUTONOMIA TOTALE A COMPUTER SPENTO (100% SERVERLESS CLOUD)**: Tutti i rendering video ufficiali, muxing audio, calcolo parità e dispatch automatici dei post vanno eseguiti **TASSATIVAMENTE ED ESCLUSIVAMENTE sui runner cloud serverless di GitHub Actions** (`social-scheduler-cron.yml`), orchestrati 24/7 da `cron-job.org`.
+    - L'utente e il personale possono tenere il computer spento: il sistema vive interamente in cloud, genera i contenuti in Chromium headless, archivia su Google Drive 5TB e pubblica su Meta Graph API e nei canali Telegram del Supergruppo in totale autonomia.
 
 # 🛡️ PROTOCOLLO DI AUTO-APPROVAZIONE SICURA (AUTONOMOUS EXECUTION & ZERO-DISRUPTION GUARDRAILS)
 Il sistema opera in modalità di **esecuzione completamente autonoma, rapida e continua** (predefinita su tutte le richieste, e tassativa con `/goal`, `AUTOPILOT`, `procedi` o `In autonomia:`):
