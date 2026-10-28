@@ -107,6 +107,28 @@ let telegramToken = env.TELEGRAM_SOCIAL_BOT_TOKEN;
 const chatId = '-1004492692624'; // Supergruppo Staff
 const TOPIC_KOH_PHAYAM_GROUP = 2; // Topic 2: Post per Gruppo Koh Phayam
 const TOPIC_TIKTOK_STORIES = 3;   // Topic 3: TikTok & IG Stories
+const TOPIC_PUBLISHED = 286;      // Topic 286: Cronologia Pubblicati (Published)
+const TOPIC_FAILED = 301;         // Topic 301: Allarmi ed Errori (Failed)
+
+async function sendPublishedLog(text) {
+  try {
+    await sendMessageToTelegram({ topicId: TOPIC_PUBLISHED, text: `🟢 <b>[FP Social Studio - PUBLISHED]</b>\n${text}` });
+  } catch (e) {
+    console.warn('[scheduler-dispatch] Avviso log published:', e.message);
+  }
+}
+
+async function sendFailedAlert(err, context = '') {
+  try {
+    const errorMsg = err?.stack || err?.message || String(err);
+    await sendMessageToTelegram({
+      topicId: TOPIC_FAILED,
+      text: `🚨 <b>[FP Social Studio - ALLARME FAILED]</b>\n📍 <b>Slot:</b> ${targetSlot}\n🔍 <b>Contesto:</b> ${context}\n⚠️ <b>Errore:</b>\n<pre>${escapeHtml(errorMsg.slice(0, 1500))}</pre>`
+    });
+  } catch (e) {
+    console.error('[scheduler-dispatch] Impossibile inviare allarme a Topic 301:', e.message);
+  }
+}
 
 async function getTelegramToken() {
   if (telegramToken) return telegramToken;
@@ -669,6 +691,8 @@ async function run() {
       copyText: lm1Text,
       filePath: lm1Vid
     });
+
+    await sendPublishedLog(`✅ <b>Slot 08:00 Bangkok completato con successo:</b>\n• 🎵 TikTok Story P1 Pizzeria Ranong (Topic 3)\n• 🎵 TikTok Story V1 Villaggio Phayam (Topic 3)\n• 🌴 Post LM1 Alloggi Liberi Gruppo Facebook Phayam (Topic 2)`);
   } else if (is0930) {
     console.log(`🌿 [09:30 BANGKOK] Slot Story Mattino — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM STORIES`);
     const storyVid = await renderVideoMode('V1');
@@ -878,7 +902,8 @@ async function run() {
   console.log(`\n🎉 Esecuzione completata con successo!`);
 }
 
-run().catch(err => {
-  console.error('[scheduler-dispatch] ERRORE:', err);
+run().catch(async (err) => {
+  console.error('[scheduler-dispatch] ERRORE FATALE:', err);
+  await sendFailedAlert(err, `Esecuzione Slot ${targetSlot}`);
   process.exit(1);
 });
