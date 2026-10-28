@@ -3,6 +3,20 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [28/10/2026 - ORE 07:48] · RIPRISTINO GIORNATA ODIERNA (OGGI) SUL CALENDARIO SOCIAL & PERSISTENZA LOCALSTORAGE
+- **Cosa abbiamo fatto:** 
+  1. 🗓️ **Correzione Finestra Mobile Orizzonte (`extendRoutineHorizon`)**:
+     - Individuato il motivo per cui la giornata di oggi (28 ottobre) appariva saltata: `extendRoutineHorizon` calcolava la data di inizio con `now.getDate() + 1` (ovvero da "domani"). Ieri 27 ottobre generava dal 28, ma oggi 28 ottobre faceva partire la finestra dal 29 ottobre, lasciando oggi a zero post.
+     - Modificato il calcolo in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) per iniziare **SEMPRE da OGGI alle ore 00:00:00**, garantendo che la giornata odierna sia sempre popolata con tutti gli 11 slot ufficiali.
+  2. 💾 **Persistenza & Idratazione `localStorage`**:
+     - In [AutoCutStudioPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/pages/AutoCutStudioPage.tsx), integrato il salvataggio automatico e l'idratazione da `fp_social_scheduled_posts` in `localStorage`.
+  3. 🟢 **Default Master Switch in Produzione**:
+     - Impostato il default di `schedulerMode` a `'production'` (invece di `'standby'`), riflettendo lo status ufficiale live 24/7.
+- **Effetto reale:** Aprendo il Calendario Editoriale su `/social`, la colonna di oggi (28 ottobre) è immediatamente piena e attiva con tutti i suoi post e formati, esattamente come previsto.
+- **Stato:** ✅ Corretto, verificato TypeScript con 0 errori, pronto e sincronizzato.
+
+---
+
 ### 🚀 [27/10/2026 - ORE 23:00] · GO-LIVE UFFICIALE SOCIAL MEDIA STUDIO & SCHEDULER SERVERLESS 24/7 IN PRODUZIONE
 - **Cosa abbiamo fatto:** 
   1. 🌟 **Messa in Produzione Ufficiale**:

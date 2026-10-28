@@ -272,11 +272,26 @@ export default function AutoCutStudioPage() {
   // Top Navigation Tab: AutoCut Motion Studio vs Visual Calendar
   const [activeMainTab, setActiveMainTab] = useState<'lab' | 'visual_motion' | 'calendar'>('lab');
 
-  // Scheduled Posts Queue for Editorial Calendar (Initialized with official routine: 08:00 TikTok Pizza + Village, 17:00 R1 Gruppi Phayam)
+  // Scheduled Posts Queue for Editorial Calendar (Include SEMPRE la giornata odierna ed è persistita in localStorage)
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledSocialPost[]>(() => {
-    // Finestra mobile: sempre 60 giorni in avanti da domani, attraversando i cambi di mese
-    return extendRoutineHorizon([]);
+    let initialPosts: ScheduledSocialPost[] = [];
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('fp_social_scheduled_posts');
+        if (saved) initialPosts = JSON.parse(saved);
+      } catch (e) {}
+    }
+    return extendRoutineHorizon(initialPosts);
   });
+
+  const handleUpdateScheduledPosts = (posts: ScheduledSocialPost[]) => {
+    setScheduledPosts(posts);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('fp_social_scheduled_posts', JSON.stringify(posts));
+      } catch (e) {}
+    }
+  };
 
   // UI Language Switcher (default EN for TikTok review, toggleable to IT)
   const [uiLang, setUiLang] = useState<UILanguage>('EN');
@@ -863,7 +878,7 @@ export default function AutoCutStudioPage() {
         {activeMainTab === 'calendar' && (
           <SocialCalendarView
             scheduledPosts={scheduledPosts}
-            onUpdatePosts={setScheduledPosts}
+            onUpdatePosts={handleUpdateScheduledPosts}
             onPublishNow={handlePublishScheduledPost}
             uiLang={uiLang}
           />

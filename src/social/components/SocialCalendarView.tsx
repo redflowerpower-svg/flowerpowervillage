@@ -518,6 +518,7 @@ export function generateOfficialMonthlyRoutine(year: number, month: number): Sch
 }
 
 // 🔄 TOP-UP ORIZZONTE: garantisce che il calendario arrivi sempre a `horizonDays` giorni da oggi.
+// Include SEMPRE e TASSATIVAMENTE la giornata odierna (oggi compreso) dalle 00:00:00!
 // Aggiunge SOLO i post mancanti (per ID): non sovrascrive mai modifiche manuali, non tocca il passato.
 export const ROUTINE_HORIZON_DAYS = 60;
 export function extendRoutineHorizon(
@@ -525,8 +526,9 @@ export function extendRoutineHorizon(
   horizonDays: number = ROUTINE_HORIZON_DAYS
 ): ScheduledSocialPost[] {
   const now = new Date();
-  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-  const generated = generateOfficialRoutineRange(tomorrow, horizonDays);
+  // Inizia SEMPRE da OGGI (incluso), garantendo che la giornata odierna non sia mai vuota o cancellata
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  const generated = generateOfficialRoutineRange(today, horizonDays);
   const existingIds = new Set(existing.map((p) => p.id));
   const missing = generated.filter((p) => !existingIds.has(p.id));
   return missing.length > 0 ? [...existing, ...missing] : existing;
@@ -587,7 +589,7 @@ export function SocialCalendarView({
         if (saved === 'production' || saved === 'standby') return saved;
       } catch {}
     }
-    return 'standby';
+    return 'production'; // Default ufficiale in produzione
   });
   const [confirmingProduction, setConfirmingProduction] = useState(false);
   const confirmTimeoutRef = useRef<NodeJS.Timeout | null>(null);
