@@ -96,10 +96,10 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
         }`}
       >
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-          {/* Logo / Brand Name & Back to SplitScreen */}
+          {/* Logo / Brand Name & Back to Home */}
           <div className="flex items-center gap-3 flex-shrink-0">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => handleNavClick('accommodations')}
               className="flex items-center gap-1.5 text-stone-400 hover:text-white transition-colors duration-200 text-xs font-semibold uppercase tracking-wider cursor-pointer"
               title={lang === 'IT' ? 'Torna alla Home' : 'Back to Home'}
             >

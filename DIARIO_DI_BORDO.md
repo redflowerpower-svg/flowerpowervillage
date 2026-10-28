@@ -3,6 +3,17 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [28/10/2026 - ORE 14:45] · DEFAULT ROOT DIRETTO A /VILLAGE (BYPASS SPLITSCREEN SELEZIONE)
+- **Cosa abbiamo fatto:** 
+  1. 🏠 **Reindirizzamento Diretto della Home su `/village`**:
+     - Modificato il componente `RootRouter` in [src/App.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/App.tsx): chiunque apra la radice del sito (`/`) viene indirizzato all'istante a `/village` con `<Navigate to="/village" replace />`.
+     - Se il dominio visitato è `flowerpowerpizza.com`, continua a mostrare direttamente la Pizzeria di Ranong.
+     - Preservata la schermata di selezione a due pannelli (`SplitScreen`) sulla rotta dedicata `/split`, qualora servisse in futuro.
+- **Effetto reale:** Chi visita il sito web (da cellulare o computer) atterra direttamente sul Villaggio di Koh Phayam (booking engine, camere, prezzi e disponibilità), senza dover più cliccare o scegliere nella schermata iniziale SplitScreen.
+- **Stato:** ✅ Compilazione Vite completata a 0 errori (`built in 4.92s`).
+
+---
+
 ### 🟩 [28/10/2026 - ORE 14:15] · CLIENT MODULARE CRONJOB.ORG REST API V2 & SINCRONIZZAZIONE AUTOMATICA
 - **Cosa abbiamo fatto:** 
   1. 🔑 **Configurazione API Key cron-job.org**:

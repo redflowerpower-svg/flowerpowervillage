@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import SplitScreen from './pages/SplitScreen';
 import VillageSite from './pages/VillageSite';
 import PizzaSite from './pages/PizzaSite';
 import AdminMain from './admin/AdminMain';
@@ -151,7 +150,7 @@ function RootRouter() {
       return <PizzaSite />;
     }
   }
-  return <SplitScreen />;
+  return <VillageSite />;
 }
 
 function App() {
