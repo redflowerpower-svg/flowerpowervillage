@@ -108,14 +108,22 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
   ];
 
   // Regole del Sacro Graal da verificare
+  const agodaBungalowAcIds = new Set([
+    330964, 330970, // Red AC7d, Red AC14d
+    331921, 331922, // Yellow AC7d, Yellow AC14d
+    331923, 331924, // Green AC7d, Green AC14d
+    921878, 921879, 921880, 921881, 921882, 921883 // Alias
+  ]);
+
+  // Tariffe AC delle Ville e Piani Standard AC categoricamente CHIUSI SEMPRE per tutta la stagione
   const fullyClosedIds = new Set([
-    ...(REAL_PRODUCTS_BY_PLAN.ac_7d || []),
-    ...(REAL_PRODUCTS_BY_PLAN.ac_14d || []),
+    ...(REAL_PRODUCTS_BY_PLAN.ac_7d || []).filter(id => !agodaBungalowAcIds.has(id)),
+    ...(REAL_PRODUCTS_BY_PLAN.ac_14d || []).filter(id => !agodaBungalowAcIds.has(id)),
     ...(REAL_PRODUCTS_BY_PLAN.ac_bnb_7d || []),
     ...(REAL_PRODUCTS_BY_PLAN.ac_bnb_14d || []),
     ...(REAL_PRODUCTS_BY_PLAN.airbnb_ac || []),
-    ...(REAL_PRODUCTS_BY_PLAN.agd_ac_7d || []),
-    ...(REAL_PRODUCTS_BY_PLAN.agd_ac_14d || [])
+    // Agoda AC Ville (sempre chiuse al 100%)
+    921868, 921869, 921870, 921871, 921872, 921873, 921874, 921875, 921876, 921877
   ]);
 
   const stdIds = new Set(REAL_PRODUCTS_BY_PLAN['7d'] || []);
@@ -166,9 +174,23 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
           healPayload.push({
             room: idNum,
             dateFrom: todayStr,
-            dateTo: '2027-05-31',
+            dateTo: '2027-10-31',
             values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
           });
+        }
+
+        // Regola 1B: Agoda AC Red, Green, Yellow Bungalow deve essere CHIUSA fuori da High Season (16 Dic - 31 Mar)
+        if (agodaBungalowAcIds.has(idNum)) {
+          const isHighSeason = ad.from >= '2026-12-16' && ad.from <= '2027-03-31';
+          if (!isHighSeason && !isStopSell) {
+            anomalies.push({ id: idNum, name, issue: 'Agoda AC Bungalow risultava APERTA fuori da High Season', date: ad.from });
+            healPayload.push({
+              room: idNum,
+              dateFrom: todayStr,
+              dateTo: '2026-12-15',
+              values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
+            });
+          }
         }
 
         // Regola 2: Standard 7d a Gennaio/Febbraio deve essere StopSell: true

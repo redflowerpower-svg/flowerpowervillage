@@ -185,6 +185,8 @@ function App() {
           <Route path="/autocut/*" element={<AutoCutStudioPage />} />
           <Route path="/flowerpowerpizzaranong/*" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           <Route path="/flowerpowerpizzaranong" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
+          <Route path="/flowerpowerpizza/*" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
+          <Route path="/flowerpowerpizza" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           {/* 🏨 Link Diretti Permanenti ai 18 Alloggi (Legacy & Canonical URLs) */}
           {ACCOMMODATION_IDENTITIES.map((acc) => (
             <React.Fragment key={acc.legacySlug}>
@@ -193,6 +195,10 @@ function App() {
               <Route path={`/${acc.canonicalSlug}`} element={<Navigate to={`/village?room=${acc.legacySlug}`} replace />} />
             </React.Fragment>
           ))}
+          {/* 🔄 Alias Storico Room 6 da Volantino Cartaceo (ora Lodge 1) */}
+          <Route path="/36-room-6" element={<Navigate to="/village" replace />} />
+          <Route path="/36-room-6/*" element={<Navigate to="/village" replace />} />
+          <Route path="/room-6" element={<Navigate to="/village" replace />} />
           {/* Legacy hash-based admin redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

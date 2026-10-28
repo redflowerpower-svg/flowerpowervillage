@@ -1,5 +1,43 @@
-import { Calendar, Sparkles, Dumbbell, Flower, Mail } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, Sparkles, Dumbbell, Flower, Mail, ChevronLeft, ChevronRight, Layers } from 'lucide-react';
 import { Language } from '../booking/lib/translations';
+
+
+const realGymImages = [
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/gym/gym_1.webp',
+    localUrl: '/images/village/gallery/gym/gym_1.webp',
+    label: '1 / 3'
+  },
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/gym/gym_2.webp',
+    localUrl: '/images/village/gallery/gym/gym_2.webp',
+    label: '2 / 3'
+  },
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/gym/gym_3.webp',
+    localUrl: '/images/village/gallery/gym/gym_3.webp',
+    label: '3 / 3'
+  }
+];
+
+const realYogaImages = [
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/yoga/yoga_temple_1.webp',
+    localUrl: '/images/village/gallery/yoga/yoga_temple_1.webp',
+    label: '1 / 3'
+  },
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/yoga/yoga_temple_2.webp',
+    localUrl: '/images/village/gallery/yoga/yoga_temple_2.webp',
+    label: '2 / 3'
+  },
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/yoga/yoga_temple_3.webp',
+    localUrl: '/images/village/gallery/yoga/yoga_temple_3.webp',
+    label: '3 / 3'
+  }
+];
 
 const treatmentsData = [
   { key: 'thai', duration: '60 min', price: '฿300', image: 'https://images.unsplash.com/photo-1540206107877-29bb00ad2810?auto=format&fit=crop&w=800&q=80' },
@@ -400,8 +438,48 @@ interface Props {
   lang?: Language;
 }
 
+
+type SpaTab = 'all' | 'facilities' | 'massages' | 'beauty';
+
+const spaCategoryTabs = [
+  { id: 'all' as const, icon: Layers },
+  { id: 'facilities' as const, icon: Dumbbell },
+  { id: 'massages' as const, icon: Sparkles },
+  { id: 'beauty' as const, icon: Flower },
+];
+
+const spaCategoryLabels: Record<SpaTab, Record<Language, [string, string]>> = {
+  all: {
+    IT: ['TUTTI I', 'SERVIZI'],
+    EN: ['ALL', 'SERVICES'],
+    TH: ['บริการ', 'ทั้งหมด'],
+    DE: ['ALLE', 'ANGEBOTE'],
+  },
+  facilities: {
+    IT: ['YOGA &', 'FITNESS'],
+    EN: ['YOGA &', 'FITNESS'],
+    TH: ['โยคะ &', 'ฟิตเนส'],
+    DE: ['YOGA &', 'FITNESS'],
+  },
+  massages: {
+    IT: ['MASSAGGI', 'THAI'],
+    EN: ['MASSAGE', 'THERAPY'],
+    TH: ['นวดแผน', 'โบราณ'],
+    DE: ['THAI', 'MASSAGE'],
+  },
+  beauty: {
+    IT: ['BEAUTY &', 'ESTETICA'],
+    EN: ['BEAUTY &', 'NAILS'],
+    TH: ['ความงาม', '& เล็บ'],
+    DE: ['BEAUTY &', 'KOSMETIK'],
+  },
+};
+
 export default function SpaSection({ lang = 'IT' }: Props) {
   const t = translations[lang] || translations['IT'];
+  const [activeSpaTab, setActiveSpaTab] = useState<SpaTab>('all');
+  const [activeGymIdx, setActiveGymIdx] = useState(0);
+  const [activeYogaIdx, setActiveYogaIdx] = useState(0);
 
   return (
     <section className="py-16 md:py-24 bg-white animate-fadeIn">
@@ -423,275 +501,427 @@ export default function SpaSection({ lang = 'IT' }: Props) {
           <div className="w-12 h-px bg-emerald-600 mx-auto" />
         </div>
 
-        {/* Seasonality Callout Box */}
-        <div className="max-w-4xl mx-auto mb-16 bg-stone-50 border border-stone-200 rounded-3xl p-6 md:p-8 shadow-sm">
-          <div className="flex items-center gap-3 mb-6">
-            <Calendar className="text-emerald-700 w-5 h-5 flex-shrink-0" />
-            <h3 
-              className="text-stone-800 font-bold text-sm uppercase tracking-wider"
-              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-            >
-              {t.calHeader}
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 divide-y md:divide-y-0 md:divide-x divide-stone-200 items-stretch">
-            {/* Column 1: Operators */}
-            <div className="space-y-3 pb-6 md:pb-0">
-              <div 
-                className="flex items-center gap-2 text-emerald-800 font-semibold text-sm"
-                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+        {/* TOP CATEGORY SELECTOR (Pizzeria Block Style: square blocks with icon and two-line text) */}
+        <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 flex-wrap mb-12 max-w-4xl mx-auto">
+          {spaCategoryTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isSelected = activeSpaTab === tab.id;
+            const [line1, line2] = spaCategoryLabels[tab.id][lang] || spaCategoryLabels[tab.id]['IT'];
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveSpaTab(tab.id)}
+                className={`w-[96px] sm:w-[110px] h-[98px] sm:h-[108px] flex flex-col items-center justify-between p-2 rounded-2xl transition-all duration-200 border-2 text-center group cursor-pointer select-none active:scale-95 ${
+                  isSelected
+                    ? 'bg-gradient-to-b from-[#184534] to-[#0c241b] border-emerald-700 text-white shadow-lg ring-2 ring-emerald-700/30 scale-[1.03]'
+                    : 'bg-[#ede5d8] border-[#cfbea6] text-[#2c1a11] shadow-[0_2px_6px_rgba(44,26,17,0.08)] hover:bg-[#e6dcce] hover:border-emerald-700/50 hover:text-black hover:shadow-md'
+                }`}
+                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
               >
-                <Sparkles size={16} />
-                <span>{t.col1Title}</span>
-              </div>
-              <p 
-                className="text-stone-600 text-xs leading-relaxed font-light"
-                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-              >
-                {t.col1Desc}
-              </p>
-            </div>
-            {/* Column 2: Free Use Spaces */}
-            <div className="space-y-3 pt-6 md:pt-0 md:pl-6">
-              <div 
-                className="flex items-center gap-2 text-emerald-800 font-semibold text-sm"
-                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-              >
-                <Dumbbell size={16} />
-                <span>{t.col2Title}</span>
-              </div>
-              <p 
-                className="text-stone-600 text-xs leading-relaxed font-light"
-                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-              >
-                {t.col2Desc}
-              </p>
-            </div>
-          </div>
+                {/* Top icon in rounded container */}
+                <div
+                  className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+                    isSelected
+                      ? 'bg-white/20 text-emerald-300 shadow-sm'
+                      : 'bg-[#ded0bf] text-emerald-900 group-hover:bg-emerald-800/15 shadow-inner'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.3]" />
+                </div>
+
+                {/* Two-line text */}
+                <div className="flex-1 flex flex-col items-center justify-center w-full px-0.5 mt-0.5">
+                  <span className="text-[9.5px] sm:text-[10.5px] font-black tracking-tight uppercase leading-[1.14] text-balance">
+                    <span className="block">{line1}</span>
+                    <span className="block">{line2}</span>
+                  </span>
+                </div>
+
+                {/* Subtle active indicator dot */}
+                <div
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                    isSelected ? 'bg-emerald-400 shadow-xs' : 'bg-transparent'
+                  }`}
+                />
+              </button>
+            );
+          })}
         </div>
 
-        {/* Treatments Section */}
-        <div className="mb-20">
-          <div className="flex items-center gap-2.5 mb-8 pb-2 border-b border-stone-200">
-            <Sparkles className="text-emerald-750" size={18} />
-            <h3
-              className="text-stone-750 font-light text-xl"
-              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-            >
-              {t.treatmentsHeader}
-            </h3>
+        {/* HERO SECTION 1: SPAZI BENESSERE & FITNESS (Yoga Temple & Outdoor Gym - IN PRIMO PIANO SUBITO IN ALTO) */}
+        {(activeSpaTab === 'all' || activeSpaTab === 'facilities') && (
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-8 pb-3 border-b border-stone-200">
+              <div className="flex items-center gap-2.5">
+                <Dumbbell className="text-emerald-750" size={20} />
+                <h3
+                  className="text-stone-850 font-light text-xl md:text-2xl"
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                >
+                  {t.facilitiesHeader}
+                </h3>
+              </div>
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60 shrink-0">
+                {lang === 'IT' ? 'Accesso Libero Tutto l\'Anno' : lang === 'EN' ? 'Free Access All Year' : lang === 'TH' ? 'เข้าใช้ฟรีตลอดทั้งปี' : 'Ganzjährig freier Zugang'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+              {/* Facility 1: Gym */}
+              <div className="group overflow-hidden border border-stone-200 bg-stone-50/30 rounded-3xl flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 animate-fadeIn">
+                <div>
+                  <div className="relative aspect-[16/10] overflow-hidden bg-stone-900 group/img select-none">
+                    <img
+                      src={realGymImages[activeGymIdx].url}
+                      onError={(e) => { e.currentTarget.src = realGymImages[activeGymIdx].localUrl; }}
+                      alt={t.gymTitle}
+                      className="w-full h-full object-cover transition-all duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+                    
+                    {/* Controls */}
+                    <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between items-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={() => setActiveGymIdx((prev) => (prev === 0 ? realGymImages.length - 1 : prev - 1))}
+                        className="w-8 h-8 rounded-full bg-black/60 backdrop-blur text-white flex items-center justify-center hover:bg-black/90 cursor-pointer shadow-md"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveGymIdx((prev) => (prev === realGymImages.length - 1 ? 0 : prev + 1))}
+                        className="w-8 h-8 rounded-full bg-black/60 backdrop-blur text-white flex items-center justify-center hover:bg-black/90 cursor-pointer shadow-md"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+
+                    {/* Thumbnails pill */}
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2 py-1 rounded-xl border border-white/20">
+                      {realGymImages.map((img, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setActiveGymIdx(idx)}
+                          className={`relative w-8 h-8 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                            activeGymIdx === idx ? 'border-emerald-400 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
+                          }`}
+                        >
+                          <img src={img.url} onError={(e) => { e.currentTarget.src = img.localUrl; }} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+
+                    <span className="absolute bottom-3 left-4 text-white text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 bg-emerald-800/90 backdrop-blur-sm rounded-lg border border-emerald-400/30">
+                      Flower Power Gym · {activeGymIdx + 1}/3
+                    </span>
+                  </div>
+
+                  <div className="p-6 md:p-8">
+                    <h3
+                      className="text-stone-850 mb-3 font-semibold text-[1.3rem] flex items-center gap-2"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                    >
+                      <Dumbbell className="text-emerald-700 w-5 h-5" />
+                      {t.gymTitle}
+                    </h3>
+                    <p 
+                      className="text-xs text-stone-550 leading-relaxed mb-6 font-light"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                    >
+                      {t.gymDesc}
+                    </p>
+                    
+                    {/* Equipment list */}
+                    <h4 
+                      className="text-stone-700 font-bold text-xs uppercase tracking-wider mb-3"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                    >
+                      {t.gymEquipTitle}
+                    </h4>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                      {t.gymEquip.map((equip: string, idx: number) => (
+                        <div 
+                          key={idx} 
+                          className="flex items-center gap-2 text-stone-600 text-xs font-light"
+                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                        >
+                          <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full flex-shrink-0" />
+                          <span>{equip}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Facility 2: Yoga Temple */}
+              <div className="group overflow-hidden border border-stone-200 bg-stone-50/30 rounded-3xl flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 animate-fadeIn">
+                <div>
+                  <div className="relative aspect-[16/10] overflow-hidden bg-stone-900 group/img select-none">
+                    <img
+                      src={realYogaImages[activeYogaIdx].url}
+                      onError={(e) => { e.currentTarget.src = realYogaImages[activeYogaIdx].localUrl; }}
+                      alt={t.yogaTitle}
+                      className="w-full h-full object-cover transition-all duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+                    
+                    {/* Controls */}
+                    <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between items-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={() => setActiveYogaIdx((prev) => (prev === 0 ? realYogaImages.length - 1 : prev - 1))}
+                        className="w-8 h-8 rounded-full bg-black/60 backdrop-blur text-white flex items-center justify-center hover:bg-black/90 cursor-pointer shadow-md"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveYogaIdx((prev) => (prev === realYogaImages.length - 1 ? 0 : prev + 1))}
+                        className="w-8 h-8 rounded-full bg-black/60 backdrop-blur text-white flex items-center justify-center hover:bg-black/90 cursor-pointer shadow-md"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+
+                    {/* Thumbnails pill */}
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2 py-1 rounded-xl border border-white/20">
+                      {realYogaImages.map((img, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setActiveYogaIdx(idx)}
+                          className={`relative w-8 h-8 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                            activeYogaIdx === idx ? 'border-emerald-400 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
+                          }`}
+                        >
+                          <img src={img.url} onError={(e) => { e.currentTarget.src = img.localUrl; }} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+
+                    <span className="absolute bottom-3 left-4 text-white text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 bg-emerald-800/90 backdrop-blur-sm rounded-lg border border-emerald-400/30">
+                      Yoga Temple Shala · {activeYogaIdx + 1}/3
+                    </span>
+                  </div>
+
+                  <div className="p-6 md:p-8">
+                    <h3
+                      className="text-stone-850 mb-3 font-semibold text-[1.3rem] flex items-center gap-2"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                    >
+                      <Flower className="text-emerald-700 w-5 h-5" />
+                      {t.yogaTitle}
+                    </h3>
+                    <p 
+                      className="text-xs text-stone-550 leading-relaxed mb-4 font-light"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                    >
+                      {t.yogaDesc1}
+                    </p>
+                    <p 
+                      className="text-xs text-stone-550 leading-relaxed mb-6 font-light"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                    >
+                      {t.yogaDesc2}
+                    </p>
+
+                    {/* Collaboration callout */}
+                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+                      <h4 
+                        className="text-emerald-800 font-bold text-xs mb-1"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                      >
+                        {t.yogaCalloutTitle}
+                      </h4>
+                      <p 
+                        className="text-emerald-700/90 text-[11px] leading-relaxed font-light"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                      >
+                        {t.yogaCalloutDesc}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {treatmentsData.map((item, i) => {
-              const tr = t.treatments[item.key] || t.treatments['thai'];
-              return (
-                <div key={i} className="group overflow-hidden border border-stone-200 bg-stone-50/20 rounded-2xl hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
-                  <div>
-                    <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden">
+        )}
+
+        {/* REFINED SLEEK SEASONALITY CALLOUT STRIP (Replaces the huge boring box with tiny text) */}
+        {(activeSpaTab === 'all' || activeSpaTab === 'massages' || activeSpaTab === 'beauty') && (
+          <div className="mb-14 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#184534] via-[#0c241b] to-[#184534] text-white flex flex-col sm:flex-row items-center justify-between gap-4 border border-emerald-700/40 shadow-sm animate-fadeIn">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-white/10 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0">
+                <Calendar size={20} />
+              </div>
+              <div>
+                <h4
+                  className="text-sm font-bold uppercase tracking-wider text-emerald-300"
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                >
+                  {t.calHeader} · {lang === 'IT' ? 'Dicembre – Aprile' : lang === 'EN' ? 'December – April' : lang === 'TH' ? 'ธันวาคม – เมษายน' : 'Dezember – April'}
+                </h4>
+                <p className="text-xs text-stone-200 font-light mt-0.5 leading-relaxed">
+                  {lang === 'IT'
+                    ? 'I trattamenti con operatore qualificato (massaggi ed estetica) sono attivi durante l\'alta stagione. Prenotazioni sempre aperte.'
+                    : lang === 'EN'
+                    ? 'Professional therapist treatments (massages and beauty services) operate during high season (Dec - Apr). Advance booking open.'
+                    : lang === 'TH'
+                    ? 'บริการนวดแผนโบราณและสปาเปิดให้บริการช่วงไฮซีซั่น (ธันวาคม - เมษายน) สามารถติดต่อจองล่วงหน้าได้ตลอดเวลา'
+                    : 'Behandlungen mit qualifizierten Therapeuten (Massagen und Kosmetik) sind in der Hochsaison (Dez - Apr) aktiv.'}
+                </p>
+              </div>
+            </div>
+            <a
+              href="mailto:flowerpowerphayam@gmail.com?subject=Prenotazione trattamenti Spa"
+              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl shrink-0 transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+              style={{ fontFamily: 'Outfit, sans-serif' }}
+            >
+              {t.bookButton}
+            </a>
+          </div>
+        )}
+
+        {/* SECTION 2: I NOSTRI TRATTAMENTI MASSAGGIO */}
+        {(activeSpaTab === 'all' || activeSpaTab === 'massages') && (
+          <div className="mb-16 animate-fadeIn">
+            <div className="flex items-center gap-2.5 mb-6 pb-2 border-b border-stone-200">
+              <Sparkles className="text-emerald-750" size={18} />
+              <h3
+                className="text-stone-750 font-light text-xl"
+                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+              >
+                {t.treatmentsHeader}
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {treatmentsData.map((item, i) => {
+                const tr = t.treatments[item.key] || t.treatments['thai'];
+                return (
+                  <div
+                    key={i}
+                    className="group bg-white rounded-2xl border border-stone-200/80 p-3 sm:p-3.5 flex items-start gap-4 hover:shadow-md hover:border-emerald-600/30 transition-all duration-300"
+                  >
+                    {/* Thumbnail on left */}
+                    <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shrink-0 bg-stone-100 shadow-xs border border-stone-200/60">
                       <img
                         src={item.image}
                         alt={tr.name}
+                        loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                      <span className="absolute bottom-3 left-4 text-white text-[10px] font-bold px-2 py-1 bg-black/40 backdrop-blur-sm border border-white/20 rounded">
-                        {item.duration}
-                      </span>
-                      <span className="absolute bottom-3 right-4 text-white text-xs font-black px-2.5 py-1 bg-emerald-800/90 rounded shadow-sm">
-                        {item.price}
-                      </span>
                     </div>
-                    <div className="p-5">
-                      <h3
-                        className="text-stone-850 mb-2 font-semibold text-[1.1rem]"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                      >
-                        {tr.name}
-                      </h3>
-                      <p 
-                        className="text-xs text-stone-500 leading-relaxed font-light"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                      >
-                        {tr.desc}
-                      </p>
+
+                    {/* Info on right */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch py-0.5">
+                      <div>
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <h4
+                            className="text-stone-900 font-semibold text-sm sm:text-base leading-snug tracking-tight"
+                            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                          >
+                            {tr.name}
+                          </h4>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200/60">
+                              {item.duration}
+                            </span>
+                            <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200/60 shadow-2xs">
+                              {item.price}
+                            </span>
+                          </div>
+                        </div>
+                        <p 
+                          className="text-xs text-stone-600 leading-relaxed font-light"
+                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                        >
+                          {tr.desc}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Beauty Services Section */}
-        <div className="mb-20">
-          <div className="flex items-center gap-2.5 mb-8 pb-2 border-b border-stone-200">
-            <Sparkles className="text-emerald-750" size={18} />
-            <h3
-              className="text-stone-750 font-light text-xl"
-              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-            >
-              {t.beautyHeader}
-            </h3>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {beautyServicesData.map((item, i) => {
-              const be = t.beauty[item.key] || t.beauty['manicure'];
-              return (
-                <div key={i} className="group overflow-hidden border border-stone-200 bg-stone-50/20 rounded-2xl hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
-                  <div>
-                    <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden">
+        {/* SECTION 3: ESTETICA, UNGHIE & DEPILAZIONE */}
+        {(activeSpaTab === 'all' || activeSpaTab === 'beauty') && (
+          <div className="mb-16 animate-fadeIn">
+            <div className="flex items-center gap-2.5 mb-6 pb-2 border-b border-stone-200">
+              <Sparkles className="text-emerald-750" size={18} />
+              <h3
+                className="text-stone-750 font-light text-xl"
+                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+              >
+                {t.beautyHeader}
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {beautyServicesData.map((item, i) => {
+                const be = t.beauty[item.key] || t.beauty['manicure'];
+                return (
+                  <div
+                    key={i}
+                    className="group bg-white rounded-2xl border border-stone-200/80 p-3 sm:p-3.5 flex items-start gap-4 hover:shadow-md hover:border-emerald-600/30 transition-all duration-300"
+                  >
+                    {/* Thumbnail on left */}
+                    <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shrink-0 bg-stone-100 shadow-xs border border-stone-200/60">
                       <img
                         src={item.image}
                         alt={be.name}
+                        loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                      <span className="absolute bottom-3 left-4 text-white text-[10px] font-bold px-2 py-1 bg-black/40 backdrop-blur-sm border border-white/20 rounded">
-                        {item.duration}
-                      </span>
-                      <span className="absolute bottom-3 right-4 text-white text-xs font-black px-2.5 py-1 bg-emerald-800/90 rounded shadow-sm">
-                        {item.price}
-                      </span>
                     </div>
-                    <div className="p-5">
-                      <h3
-                        className="text-stone-850 mb-2 font-semibold text-[1.1rem]"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                      >
-                        {be.name}
-                      </h3>
-                      <p 
-                        className="text-xs text-stone-500 leading-relaxed font-light"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                      >
-                        {be.desc}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* Facilities Section */}
-        <div className="mb-16">
-          <div className="flex items-center gap-2 mb-8 pb-2 border-b border-stone-200">
-            <Dumbbell className="text-emerald-750" size={18} />
-            <h3
-              className="text-stone-750 font-light text-xl"
-              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-            >
-              {t.facilitiesHeader}
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-            {/* Facility 1: Gym */}
-            <div className="group overflow-hidden border border-stone-200 bg-stone-50/30 rounded-3xl flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 animate-fadeIn">
-              <div>
-                <div className="relative aspect-[16/9] overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80"
-                    alt={t.gymTitle}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                </div>
-                <div className="p-6 md:p-8">
-                  <h3
-                    className="text-stone-850 mb-3 font-semibold text-[1.3rem] flex items-center gap-2"
-                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                  >
-                    <Dumbbell className="text-emerald-700 w-5 h-5" />
-                    {t.gymTitle}
-                  </h3>
-                  <p 
-                    className="text-xs text-stone-550 leading-relaxed mb-6 font-light"
-                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                  >
-                    {t.gymDesc}
-                  </p>
-                  
-                  {/* Equipment list */}
-                  <h4 
-                    className="text-stone-700 font-bold text-xs uppercase tracking-wider mb-3"
-                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                  >
-                    {t.gymEquipTitle}
-                  </h4>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                    {t.gymEquip.map((equip: string, idx: number) => (
-                      <div 
-                        key={idx} 
-                        className="flex items-center gap-2 text-stone-600 text-xs font-light"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                      >
-                        <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full flex-shrink-0" />
-                        <span>{equip}</span>
+                    {/* Info on right */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch py-0.5">
+                      <div>
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <h4
+                            className="text-stone-900 font-semibold text-sm sm:text-base leading-snug tracking-tight"
+                            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                          >
+                            {be.name}
+                          </h4>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200/60">
+                              {item.duration}
+                            </span>
+                            <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200/60 shadow-2xs">
+                              {item.price}
+                            </span>
+                          </div>
+                        </div>
+                        <p 
+                          className="text-xs text-stone-600 leading-relaxed font-light"
+                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                        >
+                          {be.desc}
+                        </p>
                       </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Facility 2: Yoga Temple */}
-            <div className="group overflow-hidden border border-stone-200 bg-stone-50/30 rounded-3xl flex flex-col justify-between hover:shadow-lg transition-shadow duration-300 animate-fadeIn">
-              <div>
-                <div className="relative aspect-[16/9] overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=80"
-                    alt={t.yogaTitle}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                </div>
-                <div className="p-6 md:p-8">
-                  <h3
-                    className="text-stone-850 mb-3 font-semibold text-[1.3rem] flex items-center gap-2"
-                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                  >
-                    <Flower className="text-emerald-700 w-5 h-5" />
-                    {t.yogaTitle}
-                  </h3>
-                  <p 
-                    className="text-xs text-stone-550 leading-relaxed mb-4 font-light"
-                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                  >
-                    {t.yogaDesc1}
-                  </p>
-                  <p 
-                    className="text-xs text-stone-550 leading-relaxed mb-6 font-light"
-                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                  >
-                    {t.yogaDesc2}
-                  </p>
-
-                  {/* Collaboration callout */}
-                  <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
-                    <h4 
-                      className="text-emerald-800 font-bold text-xs mb-1"
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                    >
-                      {t.yogaCalloutTitle}
-                    </h4>
-                    <p 
-                      className="text-emerald-700/90 text-[11px] leading-relaxed font-light"
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                    >
-                      {t.yogaCalloutDesc}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Booking/Contact Footer */}
+        {/* BOOKING / CONTACT FOOTER */}
         <div className="p-8 bg-stone-50 border border-stone-200 rounded-3xl text-center max-w-2xl mx-auto shadow-sm">
           <p 
             className="text-sm text-stone-600 leading-relaxed mb-6 font-light"

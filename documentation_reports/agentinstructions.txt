@@ -1,0 +1,104 @@
+# ⚠️ NUOVA REGOLA D'ORO API OCTORATE
+
+1. **PREZZI**: Le variazioni di prezzo devono colpire sempre e solo l'ID della Tariffa Madre (Livello 0). Octorate calcola lo sconto automaticamente a cascata su tutte le tariffe derivate.
+2. **RESTRIZIONI (Stop Sell, CA, CD, MinStay)**: È consentito scrivere le restrizioni direttamente sulle tariffe derivate (Livello 1 e 2) in cui l'ereditarietà è disattivata (es. R1 7d), e questo verrà specificato di volta in volta.
+3. **POLITICHE DI CANCELLAZIONE (`7d` e `14d`)**: Le sigle `7d` e `14d` indicano **TASSATIVAMENTE I GIORNI DELLA FINESTRA DI CANCELLAZIONE GRATUITA CON RIMBORSO TOTALE 100%**:
+   - `7d`: Rimborso 100% entro 7gg; `14d`: Rimborso 100% entro 14gg.
+4. **TARIFFA OFF NELLA DASHBOARD = STOP SELL CATEGORICO SU TUTTE LE OTA (IMPLICITO & INTRINSECO)**:
+   - Ogni volta che un piano tariffario o tariffa risulta `OFF` (disattivato/spento) nella dashboard, il sistema garantisce tassativamente che sui server Octorate e su tutte le OTA collegate (Booking.com, Agoda, Expedia, Airbnb) lo stato sia **`stopSells: true, closed: true`** per l'intera stagione su tutti i 18 alloggi (tutti i 212 ID). L'azione di disattivazione effettua sempre e categoricamente un push reale immediato su Octorate API.
+
+---
+
+# Supabase Data API Permissions (Nuove Tabelle & Migrazioni SQL)
+A partire dal 30 Ottobre, Supabase non assegna più automaticamente i permessi di accesso Data API (supabase-js / PostgREST) alle nuove tabelle create nello schema `public`.
+Ogni volta che si crea una nuova tabella o si genera uno script/migrazione SQL nello schema `public`, aggiungere **SEMPRE TASSATIVAMENTE** in coda allo script le clausole di `GRANT` esplicite:
+```sql
+-- Permessi per utenti anonimi (se applicabile)
+GRANT SELECT ON public.NOME_TABELLA TO anon;
+
+-- Permessi per utenti autenticati (Admin / Staff)
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.NOME_TABELLA TO authenticated;
+
+-- Permessi per chiamate serverless backend
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.NOME_TABELLA TO service_role;
+```
+# 🛡️ REGOLA D'ORO SVILUPPO LOCALE & REGOLE AMBIENTI (LOCALE / VIRTUALE / PRODUZIONE)
+1. **LAVORO ORDINARIO 100% LOCALE (ZERO GIT PUSH SPONTANEO)**:
+   - Durante le normali sessioni di sviluppo e correzione bug, l'agente lavora **ESCLUSIVAMENTE SUL CODICE LOCALE** (`http://localhost:3000`).
+   - È **SEVERAMENTE VIETATO** eseguire `git push` o pubblicazioni su GitHub/Vercel di propria iniziativa senza che l'utente abbia espressamente digitato la parola d'ordine `MARKDOWN-PROJECT` o `MARKDOWN-WEBSITE`.
+2. **SCONTO 10% PRIMO ORDINE (BYPASS IN LOCALE & VIRTUALE)**:
+   - In ambiente **Locale (`localhost`)** e **Virtuale / Staging**, il controllo hardware/telefono/email è **TOTALMENTE BYPASSATO (`eligible: true`)**: lo sconto del 10% è sempre concesso e visibile a schermo per permettere lo sviluppo, la preview e il test continuo.
+   - Il controllo anti-abuso reale (3 fattori: Telefono, Email, Device ID + GPS Haversine 50m con eccezione Hotel/Resort) viene applicato **SOLO ED ESCLUSIVAMENTE** quando si naviga sul dominio ufficiale di produzione (`www.flowerpowerpizza.com`) attivato via `MARKDOWN-WEBSITE`.
+3. **BANNER ANTEPRIMA / ISPEZIONE GATEWAY (`previewNotice`)**:
+   - Gli avvisi di cantiere, conformità payment gateway e sandbox compaiono **SOLO sul dominio ufficiale di produzione**, MAI in locale o nel virtuale.
+
+---
+
+# Vault-Sync & Multi-Workstation Protocol (Koh Phayam <-> Ranong)
+
+## Vault-Sync & Security (.gitignore)
+- `scratch/vault-sync.mjs` gestisce la cifratura e la decifratura delle chiavi di progetto.
+- Il report in chiaro `.secret_docs/api_credentials_report.md` DEVE rimanere strettamente bloccato da Git (`.secret_docs/*`).
+- Solo il file cifrato `.secret_docs/api_credentials_report.md.enc` viene tracciato da Git (`!.secret_docs/api_credentials_report.md.enc`).
+- I file d'ambiente in chiaro (`.env`, `.env.local`, `.env.*`) DEVONO rimanere strettamente ignorati da Git.
+
+## Mandatory Trigger Words & Workflows
+
+### 1. `VAULT-SYNC` (Workflow Sincronizzazione Nuova Postazione)
+Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** sulla postazione:
+1. **Aggiornamento Automatico Git**: Esegue preliminare `git pull` da origin per scaricare l'ultimo codice e il file cifrato aggiornato `.md.enc`.
+2. **Decifratura Vault**: Esegui `node scratch/vault-sync.mjs decrypt` (usando `MASTER_VAULT_KEY`).
+3. **Allineamento Ambiente**: Rigenera e allinea automaticamente i file `.env` e `.env.local` locali.
+4. **Verifica Connessioni**: Esegui `node scratch/test-credentials-verification.mjs`.
+5. **Check Sicurezza Git**: Esegui la verifica per confermare che `.secret_docs/api_credentials_report.md` e i file `.env` siano bloccati da `.gitignore`.
+6. **Conferma Operatività**: Mostra un report chiaro dell'esito dei test e dell'allineamento.
+
+### 2. `MARKDOWN-STAGING` / `MARKDOWN-STAGING-PIZZA` / `MARKDOWN-STAGING-VILLAGE` (Deploy Staging)
+Quando l'utente pronuncia **`MARKDOWN-STAGING`** (o le varianti **`MARKDOWN-STAGING-PIZZA`** / **`MARKDOWN-STAGING-VILLAGE`**):
+Esegue il deploy rapido e sicuro **ESCLUSIVAMENTE sul branch `staging` di Vercel (zero impatto sui clienti di produzione)**:
+1. **Audit Sicurezza & Cifratura Silenziosa**: Convalida zero secret leak (`node scratch/security-audit.mjs`) e cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
+2. **Typecheck Istantaneo**: Convalida zero errori TypeScript (`npx tsc --noEmit`).
+3. **Push Diretto su Staging**: `git checkout staging`, `git add .`, `git commit -m "<messaggio_sintetico_con_tag_reparto>"`, `git push origin staging`.
+4. **Notifica**: Conferma in 1 riga che il deploy è stato inviato all'ambiente di **Staging Privato** (`staging.flowerpowerpizza.com`).
+
+### 3. `MARKDOWN-WEBSITE` / `MARKDOWN-WEBSITE-PIZZA` / `MARKDOWN-WEBSITE-VILLAGE` (Deploy Produzione)
+Quando l'utente pronuncia **`MARKDOWN-WEBSITE`** (o le varianti **`MARKDOWN-WEBSITE-PIZZA`** / **`MARKDOWN-WEBSITE-VILLAGE`**):
+Esegue il rilascio definitivo direttamente sul branch di produzione `main` (`www.flowerpowerpizza.com` & `www.flowerpowervillage.com`):
+1. **Audit Sicurezza & Typecheck**: Convalida zero secret leak e zero errori TypeScript (`npx tsc --noEmit`).
+2. **Merge & Push su Produzione (`main`)**:
+   - `git checkout main`
+   - `git merge staging -m "Release: <descrizione_rilascio_con_tag_reparto>"`
+   - `git push origin main` (Pubblica all'istante sui domini ufficiali).
+   - Ritorno automatico su `staging` (`git checkout staging`).
+3. **Notifica**: Conferma dell'avvenuto rilascio pubblico in produzione.
+
+### 4. `MARKDOWN-PROJECT` (Master Workflow Completo: Documentazione + Gemini Report + Staging + Produzione)
+Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`**:
+Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi i reparti:
+1. **Fase 1 - Versioning & Documentazione Tecnica**:
+   - Aggiornamento fisico dei file in `/documentation_reports/` e copie di sicurezza (`cp .agents/AGENTS.md documentation_reports/AGENTS.md` e `cp .agentinstructions documentation_reports/agentinstructions.txt`).
+   - Cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
+   - Controllo zero secret leak (`node scratch/security-audit.mjs`) e Typecheck (`npx tsc --noEmit`).
+2. **Fase 2 - Deploy Simultaneo (Staging + Produzione)**:
+   - Commit delle modifiche sul branch `staging`.
+   - `git push origin staging` (Aggiorna all'istante `staging.flowerpowerpizza.com`).
+   - `git checkout main`
+   - `git merge staging -m "Release: <descrizione_rilascio>"`
+   - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
+   - Ritorno automatico su `staging` (`git checkout staging`).
+3. **Fase 3 - Report Handoff a 5 Punti per Gemini Notebook**:
+   - Emissione del report compatto per il taccuino Gemini ed elenco dei file modificati in `/documentation_reports/`.
+
+---
+
+# 🌍 PROTOCOLLO UNIVERSALE: `[LINGUA] FULL TRANSLATION` / `[LINGUA] TRADUZIONE TOTALE`
+Quando l'utente inserisce il comando `[LINGUA] FULL TRANSLATION` oppure `[LINGUA] TRADUZIONE TOTALE` (ad es. `FRANCESE FULL TRANSLATION`, `FRENCH FULL TRANSLATION`, `RUSSO FULL TRANSLATION`, `CINESE FULL TRANSLATION`, `FRANCESE TRADUZIONE TOTALE`), l'agente esegue in autonomia la **Pipeline Multilingua Radicale a 9 Fasi** tramite DeepSeek AI Chat API (motore CLI `node scripts/deepseek-universal-translator.mjs --lang=[CODICE]`):
+1. Configurazione lingua ISO in `languages.ts`.
+2. Integrazione prompt/schemi JSON DeepSeek negli studi admin (`dishTranslatorEngine.ts`, `DishCardStudio.tsx`, `WineCardStudio.tsx`).
+3. Traduzione integrale catalogo ~150 piatti in `menuData.ts`.
+4. Traduzione integrale enoteca/vini in `wineData.tsx`.
+5. Traduzione integrale dizionario UI in `i18n.ts`.
+6. Localizzazione filtri dietetici, badge Halal/Vegan in `dietary.ts`.
+7. Traduzione Dining Tablet in `DiningTabletSite.tsx` e modali tavolo.
+8. Traduzione Delivery, Carrello e Checkout (`CheckoutFlow.tsx`, `CartDrawer.tsx`).
+9. Convalida zero errori con `npx tsc --noEmit`.

@@ -107,10 +107,10 @@ const cleanTranslations: Record<string, Record<string, string>> = {
     TH: 'Wi-Fi'
   },
   hubit_coworking: {
-    IT: 'Accesso HUBit@ CoWorking Area 100Mbps',
-    EN: 'Access HUBit@ CoWorking Area 100Mbps',
-    DE: 'Zugang HUBit@ CoWorking Area 100Mbps',
-    TH: 'เข้าใช้ HUBit@ CoWorking Area 100Mbps'
+    IT: 'Accesso Cucina Condivisa Long Stay',
+    EN: 'Shared Kitchen Access for Long Stays',
+    DE: 'Zugang Gemeinschaftsküche für Langzeitaufenthalte',
+    TH: 'สิทธิ์ใช้งานครัวส่วนกลางสำหรับการพักระยะยาว'
   },
   air_conditioning: {
     IT: 'Aria Condizionata',

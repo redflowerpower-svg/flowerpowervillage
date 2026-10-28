@@ -1,1 +1,8 @@
-/*    /index.html   200
+/flowerpowerpizzaranong/* https://www.flowerpowerpizza.com 301!
+/flowerpowerpizzaranong   https://www.flowerpowerpizza.com 301!
+/flowerpowerpizza/*       https://www.flowerpowerpizza.com 301!
+/flowerpowerpizza         https://www.flowerpowerpizza.com 301!
+/36-room-6/*              /village                               301!
+/36-room-6                /village                               301!
+/room-6                   /village                               301!
+/*                        /index.html                     200

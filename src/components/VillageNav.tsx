@@ -15,6 +15,7 @@ const navTranslations = {
     accommodations: 'Alloggi',
     restaurant: 'Ristorante & Pizzeria',
     spa: 'Spa & Sport',
+    gallery: 'Galleria',
     directions: 'Come Raggiungerci',
     contact: 'Contatti',
     home: 'Home'
@@ -23,6 +24,7 @@ const navTranslations = {
     accommodations: 'Accommodations',
     restaurant: 'Restaurant & Pizzeria',
     spa: 'Spa & Wellness',
+    gallery: 'Gallery',
     directions: 'Directions',
     contact: 'Contact Us',
     home: 'Home'
@@ -31,6 +33,7 @@ const navTranslations = {
     accommodations: 'ที่พัก',
     restaurant: 'ร้านอาหาร & พิซซ่า',
     spa: 'สปา & เวลเนส',
+    gallery: 'แกลเลอรี',
     directions: 'การเดินทาง',
     contact: 'ติดต่อเรา',
     home: 'หน้าหลัก'
@@ -39,6 +42,7 @@ const navTranslations = {
     accommodations: 'Unterkünfte',
     restaurant: 'Restaurant & Pizzeria',
     spa: 'Spa & Wellness',
+    gallery: 'Galerie',
     directions: 'Anreise',
     contact: 'Kontakt',
     home: 'Startseite'
@@ -64,6 +68,7 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
     { label: t.accommodations, id: 'accommodations' },
     { label: t.restaurant, id: 'restaurant' },
     { label: t.spa, id: 'spa' },
+    { label: t.gallery, id: 'gallery' },
     { label: t.directions, id: 'directions' },
     { label: t.contact, id: 'contact' },
   ];

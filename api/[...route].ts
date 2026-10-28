@@ -50,6 +50,7 @@ import { handlePromoCodes } from "./_handlers/promo-codes.js";
 import { handleResortSentinel } from "./_handlers/resort-sentinel.js";
 import { handleSocialCallback } from "./_handlers/social-callback.js";
 import { handleSocialPublisher } from "./_handlers/social-publisher.js";
+import { handleRanongFlights } from "./_handlers/ranong-flights.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -84,6 +85,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.startsWith('social-callback') || cleanPath.startsWith('social/callback') || cleanPath.startsWith('tiktok-callback')) {
     return handleSocialCallback(req, res);
+  }
+
+  if (cleanPath.startsWith('ranong-flights') || cleanPath.startsWith('flights')) {
+    return handleRanongFlights(req, res);
   }
 
   if (cleanPath.startsWith('social-publisher') || cleanPath.startsWith('social/publisher') || cleanPath.startsWith('social-publish') || cleanPath.startsWith('tiktok-publish')) {

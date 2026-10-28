@@ -1,0 +1,312 @@
+// Auto-generated gallery manifest with WebP images hosted on Supabase CDN with local fallback
+export interface GalleryPhoto {
+  id: string;
+  category: 'garden' | 'gym' | 'restaurant' | 'pool' | 'yoga';
+  categoryName: string;
+  categoryNameIt: string;
+  originalFile: string;
+  fileName: string;
+  url: string;
+  localUrl: string;
+  width: number;
+  height: number;
+  aspectRatio: number;
+  orientation: 'landscape' | 'portrait' | 'square';
+}
+
+export const VILLAGE_GALLERY_PHOTOS: GalleryPhoto[] = [
+  {
+    "id": "garden_garden_1",
+    "category": "garden",
+    "categoryName": "Tropical Gardens",
+    "categoryNameIt": "Giardino Tropicale",
+    "originalFile": "Garden 1.png",
+    "fileName": "garden_1.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/garden/garden_1.webp",
+    "localUrl": "/images/village/gallery/garden/garden_1.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "garden_garden_2",
+    "category": "garden",
+    "categoryName": "Tropical Gardens",
+    "categoryNameIt": "Giardino Tropicale",
+    "originalFile": "Garden 2.png",
+    "fileName": "garden_2.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/garden/garden_2.webp",
+    "localUrl": "/images/village/gallery/garden/garden_2.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "garden_garden_3",
+    "category": "garden",
+    "categoryName": "Tropical Gardens",
+    "categoryNameIt": "Giardino Tropicale",
+    "originalFile": "Garden 3.png",
+    "fileName": "garden_3.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/garden/garden_3.webp",
+    "localUrl": "/images/village/gallery/garden/garden_3.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "garden_garden_5",
+    "category": "garden",
+    "categoryName": "Tropical Gardens",
+    "categoryNameIt": "Giardino Tropicale",
+    "originalFile": "Garden 5.png",
+    "fileName": "garden_5.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/garden/garden_5.webp",
+    "localUrl": "/images/village/gallery/garden/garden_5.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "garden_garden_6",
+    "category": "garden",
+    "categoryName": "Tropical Gardens",
+    "categoryNameIt": "Giardino Tropicale",
+    "originalFile": "Garden 6.png",
+    "fileName": "garden_6.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/garden/garden_6.webp",
+    "localUrl": "/images/village/gallery/garden/garden_6.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "garden_garden_7",
+    "category": "garden",
+    "categoryName": "Tropical Gardens",
+    "categoryNameIt": "Giardino Tropicale",
+    "originalFile": "Garden 7.png",
+    "fileName": "garden_7.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/garden/garden_7.webp",
+    "localUrl": "/images/village/gallery/garden/garden_7.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "garden_garden_8",
+    "category": "garden",
+    "categoryName": "Tropical Gardens",
+    "categoryNameIt": "Giardino Tropicale",
+    "originalFile": "Garden 8.png",
+    "fileName": "garden_8.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/garden/garden_8.webp",
+    "localUrl": "/images/village/gallery/garden/garden_8.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "garden_massage_centre",
+    "category": "garden",
+    "categoryName": "Tropical Gardens",
+    "categoryNameIt": "Giardino Tropicale",
+    "originalFile": "Massage Centre.png",
+    "fileName": "massage_centre.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/garden/massage_centre.webp",
+    "localUrl": "/images/village/gallery/garden/massage_centre.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "gym_gym_1",
+    "category": "gym",
+    "categoryName": "Outdoor Fitness & Gym",
+    "categoryNameIt": "Area Fitness & Palestra",
+    "originalFile": "Gym 1.png",
+    "fileName": "gym_1.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/gym/gym_1.webp",
+    "localUrl": "/images/village/gallery/gym/gym_1.webp",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1,
+    "orientation": "square"
+  },
+  {
+    "id": "gym_gym_2",
+    "category": "gym",
+    "categoryName": "Outdoor Fitness & Gym",
+    "categoryNameIt": "Area Fitness & Palestra",
+    "originalFile": "Gym 2.png",
+    "fileName": "gym_2.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/gym/gym_2.webp",
+    "localUrl": "/images/village/gallery/gym/gym_2.webp",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1,
+    "orientation": "square"
+  },
+  {
+    "id": "gym_gym_3",
+    "category": "gym",
+    "categoryName": "Outdoor Fitness & Gym",
+    "categoryNameIt": "Area Fitness & Palestra",
+    "originalFile": "Gym 3.png",
+    "fileName": "gym_3.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/gym/gym_3.webp",
+    "localUrl": "/images/village/gallery/gym/gym_3.webp",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1,
+    "orientation": "square"
+  },
+  {
+    "id": "restaurant_restaurant_1",
+    "category": "restaurant",
+    "categoryName": "Restaurant & Bar",
+    "categoryNameIt": "Ristorante & Bar",
+    "originalFile": "Restaurant 1.png",
+    "fileName": "restaurant_1.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/restaurant/restaurant_1.webp",
+    "localUrl": "/images/village/gallery/restaurant/restaurant_1.webp",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1,
+    "orientation": "square"
+  },
+  {
+    "id": "restaurant_restaurant_2",
+    "category": "restaurant",
+    "categoryName": "Restaurant & Bar",
+    "categoryNameIt": "Ristorante & Bar",
+    "originalFile": "Restaurant 2.png",
+    "fileName": "restaurant_2.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/restaurant/restaurant_2.webp",
+    "localUrl": "/images/village/gallery/restaurant/restaurant_2.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "restaurant_restaurant_3",
+    "category": "restaurant",
+    "categoryName": "Restaurant & Bar",
+    "categoryNameIt": "Ristorante & Bar",
+    "originalFile": "Restaurant 3.png",
+    "fileName": "restaurant_3.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/restaurant/restaurant_3.webp",
+    "localUrl": "/images/village/gallery/restaurant/restaurant_3.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "restaurant_restaurant_4",
+    "category": "restaurant",
+    "categoryName": "Restaurant & Bar",
+    "categoryNameIt": "Ristorante & Bar",
+    "originalFile": "Restaurant 4.png",
+    "fileName": "restaurant_4.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/restaurant/restaurant_4.webp",
+    "localUrl": "/images/village/gallery/restaurant/restaurant_4.webp",
+    "width": 1536,
+    "height": 1024,
+    "aspectRatio": 1.5,
+    "orientation": "landscape"
+  },
+  {
+    "id": "pool_swimming_pool_1",
+    "category": "pool",
+    "categoryName": "Tropical Swimming Pool",
+    "categoryNameIt": "Piscina Tropicale",
+    "originalFile": "Swimming Poll 1.png",
+    "fileName": "swimming_pool_1.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/pool/swimming_pool_1.webp",
+    "localUrl": "/images/village/gallery/pool/swimming_pool_1.webp",
+    "width": 1434,
+    "height": 979,
+    "aspectRatio": 1.465,
+    "orientation": "landscape"
+  },
+  {
+    "id": "pool_swimming_pool_2",
+    "category": "pool",
+    "categoryName": "Tropical Swimming Pool",
+    "categoryNameIt": "Piscina Tropicale",
+    "originalFile": "Swimming Pool 2.png",
+    "fileName": "swimming_pool_2.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/pool/swimming_pool_2.webp",
+    "localUrl": "/images/village/gallery/pool/swimming_pool_2.webp",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1,
+    "orientation": "square"
+  },
+  {
+    "id": "pool_swimming_pool_3",
+    "category": "pool",
+    "categoryName": "Tropical Swimming Pool",
+    "categoryNameIt": "Piscina Tropicale",
+    "originalFile": "Swimming Pool 3.png",
+    "fileName": "swimming_pool_3.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/pool/swimming_pool_3.webp",
+    "localUrl": "/images/village/gallery/pool/swimming_pool_3.webp",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1,
+    "orientation": "square"
+  },
+  {
+    "id": "yoga_yoga_temple_1",
+    "category": "yoga",
+    "categoryName": "Yoga Temple Shala",
+    "categoryNameIt": "Tempio dello Yoga",
+    "originalFile": "Yoga Temple 1.png",
+    "fileName": "yoga_temple_1.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/yoga/yoga_temple_1.webp",
+    "localUrl": "/images/village/gallery/yoga/yoga_temple_1.webp",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1,
+    "orientation": "square"
+  },
+  {
+    "id": "yoga_yoga_temple_2",
+    "category": "yoga",
+    "categoryName": "Yoga Temple Shala",
+    "categoryNameIt": "Tempio dello Yoga",
+    "originalFile": "Yoga Temple 2.png",
+    "fileName": "yoga_temple_2.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/yoga/yoga_temple_2.webp",
+    "localUrl": "/images/village/gallery/yoga/yoga_temple_2.webp",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1,
+    "orientation": "square"
+  },
+  {
+    "id": "yoga_yoga_temple_3",
+    "category": "yoga",
+    "categoryName": "Yoga Temple Shala",
+    "categoryNameIt": "Tempio dello Yoga",
+    "originalFile": "Yoga Temple 3.png",
+    "fileName": "yoga_temple_3.webp",
+    "url": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/village_gallery/yoga/yoga_temple_3.webp",
+    "localUrl": "/images/village/gallery/yoga/yoga_temple_3.webp",
+    "width": 1024,
+    "height": 1024,
+    "aspectRatio": 1,
+    "orientation": "square"
+  }
+];

@@ -257,34 +257,34 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   agd_ac_7d: [
     {
       id: 'ag7_p1',
-      name: 'AGD AC-7d',
+      name: 'AGD AC-7d (Bassa Stagione)',
       dateFrom: '2026-10-01',
       dateTo: '2026-12-15',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: true
-    },
-    {
-      id: 'ag7_p2',
-      name: 'AGD AC-7d',
-      dateFrom: '2026-12-26',
-      dateTo: '2027-01-15',
       stopSell: true,
-      closedToArrival: false,
+      closedToArrival: true,
       closedToDeparture: true,
       onlyCheckOutDays: 0,
       failsafeCheckout: false
     },
     {
-      id: 'ag7_p3',
-      name: 'AGD AC-7d',
-      dateFrom: '2027-01-16',
-      dateTo: '2027-05-31',
+      id: 'ag7_p2',
+      name: 'AGD AC-7d (High Season Red/Green/Yellow)',
+      dateFrom: '2026-12-16',
+      dateTo: '2027-03-31',
       stopSell: false,
       closedToArrival: false,
       closedToDeparture: false,
+      onlyCheckOutDays: 0,
+      failsafeCheckout: false
+    },
+    {
+      id: 'ag7_p3',
+      name: 'AGD AC-7d (Post Season)',
+      dateFrom: '2027-04-01',
+      dateTo: '2027-10-31',
+      stopSell: true,
+      closedToArrival: true,
+      closedToDeparture: true,
       onlyCheckOutDays: 0,
       failsafeCheckout: false
     }
@@ -292,33 +292,33 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   agd_ac_14d: [
     {
       id: 'ag14_p1',
-      name: 'AGD AC-14d',
+      name: 'AGD AC-14d (Bassa Stagione)',
       dateFrom: '2026-10-01',
       dateTo: '2026-12-15',
       stopSell: true,
-      closedToArrival: false,
+      closedToArrival: true,
       closedToDeparture: true,
       onlyCheckOutDays: 0,
       failsafeCheckout: false
     },
     {
       id: 'ag14_p2',
-      name: 'AGD AC-14d',
+      name: 'AGD AC-14d (High Season Red/Green/Yellow)',
       dateFrom: '2026-12-16',
-      dateTo: '2027-01-15',
+      dateTo: '2027-03-31',
       stopSell: false,
       closedToArrival: false,
       closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: true
+      onlyCheckOutDays: 0,
+      failsafeCheckout: false
     },
     {
       id: 'ag14_p3',
-      name: 'AGD AC-14d',
-      dateFrom: '2027-01-26',
-      dateTo: '2027-05-31',
+      name: 'AGD AC-14d (Post Season)',
+      dateFrom: '2027-04-01',
+      dateTo: '2027-10-31',
       stopSell: true,
-      closedToArrival: false,
+      closedToArrival: true,
       closedToDeparture: true,
       onlyCheckOutDays: 0,
       failsafeCheckout: false

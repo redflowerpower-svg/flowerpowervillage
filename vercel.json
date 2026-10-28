@@ -20,6 +20,31 @@
       "source": "/flowerpowerpizzaranong/:path*",
       "destination": "https://www.flowerpowerpizza.com",
       "permanent": true
+    },
+    {
+      "source": "/flowerpowerpizza",
+      "destination": "https://www.flowerpowerpizza.com",
+      "permanent": true
+    },
+    {
+      "source": "/flowerpowerpizza/:path*",
+      "destination": "https://www.flowerpowerpizza.com",
+      "permanent": true
+    },
+    {
+      "source": "/36-room-6",
+      "destination": "/village",
+      "permanent": true
+    },
+    {
+      "source": "/36-room-6/:path*",
+      "destination": "/village",
+      "permanent": true
+    },
+    {
+      "source": "/room-6",
+      "destination": "/village",
+      "permanent": true
     }
   ],
   "rewrites": [

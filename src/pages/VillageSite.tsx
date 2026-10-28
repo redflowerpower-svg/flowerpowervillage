@@ -8,9 +8,10 @@ import BookingEngine from '../booking/components/booking-engine';
 import RestaurantSection from '../sections/RestaurantSection';
 import SpaSection from '../sections/SpaSection';
 import DirectionsSection from '../sections/DirectionsSection';
+import GallerySection from '../sections/GallerySection';
 import ContactSection from '../sections/ContactSection';
 
-type Page = 'accommodations' | 'restaurant' | 'spa' | 'directions' | 'contact';
+type Page = 'accommodations' | 'restaurant' | 'spa' | 'gallery' | 'directions' | 'contact';
 
 const subPathToPage: Record<string, Page> = {
   '': 'accommodations',
@@ -18,7 +19,7 @@ const subPathToPage: Record<string, Page> = {
   'restaurant': 'restaurant',
   'restaurant-pizzeria': 'restaurant',
   'spa': 'spa',
-  'gallery': 'accommodations',
+  'gallery': 'gallery',
   'directions': 'directions',
   'how-to-get-here': 'directions',
   'contact': 'contact',
@@ -75,6 +76,12 @@ export default function VillageSite() {
         return (
           <PageLayout lang={lang} setLang={setLang}>
             <SpaSection lang={lang} />
+          </PageLayout>
+        );
+      case 'gallery':
+        return (
+          <PageLayout lang={lang} setLang={setLang}>
+            <GallerySection lang={lang} />
           </PageLayout>
         );
       case 'directions':

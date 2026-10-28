@@ -7,6 +7,7 @@ import {
   Wifi,
   Users,
   Calendar,
+  CalendarDays,
   Coffee,
   ChevronDown,
   Globe,
@@ -41,7 +42,7 @@ const CATEGORY_ITEMS = [
   { name: "Ville", label: "VILLE", desc: "Lusso e privacy", icon: Home },
   { name: "Bungalow", label: "BUNGALOW", desc: "Immersi nel verde", icon: Trees },
   { name: "Tende Glamping", label: "GLAMPING", desc: "Natura e comfort", icon: Tent },
-  { name: "The Hub Guesthouse", label: "HUBit@", desc: "The Coworking GuestHouse", icon: Bed },
+  { name: "The Hub Guesthouse", label: "Guesthouse", desc: "Camere Private e Comfort", icon: Bed },
 ]
 
 function parseLocalDate(dateStr: string): Date {
@@ -74,9 +75,9 @@ function isLowSeason(checkIn: string, checkOut: string): boolean {
 
 function getDiscountInfo(days: number): { label: string; discount: number; color: string } {
   if (days >= 30) {
-    return { label: "Tariffa Long-Term Coliving (-20%)", discount: 0.20, color: "bg-emerald-600" }
+    return { label: "Tariffa Long Stay 30+ Giorni (-20%)", discount: 0.20, color: "bg-emerald-600" }
   } else if (days >= 15) {
-    return { label: "Sconto Medium-Stay (-15%)", discount: 0.15, color: "bg-emerald-500" }
+    return { label: "Sconto Long Stay 15+ Giorni (-15%)", discount: 0.15, color: "bg-emerald-500" }
   } else if (days > 0) {
     return { label: "Prezzo Diretto Garantito (-10%)", discount: 0.10, color: "bg-primary" }
   }
@@ -1213,7 +1214,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
         </div>
       </section>
 
-      {/* --- DIRECT BOOKING & HUBIT@ PREMIUM SYMMETRIC NOMAD STRIP --- */}
+      {/* --- DIRECT BOOKING & LONG STAY PROMO STRIP --- */}
       <section className="max-w-6xl mx-auto px-4 mt-6">
         <div className="bg-emerald-800 rounded-2xl py-2 md:py-3.5 px-4 md:px-5 text-white shadow-xl border border-emerald-700/20 relative overflow-hidden">
           {/* Ambient decorative glow */}
@@ -1221,11 +1222,11 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-10 divide-y md:divide-y-0 md:divide-x divide-white/10 items-stretch">
 
-            {/* Left Column: Digital Nomads (HUBit@) */}
+            {/* Left Column: Long Stay Offers */}
             <div className="flex flex-col justify-between gap-2 py-1 md:py-0 md:space-y-2.5">
               <div className="flex items-center justify-center md:justify-start gap-2.5 md:gap-3 w-full">
                 <div className="p-1.5 md:p-2 bg-emerald-700/35 rounded-lg md:rounded-xl border border-emerald-650/30 text-emerald-300 flex-shrink-0 hidden xs:block">
-                  <Wifi className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <CalendarDays className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </div>
                 <div className="space-y-0.5 w-full md:w-auto">
                   <div className="flex flex-row flex-wrap items-center justify-center md:justify-start gap-1.5 md:gap-2">
@@ -1233,7 +1234,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                       {t('hubitTitle' as any)}
                     </h4>
                     <span className="bg-emerald-600/30 text-emerald-200 border border-emerald-600/40 text-[8px] md:text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider flex-shrink-0">
-                      CO-WORKING
+                      {t('hubitTag' as any)}
                     </span>
                   </div>
                   <p className="text-emerald-100/80 text-[11px] md:text-xs leading-relaxed hidden sm:block">

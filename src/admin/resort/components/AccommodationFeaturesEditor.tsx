@@ -49,7 +49,7 @@ const editorCategories: CategoryGroup[] = [
     title: '1. Spazio & Connettività',
     features: [
       { key: 'wifi', label: 'Wi-Fi', icon: Wifi },
-      { key: 'hubit_coworking', label: 'Accesso HUBit@ CoWorking (100Mbps)', icon: Briefcase }
+      { key: 'hubit_coworking', label: 'Accesso Cucina Condivisa Long Stay', icon: Briefcase }
     ]
   },
   {

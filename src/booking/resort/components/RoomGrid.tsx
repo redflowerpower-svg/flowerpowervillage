@@ -735,7 +735,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                   </div>
                 )}
                 <span className={`absolute top-4 left-4 bg-emerald-800/95 border border-emerald-650/60 text-white text-[9px] font-extrabold tracking-wider px-3 py-1.5 rounded-xl shadow-md backdrop-blur-md ${item.category.toUpperCase() !== "THE HUB GUESTHOUSE" ? "uppercase" : ""}`}>
-                  {item.category.toUpperCase() === "THE HUB GUESTHOUSE" ? "HUBit@" : item.category}
+                  {item.category.toUpperCase() === "THE HUB GUESTHOUSE" ? "GUESTHOUSE" : item.category}
                 </span>
 
                 {/* Capacity badge — bottom right of image */}
