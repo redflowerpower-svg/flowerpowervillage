@@ -32,7 +32,7 @@ const outDir = path.resolve(getArg('out', 'scratch/parity'));
 const testRunFile = getArg('testRunFile');
 const compare = getArg('compare');
 const channel = getArg('channel');
-const apiBase = getArg('api').replace(/\/$/, '');
+const apiBase = (getArg('api') || 'https://www.flowerpowerpizza.com').replace(/\/$/, '');
 const ffmpeg = process.env.FFMPEG_PATH || ffmpegStatic || 'ffmpeg';
 const tag = getArg('tag', process.env.PARITY_TAG || (process.env.CI ? 'cloud' : 'local'));
 fs.mkdirSync(outDir, { recursive: true });
@@ -70,17 +70,6 @@ async function main() {
     const req = route.request();
     const u = new URL(req.url());
     const action = u.searchParams.get('action');
-
-    // 🚀 Intercetta richieste di upload in ambiente runner locale: rispondi subito fallback_local così il player usa il blob senza attendere 404
-    if (action === 'get_story_upload_url' || action === 'upload_story_media') {
-      log(`Intercettata richiesta ${action} in ambiente headless: istantaneo fallback a Blob locale`);
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ ok: false, fallback_local: true })
-      });
-      return;
-    }
 
     if (action === 'attach_audio_to_story' && req.method() === 'POST') {
       try {

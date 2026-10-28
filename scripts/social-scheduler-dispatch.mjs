@@ -568,6 +568,7 @@ async function renderVideoMode(mode) {
 
   const runArgs = [
     'scripts/render-parity-test.mjs',
+    '--api=https://www.flowerpowerpizza.com',
     `--mode=${mode}`,
     `--base=${base}`,
     `--out=${outDir}`,

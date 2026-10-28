@@ -3003,6 +3003,13 @@ export function AutoCutLabPlayer({
                 return signData.publicUrl;
               }
             }
+
+            // 🛡️ SICUREZZA ASSOLUTA WEBCODECS: Se WebCodecs ha generato il videoBlob a 60 FPS, NON cadere MAI in MediaRecorder!
+            if (videoBlob && videoBlob.size > 0) {
+              console.warn('[AutoCutLabPlayer] WebCodecs completato con successo ma upload remoto non eseguito: ritorno Blob locale.');
+              if (onProgress) onProgress(100, 6, 'Master Video 60 FPS completato (locale)!');
+              return URL.createObjectURL(videoBlob);
+            }
           } catch (webcodecsErr) {
             console.warn('[AutoCutLabPlayer] WebCodecs fallback to MediaRecorder:', webcodecsErr);
           }
