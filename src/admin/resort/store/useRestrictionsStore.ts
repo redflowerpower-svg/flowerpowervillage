@@ -259,32 +259,10 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       id: 'ag7_p1',
       name: 'AGD AC-7d',
       dateFrom: '2026-10-01',
-      dateTo: '2026-12-15',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: true
-    },
-    {
-      id: 'ag7_p2',
-      name: 'AGD AC-7d',
-      dateFrom: '2026-12-26',
-      dateTo: '2027-01-15',
+      dateTo: '2027-10-31',
       stopSell: true,
-      closedToArrival: false,
+      closedToArrival: true,
       closedToDeparture: true,
-      onlyCheckOutDays: 0,
-      failsafeCheckout: false
-    },
-    {
-      id: 'ag7_p3',
-      name: 'AGD AC-7d',
-      dateFrom: '2027-01-16',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
       onlyCheckOutDays: 0,
       failsafeCheckout: false
     }
@@ -294,31 +272,9 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       id: 'ag14_p1',
       name: 'AGD AC-14d',
       dateFrom: '2026-10-01',
-      dateTo: '2026-12-15',
+      dateTo: '2027-10-31',
       stopSell: true,
-      closedToArrival: false,
-      closedToDeparture: true,
-      onlyCheckOutDays: 0,
-      failsafeCheckout: false
-    },
-    {
-      id: 'ag14_p2',
-      name: 'AGD AC-14d',
-      dateFrom: '2026-12-16',
-      dateTo: '2027-01-15',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: true
-    },
-    {
-      id: 'ag14_p3',
-      name: 'AGD AC-14d',
-      dateFrom: '2027-01-26',
-      dateTo: '2027-05-31',
-      stopSell: true,
-      closedToArrival: false,
+      closedToArrival: true,
       closedToDeparture: true,
       onlyCheckOutDays: 0,
       failsafeCheckout: false
@@ -617,10 +573,14 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         get().fetchLiveRestrictions();
       },
       disabledRatePlans: (() => {
-        const DEFAULT_DISABLED = ['airbnb_ac', 'ac_7d', 'ac_14d', 'ac_bnb_7d', 'ac_bnb_14d'];
+        const DEFAULT_DISABLED = ['airbnb_ac', 'ac_7d', 'ac_14d', 'ac_bnb_7d', 'ac_bnb_14d', 'agd_ac_7d', 'agd_ac_14d'];
         try {
-          const saved = localStorage.getItem('fpv_disabled_plans_v9');
-          return saved ? JSON.parse(saved) : DEFAULT_DISABLED;
+          const saved = localStorage.getItem('fpv_disabled_plans_v10');
+          if (saved) return JSON.parse(saved);
+          const oldSaved = localStorage.getItem('fpv_disabled_plans_v9');
+          const merged = oldSaved ? Array.from(new Set([...JSON.parse(oldSaved), 'agd_ac_7d', 'agd_ac_14d'])) : DEFAULT_DISABLED;
+          localStorage.setItem('fpv_disabled_plans_v10', JSON.stringify(merged));
+          return merged;
         } catch {
           return DEFAULT_DISABLED;
         }

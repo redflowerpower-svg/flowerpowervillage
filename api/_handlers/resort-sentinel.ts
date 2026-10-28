@@ -113,12 +113,14 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     ...(REAL_PRODUCTS_BY_PLAN.ac_14d || []),
     ...(REAL_PRODUCTS_BY_PLAN.ac_bnb_7d || []),
     ...(REAL_PRODUCTS_BY_PLAN.ac_bnb_14d || []),
-    ...(REAL_PRODUCTS_BY_PLAN.airbnb_ac || [])
+    ...(REAL_PRODUCTS_BY_PLAN.airbnb_ac || []),
+    ...(REAL_PRODUCTS_BY_PLAN.agd_ac_7d || []),
+    ...(REAL_PRODUCTS_BY_PLAN.agd_ac_14d || [])
   ]);
 
   const stdIds = new Set(REAL_PRODUCTS_BY_PLAN['7d'] || []);
-  const main14dIds = new Set([...(REAL_PRODUCTS_BY_PLAN.main_bnb_14d || []), ...(REAL_PRODUCTS_BY_PLAN.agd_ac_14d || [])]);
-  const main7dIds = new Set([...(REAL_PRODUCTS_BY_PLAN.main_bnb_7d || []), ...(REAL_PRODUCTS_BY_PLAN.agd_ac_7d || [])]);
+  const main14dIds = new Set([...(REAL_PRODUCTS_BY_PLAN.main_bnb_14d || [])]);
+  const main7dIds = new Set([...(REAL_PRODUCTS_BY_PLAN.main_bnb_7d || [])]);
 
   let totalAudited = 0;
   const motherRoomsAudited: Array<{

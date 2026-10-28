@@ -3,6 +3,36 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [28/10/2026 - ORE 15:46] · BLINDATURA DEFINITIVA STOP-SELL AGODA AC (8 PRODOTTI SIGILLATI SU OCTORATE)
+- **Cosa abbiamo fatto:** 
+  1. 🔍 **Diagnostica Falla Agoda AC**:
+     - Individuata la causa tecnica della prenotazione arrivata su Agoda con aria condizionata: mentre le 77 tariffe AC generiche di Booking.com e Airbnb erano forzate in Stop-Sell, i piani dedicati Agoda (`AGD AC-7d` e `AGD AC-14d` per Jungle Villa, Left, Right e Peace & Love Villa) erano rimasti esclusi da `DEFAULT_DISABLED` in `useRestrictionsStore.ts` con `stopSell: false` e non erano presi in carico dalla Sentinel.
+  2. 🛡️ **Blindatura del Codice Sorgente**:
+     - In [useRestrictionsStore.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/resort/store/useRestrictionsStore.ts): forzato `stopSell: true, closedToArrival: true, closedToDeparture: true` per l'intera stagione (`2026-10-01` ➔ `2027-10-31`) per `agd_ac_7d` e `agd_ac_14d`. Aggiunti entrambi in `DEFAULT_DISABLED` con migrazione automatica versionata (`fpv_disabled_plans_v10`).
+     - In [resort-sentinel.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/resort-sentinel.ts): inclusi `agd_ac_7d` e `agd_ac_14d` in `fullyClosedIds` (Sacro Graal) e rimossi categoricamente dalle liste standard di vendita `main7dIds` e `main14dIds`.
+     - In [octorate-restrictions-grid.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/octorate-restrictions-grid.ts), [update-rateplan-restrictions-bulk.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/update-rateplan-restrictions-bulk.ts) e [update-restriction.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/update-restriction.ts): censito il prodotto mancante `921875` (Peace & Love Villa 14d AC).
+  3. 🚀 **Push Massivo Live su Octorate API**:
+     - Inviato push bulk (`POST https://api.octorate.com/connect/rest/v1/calendar/bulk`) per tutti gli 8 product ID Agoda AC (`921868`, `921869`, `921870`, `921871`, `921872`, `921873`, `921874`, `921875`) dal 28/10/2026 al 31/10/2027.
+     - Esito Octorate: **HTTP 200** con tutti gli 8 processi accettati ed eseguiti (`success: true`).
+- **Effetto reale:** L'aria condizionata su Agoda è ora sigillata al 100% in Stop-Sell per l'intera stagione su tutti i server Octorate e su Agoda. È materialmente impossibile ricevere ulteriori prenotazioni con AC da qualsiasi OTA.
+- **Stato:** ✅ Push Octorate completato con esito 200, build TypeScript e Vite validati a 0 errori (`built in 6.51s`).
+
+---
+
+
+### 🟩 [28/10/2026 - ORE 15:08] · INIBIZIONE E RIMOZIONE TOTALE GALLERIA VILLAGGIO (FOTO OBSOLETE PEXELS)
+- **Cosa abbiamo fatto:** 
+  1. 🚫 **Rimozione Voci di Menu e Footer**:
+     - Rimossa la voce Galleria da [src/components/VillageNav.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/components/VillageNav.tsx) per tutte le 4 lingue (Italiano, Inglese, Thai, Tedesco).
+     - Rimossa la voce Galleria dal footer in [src/components/VillageFooter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/components/VillageFooter.tsx).
+  2. 🔀 **Routing & Fallback Silenzioso (/village/gallery -> Accommodations)**:
+     - In [src/pages/VillageSite.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pages/VillageSite.tsx), rimosso l'import e il rendering di `GallerySection`.
+     - Impostato il reindirizzamento trasparente del subpath `gallery` direttamente su `accommodations`, proteggendo da link obsoleti o segnalibri senza mostrare schermate rotte.
+- **Effetto reale:** Nessuna immagine stock o non aggiornata è più esposta al pubblico; l'esperienza di navigazione è pulita, professionale e focalizzata su alloggi, ristorante, spa e contatti.
+- **Stato:** ✅ Compilazione Vite completata con 0 errori (`built in 12.37s`).
+
+---
+
 ### 🟩 [28/10/2026 - ORE 14:45] · DEFAULT ROOT DIRETTO A /VILLAGE (BYPASS SPLITSCREEN SELEZIONE)
 - **Cosa abbiamo fatto:** 
   1. 🏠 **Reindirizzamento Diretto della Home su `/village`**:

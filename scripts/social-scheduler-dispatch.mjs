@@ -511,24 +511,26 @@ async function publishToInstagram({ videoUrl, caption = '', brand = 'village', i
 
   console.log(`[scheduler-dispatch] Attesa elaborazione container Instagram (ID: ${creationId})...`);
   let isReady = false;
-  for (let i = 0; i < 15; i++) {
-    await new Promise(r => setTimeout(r, 3000));
+  const maxPolls = 40; // fino a 200 secondi (3.3 minuti per transcodifica Meta 60 FPS)
+  for (let i = 0; i < maxPolls; i++) {
+    await new Promise(r => setTimeout(r, 5000));
     const sRes = await fetch(`https://graph.facebook.com/v19.0/${creationId}?fields=status_code,status&access_token=${pageToken}`);
     if (sRes.ok) {
       const sData = await sRes.json();
-      console.log(`[scheduler-dispatch] Status container IG (${i + 1}/15): ${sData.status_code || sData.status}`);
-      if (sData.status_code === 'FINISHED') {
+      const st = sData.status_code || sData.status;
+      console.log(`[scheduler-dispatch] Status container IG (${i + 1}/${maxPolls}): ${st}`);
+      if (st === 'FINISHED') {
         isReady = true;
         break;
       }
-      if (sData.status_code === 'ERROR') {
+      if (st === 'ERROR') {
         throw new Error(`IG Video processing error: ${JSON.stringify(sData)}`);
       }
     }
   }
 
   if (!isReady) {
-    throw new Error(`IG Video processing timeout (superati i 45s di elaborazione)`);
+    throw new Error(`IG Video processing timeout (superati i 200s di elaborazione Meta)`);
   }
 
   const pParams = new URLSearchParams();
@@ -742,7 +744,7 @@ async function run() {
       text: `✅ [12:30 BANGKOK] Storia Facebook pubblicata automaticamente via Meta Graph API!\nID Post: ${fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
     });
   } else if (is1600) {
-    console.log(`🌿 [16:00 BANGKOK] Slot Pomeriggio Relax — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM REEL`);
+    console.log(`🌿 [16:00 BANGKOK] Slot Pomeriggio Relax — PUBBLICAZIONE INSTAGRAM REEL V2`);
     const v2Vid = await renderVideoMode('V2');
     const { videoUrl } = await ensureCloudVideoUrl(v2Vid);
     const v2Caption = `🇹🇭 ความสุขที่แท้จริงคือความเงียบสงบในธรรมชาติ เกาะพยาม 🌴 พักผ่อนในวิลล่าส่วนตัวพร้อมระเบียงและเปลญวน 🌊✨\n\n` +
@@ -752,17 +754,31 @@ async function run() {
       `@flowerpowervillage\n\n` +
       `#KohPhayam #ThailandResort #TropicalVibe #IslandLiving`;
 
-    const igRes = await publishToInstagram({
-      videoUrl,
-      caption: v2Caption,
-      brand: 'village',
-      isStory: false
-    });
+    try {
+      const igRes = await publishToInstagram({
+        videoUrl,
+        caption: v2Caption,
+        brand: 'village',
+        isStory: false
+      });
 
-    await sendMessageToTelegram({
-      topicId: TOPIC_TIKTOK_STORIES,
-      text: `✅ [16:00 BANGKOK] Reel Pomeriggio Relax pubblicato automaticamente su Instagram!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
-    });
+      await sendMessageToTelegram({
+        topicId: TOPIC_TIKTOK_STORIES,
+        text: `✅ [16:00 BANGKOK] Reel Pomeriggio Relax pubblicato automaticamente su Instagram!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
+      });
+      await sendPublishedLog(`✅ <b>Slot 16:00 Bangkok pubblicato su Instagram Reels:</b>\nID Media: <code>${igRes.id}</code> · Brand: Villaggio Koh Phayam 🌴`);
+    } catch (igErr) {
+      console.warn('[scheduler-dispatch] Instagram API diretta non autorizzata o timeout, fallback automatico su Telegram Topic 3:', igErr.message);
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_TIKTOK_STORIES,
+        title: 'V2 Reel Relax Pomeriggio a Phayam · Instagram & TikTok',
+        format: 'V2',
+        brand: 'village',
+        copyText: v2Caption,
+        filePath: v2Vid
+      });
+      await sendFailedAlert(igErr, 'Slot 16:00 Instagram API Fallback: video master salvato su Google Drive 5TB e consegnato su Telegram Topic 3 per pubblicazione staff');
+    }
   } else if (is1700) {
     console.log(`🌅 [17:00 BANGKOK] Avvio tranche serale: 2 Stories TikTok/IG + 1 Reel R1 Ristorante Gruppo Phayam`);
 
