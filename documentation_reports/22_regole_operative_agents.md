@@ -422,3 +422,12 @@ Per evitare che i report generati per l'utente superino i limiti di input di Gem
    - Se un handoff (es. MARKDOWN-PROJECT) o una spiegazione tecnica supera inevitabilmente questo limite, l'agente DEVE dividerlo in blocchi numerati (es. "[Parte 1 di 3]", "[Parte 2 di 3]").
    - Alla fine di ogni parte, l'agente deve fermarsi e scrivere: 
      *«⚠️ Il report è troppo lungo per la tua casella di testo. Copia e invia questa prima parte, poi ti scriverò la Parte 2 nel prossimo turno appena rispondi 'continua'.»*
+
+
+---
+
+### 26. **Regola Immodificabile Standard Post Social con Hook Unicode Bold & Zero Conflitti di Formattazione (Zero Reordering / Zero Liste HTML)**:
+    - **Hook di Testa in Sans-Serif Bold Unicode**: In tutti i testi dei post generati per i social (Facebook, Instagram, TikTok, Telegram Topic 2 Gruppo Koh Phayam) sia in fase di editing nel Social Studio sia nel rendering headless Chromium su GitHub Actions, l'Hook di apertura (la prima frase dopo la bandiera della lingua) deve essere **TASSATIVAMENTE FORMATTATO IN CARATTERI MATEMATICI UNICODE BOLD** (`toUnicodeBold`: `𝗔-𝗭, 𝗮-𝘇, 𝟬-𝟵`).
+    - **Grassetto Universale Garantito su Qualsiasi Schermo**: L'Hook risulterà visivamente in grassetto evidente e impattante come titolo dell'annuncio su qualsiasi dispositivo, app o browser (PC desktop, tablet Xiaomi Mi Pad 4, Android, iPhone, Instagram, TikTok, Facebook) a livello di puro testo (`text/plain`), senza richiedere formattazioni HTML o editor speciali.
+    - **Sanitizzazione Obbligatoria Bullet Points (`•` ➔ `▫️`)**: È **SEVERAMENTE E TASSATIVAMENTE VIETATO** usare nei post i caratteri di elenco puntato di sistema (`•` o `\u2022`) o trattini lista (`- `). Devono essere convertiti **SEMPRE E SOLO NELL'EMOJI GEOMETRICA `▫️`**.
+    - **Azzeramento Totale Bug Inversione Facebook**: Questa combinazione impedisce categoricamente al motore Draft.js / Lexical di Facebook di interpretare liste HTML o tentare di convertire l'inizio in un blocco `H1` separato con espulsione delle prime righe dopo gli hashtag, garantendo che il testo incollato rimanga **sempre integro e nel perfetto ordine logico originale al 100%**.

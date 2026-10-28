@@ -307,13 +307,55 @@ function escapeHtml(str) {
 
 // Invia post ufficiale completo a Telegram Topic (Video MP4 + Scheda con blocco <pre> + Bottoni interattivi)
 // Generatore copy bilingue certificato conforme a tutte le 24 regole dello Social Media Studio
+
+// 🔠 REGOLA 26: Convertitore universale Sans-Serif Bold Unicode (A-Z, a-z, 0-9)
+function toUnicodeBold(str) {
+  if (!str) return '';
+  return str.split('').map(char => {
+    const code = char.codePointAt(0) || 0;
+    if (code >= 0x41 && code <= 0x5a) {
+      return String.fromCodePoint(0x1d5d4 + (code - 0x41));
+    }
+    if (code >= 0x61 && code <= 0x7a) {
+      return String.fromCodePoint(0x1d5ee + (code - 0x61));
+    }
+    if (code >= 0x30 && code <= 0x39) {
+      return String.fromCodePoint(0x1d7ec + (code - 0x30));
+    }
+    return char;
+  }).join('');
+}
+
+// 🎯 REGOLA 26: Applica il grassetto Unicode all'Hook iniziale di testa
+function applyUnicodeBoldHook(text) {
+  if (!text) return '';
+  const lines = text.split(/\r?\n/);
+  if (lines.length === 0) return '';
+  const firstLine = lines[0];
+  const flagMatch = firstLine.match(/^(\s*(?:[\u{1F1E6}-\u{1F1FF}]{2}\s*)+)(.*)$/u);
+  if (flagMatch) {
+    lines[0] = flagMatch[1] + toUnicodeBold(flagMatch[2]);
+  } else {
+    lines[0] = toUnicodeBold(firstLine);
+  }
+  return lines.join('\n');
+}
+
+// ▫️ REGOLA 26: Sostituzione bullet points con emoji geometrica ▫️ (zero liste HTML in Facebook)
+function sanitizeSocialBullets(text) {
+  if (!text) return '';
+  return text
+    .replace(/^([ \t]*)•[ \t]*/gm, '$1▫️ ')
+    .replace(/^([ \t]*)-[ \t]+(?=[A-Z0-9\u0E00-\u0E7F])/gm, '$1▫️ ');
+}
+
 function getBilingualPostCopy(mode, brand, officialCopy) {
   const isPizza = (brand === 'pizza');
 
   // 1. Se Chromium ha esportato il copy ufficiale sincronizzato con il montaggio effettivo
   if (officialCopy && (officialCopy.thaiContent || officialCopy.englishContent)) {
-    const thai = (officialCopy.thaiContent || '').trim();
-    const en = (officialCopy.englishContent || '').trim();
+    const thai = sanitizeSocialBullets(applyUnicodeBoldHook((officialCopy.thaiContent || '').trim()));
+    const en = sanitizeSocialBullets(applyUnicodeBoldHook((officialCopy.englishContent || '').trim()));
     const link = (officialCopy.fixedLink || '').trim();
     const tag = (officialCopy.crossTag || '').trim();
     const tags = Array.from(new Set([...(officialCopy.englishHashtags || []), ...(officialCopy.thaiHashtags || [])])).join(' ');
@@ -329,53 +371,53 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
 
   // 2. Fallback biculturale certificato con biculturalismo rigoroso, zero italiano, zero legna e zero tramonto
   if (mode === 'R1') {
-    return (
+    return sanitizeSocialBullets(applyUnicodeBoldHook(
       `🇬🇧 Craving authentic Italian food on Koh Phayam? Flower Power Restaurant 🍝🍕 is cooking for you in Buffalo Bay!\n\n` +
-      `• Artisanal thin-crust Italian pizza 🍕\n` +
-      `• Fresh handmade pasta & savory sauces 🍝\n` +
-      `• Island favorites cooked from scratch with genuine passion 🌿✨\n\n` +
+      `▫️ Artisanal thin-crust Italian pizza 🍕\n` +
+      `▫️ Fresh handmade pasta & savory sauces 🍝\n` +
+      `▫️ Island favorites cooked from scratch with genuine passion 🌿✨\n\n` +
       `Dine in our lush tropical garden or get hot delivery directly to your resort or bungalow on Koh Phayam! 🛵🌴\n\n` +
       `🛵 Island Delivery via WhatsApp: +66 095 882 5573\n` +
       `🌐 Resort & Dining: flowerpowervillage.com\n` +
       `📍 Buffalo Bay (Ao Khao Kwai), Koh Phayam\n` +
       `@flowerpowerphayam\n\n` +
       `🇹🇭 หิวอาหารอิตาเลียนแท้ๆ บนเกาะพยามใช่ไหมครับ? ครัว Flower Power พร้อมเสิร์ฟความอร่อยครบเครื่อง ริมอ่าวเขาควาย 🍝🍕✨\n\n` +
-      `• พิซซ่าอิตาเลียนแท้ แป้งหมักธรรมชาติ 48 ชม. 🍕\n` +
-      `• พาสต้าเส้นสดทำเอง ซอสสูตรดั้งเดิมอิตาเลียน 🍝\n` +
-      `• ปรุงสดใหม่จานต่อจานด้วยวัตถุดิบคุณภาพ 🌿🔥\n\n` +
+      `▫️ พิซซ่าอิตาเลียนแท้ แป้งหมักธรรมชาติ 48 ชม. 🍕\n` +
+      `▫️ พาสต้าเส้นสดทำเอง ซอสสูตรดั้งเดิมอิตาเลียน 🍝\n` +
+      `▫️ ปรุงสดใหม่จานต่อจานด้วยวัตถุดิบคุณภาพ 🌿🔥\n\n` +
       `แวะมาทานที่ร้านท่ามกลางสวนธรรมชาติ หรือสั่งเดลิเวอรี่ส่งตรงถึงที่พักบนเกาะพยามได้เลยครับ! 🛵🌴\n\n` +
       `🛵 สั่งอาหารและเดลิเวอรี่ผ่าน WhatsApp: +66 095 882 5573\n` +
       `🌐 ข้อมูลและที่พัก: flowerpowervillage.com\n` +
       `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
       `#KohPhayam #KohPhayamRestaurant #KohPhayamFood #PhayamDelivery #ItalianRestaurantPhayam #BuffaloBay #เกาะพยาม #อ่าวเขาควาย`
-    );
+    ));
   }
 
   if (mode === 'LM1') {
-    return (
+    return sanitizeSocialBullets(applyUnicodeBoldHook(
       `🇬🇧 Looking for peaceful bungalows surrounded by tropical greenery in Koh Phayam? 🌴✨\n\n` +
       `Today we have vacant rooms and private wooden bungalows at Buffalo Bay with instant direct booking discount!\n\n` +
-      `• Superior & Deluxe Garden Bungalows 🌿\n` +
-      `• King size beds, private hammocks & high-speed fiber Wi-Fi 📶\n` +
-      `• On-site authentic Italian restaurant & scooter rental 🛵🍕\n\n` +
+      `▫️ Superior & Deluxe Garden Bungalows 🌿\n` +
+      `▫️ King size beds, private hammocks & high-speed fiber Wi-Fi 📶\n` +
+      `▫️ On-site authentic Italian restaurant & scooter rental 🛵🍕\n\n` +
       `🏝️ Check live rates & book direct: flowerpowervillage.com\n` +
       `💬 WhatsApp Staff: +66 095 882 5573\n` +
       `📍 Buffalo Bay, Koh Phayam Island\n` +
       `@flowerpowerphayam\n\n` +
       `🇹🇭 พักผ่อนท่ามกลางสวนธรรมชาติอ่าวเขาควาย เกาะพยาม 🌴 ห้องพักว่างวันนี้พร้อมส่วนลดจองตรงพิเศษ!\n\n` +
-      `• บังกะโลไม้ส่วนตัวและห้องพักในสวนทรอปิคอล 🌿\n` +
-      `• เตียงคิงไซส์ เปลญวนส่วนตัว และ Wi-Fi ไฟเบอร์ความเร็วสูง 📶\n` +
-      `• ร้านอาหารอิตาเลียนในที่พัก และบริการเช่ามอเตอร์ไซค์ 🛵🍕\n\n` +
+      `▫️ บังกะโลไม้ส่วนตัวและห้องพักในสวนทรอปิคอล 🌿\n` +
+      `▫️ เตียงคิงไซส์ เปลญวนส่วนตัว และ Wi-Fi ไฟเบอร์ความเร็วสูง 📶\n` +
+      `▫️ ร้านอาหารอิตาเลียนในที่พัก และบริการเช่ามอเตอร์ไซค์ 🛵🍕\n\n` +
       `🏝️ จองตรงราคาดีที่สุด: flowerpowervillage.com\n` +
       `💬 ติดต่อสอบถามทาง WhatsApp: +66 095 882 5573\n` +
       `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
       `#KohPhayam #PhayamBungalow #KohPhayamResort #BuffaloBay #ThailandTravel #เกาะพยาม #ที่พักเกาะพยาม #อ่าวเขาควาย`
-    );
+    ));
   }
 
   if (!isPizza) {
     // Villaggio: V1, V2, V3 (1° Inglese, 2° Thai, Zero Sunset/Tramonto, Zero Italiano)
-    return (
+    return sanitizeSocialBullets(applyUnicodeBoldHook(
       `🇬🇧 Pure island serenity at Buffalo Bay, Koh Phayam! 🌴 Gentle sea breeze, lush tropical garden, king size beds and quiet peace. Escape the ordinary and unwind in nature. 🌊🌿\n\n` +
       `🏝️ Direct booking: flowerpowervillage.com\n` +
       `📍 Buffalo Bay, Koh Phayam Island\n` +
@@ -384,12 +426,12 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
       `🏝️ จองตรงราคาดีที่สุด: flowerpowervillage.com\n` +
       `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
       `#KohPhayam #BuffaloBay #PhayamIsland #TropicalResort #RanongTravel #เกาะพยาม #อ่าวเขาควาย #เที่ยวระนอง`
-    );
+    ));
   }
 
   // Pizzeria: P2 Pasta
   if (mode === 'P2') {
-    return (
+    return sanitizeSocialBullets(applyUnicodeBoldHook(
       `🇹🇭 เมนูกลางวันอร่อยๆ ในระนอง! พาสต้าเส้นสดทำเอง ซอสสูตรดั้งเดิมอิตาเลียนแท้ เสิร์ฟร้อนๆ ถึงบ้านหรือออฟฟิศ 🍝🛵💨\n\n` +
       `🛵 สั่งง่ายๆ ส่งไว: flowerpowerpizza.com\n` +
       `📍 Ranong Delivery & Takeaway\n` +
@@ -399,12 +441,12 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
       `📍 Ranong Delivery & Takeaway\n` +
       `@flowerpowerpizzaranong\n\n` +
       `#พาสต้าระนอง #RanongPasta #LunchRanong #DeliveryRanong #PastaFresca`
-    );
+    ));
   }
 
   // Pizzeria: P3 Dessert
   if (mode === 'P3') {
-    return (
+    return sanitizeSocialBullets(applyUnicodeBoldHook(
       `🇹🇭 ของหวานโฮมเมดสไตล์อิตาเลียนแท้ ปิดท้ายมื้อค่ำในระนอง! ทิรามิสุคลาสสิกและเค้กอบสดใหม่ หวานนุ่มละมุนลิ้น 🍰☕✨\n\n` +
       `🛵 สั่งของหวานส่งถึงบ้าน: flowerpowerpizza.com\n` +
       `📍 Ranong Delivery & Takeaway\n` +
@@ -414,11 +456,11 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
       `📍 Ranong Delivery & Takeaway\n` +
       `@flowerpowerpizzaranong\n\n` +
       `#RanongDessert #TiramisuRanong #ของหวานระนอง #RanongFood #DeliveryRanong`
-    );
+    ));
   }
 
   // Pizzeria: P1 Pizza Tradizionale
-  return (
+  return sanitizeSocialBullets(applyUnicodeBoldHook(
     `🇹🇭 พิซซ่าอิตาเลียนแท้ แป้งหมักธรรมชาติ 48 ชม. อบร้อนหอมกรอบบนหิน พร้อมส่งตรงถึงบ้านในเมืองระนอง! 🍕🔥🛵💨\n\n` +
     `🛵 สั่งง่ายๆ ส่งไว: flowerpowerpizza.com\n` +
     `📍 Ranong Delivery & Takeaway\n` +
@@ -428,7 +470,7 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
     `📍 Ranong Delivery & Takeaway\n` +
     `@flowerpowerpizzaranong\n\n` +
     `#พิซซ่าระนอง #RanongPizza #DinnerRanong #RanongFood #DeliveryRanong`
-  );
+  ));
 }
 
 // Invia post ufficiale completo a Telegram Topic:

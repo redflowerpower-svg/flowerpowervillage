@@ -121,6 +121,59 @@ export function getCurrentSeasonContext(): { season: 'high' | 'green'; monthName
  * 🚩 Regola 17: ogni blocco lingua inizia con la propria bandiera (🇹🇭 Thai, 🇬🇧 Inglese),
  * prima della prima lettera. Rimuove eventuali bandiere iniziali errate/duplicate e antepone quella giusta.
  */
+
+/**
+ * 🔠 REGOLA 26: Convertitore universale Sans-Serif Bold Unicode (A-Z, a-z, 0-9).
+ * Trasforma il testo alfabetico in caratteri matematici grassetto (𝗔-𝗭, 𝗮-𝘇, 𝟬-𝟵).
+ * Preserva al 100% bandiere (🇹🇭, 🇬🇧), emoji, punteggiatura e caratteri thailandesi.
+ */
+export function toUnicodeBold(str: string): string {
+  if (!str) return '';
+  return str.split('').map(char => {
+    const code = char.codePointAt(0) || 0;
+    if (code >= 0x41 && code <= 0x5a) {
+      return String.fromCodePoint(0x1d5d4 + (code - 0x41));
+    }
+    if (code >= 0x61 && code <= 0x7a) {
+      return String.fromCodePoint(0x1d5ee + (code - 0x61));
+    }
+    if (code >= 0x30 && code <= 0x39) {
+      return String.fromCodePoint(0x1d7ec + (code - 0x30));
+    }
+    return char;
+  }).join('');
+}
+
+/**
+ * 🎯 REGOLA 26: Applica il grassetto Unicode alla sola prima riga (Hook di testa) del post.
+ * Garantisce massima visibilità come Titolo nei feed social senza innescare i bug dell'editor di Facebook.
+ */
+export function applyUnicodeBoldHook(text: string): string {
+  if (!text) return '';
+  const lines = text.split(/\r?\n/);
+  if (lines.length === 0) return '';
+  const firstLine = lines[0];
+  const flagMatch = firstLine.match(/^(\s*(?:[\u{1F1E6}-\u{1F1FF}]{2}\s*)+)(.*)$/u);
+  if (flagMatch) {
+    lines[0] = flagMatch[1] + toUnicodeBold(flagMatch[2]);
+  } else {
+    lines[0] = toUnicodeBold(firstLine);
+  }
+  return lines.join('\n');
+}
+
+/**
+ * ▫️ REGOLA 26: Sanitizzazione Bullet Points per Social Media.
+ * Sostituisce categoricamente i pallini di sistema (•) e trattini lista (-) con l'emoji geometrica ▫️
+ * azzerando al 100% qualsiasi tentativo dell'editor di Facebook di interpretare liste HTML e re-indicizzare i blocchi in coda.
+ */
+export function sanitizeSocialBullets(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/^([ \t]*)•[ \t]*/gm, '$1▫️ ')
+    .replace(/^([ \t]*)-[ \t]+(?=[A-Z0-9\u0E00-\u0E7F])/gm, '$1▫️ ');
+}
+
 export function ensureLangFlag(text: string, lang: 'th' | 'en'): string {
   const flag = lang === 'th' ? '🇹🇭' : '🇬🇧';
   const cleaned = (text || '').replace(/^\s*(?:[\u{1F1E6}-\u{1F1FF}]{2}\s*)+/u, '').trimStart();
@@ -445,8 +498,8 @@ Approfitta subito del 10% di sconto sul tuo primo ordine! 🛵💨`;
       }))
       .filter((d, idx, arr) => d.nameEn && arr.findIndex(x => x.nameEn === d.nameEn) === idx);
 
-    const dishesThList = uniqueDishes.map(d => `• ${d.nameTh || d.nameEn}`).join('\n');
-    const dishesEnList = uniqueDishes.map(d => `• ${d.nameEn}`).join('\n');
+    const dishesThList = uniqueDishes.map(d => `▫️ ${d.nameTh || d.nameEn}`).join('\n');
+    const dishesEnList = uniqueDishes.map(d => `▫️ ${d.nameEn}`).join('\n');
 
     const r1ThHooks = [
       '🇹🇭 หิวอาหารอิตาเลียนแท้ๆ บนเกาะพยามใช่ไหมครับ? ครัว Flower Power พร้อมเสิร์ฟความอร่อยครบเครื่อง 🍝🍕 สดใหม่ครับ!',
@@ -527,7 +580,7 @@ La buona cucina italiana nel cuore dell'isola di Koh Phayam!
       const priceText = basePrice
         ? `: ${basePrice}฿ ➔ ${directPrice}฿ (-10%)`
         : '';
-      return `• ${name}${priceText}`;
+      return `▫️ ${name}${priceText}`;
     }).join('\n');
 
     const lm1EnRooms = testRun.scenes.map(s => {
@@ -538,7 +591,7 @@ La buona cucina italiana nel cuore dell'isola di Koh Phayam!
       const priceText = basePrice
         ? `: ${basePrice}฿ ➔ ${directPrice}฿ (-10%)`
         : '';
-      return `• ${name}${priceText}`;
+      return `▫️ ${name}${priceText}`;
     }).join('\n');
 
     const lm1ThHooks = [
@@ -610,8 +663,8 @@ Camere limitate disponibili solo per questa notte!
       nameTh: cleanInlineTitle(s.titleSecondary || '')
     })).filter((l, idx, arr) => l.nameEn && arr.findIndex(x => x.nameEn === l.nameEn) === idx);
 
-    const lodgingsThList = uniqueLodgings.map(l => `• ${l.nameTh || l.nameEn}`).join('\n');
-    const lodgingsEnList = uniqueLodgings.map(l => `• ${l.nameEn}`).join('\n');
+    const lodgingsThList = uniqueLodgings.map(l => `▫️ ${l.nameTh || l.nameEn}`).join('\n');
+    const lodgingsEnList = uniqueLodgings.map(l => `▫️ ${l.nameEn}`).join('\n');
 
     const v3ThHooks = [
       '🇹🇭 พาชมบรรยากาศ Flower Power Village อ่าวเขาควาย เกาะพยาม แบบเต็มๆ ครับ 🌴🌊✨',
@@ -747,6 +800,10 @@ Miglior tariffa garantita online e 10% di privilegio prenotazione diretta! 🥥�
 
   thaiContent = scrubWoodFired(ensureLangFlag(thaiContent, 'th'));
   englishContent = scrubWoodFired(ensureLangFlag(englishContent, 'en'));
+
+  // 🛡️ REGOLA IMMODIFICABILE 26: Sanitizzazione Bullet Points & Grassetto Unicode per Hook di Testa
+  thaiContent = sanitizeSocialBullets(applyUnicodeBoldHook(thaiContent));
+  englishContent = sanitizeSocialBullets(applyUnicodeBoldHook(englishContent));
 
   // Costruzione Caption Finale Completa per Instagram / Facebook (Thai + Inglese + Link & Tag)
   const fullCaptionInstagram = isPizza

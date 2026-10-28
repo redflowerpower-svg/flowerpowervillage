@@ -11,6 +11,9 @@ import { findAccommodationIdentity } from '../../booking/resort/config/accommoda
 import { 
   generatePostCopy, 
   ensureLangFlag,
+  toUnicodeBold,
+  applyUnicodeBoldHook,
+  sanitizeSocialBullets,
   PostCopyResult 
 } from '../services/autoCutCopywriterEngine';
 import { 
@@ -399,14 +402,14 @@ export function AutoCutPostCopywriter({
     if (!aiOverride) {
       return {
         ...basePostData,
-        thaiContent: scrubWoodFired(basePostData.thaiContent),
-        englishContent: scrubWoodFired(basePostData.englishContent)
+        thaiContent: sanitizeSocialBullets(applyUnicodeBoldHook(scrubWoodFired(basePostData.thaiContent))),
+        englishContent: sanitizeSocialBullets(applyUnicodeBoldHook(scrubWoodFired(basePostData.englishContent)))
       };
     }
 
     const stripTags = (t: string) => scrubWoodFired(t.replace(/[ \t]*#\S+/g, '').replace(/\n{3,}/g, '\n\n').trim());
-    const th = ensureLangFlag(stripTags(aiOverride.thaiContent || basePostData.thaiContent), 'th');
-    const en = ensureLangFlag(stripTags(aiOverride.englishContent || basePostData.englishContent), 'en');
+    const th = sanitizeSocialBullets(applyUnicodeBoldHook(ensureLangFlag(stripTags(aiOverride.thaiContent || basePostData.thaiContent), 'th')));
+    const en = sanitizeSocialBullets(applyUnicodeBoldHook(ensureLangFlag(stripTags(aiOverride.englishContent || basePostData.englishContent), 'en')));
     const tagFooter = [...basePostData.thaiHashtags, ...basePostData.englishHashtags].join(' ');
     
     const isPizza = testRun.brand === 'pizza';
