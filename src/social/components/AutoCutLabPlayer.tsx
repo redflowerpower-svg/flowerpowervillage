@@ -3189,11 +3189,12 @@ export function AutoCutLabPlayer({
                 if (uploadData.ok && uploadData.url) {
                   safeResolve(uploadData.url);
                 } else {
-                  safeResolve(null);
+                  console.warn('[AutoCutLabPlayer] Upload remoto non riuscito, fallback blob locale');
+                  safeResolve(URL.createObjectURL(videoBlob));
                 }
               } catch (upErr) {
-                console.error('Video upload failed fallback:', upErr);
-                safeResolve(null);
+                console.warn('[AutoCutLabPlayer] Video upload fallback non disponibile, ritorno Blob URL locale:', upErr);
+                safeResolve(URL.createObjectURL(videoBlob));
               }
             };
             reader.readAsDataURL(videoBlob);
