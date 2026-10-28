@@ -272,23 +272,45 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
   const action = (req.query.action as string) || req.body?.action || "";
   const body = req.body || {};
 
+  // 🛡️ Helper di Autenticazione Blindata: Convalida CRON_SECRET oppure sessione Staff Supabase JWT
+  async function isAuthorizedCronOrStaff(request: VercelRequest, requestBody: any): Promise<boolean> {
+    const authHeader = request.headers.authorization || "";
+    const bearerToken = authHeader.replace(/^Bearer\s+/i, "").trim();
+    const incomingSecret = String(request.query.secret || requestBody?.secret || bearerToken || "").trim();
+
+    // 1. Verifica Segreto Cron
+    let expectedSecret = process.env.CRON_SECRET || process.env.SOCIAL_CRON_SECRET || "";
+    if (!expectedSecret && supabase) {
+      try {
+        const { data: secRow } = await supabase.from("telegram_config").select("bot_token").eq("id", "social_cron_secret").single();
+        if (secRow?.bot_token) expectedSecret = secRow.bot_token.trim();
+      } catch {}
+    }
+    if (!expectedSecret) expectedSecret = "fp_cron_secret_phayam_ranong_2026";
+
+    if (incomingSecret && incomingSecret === expectedSecret) {
+      return true;
+    }
+
+    // 2. Verifica token JWT Supabase Staff (se la chiamata arriva dalla console /social loggata)
+    if (bearerToken && supabase) {
+      try {
+        const { data: { user }, error: userErr } = await supabase.auth.getUser(bearerToken);
+        if (user && !userErr) {
+          return true;
+        }
+      } catch {}
+    }
+
+    return false;
+  }
+
   // 0. GET/POST /api/social-publisher?action=trigger_scheduler (Innesco GitHub Actions per Social Media Studio)
   if (action === "trigger_scheduler" || action === "cron_trigger") {
     try {
-      const authHeader = req.headers.authorization || "";
-      const bearerToken = authHeader.replace(/^Bearer\s+/i, "").trim();
-      const incomingSecret = String(req.query.secret || body?.secret || bearerToken || "");
-      let expectedSecret = process.env.CRON_SECRET || process.env.SOCIAL_CRON_SECRET || "";
-      if (!expectedSecret && supabase) {
-        try {
-          const { data: secRow } = await supabase.from("telegram_config").select("bot_token").eq("id", "social_cron_secret").single();
-          if (secRow?.bot_token) expectedSecret = secRow.bot_token;
-        } catch {}
-      }
-      if (!expectedSecret) expectedSecret = "fp_cron_secret_phayam_ranong_2026";
-
-      if (!incomingSecret || incomingSecret !== expectedSecret) {
-        console.warn(`[social-publisher] trigger_scheduler rifiutato: secret non valido (${incomingSecret ? 'errato' : 'mancante'})`);
+      const authorized = await isAuthorizedCronOrStaff(req, body);
+      if (!authorized) {
+        console.warn(`[social-publisher] trigger_scheduler rifiutato: non autorizzato`);
         return res.status(401).json({ ok: false, error: "Unauthorized: invalid or missing cron secret" });
       }
 
@@ -349,12 +371,22 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     }
   }
 
-  // 0b. GET/POST /api/social-publisher?action=cronjob_list (Lista job da cron-job.org)
+  // 0b. GET/POST /api/social-publisher?action=cronjob_list (Lista job da cron-job.org - Protetto e Sanificato)
   if (action === "cronjob_list") {
     try {
+      const authorized = await isAuthorizedCronOrStaff(req, body);
+      if (!authorized) {
+        return res.status(401).json({ ok: false, error: "Unauthorized: access restricted to staff or valid secret" });
+      }
+
       const { listJobs } = await import("../_helpers/cronjob-service.js");
       const result = await listJobs();
-      return res.status(200).json({ ok: true, jobs: result.jobs || [] });
+      // 🛡️ Maschera rigorosamente i segreti dagli URL restituiti (Zero Secret Leak)
+      const sanitizedJobs = (result.jobs || []).map(j => ({
+        ...j,
+        url: j.url ? j.url.replace(/secret=[^&]+/g, "secret=********") : ""
+      }));
+      return res.status(200).json({ ok: true, jobs: sanitizedJobs });
     } catch (err: any) {
       console.error("[social-publisher] cronjob_list error:", err);
       return res.status(500).json({ ok: false, error: err.message || "Failed to list cron jobs" });
@@ -364,6 +396,11 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
   // 0c. POST /api/social-publisher?action=cronjob_sync (Sincronizza o crea il dispatcher Flower Power 24/7 su cron-job.org)
   if (action === "cronjob_sync") {
     try {
+      const authorized = await isAuthorizedCronOrStaff(req, body);
+      if (!authorized) {
+        return res.status(401).json({ ok: false, error: "Unauthorized: access restricted to staff or valid secret" });
+      }
+
       const { listJobs, createJob, updateJob } = await import("../_helpers/cronjob-service.js");
       const currentList = await listJobs();
       const existingJob = currentList.jobs?.find(j => j.title.includes("Flower Power") || j.url.includes("action=trigger_scheduler"));
@@ -400,7 +437,7 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
           ok: true,
           action: "updated",
           jobId: existingJob.jobId,
-          url: targetUrl,
+          url: targetUrl.replace(/secret=[^&]+/g, "secret=********"),
           message: "Job cron-job.org esistente aggiornato con successo alle best practices"
         });
       } else {
@@ -424,7 +461,7 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
           ok: true,
           action: "created",
           jobId: created.jobId,
-          url: targetUrl,
+          url: targetUrl.replace(/secret=[^&]+/g, "secret=********"),
           message: "Nuovo job 24/7 creato con successo su cron-job.org"
         });
       }
@@ -437,6 +474,11 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
   // 0d. POST /api/social-publisher?action=cronjob_toggle (Abilita o disabilita un job)
   if (action === "cronjob_toggle") {
     try {
+      const authorized = await isAuthorizedCronOrStaff(req, body);
+      if (!authorized) {
+        return res.status(401).json({ ok: false, error: "Unauthorized: access restricted to staff or valid secret" });
+      }
+
       const { updateJob } = await import("../_helpers/cronjob-service.js");
       const jobId = Number(body?.jobId || req.query.jobId);
       const enabled = body?.enabled === true || req.query.enabled === "true";

@@ -3,8 +3,10 @@
  * Reparto Stagno Social Media Studio (/social)
  * 
  * Interfaccia per la gestione dei cron job di cron-job.org dal frontend di /social
- * chiamando l'endpoint sicuro /api/social-publisher.
+ * chiamando l'endpoint sicuro /api/social-publisher protetto da token Staff Supabase.
  */
+
+import { supabase } from '../../lib/supabase';
 
 export interface CronJobItem {
   jobId: number;
@@ -26,9 +28,25 @@ export interface CronJobItem {
   };
 }
 
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json'
+  };
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`;
+    }
+  } catch {}
+  return headers;
+}
+
 export async function fetchCronJobs(): Promise<{ ok: boolean; jobs?: CronJobItem[]; error?: string }> {
   try {
-    const res = await fetch("/api/social-publisher?action=cronjob_list");
+    const headers = await getAuthHeaders();
+    const res = await fetch("/api/social-publisher?action=cronjob_list", {
+      headers
+    });
     const data = await res.json();
     return data;
   } catch (err: any) {
@@ -38,7 +56,11 @@ export async function fetchCronJobs(): Promise<{ ok: boolean; jobs?: CronJobItem
 
 export async function syncOfficialCronJobs(): Promise<{ ok: boolean; message?: string; details?: any; error?: string }> {
   try {
-    const res = await fetch("/api/social-publisher?action=cronjob_sync", { method: "POST" });
+    const headers = await getAuthHeaders();
+    const res = await fetch("/api/social-publisher?action=cronjob_sync", {
+      method: "POST",
+      headers
+    });
     const data = await res.json();
     return data;
   } catch (err: any) {
@@ -48,9 +70,10 @@ export async function syncOfficialCronJobs(): Promise<{ ok: boolean; message?: s
 
 export async function toggleCronJob(jobId: number, enabled: boolean): Promise<{ ok: boolean; error?: string }> {
   try {
+    const headers = await getAuthHeaders();
     const res = await fetch("/api/social-publisher?action=cronjob_toggle", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ jobId, enabled })
     });
     return await res.json();
@@ -58,4 +81,3 @@ export async function toggleCronJob(jobId: number, enabled: boolean): Promise<{ 
     return { ok: false, error: err.message || "Failed to toggle cron job" };
   }
 }
-
