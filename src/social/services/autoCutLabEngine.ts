@@ -72,15 +72,8 @@ export interface AutoCutTestRun {
   isEmptyShowcase?: boolean;
 }
 
-// 🎵 I 4 Jingle Brevi Pizzeria (Scelta 100% Casuale con chiusura vocale sartoriale "Flower Power!")
+// 🎵 I 3 Jingle Brevi Pizzeria per P1 e DS (Scelta 100% Casuale: So Good, Ranong, Aroi Mak Mak)
 export const PIZZA_JINGLE_TRACKS: AutoCutAudioTrack[] = [
-  {
-    id: 'pizza_01',
-    title: 'Yeah! (Intro Energica)',
-    src: '/audio/01-flower-power-yeah.mp3',
-    duration: 13.0,
-    p1CutDuration: 8.85 // Conclude la frase vocale "Flower Power! Yeah!"
-  },
   {
     id: 'pizza_02',
     title: 'So Good (Gusto & Appetito)',

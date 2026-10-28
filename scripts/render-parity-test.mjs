@@ -97,15 +97,31 @@ async function main() {
         const tmpOut = path.join(outDir, `temp_master_${Date.now()}.mp4`);
         fs.writeFileSync(tmpV, vBuf);
 
-        // Risoluzione tracce audio da ./public
+        // Risoluzione tracce audio da ./public con decodifica URL e fallback per brand
         let cleanAudio = (audio_track || '').replace(/^https?:\/\/[^/]+/, '').replace(/^\/+/, '');
+        try { cleanAudio = decodeURIComponent(cleanAudio); } catch {}
         let bgPath = path.resolve('./public', cleanAudio);
         if (!fs.existsSync(bgPath)) {
-          bgPath = path.resolve('./public/audio/01-flower-power-yeah.mp3');
+          const baseName = path.basename(cleanAudio);
+          const altVillage = path.resolve('./public/audio/village', baseName);
+          const altRoot = path.resolve('./public/audio', baseName);
+          if (fs.existsSync(altVillage)) {
+            bgPath = altVillage;
+          } else if (fs.existsSync(altRoot)) {
+            bgPath = altRoot;
+          } else {
+            // Fallback rigoroso per brand: se villaggio MAI traccia pizza!
+            if (brand === 'village') {
+              bgPath = path.resolve('./public/audio/village/01 Flower Power Village - Island Disco Paradise (Disco Funk).mp3');
+            } else {
+              bgPath = path.resolve('./public/audio/02-flower-power-so-good.mp3');
+            }
+          }
         }
+        log(`Traccia audio risolta (${brand}): ${bgPath} (${fs.existsSync(bgPath) ? 'ESISTE' : 'NON TROVATO'})`);
         const sfxName = brand === 'village' ? 'sfx-outro-village.wav' : 'sfx-outro-pizza.wav';
         let sfxPath = path.resolve('./public/audio', sfxName);
-        if (!fs.existsSync(sfxPath)) sfxPath = path.resolve('./public/audio/sfx-outro-pizza.wav');
+        if (!fs.existsSync(sfxPath)) sfxPath = path.resolve('./public/audio', sfxName);
 
         const delay = typeof outro_start_time === 'number' && outro_start_time > 0
           ? Math.round(outro_start_time * 1000)
