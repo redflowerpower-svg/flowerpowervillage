@@ -110,21 +110,56 @@ const TOPIC_TIKTOK_STORIES = 3;   // Topic 3: TikTok & IG Stories
 const TOPIC_PUBLISHED = 286;      // Topic 286: Cronologia Pubblicati (Published)
 const TOPIC_FAILED = 301;         // Topic 301: Allarmi ed Errori (Failed)
 
-async function sendPublishedLog(text) {
+async function sendPublishedLog(payload) {
+  let text = '';
+  if (typeof payload === 'string') {
+    text = `🟢 <b>[FP SOCIAL STUDIO · PUBBLICAZIONE RIUSCITA]</b>\n${payload}`;
+  } else {
+    const { brand, channel, format, title, mediaId, details, gdriveId } = payload;
+    const brandName = brand === 'pizza' ? '🍕 Pizzeria Ranong' : (brand === 'village' ? '🌴 Villaggio Koh Phayam' : '🍕🌴 Flower Power');
+    text = `🟢 <b>[FP SOCIAL STUDIO · PUBBLICAZIONE RIUSCITA]</b>\n\n`;
+    text += `🏷️ <b>REPARTO:</b> ${brandName}\n`;
+    text += `📡 <b>CANALE:</b> ${channel || 'Canale Ufficiale'}\n`;
+    if (format) text += `🎬 <b>FORMATO:</b> <code>${format}</code>\n`;
+    if (title) text += `📋 <b>TITOLO:</b> ${title}\n`;
+    text += `⏱️ <b>SLOT:</b> ${targetSlot} Bangkok\n`;
+    if (mediaId) text += `🆔 <b>MEDIA ID:</b> <code>${mediaId}</code>\n`;
+    if (gdriveId) text += `📁 <b>GOOGLE DRIVE 5TB:</b> <code>${gdriveId}</code>\n`;
+    if (details) text += `ℹ️ <i>${escapeHtml(details)}</i>\n`;
+    text += `\n✅ <i>Il contenuto è stato pubblicato con successo!</i>`;
+  }
+
   try {
-    await sendMessageToTelegram({ topicId: TOPIC_PUBLISHED, text: `🟢 <b>[FP Social Studio - PUBLISHED]</b>\n${text}` });
+    await sendMessageToTelegram({ topicId: TOPIC_PUBLISHED, text });
   } catch (e) {
     console.warn('[scheduler-dispatch] Avviso log published:', e.message);
   }
 }
 
-async function sendFailedAlert(err, context = '') {
+async function sendFailedAlert(errOrPayload, context = '') {
+  let text = '';
+  if (errOrPayload && typeof errOrPayload === 'object' && !(errOrPayload instanceof Error) && (errOrPayload.brand || errOrPayload.channel)) {
+    const { brand, channel, format, title, error, details, fallbackAction } = errOrPayload;
+    const brandName = brand === 'pizza' ? '🍕 Pizzeria Ranong' : (brand === 'village' ? '🌴 Villaggio Koh Phayam' : '🍕🌴 Flower Power');
+    const errorMsg = error?.stack || error?.message || String(error || details || 'Errore imprevisto');
+
+    text = `🚨 <b>[FP SOCIAL STUDIO · ALLARME ERRORE CANALE]</b>\n\n`;
+    text += `🏷️ <b>REPARTO:</b> ${brandName}\n`;
+    text += `📡 <b>CANALE:</b> ${channel || 'Canale Ufficiale'}\n`;
+    if (format) text += `🎬 <b>FORMATO:</b> <code>${format}</code>\n`;
+    if (title) text += `📋 <b>TITOLO:</b> ${title}\n`;
+    text += `⏱️ <b>SLOT:</b> ${targetSlot} Bangkok\n`;
+    text += `⚠️ <b>ERRORE:</b>\n<pre>${escapeHtml(errorMsg.slice(0, 1500))}</pre>\n`;
+    if (fallbackAction) {
+      text += `\n👉 <b>AZIONE INTRAPRESA:</b>\n${fallbackAction}\n`;
+    }
+  } else {
+    const errorMsg = errOrPayload?.stack || errOrPayload?.message || String(errOrPayload);
+    text = `🚨 <b>[FP SOCIAL STUDIO · ALLARME FAILED]</b>\n📍 <b>Slot:</b> ${targetSlot}\n🔍 <b>Contesto:</b> ${context}\n⚠️ <b>Errore:</b>\n<pre>${escapeHtml(errorMsg.slice(0, 1500))}</pre>`;
+  }
+
   try {
-    const errorMsg = err?.stack || err?.message || String(err);
-    await sendMessageToTelegram({
-      topicId: TOPIC_FAILED,
-      text: `🚨 <b>[FP Social Studio - ALLARME FAILED]</b>\n📍 <b>Slot:</b> ${targetSlot}\n🔍 <b>Contesto:</b> ${context}\n⚠️ <b>Errore:</b>\n<pre>${escapeHtml(errorMsg.slice(0, 1500))}</pre>`
-    });
+    await sendMessageToTelegram({ topicId: TOPIC_FAILED, text });
   } catch (e) {
     console.error('[scheduler-dispatch] Impossibile inviare allarme a Topic 301:', e.message);
   }
@@ -694,17 +729,49 @@ async function run() {
       filePath: lm1Vid
     });
 
-    await sendPublishedLog(`✅ <b>Slot 08:00 Bangkok completato con successo:</b>\n• 🎵 TikTok Story P1 Pizzeria Ranong (Topic 3)\n• 🎵 TikTok Story V1 Villaggio Phayam (Topic 3)\n• 🌴 Post LM1 Alloggi Liberi Gruppo Facebook Phayam (Topic 2)`);
+    await sendPublishedLog({
+      brand: 'village',
+      channel: '👥 Gruppo Facebook Koh Phayam + 🎵 TikTok/IG Stories',
+      format: 'LM1 / P1 / V1',
+      title: 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
+      details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Post Alloggi LM1 su Topic 2 con pulsanti interattivi e testo per copia-incolla rapido'
+    });
   } else if (is0930) {
-    console.log(`🌿 [09:30 BANGKOK] Slot Story Mattino — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM STORIES`);
+    console.log(`🌿 [09:30 BANGKOK] Slot Story Mattino — PUBBLICAZIONE INSTAGRAM STORIES V1`);
     const storyVid = await renderVideoMode('V1');
     const { videoUrl } = await ensureCloudVideoUrl(storyVid);
-    const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
-
-    await sendMessageToTelegram({
-      topicId: TOPIC_TIKTOK_STORIES,
-      text: `✅ [09:30 BANGKOK] Storia Instagram pubblicata automaticamente via Meta Graph API!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
-    });
+    try {
+      const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
+      await sendMessageToTelegram({
+        topicId: TOPIC_TIKTOK_STORIES,
+        text: `✅ [09:30 BANGKOK] Storia Instagram pubblicata automaticamente via Meta Graph API!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
+      });
+      await sendPublishedLog({
+        brand: 'village',
+        channel: '📸 Instagram Stories',
+        format: 'V1 / CC1',
+        title: 'Risveglio Tropicale a Phayam',
+        mediaId: igRes.id
+      });
+    } catch (igErr) {
+      console.warn('[scheduler-dispatch] Instagram Story non riuscita, fallback su Telegram Topic 3:', igErr.message);
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_TIKTOK_STORIES,
+        title: 'V1 Storia Risveglio Tropicale a Phayam',
+        format: 'V1',
+        brand: 'village',
+        copyText: 'Risveglio in paradiso a Koh Phayam. Amache all\'ombra e natura rigogliosa. 🌴✨ #FlowerPowerVillage',
+        filePath: storyVid
+      });
+      await sendFailedAlert({
+        brand: 'village',
+        channel: '📸 Instagram Stories',
+        format: 'V1',
+        title: 'Risveglio Tropicale a Phayam',
+        error: igErr,
+        fallbackAction: 'Video master e copy recapitati su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
+      });
+    }
   } else if (is1130) {
     console.log(`🍝 [11:30 BANGKOK] Slot Pranzo Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
     const p2Vid = await renderVideoMode('P2');
@@ -716,33 +783,87 @@ async function run() {
       `@flowerpowerpizzaranong\n\n` +
       `#พาสต้าระนอง #RanongPasta #LunchRanong #DeliveryRanong #PastaFresca`;
 
-    const fbRes = await publishToFacebook({
-      videoUrl,
-      title: 'Pranzo Pasta Fresca Ranong 🍝 Piatto Espresso Caldo',
-      caption: p2Caption,
-      brand: 'pizza',
-      isStory: false
-    });
+    try {
+      const fbRes = await publishToFacebook({
+        videoUrl,
+        title: 'Pranzo Pasta Fresca Ranong 🍝 Piatto Espresso Caldo',
+        caption: p2Caption,
+        brand: 'pizza',
+        isStory: false
+      });
 
-    await sendMessageToTelegram({
-      topicId: TOPIC_KOH_PHAYAM_GROUP,
-      text: `✅ [11:30 BANGKOK] Reel Pranzo Pasta Fresca pubblicato automaticamente su Pagina Facebook!\nLink: ${fbRes.postUrl || fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
-    });
+      await sendMessageToTelegram({
+        topicId: TOPIC_KOH_PHAYAM_GROUP,
+        text: `✅ [11:30 BANGKOK] Reel Pranzo Pasta Fresca pubblicato automaticamente su Pagina Facebook!\nLink: ${fbRes.postUrl || fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
+      });
+      await sendPublishedLog({
+        brand: 'pizza',
+        channel: '📘 Facebook Pagina (Reel Pranzo)',
+        format: 'P2',
+        title: 'Pranzo Pasta Fresca Ranong',
+        mediaId: fbRes.postUrl || fbRes.id
+      });
+    } catch (fbErr) {
+      console.warn('[scheduler-dispatch] Facebook Reel Pranzo fallito, fallback su Telegram Topic 2:', fbErr.message);
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_KOH_PHAYAM_GROUP,
+        title: 'Pranzo Pasta Fresca Ranong · Reel Pagina Facebook',
+        format: 'P2',
+        brand: 'pizza',
+        copyText: p2Caption,
+        filePath: p2Vid
+      });
+      await sendFailedAlert({
+        brand: 'pizza',
+        channel: '📘 Facebook Pagina (Reel Pranzo)',
+        format: 'P2',
+        title: 'Pranzo Pasta Fresca Ranong',
+        error: fbErr,
+        fallbackAction: 'Video master e testo recapitati su Telegram Topic 2 con link diretto per pubblicazione staff.'
+      });
+    }
   } else if (is1230) {
     console.log(`🍕 [12:30 BANGKOK] Slot Story Pranzo — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK STORIES`);
     const fbStoryVid = await renderVideoMode('P1');
     const { videoUrl, buffer } = await ensureCloudVideoUrl(fbStoryVid);
-    const fbRes = await publishToFacebook({
-      videoUrl,
-      videoBuffer: buffer,
-      brand: 'pizza',
-      isStory: true
-    });
+    try {
+      const fbRes = await publishToFacebook({
+        videoUrl,
+        videoBuffer: buffer,
+        brand: 'pizza',
+        isStory: true
+      });
 
-    await sendMessageToTelegram({
-      topicId: TOPIC_TIKTOK_STORIES,
-      text: `✅ [12:30 BANGKOK] Storia Facebook pubblicata automaticamente via Meta Graph API!\nID Post: ${fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
-    });
+      await sendMessageToTelegram({
+        topicId: TOPIC_TIKTOK_STORIES,
+        text: `✅ [12:30 BANGKOK] Storia Facebook pubblicata automaticamente via Meta Graph API!\nID Post: ${fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
+      });
+      await sendPublishedLog({
+        brand: 'pizza',
+        channel: '📘 Facebook Pagina (Story Pranzo)',
+        format: 'P1',
+        title: 'Pranzo Pizzeria Ranong 48h',
+        mediaId: fbRes.id
+      });
+    } catch (fbErr) {
+      console.warn('[scheduler-dispatch] Facebook Story Pranzo fallita, fallback su Telegram Topic 3:', fbErr.message);
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_TIKTOK_STORIES,
+        title: 'P1 Story Pranzo Pizzeria Ranong',
+        format: 'P1',
+        brand: 'pizza',
+        copyText: 'Buongiorno da Ranong! Mani in pasta e lievitazione naturale 48h in corso per stasera. 🍕✨ #Ranong #PizzaTradizionale',
+        filePath: fbStoryVid
+      });
+      await sendFailedAlert({
+        brand: 'pizza',
+        channel: '📘 Facebook Pagina (Story Pranzo)',
+        format: 'P1',
+        title: 'Pranzo Pizzeria Ranong 48h',
+        error: fbErr,
+        fallbackAction: 'Video master e testo recapitati su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
+      });
+    }
   } else if (is1600) {
     console.log(`🌿 [16:00 BANGKOK] Slot Pomeriggio Relax — PUBBLICAZIONE INSTAGRAM REEL V2`);
     const v2Vid = await renderVideoMode('V2');
@@ -766,7 +887,13 @@ async function run() {
         topicId: TOPIC_TIKTOK_STORIES,
         text: `✅ [16:00 BANGKOK] Reel Pomeriggio Relax pubblicato automaticamente su Instagram!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
       });
-      await sendPublishedLog(`✅ <b>Slot 16:00 Bangkok pubblicato su Instagram Reels:</b>\nID Media: <code>${igRes.id}</code> · Brand: Villaggio Koh Phayam 🌴`);
+      await sendPublishedLog({
+        brand: 'village',
+        channel: '📸 Instagram Reels',
+        format: 'V2',
+        title: 'Pomeriggio Relax & Suite Tour a Phayam',
+        mediaId: igRes.id
+      });
     } catch (igErr) {
       console.warn('[scheduler-dispatch] Instagram API diretta non autorizzata o timeout, fallback automatico su Telegram Topic 3:', igErr.message);
       await sendOfficialTelegramPost({
@@ -777,7 +904,14 @@ async function run() {
         copyText: v2Caption,
         filePath: v2Vid
       });
-      await sendFailedAlert(igErr, 'Slot 16:00 Instagram API Fallback: video master salvato su Google Drive 5TB e consegnato su Telegram Topic 3 per pubblicazione staff');
+      await sendFailedAlert({
+        brand: 'village',
+        channel: '📸 Instagram Reels',
+        format: 'V2',
+        title: 'Pomeriggio Relax & Suite Tour a Phayam',
+        error: igErr,
+        fallbackAction: 'Video master Full HD archiviato su Google Drive 5TB e consegnato su Telegram Topic 3 con testo bilingue e tasto per pubblicazione immediata con 1 tocco dello staff.'
+      });
     }
   } else if (is1700) {
     console.log(`🌅 [17:00 BANGKOK] Avvio tranche serale: 2 Stories TikTok/IG + 1 Reel R1 Ristorante Gruppo Phayam`);
@@ -838,16 +972,50 @@ async function run() {
       copyText: r1Text,
       filePath: r1Vid
     });
+
+    await sendPublishedLog({
+      brand: 'village',
+      channel: '👥 Gruppo Facebook Koh Phayam + 🎵 TikTok/IG Stories',
+      format: 'R1 / P1 / V3',
+      title: 'Stories Serali Ranong & Phayam + Post Ristorante R1',
+      details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V3 Villaggio) e 1 Reel R1 Ristorante su Topic 2 con pulsanti interattivi e testo per copia-incolla rapido'
+    });
   } else if (is1800) {
-    console.log(`🌅 [18:00 BANGKOK] Slot Story Golden Hour — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM STORIES`);
+    console.log(`🌅 [18:00 BANGKOK] Slot Story Golden Hour — PUBBLICAZIONE INSTAGRAM STORIES V3`);
     const sunsetVid = await renderVideoMode('V3');
     const { videoUrl } = await ensureCloudVideoUrl(sunsetVid);
-    const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
-
-    await sendMessageToTelegram({
-      topicId: TOPIC_TIKTOK_STORIES,
-      text: `✅ [18:00 BANGKOK] Storia Instagram Golden Hour pubblicata automaticamente via Meta Graph API!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
-    });
+    try {
+      const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
+      await sendMessageToTelegram({
+        topicId: TOPIC_TIKTOK_STORIES,
+        text: `✅ [18:00 BANGKOK] Storia Instagram Golden Hour pubblicata automaticamente via Meta Graph API!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
+      });
+      await sendPublishedLog({
+        brand: 'village',
+        channel: '📸 Instagram Stories',
+        format: 'V3',
+        title: 'Tramonto Golden Hour a Koh Phayam',
+        mediaId: igRes.id
+      });
+    } catch (igErr) {
+      console.warn('[scheduler-dispatch] Instagram Story Golden Hour non riuscita, fallback su Telegram Topic 3:', igErr.message);
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_TIKTOK_STORIES,
+        title: 'V3 Storia Tramonto Golden Hour a Koh Phayam',
+        format: 'V3',
+        brand: 'village',
+        copyText: 'Golden hour sunset at Koh Phayam Island. Sky on fire, ocean breeze and peaceful silence. 🌅🌊🌴 #KohPhayam',
+        filePath: sunsetVid
+      });
+      await sendFailedAlert({
+        brand: 'village',
+        channel: '📸 Instagram Stories',
+        format: 'V3',
+        title: 'Tramonto Golden Hour a Koh Phayam',
+        error: igErr,
+        fallbackAction: 'Video master e copy recapitati su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
+      });
+    }
   } else if (is1830) {
     console.log(`🎵 [18:30 BANGKOK] Slot TikTok Feed API (Post Feed 9:16)`);
     console.log(`ℹ️ Canale TikTok Feed API attualmente disattivato in attesa dell'approvazione v2 da TikTok for Developers. Slot saltato correttamente.`);
@@ -862,33 +1030,87 @@ async function run() {
       `@flowerpowerpizzaranong\n\n` +
       `#พิซซ่าระนอง #RanongPizza #DinnerRanong #PizzaRanong #DeliveryRanong`;
 
-    const fbRes = await publishToFacebook({
-      videoUrl,
-      title: 'Cena Pizza Tradizionale Ranong 🍕 Impasto Naturale 48h',
-      caption: p1Caption,
-      brand: 'pizza',
-      isStory: false
-    });
+    try {
+      const fbRes = await publishToFacebook({
+        videoUrl,
+        title: 'Cena Pizza Tradizionale Ranong 🍕 Impasto Naturale 48h',
+        caption: p1Caption,
+        brand: 'pizza',
+        isStory: false
+      });
 
-    await sendMessageToTelegram({
-      topicId: TOPIC_KOH_PHAYAM_GROUP,
-      text: `✅ [19:30 BANGKOK] Reel Cena Pizza Tradizionale pubblicato automaticamente su Pagina Facebook!\nLink: ${fbRes.postUrl || fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
-    });
+      await sendMessageToTelegram({
+        topicId: TOPIC_KOH_PHAYAM_GROUP,
+        text: `✅ [19:30 BANGKOK] Reel Cena Pizza Tradizionale pubblicato automaticamente su Pagina Facebook!\nLink: ${fbRes.postUrl || fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
+      });
+      await sendPublishedLog({
+        brand: 'pizza',
+        channel: '📘 Facebook Pagina (Reel Cena 48h)',
+        format: 'P1',
+        title: 'Cena Pizza Tradizionale Ranong 48h',
+        mediaId: fbRes.postUrl || fbRes.id
+      });
+    } catch (fbErr) {
+      console.warn('[scheduler-dispatch] Facebook Reel Cena fallito, fallback su Telegram Topic 2:', fbErr.message);
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_KOH_PHAYAM_GROUP,
+        title: 'Cena Pizza Tradizionale Ranong 48h · Reel Pagina Facebook',
+        format: 'P1',
+        brand: 'pizza',
+        copyText: p1Caption,
+        filePath: p1Vid
+      });
+      await sendFailedAlert({
+        brand: 'pizza',
+        channel: '📘 Facebook Pagina (Reel Cena 48h)',
+        format: 'P1',
+        title: 'Cena Pizza Tradizionale Ranong 48h',
+        error: fbErr,
+        fallbackAction: 'Video master e testo recapitati su Telegram Topic 2 con link diretto per pubblicazione staff.'
+      });
+    }
   } else if (is2000) {
     console.log(`☕ [20:00 BANGKOK] Slot Story Serale — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK STORIES`);
     const dessertVid = await renderVideoMode('P3');
     const { videoUrl, buffer } = await ensureCloudVideoUrl(dessertVid);
-    const fbRes = await publishToFacebook({
-      videoUrl,
-      videoBuffer: buffer,
-      brand: 'pizza',
-      isStory: true
-    });
+    try {
+      const fbRes = await publishToFacebook({
+        videoUrl,
+        videoBuffer: buffer,
+        brand: 'pizza',
+        isStory: true
+      });
 
-    await sendMessageToTelegram({
-      topicId: TOPIC_TIKTOK_STORIES,
-      text: `✅ [20:00 BANGKOK] Storia Facebook Serata pubblicata automaticamente via Meta Graph API!\nID Post: ${fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
-    });
+      await sendMessageToTelegram({
+        topicId: TOPIC_TIKTOK_STORIES,
+        text: `✅ [20:00 BANGKOK] Storia Facebook Serata pubblicata automaticamente via Meta Graph API!\nID Post: ${fbRes.id}\nBrand: Flower Power Pizza Ranong 🍕`
+      });
+      await sendPublishedLog({
+        brand: 'pizza',
+        channel: '📘 Facebook Pagina (Story Serale)',
+        format: 'P3',
+        title: 'Dessert Artigianali & Serata Ranong',
+        mediaId: fbRes.id
+      });
+    } catch (fbErr) {
+      console.warn('[scheduler-dispatch] Facebook Story Serale fallita, fallback su Telegram Topic 3:', fbErr.message);
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_TIKTOK_STORIES,
+        title: 'P3 Story Dolce & Serata Pizzeria Ranong',
+        format: 'P3',
+        brand: 'pizza',
+        copyText: 'Dolci artigianali fatti in casa stasera a Ranong! Tiramisù classico e dessert italiani. 🍰✨ #RanongDessert',
+        filePath: dessertVid
+      });
+      await sendFailedAlert({
+        brand: 'pizza',
+        channel: '📘 Facebook Pagina (Story Serale)',
+        format: 'P3',
+        title: 'Dessert Artigianali & Serata Ranong',
+        error: fbErr,
+        fallbackAction: 'Video master e copy recapitati su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
+      });
+    }
   } else if (is2100) {
     console.log(`🌙 [21:00 BANGKOK] Slot Notte — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM REEL`);
     const v3Vid = await renderVideoMode('V3');
@@ -900,17 +1122,44 @@ async function run() {
       `@flowerpowervillage\n\n` +
       `#KohPhayam #TropicalEscape #EscapeWinter #IslandNights`;
 
-    const igRes = await publishToInstagram({
-      videoUrl,
-      caption: v3Caption,
-      brand: 'village',
-      isStory: false
-    });
+    try {
+      const igRes = await publishToInstagram({
+        videoUrl,
+        caption: v3Caption,
+        brand: 'village',
+        isStory: false
+      });
 
-    await sendMessageToTelegram({
-      topicId: TOPIC_TIKTOK_STORIES,
-      text: `✅ [21:00 BANGKOK] Reel Notte Tropicale pubblicato automaticamente su Instagram!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
-    });
+      await sendMessageToTelegram({
+        topicId: TOPIC_TIKTOK_STORIES,
+        text: `✅ [21:00 BANGKOK] Reel Notte Tropicale pubblicato automaticamente su Instagram!\nID Media: ${igRes.id}\nBrand: Flower Power Village 🌴`
+      });
+      await sendPublishedLog({
+        brand: 'village',
+        channel: '📸 Instagram Reels',
+        format: 'V3',
+        title: 'Notte Tropical Escape Phayam',
+        mediaId: igRes.id
+      });
+    } catch (igErr) {
+      console.warn('[scheduler-dispatch] Instagram Reel Notte fallito, fallback su Telegram Topic 3:', igErr.message);
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_TIKTOK_STORIES,
+        title: 'V3 Reel Notte Tropicale a Koh Phayam · Instagram & TikTok',
+        format: 'V3',
+        brand: 'village',
+        copyText: v3Caption,
+        filePath: v3Vid
+      });
+      await sendFailedAlert({
+        brand: 'village',
+        channel: '📸 Instagram Reels',
+        format: 'V3',
+        title: 'Notte Tropical Escape Phayam',
+        error: igErr,
+        fallbackAction: 'Video master Full HD archiviato su Google Drive 5TB e consegnato su Telegram Topic 3 con testo bilingue e tasto per pubblicazione immediata con 1 tocco dello staff.'
+      });
+    }
   } else {
     console.log(`ℹ️ Nessun evento programmato per lo slot ${targetSlot}. Scheduler a riposo.`);
   }

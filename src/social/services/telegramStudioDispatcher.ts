@@ -72,7 +72,7 @@ export async function dispatchPostToTelegramTopic(
   // Costruzione del messaggio HTML rifinito ed elegante
   let messageText = `${topicConfig.icon} <b>${payload.title}</b>\n`;
   if (payload.format) {
-    messageText += `🎬 <b>Format:</b> ${payload.format} | 🏷️ <b>Brand:</b> ${payload.brand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}\n`;
+    messageText += `🎬 <b>Format:</b> ${payload.format} | 🏷️ <b>REPARTO:</b> ${payload.brand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}\n`;
   }
   if (payload.priceBadge) {
     messageText += `💰 <b>Prezzo Offerta:</b> ${payload.priceBadge}\n`;
@@ -296,7 +296,7 @@ export async function dispatchPublishReportToTelegram(
       },
       {
         text: '🎬 Apri Social Studio',
-        url: 'https://flowerpowerpizza.com/social',
+        url: 'https://flowerpowerpizza.com/social-studio',
       },
     ],
   ];
