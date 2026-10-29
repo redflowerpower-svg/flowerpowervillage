@@ -2123,3 +2123,18 @@
   - **Contattaci (`ContactSection.tsx`)**: Numeri di telefono, orari WhatsApp/email, etichette campi form e tasto di invio portati a **`14px-16px font-bold/font-black`**.
   - **Galleria Fotografica (`GallerySection.tsx`)**: Didascalie e categorie delle foto portate a **`14px-16px`**.
   - **Footer Villaggio (`VillageFooter.tsx`)**: Tutti i link di navigazione, recapiti telefonici e avvisi direct booking portati a **`14px font-bold text-stone-300`**.
+
+- **Upgrade Globale Tipografia Senior su Tutte le Sezioni del Villaggio**:
+  - **Come Raggiungerci (`DirectionsSection.tsx`)**: Elevati tutti i testi guida, le descrizioni di fase (aereo, bus, barca, tuk-tuk), gli avvisi meteo/maree e le tabelle orarie da `12px font-light` a **`14px-16px font-normal text-stone-700`** e badge in `12px font-bold`.
+  - **Ristorante & Pizzeria (`RestaurantSection.tsx`)**: Descrizioni piatti e atmosfera portate a **`14px-16px text-stone-700`**, orari e badge in **`14px font-semibold`**, tabs categorie in **`14px font-bold`**.
+  - **Spa, Yoga & Sport (`SpaSection.tsx`)**: Descrizioni palestra, orari corsi yoga e listino massaggi thai portati a **`14px font-normal text-stone-700`**, durate e prezzi massaggi a **`14px font-black text-emerald-800`**, pulsanti prenotazione a **`14px-16px font-black`**.
+  - **Contattaci (`ContactSection.tsx`)**: Numeri di telefono, orari WhatsApp/email, etichette campi form e tasto di invio portati a **`14px-16px font-bold/font-black`**.
+  - **Galleria Fotografica (`GallerySection.tsx`)**: Didascalie e categorie delle foto portate a **`14px-16px`**.
+  - **Footer Villaggio (`VillageFooter.tsx`)**: Tutti i link di navigazione, recapiti telefonici e avvisi direct booking portati a **`14px font-bold text-stone-300`**.
+
+
+- **Allineamento Globale Hero Banner, Bannerino Ristorante Compatto & Categorie Menu a Blocchi**:
+  - **Hero Banner Identico al 100% su Tutte le Pagine (`PageLayout.tsx`)**: Integrato in `PageLayout.tsx` l'esatto Hero Banner compatto e asimmetrico già presente in `booking-engine.tsx`. Tutte le pagine del resort (Alloggi, Ristorante, Spa & Wellness, Galleria, Come Raggiungerci, Contatti) condividono ora identiche dimensioni al millimetro.
+  - **Bannerino Ristorante Snello e Non Invasivo (`RestaurantSection.tsx`)**: Ridisegnata la card di presentazione del ristorante sotto l'hero banner: logo ridotto a 64-80px, padding compatto (`p-3.5 sm:p-5`), layout orizzontale su singola riga con badge orari/servizi compatti e discreti.
+  - **Selettore Categorie Menu a Rettangolini (Stile Spa & Foto)**: Sostituiti i vecchi pill orizzontali con 7 blocchi quadrati/rettangolari strutturati (`w-[96px] sm:w-[110px] h-[98px] sm:h-[108px]`) con icona in bolla circolare, etichetta a due righe ad alto contrasto e pillola di pagina, perfettamente identici a quelli di `SpaSection` e `GallerySection`.
+  - **Blindatura Regola 18**: Bonificate le descrizioni del menu eliminando ogni menzione a "forno a legna" / "wood-fired" / "เตาถ่าน", ripristinando la dicitura ufficiale di autentica pizza tradizionale italiana cotta su forno professionale.

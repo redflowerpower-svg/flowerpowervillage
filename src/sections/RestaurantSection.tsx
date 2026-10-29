@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut, BookOpen, Coffee, Soup, Pizza, Globe, Flame, Salad } from 'lucide-react';
 import { Language } from '../booking/lib/translations';
 
 const menuPages = [
@@ -76,11 +76,32 @@ const categoryTranslations = {
   ]
 };
 
+
+const restaurantCategoryTabs = [
+  { id: 0, pageIndex: 0, icon: BookOpen },
+  { id: 1, pageIndex: 1, icon: Coffee },
+  { id: 2, pageIndex: 3, icon: Soup },
+  { id: 3, pageIndex: 5, icon: Pizza },
+  { id: 4, pageIndex: 6, icon: Globe },
+  { id: 5, pageIndex: 11, icon: Flame },
+  { id: 6, pageIndex: 13, icon: Salad },
+];
+
+const restaurantCategoryBlockLabels: Record<number, Record<Language, [string, string]>> = {
+  0: { IT: ['MENU', 'COMPLETO'], EN: ['FULL', 'MENU'], TH: ['เมนู', 'ทั้งหมด'], DE: ['GESAMTES', 'MENÜ'] },
+  1: { IT: ['CAFFÈ &', 'DRINK'], EN: ['COFFEE &', 'DRINKS'], TH: ['กาแฟ &', 'เครื่องดื่ม'], DE: ['KAFFEE &', 'DRINKS'] },
+  2: { IT: ['ANTIPASTI &', 'PRIMI'], EN: ['APPETIZERS', '& PASTA'], TH: ['อาหารเรียกน้ำย่อย', '& พาสต้า'], DE: ['VORSPEISEN', '& PASTA'] },
+  3: { IT: ['PIZZE &', 'FOCACCE'], EN: ['PIZZAS &', 'FOCACCIAS'], TH: ['พิซซ่า &', 'โฟคาชชา'], DE: ['PIZZAS &', 'FOCACCIAS'] },
+  4: { IT: ['SECONDI &', 'PESCE'], EN: ['MAIN COURSES', '& FISH'], TH: ['จานหลัก &', 'อาหารปลา'], DE: ['HAUPTGERICHTE', '& FISCH'] },
+  5: { IT: ['THAI &', 'BIRMANO'], EN: ['THAI &', 'BURMESE'], TH: ['อาหารไทย &', 'พม่า'], DE: ['THAI &', 'BIRMANISCH'] },
+  6: { IT: ['VEGAN &', 'SNACKS'], EN: ['VEGAN &', 'SNACKS'], TH: ['วีแกน &', 'ของว่าง'], DE: ['VEGAN &', 'SNACKS'] },
+};
+
 const restaurantLabels = {
   IT: {
     tag: 'Autentica Cucina Italiana & Sapori Locali',
     title: 'L’Italia incontra le spiagge di Koh Phayam',
-    desc: 'Il ristorante del Flower Power è un crocevia di culture culinarie. Proponiamo piatti della tradizione italiana al 100% — con pizza cotta nel forno a legna e pasta fatta in casa — affiancati da specialità tipiche tailandesi e birmane e un intero menu dedicato a ricette vegane e salutari.',
+    desc: 'Il ristorante del Flower Power è un crocevia di culture culinarie. Proponiamo piatti della tradizione italiana al 100% — con autentica pizza tradizionale italiana e pasta fresca fatta in casa — affiancati da specialità tipiche tailandesi e birmane e un intero menu dedicato a ricette vegane e salutari.',
     hours: '08:00 – 21:15 daily',
     meals: 'Breakfast · Lunch · Dinner',
     browseMenu: 'Sfoglia il Nostro Menù Digitale',
@@ -94,7 +115,7 @@ const restaurantLabels = {
   EN: {
     tag: 'Authentic Italian Cuisine & Local Flavours',
     title: 'Italy Meets the Beaches of Koh Phayam',
-    desc: 'Flower Power’s restaurant is a culinary crossroads. We serve 100% traditional Italian dishes — with wood-fired pizza and homemade pasta — alongside typical Thai and Burmese specialties, and a complete menu dedicated to vegan and healthy recipes.',
+    desc: 'Flower Power’s restaurant is a culinary crossroads. We serve 100% traditional Italian dishes — with authentic traditional Italian pizza and homemade fresh pasta — alongside typical Thai and Burmese specialties, and a complete menu dedicated to vegan and healthy recipes.',
     hours: '08:00 – 21:15 daily',
     meals: 'Breakfast · Lunch · Dinner',
     browseMenu: 'Browse Our Digital Menu',
@@ -108,7 +129,7 @@ const restaurantLabels = {
   TH: {
     tag: 'อาหารอิตาเลียนแท้ๆ & รสชาติท้องถิ่นรสเลิศ',
     title: 'อิตาลีบรรจบกับท้องทะเลแห่งเกาะพยาม',
-    desc: 'ร้านอาหารของฟลาวเวอร์พาวเวอร์คือศูนย์รวมแห่งความอร่อยที่ผสมผสานความหลากหลายทางวัฒนธรรมได้อย่างลงตัว เราพร้อมเสิร์ฟเมนูอิตาเลียนดั้งเดิมแท้ๆ 100% โดดเด่นด้วยพิซซ่าเตาถ่านร้อนๆ และพาสต้าเส้นสดทำมือ ควบคู่กับอาหารไทยและอาหารพม่ารสชาติจัดจ้าน พร้อมด้วยเมนูเพื่อสุขภาพและวีแกนที่มีให้เลือกสรรอย่างครบครัน',
+    desc: 'ร้านอาหารของฟลาวเวอร์พาวเวอร์คือศูนย์รวมแห่งความอร่อยที่ผสมผสานความหลากหลายทางวัฒนธรรมได้อย่างลงตัว เราพร้อมเสิร์ฟเมนูอิตาเลียนดั้งเดิมแท้ๆ 100% โดดเด่นด้วยพิซซ่าอิตาเลียนแท้ๆ และพาสต้าเส้นสดทำมือ ควบคู่กับอาหารไทยและอาหารพม่ารสชาติจัดจ้าน พร้อมด้วยเมนูเพื่อสุขภาพและวีแกนที่มีให้เลือกสรรอย่างครบครัน',
     hours: 'เปิดบริการทุกวัน 08:00 – 21:15 น.',
     meals: 'อาหารเช้า · อาหารกลางวัน · อาหารค่ำ',
     browseMenu: 'เปิดอ่านเมนูดิจิทัลของเรา',
@@ -122,7 +143,7 @@ const restaurantLabels = {
   DE: {
     tag: 'Authentische Italienische Küche & Lokale Aromen',
     title: 'Italien trifft auf die Strände von Koh Phayam',
-    desc: 'Das Restaurant von Flower Power ist ein kulinarischer Treffpunkt. Wir servieren zu 100 % traditionelle italienische Gerichte — mit Steinofen-Pizza und hausgemachter Pasta — neben typisch thailändischen und birmanischen Spezialitäten sowie einer breiten Palette an veganen und gesunden Rezepten.',
+    desc: 'Das Restaurant von Flower Power ist ein kulinarischer Treffpunkt. Wir servieren zu 100 % traditionelle italienische Gerichte — mit authentischer traditioneller italienischer Pizza und hausgemachter Pasta — neben typisch thailändischen und birmanischen Spezialitäten sowie einer breiten Palette an veganen und gesunden Rezepten.',
     hours: 'Täglich 08:00 – 21:15 Uhr',
     meals: 'Frühstück · Mittagessen · Abendessen',
     browseMenu: 'Durchstöbern Sie unsere digitale Speisekarte',
@@ -179,41 +200,41 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
   return (
     <section className="py-8 md:py-12 bg-[#FAF6F0]">
       <div className="max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <div className="bg-[#F3EAE0]/70 border border-[#E6DACF] rounded-3xl p-5 md:p-6 shadow-sm mb-6 flex flex-col md:flex-row items-center md:items-stretch gap-6 md:gap-8">
+        {/* Bannerino Ristorante Compatto e Non Invasivo */}
+        <div className="bg-[#F3EAE0]/85 border border-[#E6DACF] rounded-2xl p-3.5 sm:p-4 md:p-5 shadow-xs mb-5 flex flex-col sm:flex-row items-center sm:items-stretch gap-3.5 sm:gap-5">
           <img
             src="/Flower_Power_Pizza_-_HotSpring.png"
             alt="Flower Power Pizza Logo"
-            className="w-24 h-24 md:w-28 md:h-28 object-contain flex-shrink-0 self-center hover:scale-105 transition-transform duration-300"
+            className="w-16 h-16 sm:w-20 sm:h-20 object-contain flex-shrink-0 self-center hover:scale-105 transition-transform duration-300"
           />
-          <div className="flex-1 text-center md:text-left flex flex-col justify-between">
+          <div className="flex-1 text-center sm:text-left flex flex-col justify-between">
             <div>
               <p 
-                className="text-xs font-black tracking-[0.25em] uppercase text-emerald-700 mb-1.5" 
+                className="text-[11px] sm:text-xs font-black tracking-[0.2em] uppercase text-emerald-800 mb-1" 
                 style={{ fontFamily: 'Inter, sans-serif' }}
               >
                 {t.tag}
               </p>
               <h2
-                className="text-stone-850 mb-2 text-xl md:text-2xl font-light"
+                className="text-stone-850 mb-1.5 text-lg sm:text-xl md:text-2xl font-black leading-tight"
                 style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
               >
                 {t.title}
               </h2>
               <p 
-                className="text-stone-700 text-sm sm:text-base leading-relaxed mb-3.5 font-normal"
+                className="text-stone-700 text-xs sm:text-sm leading-relaxed mb-2.5 font-normal"
                 style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
               >
                 {t.desc}
               </p>
             </div>
-            <div className="flex flex-wrap justify-center md:justify-start gap-4">
-              <div className="flex items-center gap-2 text-sm sm:text-base font-semibold text-stone-700">
-                <Clock size={12} className="text-emerald-700" />
+            <div className="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4 pt-1 border-t border-stone-200/50">
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-stone-700">
+                <Clock size={14} className="text-emerald-700" />
                 <span style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}>{t.hours}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm sm:text-base font-semibold text-stone-700">
-                <UtensilsCrossed size={12} className="text-emerald-700" />
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-stone-700">
+                <UtensilsCrossed size={14} className="text-emerald-700" />
                 <span style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}>{t.meals}</span>
               </div>
             </div>
@@ -237,22 +258,56 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
             </p>
           </div>
 
-          {/* Quick Categories Navigation */}
-          <div className="flex flex-wrap justify-center gap-2 mb-5 pb-3 border-b border-stone-150">
-            {categoriesData.map((cat, idx) => {
-              const isActive = currentPage === cat.pageIndex;
+          {/* CATEGORY SELECTOR (Identico al 100% allo stile a rettangolini di Spa e Galleria) */}
+          <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap mb-8 max-w-5xl mx-auto">
+            {restaurantCategoryTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isSelected = currentPage >= tab.pageIndex && (
+                tab.id === 6 || (restaurantCategoryTabs[tab.id + 1] && currentPage < restaurantCategoryTabs[tab.id + 1].pageIndex)
+              );
+              const [line1, line2] = restaurantCategoryBlockLabels[tab.id][lang] || restaurantCategoryBlockLabels[tab.id]['IT'];
+
               return (
                 <button
-                  key={idx}
-                  onClick={() => handleCategoryClick(cat.pageIndex)}
-                  className={`px-4.5 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 ${
-                    isActive
-                      ? 'bg-emerald-700 text-white shadow-sm'
-                      : 'bg-stone-100 hover:bg-stone-200 text-stone-750'
+                  key={tab.id}
+                  type="button"
+                  onClick={() => handleCategoryClick(tab.pageIndex)}
+                  className={`w-[96px] sm:w-[110px] h-[98px] sm:h-[108px] flex flex-col items-center justify-between p-2 rounded-2xl transition-all duration-200 border-2 text-center group cursor-pointer select-none active:scale-95 ${
+                    isSelected
+                      ? 'bg-gradient-to-b from-[#184534] to-[#0c241b] border-emerald-700 text-white shadow-lg ring-2 ring-emerald-700/30 scale-[1.03]'
+                      : 'bg-[#ede5d8] border-[#cfbea6] text-[#2c1a11] shadow-[0_2px_6px_rgba(44,26,17,0.08)] hover:bg-[#e6dcce] hover:border-emerald-700/50 hover:text-black hover:shadow-md'
                   }`}
-                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                 >
-                  {catNames[cat.catKey]}
+                  {/* Top icon in rounded container */}
+                  <div
+                    className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+                      isSelected
+                        ? 'bg-white/20 text-emerald-300 shadow-sm'
+                        : 'bg-[#ded0bf] text-emerald-900 group-hover:bg-emerald-800/15 shadow-inner'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.3]" />
+                  </div>
+
+                  {/* Two-line text */}
+                  <div className="flex-1 flex flex-col items-center justify-center w-full px-0.5 mt-0.5">
+                    <span className="text-[9.5px] sm:text-[10.5px] font-black tracking-tight uppercase leading-[1.12] text-balance">
+                      <span className="block">{line1}</span>
+                      <span className="block">{line2}</span>
+                    </span>
+                  </div>
+
+                  {/* Page indicator pill */}
+                  <div
+                    className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider transition-colors ${
+                      isSelected
+                        ? 'bg-emerald-400 text-stone-950 shadow-xs'
+                        : 'bg-black/10 text-stone-700 group-hover:bg-black/15'
+                    }`}
+                  >
+                    Pag. {tab.pageIndex + 1}
+                  </div>
                 </button>
               );
             })}
