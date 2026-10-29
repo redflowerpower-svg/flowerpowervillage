@@ -34,30 +34,21 @@ if (!token) {
 }
 if (!token) { console.error('Token bot non trovato'); process.exit(1); }
 
-const cloudPath = `social_stories/test_${Date.now()}_${path.basename(file)}`;
 const buf = fs.readFileSync(file);
-console.log(`[send-video] Caricamento su Supabase (${(buf.length / 1024 / 1024).toFixed(1)} MB)...`);
-const { error: upErr } = await sb.storage.from('assets').upload(cloudPath, buf, {
-  contentType: 'video/mp4',
-  upsert: true
-});
-if (upErr) throw upErr;
+console.log(`[send-video] Invio diretto a Telegram in streaming multipart (${(buf.length / 1024 / 1024).toFixed(1)} MB) - Zero Egress Supabase...`);
 
-const videoUrl = sb.storage.from('assets').getPublicUrl(cloudPath).data.publicUrl;
-console.log(`[send-video] Video URL: ${videoUrl}`);
+const formData = new FormData();
+formData.append('chat_id', chatId);
+formData.append('message_thread_id', String(topic));
+formData.append('video', new Blob([buf], { type: 'video/mp4' }), path.basename(file));
+if (caption) formData.append('caption', caption);
+formData.append('supports_streaming', 'true');
+formData.append('width', '1080');
+formData.append('height', '1920');
 
 const tgRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    chat_id: chatId,
-    message_thread_id: Number(topic),
-    video: videoUrl,
-    caption: caption,
-    supports_streaming: true,
-    width: 1080,
-    height: 1920
-  })
+  body: formData
 });
 
 const tgJson = await tgRes.json();

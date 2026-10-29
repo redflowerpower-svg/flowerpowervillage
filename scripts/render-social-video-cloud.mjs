@@ -362,6 +362,10 @@ async function run() {
           !d.category?.toLowerCase().includes('drink') &&
           !d.category?.toLowerCase().includes('beer') &&
           !d.category?.toLowerCase().includes('wine') &&
+          !d.category?.toLowerCase().includes('villa') &&
+          !d.category?.toLowerCase().includes('bungalow') &&
+          !d.category?.toLowerCase().includes('residence') &&
+          d.isPizza !== false &&
           d.imgUrl
         );
         const shuffled = filtered.sort(() => 0.5 - Math.random());
@@ -480,7 +484,11 @@ async function run() {
     const dishPath = path.join(tmpDir, `cloud_dish_${i}.webp`);
     const overlayPath = path.join(tmpDir, `cloud_overlay_${i}.png`);
 
-    await downloadAsset(dish.imgUrl, dishPath);
+    const ok = await downloadAsset(dish.imgUrl, dishPath);
+    if (!ok || !fs.existsSync(dishPath) || fs.statSync(dishPath).size < 1000) {
+      console.warn(`[CloudRenderer] Fallback per immagine non trovata: ${dish.imgUrl}`);
+      await downloadAsset('https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/spaghetti-allo-scoglio.webp', dishPath);
+    }
 
     const svg = generateSceneOverlaySvg(dish, i, numScenes);
     const svgBuf = await sharp(Buffer.from(svg)).png().toBuffer();

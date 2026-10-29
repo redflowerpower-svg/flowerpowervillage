@@ -70,9 +70,16 @@ export async function dispatchPostToTelegramTopic(
     : undefined;
 
   // Costruzione del messaggio HTML rifinito ed elegante
+  const brandTitle = payload.brand === 'pizza'
+    ? '🍕 Flower Power Pizza (Ranong)'
+    : payload.format === 'R1'
+    ? '🍽️ Flower Power Restaurant & Village (Koh Phayam)'
+    : '🌺 Flower Power Village (Koh Phayam)';
+
   let messageText = `${topicConfig.icon} <b>${payload.title}</b>\n`;
+  messageText += `🏢 <b>Brand:</b> <b>${brandTitle}</b>\n`;
   if (payload.format) {
-    messageText += `🎬 <b>Format:</b> ${payload.format} | 🏷️ <b>REPARTO:</b> ${payload.brand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}\n`;
+    messageText += `🎬 <b>Format:</b> ${payload.format}\n`;
   }
   if (payload.priceBadge) {
     messageText += `💰 <b>Prezzo Offerta:</b> ${payload.priceBadge}\n`;
@@ -91,7 +98,7 @@ export async function dispatchPostToTelegramTopic(
     messageText += `   • 💻 <i>Da Computer (PC/Mac):</i> premi <code>Ctrl + Shift + V</code>\n`;
     messageText += `   • 📱 <i>Da Telefono/Tablet:</i> tieni premuto e incolla! 🚀`;
   } else if (payload.topic === 'tikTokStories') {
-    messageText += `\n👉 <i>Tocca "Scarica Video MP4" sotto per salvarlo nel rullino, poi apri TikTok o Instagram Stories per pubblicarlo al volo! 🚀</i>`;
+    messageText += `\n👉 <i>Tocca il video sopra per salvarlo nel rullino, poi premi "Apri TikTok Stories" per pubblicarlo al volo! 🚀</i>`;
   }
 
   // Costruzione della tastiera inline (Bottoni interattivi)
@@ -123,22 +130,10 @@ export async function dispatchPostToTelegramTopic(
         text: '📱 Apri TikTok Stories',
         url: 'https://www.tiktok.com/',
       },
-      {
-        text: '📸 Apri Instagram Stories',
-        url: 'https://www.instagram.com/',
-      },
     ]);
   }
 
-  // 3. Tasto Download Diretto del file multimediale (solo se URL http/https valido)
-  if (fullMediaUrl && (fullMediaUrl.startsWith('http://') || fullMediaUrl.startsWith('https://')) && !fullMediaUrl.startsWith('data:')) {
-    inlineKeyboard.push([
-      {
-        text: isVideo ? '⬇️ Scarica Video MP4 (9:16)' : '⬇️ Scarica Media HD (9:16)',
-        url: fullMediaUrl,
-      },
-    ]);
-  }
+  // 3. Il video/foto e' gia' inviato nativo nel messaggio (salvataggio diretto da Telegram)
 
   const bodyPayload: any = {
     chat_id: supergroupId,
@@ -148,7 +143,7 @@ export async function dispatchPostToTelegramTopic(
     disable_web_page_preview: true,
     media_url: fullMediaUrl,
     media_type: isVideo ? 'video' : 'photo',
-    media_caption: `${topicConfig.icon} <b>${payload.title}</b>\n🎬 Format: ${payload.format || 'AutoCut'} · ${payload.brand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}`,
+    media_caption: `${topicConfig.icon} <b>${payload.title}</b>\n🏢 <b>${brandTitle}</b> · Format: ${payload.format || 'AutoCut'}`,
     thumbnail_url: payload.thumbnailUrl,
     reply_markup: {
       inline_keyboard: inlineKeyboard,

@@ -390,6 +390,24 @@ export function AutoCutPostCopywriter({
 
   // Applica eventuale override live DeepSeek
   const postData: PostCopyResult = useMemo(() => {
+    const isPizza = testRun.brand === 'pizza';
+
+    // 🛡️ REGOLA IMMODIFICABILE 27: Zero elementi marini inesistenti per Flower Power Village
+    const scrubNonExistentMarine = (t: string) => {
+      if (isPizza) return t;
+      return t
+        .replace(/\b(sound of (the )?waves|sound of ocean waves|ocean waves|crashing waves|sound of the ocean|sound of the sea)\b/gi, 'peaceful sounds of nature')
+        .replace(/\b(ocean breeze|sea breeze|island breezes|breezes from the sea)\b/gi, 'fresh tropical breeze')
+        .replace(/\b(beachfront|on the beach|by the sea|steps from the beach|steps from the ocean)\b/gi, 'nestled in tropical nature')
+        .replace(/\b(rumore delle onde|suono delle onde|onde dell'oceano|rumore del mare)\b/gi, 'suoni rilassanti della natura')
+        .replace(/\b(brezza marina|brezza dell'oceano|brezza del mare)\b/gi, 'fresca brezza tropicale')
+        .replace(/\b(in riva al mare|sulla spiaggia|fronte mare|a due passi dal mare)\b/gi, 'immerso nella natura tropicale')
+        .replace(/เสียงคลื่น(ริมทะเล|ซัดสาด)?/g, 'เสียงธรรมชาติอันเงียบสงบ')
+        .replace(/ลมทะเล/g, 'สายลมอ่อนท่ามกลางสวนทรอปิคอล')
+        .replace(/ริมทะเล/g, 'ท่ามกลางธรรมชาติอันร่มรื่น')
+        .replace(/🌊/g, '🌺');
+    };
+
     // 🛡️ REGOLA IMMODIFICABILE 16 & 18: Zero hashtag inline e zero forno a legna
     const scrubWoodFired = (t: string) => {
       return t
@@ -402,12 +420,12 @@ export function AutoCutPostCopywriter({
     if (!aiOverride) {
       return {
         ...basePostData,
-        thaiContent: sanitizeSocialBullets(applyUnicodeBoldHook(scrubWoodFired(basePostData.thaiContent))),
-        englishContent: sanitizeSocialBullets(applyUnicodeBoldHook(scrubWoodFired(basePostData.englishContent)))
+        thaiContent: sanitizeSocialBullets(applyUnicodeBoldHook(scrubNonExistentMarine(scrubWoodFired(basePostData.thaiContent)))),
+        englishContent: sanitizeSocialBullets(applyUnicodeBoldHook(scrubNonExistentMarine(scrubWoodFired(basePostData.englishContent))))
       };
     }
 
-    const stripTags = (t: string) => scrubWoodFired(t.replace(/[ \t]*#\S+/g, '').replace(/\n{3,}/g, '\n\n').trim());
+    const stripTags = (t: string) => scrubNonExistentMarine(scrubWoodFired(t.replace(/[ \t]*#\S+/g, '').replace(/\n{3,}/g, '\n\n').trim()));
     const th = sanitizeSocialBullets(applyUnicodeBoldHook(ensureLangFlag(stripTags(aiOverride.thaiContent || basePostData.thaiContent), 'th')));
     const en = sanitizeSocialBullets(applyUnicodeBoldHook(ensureLangFlag(stripTags(aiOverride.englishContent || basePostData.englishContent), 'en')));
     const tagFooter = [...basePostData.thaiHashtags, ...basePostData.englishHashtags].join(' ');

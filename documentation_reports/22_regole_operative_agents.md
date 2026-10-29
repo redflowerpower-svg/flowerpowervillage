@@ -126,7 +126,7 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
     - **Esecuzione Continua & Zero Blocchi**:
       1. Nessun blocco di pianificazione (`RequestFeedback: false`), nessun tool di conferma interattiva (`ask_question`). Il flusso procede spedito senza interruzioni.
 24. **Regola Immodificabile Divieto Assoluto Parola Sunset / Tramonto (Koh Phayam / Flower Power Village)**:
-    - **IL NOSTRO VILLAGGIO NON VEDE IL TRAMONTO (ZERO SUNSET)**: Flower Power Village a Koh Phayam NON ha la vista sul tramonto.
+    - **IL NOSTRO VILLAGGIO NON VEDE IL TRAMONTO (ZERO SUNSET)**: Flower Power Village a Koh Phayam NON ha la vista sul tramonto perché abbiamo le fitte foreste tropicali davanti che schermano interamente la linea dell'orizzonte ovest.
     - È **SEVERAMENTE, CATEGORICAMENTE E TASSATIVAMENTE VIETATO** usare o menzionare le parole "sunset", "tramonto", "พระอาทิตย์ตก", "Golden Hour Sunset" o alludere al tramonto nei prompt di DeepSeek AI, nei post social (TikTok, Instagram, Facebook, Google Maps, Telegram), nelle didascalie, nei titoli video, nei banner o nei template per il villaggio e per tutti i suoi alloggi.
     - Per la **Villa Penthouse** in particolare, parlare TASSATIVAMENTE ed ESCLUSIVAMENTE di **"Breezy Suite"** / **suite ventilata** con grande terrazza panoramica fresca e arieggiata (`Panoramic Breezy Deck`).
     - Il sistema applica sanitizzatori regex a monte e a valle che convertono qualsiasi residuo di "sunset" in "breezy deck" / "tropical breezes".
@@ -134,6 +134,37 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
     - **DIVIETO ASSOLUTO DI RENDERING SULLA MACCHINA LOCALE**: È severamente e categoricamente vietato eseguire rendering video pesanti, pipeline Playwright/FFmpeg o scheduler dispatch di produzione sulla workstation locale dell'utente.
     - **AUTONOMIA TOTALE A COMPUTER SPENTO (100% SERVERLESS CLOUD)**: Tutti i rendering video ufficiali, muxing audio, calcolo parità e dispatch automatici dei post vanno eseguiti **TASSATIVAMENTE ED ESCLUSIVAMENTE sui runner cloud serverless di GitHub Actions** (`social-scheduler-cron.yml`), orchestrati 24/7 da `cron-job.org`.
     - L'utente e il personale possono tenere il computer spento: il sistema vive interamente in cloud, genera i contenuti in Chromium headless, archivia su Google Drive 5TB e pubblica su Meta Graph API e nei canali Telegram del Supergruppo in totale autonomia.
+
+26. **Regola Immodificabile Standard Post Social con Hook Unicode Bold & Zero Conflitti di Formattazione (Zero Reordering / Zero Liste HTML)**:
+    - **Hook di Testa in Sans-Serif Bold Unicode**: In tutti i testi dei post generati per i social (Facebook, Instagram, TikTok, Telegram Topic 2 Gruppo Koh Phayam) sia in fase di editing nel Social Studio sia nel rendering headless Chromium su GitHub Actions, l'Hook di apertura (la prima frase dopo la bandiera della lingua) deve essere **TASSATIVAMENTE FORMATTATO IN CARATTERI MATEMATICI UNICODE BOLD** (`toUnicodeBold`: `𝗔-𝗭, 𝗮-𝘇, 𝟬-𝟵`).
+    - **Grassetto Universale Garantito su Qualsiasi Schermo**: L'Hook risulterà visivamente in grassetto evidente e impattante come titolo dell'annuncio su qualsiasi dispositivo, app o browser (PC desktop, tablet Xiaomi Mi Pad 4, Android, iPhone, Instagram, TikTok, Facebook) a livello di puro testo (`text/plain`), senza richiedere formattazioni HTML o editor speciali.
+    - **Sanitizzazione Obbligatoria Bullet Points (`•` ➔ `▫️`)**: È **SEVERAMENTE E TASSATIVAMENTE VIETATO** usare nei post i caratteri di elenco puntato di sistema (`•` o `\u2022`) o trattini lista (`- `). Devono essere convertiti **SEMPRE E SOLO NELL'EMOJI GEOMETRICA `▫️`**.
+    - **Azzeramento Totale Bug Inversione Facebook**: Questa combinazione impedisce categoricamente al motore Draft.js / Lexical di Facebook di interpretare liste HTML o tentare di convertire l'inizio in un blocco `H1` separato con espulsione delle prime righe dopo gli hashtag, garantendo che il testo incollato rimanga **sempre integro e nel perfetto ordine logico originale al 100%**.
+
+27. **Regola Immodificabile Ambientazione Flower Power Village: Giungla Tropicale, Giardino Eden & Varietà Narrativa (Divieto Assoluto Onde, Rumore del Mare, Brezza Marina e Fronte Mare)**:
+    - **FLOWER POWER VILLAGE NON È FRONTE MARE (ZERO BEACHFRONT)**: Il resort non si trova sulla battigia o affacciato sulla riva del mare. È un eco-resort immerso nella giungla tropicale protetta, racchiuso in un lussureggiante giardino tropicale stile Eden.
+    - **DIVIETO CATEGORICO E ASSOLUTO ELEMENTI MARINI INESISTENTI**:
+      - È **SEVERAMENTE, CATEGORICAMENTE E TASSATIVAMENTE VIETATO** scrivere o generare nei post (TikTok, Instagram, Facebook, Telegram), nei titoli, nelle didascalie o nei prompt AI espressioni come:
+        * *"suono delle onde"*, *"rumore del mare"*, *"sound of waves"*, *"ocean waves"*, *"crashing waves"*;
+        * *"brezza marina"*, *"ocean breeze"*, *"brezza del mare"*;
+        * *"svegliarsi in riva al mare"*, *"sulla spiaggia"*, *"a due passi dalla battigia"*, *"fronte mare"*, *"beachfront"*;
+        * Equivalenti Thai: *"ริมทะเล"*, *"เสียงคลื่น"*, *"ลมทะเล"*;
+        * Emoji marine come `🌊` associate al villaggio.
+    - **VARIETÀ NARRATIVA (ZERO OBBLIGO O FORZATURA RIPETITIVA SULLA FAUNA)**:
+      - Non deve essere un obbligo forzato parlare in ogni post dell'ecosistema vivente. I post devono avere massima varietà e libertà tra le mille sfumature dell'esperienza al villaggio:
+        1. *Privacy, pace e quiete*: il silenzio rigenerante lontano dal caos, staccare la spina nel verde.
+        2. *Comfort e calore dei bungalow in legno*: architettura ecologica, terrazze ampie, amaca per leggere o riposare.
+        3. *L'Oasi Piscina*: un tuffo rinfrescante nell'acqua limpida circondata dalle piante tropicali.
+        4. *Slow Life dell'isola senza auto*: il ritmo lento e rilassato di Koh Phayam.
+        5. *La buona tavola italiana*: sapori autentici, pasta fresca, colazioni e cene nel giardino del ristorante.
+    - **SE E QUANDO SI PARLA DI NATURA, SUONI O RISVEGLIO (LA VERA REALTÀ DELL'EDEN)**:
+      - *Se e quando* nel corso dei post si sceglie di parlare della natura, dei suoni ambientali o del risveglio, attingere **TASSATIVAMENTE ED ESCLUSIVAMENTE** alla meravigliosa realtà del posto:
+        * Svegliarsi con il volo maestoso e i richiami dei **Buceri** (*Hornbills* / นกเงือก), simbolo indiscusso di Koh Phayam;
+        * Gli **scoiattoli** (*Squirrels* / กระรอก) che si rincorrono agili tra le palme e i rami;
+        * I piccoli e coloratissimi **Sunbird** (*Nettarine tropicali* / นกกินปลี) tra i fiori esotici;
+        * Le **farfalle multicolori** di tutti i tipi (*Butterflies* / ผีเสื้อ) che popolano il giardino;
+        * La freschezza ombreggiata della vegetazione e delle fitte foreste che abbracciano il villaggio.
+    - **Sanitizzazione Automatica**: Il sistema applica regex attive a monte e a valle che convertono qualsiasi eventuale residuo di "sound of waves" o "brezza marina" in "suoni rilassanti della natura" e "fresca brezza tropicale".
 
 # 🛡️ PROTOCOLLO DI AUTO-APPROVAZIONE SICURA (AUTONOMOUS EXECUTION & ZERO-DISRUPTION GUARDRAILS)
 Il sistema opera in modalità di **esecuzione completamente autonoma, rapida e continua** (predefinita su tutte le richieste, e tassativa con `/goal`, `AUTOPILOT`, `procedi` o `In autonomia:`):
@@ -397,13 +428,25 @@ Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi
    - `git merge staging -m "Release: <descrizione_rilascio>"`
    - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
    - Ritorno automatico su `staging` (`git checkout staging`).
-3. **Fase 3 - Isolamento /social vs /social-studio**:
-   - Sul dominio di produzione, `/social` rimane **TASSATIVAMENTE CONGELATO** sulla versione per la revisione TikTok (`TikTokAuditStudioPage.tsx`).
-   - La suite ufficiale e attiva per lo staff è ora raggiungibile su `/social-studio` (`AutoCutStudioPage.tsx`), garantendo zero interferenze con TikTok.
-4. **Fase 4 - Report Handoff a 5 Punti per Gemini Notebook**:
+3. **Fase 3 - Report Handoff a 5 Punti per Gemini Notebook**:
    - Emissione del report compatto per il taccuino Gemini e conferma dell'allineamento globale.
 
 ---
+
+### 5. `MARKDOWN-WAIT` (Identico al 100% a MARKDOWN-PROJECT + Freeze Social TikTok Online + Report Gemini)
+Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WAIT`** (o *markdown wait*):
+È **TASSATIVAMENTE IDENTICO IN OGNI SINGOLO MILLIMETRO A `MARKDOWN-PROJECT`**, eseguendo SEMPRE E SENZA ECCEZIONI:
+1. **Aggiornamento Documentazione & Diario**: Aggiornamento fisico dei file in `/documentation_reports/` e di `DIARIO_DI_BORDO.md`.
+2. **Typecheck & Sicurezza**: `npx tsc --noEmit` a zero errori e audit segreti.
+3. **Deploy Simultaneo su Entrambi gli Ambienti (Staging + Produzione `main`)**:
+   - Commit delle modifiche sul branch `staging`.
+   - `git push origin staging` (Aggiorna `staging.flowerpowerpizza.com`).
+   - `git checkout main`
+   - `git merge staging -m "Release: <descrizione_rilascio>"`
+   - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
+   - Ritorno automatico su `staging` (`git checkout staging`).
+4. **Report Completo per Gemini NotebookLM**: Emissione del report dettagliato con l'elenco esatto dei file `.md` aggiornati da copiare su Google Gemini Notebook.
+5. **UNICA ECCEZIONE CATEGORICA**: Sul dominio di produzione `https://www.flowerpowerpizza.com/social`, la rotta `/social` rimane **TASSATIVAMENTE INTOCCATA E CONGELATA** sulla versione primordiale `TikTokAuditStudioPage.tsx` per i revisori di TikTok (grazie al discriminatore d'ambiente in `SocialStudioPage.tsx`), mentre in locale e su staging lo sviluppo continua liberamente.
 
 
 
@@ -422,12 +465,3 @@ Per evitare che i report generati per l'utente superino i limiti di input di Gem
    - Se un handoff (es. MARKDOWN-PROJECT) o una spiegazione tecnica supera inevitabilmente questo limite, l'agente DEVE dividerlo in blocchi numerati (es. "[Parte 1 di 3]", "[Parte 2 di 3]").
    - Alla fine di ogni parte, l'agente deve fermarsi e scrivere: 
      *«⚠️ Il report è troppo lungo per la tua casella di testo. Copia e invia questa prima parte, poi ti scriverò la Parte 2 nel prossimo turno appena rispondi 'continua'.»*
-
-
----
-
-### 26. **Regola Immodificabile Standard Post Social con Hook Unicode Bold & Zero Conflitti di Formattazione (Zero Reordering / Zero Liste HTML)**:
-    - **Hook di Testa in Sans-Serif Bold Unicode**: In tutti i testi dei post generati per i social (Facebook, Instagram, TikTok, Telegram Topic 2 Gruppo Koh Phayam) sia in fase di editing nel Social Studio sia nel rendering headless Chromium su GitHub Actions, l'Hook di apertura (la prima frase dopo la bandiera della lingua) deve essere **TASSATIVAMENTE FORMATTATO IN CARATTERI MATEMATICI UNICODE BOLD** (`toUnicodeBold`: `𝗔-𝗭, 𝗮-𝘇, 𝟬-𝟵`).
-    - **Grassetto Universale Garantito su Qualsiasi Schermo**: L'Hook risulterà visivamente in grassetto evidente e impattante come titolo dell'annuncio su qualsiasi dispositivo, app o browser (PC desktop, tablet Xiaomi Mi Pad 4, Android, iPhone, Instagram, TikTok, Facebook) a livello di puro testo (`text/plain`), senza richiedere formattazioni HTML o editor speciali.
-    - **Sanitizzazione Obbligatoria Bullet Points (`•` ➔ `▫️`)**: È **SEVERAMENTE E TASSATIVAMENTE VIETATO** usare nei post i caratteri di elenco puntato di sistema (`•` o `\u2022`) o trattini lista (`- `). Devono essere convertiti **SEMPRE E SOLO NELL'EMOJI GEOMETRICA `▫️`**.
-    - **Azzeramento Totale Bug Inversione Facebook**: Questa combinazione impedisce categoricamente al motore Draft.js / Lexical di Facebook di interpretare liste HTML o tentare di convertire l'inizio in un blocco `H1` separato con espulsione delle prime righe dopo gli hashtag, garantendo che il testo incollato rimanga **sempre integro e nel perfetto ordine logico originale al 100%**.

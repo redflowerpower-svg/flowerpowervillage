@@ -69,9 +69,9 @@ const VILLAGE_PROVERBS = [
     it: 'Riposati e ricarica le energie oggi, perché il domani merita la tua luce migliore.'
   },
   {
-    thai: 'นกทำรังแต่พอตัว สุขใจในบังกะโลริมทะเลใต้ร่มเงาไม้',
-    en: 'Birds build nests that fit their needs; find true peace in a tropical bungalow by the sea.',
-    it: 'L’uccello fa il nido a sua misura; trova la vera pace in un bungalow tropicale vicino al mare.'
+    thai: 'นกทำรังแต่พอตัว สุขใจในบังกะโลไม้ใต้ร่มเงาสวนเอเดน',
+    en: 'Birds build nests that fit their needs; find true peace in a wooden bungalow nestled in our tropical Eden.',
+    it: 'L’uccello fa il nido a sua misura; trova la vera pace in un bungalow in legno immerso nel nostro Eden tropicale.'
   },
   {
     thai: 'อยู่อย่างเรียบง่าย สุขสบายอย่างแท้จริง',
@@ -84,9 +84,9 @@ const VILLAGE_PROVERBS = [
     it: 'La distanza mette alla prova il cavallo, e il tempo dell’isola svela la magia di Koh Phayam.'
   },
   {
-    thai: 'ความสุขไม่ได้อยู่ที่จุดหมาย แต่อยู่ที่ลมทะเลบนเปลญวน',
-    en: 'Happiness is not just a destination; it is the ocean breeze from your hammock.',
-    it: 'La felicità non è una meta, è la brezza dell’oceano dondolandosi sull’amaca.'
+    thai: 'ความสุขไม่ได้อยู่ที่จุดหมาย แต่อยู่ที่ความร่มรื่นบนเปลญวนใต้ร่มไม้',
+    en: 'Happiness is not just a destination; it is pure relaxation in a hammock beneath tropical palms.',
+    it: 'La felicità non è una meta, è il totale relax sull’amaca all’ombra delle palme tropicali.'
   }
 ];
 
@@ -385,7 +385,7 @@ export function generatePostCopy(
 
     if (testRun.mode === 'DS') {
       // ⚡ DS DAILY SPECIAL: Enfatizza piatto fresco del giorno, preparato oggi e in pronta consegna
-      thaiContent = `🇹🇭 สดใหม่จากเตาวันนี้! เมนูพิเศษ Daily Special มาแล้วครับ ⚡️🍕✨
+      thaiContent = `🇹🇭 สดใหม่จากเตา Flower Power Pizza ระนอง วันนี้! เมนูพิเศษ Daily Special มาแล้วครับ ⚡️🍕✨
 
 เมนูเด็ดประจำวัน:
 ${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
@@ -397,7 +397,7 @@ ${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
 🛵 พร้อมส่งทันทีถึงบ้าน สั่งง่ายๆ ผ่าน www.flowerpowerpizza.com
 รับส่วนลดพิเศษ 10% สำหรับการสั่งซื้อครั้งแรกทันทีครับ! 💨`;
 
-      englishContent = `🇬🇧 Fresh out of the oven today! Chef's Daily Special is ready ⚡️🍕✨
+      englishContent = `🇬🇧 Fresh out of the oven at Flower Power Pizza Ranong today! Chef's Daily Special is ready ⚡️🍕✨
 
 Today's Special:
 ${secondaryName || dishOrRoomName}
@@ -424,17 +424,17 @@ Approfitta del 10% di sconto sul tuo primo ordine! 💨`;
     } else {
       // 🍕 P1, P2, P3: Testo Standard Pizzeria con Ganci Multipli Dinamici
       const pizzaThaiHooks = [
-        '🇹🇭 สวัสดีครับทุกคน! วันนี้พาความอร่อยมารายงานตัวครับ 🍕✨',
-        '🇹🇭 กลิ่นเตาอบหอมฟุ้งลอยไปทั่วระนองแล้วครับ! วันนี้ขอเสิร์ฟเมนูสุดพิเศษ 🍕🔥',
-        '🇹🇭 สายกินห้ามพลาด! เมนูอิตาเลียนแท้ๆ ทำสดใหม่จากเตาร้อนๆ พร้อมเสิร์ฟครับ 🇮🇹✨',
-        '🇹🇭 ใครกำลังมองหาของอร่อยมื้อนี้ ยกความอร่อยส่งตรงถึงหน้าบ้านเลยครับ! 🛵💨'
+        '🇹🇭 สวัสดีครับทุกคน! ที่ Flower Power Pizza ระนอง วันนี้พาความอร่อยมารายงานตัวครับ 🍕✨',
+        '🇹🇭 กลิ่นเตาอบหอมฟุ้งจาก Flower Power Pizza ระนอง วันนี้ขอเสิร์ฟเมนูสุดพิเศษ 🍕🔥',
+        '🇹🇭 สายกินห้ามพลาด! เมนูอิตาเลียนแท้ๆ ทำสดใหม่ที่ Flower Power Pizza ระนอง พร้อมเสิร์ฟครับ 🇮🇹✨',
+        '🇹🇭 ใครกำลังมองหาของอร่อยมื้อนี้ Flower Power Pizza ระนอง ยกความอร่อยส่งตรงถึงหน้าบ้านเลยครับ! 🛵💨'
       ];
 
       const pizzaEnHooks = [
-        '🇬🇧 Hey food lovers! Fresh 🍕 out of our Ranong oven today ✨',
-        '🇬🇧 Authentic Italian pizza 🍕 baked to perfection right here in Ranong 🔥',
-        '🇬🇧 Craving real Italian flavor? Made fresh with 48h slow-fermented dough! 🇮🇹✨',
-        '🇬🇧 Straight from our Italian kitchen to your table 🛵💨 in Ranong!'
+        '🇬🇧 Hey food lovers! Fresh from Flower Power Pizza in Ranong today 🍕✨',
+        '🇬🇧 Authentic Italian pizza 🍕 baked to perfection at Flower Power Pizza Ranong 🔥',
+        '🇬🇧 Craving real Italian flavor? Flower Power Pizza Ranong prepares 48h slow-fermented dough! 🇮🇹✨',
+        '🇬🇧 Straight from Flower Power Pizza kitchen to your table 🛵💨 in Ranong!'
       ];
 
       const pizzaItHooks = [
@@ -509,10 +509,10 @@ Approfitta subito del 10% di sconto sul tuo primo ordine! 🛵💨`;
     ];
 
     const r1EnHooks = [
-      '🇬🇧 Craving authentic Italian food on Koh Phayam? Flower Power Restaurant 🍝🍕 is cooking for you!',
-      '🇬🇧 Freshly cooked Italian specialties 🍝 right in the heart of Buffalo Bay, Koh Phayam 🌴🔥',
-      '🇬🇧 Handmade pasta 🍝, traditional Italian pizza 🍕 and artisan taste on Koh Phayam island 🇮🇹🥥',
-      '🇬🇧 Dine in our lush tropical garden 🌴 or get hot delivery directly to your resort on Koh Phayam 🛵✨'
+      '🇬🇧 Craving authentic Italian food on Koh Phayam? Flower Power Restaurant & Village 🍝🍕 is cooking for you!',
+      '🇬🇧 Freshly cooked Italian specialties at Flower Power Restaurant & Village, Buffalo Bay, Koh Phayam 🌴🔥',
+      '🇬🇧 Handmade pasta 🍝 and artisan pizza 🍕 at Flower Power Restaurant on Koh Phayam island 🇮🇹🥥',
+      '🇬🇧 Dine in lush tropical gardens at Flower Power Restaurant & Village or get delivery on Koh Phayam 🛵✨'
     ];
 
     const rIdx = Math.abs(proverbIndexSeed) % r1EnHooks.length;
@@ -595,15 +595,15 @@ La buona cucina italiana nel cuore dell'isola di Koh Phayam!
     }).join('\n');
 
     const lm1ThHooks = [
-      '🇹🇭 ด่วนสุดๆ! ห้องว่าง Last Minute คืนนี้ที่ อ่าวเขาควาย เกาะพยาม 🌴🔥✨',
-      '🇹🇭 ใครอยากพักผ่อนกะทันหัน คืนนี้เรายังมีห้องว่างพร้อมราคาพิเศษครับ 🌊🌴✨',
-      '🇹🇭 หนีความวุ่นวายมานอนรับลมทะเลคืนนี้! เช็กห้องว่างราคาดีที่สุดได้เลยครับ 🥥🍃✨'
+      '🇹🇭 ด่วนสุดๆ! ห้องว่าง Last Minute คืนนี้ที่ Flower Power Village อ่าวเขาควาย เกาะพยาม 🌴🔥✨',
+      '🇹🇭 ใครอยากพักผ่อนกะทันหัน คืนนี้ที่ Flower Power Village เรายังมีห้องว่างราคาพิเศษครับ 🌴✨',
+      '🇹🇭 หนีความวุ่นวายมาพักผ่อนท่ามกลางสวนทรอปิคอลที่ Flower Power Village เกาะพยาม เช็กห้องว่างราคาดีที่สุดได้เลยครับ 🥥🍃✨'
     ];
 
     const lm1EnHooks = [
-      '🇬🇧 Last Minute Alert! Rooms available tonight at Buffalo Bay, Koh Phayam 🌴🔥✨',
-      '🇬🇧 Spontaneous island escape? Verified available stays for tonight with special rates 🌊🌴✨',
-      '🇬🇧 Escape the ordinary tonight! Limited rooms left in our tranquil tropical sanctuary 🥥🍃✨'
+      '🇬🇧 Last Minute Alert! Rooms available tonight at Flower Power Village, Koh Phayam 🌴🔥✨',
+      '🇬🇧 Spontaneous island escape? Special rates tonight at Flower Power Village, Koh Phayam 🌴✨',
+      '🇬🇧 Escape the ordinary tonight at Flower Power Village, tropical sanctuary in Koh Phayam 🥥🍃✨'
     ];
 
     const lmIdx = Math.abs(proverbIndexSeed) % lm1EnHooks.length;
@@ -613,7 +613,7 @@ La buona cucina italiana nel cuore dell'isola di Koh Phayam!
 🏠 ห้องว่างคืนนี้ (ราคาพิเศษ Last Minute + รับส่วนลดเพิ่ม 10% เมื่อจองตรง):
 ${lm1ThRooms}
 
-สัมผัสความเงียบสงบ หลีกหนีความวุ่นวาย มานอนฟังเสียงคลื่นริมทะเลกันนะครับ มีจำนวนจำกัดเฉพาะคืนนี้เท่านั้น! 🌺🌊
+สัมผัสความเงียบสงบ หลีกหนีความวุ่นวาย มาพักผ่อนท่ามกลางสวนทรอปิคอลและโอเอซิสสระว่ายน้ำกันนะครับ มีจำนวนจำกัดเฉพาะคืนนี้เท่านั้น! 🌺🍃
 
 คนโบราณกล่าวไว้: "${proverb.thai}"
 วันหยุดทั้งที ต้องให้ธรรมชาติบำบัดหัวใจและเติมพลังชีวิตนะครับ!
@@ -627,7 +627,7 @@ ${lm1ThRooms}
 🏠 Available Tonight (Special Last Minute + Extra 10% Direct Discount):
 ${lm1EnRooms}
 
-Wake up to the sound of ocean waves and peaceful island breezes. Limited rooms available for tonight! 🌺🌊
+Unwind in lush tropical nature, refresh in our pool oasis, and enjoy peaceful island vibes. Limited rooms available for tonight! 🌺🍃
 
 Remember: ${cleanEnProverb}
 Pack your flip-flops and let nature recharge your soul! 🤙
@@ -642,7 +642,7 @@ Get an EXTRA -10% OFF automatically when booking on our official website:
 🏠 Alloggi disponibili stasera (Tariffa Online ➔ Sconto Diretto -10%):
 ${lm1EnRooms}
 
-Fuga spontanea sull'isola per staccare la spina tra natura tropicale e brezza marina! 🌺🌊
+Fuga spontanea sull'isola per staccare la spina tra giardini tropicali stile Eden e totale relax! 🌺🍃
 
 Come dice un saggio proverbio: "${proverb.it}"
 Camere limitate disponibili solo per questa notte!
@@ -667,13 +667,13 @@ Camere limitate disponibili solo per questa notte!
     const lodgingsEnList = uniqueLodgings.map(l => `▫️ ${l.nameEn}`).join('\n');
 
     const v3ThHooks = [
-      '🇹🇭 พาชมบรรยากาศ Flower Power Village อ่าวเขาควาย เกาะพยาม แบบเต็มๆ ครับ 🌴🌊✨',
-      '🇹🇭 ที่พักธรรมชาติหลากหลายสไตล์ริมอ่าวเขาควาย พร้อมต้อนรับทุกคนครับ 🌴🌺✨',
+      '🇹🇭 พาชมบรรยากาศ Flower Power Village อ่าวเขาควาย เกาะพยาม แบบเต็มๆ ครับ 🌴✨',
+      '🇹🇭 ที่พักธรรมชาติหลากหลายสไตล์ในสวนทรอปิคอลเขียวขจี พร้อมต้อนรับทุกคนครับ 🌴🌺✨',
       '🇹🇭 เลือกพักผ่อนในแบบที่คุณชอบ ท่ามกลางสวนทรอปิคอลเขียวขจี เกาะพยาม 🥥🍃✨'
     ];
 
     const v3EnHooks = [
-      '🇬🇧 Discover your perfect island hideaway at Flower Power Village, Koh Phayam 🌴🌊✨',
+      '🇬🇧 Discover your perfect island hideaway at Flower Power Village, Koh Phayam 🌴✨',
       '🇬🇧 Explore our diverse tropical stays nestled in the peaceful nature of Buffalo Bay 🌴🌺✨',
       '🇬🇧 From panoramic suites to wooden garden bungalows — find your sanctuary on Koh Phayam 🥥🍃✨'
     ];
@@ -706,7 +706,7 @@ Pack your flip-flops and let nature recharge your soul! 🤙
 🎁 Explore all stays and book direct on www.flowerpowervillage.com
 Enjoy your guaranteed best rate and 10% direct booking privilege! 🥥✨`;
 
-    italianContent = `🇮🇹 Scopri tutti gli alloggi di Flower Power Village a Koh Phayam 🌴🌊✨
+    italianContent = `🇮🇹 Scopri tutti gli alloggi di Flower Power Village a Koh Phayam 🌴✨
 
 🏡 Alloggi mostrati nel video di oggi:
 ${lodgingsEnList}
@@ -727,17 +727,17 @@ Miglior tariffa garantita e 10% di sconto prenotazione diretta! 🥥✨`;
     const cleanEnProverb = proverb.en.replace(/["']/g, '');
 
     const villageEnHooks = [
-      '🇬🇧 Paradise calling from Buffalo Bay, Koh Phayam 🌴🌊✨',
-      '🇬🇧 Escape the noise and wake up to the sound of waves at Buffalo Bay 🌴🌺✨',
-      '🇬🇧 Tropical breeze, lush green gardens and peaceful island vibes 🥥🍃✨',
-      '🇬🇧 Your eco-sanctuary on the car-free island of Koh Phayam ☀️🌊✨'
+      '🇬🇧 Paradise calling from Flower Power Village in Buffalo Bay, Koh Phayam 🌴✨',
+      '🇬🇧 Escape the noise at Flower Power Village and wake up to birds singing and tropical peace 🌴🌺✨',
+      '🇬🇧 Tropical breeze, lush gardens and peaceful island vibes at Flower Power Village 🥥🍃✨',
+      '🇬🇧 Your eco-sanctuary at Flower Power Village on the car-free island of Koh Phayam ☀️🌴✨'
     ];
 
     const villageThHooks = [
-      '🇹🇭 หลีกหนีความวุ่นวาย มาสัมผัสความเงียบสงบที่ อ่าวเขาควาย เกาะพยาม กันครับ 🌴🌊✨',
-      '🇹🇭 ตื่นเช้ารับลมทะเล สัมผัสธรรมชาติที่แท้จริงในเกาะพยามกันครับ 🌴🌺✨',
-      '🇹🇭 พักผ่อนท่ามกลางสวนทรอปิคอลเขียวขจี ฟังเสียงคลื่นบนเปลญวนสุดชิลล์ 🥥🍃✨',
-      '🇹🇭 วันหยุดนี้มาเติมพลังชีวิตในบังกะโลไม้ริมอ่าวเขาควาย เกาะพยาม กันครับ ☀️🌊✨'
+      '🇹🇭 หลีกหนีความวุ่นวาย มาสัมผัสความเงียบสงบที่ Flower Power Village อ่าวเขาควาย เกาะพยาม กันครับ 🌴✨',
+      '🇹🇭 ตื่นเช้ารับความสดชื่น สัมผัสธรรมชาติที่แท้จริงที่ Flower Power Village เกาะพยาม กันครับ 🌴🌺✨',
+      '🇹🇭 พักผ่อนท่ามกลางสวนทรอปิคอลเขียวขจีที่ Flower Power Village เกาะพยาม สุดชิลล์ 🥥🍃✨',
+      '🇹🇭 วันหยุดนี้มาเติมพลังชีวิตในบังกะโลไม้ที่ Flower Power Village เกาะพยาม กันครับ ☀️🌴✨'
     ];
 
     const vIdx = Math.abs(proverbIndexSeed) % villageEnHooks.length;
@@ -751,7 +751,7 @@ Miglior tariffa garantita e 10% di sconto prenotazione diretta! 🥥✨`;
 
 Featured stay:
 ${dishOrRoomName}
-Nestled in lush tropical gardens with ocean breeze, birds singing and pure island peace! 🌺🍃
+Nestled in lush tropical gardens with our refreshing pool oasis, quiet nature and pure island peace! 🌺🍃
 
 Remember: ${cleanEnProverb}
 Pack your flip-flops and let nature recharge your soul! 🤙
@@ -764,7 +764,7 @@ Best rate guaranteed with an exclusive 10% direct booking privilege! 🥥✨`;
 
 แนะนำวันนี้:
 ${dishOrRoomName}
-บังกะโลไม้ใต้ร่มเงาธรรมชาติ สูดอากาศบริสุทธิ์ริมทะเล และฟังเสียงคลื่นเบาๆ ฟินสุดๆ เลยครับ 🌺🍃
+บังกะโลไม้ใต้ร่มเงาธรรมชาติ สูดอากาศบริสุทธิ์ในสวนทรอปิคอล พักผ่อนเงียบสงบ ฟินสุดๆ เลยครับ 🌺🍃
 
 คนโบราณกล่าวไว้: "${proverb.thai}"
 วันหยุดทั้งที ต้องให้ธรรมชาติบำบัดหัวใจและเติมพลังชีวิตนะครับ!
@@ -773,11 +773,11 @@ ${dishOrRoomName}
 รับราคาดีที่สุด พร้อมส่วนลดพิเศษ 10% สำหรับการจองตรงครับ! 🥥✨`;
 
     // Italiano: Traduzione letterale con proverbio e a capo ariosi
-    italianContent = `🇮🇹 Fuggite dal caos per ritrovare la vera tranquillità a Buffalo Bay, Koh Phayam 🌴🌊✨
+    italianContent = `🇮🇹 Fuggite dal caos per ritrovare la vera tranquillità a Buffalo Bay, Koh Phayam 🌴✨
 
 In evidenza oggi:
 ${dishOrRoomName}
-Bungalow e alloggi in legno immersi nella natura tropicale, tra brezza marina e totale relax! 🌺🍃
+Bungalow e alloggi in legno immersi nella natura tropicale, tra oasi piscina e totale relax! 🌺🍃
 
 Come dice un saggio proverbio: "${proverb.it}"
 Una vacanza autentica per rigenerare corpo e spirito nel cuore dell'isola!

@@ -28,6 +28,7 @@ import fs from 'fs';
 import path from 'path';
 import { spawnSync, execFileSync } from 'child_process';
 import { createClient } from '@supabase/supabase-js';
+import { runSupabaseQuotaSentinel } from './supabase-sentinel.mjs';
 
 const env = { ...process.env };
 if (fs.existsSync('.env')) {
@@ -485,8 +486,19 @@ async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBa
   const token = await getTelegramToken();
   if (!token) throw new Error('Token Telegram non trovato!');
 
+  const hasLocalFile = filePath && fs.existsSync(filePath);
+  const fileBuf = hasLocalFile ? fs.readFileSync(filePath) : null;
+  const fileName = hasLocalFile ? `dispatch_${Date.now()}_${path.basename(filePath)}` : null;
+
+  // 🛡️ Archiviazione permanente su Google Drive 5TB (Zero Egress Supabase, illimitato e gratuito)
+  if (hasLocalFile && fileBuf) {
+    uploadToGoogleDrive({ name: fileName, buffer: fileBuf }).catch(err => {
+      console.warn('[scheduler-dispatch] Google Drive background archive warning:', err.message);
+    });
+  }
+
   let finalUrl = videoUrl;
-  if (!finalUrl && filePath) {
+  if (!finalUrl && !hasLocalFile && filePath) {
     const uploaded = await ensureCloudVideoUrl(filePath);
     finalUrl = uploaded.videoUrl;
   }
@@ -494,44 +506,82 @@ async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBa
   const isTopic2 = (topicId === TOPIC_KOH_PHAYAM_GROUP);
   const isStories = (topicId === TOPIC_TIKTOK_STORIES);
   const icon = isTopic2 ? '🌴' : '📱';
-  const brandName = brand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam';
+  const brandName = brand === 'pizza'
+    ? '🍕 Flower Power Pizza (Ranong)'
+    : format === 'R1'
+    ? '🍽️ Flower Power Restaurant & Village (Koh Phayam)'
+    : '🌺 Flower Power Village (Koh Phayam)';
 
   // 1. Canale Stories (Topic 3): INVIO PULITO DIRETTO DEL SOLO VIDEO CON TASTI RAPIDI (Zero testo ridondante)
   if (isStories) {
-    const storyButtons = [];
-    if (finalUrl && (finalUrl.startsWith('http://') || finalUrl.startsWith('https://'))) {
-      storyButtons.push([{ text: '⬇️ Scarica Video MP4 (9:16)', url: finalUrl }]);
-    }
-    storyButtons.push([
-      { text: '📱 Apri TikTok Stories', url: 'https://www.tiktok.com/' },
-      { text: '📸 Apri Instagram Stories', url: 'https://www.instagram.com/' }
-    ]);
+    const storyButtons = [
+      [{ text: '📱 Apri TikTok Stories', url: 'https://www.tiktok.com/' }]
+    ];
 
-    console.log(`[scheduler-dispatch] Invio Video Stories MP4 (${format}) con pulsanti rapidi a Topic ${topicId}...`);
-    const vidRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        message_thread_id: topicId,
-        video: finalUrl,
-        caption: `📱 <b>${title}</b>\n🎬 Format: ${format} · 🏷️ Brand: ${brandName}`,
-        parse_mode: 'HTML',
-        supports_streaming: true,
-        width: 1080,
-        height: 1920,
-        reply_markup: { inline_keyboard: storyButtons }
-      })
-    });
-    const vidJson = await vidRes.json();
+    let vidJson;
+    if (hasLocalFile && fileBuf) {
+      console.log(`[scheduler-dispatch] Invio Video Stories MP4 (${format}) diretto via streaming multipart (Zero Egress Supabase) a Topic ${topicId}...`);
+      const formData = new FormData();
+      formData.append('chat_id', chatId);
+      formData.append('message_thread_id', String(topicId));
+      formData.append('video', new Blob([fileBuf], { type: 'video/mp4' }), fileName);
+      formData.append('caption', `📱 <b>${title}</b>\n🎬 Format: ${format} · 🏷️ Brand: ${brandName}`);
+      formData.append('parse_mode', 'HTML');
+      formData.append('supports_streaming', 'true');
+      formData.append('width', '1080');
+      formData.append('height', '1920');
+      formData.append('reply_markup', JSON.stringify({ inline_keyboard: storyButtons }));
+
+      const vidRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
+        method: 'POST',
+        body: formData
+      });
+      vidJson = await vidRes.json();
+    } else {
+      console.log(`[scheduler-dispatch] Invio Video Stories MP4 (${format}) con pulsanti rapidi via URL a Topic ${topicId}...`);
+      const vidRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          message_thread_id: topicId,
+          video: finalUrl,
+          caption: `📱 <b>${title}</b>\n🏢 <b>Brand:</b> ${brandName}\n🎬 Format: ${format}`,
+          parse_mode: 'HTML',
+          supports_streaming: true,
+          width: 1080,
+          height: 1920,
+          reply_markup: { inline_keyboard: storyButtons }
+        })
+      });
+      vidJson = await vidRes.json();
+    }
     if (!vidJson.ok) console.warn('[scheduler-dispatch] Avviso sendVideo Stories:', vidJson);
     console.log(`✅ [scheduler-dispatch] Video Stories recapitato con successo a Topic ${topicId} (senza scheda testo ridondante)!`);
     return { ok: true, vidJson };
   }
 
   // 2. Canale Gruppo Facebook (Topic 2): Invio Video Streaming
-  if (finalUrl) {
-    console.log(`[scheduler-dispatch] Invio file video streaming (${format}) a Topic ${topicId}...`);
+  if (hasLocalFile && fileBuf) {
+    console.log(`[scheduler-dispatch] Invio file video streaming (${format}) diretto via streaming multipart (Zero Egress Supabase) a Topic ${topicId}...`);
+    const formData = new FormData();
+    formData.append('chat_id', chatId);
+    formData.append('message_thread_id', String(topicId));
+    formData.append('video', new Blob([fileBuf], { type: 'video/mp4' }), fileName);
+    formData.append('caption', `${icon} <b>${title}</b>\n🎬 Format: ${format} · 🏷️ Brand: ${brandName}`);
+    formData.append('parse_mode', 'HTML');
+    formData.append('supports_streaming', 'true');
+    formData.append('width', '1080');
+    formData.append('height', '1920');
+
+    const vidRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
+      method: 'POST',
+      body: formData
+    });
+    const vidJson = await vidRes.json();
+    if (!vidJson.ok) console.warn('[scheduler-dispatch] Avviso sendVideo:', vidJson);
+  } else if (finalUrl) {
+    console.log(`[scheduler-dispatch] Invio file video streaming (${format}) via URL a Topic ${topicId}...`);
     const vidRes = await fetch(`https://api.telegram.org/bot${token}/sendVideo`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -539,7 +589,7 @@ async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBa
         chat_id: chatId,
         message_thread_id: topicId,
         video: finalUrl,
-        caption: `${icon} <b>${title}</b>\n🎬 Format: ${format} · 🏷️ Brand: ${brandName}`,
+        caption: `${icon} <b>${title}</b>\n🏢 <b>Brand:</b> ${brandName}\n🎬 Format: ${format}`,
         parse_mode: 'HTML',
         supports_streaming: true,
         width: 1080,
@@ -575,9 +625,7 @@ async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBa
     inlineKeyboard.push([{ text: '📋 Copia Testo Post (1 Tocco)', copy_text: { text: cleanCopy } }]);
   }
   inlineKeyboard.push([{ text: '🌐 Vai al Gruppo Koh Phayam', url: 'https://www.facebook.com/share/g/1Hyh1mJ7Hu/' }]);
-  if (finalUrl && (finalUrl.startsWith('http://') || finalUrl.startsWith('https://'))) {
-    inlineKeyboard.push([{ text: '⬇️ Scarica Video MP4 (9:16)', url: finalUrl }]);
-  }
+  // Download superfluo: file video gia' inviato nativamente nel messaggio Telegram
 
   console.log(`[scheduler-dispatch] Invio Scheda Testo con Pulsanti per ${format} a Topic ${topicId}...`);
   const msgRes = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -859,6 +907,13 @@ async function renderVideoMode(mode) {
 }
 
 async function run() {
+  // 🛡️ Monitoraggio Sanitario & Egress Guard Supabase Storage (Auto-Healing attivo)
+  try {
+    await runSupabaseQuotaSentinel({ autoFix: true, notifyTelegram: true });
+  } catch (sentinelErr) {
+    console.warn('[scheduler-dispatch] Watchdog sentinel warning:', sentinelErr.message);
+  }
+
   console.log(`\n======================================================`);
   console.log(`🚀 ESECUZIONE SLOT: ${targetSlot}`);
   console.log(`======================================================\n`);

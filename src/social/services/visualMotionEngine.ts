@@ -190,8 +190,8 @@ export const CATALOG_PRESET_ITEMS: VisualCatalogItem[] = [
     badgeEn: 'Tropical Island Living',
     badgeTh: 'ใกล้ชิดธรรมชาติ',
     price: 1800,
-    descriptionIt: 'Bungalow accogliente in legno naturale, patio ombreggiato, amaca e brezza marina costante.',
-    descriptionEn: 'Cozy natural wood bungalow, shaded patio, hammock and constant gentle sea breeze.',
+    descriptionIt: 'Bungalow accogliente in legno naturale, patio ombreggiato, amaca e quiete tropicale costante.',
+    descriptionEn: 'Cozy natural wood bungalow, shaded patio, hammock and peaceful tropical serenity.',
     descriptionTh: 'บังกะโลไม้ธรรมชาติดีไซน์อบอุ่น ระเบียงนั่งเล่นส่วนตัว สัมผัสความสงบและร่มรื่นของเกาะพยาม'
   },
   {

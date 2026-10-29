@@ -149,7 +149,7 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
   const catNames = categoryTranslations[lang] || categoryTranslations['IT'];
 
   const getImageUrl = (fileName: string) => {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://htmnjjzxpybpbumtbqic.supabase.co";
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://gjqevgkbjkharczhikcl.supabase.co";
     return `${supabaseUrl}/storage/v1/object/public/Menu/${encodeURIComponent(fileName)}`;
   };
 

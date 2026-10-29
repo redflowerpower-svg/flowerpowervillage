@@ -229,26 +229,36 @@ async function cleanExpiredSocialStories() {
   if (!supabase) return;
   try {
     const { data: files, error } = await supabase.storage.from("assets").list("social_stories", {
-      limit: 50,
+      limit: 100,
       sortBy: { column: "created_at", order: "asc" }
     });
-    if (error || !files) return;
+    if (error || !files || files.length === 0) return;
 
-    const twelveHoursAgo = Date.now() - (12 * 60 * 60 * 1000);
+    const twoHoursAgo = Date.now() - (2 * 60 * 60 * 1000);
     const toDelete: string[] = [];
 
+    // 1. Rimuovi file temporanei più vecchi di 2 ore
     for (const file of files) {
-      if (file.name && file.created_at) {
-        const fileTime = new Date(file.created_at).getTime();
-        if (fileTime < twelveHoursAgo && file.name.startsWith("story_video_")) {
+      if (file.name) {
+        const fileTime = file.created_at ? new Date(file.created_at).getTime() : 0;
+        if (fileTime > 0 && fileTime < twoHoursAgo) {
           toDelete.push(`social_stories/${file.name}`);
         }
       }
     }
 
+    // 2. Rotazione rigorosa: se rimangono più di 4 file, rimuovi i più vecchi per mantenere lo storage < 35MB
+    const remaining = files.filter(f => !toDelete.includes(`social_stories/${f.name}`));
+    if (remaining.length > 4) {
+      const excess = remaining.slice(0, remaining.length - 4);
+      for (const ef of excess) {
+        toDelete.push(`social_stories/${ef.name}`);
+      }
+    }
+
     if (toDelete.length > 0) {
       await supabase.storage.from("assets").remove(toDelete);
-      console.log(`[social-publisher] Pulizia automatica: eliminati ${toDelete.length} video social più vecchi di 12 ore.`);
+      console.log(`🧹 [social-publisher] Pulizia storage Supabase: eliminati ${toDelete.length} file temporanei (Egress/Storage Zero Waste).`);
     }
   } catch (cleanErr) {
     console.warn("[social-publisher] Pulizia file scaduti warning:", cleanErr);
@@ -657,6 +667,14 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
       if (upErr) throw upErr;
       const { data: { publicUrl } } = supabase.storage.from("assets").getPublicUrl(masterPath);
       console.log(`[social-publisher] Master video con audio e cover art caricato su Supabase: ${publicUrl} (bytes: ${finalBuffer.length})`);
+
+      // 🛡️ Zero Duplicate Storage: se il video originale era un file separato senza audio, rimuovilo subito
+      if (cleanPath && cleanPath !== masterPath) {
+        supabase.storage.from("assets").remove([cleanPath]).catch(() => {});
+      }
+
+      // 🛡️ Archiviazione permanente di sicurezza su Google Drive 5TB (Zero Egress, spazio illimitato)
+      uploadFileToGoogleDrive({ name: path.basename(masterPath), buffer: finalBuffer }).catch(() => {});
 
       // 📸 Upload Thumbnail Ufficiale Supabase se presente
       let publicThumbUrl: string | undefined;
@@ -1227,6 +1245,8 @@ ${dishListText}
 - Sito ufficiale: www.flowerpowerpizza.com (10% di sconto sul primo ordine online, consegna veloce in tutta Ranong o tavolo al ristorante)
 
 REGOLE FONDAMENTALI DI SCRITTURA:
+0. REGOLA IDENTITÀ BRAND OBBLIGATORIA (PIZZERIA):
+   Nel testo (sia Thai sia Inglese), in particolare nella PRIMA RIGA (Hook di apertura), DEVI SEMPRE nominare ed esplicitare chiaramente "Flower Power Pizza" a Ranong (es. "🇹🇭 ... ที่ Flower Power Pizza ระนอง ...", "🇬🇧 ... at Flower Power Pizza in Ranong ..."). Chi legge deve capire all'istante al 100% che si tratta di Flower Power Pizza!
 1. DIVIETO ASSOLUTO DI INIZIARE SEMPRE CON IL METEO:
    Non fare il bollettino meteo! Il meteo è solo UNO degli spunti a tua disposizione.
    Varia sistematicamente il punto di partenza del post:
@@ -1270,20 +1290,33 @@ ${dishListText}
 - Sito ufficiale: www.flowerpowervillage.com (Miglior tariffa diretta garantita online)
 
 REGOLE FONDAMENTALI DI SCRITTURA:
-1. DIVIETO DI MONOTONIA:
-   Varia sempre l'attacco: a volte il rumore del mare e la brezza marina, a volte la magia del bungalow in legno tra le palme, a volte la fuga dal caos cittadino (slow life), a volte il buon cibo all'ombra dei giardini tropicali.
-2. CULTURA SLOW LIFE DI KOH PHAYAM:
-   Evoca la pace autentica dell'isola, il dondolarsi sull'amaca nella brezza tropicale, la quiete a Buffalo Bay, il piacere di staccare la spina.
-3. STRUTTURA & LUNGHEZZA:
+0. REGOLA IDENTITÀ BRAND OBBLIGATORIA (VILLAGGIO):
+   Nel testo (sia Inglese sia Thai), in particolare nella PRIMA RIGA (Hook di apertura), DEVI SEMPRE nominare ed esplicitare chiaramente "Flower Power Village" a Koh Phayam (es. "🇬🇧 ... at Flower Power Village, Koh Phayam ...", "🇹🇭 ... ที่ Flower Power Village เกาะพยาม ..."). Chi legge deve capire all'istante al 100% che si tratta di Flower Power Village!
+1. DIVIETO DI MONOTONIA & AMPIA VARIETÀ NARRATIVA (MILLE COSE DA RACCONTARE):
+   Varia sempre l'attacco e il tema tra le mille sfumature del villaggio: la quiete lontano dal caos, il comfort accogliente del legno naturale, la lettura o il relax sull'amaca, l'oasi piscina rinfrescante nel verde, la slow life dell'isola senza auto, la buona tavola del nostro ristorante. Non essere mai ripetitivo!
+2. DIVIETO CATEGORICO AMBIENTAZIONE MARINA INESISTENTE (NON SIAMO SULLA BATTIGIA):
+   FLOWER POWER VILLAGE NON È FRONTE MARE!
+   È SEVERAMENTE E TASSATIVAMENTE VIETATO parlare di "rumore del mare", "suono delle onde", "ocean waves", "sound of waves", "brezza marina", "ocean breeze", "svegliarsi in riva al mare" o usare l'emoji 🌊 per il villaggio!
+   Né siamo sul mare né si sente il mare: siamo un'oasi incastonata nella giungla tropicale protetta, con un rigoglioso giardino tropicale stile Eden.
+3. SE E QUANDO PARLI DI NATURA, RISVEGLIO O SUONI (ZERO OBBLIGO MA MASSIMA AUTENTICITÀ):
+   Non è un obbligo forzato parlare sempre dell'ecosistema, ma SE e quando decidi di parlare della natura o dei suoni del villaggio, parla TASSATIVAMENTE della realtà locale:
+   - Svegliarsi con il volo maestoso e i richiami dei buceri (Hornbills / นกเงือก), simbolo magico di Koh Phayam;
+   - Gli scoiattoli tra i rami e le palme (Squirrels / กระรอก);
+   - Il cinguettio delle vivaci nettarine (Sunbirds / นกกินปลี);
+   - Le farfalle multicolori tra i fiori tropicali (Butterflies / ผีเสื้อ);
+   - L'oasi piscina circondata dalla foresta tropicale.
+4. CULTURA SLOW LIFE DI KOH PHAYAM:
+   Evoca la pace autentica dell'isola, il dondolarsi sull'amaca all'ombra delle piante tropicali, la quiete a Buffalo Bay, il piacere di staccare la spina.
+5. STRUTTURA & LUNGHEZZA:
    - MASSIMO 3-4 RIGHE per lingua. Spaziatura ariosa, zero muri di parole.
    - Nomi alloggi: REGOLA IMMODIFICABILE: il nome dell'alloggio NON DEVE MAI andare a capo a metà!
-   - Proverbio del Giorno: saggio e suggestivo sul viaggio, la lentezza, la natura o il mare.
+   - Proverbio del Giorno: saggio e suggestivo sul viaggio, la lentezza, la natura o l'isola (MAI sul mare o sulle onde).
    - Chiusura: invito a prenotare su www.flowerpowervillage.com.
     - Hashtag: NON scrivere alcun hashtag (#) nei testi: vengono aggiunti dal sistema in fondo al post, dopo le due lingue.
     - Bandiera: ogni testo (thaiContent / englishContent) DEVE iniziare con la propria bandiera prima della prima lettera (🇹🇭 per il Thai, 🇬🇧 per l'Inglese).
     - DIVIETO CATEGORICO FORNO A LEGNA: NON ABBIAMO IL FORNO A LEGNA! È severamente vietato parlare di forno a legna o "wood-fired" o "เตาฟืน".
-    - DIVIETO CATEGORICO E ASSOLUTO PAROLA SUNSET / TRAMONTO: IL NOSTRO VILLAGGIO NON VEDE IL TRAMONTO (ZERO SUNSET)! È TASSATIVAMENTE E SEVERAMENTE VIETATO usare le parole "sunset", "tramonto", "พระอาทิตย์ตก" o parlare di tramonto per Flower Power Village e per qualsiasi alloggio! Per la Villa Penthouse in particolare, parlare TASSATIVAMENTE di "Breezy Suite" / suite ventilata con terrazza panoramica fresca e arieggiata.
-    - REGOLA EMOJI CONTESTUALI (DIVIETO EMOJI A FINE FRASE): DIVIETO ASSOLUTO di piazzare 3 o 4 emoji raggruppate alla fine della frase. Le emoji devono essere DISTRIBUITE IN MODO NATURALE NEL CORPO DEL TESTO, accompagnando le singole parole (es. "natura tropicale 🌴", "brezza sul mare 🌊", "suono delle onde 🌺", "relax sull'amaca 🥥").
+    - DIVIETO CATEGORICO E ASSOLUTO PAROLA SUNSET / TRAMONTO: IL NOSTRO VILLAGGIO NON VEDE IL TRAMONTO (ZERO SUNSET)! Abbiamo le fitte foreste tropicali davanti che schermano interamente la linea dell'orizzonte ovest. È TASSATIVAMENTE E SEVERAMENTE VIETATO usare le parole "sunset", "tramonto", "พระอาทิตย์ตก" o parlare di tramonto per Flower Power Village e per qualsiasi alloggio! Per la Villa Penthouse in particolare, parlare TASSATIVAMENTE di "Breezy Suite" / suite ventilata con terrazza panoramica fresca e arieggiata.
+    - REGOLA EMOJI CONTESTUALI (DIVIETO EMOJI A FINE FRASE): DIVIETO ASSOLUTO di piazzare 3 o 4 emoji raggruppate alla fine della frase. Le emoji devono essere DISTRIBUITE IN MODO NATURALE NEL CORPO DEL TESTO, accompagnando le singole parole (es. "natura tropicale 🌴", "giardino eden 🌺", "oasi piscina 💦", "relax sull'amaca 🥥", "ombra della giungla 🍃").
 
 Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 {
@@ -1307,6 +1340,8 @@ ${dishListText}
 - Canali di contatto: WhatsApp Delivery +66 095 882 5573 | Tavolo nel giardino tropicale a Buffalo Bay | www.flowerpowervillage.com
 
 REGOLE FONDAMENTALI DI SCRITTURA:
+0. REGOLA IDENTITÀ BRAND OBBLIGATORIA (RESTAURANT KOH PHAYAM):
+   Nel testo (sia Thai sia Inglese), nella PRIMA RIGA (Hook di apertura), DEVI SEMPRE nominare ed esplicitare chiaramente "Flower Power Restaurant & Village" a Koh Phayam!
 1. DIVIETO ASSOLUTO DI PARLARE DI UN SOLO PIATTO (REGOLA CORALE 5 PIATTI):
    Il video mostra una carrellata di 5 piatti diversi (es. pasta fresca fatta a mano, pizze tradizionali italiane da 12 pollici, secondi, insalate, burger).
    NON concentrarti solo sul primo piatto! Parla della varietà del menu o presenta i piatti protagonisti come un banchetto ideale da condividere in compagnia (Food Sharing) o da gustare dopo una giornata di mare.
@@ -1349,7 +1384,7 @@ ${dishListText}
 
 REGOLE FONDAMENTALI DI SCRITTURA:
 1. TEMA LAST MINUTE & URGENZA POSITIVA:
-   Comunica con entusiasmo che ci sono camere e bungalow liberi per stanotte a Buffalo Bay. Chi si trova a Koh Phayam, al porto o nelle vicinanze può cogliere l'occasione al volo per una notte magica tra palme tropicali e brezza marina.
+   Comunica con entusiasmo che ci sono camere e bungalow liberi per stanotte a Buffalo Bay. Chi si trova a Koh Phayam, al porto o nelle vicinanze può cogliere l'occasione al volo per una notte magica immersi nella quiete del nostro giardino tropicale stile Eden o rilassarsi nella nostra oasi piscina.
 2. ELENCO ALLOGGI LIBERI CON NOME SECCO E PREZZO (ONLINE ➔ SITO DIRETTO -10%):
    Usa TASSATIVAMENTE il nome secco ed essenziale dell'alloggio (es. 'Penthouse Villa', 'Yellow Bungalow', 'Camel Tent', 'Peace & Love Villa', 'Green Bungalow'), ELIMINANDO qualsiasi appellativo lungo come 'Breezy Suite', 'Suite', 'Sweet', 'Tropical Garden', 'View' o descrizioni prolisse per far entrare ogni alloggio su una singola riga compatta da smartphone.
    Formato riga:
@@ -1363,10 +1398,11 @@ REGOLE FONDAMENTALI DI SCRITTURA:
 5. STRUTTURA & LUNGHEZZA:
    - MASSIMO 4-5 RIGHE AD ALTO IMPATTO per lingua (inclusa la lista alloggi). Spaziatura ariosa, zero muri di parole.
    - Nomi alloggi: locuzione continua su singola riga secca (mai spezzata a metà).
-   - Proverbio del Giorno: proverbio evocativo sul cogliere l'attimo, il viaggio, la natura o il mare (Thai: 📜 สุภาษิต: "..." | Inglese: 📜 Proverb: "...").
+   - Proverbio del Giorno: proverbio evocativo sul cogliere l'attimo, il viaggio, la natura o l'isola (MAI sul mare o onde).
    - Bandiera: 🇬🇧 per l'Inglese in alto, 🇹🇭 per il Thai in basso.
    - Zero hashtag nel corpo del testo (vengono aggiunti dal sistema in fondo al post).
    - Zero forno a legna. ZERO menzione di sunset/tramonto.
+   - ZERO MENZIONE DI MARE, ONDE, BREZZA MARINA O FRONTE MARE (il villaggio è un'oasi nella giungla tropicale protetta).
    - Emoji contestuali distribuite nel testo, MAI 3 o 4 raggruppate alla fine della frase.
 
 Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
@@ -1395,7 +1431,7 @@ REGOLE FONDAMENTALI DI SCRITTURA:
    Il video mostra una panoramica completa di 5 alloggi diversi del villaggio: dalla suite ventilata panoramica con grande terrazza (Breezy Suite), ai bungalow in legno naturale immersi nei giardini fioriti, fino alle tende eco-glamping.
    Spiega che al Flower Power Village ogni viaggiatore trova il proprio angolo di paradiso su misura (coppie, amici, amanti della natura e del relax totale).
 2. ATMOSFERA KOH PHAYAM:
-   Evoca la pace autentica dell'isola car-free, l'amaca tra le palme, il cinguettio degli uccelli tropicali e il profumo dei fiori a Buffalo Bay.
+   Evoca la pace autentica dell'isola car-free, l'amaca tra le palme, il fascino del giardino tropicale stile Eden, la nostra oasi piscina e il cinguettio degli uccelli tropicali (come buceri e sunbird) a Buffalo Bay.
 3. STRUTTURA & LUNGHEZZA:
    - MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Spaziatura ariosa, zero muri di parole.
    - Nomi alloggi: locuzione continua su singola riga.
@@ -1403,6 +1439,7 @@ REGOLE FONDAMENTALI DI SCRITTURA:
    - Chiusura: invito a scoprire tutti gli alloggi e prenotare direttamente su www.flowerpowervillage.com.
    - Bandiera: 🇬🇧 per l'Inglese in alto, 🇹🇭 per il Thai in basso.
    - Zero hashtag nel testo. Zero forno a legna. ZERO parola sunset/tramonto.
+   - ZERO menzione di mare, onde, brezza marina o battigia (FLOWER POWER VILLAGE NON È FRONTE MARE!).
    - Emoji contestuali distribuite nel testo, MAI raggruppate alla fine della frase.
 
 Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
@@ -1469,9 +1506,25 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
           .replace(/พระอาทิตย์ตก/g, 'รับลมธรรมชาติ')
           .replace(/\b(tramonto|tramonti)\b/gi, 'aria fresca tropicale');
       };
+
+      // 🛡️ REGOLA IMMODIFICABILE 27: Sanitizzazione automatica zero onde, rumore del mare, brezza marina per Flower Power Village
+      const scrubNonExistentMarine = (t: string) => {
+        return t
+          .replace(/\b(sound of (the )?waves|sound of ocean waves|ocean waves|crashing waves|sound of the ocean|sound of the sea)\b/gi, 'peaceful sounds of nature')
+          .replace(/\b(ocean breeze|sea breeze|island breezes|breezes from the sea)\b/gi, 'fresh tropical breeze')
+          .replace(/\b(beachfront|on the beach|by the sea|steps from the beach|steps from the ocean)\b/gi, 'nestled in tropical nature')
+          .replace(/\b(rumore delle onde|suono delle onde|onde dell'oceano|rumore del mare)\b/gi, 'suoni rilassanti della natura')
+          .replace(/\b(brezza marina|brezza dell'oceano|brezza del mare)\b/gi, 'fresca brezza tropicale')
+          .replace(/\b(in riva al mare|sulla spiaggia|fronte mare|a due passi dal mare)\b/gi, 'immerso nella natura tropicale')
+          .replace(/เสียงคลื่น(ริมทะเล|ซัดสาด)?/g, 'เสียงธรรมชาติอันเงียบสงบ')
+          .replace(/ลมทะเล/g, 'สายลมอ่อนท่ามกลางสวนทรอปิคอล')
+          .replace(/ริมทะเล/g, 'ท่ามกลางธรรมชาติอันร่มรื่น')
+          .replace(/🌊/g, '🌺');
+      };
+
       if (!isPizza) {
-        thaiContent = scrubSunset(thaiContent);
-        englishContent = scrubSunset(englishContent);
+        thaiContent = scrubNonExistentMarine(scrubSunset(thaiContent));
+        englishContent = scrubNonExistentMarine(scrubSunset(englishContent));
       }
 
       if (parsed.proverbThai && !thaiContent.includes(parsed.proverbThai)) {

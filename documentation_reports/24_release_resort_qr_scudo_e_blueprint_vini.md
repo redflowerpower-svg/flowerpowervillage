@@ -89,3 +89,4 @@ In Thailandia la vendita di alcolici online per consegna a domicilio è severame
 - **Verifica Wi-Fi Locale**: `src/pizza/services/networkAuthService.ts` (`checkNetworkAccess()`).
 - **Admin Studio**: `src/admin/pizza/components/WineCardStudio.tsx` (gestione annate, disponibilità e prezzi).
 - **Prossima implementazione**: Componente dedicato `WineListPage.tsx` su `/wine-list` con rilevamento ibrido GPS + Wi-Fi.
+

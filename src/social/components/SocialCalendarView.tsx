@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   ChevronLeft, ChevronRight, Calendar as CalendarIcon, 
   Clock, Plus, Sparkles, Trash2, Edit3, Send, CheckCircle, 
@@ -544,6 +544,16 @@ export function SocialCalendarView({
   const [selectedBrandFilter, setSelectedBrandFilter] = useState<BrandType | 'all' | 'capcut'>('all');
   const [selectedPlatformFilter, setSelectedPlatformFilter] = useState<SocialPlatform | 'all'>('all');
   const [showLegend, setShowLegend] = useState(true);
+
+  // ⏱️ Orologio in tempo reale per timeline dinamica (aggiornato ogni 30s)
+  const [nowTime, setNowTime] = useState<number>(() => Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNowTime(Date.now());
+    }, 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   // 🗓️ Stato Pop-up Calendario Dettagliato (Selezione rapida Giorno, Mese, Anno con scorciatoie)
   const [showDatePickerPopup, setShowDatePickerPopup] = useState(false);
@@ -1510,103 +1520,155 @@ export function SocialCalendarView({
 
                 {/* Day Posts List (BLOCCHETTI RETTANGOLARI MODULARI ULTRA-SOTTILI CON ALLINEAMENTO VERTICALE PERFETTO) */}
                 <div className="space-y-1 flex-1 overflow-y-auto max-h-[195px] pr-0.5 scrollbar-thin">
-                  {dayPosts.map((post) => {
-                    const postTime = new Date(post.scheduled_for).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    const formatCode = getFormatCode(post);
-                    const isPizza = post.brand === 'pizza';
-                    const brandEmoji = isPizza ? '🍕' : '🏝️';
-                    const badgeStyle = getFormatBadgeStyle(formatCode);
-                    const blockBorder = getBlockBorderColor(post);
-                    const contentType = getContentBadge(post);
-                    
-                    const activePlatforms = post.platforms.filter((p) => isChannelActiveForPost(p, post, channelToggles));
-                    const isFullyDisabled = activePlatforms.length === 0;
-                    const isPartiallyDisabled = activePlatforms.length > 0 && activePlatforms.length < post.platforms.length;
+                  {(() => {
+                    // 🔴 Calcolo punto di inserimento Timeline Oraria Attuale (per il giorno OGGI)
+                    const timelineInsertIndex = isToday
+                      ? dayPosts.findIndex(p => new Date(p.scheduled_for).getTime() > nowTime)
+                      : -1;
 
-                    const isManual = post.platforms.includes('tiktok') ||
-                      post.tags?.includes('GruppiPhayam') ||
-                      post.tags?.includes('R1') ||
-                      post.tags?.includes('Manuale') ||
-                      post.title?.includes('Gruppi') ||
-                      post.title?.includes('R1') ||
-                      post.badge?.includes('UPLOAD') ||
-                      post.badge?.includes('TIKTOK');
-                    
-                    // Statistiche / Percentuale di gradimento:
-                    // Se post passato/pubblicato mostra la % di gradimento (es. 96%), se futuro mostra '---'
-                    const isPast = new Date(post.scheduled_for).getTime() < Date.now();
-                    const statPercent = post.engagement_rate
-                      ? `${post.engagement_rate}%`
-                      : (isPast ? `${92 + ((post.id.charCodeAt(post.id.length - 1) || 5) % 7)}%` : '---');
+                    const nowH = String(new Date(nowTime).getHours()).padStart(2, '0');
+                    const nowM = String(new Date(nowTime).getMinutes()).padStart(2, '0');
 
-                    return (
-                      <div
-                        key={post.id}
-                        onClick={() => {
-                          setInspectingPost(post);
-                          setInspectPreviewPlatform(post.platforms[0] || 'tiktok');
-                        }}
-                        className={`w-full rounded-md border text-left cursor-pointer transition-all flex items-stretch overflow-hidden shadow-sm group select-none text-[9.5px] h-[25px] ${
-                          isFullyDisabled
-                            ? 'opacity-20 grayscale saturate-0 border-dashed border-slate-700/60 bg-slate-950/30 hover:opacity-60'
-                            : isPartiallyDisabled
-                            ? 'opacity-85 hover:opacity-100 hover:scale-[1.01] hover:brightness-110 ' + (isManual ? 'border-yellow-400/80 shadow-[0_0_8px_rgba(250,204,21,0.25)]' : blockBorder)
-                            : isManual 
-                              ? 'border-yellow-400/80 shadow-[0_0_8px_rgba(250,204,21,0.25)] hover:scale-[1.01] hover:brightness-110' 
-                              : `${blockBorder} hover:scale-[1.01] hover:brightness-110`
-                        }`}
-                        title={`${postTime} · ${isFullyDisabled ? '🚫 DISATTIVATO NELLO SCHEDULER · ' : isManual ? '🟡 DA FARE A MANO · ' : ''}${formatCode} · ${post.title} · Piattaforme: ${post.platforms.join(', ')} · Gradimento: ${statPercent}`}
+                    const renderTimelineBar = () => (
+                      <div 
+                        key={`timeline-now-${dayNum}`}
+                        className="relative py-1 my-1 flex items-center gap-1.5 select-none z-10"
+                        title={`🔴 ADESSO: ${nowH}:${nowM} (Timeline in tempo reale)`}
                       >
-                        {/* 1° SCOMPARTO: ORARIO DI PUBBLICAZIONE (CON CERCHIO GIALLO SE AZIONE MANUALE STAFF) */}
-                        <div className="w-[42px] min-w-[42px] max-w-[42px] bg-black/60 flex items-center justify-center gap-1 shrink-0 border-r border-white/10 font-mono font-bold text-amber-300 text-[9px] tracking-tight">
-                          {isManual && (
-                            <span
-                              className="w-2 h-2 rounded-full bg-yellow-400 border border-yellow-100 shadow-[0_0_6px_rgba(250,204,21,1)] shrink-0 animate-pulse"
-                              title="🟡 AZIONE MANUALE STAFF: Da caricare a mano (TikTok Stories o Post Gruppi Phayam)"
-                            />
-                          )}
-                          <span>{postTime}</span>
+                        <div className="flex items-center gap-1 bg-rose-600 text-white font-mono text-[8px] font-black px-1.5 py-0.5 rounded shadow-[0_0_8px_rgba(244,63,94,0.9)] shrink-0 border border-rose-300">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping shrink-0" />
+                          <span>{nowH}:{nowM}</span>
                         </div>
-
-                        {/* 2° SCOMPARTO: ICONA SOCIAL (LARGHEZZA FISSA 36px - ALLINEAMENTO VERTICALE UNIFORME PER 1 O 2 CANALI) */}
-                        <div className="w-[36px] min-w-[36px] max-w-[36px] bg-black/30 flex items-center justify-center shrink-0 border-r border-white/10 gap-0.5">
-                          {post.platforms.map((p) => {
-                            const isChannelActive = isChannelActiveForPost(p, post, channelToggles);
-                            return (
-                              <span 
-                                key={p} 
-                                className={`shrink-0 transition-opacity ${!isChannelActive ? 'opacity-30 grayscale' : ''}`} 
-                                title={`${p} ${!isChannelActive ? '(IN PAUSA / DISABILITATO NELLO SCHEDULER)' : '(ATTIVO)'}`}
-                              >
-                                {p === 'tiktok' && <TikTokIcon className="w-3 h-3 text-white" />}
-                                {p === 'google' && <GoogleIcon className="w-3 h-3" />}
-                                {p === 'instagram' && <InstagramIcon className="w-3 h-3" />}
-                                {p === 'facebook' && <FacebookIcon className="w-3 h-3" />}
-                              </span>
-                            );
-                          })}
-                        </div>
-
-                        {/* 3° SCOMPARTO: BRAND & SIGLA FORMATO (LARGHEZZA FISSA 42px) */}
-                        <div className={`w-[42px] min-w-[42px] max-w-[42px] flex items-center justify-center gap-0.5 shrink-0 border-r border-white/10 font-black text-[9px] uppercase leading-none ${badgeStyle}`}>
-                          <span className="text-[9.5px] leading-none">{brandEmoji}</span>
-                          <span className="leading-none">{formatCode}</span>
-                        </div>
-
-                        {/* 4° SCOMPARTO: TIPO (STORY/REEL/POST - LARGHEZZA FISSA 38px) */}
-                        <div className={`w-[38px] min-w-[38px] max-w-[38px] flex items-center justify-center shrink-0 border-r border-white/10 text-[7.5px] font-black uppercase leading-none ${contentType.style}`}>
-                          {contentType.label}
-                        </div>
-
-                        {/* 5° SCOMPARTO: PERCENTUALE DI GRADIMENTO / STATISTICHE */}
-                        <div className="flex-1 min-w-0 flex items-center justify-center bg-black/20 font-mono font-bold text-[9px] tracking-tight">
-                          <span className={isPast ? 'text-emerald-400' : 'text-slate-500'}>
-                            {statPercent}
-                          </span>
-                        </div>
+                        <div className="h-[2px] flex-1 bg-gradient-to-r from-rose-500 via-rose-500 to-rose-500/20 shadow-[0_0_8px_rgba(244,63,94,0.9)] rounded-full" />
                       </div>
                     );
-                  })}
+
+                    return (
+                      <>
+                        {isToday && (dayPosts.length === 0 || timelineInsertIndex === 0) && renderTimelineBar()}
+                        {dayPosts.map((post, postIdx) => {
+                          const postTime = new Date(post.scheduled_for).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                          const formatCode = getFormatCode(post);
+                          const isPizza = post.brand === 'pizza';
+                          const brandEmoji = isPizza ? '🍕' : '🏝️';
+                          const badgeStyle = getFormatBadgeStyle(formatCode);
+                          const blockBorder = getBlockBorderColor(post);
+                          const contentType = getContentBadge(post);
+                          
+                          const activePlatforms = post.platforms.filter((p) => isChannelActiveForPost(p, post, channelToggles));
+                          const isFullyDisabled = activePlatforms.length === 0;
+                          const isPartiallyDisabled = activePlatforms.length > 0 && activePlatforms.length < post.platforms.length;
+
+                          const isManual = post.platforms.includes('tiktok') ||
+                            post.tags?.includes('GruppiPhayam') ||
+                            post.tags?.includes('R1') ||
+                            post.tags?.includes('Manuale') ||
+                            post.title?.includes('Gruppi') ||
+                            post.title?.includes('R1') ||
+                            post.badge?.includes('UPLOAD') ||
+                            post.badge?.includes('TIKTOK');
+                          
+                          // 🩶 STATO CONDIVISO / PUBBLICATO: Diventa grigio se già pubblicato o se l'orario è trascorso
+                          const isPublished = post.status === 'published';
+                          const isPostTimePast = new Date(post.scheduled_for).getTime() < nowTime;
+                          const isShared = isPublished || isPostTimePast;
+
+                          const statPercent = post.engagement_rate
+                            ? `${post.engagement_rate}%`
+                            : (isShared ? `${92 + ((post.id.charCodeAt(post.id.length - 1) || 5) % 7)}%` : '---');
+
+                          const shouldShowTimelineAfter = isToday && (
+                            (timelineInsertIndex === postIdx + 1) ||
+                            (timelineInsertIndex === -1 && postIdx === dayPosts.length - 1)
+                          );
+
+                          return (
+                            <React.Fragment key={post.id}>
+                              <div
+                                onClick={() => {
+                                  setInspectingPost(post);
+                                  setInspectPreviewPlatform(post.platforms[0] || 'tiktok');
+                                }}
+                                className={`w-full rounded-md border text-left cursor-pointer transition-all flex items-stretch overflow-hidden shadow-sm group select-none text-[9.5px] h-[25px] ${
+                                  isFullyDisabled
+                                    ? 'opacity-20 grayscale saturate-0 border-dashed border-slate-700/60 bg-slate-950/30 hover:opacity-60'
+                                    : isShared
+                                    ? 'bg-slate-900/50 border-slate-700/60 text-slate-400 opacity-60 hover:opacity-95 grayscale-[0.6] hover:grayscale-0'
+                                    : isPartiallyDisabled
+                                    ? 'opacity-85 hover:opacity-100 hover:scale-[1.01] hover:brightness-110 ' + (isManual ? 'border-yellow-400/80 shadow-[0_0_8px_rgba(250,204,21,0.25)]' : blockBorder)
+                                    : isManual 
+                                      ? 'border-yellow-400/80 shadow-[0_0_8px_rgba(250,204,21,0.25)] hover:scale-[1.01] hover:brightness-110' 
+                                      : `${blockBorder} hover:scale-[1.01] hover:brightness-110`
+                                }`}
+                                title={`${postTime} · ${isShared ? '✓ CONDIVISO / PUBBLICATO · ' : ''}${isFullyDisabled ? '🚫 DISATTIVATO NELLO SCHEDULER · ' : isManual ? '🟡 DA FARE A MANO · ' : ''}${formatCode} · ${post.title} · Piattaforme: ${post.platforms.join(', ')} · Gradimento: ${statPercent}`}
+                              >
+                                {/* 1° SCOMPARTO: ORARIO DI PUBBLICAZIONE */}
+                                <div className={`w-[42px] min-w-[42px] max-w-[42px] bg-black/60 flex items-center justify-center gap-0.5 shrink-0 border-r border-white/10 font-mono font-bold text-[9px] tracking-tight ${
+                                  isShared ? 'text-slate-400' : 'text-amber-300'
+                                }`}>
+                                  {isShared ? (
+                                    <Check className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+                                  ) : isManual ? (
+                                    <span
+                                      className="w-2 h-2 rounded-full bg-yellow-400 border border-yellow-100 shadow-[0_0_6px_rgba(250,204,21,1)] shrink-0 animate-pulse mr-0.5"
+                                      title="🟡 AZIONE MANUALE STAFF: Da caricare a mano (TikTok Stories o Post Gruppi Phayam)"
+                                    />
+                                  ) : null}
+                                  <span>{postTime}</span>
+                                </div>
+
+                                {/* 2° SCOMPARTO: ICONA SOCIAL */}
+                                <div className="w-[36px] min-w-[36px] max-w-[36px] bg-black/30 flex items-center justify-center shrink-0 border-r border-white/10 gap-0.5">
+                                  {post.platforms.map((p) => {
+                                    const isChannelActive = isChannelActiveForPost(p, post, channelToggles);
+                                    return (
+                                      <span 
+                                        key={p} 
+                                        className={`shrink-0 transition-opacity ${
+                                          !isChannelActive ? 'opacity-30 grayscale' : isShared ? 'opacity-40 grayscale' : ''
+                                        }`} 
+                                        title={`${p} ${!isChannelActive ? '(IN PAUSA)' : isShared ? '(CONDIVISO)' : '(ATTIVO)'}`}
+                                      >
+                                        {p === 'tiktok' && <TikTokIcon className="w-3 h-3 text-white" />}
+                                        {p === 'google' && <GoogleIcon className="w-3 h-3" />}
+                                        {p === 'instagram' && <InstagramIcon className="w-3 h-3" />}
+                                        {p === 'facebook' && <FacebookIcon className="w-3 h-3" />}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+
+                                {/* 3° SCOMPARTO: BRAND & SIGLA FORMATO */}
+                                <div className={`w-[42px] min-w-[42px] max-w-[42px] flex items-center justify-center gap-0.5 shrink-0 border-r border-white/10 font-black text-[9px] uppercase leading-none ${
+                                  isShared ? 'bg-slate-800 text-slate-400 border-slate-700 font-bold' : badgeStyle
+                                }`}>
+                                  <span className={`text-[9.5px] leading-none ${isShared ? 'grayscale opacity-70' : ''}`}>{brandEmoji}</span>
+                                  <span className="leading-none">{formatCode}</span>
+                                </div>
+
+                                {/* 4° SCOMPARTO: TIPO */}
+                                <div className={`w-[38px] min-w-[38px] max-w-[38px] flex items-center justify-center shrink-0 border-r border-white/10 text-[7.5px] font-black uppercase leading-none ${
+                                  isShared ? 'bg-slate-800/80 text-slate-400' : contentType.style
+                                }`}>
+                                  {contentType.label}
+                                </div>
+
+                                {/* 5° SCOMPARTO: STATISTICHE / STATO */}
+                                <div className="flex-1 min-w-0 flex items-center justify-center bg-black/20 font-mono font-bold text-[9px] tracking-tight">
+                                  <span className={isShared ? 'text-slate-400' : 'text-slate-500'}>
+                                    {isPublished ? '✓ COND' : statPercent}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* 🔴 TIMELINE ATTUALE */}
+                              {shouldShowTimelineAfter && renderTimelineBar()}
+                            </React.Fragment>
+                          );
+                        })}
+                      </>
+                    );
+                  })()}
                 </div>
 
               </div>
@@ -1906,6 +1968,25 @@ export function SocialCalendarView({
                         ? (uiLang === 'EN' ? 'Publish Locked (Standby Mode)' : 'Pubblicazione Bloccata (In Standby)')
                         : (uiLang === 'EN' ? 'Publish Now' : 'Pubblica Subito')}
                     </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextStatus = inspectingPost.status === 'published' ? 'scheduled' : 'published';
+                      const updated = { ...inspectingPost, status: nextStatus };
+                      setInspectingPost(updated);
+                      onUpdatePosts(scheduledPosts.map(p => p.id === updated.id ? updated : p));
+                    }}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                      inspectingPost.status === 'published'
+                        ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300 hover:bg-emerald-900/60'
+                        : 'bg-slate-900 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800'
+                    }`}
+                    title={inspectingPost.status === 'published' ? 'Contrassegnato come Condiviso (clicca per reimpostare)' : 'Segna manualmente come già condiviso / inviato'}
+                  >
+                    <CheckCircle className={`w-3.5 h-3.5 ${inspectingPost.status === 'published' ? 'text-emerald-400' : 'text-slate-400'}`} />
+                    <span>{inspectingPost.status === 'published' ? '✓ Condiviso' : 'Segna Condiviso'}</span>
                   </button>
 
                   <button

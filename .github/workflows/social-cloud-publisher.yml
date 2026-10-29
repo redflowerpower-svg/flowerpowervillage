@@ -37,9 +37,8 @@ on:
   repository_dispatch:
     types: [publish_social_video]
 
-  # 3. Cron Automatico Giornaliero (Ore 09:00 Bangkok / 02:00 UTC)
-  schedule:
-    - cron: '0 2 * * *'
+  # NOTA: Cron automatico disattivato.
+  # Il vero scheduler operativo 24/7 in produzione e' .github/workflows/social-scheduler-cron.yml
 
 jobs:
   render-and-publish:
