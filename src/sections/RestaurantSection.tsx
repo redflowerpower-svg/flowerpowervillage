@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut, BookOpen, Coffee, Soup, Pizza, Globe, Flame, Salad } from 'lucide-react';
+import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut, BookOpen, Coffee, Soup, Pizza, Globe, Flame, Salad, Sparkles } from 'lucide-react';
 import { Language } from '../booking/lib/translations';
 
 const menuPages = [
@@ -83,18 +83,20 @@ const restaurantCategoryTabs = [
   { id: 2, pageIndex: 3, icon: Soup },
   { id: 3, pageIndex: 5, icon: Pizza },
   { id: 4, pageIndex: 6, icon: Globe },
-  { id: 5, pageIndex: 11, icon: Flame },
-  { id: 6, pageIndex: 13, icon: Salad },
+  { id: 5, pageIndex: 12, icon: Flame },     // Cucina Thai (page 12)
+  { id: 6, pageIndex: 11, icon: Sparkles },  // Specialità Birmane (page 11)
+  { id: 7, pageIndex: 13, icon: Salad },     // Vegan & Snacks (page 13)
 ];
 
 const restaurantCategoryBlockLabels: Record<number, Record<Language, [string, string]>> = {
   0: { IT: ['MENU', 'COMPLETO'], EN: ['FULL', 'MENU'], TH: ['เมนู', 'ทั้งหมด'], DE: ['GESAMTES', 'MENÜ'] },
   1: { IT: ['CAFFÈ &', 'DRINK'], EN: ['COFFEE &', 'DRINKS'], TH: ['กาแฟ &', 'เครื่องดื่ม'], DE: ['KAFFEE &', 'DRINKS'] },
-  2: { IT: ['ANTIPASTI &', 'PRIMI'], EN: ['APPETIZERS', '& PASTA'], TH: ['อาหารเรียกน้ำย่อย', '& พาสต้า'], DE: ['VORSPEISEN', '& PASTA'] },
+  2: { IT: ['ANTIPASTI', '& PRIMI'], EN: ['APPETIZERS', '& PASTA'], TH: ['อาหารว่าง', '& พาสต้า'], DE: ['VORSPEISEN', '& PASTA'] },
   3: { IT: ['PIZZE &', 'FOCACCE'], EN: ['PIZZAS &', 'FOCACCIAS'], TH: ['พิซซ่า &', 'โฟคาชชา'], DE: ['PIZZAS &', 'FOCACCIAS'] },
-  4: { IT: ['SECONDI &', 'PESCE'], EN: ['MAIN COURSES', '& FISH'], TH: ['จานหลัก &', 'อาหารปลา'], DE: ['HAUPTGERICHTE', '& FISCH'] },
-  5: { IT: ['THAI &', 'BIRMANO'], EN: ['THAI &', 'BURMESE'], TH: ['อาหารไทย &', 'พม่า'], DE: ['THAI &', 'BIRMANISCH'] },
-  6: { IT: ['VEGAN &', 'SNACKS'], EN: ['VEGAN &', 'SNACKS'], TH: ['วีแกน &', 'ของว่าง'], DE: ['VEGAN &', 'SNACKS'] },
+  4: { IT: ['SECONDI', '& PESCE'], EN: ['MAINS &', 'FISH'], TH: ['จานหลัก', '& ปลา'], DE: ['HAUPT-', 'GERICHTE'] },
+  5: { IT: ['CUCINA', 'THAI'], EN: ['THAI', 'CUISINE'], TH: ['อาหาร', 'ไทย'], DE: ['THAI-', 'KÜCHE'] },
+  6: { IT: ['CUCINA', 'BIRMANA'], EN: ['BURMESE', 'DISHES'], TH: ['อาหาร', 'พม่า'], DE: ['BIRMANISCH', ''] },
+  7: { IT: ['VEGAN &', 'SNACKS'], EN: ['VEGAN &', 'SNACKS'], TH: ['วีแกน &', 'ของว่าง'], DE: ['VEGAN &', 'SNACKS'] },
 };
 
 const restaurantLabels = {
@@ -258,13 +260,20 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
             </p>
           </div>
 
-          {/* CATEGORY SELECTOR (Identico al 100% allo stile a rettangolini di Spa e Galleria) */}
-          <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap mb-8 max-w-5xl mx-auto">
+          {/* CATEGORY SELECTOR (2 File 4 e 4 compatto, senza numeri di pagina) */}
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2.5 mb-6 max-w-xl sm:max-w-2xl mx-auto px-1">
             {restaurantCategoryTabs.map((tab) => {
               const Icon = tab.icon;
-              const isSelected = currentPage >= tab.pageIndex && (
-                tab.id === 6 || (restaurantCategoryTabs[tab.id + 1] && currentPage < restaurantCategoryTabs[tab.id + 1].pageIndex)
-              );
+              const isSelected = 
+                (tab.id === 0 && currentPage === 0) ||
+                (tab.id === 1 && (currentPage === 1 || currentPage === 2)) ||
+                (tab.id === 2 && (currentPage === 3 || currentPage === 4)) ||
+                (tab.id === 3 && (currentPage === 5 || currentPage === 10)) ||
+                (tab.id === 4 && (currentPage >= 6 && currentPage <= 9)) ||
+                (tab.id === 5 && currentPage === 12) ||
+                (tab.id === 6 && currentPage === 11) ||
+                (tab.id === 7 && currentPage >= 13);
+
               const [line1, line2] = restaurantCategoryBlockLabels[tab.id][lang] || restaurantCategoryBlockLabels[tab.id]['IT'];
 
               return (
@@ -272,41 +281,34 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
                   key={tab.id}
                   type="button"
                   onClick={() => handleCategoryClick(tab.pageIndex)}
-                  className={`w-[96px] sm:w-[110px] h-[98px] sm:h-[108px] flex flex-col items-center justify-between p-2 rounded-2xl transition-all duration-200 border-2 text-center group cursor-pointer select-none active:scale-95 ${
+                  className={`w-full h-[62px] sm:h-[72px] flex flex-col items-center justify-center p-1 sm:p-1.5 rounded-xl transition-all duration-200 border-2 text-center group cursor-pointer select-none active:scale-95 ${
                     isSelected
-                      ? 'bg-gradient-to-b from-[#184534] to-[#0c241b] border-emerald-700 text-white shadow-lg ring-2 ring-emerald-700/30 scale-[1.03]'
-                      : 'bg-[#ede5d8] border-[#cfbea6] text-[#2c1a11] shadow-[0_2px_6px_rgba(44,26,17,0.08)] hover:bg-[#e6dcce] hover:border-emerald-700/50 hover:text-black hover:shadow-md'
+                      ? 'bg-gradient-to-b from-[#184534] to-[#0c241b] border-emerald-700 text-white shadow-md ring-2 ring-emerald-700/30 scale-[1.02]'
+                      : 'bg-[#ede5d8] border-[#cfbea6] text-[#2c1a11] shadow-xs hover:bg-[#e6dcce] hover:border-emerald-700/50 hover:text-black'
                   }`}
                   style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                 >
-                  {/* Top icon in rounded container */}
+                  {/* Top icon in small container */}
                   <div
-                    className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+                    className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg flex items-center justify-center shrink-0 mb-0.5 transition-transform duration-200 group-hover:scale-105 ${
                       isSelected
-                        ? 'bg-white/20 text-emerald-300 shadow-sm'
-                        : 'bg-[#ded0bf] text-emerald-900 group-hover:bg-emerald-800/15 shadow-inner'
+                        ? 'bg-white/20 text-emerald-300'
+                        : 'bg-[#ded0bf] text-emerald-900 group-hover:bg-emerald-800/15'
                     }`}
                   >
-                    <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.3]" />
+                    <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.3]" />
                   </div>
 
                   {/* Two-line text */}
-                  <div className="flex-1 flex flex-col items-center justify-center w-full px-0.5 mt-0.5">
-                    <span className="text-[9.5px] sm:text-[10.5px] font-black tracking-tight uppercase leading-[1.12] text-balance">
-                      <span className="block">{line1}</span>
-                      <span className="block">{line2}</span>
+                  <div className="flex flex-col items-center justify-center w-full px-0.5 leading-[1.08]">
+                    <span className="text-[9px] sm:text-[10px] font-black tracking-tight uppercase block truncate max-w-full">
+                      {line1}
                     </span>
-                  </div>
-
-                  {/* Page indicator pill */}
-                  <div
-                    className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider transition-colors ${
-                      isSelected
-                        ? 'bg-emerald-400 text-stone-950 shadow-xs'
-                        : 'bg-black/10 text-stone-700 group-hover:bg-black/15'
-                    }`}
-                  >
-                    Pag. {tab.pageIndex + 1}
+                    {line2 ? (
+                      <span className="text-[9px] sm:text-[10px] font-black tracking-tight uppercase block truncate max-w-full">
+                        {line2}
+                      </span>
+                    ) : null}
                   </div>
                 </button>
               );

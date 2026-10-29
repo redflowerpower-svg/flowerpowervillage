@@ -2138,3 +2138,11 @@
   - **Bannerino Ristorante Snello e Non Invasivo (`RestaurantSection.tsx`)**: Ridisegnata la card di presentazione del ristorante sotto l'hero banner: logo ridotto a 64-80px, padding compatto (`p-3.5 sm:p-5`), layout orizzontale su singola riga con badge orari/servizi compatti e discreti.
   - **Selettore Categorie Menu a Rettangolini (Stile Spa & Foto)**: Sostituiti i vecchi pill orizzontali con 7 blocchi quadrati/rettangolari strutturati (`w-[96px] sm:w-[110px] h-[98px] sm:h-[108px]`) con icona in bolla circolare, etichetta a due righe ad alto contrasto e pillola di pagina, perfettamente identici a quelli di `SpaSection` e `GallerySection`.
   - **Blindatura Regola 18**: Bonificate le descrizioni del menu eliminando ogni menzione a "forno a legna" / "wood-fired" / "เตาถ่าน", ripristinando la dicitura ufficiale di autentica pizza tradizionale italiana cotta su forno professionale.
+
+- **Refinement Categorie Menù Ristorante (2 File 4 e 4, Zero Numeri Pagina, Thai & Birmano Separati)**:
+  - Eliminato completamente il numero della pagina (`PAG. X`) da tutte le card per alleggerire il design.
+  - Ridotta l'altezza da 98px a soli **62px** (`h-[62px] sm:h-[72px]`), rendendo i pulsanti snelli e non ingombranti.
+  - Organizzata la griglia esattamente in **2 file da 4 colonne ciascuna** (`grid grid-cols-4 gap-1.5 sm:gap-2.5 max-w-xl mx-auto`), azzerando card orfane isolate.
+  - Separata la **Cucina Thai** (Pag. 12) dalle **Specialità Birmane** (Pag. 11) in due tessere dedicate e distinte:
+    - Fila 1: `[MENU COMPLETO]` `[CAFFÈ & DRINK]` `[ANTIPASTI & PRIMI]` `[PIZZE & FOCACCE]`
+    - Fila 2: `[SECONDI & PESCE]` `[CUCINA THAI]` `[CUCINA BIRMANA]` `[VEGAN & SNACKS]`
