@@ -18,6 +18,16 @@
 ---
 
 
+### 🟩 [29/10/2026 - ORE 19:53] · RISOLUZIONE REFERENCEERROR VIEWMODE IN RESTAURANTSECTION
+- **Cosa abbiamo fatto:**
+  1. 🛠️ **Fix Dichiarazione viewMode e Ref**:
+     - Dichiarato correttamente lo state `const [viewMode, setViewMode] = useState<'grid' | 'scroll'>('grid')` all'interno del componente `RestaurantSection`.
+     - Inizializzati i ref `scrollContainerRef`, `cardRefs` e gli handler di scorrimento `scrollLeft`, `scrollRight` con `useEffect` per l'auto-scroll sincronizzato sulla pagina attiva.
+- **File aggiornati:** `src/sections/RestaurantSection.tsx`.
+- **Stato:** ✅ Errore a runtime risolto, testato con successo, build pulita al 100%.
+
+---
+
 ### 🟩 [29/10/2026 - ORE 19:51] · TUTTI E 15 I TITOLI DEL MENU SFOGLIABILI IN CIMA (ZERO PIATTI NASCOSTI & DOPPIA MODALITÀ)
 - **Cosa abbiamo fatto:**
   1. 📖 **Copertura Totale delle 15 Pagine del Menù**:
