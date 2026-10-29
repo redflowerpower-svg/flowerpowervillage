@@ -589,45 +589,6 @@ export const GloriaFoodLanding: React.FC<GloriaFoodLandingProps> = ({ onSwitchTo
             <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px]" />
           </div>
 
-          {/* Symmetrical Language Dropdown Selector */}
-          <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
-            <button
-              type="button"
-              onClick={() => setIsLangOpen(!isLangOpen)}
-              className="flex items-center gap-1 bg-black/45 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-white/10 shadow-sm text-stone-300 hover:text-white transition-all cursor-pointer font-bold text-[10px] uppercase"
-            >
-              <Globe className="w-3.5 h-3.5" />
-              <span>{lang}</span>
-              <ChevronDown className="w-3 h-3 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
-            </button>
-
-            {isLangOpen && (
-              <>
-                <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
-                <div className="absolute right-0 mt-1.5 w-24 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col">
-                  {(['IT', 'EN', 'TH', 'DE'] as const).map((l) => (
-                    <button
-                      key={l}
-                      type="button"
-                      onClick={() => {
-                        setLang(l);
-                        setIsLangOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer ${
-                        lang === l ? "text-[#fca5a5] bg-white/5" : "text-stone-300"
-                      }`}
-                    >
-                      {l === 'IT' && '🇮🇹 IT'}
-                      {l === 'EN' && '🇬🇧 EN'}
-                      {l === 'TH' && '🇹🇭 TH'}
-                      {l === 'DE' && '🇩🇪 DE'}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
           <div className="relative z-10 my-auto py-2">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-8 min-h-[160px] lg:min-h-[180px]">
               {/* Left Side: Logo & Brand Name */}

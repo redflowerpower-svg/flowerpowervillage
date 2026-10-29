@@ -3,6 +3,40 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [29/10/2026 - ORE 20:05] · GOOGLE BUSINESS PROFILE API APPROVATE & LIVE 100% OPERATIVE
+- **Cosa abbiamo fatto:**
+  1. 🔓 **Approvazione Ufficiale & Quota 300 QPM Rilasciata**:
+     - Confermato l'accesso ufficiale in produzione per il progetto Google Cloud 129023399780 (Flower Power Social Studio).
+     - Abilitata l'API Google My Business API (mybusiness.googleapis.com) nella Google Cloud Console.
+  2. ⚡ **Handshake OAuth Eseguito con Successo (HTTP 200)**:
+     - Verificate le credenziali dedicate del Client ID 129023399780-dlg8mi7unu94rmt3nt5skhdl9s1ehhvf.apps.googleusercontent.com con Client Secret.
+     - Effettuato il refresh automatico del token con Google OAuth2 (https://oauth2.googleapis.com/token) con esito 200 OK.
+  3. 📍 **Mappatura Automatica Sedi Google Maps Recuperate dal Live**:
+     - Interrogata l'API mybusinessbusinessinformation.googleapis.com con l'account ccounts/113384905565955519008 (Marco Damonte).
+     - Recuperati e mappati in Supabase i due Location ID reali:
+       - 🍕 **Pizzeria Ranong**: locations/4656142735347014728 (*Flower Power Pizza - Italian Restaurant*, 129/6 Mo 1, Bang Rin)
+       - 🌴 **Villaggio Koh Phayam**: locations/1412782511329374493 (*Flower Power Village & Italian Restaurant-Pizzeria*, Aow Khao Kwai)
+- **File aggiornati:** telegram_config in Supabase, .env.local, .secret_docs/api_credentials_report.md.
+- **Stato:** ✅ 100% OPERATIVO E LIVE IN PRODUZIONE.
+
+---
+
+### 🟩 [29/10/2026 - ORE 20:18] · UNIFICAZIONE TOTALE HERO BANNER & NAVBAR LINGUE (PARITÀ VILLAGE & PIZZA)
+- **Cosa abbiamo fatto:**
+  1. 🚫 **Rimozione Selettore Lingue Ridondante da Tutti gli Hero Banner**:
+     - Eliminato il tasto a tendina della lingua dall'interno del banner hero in Flower Power Village (`booking-engine.tsx` e `PageLayout.tsx`) e in Flower Power Pizza (`DeliveryMenu.tsx` e `GloriaFoodLanding.tsx`).
+     - Rimossa la spaziatura artificiale a destra (`pr-16` e `pr-14`), permettendo ai testi del brand di occupare la larghezza in modo armonioso e bilanciato.
+  2. 👯‍♂️ **Hero Banner Gemelli Identici (Dimensioni & Tipografia)**:
+     - Uniformati al millimetro i banner di Village e Pizza: altezza compatta (~120px mobile), stesso padding `py-2 sm:py-3 px-1 sm:px-2`, stesso logo `h-20 sm:h-24`, stessa gerarchia tipografica per titolo, sottotitolo geografico e orari/tagline.
+  3. 🧭 **Navbar Pizza Allineata a Village (Logo Rimosso & Lingue Gemelle)**:
+     - Rimosso il piccolo logo circolare superfluo dalla barra superiore di Flower Power Pizza, lasciando la dicitura pulita *"FLOWER POWER Pizza"* perfettamente simmetrica a *"FLOWER POWER Village"*.
+     - Sostituito il vecchio selettore lingue con il componente identico a Village: pill con globo verde smeraldo (`Globe`), codice lingua e freccia chevron, con menù a tendina ad alto contrasto (`#1c1917`, bordo in risalto, bandiere grandi a 20px).
+     - Mantenuta l'icona del carrello con contatore (`ShoppingCart`) subito a fianco del tasto lingua, seguita dal menu hamburger.
+- **File aggiornati:** `src/booking/components/booking-engine.tsx`, `src/components/PageLayout.tsx`, `src/pizza/pages/DeliveryMenu.tsx`, `src/pizza/pages/GloriaFoodLanding.tsx`, `src/pages/PizzaSite.tsx`.
+- **Stato:** ✅ Build completata con successo (0 errori).
+
+---
+
 ### 🟩 [29/10/2026 - ORE 19:05] · RICALIBRAZIONE SOGLIE WATCHDOG SUPABASE (ANTI-SPAM & ZERO NOTIFICHE RIDONDANTI)
 - **Cosa abbiamo fatto:**
   1. 🛡️ **Innalzamento Soglia Storage Globale a 500 MB (Mezzo Giga)**:

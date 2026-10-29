@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate as useRRNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Menu, X, Clock, Phone, Mail, MapPin, Instagram, Facebook, Star, ShoppingCart, ShieldCheck, Truck, RotateCcw, Building2, Wheat, UtensilsCrossed, Waves, Users, Sparkles, HeartHandshake, Leaf, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Menu, X, Globe, ChevronDown, Clock, Phone, Mail, MapPin, Instagram, Facebook, Star, ShoppingCart, ShieldCheck, Truck, RotateCcw, Building2, Wheat, UtensilsCrossed, Waves, Users, Sparkles, HeartHandshake, Leaf, MessageSquare } from 'lucide-react';
 import DeliveryMenu from '../pizza/pages/DeliveryMenu';
 import { GloriaFoodLanding } from '../pizza/pages/GloriaFoodLanding';
 import { useCartStore } from '../pizza/store/cartStore';
@@ -157,13 +157,8 @@ function PizzaNav({
             <div className="h-4 w-px bg-stone-700/60 hidden sm:block" />
             <button
               onClick={() => handleNavClick('order')}
-              className="flex items-center gap-2.5 text-left cursor-pointer group bg-transparent border-0"
+              className="flex items-center gap-2 text-left cursor-pointer group bg-transparent border-0"
             >
-              <img 
-                src="/flower-power-pizza-logo-160.png" 
-                alt="Flower Power Pizza Ranong" 
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-red-800/80 shadow-xs group-hover:scale-105 transition-transform" 
-              />
               <span className="font-sans font-black tracking-tight text-white text-base md:text-lg group-hover:text-[#f87171] transition-colors">
                 FLOWER POWER <span className="font-light italic text-[#f87171]">Pizza</span>
               </span>
@@ -229,28 +224,33 @@ function PizzaNav({
               <span>{i18n.nav.bookTable[lang] || 'PRENOTA TAVOLO'}</span>
             </button>
 
-            {/* Language Selector Dropdown */}
+            {/* Desktop Language Selector Dropdown (Identico stile Flower Power Village) */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-stone-900 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                className="flex items-center gap-1.5 bg-black/45 hover:bg-black/65 px-3 py-1.5 rounded-xl border border-white/20 shadow-sm text-stone-100 hover:text-white transition-all cursor-pointer font-black text-xs uppercase"
+                title="Change language"
               >
-                <span className="text-sm leading-none">{LANGUAGE_METAS[lang]?.flag || '🌐'}</span>
-                <span className="font-mono uppercase">{lang}</span>
-                <span className="text-[9px] text-amber-400">▼</span>
+                <Globe className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{lang}</span>
+                <ChevronDown
+                  className="w-3.5 h-3.5 transition-transform duration-200 text-stone-300"
+                  style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }}
+                />
               </button>
 
               {isLangOpen && (
                 <>
-                  <div className="fixed inset-0 z-[9990] bg-black/60" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-[285px] bg-[#18181b] border-2 border-amber-400 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] p-2.5 z-[9999] animate-fadeIn">
-                    <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-amber-400 border-b border-stone-800 mb-2 flex items-center justify-between">
-                      <span>Lingua / Language</span>
-                      <span>🌐</span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {SUPPORTED_LANGUAGES.map((l) => (
+                  <div className="fixed inset-0 z-[9990] bg-black/40 backdrop-blur-[2px] cursor-default" onClick={() => setIsLangOpen(false)} />
+                  <div
+                    className="absolute right-0 mt-2.5 w-52 bg-stone-900 border-2 border-stone-600 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] z-[9999] overflow-hidden py-1.5 animate-fadeIn"
+                    style={{ backgroundColor: '#1c1917' }}
+                  >
+                    {SUPPORTED_LANGUAGES.map((l) => {
+                      const isSelected = lang === l;
+                      const meta = LANGUAGE_METAS[l];
+                      return (
                         <button
                           key={l}
                           type="button"
@@ -258,20 +258,28 @@ function PizzaNav({
                             setLanguage(l);
                             setIsLangOpen(false);
                           }}
-                          className={`flex flex-col items-center justify-center p-2 rounded-xl text-center cursor-pointer transition-all duration-150 select-none ${
-                            lang === l
-                              ? 'bg-amber-400 text-stone-950 font-black shadow-md border border-amber-300 ring-2 ring-amber-400/50 scale-[1.02]'
-                              : 'bg-stone-900/90 text-stone-200 hover:bg-stone-800 hover:text-white border border-stone-800 hover:border-amber-400/50'
+                          className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between cursor-pointer ${
+                            isSelected
+                              ? 'bg-emerald-600 text-white font-black'
+                              : 'text-stone-200 hover:bg-white/10 hover:text-white font-bold'
                           }`}
                         >
-                          <span className="text-xl leading-none mb-1">{LANGUAGE_METAS[l]?.flag}</span>
-                          <span className="text-xs font-black tracking-wide uppercase leading-tight">{l}</span>
-                          <span className={`text-[9px] truncate max-w-full leading-tight mt-0.5 ${lang === l ? 'text-stone-900 font-bold' : 'text-stone-400'}`}>
-                            {LANGUAGE_METAS[l]?.nativeName}
+                          <span className="flex items-center gap-3">
+                            <span className="text-xl leading-none">{meta?.flag}</span>
+                            <span className="font-extrabold tracking-wide">{meta?.nativeName || l}</span>
                           </span>
+                          {isSelected ? (
+                            <span className="text-white text-xs font-black px-2 py-0.5 bg-black/30 rounded-md">
+                              ✓ {l}
+                            </span>
+                          ) : (
+                            <span className="text-stone-400 text-xs font-semibold">
+                              {l}
+                            </span>
+                          )}
                         </button>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
                 </>
               )}
@@ -292,27 +300,33 @@ function PizzaNav({
           </div>
 
           <div className="flex md:hidden items-center gap-2">
-            {/* Mobile Language Selector Dropdown */}
+            {/* Mobile Language Selector Dropdown (Identico stile Flower Power Village) */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-stone-900 text-amber-300 border border-amber-500/40 text-[11px] font-bold active:scale-95"
-                title="Cambia Lingua"
+                className="flex items-center gap-1.5 bg-black/50 hover:bg-black/70 px-3 py-1.5 rounded-xl border border-white/20 text-stone-100 text-xs font-black uppercase shadow-sm cursor-pointer"
+                title="Change language"
               >
-                <span className="text-xs leading-none">{LANGUAGE_METAS[lang]?.flag || '🌐'}</span>
-                <span className="font-mono">{lang}</span>
+                <Globe className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{lang}</span>
+                <ChevronDown
+                  className="w-3.5 h-3.5 transition-transform duration-200 text-stone-300"
+                  style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }}
+                />
               </button>
 
               {isLangOpen && (
                 <>
-                  <div className="fixed inset-0 z-[9990] bg-black/60" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-[280px] bg-[#18181b] border-2 border-amber-400 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] p-2.5 z-[9999] animate-fadeIn">
-                    <div className="px-2 py-1 text-[9.5px] font-black uppercase tracking-wider text-amber-400 border-b border-stone-800 mb-2">
-                      Lingua / Language
-                    </div>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {SUPPORTED_LANGUAGES.map((l) => (
+                  <div className="fixed inset-0 z-[9990] bg-black/40 backdrop-blur-[2px] cursor-default" onClick={() => setIsLangOpen(false)} />
+                  <div
+                    className="absolute right-0 mt-2.5 w-52 bg-stone-900 border-2 border-stone-600 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] z-[9999] overflow-hidden py-1.5 animate-fadeIn"
+                    style={{ backgroundColor: '#1c1917' }}
+                  >
+                    {SUPPORTED_LANGUAGES.map((l) => {
+                      const isSelected = lang === l;
+                      const meta = LANGUAGE_METAS[l];
+                      return (
                         <button
                           key={l}
                           type="button"
@@ -320,27 +334,38 @@ function PizzaNav({
                             setLanguage(l);
                             setIsLangOpen(false);
                           }}
-                          className={`flex flex-col items-center justify-center p-2 rounded-xl text-center cursor-pointer transition-all duration-150 select-none ${
-                            lang === l
-                              ? 'bg-amber-400 text-stone-950 font-black shadow-md border border-amber-300 ring-2 ring-amber-400/50 scale-[1.02]'
-                              : 'bg-stone-900/90 text-stone-200 hover:bg-stone-800 hover:text-white border border-stone-800 hover:border-amber-400/50'
+                          className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between cursor-pointer ${
+                            isSelected
+                              ? 'bg-emerald-600 text-white font-black'
+                              : 'text-stone-200 hover:bg-white/10 hover:text-white font-bold'
                           }`}
                         >
-                          <span className="text-xl leading-none mb-1">{LANGUAGE_METAS[l]?.flag}</span>
-                          <span className="text-xs font-black tracking-wide uppercase leading-tight">{l}</span>
-                          <span className={`text-[9px] truncate max-w-full leading-tight mt-0.5 ${lang === l ? 'text-stone-900 font-bold' : 'text-stone-400'}`}>
-                            {LANGUAGE_METAS[l]?.nativeName}
+                          <span className="flex items-center gap-3">
+                            <span className="text-xl leading-none">{meta?.flag}</span>
+                            <span className="font-extrabold tracking-wide">{meta?.nativeName || l}</span>
                           </span>
+                          {isSelected ? (
+                            <span className="text-white text-xs font-black px-2 py-0.5 bg-black/30 rounded-md">
+                              ✓ {l}
+                            </span>
+                          ) : (
+                            <span className="text-stone-400 text-xs font-semibold">
+                              {l}
+                            </span>
+                          )}
                         </button>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
                 </>
               )}
             </div>
+
+            {/* Cart Button with Counter */}
             <button
               onClick={openCart}
-              className="relative p-2 text-white bg-[#8B1E1E] rounded-xl hover:bg-[#721818] transition-colors"
+              className="relative p-2 text-white bg-[#8B1E1E] rounded-xl hover:bg-[#721818] transition-colors cursor-pointer"
+              title="Carrello"
             >
               <ShoppingCart size={18} />
               {cartCount > 0 && (
@@ -349,9 +374,11 @@ function PizzaNav({
                 </span>
               )}
             </button>
+
+            {/* Hamburger Button */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 text-stone-300 hover:text-white transition-colors"
+              className="text-white hover:text-emerald-400 transition-colors cursor-pointer p-1"
               aria-label="Toggle menu"
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}

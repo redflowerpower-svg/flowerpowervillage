@@ -2163,93 +2163,38 @@ export default function DeliveryMenu() {
             <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px]" />
           </div>
 
-          {/* MOBILE HERO BANNER (Prominent Large Logo, Brand Title, Tagline & Hours Info) */}
-          <div className="block lg:hidden relative z-10 py-3 px-2.5 sm:px-4">
-            {/* Top-Right Language Selector */}
-            <div className="absolute top-2.5 right-2.5 z-50">
-              <button
-                type="button"
-                onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1.5 bg-[#1c1917] px-2.5 py-1.5 rounded-xl border border-amber-400/60 shadow-lg text-white font-black text-xs uppercase cursor-pointer active:scale-95"
-              >
-                <span className="text-sm leading-none">{LANGUAGE_METAS[lang]?.flag || '🌐'}</span>
-                <span className="tracking-wider">{lang}</span>
-                <ChevronDown className="w-3 h-3 text-amber-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
-              </button>
-
-              {isLangOpen && (
-                <>
-                  <div className="fixed inset-0 z-[9990] cursor-default bg-black/60" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-[285px] sm:w-[305px] bg-[#18181b] rounded-2xl border-2 border-amber-400 shadow-[0_20px_50px_rgba(0,0,0,0.95)] z-[9999] p-2.5 animate-fadeIn">
-                    <div className="px-2 py-1 text-[10.5px] font-black uppercase tracking-wider text-amber-400 border-b border-stone-800 mb-2 flex items-center justify-between">
-                      <span>Lingua / Language</span>
-                      <Globe className="w-3.5 h-3.5 text-amber-400" />
-                    </div>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {SUPPORTED_LANGUAGES.map((l) => {
-                        const meta = LANGUAGE_METAS[l];
-                        const isSelected = lang === l;
-                        return (
-                          <button
-                            key={l}
-                            type="button"
-                            onClick={() => {
-                              setLang(l);
-                              setIsLangOpen(false);
-                            }}
-                            className={`flex flex-col items-center justify-center p-2 rounded-xl text-center cursor-pointer transition-all duration-150 select-none ${
-                              isSelected
-                                ? "bg-amber-400 text-stone-950 font-black shadow-md border border-amber-300 ring-2 ring-amber-400/50 scale-[1.02]"
-                                : "text-white bg-stone-900/90 hover:bg-stone-800 border border-stone-800 hover:border-amber-400/50"
-                            }`}
-                          >
-                            <span className="text-xl leading-none mb-1">{meta?.flag}</span>
-                            <span className="text-xs font-black tracking-wide uppercase leading-tight">
-                              {l}
-                            </span>
-                            <span className={`text-[9px] truncate max-w-full leading-tight mt-0.5 ${isSelected ? 'text-stone-900 font-bold' : 'text-stone-400'}`}>
-                              {meta?.nativeName}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
+          {/* MOBILE HERO BANNER (Gemello Identico nello Stile a Flower Power Village) */}
+          <div className="block lg:hidden relative z-10 py-2 sm:py-3 px-1 sm:px-2">
             {/* Main Content: Large Logo on the Left + Brand Details on the Right */}
-            <div className="flex items-center gap-2.5 sm:gap-3.5 pr-14">
-              {/* Brand Logo (Larger & Close to the edge) */}
+            <div className="flex items-center gap-3">
               <img
                 src="/Flower_Power_Pizza_-_HotSpring.png"
                 alt="Flower Power Pizza Logo"
                 width={88}
                 height={88}
-                className="h-20 sm:h-24 w-auto drop-shadow-lg flex-shrink-0 object-contain -ml-1 sm:ml-0"
+                className="h-20 sm:h-24 w-auto drop-shadow-lg flex-shrink-0 object-contain -ml-0.5"
               />
 
               {/* Brand Info, Tagline & Hours */}
-              <div className="min-w-0 space-y-0.5 sm:space-y-1">
-                <h1 className="text-lg sm:text-2xl font-sans font-black tracking-tight text-white leading-tight">
+              <div className="min-w-0 space-y-1">
+                <h1 className="text-xl sm:text-2xl font-sans font-black tracking-tight text-white leading-tight">
                   FLOWER POWER <br className="sm:hidden" />
                   <span className="font-light italic text-[#f87171]">Pizza</span>
                 </h1>
 
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[#fca5a5] font-bold tracking-widest text-[9px] sm:text-[10px] uppercase">
+                  <span className="text-[#fca5a5] font-extrabold tracking-widest text-[10px] sm:text-[11px] uppercase">
                     RANONG • THAILANDIA
                   </span>
                 </div>
 
-                <p className="text-stone-200 font-semibold text-[9.5px] sm:text-xs leading-tight">
+                <p className="text-stone-200 font-bold text-[11px] sm:text-xs leading-tight">
                   {t.tagline2}
                 </p>
 
                 {/* Hours & Service Status */}
-                <div className="flex items-center gap-1.5 pt-0.5 flex-wrap text-[8.5px] sm:text-[9.5px]">
-                  <span className="inline-flex items-center gap-1 font-bold text-amber-200 bg-black/50 border border-amber-400/30 px-1.5 py-0.5 rounded-md shadow-xs">
+                <div className="flex items-center gap-1.5 pt-0.5 flex-wrap text-[10px] sm:text-[11px] text-stone-300 font-medium leading-tight">
+                  <span className="inline-flex items-center gap-1 font-bold text-amber-200 bg-black/45 border border-amber-400/30 px-1.5 py-0.5 rounded-md shadow-xs">
                     <Clock className="w-2.5 h-2.5 text-amber-300 shrink-0" />
                     <span>
                       {serviceStatus.openingHours?.openTime && serviceStatus.openingHours?.closeTime
@@ -2257,13 +2202,9 @@ export default function DeliveryMenu() {
                         : t.info2}
                     </span>
                   </span>
-                  <span className="text-stone-300 font-medium">
-                    {t.info1}
-                  </span>
-                  <span className="text-stone-400 hidden sm:inline">•</span>
-                  <span className="text-stone-300 font-medium hidden sm:inline">
-                    {t.info3}
-                  </span>
+                  <span>{t.info1}</span>
+                  <span>•</span>
+                  <span>{t.info3}</span>
                 </div>
               </div>
             </div>
@@ -2271,60 +2212,6 @@ export default function DeliveryMenu() {
 
           {/* DESKTOP SCENIC HERO (Large Logo & Tagline) */}
           <div className="hidden lg:block relative z-10 my-auto py-2">
-            {/* Symmetrical Language Dropdown Selector (Desktop) */}
-            <div className="absolute top-2 right-2 z-50">
-              <button
-                type="button"
-                onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1.5 bg-[#1c1917] px-3 py-1.5 rounded-xl border border-amber-400/60 shadow-lg text-white font-black text-xs uppercase cursor-pointer active:scale-95"
-              >
-                <span className="text-sm leading-none">{LANGUAGE_METAS[lang]?.flag || '🌐'}</span>
-                <span className="tracking-wider">{lang}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-amber-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
-              </button>
-
-              {isLangOpen && (
-                <>
-                  <div className="fixed inset-0 z-[9990] cursor-default bg-black/60" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-[295px] bg-[#18181b] rounded-2xl border-2 border-amber-400 shadow-[0_20px_50px_rgba(0,0,0,0.95)] z-[9999] p-2.5 animate-fadeIn">
-                    <div className="px-2 py-1 text-[10.5px] font-black uppercase tracking-wider text-amber-400 border-b border-stone-800 mb-2 flex items-center justify-between">
-                      <span>Lingua / Language</span>
-                      <Globe className="w-3.5 h-3.5 text-amber-400" />
-                    </div>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {SUPPORTED_LANGUAGES.map((l) => {
-                        const meta = LANGUAGE_METAS[l];
-                        const isSelected = lang === l;
-                        return (
-                          <button
-                            key={l}
-                            type="button"
-                            onClick={() => {
-                              setLang(l);
-                              setIsLangOpen(false);
-                            }}
-                            className={`flex flex-col items-center justify-center p-2 rounded-xl text-center cursor-pointer transition-all duration-150 select-none ${
-                              isSelected
-                                ? "bg-amber-400 text-stone-950 font-black shadow-md border border-amber-300 ring-2 ring-amber-400/50 scale-[1.02]"
-                                : "text-white bg-stone-900/90 hover:bg-stone-800 border border-stone-800 hover:border-amber-400/50"
-                            }`}
-                          >
-                            <span className="text-xl leading-none mb-1">{meta?.flag}</span>
-                            <span className="text-xs font-black tracking-wide uppercase leading-tight">
-                              {l}
-                            </span>
-                            <span className={`text-[9px] truncate max-w-full leading-tight mt-0.5 ${isSelected ? 'text-stone-900 font-bold' : 'text-stone-400'}`}>
-                              {meta?.nativeName}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
             <div className="flex flex-row items-center justify-between gap-8 min-h-[180px]">
               {/* Left Side: Logo & Brand Name */}
               <div className="flex flex-row items-center gap-6 text-left my-auto">

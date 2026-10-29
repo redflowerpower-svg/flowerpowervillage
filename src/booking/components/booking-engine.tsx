@@ -1008,45 +1008,8 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
           {/* MOBILE HERO BANNER (Identico nello stile compatto a flowerpowerpizza.com) */}
           <div className="block lg:hidden relative z-10 py-2 sm:py-3 px-1 sm:px-2">
-            {/* Top-Right Language Selector */}
-            <div className="absolute top-1 right-1 z-30">
-              <button
-                type="button"
-                onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-emerald-400/60 shadow-md text-white font-black text-xs uppercase cursor-pointer active:scale-95"
-              >
-                <span className="text-sm leading-none">{LANG_METAS[lang]?.flag || '🌐'}</span>
-                <span className="tracking-wider">{lang}</span>
-                <ChevronDown className="w-3 h-3 text-emerald-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
-              </button>
-
-              {isLangOpen && (
-                <>
-                  <div className="fixed inset-0 z-40 cursor-default bg-black/50" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-32 bg-[#2d2824]/98 backdrop-blur-md rounded-xl border border-emerald-500/40 shadow-2xl z-50 overflow-hidden flex flex-col p-1">
-                    {(['IT', 'EN', 'TH', 'DE'] as Language[]).map((l) => (
-                      <button
-                        key={l}
-                        type="button"
-                        onClick={() => {
-                          setLang(l);
-                          setIsLangOpen(false);
-                        }}
-                        className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                          lang === l ? "text-emerald-300 bg-white/10 font-black" : "text-stone-200 hover:bg-white/5"
-                        }`}
-                      >
-                        <span>{LANG_METAS[l]?.flag}</span>
-                        <span>{LANG_METAS[l]?.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
             {/* Main Content: Logo on the Left + Brand Details on the Right */}
-            <div className="flex items-center gap-3 pr-16">
+            <div className="flex items-center gap-3">
               <img
                 src="/FP_04_-_LOGO_OFFICIAL_HD.png"
                 alt="Flower Power Village Logo"
@@ -1076,43 +1039,6 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
           {/* DESKTOP HERO BANNER */}
           <div className="hidden lg:block relative z-10 my-auto py-2">
-            {/* Top-Right Language Dropdown Selector for Desktop */}
-            <div className="absolute top-1 right-1 z-20">
-              <button
-                type="button"
-                onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1.5 bg-black/45 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 shadow-sm text-stone-200 hover:text-white transition-all cursor-pointer font-bold text-xs uppercase"
-              >
-                <span>{LANG_METAS[lang]?.flag || '🌐'}</span>
-                <span>{lang}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-emerald-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
-              </button>
-
-              {isLangOpen && (
-                <>
-                  <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 mt-1.5 w-28 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col p-1">
-                    {(['IT', 'EN', 'TH', 'DE'] as Language[]).map((l) => (
-                      <button
-                        key={l}
-                        type="button"
-                        onClick={() => {
-                          setLang(l);
-                          setIsLangOpen(false);
-                        }}
-                        className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-lg transition-all hover:bg-white/10 cursor-pointer ${
-                          lang === l ? "text-emerald-400 bg-white/5 font-black" : "text-stone-300"
-                        }`}
-                      >
-                        <span>{LANG_METAS[l]?.flag}</span>
-                        <span>{LANG_METAS[l]?.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
             <div className="flex flex-row items-center justify-between gap-8 min-h-[180px]">
               {/* Left Side: Logo + Title */}
               <div className="flex flex-row items-center gap-6 text-left my-auto">
