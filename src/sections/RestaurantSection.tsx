@@ -316,34 +316,34 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
             </div>
 
             {/* Bottom Controls Bar */}
-            <div className="flex items-center justify-between w-full mt-3.5 px-0.5 gap-2">
-              <button
-                type="button"
-                onClick={handlePrev}
-                className="flex-1 max-w-[150px] sm:max-w-[170px] py-2.5 px-3 bg-[#24201d] hover:bg-emerald-800 active:scale-95 text-white rounded-xl transition-all duration-200 shadow-md cursor-pointer flex items-center justify-center gap-1.5 font-bold text-xs sm:text-sm"
-              >
-                <ChevronLeft size={18} />
-                <span>{t.prevPage}</span>
-              </button>
-
-              {/* Center Hint */}
-              <div className="text-center flex-1 px-1">
-                <span 
-                  className="text-[11px] sm:text-xs font-black text-stone-700 tracking-wide uppercase block"
-                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+            <div className="w-full mt-3.5 flex flex-col items-center gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full">
+                <button
+                  type="button"
+                  onClick={handlePrev}
+                  className="w-full py-3 px-3 bg-[#24201d] hover:bg-emerald-800 active:scale-98 text-white rounded-xl transition-all duration-200 shadow-md cursor-pointer flex items-center justify-center gap-1.5 font-black text-xs sm:text-sm"
                 >
-                  {t.pageText.replace('{current}', String(currentPage + 1)).replace('{total}', String(menuPages.length))}
-                </span>
+                  <ChevronLeft size={18} className="shrink-0" />
+                  <span className="truncate">{t.prevPage}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="w-full py-3 px-3 bg-[#24201d] hover:bg-emerald-800 active:scale-98 text-white rounded-xl transition-all duration-200 shadow-md cursor-pointer flex items-center justify-center gap-1.5 font-black text-xs sm:text-sm"
+                >
+                  <span className="truncate">{t.nextPage}</span>
+                  <ChevronRight size={18} className="shrink-0" />
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={handleNext}
-                className="flex-1 max-w-[150px] sm:max-w-[170px] py-2.5 px-3 bg-[#24201d] hover:bg-emerald-800 active:scale-95 text-white rounded-xl transition-all duration-200 shadow-md cursor-pointer flex items-center justify-center gap-1.5 font-bold text-xs sm:text-sm"
+              {/* Center Page Counter */}
+              <span 
+                className="text-[11px] sm:text-xs font-black text-stone-700 tracking-wide uppercase mt-0.5"
+                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
               >
-                <span>{t.nextPage}</span>
-                <ChevronRight size={18} />
-              </button>
+                {t.pageText.replace('{current}', String(currentPage + 1)).replace('{total}', String(menuPages.length))}
+              </span>
             </div>
           </div>
 
