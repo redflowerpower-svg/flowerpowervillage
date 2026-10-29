@@ -819,81 +819,81 @@ const translations: Record<string, any> = {
     bookTableBtn: 'ယခုဘွတ်ကင်လုပ်မည်',
   },
   ES: {
-  "title": "Flower Power Pizza",
-  "subtitle": "Ranong, Tailandia",
-  "tagline1": "PIZZA Y COCINA ITALIANA",
-  "tagline2": "Chef italiano • Ingredientes importados",
-  "info1": "Abierto todos los días",
-  "info2": "11:00 – 21:30",
-  "info3": "Entrega y para llevar",
-  "cartItems": "artículos en el carrito",
-  "cartItem": "artículo en el carrito",
-  "promoTitle": "Promociones e información de entrega",
-  "deliveryLimit": "Las entregas se realizan exclusivamente dentro de la ciudad de Ranong.",
-  "promoFreeDelivery": "Entrega GRATIS para pedidos superiores a 300฿",
-  "promoFirstOrder": "10% de descuento en tu primer pedido",
-  "bookTableBadge": "COMER EN EL LUGAR",
-  "bookTableTitle": "Reserva una mesa o cabaña",
-  "bookTableSubtitle": "Mesas interiores, exteriores o cabaña",
-  "bookTableBtn": "RESERVAR AHORA"
-},
+    "title": "Flower Power Pizza",
+    "subtitle": "Ranong, Tailandia",
+    "tagline1": "PIZZA Y COCINA ITALIANA",
+    "tagline2": "Chef italiano • Ingredientes importados",
+    "info1": "Abierto todos los días",
+    "info2": "11:00 – 21:30",
+    "info3": "Entrega y para llevar",
+    "cartItems": "artículos en el carrito",
+    "cartItem": "artículo en el carrito",
+    "promoTitle": "Promociones e información de entrega",
+    "deliveryLimit": "Las entregas se realizan exclusivamente dentro de la ciudad de Ranong.",
+    "promoFreeDelivery": "Entrega GRATIS para pedidos superiores a 300฿",
+    "promoFirstOrder": "10% de descuento en tu primer pedido",
+    "bookTableBadge": "COMER EN EL LUGAR",
+    "bookTableTitle": "Reserva una mesa o cabaña",
+    "bookTableSubtitle": "Mesas interiores, exteriores o cabaña",
+    "bookTableBtn": "RESERVAR AHORA"
+  },
   FR: {
-  "title": "Flower Power Pizza",
-  "subtitle": "Ranong, Thaïlande",
-  "tagline1": "PIZZA & CUISINE ITALIENNE",
-  "tagline2": "Chef italien • Ingrédients importés",
-  "info1": "Ouvert tous les jours",
-  "info2": "11h00 – 21h30",
-  "info3": "Livraison & à emporter",
-  "cartItems": "articles dans le panier",
-  "cartItem": "article dans le panier",
-  "promoTitle": "Promotions & Infos livraison",
-  "deliveryLimit": "Les livraisons sont effectuées exclusivement dans la ville de Ranong.",
-  "promoFreeDelivery": "Livraison GRATUITE pour toute commande supérieure à 300฿",
-  "promoFirstOrder": "10% de réduction sur votre première commande",
-  "bookTableBadge": "SUR PLACE",
-  "bookTableTitle": "Réservez une table ou une hutte",
-  "bookTableSubtitle": "Tables intérieures, extérieures ou hutte",
-  "bookTableBtn": "RÉSERVER"
-},
+    "title": "Flower Power Pizza",
+    "subtitle": "Ranong, Thaïlande",
+    "tagline1": "PIZZA & CUISINE ITALIENNE",
+    "tagline2": "Chef italien • Ingrédients importés",
+    "info1": "Ouvert tous les jours",
+    "info2": "11h00 – 21h30",
+    "info3": "Livraison & à emporter",
+    "cartItems": "articles dans le panier",
+    "cartItem": "article dans le panier",
+    "promoTitle": "Promotions & Infos livraison",
+    "deliveryLimit": "Les livraisons sont effectuées exclusivement dans la ville de Ranong.",
+    "promoFreeDelivery": "Livraison GRATUITE pour toute commande supérieure à 300฿",
+    "promoFirstOrder": "10% de réduction sur votre première commande",
+    "bookTableBadge": "SUR PLACE",
+    "bookTableTitle": "Réservez une table ou une hutte",
+    "bookTableSubtitle": "Tables intérieures, extérieures ou hutte",
+    "bookTableBtn": "RÉSERVER"
+  },
   RU: {
-  "title": "Flower Power Pizza",
-  "subtitle": "Ранонг, Таиланд",
-  "tagline1": "ПИЦЦА И ИТАЛЬЯНСКАЯ КУХНЯ",
-  "tagline2": "Итальянский шеф-повар • Импортные ингредиенты",
-  "info1": "Открыто ежедневно",
-  "info2": "11:00 – 21:30",
-  "info3": "Доставка и на вынос",
-  "cartItems": "товаров в корзине",
-  "cartItem": "товар в корзине",
-  "promoTitle": "Акции и информация о доставке",
-  "deliveryLimit": "Доставка осуществляется исключительно в пределах города Ранонг.",
-  "promoFreeDelivery": "БЕСПЛАТНАЯ доставка при заказе от 300฿",
-  "promoFirstOrder": "Скидка 10% на первый заказ",
-  "bookTableBadge": "В ЗАЛЕ",
-  "bookTableTitle": "Забронировать столик или домик",
-  "bookTableSubtitle": "Столики в помещении, на улице или домик",
-  "bookTableBtn": "ЗАБРОНИРОВАТЬ"
-},
+    "title": "Flower Power Pizza",
+    "subtitle": "Ранонг, Таиланд",
+    "tagline1": "ПИЦЦА И ИТАЛЬЯНСКАЯ КУХНЯ",
+    "tagline2": "Итальянский шеф-повар • Импортные ингредиенты",
+    "info1": "Открыто ежедневно",
+    "info2": "11:00 – 21:30",
+    "info3": "Доставка и на вынос",
+    "cartItems": "товаров в корзине",
+    "cartItem": "товар в корзине",
+    "promoTitle": "Акции и информация о доставке",
+    "deliveryLimit": "Доставка осуществляется исключительно в пределах города Ранонг.",
+    "promoFreeDelivery": "БЕСПЛАТНАЯ доставка при заказе от 300฿",
+    "promoFirstOrder": "Скидка 10% на первый заказ",
+    "bookTableBadge": "В ЗАЛЕ",
+    "bookTableTitle": "Забронировать столик или домик",
+    "bookTableSubtitle": "Столики в помещении, на улице или домик",
+    "bookTableBtn": "ЗАБРОНИРОВАТЬ"
+  },
   ZH: {
-  "title": "花之力量披萨",
-  "subtitle": "泰国拉廊",
-  "tagline1": "披萨与意大利美食",
-  "tagline2": "意大利主厨 • 进口食材",
-  "info1": "每日营业",
-  "info2": "11:00 – 21:30",
-  "info3": "配送与外卖",
-  "cartItems": "购物车商品",
-  "cartItem": "购物车商品",
-  "promoTitle": "促销与配送信息",
-  "deliveryLimit": "仅在拉廊市区内提供配送服务。",
-  "promoFreeDelivery": "订单满300泰铢免费配送",
-  "promoFirstOrder": "首次下单享9折优惠",
-  "bookTableBadge": "堂食",
-  "bookTableTitle": "预订餐桌或小屋",
-  "bookTableSubtitle": "室内、室外餐桌或小屋",
-  "bookTableBtn": "立即预订"
-}
+    "title": "花之力量披萨",
+    "subtitle": "泰国拉廊",
+    "tagline1": "披萨与意大利美食",
+    "tagline2": "意大利主厨 • 进口食材",
+    "info1": "每日营业",
+    "info2": "11:00 – 21:30",
+    "info3": "配送与外卖",
+    "cartItems": "购物车商品",
+    "cartItem": "购物车商品",
+    "promoTitle": "促销与配送信息",
+    "deliveryLimit": "仅在拉廊市区内提供配送服务。",
+    "promoFreeDelivery": "订单满300泰铢免费配送",
+    "promoFirstOrder": "首次下单享9折优惠",
+    "bookTableBadge": "堂食",
+    "bookTableTitle": "预订餐桌或小屋",
+    "bookTableSubtitle": "室内、室外餐桌或小屋",
+    "bookTableBtn": "立即预订"
+  }
 };
 
 // Centralized 9-language definitions for category sub-sections, summaries and filters
@@ -1173,15 +1173,15 @@ const PastaLasagneIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const SAUCE_ICONS: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
-  'aglio-olio':       PastaChiliIcon,
-  'pomodoro':         PastaTomatoIcon,
-  'pesto':            PastaBasilLeafIcon,
-  'amatriciana':      PastaBaconIcon,
-  'bolognese':        PastaBeefIcon,
-  'carbonara':        PastaEggIcon,
+  'aglio-olio': PastaChiliIcon,
+  'pomodoro': PastaTomatoIcon,
+  'pesto': PastaBasilLeafIcon,
+  'amatriciana': PastaBaconIcon,
+  'bolognese': PastaBeefIcon,
+  'carbonara': PastaEggIcon,
   'quattro-formaggi': PastaCheeseIcon,
-  'flower-power':     PastaArtichokeIcon,
-  'lasagne':          PastaLasagneIcon,
+  'flower-power': PastaArtichokeIcon,
+  'lasagne': PastaLasagneIcon,
 };
 
 const DROPDOWN_LABELS = {
@@ -1291,10 +1291,10 @@ function CustomFilterDropdown({
         <span className="flex items-center gap-2 truncate">
           {selectedOption?.flag && (
             <span className="w-5 h-3.5 rounded-[2px] overflow-hidden inline-flex items-center justify-center border border-stone-200 shrink-0">
-              <img 
-                src={`https://flagcdn.com/w40/${selectedOption.flag.toLowerCase() === '🇮🇹' ? 'it' : selectedOption.flag.toLowerCase() === '🇫🇷' ? 'fr' : selectedOption.flag.toLowerCase() === '🇦🇺' ? 'au' : selectedOption.flag.toLowerCase() === '🇨🇱' ? 'cl' : 'un'}.png`} 
-                alt="" 
-                className="w-full h-full object-cover" 
+              <img
+                src={`https://flagcdn.com/w40/${selectedOption.flag.toLowerCase() === '🇮🇹' ? 'it' : selectedOption.flag.toLowerCase() === '🇫🇷' ? 'fr' : selectedOption.flag.toLowerCase() === '🇦🇺' ? 'au' : selectedOption.flag.toLowerCase() === '🇨🇱' ? 'cl' : 'un'}.png`}
+                alt=""
+                className="w-full h-full object-cover"
               />
             </span>
           )}
@@ -1320,19 +1320,18 @@ function CustomFilterDropdown({
                   onSelect(option.id);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer mb-1 last:mb-0 text-left ${
-                  isSelected
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer mb-1 last:mb-0 text-left ${isSelected
                     ? 'bg-[#8B1E1E] text-white shadow-xs'
                     : 'text-stone-700 hover:bg-stone-100 hover:text-stone-950'
-                }`}
+                  }`}
               >
                 <span className="flex items-center gap-2 truncate">
                   {option.flag && (
                     <span className="w-5 h-3.5 rounded-[2px] overflow-hidden inline-flex items-center justify-center border border-stone-200 shrink-0">
-                      <img 
-                        src={`https://flagcdn.com/w40/${option.flag.toLowerCase() === '🇮🇹' ? 'it' : option.flag.toLowerCase() === '🇫🇷' ? 'fr' : option.flag.toLowerCase() === '🇦🇺' ? 'au' : option.flag.toLowerCase() === '🇨🇱' ? 'cl' : 'un'}.png`} 
-                        alt="" 
-                        className="w-full h-full object-cover" 
+                      <img
+                        src={`https://flagcdn.com/w40/${option.flag.toLowerCase() === '🇮🇹' ? 'it' : option.flag.toLowerCase() === '🇫🇷' ? 'fr' : option.flag.toLowerCase() === '🇦🇺' ? 'au' : option.flag.toLowerCase() === '🇨🇱' ? 'cl' : 'un'}.png`}
+                        alt=""
+                        className="w-full h-full object-cover"
                       />
                     </span>
                   )}
@@ -1340,9 +1339,8 @@ function CustomFilterDropdown({
                 </span>
                 <div className="flex items-center gap-2 shrink-0 ml-2">
                   {option.count !== undefined && (
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${
-                      isSelected ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-500'
-                    }`}>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold ${isSelected ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-500'
+                      }`}>
                       {option.count}
                     </span>
                   )}
@@ -1393,7 +1391,7 @@ export default function DeliveryMenu() {
         if ('scrollRestoration' in window.history) {
           window.history.scrollRestoration = 'manual';
         }
-      } catch {}
+      } catch { }
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
     }
     const firstCat = availableCategories[0]?.id || 'traditional-italian-pizza';
@@ -1584,9 +1582,9 @@ export default function DeliveryMenu() {
   useEffect(() => {
     const deviceId = getOrCreateDeviceId();
     let savedPhone = '';
-    try { savedPhone = localStorage.getItem('fp_pizza_customer_phone') || ''; } catch {}
+    try { savedPhone = localStorage.getItem('fp_pizza_customer_phone') || ''; } catch { }
     let savedEmail = '';
-    try { savedEmail = localStorage.getItem('fp_pizza_customer_email') || ''; } catch {}
+    try { savedEmail = localStorage.getItem('fp_pizza_customer_email') || ''; } catch { }
 
     checkFirstOrderEligibility({ phone: savedPhone, email: savedEmail, deviceId }).then(res => {
       setIsFirstOrderEligible(res.eligible);
@@ -1608,12 +1606,12 @@ export default function DeliveryMenu() {
       try {
         const specialOverrides = JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
         setDailySpecialsOverrides(specialOverrides);
-      } catch {}
+      } catch { }
 
       try {
         const prOverrides = JSON.parse(localStorage.getItem('fp_pizza_prices_overrides') || '{}');
         setPriceOverrides(prOverrides);
-      } catch {}
+      } catch { }
 
       try {
         const availOverrides = JSON.parse(localStorage.getItem('fp_pizza_availability_overrides') || '{}');
@@ -1621,7 +1619,7 @@ export default function DeliveryMenu() {
           .filter(([_, isAvail]) => isAvail === false)
           .map(([id]) => id);
         setUnavailableIds(new Set<string>(unavail));
-      } catch {}
+      } catch { }
     };
     window.addEventListener('storage', syncFromStorage);
 
@@ -1669,19 +1667,19 @@ export default function DeliveryMenu() {
       const note = lang === 'TH'
         ? `ต้องการลิ้มลองไวน์: ${wineName} (รับส่วนลด 10% สำหรับไวน์ที่โต๊ะ)`
         : lang === 'IT'
-        ? `Richiesta degustazione: ${wineName} (Sconto 10% Vini al Tavolo)`
-        : lang === 'DE'
-        ? `Weinverkostung gewünscht: ${wineName} (10% Weinkeller-Rabatt am Tisch)`
-        : `Wine tasting requested: ${wineName} (10% Wine Cellar Discount at Table)`;
+          ? `Richiesta degustazione: ${wineName} (Sconto 10% Vini al Tavolo)`
+          : lang === 'DE'
+            ? `Weinverkostung gewünscht: ${wineName} (10% Weinkeller-Rabatt am Tisch)`
+            : `Wine tasting requested: ${wineName} (10% Wine Cellar Discount at Table)`;
       setReservationInitialNotes(note);
     } else {
       const note = lang === 'TH'
         ? `สิทธิพิเศษส่วนลดไวน์ 10% (Wine Privilege)`
         : lang === 'IT'
-        ? `Sconto 10% Carta Vini al Tavolo (Privilegio Cantina)`
-        : lang === 'DE'
-        ? `10% Weinkeller-Rabatt am Tisch`
-        : `10% Wine Cellar Discount at Table`;
+          ? `Sconto 10% Carta Vini al Tavolo (Privilegio Cantina)`
+          : lang === 'DE'
+            ? `10% Weinkeller-Rabatt am Tisch`
+            : `10% Wine Cellar Discount at Table`;
       setReservationInitialNotes(note);
     }
     setIsWineReservation(true);
@@ -1747,7 +1745,7 @@ export default function DeliveryMenu() {
           }
         }
       }
-      
+
       if (rawWines.length === 0) {
         rawWines = INITIAL_WINE_COLLECTION;
       }
@@ -1952,13 +1950,13 @@ export default function DeliveryMenu() {
 
   const isSpecialPasta = (item: any) => {
     const id = item.id || '';
-    return id === 'spaghetti-allo-scoglio' || 
-           id === 'penne-al-salmone' || 
-           id === 'ravioli-alla-crema-di-gamberi' || 
-           id === 'ravioli-al-sugo-di-noci' || 
-           id === 'tagliatelle-al-nero-di-seppia-e-calamari' || 
-           id === 'spaghetti-alla-polpa-di-granchio' ||
-           id.startsWith('special-');
+    return id === 'spaghetti-allo-scoglio' ||
+      id === 'penne-al-salmone' ||
+      id === 'ravioli-alla-crema-di-gamberi' ||
+      id === 'ravioli-al-sugo-di-noci' ||
+      id === 'tagliatelle-al-nero-di-seppia-e-calamari' ||
+      id === 'spaghetti-alla-polpa-di-granchio' ||
+      id.startsWith('special-');
   };
 
   const pastaSauceCounts = useMemo(() => {
@@ -1998,7 +1996,7 @@ export default function DeliveryMenu() {
     return group.items.length > 0;
   }) : [];
 
-    const allCatalogShowcaseItems = useMemo(() => {
+  const allCatalogShowcaseItems = useMemo(() => {
     const DEFAULT_SHOWCASE_IDS = [
       'cake-of-the-day',
       'torta-di-mele',
@@ -2060,25 +2058,25 @@ export default function DeliveryMenu() {
       const id = item.id || '';
       if (dailySpecialsOverrides[id] === false) return false;
       if (sec.id === 'pasta') {
-        return id === 'spaghetti-allo-scoglio' || 
-               id === 'penne-al-salmone' || 
-               id === 'ravioli-alla-crema-di-gamberi' || 
-               id === 'ravioli-al-sugo-di-noci' || 
-               id === 'tagliatelle-al-nero-di-seppia-e-calamari' || 
-               id === 'spaghetti-alla-polpa-di-granchio';
+        return id === 'spaghetti-allo-scoglio' ||
+          id === 'penne-al-salmone' ||
+          id === 'ravioli-alla-crema-di-gamberi' ||
+          id === 'ravioli-al-sugo-di-noci' ||
+          id === 'tagliatelle-al-nero-di-seppia-e-calamari' ||
+          id === 'spaghetti-alla-polpa-di-granchio';
       }
       if (sec.id === 'traditional-italian-pizza') {
-        return id === 'pizza-con-polpa-di-granchio' || 
-               id === 'pizza-rustica-con-salsiccia-e-stilacci' ||
-               (id.startsWith('pizza-') && !id.includes('sandwich') && !id.includes('focaccia'));
+        return id === 'pizza-con-polpa-di-granchio' ||
+          id === 'pizza-rustica-con-salsiccia-e-stilacci' ||
+          (id.startsWith('pizza-') && !id.includes('sandwich') && !id.includes('focaccia'));
       }
       if (sec.id === 'daily-specials') {
-        return (id === 'cotoletta-alla-milanese-con-patatine-fritte' || 
-                id === 'cotechino-artigianale-con-pure-di-patate' ||
-                id === 'torta-pasqualina-agli-spinaci-e-uova' ||
-                id.includes('cotoletta') ||
-                id.includes('cotechino') ||
-                id.includes('pasqualina')) && !id.startsWith('focaccia-') && !id.includes('sandwich');
+        return (id === 'cotoletta-alla-milanese-con-patatine-fritte' ||
+          id === 'cotechino-artigianale-con-pure-di-patate' ||
+          id === 'torta-pasqualina-agli-spinaci-e-uova' ||
+          id.includes('cotoletta') ||
+          id.includes('cotechino') ||
+          id.includes('pasqualina')) && !id.startsWith('focaccia-') && !id.includes('sandwich');
       }
       if (sec.id === 'pizza-sandwich') {
         return id.startsWith('focaccia-') || id.includes('sandwich');
@@ -2152,7 +2150,7 @@ export default function DeliveryMenu() {
   return (
     <div className="min-h-screen bg-[#e7e5e4] pb-12 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
       <div className="max-w-6xl mx-auto px-4 mt-24 md:mt-28">
-        
+
         {/* Italian Chef Header Card */}
         <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 rounded-2xl shadow-lg mb-6 z-30 overflow-visible" style={{ backgroundColor: '#3b3530' }}>
           {/* Inner Background with rounded corners & clipping */}
@@ -2263,11 +2261,10 @@ export default function DeliveryMenu() {
         </div>
 
         {/* Dynamic Promotions & Table Booking Cards (3 Rich Vertical Cards Side-by-Side on Mobile / Expansive on Desktop) */}
-        <div className={`grid gap-2 sm:gap-3.5 max-w-6xl mx-auto px-2 mb-4 sm:mb-6 mt-2 sm:mt-4 ${
-          (isFirstOrderEligible && !appliedPromo) ? 'grid-cols-3 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-2'
-        }`}>
+        <div className={`grid gap-2 sm:gap-3.5 max-w-6xl mx-auto px-2 mb-4 sm:mb-6 mt-2 sm:mt-4 ${(isFirstOrderEligible && !appliedPromo) ? 'grid-cols-3 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-2'
+          }`}>
           {/* Card 1 (🟢 VERDE): Prenota un Tavolo o Capanna */}
-          <div 
+          <div
             onClick={() => setIsReservationModalOpen(true)}
             className="p-2 sm:p-3 md:p-4 bg-gradient-to-br from-[#064e3b] via-[#053d2e] to-[#032b20] text-white rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2 shadow-md border border-emerald-600/50 hover:border-emerald-400 hover:shadow-emerald-950/40 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]"
           >
@@ -2276,19 +2273,19 @@ export default function DeliveryMenu() {
                 <UtensilsCrossed className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 transition-colors" />
               </div>
               <h4 className="text-white font-black text-[11px] sm:text-[12.5px] md:text-sm leading-tight tracking-tight group-hover:text-emerald-300 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                {({"IT":"Prenota Tavolo","EN":"Book a Table","TH":"จองโต๊ะ","MM":"စားပွဲ ကြိုတင်ဘွတ်ကင်","DE":"Tisch Buchen","ES":"Reservar Mesa","FR":"Réserver une Table","RU":"Забронировать стол","ZH":"预订餐桌"})[lang] || 'Book a Table'}
+                {({ "IT": "Prenota Tavolo", "EN": "Book a Table", "TH": "จองโต๊ะ", "MM": "စားပွဲ ကြိုတင်ဘွတ်ကင်", "DE": "Tisch Buchen", "ES": "Reservar Mesa", "FR": "Réserver une Table", "RU": "Забронировать стол", "ZH": "预订餐桌" })[lang] || 'Book a Table'}
               </h4>
             </div>
 
             <div className="space-y-0.5">
               <p className="text-emerald-100/95 text-[9.5px] sm:text-[10.5px] md:text-xs leading-snug font-medium line-clamp-2 sm:line-clamp-3">
-                {({"IT":"Tavoli al chiuso, all'aperto o in capanna","EN":"Indoor, outdoor tables or bamboo garden hut","TH":"โต๊ะในร่ม กลางแจ้ง หรือซุ้มไม้ไผ่ในสวน","MM":"အတွင်းခန်း၊ အပြင်ဘက် သို့မဟုတ် သဘာဝ ဝါးတဲ","DE":"Innen-, Außenbereich oder Bambushütte","ES":"Mesas interiores, exteriores o cabaña de bambú","FR":"Tables intérieures, extérieures ou hutte en bambou","RU":"Столики в зале, на террасе или в бамбуковом домике","ZH":"室内、室外餐桌或花园竹林小屋"})[lang] || 'Indoor, outdoor tables or bamboo garden hut'}
+                {({ "IT": "Tavoli al chiuso, all'aperto o in capanna", "EN": "Indoor, outdoor tables or bamboo garden hut", "TH": "โต๊ะในร่ม กลางแจ้ง หรือซุ้มไม้ไผ่ในสวน", "MM": "အတွင်းခန်း၊ အပြင်ဘက် သို့မဟုတ် သဘာဝ ဝါးတဲ", "DE": "Innen-, Außenbereich oder Bambushütte", "ES": "Mesas interiores, exteriores o cabaña de bambú", "FR": "Tables intérieures, extérieures ou hutte en bambou", "RU": "Столики в зале, на террасе или в бамбуковом домике", "ZH": "室内、室外餐桌或花园竹林小屋" })[lang] || 'Indoor, outdoor tables or bamboo garden hut'}
               </p>
             </div>
 
             <div className="pt-0.5">
               <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10.5px] md:text-xs text-stone-950 font-black bg-emerald-400 group-hover:bg-emerald-300 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg shadow-xs transition-all">
-                <span>{({"IT":"Prenota","EN":"Book Now","TH":"จองเลย","MM":"ယခု ဘွတ်ကင်လုပ်မည်","DE":"Reservieren","ES":"Reservar","FR":"Réserver","RU":"Забронировать","ZH":"立即预订"})[lang] || 'Book Now'}</span>
+                <span>{({ "IT": "Prenota", "EN": "Book Now", "TH": "จองเลย", "MM": "ယခု ဘွတ်ကင်လုပ်မည်", "DE": "Reservieren", "ES": "Reservar", "FR": "Réserver", "RU": "Забронировать", "ZH": "立即预订" })[lang] || 'Book Now'}</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               </span>
             </div>
@@ -2302,27 +2299,27 @@ export default function DeliveryMenu() {
                   <Percent className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 stroke-[2.5] transition-colors" />
                 </div>
                 <h4 className="text-stone-950 font-black text-[11px] sm:text-[12.5px] md:text-sm leading-tight tracking-tight group-hover:text-amber-600 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  {({"IT":"10% Sconto","EN":"10% OFF","TH":"ลด 10%","MM":"၁၀% လျှော့စျေး","DE":"10% Rabatt","ES":"10% Descuento","FR":"10% de Réduction","RU":"Скидка 10%","ZH":"立享9折"})[lang] || '10% OFF'}
+                  {({ "IT": "10% Sconto", "EN": "10% OFF", "TH": "ลด 10%", "MM": "၁၀% လျှော့စျေး", "DE": "10% Rabatt", "ES": "10% Descuento", "FR": "10% de Réduction", "RU": "Скидка 10%", "ZH": "立享9折" })[lang] || '10% OFF'}
                 </h4>
               </div>
 
               <div className="space-y-0.5">
                 <p className="text-stone-700 text-[9.5px] sm:text-[10.5px] md:text-xs leading-snug font-medium line-clamp-2 sm:line-clamp-3">
-                  {({"IT":"Il tuo 1° ordine? Sconto applicato nel carrello!","EN":"1st order? Discount applied automatically in cart!","TH":"สั่งครั้งแรก? รับส่วนลดอัตโนมัติในตะกร้าทันที","MM":"ပထမဆုံး အော်ဒါလား? ခြင်းတောင်းထဲတွင် အလိုအလျောက် လျှော့ပေးပါသည်!","DE":"1. Bestellung? Rabatt direkt im Warenkorb!","ES":"¿Primer pedido? ¡Descuento aplicado en el carrito!","FR":"1ère commande ? Réduction appliquée dans le panier !","RU":"Первый заказ? Скидка применяется в корзине!","ZH":"首次下单？结账时在购物车中自动减免！"})[lang] || '1st order? Discount applied automatically in cart!'}
+                  {({ "IT": "Il tuo 1° ordine? Sconto applicato nel carrello!", "EN": "1st order? Discount applied automatically in cart!", "TH": "สั่งครั้งแรก? รับส่วนลดอัตโนมัติในตะกร้าทันที", "MM": "ပထမဆုံး အော်ဒါလား? ခြင်းတောင်းထဲတွင် အလိုအလျောက် လျှော့ပေးပါသည်!", "DE": "1. Bestellung? Rabatt direkt im Warenkorb!", "ES": "¿Primer pedido? ¡Descuento aplicado en el carrito!", "FR": "1ère commande ? Réduction appliquée dans le panier !", "RU": "Первый заказ? Скидка применяется в корзине!", "ZH": "首次下单？结账时在购物车中自动减免！" })[lang] || '1st order? Discount applied automatically in cart!'}
                 </p>
               </div>
 
               <div className="pt-0.5">
                 <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10.5px] md:text-xs text-emerald-900 font-bold bg-emerald-100/95 border border-emerald-300/90 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg shadow-xs">
                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-                  <span>{({"IT":"Nel Carrello","EN":"In Cart","TH":"ในตะกร้า","MM":"ခြင်းတောင်းထဲတွင်","DE":"Im Warenkorb","ES":"En el Carrito","FR":"Au Panier","RU":"В корзине","ZH":"在购物车中"})[lang] || 'In Cart'}</span>
+                  <span>{({ "IT": "Nel Carrello", "EN": "In Cart", "TH": "ในตะกร้า", "MM": "ခြင်းတောင်းထဲတွင်", "DE": "Im Warenkorb", "ES": "En el Carrito", "FR": "Au Panier", "RU": "В корзине", "ZH": "在购物车中" })[lang] || 'In Cart'}</span>
                 </span>
               </div>
             </div>
           )}
 
           {/* Card 3 (🔴 ROSSO): Delivery Area & Free Delivery >300฿ + Takeaway */}
-          <div 
+          <div
             onClick={() => {
               const el = document.getElementById('menu-category-section');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -2334,27 +2331,27 @@ export default function DeliveryMenu() {
                 <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 transition-colors" />
               </div>
               <h4 className="text-white font-black text-[11px] sm:text-[12.5px] md:text-sm leading-tight tracking-tight group-hover:text-red-200 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                <span>{({"IT":"Delivery &","EN":"Delivery &","TH":"เดลิเวอรี่ &","MM":"ပို့ဆောင်မှု &","DE":"Lieferung &","ES":"Entrega &","FR":"Livraison &","RU":"Доставка &","ZH":"外送配送 &"})[lang] || 'Delivery &'}</span>
-                <br className="sm:hidden"/>
-                <span>{({"IT":" Asporto","EN":" Takeaway","TH":" รับที่ร้าน","MM":" ဆိုင်မှလာယူရန်","DE":" Abholung","ES":" Para Llevar","FR":" À Emporter","RU":" Самовывоз","ZH":" 门店自取"})[lang] || ' Takeaway'}</span>
+                <span>{({ "IT": "Delivery &", "EN": "Delivery &", "TH": "เดลิเวอรี่ &", "MM": "ပို့ဆောင်မှု &", "DE": "Lieferung &", "ES": "Entrega &", "FR": "Livraison &", "RU": "Доставка &", "ZH": "外送配送 &" })[lang] || 'Delivery &'}</span>
+                <br className="sm:hidden" />
+                <span>{({ "IT": " Asporto", "EN": " Takeaway", "TH": " รับที่ร้าน", "MM": " ဆိုင်မှလာယူရန်", "DE": " Abholung", "ES": " Para Llevar", "FR": " À Emporter", "RU": " Самовывоз", "ZH": " 门店自取" })[lang] || ' Takeaway'}</span>
               </h4>
             </div>
 
             <div className="space-y-0.5">
               <p className="text-red-100/95 text-[9.5px] sm:text-[10.5px] md:text-xs leading-snug font-medium line-clamp-2 sm:line-clamp-3">
-                {({"IT":"A Ranong (>300฿ gratis), asporto sempre gratis!","EN":"Ranong (>300฿ free), takeaway always free!","TH":"ส่งไว (>300฿ ฟรี) และรับเองที่ร้านฟรีเสมอ","MM":"ရနောင်းမြို့တွင်း (>300฿ အခမဲ့)၊ ဆိုင်မှလာယူပါက အမြဲအခမဲ့!","DE":"In Ranong (>300฿ gratis), Abholung immer gratis!","ES":"En Ranong (>300฿ gratis), ¡para llevar siempre gratis!","FR":"À Ranong (>300฿ gratuit), à emporter toujours gratuit !","RU":"По Ранонгу (>300฿ бесплатно), самовывоз всегда бесплатно!","ZH":"拉廊市区（满300฿包邮），外卖自取永久免费！"})[lang] || 'Ranong (>300฿ free), takeaway always free!'}
+                {({ "IT": "A Ranong (>300฿ gratis), asporto sempre gratis!", "EN": "Ranong (>300฿ free), takeaway always free!", "TH": "ส่งไว (>300฿ ฟรี) และรับเองที่ร้านฟรีเสมอ", "MM": "ရနောင်းမြို့တွင်း (>300฿ အခမဲ့)၊ ဆိုင်မှလာယူပါက အမြဲအခမဲ့!", "DE": "In Ranong (>300฿ gratis), Abholung immer gratis!", "ES": "En Ranong (>300฿ gratis), ¡para llevar siempre gratis!", "FR": "À Ranong (>300฿ gratuit), à emporter toujours gratuit !", "RU": "По Ранонгу (>300฿ бесплатно), самовывоз всегда бесплатно!", "ZH": "拉廊市区（满300฿包邮），外卖自取永久免费！" })[lang] || 'Ranong (>300฿ free), takeaway always free!'}
               </p>
             </div>
 
             <div className="pt-0.5">
               <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10.5px] md:text-xs text-white font-black bg-white/20 group-hover:bg-white group-hover:text-[#8B1E1E] border border-white/25 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg shadow-xs transition-all">
-                <span>{({"IT":"Al Menu","EN":"To Menu","TH":"ดูเมนู","MM":"မီနူးသို့","DE":"Zur Karte","ES":"Ver Menú","FR":"Au Menu","RU":"В меню","ZH":"查看菜单"})[lang] || 'To Menu'}</span>
+                <span>{({ "IT": "Al Menu", "EN": "To Menu", "TH": "ดูเมนู", "MM": "မီနူးသို့", "DE": "Zur Karte", "ES": "Ver Menú", "FR": "Au Menu", "RU": "В меню", "ZH": "查看菜单" })[lang] || 'To Menu'}</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               </span>
             </div>
           </div>
         </div>
-        
+
         {/* Category Tabs directly on background */}
         <div id="menu-category-section" className="mb-2 sm:mb-4 scroll-mt-4">
           <CategoryTabs categories={availableCategories} activeId={activeCategoryId} onChange={setActiveCategoryId} lang={lang} />
@@ -2382,24 +2379,23 @@ export default function DeliveryMenu() {
                   <button
                     type="button"
                     onClick={() => setDietaryFilter('all')}
-                    className={`px-3 py-1 sm:py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
-                      dietaryFilter === 'all'
+                    className={`px-3 py-1 sm:py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${dietaryFilter === 'all'
                         ? 'bg-stone-950 text-white shadow-md'
                         : 'text-stone-700 hover:text-stone-950 hover:bg-white/60'
-                    }`}
+                      }`}
                     style={{ fontFamily: 'Outfit, sans-serif' }}
                   >
                     <span>🍽️</span>
                     <span>
                       {lang === 'TH' ? 'ทั้งหมด' :
-                       lang === 'IT' ? 'Tutti' :
-                       lang === 'DE' ? 'Alle' :
-                       lang === 'MM' ? 'အားလုံး' :
-                       lang === 'ES' ? 'Todos' :
-                       lang === 'FR' ? 'Tous' :
-                       lang === 'RU' ? 'Все' :
-                       lang === 'ZH' ? '全部' :
-                       'All'}
+                        lang === 'IT' ? 'Tutti' :
+                          lang === 'DE' ? 'Alle' :
+                            lang === 'MM' ? 'အားလုံး' :
+                              lang === 'ES' ? 'Todos' :
+                                lang === 'FR' ? 'Tous' :
+                                  lang === 'RU' ? 'Все' :
+                                    lang === 'ZH' ? '全部' :
+                                      'All'}
                     </span>
                   </button>
 
@@ -2407,24 +2403,23 @@ export default function DeliveryMenu() {
                   <button
                     type="button"
                     onClick={() => setDietaryFilter('veggie')}
-                    className={`px-3 py-1 sm:py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
-                      dietaryFilter === 'veggie'
+                    className={`px-3 py-1 sm:py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${dietaryFilter === 'veggie'
                         ? 'bg-amber-400 text-stone-950 shadow-md ring-1 ring-amber-500'
                         : 'text-stone-700 hover:text-amber-900 hover:bg-white/60'
-                    }`}
+                      }`}
                     style={{ fontFamily: 'Outfit, sans-serif' }}
                   >
                     <Wheat className={`w-3.5 h-3.5 ${dietaryFilter === 'veggie' ? 'text-stone-950 stroke-[2.5]' : 'text-amber-600'}`} />
                     <span>
                       {lang === 'TH' ? 'มังสวิรัติ' :
-                       lang === 'IT' ? 'Veggie' :
-                       lang === 'DE' ? 'Veggie' :
-                       lang === 'MM' ? 'သက်သတ်လွတ်' :
-                       lang === 'ES' ? 'Vegetariano' :
-                       lang === 'FR' ? 'Végétarien' :
-                       lang === 'RU' ? 'Вегетарианское' :
-                       lang === 'ZH' ? '素食' :
-                       'Veggie'}
+                        lang === 'IT' ? 'Veggie' :
+                          lang === 'DE' ? 'Veggie' :
+                            lang === 'MM' ? 'သက်သတ်လွတ်' :
+                              lang === 'ES' ? 'Vegetariano' :
+                                lang === 'FR' ? 'Végétarien' :
+                                  lang === 'RU' ? 'Вегетарианское' :
+                                    lang === 'ZH' ? '素食' :
+                                      'Veggie'}
                     </span>
                   </button>
 
@@ -2432,24 +2427,23 @@ export default function DeliveryMenu() {
                   <button
                     type="button"
                     onClick={() => setDietaryFilter('vegan')}
-                    className={`px-3 py-1 sm:py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
-                      dietaryFilter === 'vegan'
+                    className={`px-3 py-1 sm:py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${dietaryFilter === 'vegan'
                         ? 'bg-emerald-600 text-white shadow-md ring-1 ring-emerald-400'
                         : 'text-stone-700 hover:text-emerald-900 hover:bg-white/60'
-                    }`}
+                      }`}
                     style={{ fontFamily: 'Outfit, sans-serif' }}
                   >
                     <Leaf className={`w-3.5 h-3.5 ${dietaryFilter === 'vegan' ? 'text-emerald-100 stroke-[2.5]' : 'text-emerald-600'}`} />
                     <span>
                       {lang === 'TH' ? 'วีแกน' :
-                       lang === 'IT' ? 'Vegan' :
-                       lang === 'DE' ? 'Vegan' :
-                       lang === 'MM' ? 'ဗီဂန်' :
-                       lang === 'ES' ? 'Vegano' :
-                       lang === 'FR' ? 'Végan' :
-                       lang === 'RU' ? 'Веганское' :
-                       lang === 'ZH' ? '纯素' :
-                       'Vegan'}
+                        lang === 'IT' ? 'Vegan' :
+                          lang === 'DE' ? 'Vegan' :
+                            lang === 'MM' ? 'ဗီဂန်' :
+                              lang === 'ES' ? 'Vegano' :
+                                lang === 'FR' ? 'Végan' :
+                                  lang === 'RU' ? 'Веганское' :
+                                    lang === 'ZH' ? '纯素' :
+                                      'Vegan'}
                     </span>
                   </button>
                 </div>
@@ -2503,11 +2497,10 @@ export default function DeliveryMenu() {
                   key={tab.id}
                   type="button"
                   onClick={() => setSelectedSaladSubFilter(tab.id as any)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm tracking-tight transition-all cursor-pointer whitespace-nowrap shadow-xs ${
-                    isActive
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm tracking-tight transition-all cursor-pointer whitespace-nowrap shadow-xs ${isActive
                       ? 'bg-[#3b3530] text-white shadow-md scale-[1.02] border border-amber-400/40'
                       : 'bg-stone-200/90 hover:bg-stone-300/80 text-stone-700 hover:text-stone-900 border border-stone-300/60'
-                  }`}
+                    }`}
                 >
                   <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-400' : 'text-stone-500'}`} />
                   <span>{tab.label}</span>
@@ -2535,11 +2528,10 @@ export default function DeliveryMenu() {
                   key={tab.id}
                   type="button"
                   onClick={() => setSelectedSandwichSubFilter(tab.id as any)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm tracking-tight transition-all cursor-pointer whitespace-nowrap shadow-xs ${
-                    isActive
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm tracking-tight transition-all cursor-pointer whitespace-nowrap shadow-xs ${isActive
                       ? 'bg-[#3b3530] text-white shadow-md scale-[1.02] border border-amber-400/40'
                       : 'bg-stone-200/90 hover:bg-stone-300/80 text-stone-700 hover:text-stone-900 border border-stone-300/60'
-                  }`}
+                    }`}
                 >
                   <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-400' : 'text-stone-500'}`} />
                   <span>{tab.label}</span>
@@ -2562,9 +2554,9 @@ export default function DeliveryMenu() {
                     <Beer className="w-3 h-3 text-amber-300" />
                     <span>
                       {lang === 'TH' ? '🍺 เบียร์สดชื่น • บริการเฉพาะที่ร้าน' :
-                       lang === 'IT' ? '🍺 SERVIZIO ESCLUSIVO AL RISTORANTE' :
-                       lang === 'DE' ? '🍺 AUSSCHANK NUR IM RESTAURANT' :
-                       '🍺 SERVED EXCLUSIVELY AT RESTAURANT'}
+                        lang === 'IT' ? '🍺 SERVIZIO ESCLUSIVO AL RISTORANTE' :
+                          lang === 'DE' ? '🍺 AUSSCHANK NUR IM RESTAURANT' :
+                            '🍺 SERVED EXCLUSIVELY AT RESTAURANT'}
                     </span>
                   </span>
                   <span className="text-[9px] sm:text-[10px] text-stone-300/80 font-medium">
@@ -2574,19 +2566,19 @@ export default function DeliveryMenu() {
 
                 <h3 className="text-sm sm:text-base font-black text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
                   {lang === 'TH' ? 'เบียร์เย็นสดชื่น • พร้อมเสิร์ฟที่โต๊ะอาหารเท่านั้น' :
-                   lang === 'IT' ? 'Birre Fresche in Bottiglia • Disponibili esclusivamente per consumo al tavolo' :
-                   lang === 'DE' ? 'Kühle Flaschenbiere • Ausschank ausschließlich vor Ort am Tisch' :
-                   'Chilled Bottled Beers • Available exclusively for dine-in table service'}
+                    lang === 'IT' ? 'Birre Fresche in Bottiglia • Disponibili esclusivamente per consumo al tavolo' :
+                      lang === 'DE' ? 'Kühle Flaschenbiere • Ausschank ausschließlich vor Ort am Tisch' :
+                        'Chilled Bottled Beers • Available exclusively for dine-in table service'}
                 </h3>
 
                 <p className="text-stone-300 text-[11px] sm:text-xs leading-relaxed font-normal">
                   {lang === 'TH'
                     ? 'ตามกฎหมายแห่งราชอาณาจักรไทย การจำหน่ายและจัดส่งเครื่องดื่มแอลกอฮอล์ออนไลน์ไม่สามารถดำเนินการได้ ขอเชิญท่านมาดื่มด่ำความสดชื่นได้โดยตรงที่ร้านอาหารของเรา'
                     : lang === 'IT'
-                    ? 'In conformità con le leggi del Regno di Thailandia, la vendita e la consegna a domicilio di bevande alcoliche online non è consentita. Le nostre birre possono essere ordinate e gustate esclusivamente direttamente al tavolo del ristorante.'
-                    : lang === 'DE'
-                    ? 'Gemäß den gesetzlichen Bestimmungen Thailands ist die Online-Lieferung von alkoholischen Getränken untersagt. Unsere Biere sind ausschließlich zum Verzehr vor Ort im Restaurant erhältlich.'
-                    : 'In compliance with Thai law, online sale and delivery of alcoholic beverages is strictly prohibited. Our beers can be ordered and enjoyed exclusively at our restaurant.'}
+                      ? 'In conformità con le leggi del Regno di Thailandia, la vendita e la consegna a domicilio di bevande alcoliche online non è consentita. Le nostre birre possono essere ordinate e gustate esclusivamente direttamente al tavolo del ristorante.'
+                      : lang === 'DE'
+                        ? 'Gemäß den gesetzlichen Bestimmungen Thailands ist die Online-Lieferung von alkoholischen Getränken untersagt. Unsere Biere sind ausschließlich zum Verzehr vor Ort im Restaurant erhältlich.'
+                        : 'In compliance with Thai law, online sale and delivery of alcoholic beverages is strictly prohibited. Our beers can be ordered and enjoyed exclusively at our restaurant.'}
                 </p>
               </div>
             </div>
@@ -2608,9 +2600,9 @@ export default function DeliveryMenu() {
                     </span>
                     <span className="text-[9px] sm:text-[10px] text-stone-300/80 font-medium">
                       {lang === 'TH' ? '• กฎหมายแอลกอฮอล์แห่งประเทศไทย' :
-                       lang === 'IT' ? '• Normativa Alcolici Thailandia' :
-                       lang === 'DE' ? '• Alkoholgesetzgebung Thailand' :
-                       '• Thai Alcohol Regulation'}
+                        lang === 'IT' ? '• Normativa Alcolici Thailandia' :
+                          lang === 'DE' ? '• Alkoholgesetzgebung Thailand' :
+                            '• Thai Alcohol Regulation'}
                     </span>
                   </div>
 
@@ -2691,14 +2683,13 @@ export default function DeliveryMenu() {
               {groupedDailySpecials.map(group => {
                 const isShowcase = group.id === 'fresh-showcase';
                 return (
-                  <div 
-                    key={group.id} 
-                    id={`specials-${group.id}`} 
-                    className={`scroll-mt-24 transition-all ${
-                      isShowcase
+                  <div
+                    key={group.id}
+                    id={`specials-${group.id}`}
+                    className={`scroll-mt-24 transition-all ${isShowcase
                         ? 'p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-amber-500/15 border-2 border-amber-400/50 shadow-lg shadow-amber-900/5 mb-8'
                         : ''
-                    }`}
+                      }`}
                   >
                     <div className="px-2 mb-6">
                       <div className="flex items-center gap-3">
@@ -2707,22 +2698,19 @@ export default function DeliveryMenu() {
                             <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 fill-stone-950" />
                           </span>
                         )}
-                        <h3 className={`font-sans text-lg md:text-xl font-extrabold tracking-tight ${
-                          isShowcase ? 'text-amber-950' : 'text-stone-800'
-                        }`} style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        <h3 className={`font-sans text-lg md:text-xl font-extrabold tracking-tight ${isShowcase ? 'text-amber-950' : 'text-stone-800'
+                          }`} style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
                           {(group.name[lang] || group.name.IT || group.name.EN)}
                         </h3>
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                          isShowcase ? 'bg-amber-400 text-stone-950' : 'text-stone-400'
-                        }`}>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isShowcase ? 'bg-amber-400 text-stone-950' : 'text-stone-400'
+                          }`}>
                           ({group.items.length})
                         </span>
                         <div className={`flex-1 h-px ${isShowcase ? 'bg-amber-400/50' : 'bg-stone-300/60'}`} />
                       </div>
                       {group.desc && (
-                        <p className={`text-sm mt-1.5 leading-relaxed max-w-2xl ${
-                          isShowcase ? 'text-amber-900/80 font-medium' : 'text-stone-600 font-light italic'
-                        }`} style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        <p className={`text-sm mt-1.5 leading-relaxed max-w-2xl ${isShowcase ? 'text-amber-900/80 font-medium' : 'text-stone-600 font-light italic'
+                          }`} style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
                           {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
                         </p>
                       )}
@@ -2809,7 +2797,7 @@ export default function DeliveryMenu() {
                     <div key={group.id} id={`wine-sec-${group.id}`} className="scroll-mt-24">
                       <div className="px-2 mb-6">
                         <div className="flex items-center gap-3">
-                          <h3 
+                          <h3
                             className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight"
                             style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                           >
@@ -2852,7 +2840,7 @@ export default function DeliveryMenu() {
                       return (
                         <div className="px-2 mb-6">
                           <div className="flex items-center gap-3">
-                            <h3 
+                            <h3
                               className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight"
                               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                             >
@@ -2956,11 +2944,10 @@ export default function DeliveryMenu() {
             onClick={handleCartTabClick}
             id="floating-edge-cart-btn"
             aria-label={`${count} items in cart, total ${total} Baht`}
-            className={`group flex items-center bg-gradient-to-l from-[#721818] via-[#8B1E1E] to-[#9e2222] text-white shadow-2xl rounded-l-full border-l border-y border-amber-300/40 hover:border-amber-300 transition-all duration-300 cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 ${
-              isCartTabExpanded
+            className={`group flex items-center bg-gradient-to-l from-[#721818] via-[#8B1E1E] to-[#9e2222] text-white shadow-2xl rounded-l-full border-l border-y border-amber-300/40 hover:border-amber-300 transition-all duration-300 cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 ${isCartTabExpanded
                 ? 'pl-3 pr-2.5 py-2 sm:py-2.5'
                 : 'pl-2 pr-1 py-1.5 sm:py-2'
-            }`}
+              }`}
             style={{
               boxShadow: '-3px 4px 16px rgba(139, 30, 30, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2)',
               fontFamily: lang === 'TH' ? 'Prompt, Kanit, Outfit, system-ui, sans-serif' : 'Outfit, system-ui, sans-serif',
@@ -2986,11 +2973,10 @@ export default function DeliveryMenu() {
 
             {/* Expandable Details: Price & Free Delivery Threshold (Smooth sliding reveal) */}
             <div
-              className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${
-                isCartTabExpanded
+              className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${isCartTabExpanded
                   ? 'max-w-[240px] opacity-100 ml-2 pl-2.5 border-l border-white/20'
                   : 'max-w-0 opacity-0 ml-0 pl-0 border-l-0 pointer-events-none'
-              }`}
+                }`}
             >
               <div className="flex flex-col text-right leading-none whitespace-nowrap space-y-0.5">
                 <div className="flex items-center justify-end gap-1.5">
@@ -3013,16 +2999,16 @@ export default function DeliveryMenu() {
                   {total < 300 ? (
                     <span className="text-emerald-300/95 font-bold">
                       {lang === 'IT' ? `Mancano ${300 - total}฿ per consegna GRATIS` :
-                       lang === 'TH' ? `อีก ${300 - total}฿ ส่งฟรี!` :
-                       lang === 'DE' ? `Noch ${300 - total}฿ bis GRATIS-Lieferung` :
-                       `Only ${300 - total}฿ to FREE delivery`}
+                        lang === 'TH' ? `อีก ${300 - total}฿ ส่งฟรี!` :
+                          lang === 'DE' ? `Noch ${300 - total}฿ bis GRATIS-Lieferung` :
+                            `Only ${300 - total}฿ to FREE delivery`}
                     </span>
                   ) : (
                     <span className="text-amber-200 font-black">
                       {lang === 'IT' ? '✓ Spedizione GRATIS!' :
-                       lang === 'TH' ? '✓ ส่งฟรีแล้ว!' :
-                       lang === 'DE' ? '✓ GRATIS-Versand!' :
-                       '✓ FREE Delivery!'}
+                        lang === 'TH' ? '✓ ส่งฟรีแล้ว!' :
+                          lang === 'DE' ? '✓ GRATIS-Versand!' :
+                            '✓ FREE Delivery!'}
                     </span>
                   )}
                 </div>
