@@ -18,6 +18,23 @@
 ---
 
 
+### 🟩 [29/10/2026 - ORE 19:42] · FIX TRASPARENZA & CONTRASTO DROPDOWN LINGUE (ACCESSIBILITÀ SENIOR & ZERO OVERLAP)
+- **Cosa abbiamo fatto:**
+  1. 🎨 **Risoluzione Sfondo Trasparente Dropdown**:
+     - Eliminata la classe Tailwind arbitraria con slash non supportata (`bg-[#3b3530]/98`) che rendeva il contenitore del selettore lingue completamente trasparente, lasciando trasparire il testo della pagina sottostante.
+     - Applicato sfondo solido opaco ultra-scuro (`bg-stone-900` con `style={{ backgroundColor: '#1c1917' }}`), bordo ad alto contrasto (`border-2 border-stone-600`) e ombra profonda (`shadow-[0_20px_50px_rgba(0,0,0,0.85)]`).
+  2. 🔤 **Tipografia Senior & Indicatori Chiari**:
+     - Bandiera emoji ingrandita a `text-xl` (20px).
+     - Nome della lingua in grassetto nitido a 14px (`text-sm font-extrabold text-stone-200`).
+     - Lingua attualmente attiva evidenziata in verde smeraldo pieno (`bg-emerald-600 text-white font-black`) con badge di spunta (`✓ IT`).
+     - Target touch confortevole (`py-3 px-4`, conforme agli standard Apple/Google >44px) e larghezza estesa a `w-52`.
+  3. 🛡️ **Parità Globale Desktop, Mobile & Dettaglio Alloggi**:
+     - Allineata l'interfaccia sia per il dropdown desktop che mobile in `src/components/VillageNav.tsx` e nella barra superiore di `src/pages/AccommodationDetailPage.tsx`.
+- **File aggiornati:** `src/components/VillageNav.tsx`, `src/pages/AccommodationDetailPage.tsx`.
+- **Stato:** ✅ Build completata con successo (0 errori).
+
+---
+
 ### 🟩 [29/10/2026 - ORE 17:45] · SPECIFICA OBBLIGATORIA BRAND NEI POST E SU TELEGRAM (FLOWER POWER PIZZA VS FLOWER POWER VILLAGE)
 - **Cosa abbiamo fatto:**
   1. 🏢 **Didascalia e Scheda Notifica Telegram**:
