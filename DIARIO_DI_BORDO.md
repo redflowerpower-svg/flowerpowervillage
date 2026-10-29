@@ -18,6 +18,20 @@
 ---
 
 
+### 🚀 [29/10/2026 - ORE 20:03] · RILASCIO UFFICIALE IN PRODUZIONE (MARKDOWN-WEBSITE)
+- **Cosa abbiamo fatto:**
+  1. 🌐 **Deploy Live su flowerpowervillage.com**:
+     - Effettuato il merge completo del branch `staging` sul branch `main` e push su `origin main`.
+     - Build di produzione verificata con successo (0 errori, asset compressi e ottimizzati).
+  2. 📦 **Sintesi Migliorie Pubblicate Online**:
+     - **Visualizzatore Menù "Sfoglia come un Libro"**: Eliminato il menu categorie ingombrante; esperienza libro immersiva con gesture touch swipe nativo (destra/sinistra), frecce laterali grandi con backdrop-blur e tasti di navigazione inferiori 50/50 perfettamente calibrati senza sbordatura.
+     - **Menù Dropdown Lingue**: Sfondo solido ad alto contrasto (#1c1917), zero trasparenza, bandiere grandi a 20px, etichette estese a 14px e spunta verde smeraldo sulla lingua attiva.
+     - **Tipografia Senior & Hero Parity**: Standard Booking.com applicato a tutte le sezioni (Ristorante, Alloggi, Direzioni, Spa, Contatti, Galleria, Footer) con testi ad alta leggibilità (≥14px) e Hero Banner compatto e uniforme su tutte le pagine.
+- **Branch:** `main` & `staging` perfettamente sincronizzati.
+- **Stato:** 🟢 ONLINE IN PRODUZIONE.
+
+---
+
 ### 🟩 [29/10/2026 - ORE 20:01] · RISOLUZIONE SBORDATURA TASTO "SUCCESSIVA" SU MOBILE
 - **Cosa abbiamo fatto:**
   1. 📐 **Layout 50/50 Anti-Sbordatura**:
