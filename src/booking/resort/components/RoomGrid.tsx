@@ -734,30 +734,30 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                     </span>
                   </div>
                 )}
-                <span className={`absolute top-4 left-4 bg-emerald-800/95 border border-emerald-650/60 text-white text-[9px] font-extrabold tracking-wider px-3 py-1.5 rounded-xl shadow-md backdrop-blur-md ${item.category.toUpperCase() !== "THE HUB GUESTHOUSE" ? "uppercase" : ""}`}>
+                <span className={`absolute top-4 left-4 bg-emerald-800/95 border border-emerald-650/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md ${item.category.toUpperCase() !== "THE HUB GUESTHOUSE" ? "uppercase" : ""}`}>
                   {item.category.toUpperCase() === "THE HUB GUESTHOUSE" ? "GUESTHOUSE" : item.category}
                 </span>
 
                 {/* Capacity badge — bottom right of image */}
-                <span className="absolute bottom-4 right-4 bg-emerald-800/95 border border-emerald-650/60 text-white text-[9px] font-extrabold tracking-wider px-3 py-1.5 rounded-xl shadow-md backdrop-blur-md flex items-center gap-1">
+                <span className="absolute bottom-4 right-4 bg-emerald-800/95 border border-emerald-650/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md flex items-center gap-1">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                   {lang === 'TH' ? `สูงสุด ${item.capacity} ท่าน` : lang === 'DE' ? `Bis zu ${item.capacity} Gäste` : lang === 'EN' ? `Up to ${item.capacity} guests` : `Fino a ${item.capacity} ospiti`}
                 </span>
 
                 {/* MinStay / Gap-Fill Dynamic Badge — bottom left of image */}
                 {isUnlocked && pricing.minStayBlocked && (
-                  <span className="absolute bottom-4 left-4 bg-amber-600/95 border border-amber-400/60 text-white text-[9px] font-black tracking-wider px-3 py-1.5 rounded-xl shadow-md backdrop-blur-md flex items-center gap-1 animate-pulse">
+                  <span className="absolute bottom-4 left-4 bg-amber-600/95 border border-amber-400/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md flex items-center gap-1 animate-pulse">
                     ℹ️ {lang === 'TH' ? `ขั้นต่ำ ${pricing.minStayRequired} คืน` : lang === 'DE' ? `Min. ${pricing.minStayRequired} Nächte` : lang === 'EN' ? `Min. ${pricing.minStayRequired} nights` : `Minimo ${pricing.minStayRequired} notti`}
                   </span>
                 )}
                 {isUnlocked && pricing.isAvailable && stayDays === 1 && (
-                  <span className="absolute bottom-4 left-4 bg-emerald-600/95 border border-emerald-400/60 text-white text-[9px] font-black tracking-wider px-3 py-1.5 rounded-xl shadow-md backdrop-blur-md flex items-center gap-1">
+                  <span className="absolute bottom-4 left-4 bg-emerald-600/95 border border-emerald-400/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md flex items-center gap-1">
                     ⚡ {lang === 'TH' ? 'จองได้ 1 คืน (Gap-Fill)' : lang === 'DE' ? '1 Nacht Buchbar' : lang === 'EN' ? '1 Night Available' : 'Disponibile 1 Notte'}
                   </span>
                 )}
  
                 {isUnlocked && discountInfo.label && (
-                  <span className={`absolute top-4 right-4 ${discountInfo.color} text-white text-[9px] font-bold tracking-wider px-3 py-1.5 rounded-xl shadow-sm uppercase`}>
+                  <span className={`absolute top-4 right-4 ${discountInfo.color} text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-sm uppercase`}>
                     {discountInfo.label.split(' ')[0]} {discountInfo.label.match(/\(-?\d+%\)/)?.[0]}
                   </span>
                 )}
@@ -765,15 +765,15 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
 
               <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-sans text-lg font-bold text-stone-900 leading-tight tracking-tight">
+                  <h3 className="font-sans text-lg sm:text-xl font-black text-stone-900 leading-snug tracking-tight">
                     {getRoomTitle(item)}
                   </h3>
                 </div>
-                <p className="text-muted-foreground text-xs font-light leading-relaxed mb-4 flex-grow">
+                <p className="text-stone-800 text-sm font-normal leading-relaxed mb-4 flex-grow">
                   {getRoomDesc(item)}
                 </p>
 
-                <p className="text-stone-500 text-[11px] font-medium mb-3">
+                <p className="text-stone-900 text-sm font-bold mb-3">
                   {t('beds')}: {item.beds}
                 </p>
 
@@ -788,14 +788,14 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                         type="button"
                         id={`btn-select-dates-room-${item.id}`}
                         onClick={(e) => handleScrollToCalendar(e.currentTarget.closest('article'))}
-                        className="flex-1 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3 px-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide leading-tight flex flex-col items-center justify-center"
+                        className="flex-1 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-sm font-black py-3.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide leading-tight flex flex-col items-center justify-center"
                       >
                         {loadingAvailability ? (
                           <span>{lang === 'TH' ? 'กำลังตรวจสอบ...' : lang === 'DE' ? 'Verfügbarkeit...' : lang === 'EN' ? 'Checking...' : 'Verifica disponibilità...'}</span>
                         ) : (
                           <>
                             <span>{lang === 'TH' ? 'เลือกวันเข้าพัก' : lang === 'DE' ? 'Termine wählen' : lang === 'EN' ? 'Select dates' : 'Seleziona date'}</span>
-                            <span className="text-[10px] font-normal opacity-90">{lang === 'TH' ? 'เพื่อดูราคา' : lang === 'DE' ? 'für den Preis' : lang === 'EN' ? 'for price' : 'per il prezzo'}</span>
+                            <span className="text-xs font-semibold opacity-90">{lang === 'TH' ? 'เพื่อดูราคา' : lang === 'DE' ? 'für den Preis' : lang === 'EN' ? 'for price' : 'per il prezzo'}</span>
                           </>
                         )}
                       </button>
@@ -807,7 +807,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                           e.stopPropagation();
                           openGallery(item);
                         }}
-                        className="bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3 px-4 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide flex items-center justify-center"
+                        className="bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-sm font-black py-3.5 px-4 sm:px-5 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide flex items-center justify-center"
                         title={lang === 'TH' ? 'ดูรายละเอียด' : lang === 'DE' ? 'Details anzeigen' : lang === 'EN' ? 'View details' : 'Vedi dettagli'}
                       >
                         <span>{lang === 'TH' ? 'รายละเอียด' : lang === 'DE' ? 'Details' : lang === 'EN' ? 'View details' : 'Vedi dettagli'}</span>
@@ -959,7 +959,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                                 </>
                               ) : (
                                 <>
-                                  <span className="text-xl font-extrabold text-stone-900">
+                                  <span className="text-xl sm:text-2xl font-black text-stone-900">
                                     {formatPrice(pricingWithExtras.final)}
                                   </span>
                                   {pricing.savings > 0 && (
@@ -971,7 +971,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                               )}
                             </div>
                             {!isExpanded && (
-                              <p className="text-primary font-bold text-xs">
+                              <p className="text-primary font-black text-sm sm:text-base">
                                 {lang === 'IT' && <>Totale: <span className="text-emerald-700 font-extrabold">{formatPrice(pricingWithExtras.total)}</span> ({stayDays} notti)</>}
                                 {lang === 'EN' && <>Total: <span className="text-emerald-700 font-extrabold">{formatPrice(pricingWithExtras.total)}</span> ({stayDays} nights)</>}
                                 {lang === 'TH' && <>รวม: <span className="text-emerald-700 font-extrabold">{formatPrice(pricingWithExtras.total)}</span> ({stayDays} คืน)</>}
@@ -990,11 +990,11 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                               <span className="text-xl font-extrabold text-stone-900">
                                 {formatPrice(pricingWithExtras ? pricingWithExtras.final : pricing.final)}
                               </span>
-                              <span className="text-[10px] text-stone-500 font-medium">
+                              <span className="text-xs font-bold text-stone-600">
                                 /{lang === 'TH' ? 'คืน' : lang === 'DE' ? 'Nacht' : lang === 'EN' ? 'night' : 'notte'}
                               </span>
                             </div>
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-300/80 px-2.5 py-0.5 rounded-lg mt-1">
+                            <span className="inline-flex items-center gap-1 text-xs font-black text-amber-900 bg-amber-50 border border-amber-300/80 px-3 py-1 rounded-lg mt-1">
                               ℹ️ {lang === 'TH' ? `ขั้นต่ำ ${pricing.minStayRequired} คืน` : lang === 'DE' ? `Mindestaufenthalt: ${pricing.minStayRequired} Nächte` : lang === 'EN' ? `Minimum stay: ${pricing.minStayRequired} nights` : `Soggiorno minimo: ${pricing.minStayRequired} notti`}
                             </span>
                           </div>
@@ -1011,14 +1011,14 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                         isExpanded ? (
                           <button
                             onClick={() => onSelectRoom && onSelectRoom(item, pricingWithExtras, extras)}
-                            className="bg-stone-900 hover:bg-emerald-700 text-white text-xs font-semibold px-6 py-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 hover:px-7 cursor-pointer"
+                            className="bg-stone-900 hover:bg-emerald-700 text-white text-sm font-black px-6 py-3.5 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 hover:px-7 cursor-pointer"
                           >
                              {lang === 'TH' ? 'ยืนยัน' : lang === 'DE' ? 'Bestätigen' : lang === 'EN' ? 'Confirm' : 'Conferma'}
                           </button>
                         ) : (
                           <button
                             onClick={() => setExpandedRoomId(item.id)}
-                            className="bg-stone-900 hover:bg-emerald-700 text-white text-xs font-semibold px-6 py-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 hover:px-7 cursor-pointer"
+                            className="bg-stone-900 hover:bg-emerald-700 text-white text-sm font-black px-6 py-3.5 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 hover:px-7 cursor-pointer"
                           >
                              {lang === 'TH' ? 'ดูตัวเลือก' : lang === 'DE' ? 'Konfigurieren' : lang === 'EN' ? 'Configure' : 'Configura'}
                           </button>
@@ -1031,7 +1031,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                               onExtendStay(pricing.minStayRequired);
                             }
                           }}
-                          className="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+                          className="bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-sm font-black px-4.5 sm:px-5 py-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
                           title={lang === 'IT' ? `Estendi il soggiorno a ${pricing.minStayRequired} notti per prenotare` : `Extend stay to ${pricing.minStayRequired} nights to book`}
                         >
                           <span>➕ {lang === 'TH' ? `เพิ่มเป็น ${pricing.minStayRequired} คืน` : lang === 'DE' ? `Auf ${pricing.minStayRequired} Nächte` : lang === 'EN' ? `Extend to ${pricing.minStayRequired} nights` : `Estendi a ${pricing.minStayRequired} notti`}</span>
@@ -1039,7 +1039,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                       ) : (
                         <button
                           disabled
-                          className="bg-stone-200 text-stone-400 text-xs font-semibold px-6 py-3 rounded-full cursor-not-allowed pointer-events-none border border-stone-300 shadow-none"
+                          className="bg-stone-200 text-stone-400 text-sm font-bold px-6 py-3.5 rounded-full cursor-not-allowed pointer-events-none border border-stone-300 shadow-none"
                         >
                            {lang === 'TH' ? 'ไม่ว่าง' : lang === 'DE' ? 'Nicht verfügbar' : lang === 'EN' ? 'Not Available' : 'Non Disponibile'}
                         </button>

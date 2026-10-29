@@ -2,8 +2,8 @@
  * 🛡️ SUPABASE QUOTA SENTINEL & HEALTH WATCHDOG
  *
  * Monitora periodicamente lo stato delle risorse Supabase per prevenire sforamenti del piano Free:
- * 1. Misura lo Storage totale e di ciascun bucket (Soglia d'allerta: 250 MB su 1000 MB).
- * 2. Monitora la cartella 'assets/social_stories': auto-healing immediato se ci sono più di 4 video o file > 35 MB.
+ * 1. Misura lo Storage totale e di ciascun bucket (Soglia d'allerta: 500 MB (50% di 1000 MB)).
+ * 2. Monitora la cartella 'assets/social_stories': auto-healing immediato se ci sono più di 4 video o buffer > 200 MB.
  * 3. Se rileva anomalie o file orfani, li bonifica e invia un report di allerta preventivo su Telegram Topic 301 (Failed/Alerts).
  *
  * Uso:
@@ -158,15 +158,24 @@ export async function runSupabaseQuotaSentinel({ autoFix = true, notifyTelegram 
     }
   }
 
-  // 3. Verifica soglie critiche
-  const STORAGE_LIMIT_WARN_MB = 250; // Allerta se supera il 25% del GB gratuito
-  const isStorageWarn = parseFloat(grandTotalMb) > STORAGE_LIMIT_WARN_MB;
-  const isSocialWarn = parseFloat(socialMb) > 35; // Allerta se social stories supera 35MB
+  // 3. Ricalcolo effettivo post auto-healing
+  const postHealingSocialBytes = Math.max(0, socialBytes - freedBytes);
+  const postHealingSocialMb = (postHealingSocialBytes / 1024 / 1024).toFixed(2);
+  const postHealingGrandTotalBytes = Math.max(0, grandTotalBytes - freedBytes);
+  const postHealingGrandTotalMb = (postHealingGrandTotalBytes / 1024 / 1024).toFixed(2);
+
+  // 4. Soglie critiche equilibrate (Anti-Stress / Zero Spam):
+  // - Storage Totale: 500 MB (50% del piano gratuito Supabase di 1000 MB)
+  // - Buffer Video Social: 200 MB (invece di soli 35 MB)
+  const STORAGE_LIMIT_WARN_MB = 500; 
+  const SOCIAL_BUFFER_WARN_MB = 200; 
+  const isStorageWarn = parseFloat(postHealingGrandTotalMb) > STORAGE_LIMIT_WARN_MB;
+  const isSocialWarn = parseFloat(postHealingSocialMb) > SOCIAL_BUFFER_WARN_MB;
 
   if ((isStorageWarn || isSocialWarn) && notifyTelegram) {
     let alertMsg = `⚠️ <b>[SUPABASE QUOTA SENTINEL · ALERT PREVENTIVO]</b>\n\n`;
-    alertMsg += `📊 <b>Stato Storage:</b> ${grandTotalMb} MB / 1000 MB (Limite Free)\n`;
-    alertMsg += `🎬 <b>Buffer Video Social:</b> ${socialMb} MB (${socialFiles.length} file)\n`;
+    alertMsg += `📊 <b>Stato Storage:</b> ${postHealingGrandTotalMb} MB / 1000 MB (Limite Free)\n`;
+    alertMsg += `🎬 <b>Buffer Video Social:</b> ${postHealingSocialMb} MB\n`;
     if (cleanedFilesCount > 0) {
       alertMsg += `🧹 <b>Auto-Healing:</b> rimossi automaticamente ${cleanedFilesCount} file temporanei.\n`;
     }
@@ -184,9 +193,9 @@ export async function runSupabaseQuotaSentinel({ autoFix = true, notifyTelegram 
   console.log(`✅ [sentinel] Scansione completata. Stato: ${isStorageWarn || isSocialWarn ? 'ATTENZIONE' : 'OTTIMALE 🟢'}`);
   return {
     ok: true,
-    grandTotalMb,
-    grandTotalFiles,
-    socialMb,
+    grandTotalMb: postHealingGrandTotalMb,
+    grandTotalFiles: grandTotalFiles - cleanedFilesCount,
+    socialMb: postHealingSocialMb,
     cleanedFilesCount,
     freedMb: (freedBytes / 1024 / 1024).toFixed(2),
     bucketReports: bucketReports.map(b => ({ name: b.bucketName, mb: b.totalMb, count: b.fileCount }))

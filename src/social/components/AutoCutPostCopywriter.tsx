@@ -429,8 +429,6 @@ export function AutoCutPostCopywriter({
     const th = sanitizeSocialBullets(applyUnicodeBoldHook(ensureLangFlag(stripTags(aiOverride.thaiContent || basePostData.thaiContent), 'th')));
     const en = sanitizeSocialBullets(applyUnicodeBoldHook(ensureLangFlag(stripTags(aiOverride.englishContent || basePostData.englishContent), 'en')));
     const tagFooter = [...basePostData.thaiHashtags, ...basePostData.englishHashtags].join(' ');
-    
-    const isPizza = testRun.brand === 'pizza';
     const fullCaptionInstagram = isPizza
       ? `${th}\n\n${en}\n\n${basePostData.fixedLink}\n\n${basePostData.crossTag}\n\n${tagFooter}`
       : `${en}\n\n${th}\n\n${basePostData.fixedLink}\n\n${basePostData.crossTag}\n\n${tagFooter}`;

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, ArrowLeft, Globe, ChevronDown } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Language } from '../booking/lib/translations';
 
 interface Props {
@@ -57,7 +56,6 @@ const languages: { code: Language; label: string; flag: string }[] = [
 ];
 
 export default function VillageNav({ activePage, onNavigate, lang, setLang }: Props) {
-  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -89,7 +87,7 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-[90] transition-all duration-300 ${
           scrolled
             ? 'bg-[#3b3530]/95 backdrop-blur-md shadow-md border-b border-stone-700/50 py-3'
             : 'bg-[#3b3530] border-b border-stone-800 py-4'
@@ -236,11 +234,11 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
         <>
           {/* Backdrop Overlay */}
           <div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden animate-fadeIn"
+            className="fixed inset-0 z-[9990] bg-black/60 backdrop-blur-sm md:hidden animate-fadeIn"
             onClick={() => setMenuOpen(false)}
           />
           {/* Drawer Panel */}
-          <div className="fixed top-0 right-0 bottom-0 z-50 w-72 bg-[#3b3530] border-l border-stone-700 p-6 flex flex-col justify-between shadow-2xl md:hidden animate-slideLeft">
+          <div className="fixed top-0 right-0 bottom-0 z-[9999] w-72 bg-[#3b3530] border-l border-stone-700 p-6 flex flex-col shadow-2xl md:hidden animate-slideLeft">
             <div>
               <div className="flex items-center justify-between border-b border-stone-700/50 pb-4 mb-6">
                 <span className="font-sans font-black text-white text-md">
@@ -273,45 +271,6 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
                   );
                 })}
               </div>
-            </div>
-
-            {/* Bottom Section: Language Switcher in Drawer & Admin link */}
-            <div className="space-y-4 pt-4 border-t border-stone-700/60">
-              {/* Language Selector Grid in Drawer */}
-              <div>
-                <span className="block text-[10px] uppercase tracking-wider text-stone-400 font-bold mb-2">
-                  {lang === 'IT' ? 'Lingua' : lang === 'TH' ? 'ภาษา' : lang === 'DE' ? 'Sprache' : 'Language'}
-                </span>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {languages.map((l) => (
-                    <button
-                      key={l.code}
-                      onClick={() => {
-                        setLang(l.code);
-                      }}
-                      className={`py-1.5 text-center text-xs font-black rounded-lg transition-all border ${
-                        lang === l.code
-                          ? 'bg-emerald-500 text-stone-900 border-emerald-400 shadow-sm'
-                          : 'bg-stone-900/60 text-stone-300 border-stone-700 hover:bg-stone-800'
-                      }`}
-                    >
-                      {l.code}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  navigate('/admin?dept=resort');
-                }}
-                className="w-full text-left text-xs font-bold uppercase tracking-wider py-3 px-3.5 rounded-xl bg-stone-900 border border-stone-700 text-stone-300 hover:text-emerald-400 transition-all flex items-center justify-between cursor-pointer"
-                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-              >
-                <span>🔒 {lang === 'IT' ? 'Area Privata Staff' : lang === 'TH' ? 'พื้นที่เจ้าหน้าที่' : lang === 'DE' ? 'Mitarbeiterbereich' : 'Staff Portal'}</span>
-                <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">/admin</span>
-              </button>
             </div>
           </div>
         </>

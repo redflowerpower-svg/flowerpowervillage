@@ -27,7 +27,8 @@ import {
   QrCode,
   CreditCard,
   Wallet,
-  Banknote
+  Banknote,
+  Search
 } from "lucide-react"
 import { getAuthorizationUrl, isAuthenticated, exchangeToken, clearTokens } from "../lib/octorate"
 import { RoomGrid } from "../resort/components/RoomGrid"
@@ -36,6 +37,13 @@ import { translations, Language } from "../lib/translations"
 import { getBaselineMinStay } from "../../admin/resort/lib/octorateAdmin"
 import { calculatePaymentTotal } from "../../lib/paymentCalculations"
 import { recordKsherTransaction } from "../../admin/payments/lib/ksherTransactions"
+
+const LANG_METAS: Record<Language, { flag: string; label: string }> = {
+  IT: { flag: '🇮🇹', label: 'IT' },
+  EN: { flag: '🇬🇧', label: 'EN' },
+  TH: { flag: '🇹🇭', label: 'TH' },
+  DE: { flag: '🇩🇪', label: 'DE' },
+};
 
 const CATEGORY_ITEMS = [
   { name: "Tutti", label: "TUTTI", desc: "Esplora il villaggio", icon: Grid },
@@ -992,83 +1000,149 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   return (
     <div className="booking-engine-root min-h-screen text-foreground font-sans antialiased selection:bg-accent" style={{ backgroundColor: '#e7e5e4', minHeight: hasSearched ? '2500px' : 'auto' }}>
       <div className="max-w-6xl mx-auto px-4 mt-20 md:mt-24">
-        <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg" style={{ backgroundColor: '#3b3530' }}>
-          <div className="absolute inset-0 opacity-45">
+        <header className="relative text-stone-100 py-3 lg:py-8 px-3 sm:px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg mb-4 md:mb-6" style={{ backgroundColor: '#3b3530' }}>
+          <div className="absolute inset-0 opacity-45 pointer-events-none">
             <VillageSlideshow />
           </div>
-          <div className="absolute inset-0 bg-stone-950/30 backdrop-blur-[0.5px]" />
+          <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px] pointer-events-none" />
 
+          {/* MOBILE HERO BANNER (Identico nello stile compatto a flowerpowerpizza.com) */}
+          <div className="block lg:hidden relative z-10 py-2 sm:py-3 px-1 sm:px-2">
+            {/* Top-Right Language Selector */}
+            <div className="absolute top-1 right-1 z-30">
+              <button
+                type="button"
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-emerald-400/60 shadow-md text-white font-black text-xs uppercase cursor-pointer active:scale-95"
+              >
+                <span className="text-sm leading-none">{LANG_METAS[lang]?.flag || '🌐'}</span>
+                <span className="tracking-wider">{lang}</span>
+                <ChevronDown className="w-3 h-3 text-emerald-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
+              </button>
 
-          {/* Collapsible Dropdown Language Selector (Absolutely positioned top-right) */}
-          <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
-            <button
-              type="button"
-              onClick={() => setIsLangOpen(!isLangOpen)}
-              className="flex items-center gap-1 bg-black/45 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/10 shadow-sm text-stone-300 hover:text-white transition-all cursor-pointer font-bold text-[10px] uppercase"
-            >
-              <Globe className="w-3.5 h-3.5" />
-              <span>{lang}</span>
-              <ChevronDown className="w-3 h-3 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
-            </button>
-
-            {isLangOpen && (
-              <>
-                {/* Overlay to close when clicking outside */}
-                <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
-                <div className="absolute right-0 mt-1.5 w-24 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col">
-                  {(['EN', 'TH', 'IT', 'DE'] as Language[]).map((l) => (
-                    <button
-                      key={l}
-                      type="button"
-                      onClick={() => {
-                        setLang(l)
-                        setIsLangOpen(false)
-                      }}
-                      className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer ${lang === l ? "text-emerald-400 bg-white/5" : "text-stone-300"
+              {isLangOpen && (
+                <>
+                  <div className="fixed inset-0 z-40 cursor-default bg-black/50" onClick={() => setIsLangOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-32 bg-[#2d2824]/98 backdrop-blur-md rounded-xl border border-emerald-500/40 shadow-2xl z-50 overflow-hidden flex flex-col p-1">
+                    {(['IT', 'EN', 'TH', 'DE'] as Language[]).map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => {
+                          setLang(l);
+                          setIsLangOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                          lang === l ? "text-emerald-300 bg-white/10 font-black" : "text-stone-200 hover:bg-white/5"
                         }`}
-                    >
-                      {l === 'EN' && '🇬🇧 EN'}
-                      {l === 'TH' && '🇹🇭 TH'}
-                      {l === 'IT' && '🇮🇹 IT'}
-                      {l === 'DE' && '🇩🇪 DE'}
-                    </button>
-                  ))}
+                      >
+                        <span>{LANG_METAS[l]?.flag}</span>
+                        <span>{LANG_METAS[l]?.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Main Content: Logo on the Left + Brand Details on the Right */}
+            <div className="flex items-center gap-3 pr-16">
+              <img
+                src="/FP_04_-_LOGO_OFFICIAL_HD.png"
+                alt="Flower Power Village Logo"
+                width={88}
+                height={88}
+                className="h-20 sm:h-24 w-auto drop-shadow-lg flex-shrink-0 object-contain -ml-0.5"
+              />
+              <div className="min-w-0 space-y-1">
+                <h1 className="text-xl sm:text-2xl font-sans font-black tracking-tight text-white leading-tight">
+                  FLOWER POWER <br className="sm:hidden" />
+                  <span className="font-light italic text-[#a2b997]">Village</span>
+                </h1>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[#a2b997] font-extrabold tracking-widest text-[10px] sm:text-[11px] uppercase">
+                    KOH PHAYAM • THAILANDIA
+                  </span>
                 </div>
-              </>
-            )}
+                <p className="text-stone-200 font-bold text-[11px] sm:text-xs leading-tight">
+                  {t('heroLine1')} • {t('heroLine2')}
+                </p>
+                <div className="text-[10px] sm:text-[11px] text-stone-300 font-medium leading-tight truncate">
+                  Piscina • Palestra • Yoga • Coworking
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="relative z-10 my-auto py-2">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-8 min-h-[160px] lg:min-h-[180px]">
-              {/* Left Side: Logo + Title (Equally spaced between top and bottom borders) */}
-              <div className="flex flex-col lg:flex-row items-center gap-3.5 lg:gap-6 text-center lg:text-left w-full lg:w-auto my-auto">
+          {/* DESKTOP HERO BANNER */}
+          <div className="hidden lg:block relative z-10 my-auto py-2">
+            {/* Top-Right Language Dropdown Selector for Desktop */}
+            <div className="absolute top-1 right-1 z-20">
+              <button
+                type="button"
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                className="flex items-center gap-1.5 bg-black/45 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 shadow-sm text-stone-200 hover:text-white transition-all cursor-pointer font-bold text-xs uppercase"
+              >
+                <span>{LANG_METAS[lang]?.flag || '🌐'}</span>
+                <span>{lang}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-emerald-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
+              </button>
+
+              {isLangOpen && (
+                <>
+                  <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
+                  <div className="absolute right-0 mt-1.5 w-28 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col p-1">
+                    {(['IT', 'EN', 'TH', 'DE'] as Language[]).map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => {
+                          setLang(l);
+                          setIsLangOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-lg transition-all hover:bg-white/10 cursor-pointer ${
+                          lang === l ? "text-emerald-400 bg-white/5 font-black" : "text-stone-300"
+                        }`}
+                      >
+                        <span>{LANG_METAS[l]?.flag}</span>
+                        <span>{LANG_METAS[l]?.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex flex-row items-center justify-between gap-8 min-h-[180px]">
+              {/* Left Side: Logo + Title */}
+              <div className="flex flex-row items-center gap-6 text-left my-auto">
                 <img
                   src="/FP_04_-_LOGO_OFFICIAL_HD.png"
                   alt="Flower Power Village Logo"
                   width={200}
                   height={200}
-                  className="h-16 lg:h-44 w-auto drop-shadow-md mx-auto lg:mx-0 flex-shrink-0 object-contain my-auto"
+                  className="h-36 lg:h-44 w-auto drop-shadow-md flex-shrink-0 object-contain my-auto"
                 />
-                <div className="flex flex-col justify-between items-center lg:items-start lg:pl-4 my-auto space-y-2">
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-black tracking-tight text-white leading-none text-center lg:text-left">
+                <div className="flex flex-col justify-between items-start pl-4 my-auto space-y-2">
+                  <h1 className="text-4xl lg:text-5xl font-sans font-black tracking-tight text-white leading-none text-left">
                     FLOWER POWER <br />
                     <span className="font-light italic text-[#a2b997]">Village</span>
                   </h1>
-                  <span className="text-[#a2b997] font-bold tracking-widest text-[9px] md:text-xs uppercase text-center lg:text-left block pt-1">
+                  <span className="text-[#a2b997] font-bold tracking-widest text-xs uppercase text-left block pt-1">
                     KOH PHAYAM, THAILANDIA
                   </span>
                 </div>
               </div>
 
-              {/* Right Side: Compact Tagline block (Equally spaced vertically) */}
-              <div className="flex flex-col justify-between items-center lg:items-end gap-2 text-center lg:text-right max-w-md w-full lg:w-auto my-auto space-y-1">
-                <span className="text-xs sm:text-sm md:text-xl lg:text-2xl font-extrabold text-stone-100 tracking-tight block uppercase bg-white/10 lg:bg-transparent px-3 py-0.5 rounded-full lg:p-0">
+              {/* Right Side: Compact Tagline block */}
+              <div className="flex flex-col justify-between items-end gap-2 text-right max-w-md my-auto space-y-1">
+                <span className="text-xl lg:text-2xl font-extrabold text-stone-100 tracking-tight block uppercase">
                   {t('heroLine1')}
                 </span>
-                <span className="text-[9px] md:text-xs lg:text-sm font-bold text-[#a2b997] tracking-widest block uppercase">
+                <span className="text-xs lg:text-sm font-bold text-[#a2b997] tracking-widest block uppercase">
                   {t('heroLine2')}
                 </span>
-                <div className="flex flex-row flex-wrap justify-center lg:justify-end gap-x-2 gap-y-0.5 text-[9px] md:text-xs font-light text-stone-200">
+                <div className="flex flex-row flex-wrap justify-end gap-x-2 gap-y-0.5 text-xs font-light text-stone-200">
                   <span>{t('heroLine3')}</span>
                   <span className="text-stone-400">•</span>
                   <span>{t('heroLine4')}</span>
@@ -1079,15 +1153,15 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
         </header>
       </div>
 
-      <section className="sticky top-0 z-50 bg-stone-300/95 backdrop-blur-md shadow-md border-b border-stone-400 py-4 md:py-3 transition-all">
-        <div className="max-w-6xl mx-auto px-4">
+      <section className="sticky top-0 z-50 bg-stone-300/95 backdrop-blur-md shadow-md border-b border-stone-400 py-3 md:py-3.5 transition-all">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4">
           <form
             id="booking-search-form"
             onSubmit={handleSearch}
-            className="grid grid-cols-2 lg:flex lg:flex-row gap-2 lg:gap-3 items-stretch lg:items-center bg-stone-50 p-1.5 md:p-2 rounded-xl border border-stone-300 shadow-sm"
+            className="grid grid-cols-2 lg:flex lg:flex-row gap-2 lg:gap-3 items-stretch lg:items-center bg-stone-50 p-2 md:p-2.5 rounded-2xl border-2 border-stone-300 shadow-sm"
           >
             {/* Check-In */}
-            <div className="date-picker-container relative col-span-1 lg:flex-1 flex items-center justify-center lg:justify-start gap-1.5 md:gap-3 px-2 md:px-4 py-1.5 md:py-3 bg-stone-50 rounded-lg md:rounded-xl border border-stone-300 focus-within:border-stone-500 focus-within:ring-1 focus-within:ring-stone-500 transition-all cursor-pointer"
+            <div className="date-picker-container relative col-span-1 lg:flex-1 flex items-center justify-start gap-2 sm:gap-3 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-stone-50 rounded-xl border-2 border-stone-300 hover:border-emerald-700 focus-within:border-emerald-700 focus-within:ring-2 focus-within:ring-emerald-600/20 transition-all cursor-pointer shadow-xs"
               onClick={() => {
                 if (!isCheckInOpen && checkIn) {
                   setCheckInCalendarMonth(parseLocalDate(checkIn));
@@ -1096,14 +1170,14 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                 setIsCheckOutOpen(false);
               }}
             >
-              <div className="absolute left-2.5 top-1/2 -translate-y-1/2 lg:static lg:transform-none p-1 lg:p-2.5 bg-stone-200 text-primary rounded-lg lg:rounded-xl flex-shrink-0 shadow-sm flex">
-                <Calendar className="w-4 h-4 lg:w-6 lg:h-6" />
+              <div className="p-1.5 sm:p-2.5 bg-emerald-100 text-emerald-800 rounded-xl flex-shrink-0 shadow-xs flex">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="w-full flex flex-col justify-center items-center lg:items-start select-none">
-                <label className="block text-[8px] lg:text-[10px] uppercase tracking-wider text-stone-500 font-extrabold leading-tight mb-0.5 text-center lg:text-left">
+              <div className="w-full flex flex-col justify-center items-start select-none min-w-0">
+                <label className="block text-[11px] sm:text-xs uppercase tracking-wider text-stone-600 font-black leading-tight mb-0.5">
                   {t('checkIn')}
                 </label>
-                <span className="text-xs lg:text-sm font-bold text-stone-800 text-center lg:text-left block min-h-[1.25rem]">
+                <span className="text-sm sm:text-base font-black text-stone-900 block whitespace-nowrap leading-snug">
                   {checkIn ? formatDateForDisplay(checkIn) : (lang === 'IT' ? 'Scegli data' : lang === 'TH' ? 'เลือกวันที่' : lang === 'DE' ? 'Datum wählen' : 'Choose date')}
                 </span>
               </div>
@@ -1122,7 +1196,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
             </div>
 
             {/* Check-Out */}
-            <div className="date-picker-container relative col-span-1 lg:flex-1 flex items-center justify-center lg:justify-start gap-1.5 md:gap-3 px-2 md:px-4 py-1.5 md:py-3 bg-stone-50 rounded-lg md:rounded-xl border border-stone-300 focus-within:border-stone-500 focus-within:ring-1 focus-within:ring-stone-500 transition-all cursor-pointer"
+            <div className="date-picker-container relative col-span-1 lg:flex-1 flex items-center justify-start gap-2 sm:gap-3 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-stone-50 rounded-xl border-2 border-stone-300 hover:border-emerald-700 focus-within:border-emerald-700 focus-within:ring-2 focus-within:ring-emerald-600/20 transition-all cursor-pointer shadow-xs"
               onClick={() => {
                 if (!isCheckOutOpen) {
                   if (checkOut) {
@@ -1137,14 +1211,14 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                 setIsCheckInOpen(false);
               }}
             >
-              <div className="absolute left-2.5 top-1/2 -translate-y-1/2 lg:static lg:transform-none p-1 lg:p-2.5 bg-stone-200 text-primary rounded-lg lg:rounded-xl flex-shrink-0 shadow-sm flex">
-                <Calendar className="w-4 h-4 lg:w-6 lg:h-6" />
+              <div className="p-1.5 sm:p-2.5 bg-emerald-100 text-emerald-800 rounded-xl flex-shrink-0 shadow-xs flex">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="w-full flex flex-col justify-center items-center lg:items-start select-none">
-                <label className="block text-[8px] lg:text-[10px] uppercase tracking-wider text-stone-500 font-extrabold leading-tight mb-0.5 text-center lg:text-left">
+              <div className="w-full flex flex-col justify-center items-start select-none min-w-0">
+                <label className="block text-[11px] sm:text-xs uppercase tracking-wider text-stone-600 font-black leading-tight mb-0.5">
                   {t('checkOut')}
                 </label>
-                <span className="text-xs lg:text-sm font-bold text-stone-800 text-center lg:text-left block min-h-[1.25rem]">
+                <span className="text-sm sm:text-base font-black text-stone-900 block whitespace-nowrap leading-snug">
                   {checkOut ? formatDateForDisplay(checkOut) : (lang === 'IT' ? 'Scegli data' : lang === 'TH' ? 'เลือกวันที่' : lang === 'DE' ? 'Datum wählen' : 'Choose date')}
                 </span>
               </div>
@@ -1163,42 +1237,40 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
             </div>
 
             {/* Guests */}
-            <div className="col-span-1 lg:flex-1 flex items-center justify-between gap-1 px-2 md:px-4 py-1.5 md:py-3 bg-stone-50 rounded-lg md:rounded-xl border border-stone-300 focus-within:border-stone-500 focus-within:ring-1 focus-within:ring-stone-500 transition-all">
-              <div className="p-1 lg:p-2.5 bg-stone-200 text-primary rounded-lg lg:rounded-xl flex-shrink-0 shadow-sm flex items-center justify-center">
-                <Users className="w-4 h-4 lg:w-6 lg:h-6" />
+            <div className="col-span-1 lg:flex-1 flex items-center justify-between gap-1.5 px-2.5 sm:px-4 py-2 sm:py-2.5 bg-stone-50 rounded-xl border-2 border-stone-300 focus-within:border-emerald-700 focus-within:ring-2 focus-within:ring-emerald-600/20 transition-all shadow-xs">
+              <div className="p-1.5 sm:p-2.5 bg-emerald-100 text-emerald-800 rounded-xl flex-shrink-0 shadow-xs flex items-center justify-center">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="flex-1 flex flex-col justify-center items-center lg:items-start min-w-0 px-1">
-                <label className="block text-[8px] lg:text-[10px] uppercase tracking-wider text-stone-500 font-extrabold leading-tight mb-0.5 text-center lg:text-left truncate w-full">
+              <div className="flex-1 flex flex-col justify-center items-start min-w-0 pl-1.5 sm:pl-2">
+                <label className="block text-[11px] sm:text-xs uppercase tracking-wider text-stone-600 font-black leading-tight mb-0.5 whitespace-nowrap">
                   {t('guests')}
                 </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="8"
-                  value={guests}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    if (!isNaN(val)) {
-                      setGuests(Math.max(1, Math.min(8, val)));
-                    }
-                  }}
-                  className="w-full bg-transparent text-xs lg:text-sm focus:outline-none font-bold text-stone-800 border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-center lg:text-left"
-                />
+                <div className="flex items-baseline gap-1 whitespace-nowrap leading-snug">
+                  <span className="text-sm sm:text-base font-black text-stone-900">
+                    {guests}
+                  </span>
+                  <span className="text-xs sm:text-sm text-stone-700 font-bold">
+                    {guests === 1 ? t('guestSingular') : t('guestPlural')}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-0.5 bg-stone-200/60 p-0.5 rounded-lg border border-stone-300/50 flex-shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setGuests(Math.max(1, guests - 1))}
-                  className="w-5 md:w-7 h-5 md:h-7 flex items-center justify-center rounded bg-white hover:bg-stone-300 text-stone-700 text-[10px] md:text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
-                >
-                  -
-                </button>
+              {/* Stepper Verticale Compatto (In fondo a destra) */}
+              <div className="flex flex-col justify-center items-center gap-0.5 bg-stone-200/70 p-0.5 rounded-lg border border-stone-300 flex-shrink-0">
                 <button
                   type="button"
                   onClick={() => setGuests(Math.min(8, guests + 1))}
-                  className="w-5 md:w-7 h-5 md:h-7 flex items-center justify-center rounded bg-white hover:bg-stone-300 text-stone-700 text-[10px] md:text-xs font-bold shadow-sm transition-all cursor-pointer active:scale-95"
+                  className="w-6 sm:w-7 h-5 sm:h-5.5 flex items-center justify-center rounded bg-white hover:bg-stone-100 active:bg-stone-200 text-stone-900 text-xs sm:text-sm font-black shadow-xs transition-all cursor-pointer active:scale-95"
+                  aria-label="Aumenta ospiti"
                 >
                   +
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGuests(Math.max(1, guests - 1))}
+                  className="w-6 sm:w-7 h-5 sm:h-5.5 flex items-center justify-center rounded bg-white hover:bg-stone-100 active:bg-stone-200 text-stone-900 text-xs sm:text-sm font-black shadow-xs transition-all cursor-pointer active:scale-95"
+                  aria-label="Diminuisci ospiti"
+                >
+                  -
                 </button>
               </div>
             </div>
@@ -1206,8 +1278,9 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
             {/* Submit Button */}
             <button
               type="submit"
-              className="col-span-1 lg:w-auto bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs lg:text-sm py-3 lg:py-3.5 px-4 lg:px-8 rounded-lg lg:rounded-xl shadow-sm transition-all duration-200 transform active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer"
+              className="col-span-1 lg:w-auto bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white font-black text-sm sm:text-base py-3.5 px-4 sm:px-8 rounded-xl shadow-md transition-all duration-200 transform active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
             >
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-300" />
               <span>{t('searchBtn')}</span>
             </button>
           </form>
@@ -1233,7 +1306,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     <h4 className="font-bold text-stone-100 text-xs md:text-sm tracking-tight text-center md:text-left uppercase">
                       {t('hubitTitle' as any)}
                     </h4>
-                    <span className="bg-emerald-600/30 text-emerald-200 border border-emerald-600/40 text-[8px] md:text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider flex-shrink-0">
+                    <span className="bg-emerald-600/30 text-emerald-200 border border-emerald-600/40 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded uppercase tracking-wider flex-shrink-0">
                       {t('hubitTag' as any)}
                     </span>
                   </div>
@@ -1246,18 +1319,18 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               {/* Clear Discount Info for Digital Nomads */}
               <div className="grid grid-cols-2 gap-1.5 md:gap-2 text-center text-xs">
                 <div className="bg-black/15 py-1 md:py-2 px-2 rounded-lg border border-white/5 flex flex-col justify-center">
-                  <span className="block text-[8px] md:text-[9px] text-emerald-300 font-extrabold uppercase tracking-wider">
+                  <span className="block text-[10px] sm:text-xs text-emerald-300 font-black uppercase tracking-wider">
                     {t('nomadStay15' as any)}
                   </span>
-                  <span className="block text-[11px] md:text-sm font-black text-white md:mt-0.5">
+                  <span className="block text-xs sm:text-base font-black text-white sm:mt-0.5">
                     -15% {t('nomadDiscount' as any)}
                   </span>
                 </div>
                 <div className="bg-black/25 py-1 md:py-2.5 px-2.5 md:px-2.5 rounded-lg border border-white/5 flex flex-col justify-center">
-                  <span className="block text-[8px] md:text-[9px] text-emerald-300 font-extrabold uppercase tracking-wider">
+                  <span className="block text-[10px] sm:text-xs text-emerald-300 font-black uppercase tracking-wider">
                     {t('nomadStay30' as any)}
                   </span>
-                  <span className="block text-[11px] md:text-sm font-black text-white md:mt-0.5">
+                  <span className="block text-xs sm:text-base font-black text-white sm:mt-0.5">
                     -20% {t('nomadDiscount' as any)}
                   </span>
                 </div>
@@ -1283,18 +1356,18 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               {/* Clear Discount & Deposit Info for Direct Bookings */}
               <div className="grid grid-cols-2 gap-1.5 md:gap-2 text-center text-xs">
                 <div className="bg-black/15 py-1 md:py-2 px-2 rounded-lg border border-white/5 flex flex-col justify-center">
-                  <span className="block text-[8px] md:text-[9px] text-emerald-300 font-extrabold uppercase tracking-wider">
+                  <span className="block text-[10px] sm:text-xs text-emerald-300 font-black uppercase tracking-wider">
                     {lang === 'IT' ? 'Sconto Diretto' : lang === 'TH' ? 'ส่วนลดจองตรง' : lang === 'DE' ? 'Direktbuchungs-Rabatt' : 'Direct discount'}
                   </span>
-                  <span className="block text-[11px] md:text-sm font-black text-white md:mt-0.5">
+                  <span className="block text-xs sm:text-base font-black text-white sm:mt-0.5">
                     -10% {lang === 'IT' ? 'Garantito' : lang === 'TH' ? 'รับประกัน' : lang === 'DE' ? 'Garantiert' : 'Guaranteed'}
                   </span>
                 </div>
                 <div className="bg-black/25 py-1 md:py-2.5 px-2.5 md:px-2.5 rounded-lg border border-white/5 flex flex-col justify-center">
-                  <span className="block text-[8px] md:text-[9px] text-emerald-300 font-extrabold uppercase tracking-wider">
+                  <span className="block text-[10px] sm:text-xs text-emerald-300 font-black uppercase tracking-wider">
                     {lang === 'IT' ? 'Caparra' : lang === 'TH' ? 'มัดจำ' : lang === 'DE' ? 'Anzahlung' : 'Deposit'}
                   </span>
-                  <span className="block text-[11px] md:text-sm font-black text-white md:mt-0.5">
+                  <span className="block text-xs sm:text-base font-black text-white sm:mt-0.5">
                     {lang === 'IT' ? 'Solo 30% oggi' : lang === 'TH' ? 'เพียง 30% วันนี้' : lang === 'DE' ? 'Heute nur 30%' : 'Only 30% today'}
                   </span>
                 </div>
@@ -1352,7 +1425,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               <Waves className="w-4 h-4 md:w-5 md:h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-stone-800 text-[10px] md:text-xs uppercase tracking-wider">{t('benefitsPoolTitle')}</h4>
+              <h4 className="font-bold text-stone-800 text-xs sm:text-sm font-black text-stone-850 uppercase tracking-wider">{t('benefitsPoolTitle')}</h4>
               <p className="text-stone-500 text-[11px] leading-relaxed mt-1 hidden sm:block">
                 {t('benefitsPoolDesc')}
               </p>
@@ -1363,7 +1436,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               <Flower className="w-4 h-4 md:w-5 md:h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-stone-800 text-[10px] md:text-xs uppercase tracking-wider">{t('benefitsYogaTitle')}</h4>
+              <h4 className="font-bold text-stone-800 text-xs sm:text-sm font-black text-stone-850 uppercase tracking-wider">{t('benefitsYogaTitle')}</h4>
               <p className="text-stone-500 text-[11px] leading-relaxed mt-1 hidden sm:block">
                 {t('benefitsYogaDesc')}
               </p>
@@ -1374,7 +1447,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               <Dumbbell className="w-4 h-4 md:w-5 md:h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-stone-800 text-[10px] md:text-xs uppercase tracking-wider">{t('benefitsGymTitle')}</h4>
+              <h4 className="font-bold text-stone-800 text-xs sm:text-sm font-black text-stone-850 uppercase tracking-wider">{t('benefitsGymTitle')}</h4>
               <p className="text-stone-500 text-[11px] leading-relaxed mt-1 hidden sm:block">
                 {t('benefitsGymDesc')}
               </p>
@@ -1385,7 +1458,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               <HelpingHand className="w-4 h-4 md:w-5 md:h-5" />
             </div>
             <div>
-              <h4 className="font-bold text-stone-800 text-[10px] md:text-xs uppercase tracking-wider">{t('benefitsMassageTitle')}</h4>
+              <h4 className="font-bold text-stone-800 text-xs sm:text-sm font-black text-stone-850 uppercase tracking-wider">{t('benefitsMassageTitle')}</h4>
               <p className="text-stone-500 text-[11px] leading-relaxed mt-1 hidden sm:block">
                 {t('benefitsMassageDesc')}
               </p>
@@ -2140,7 +2213,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     key={item.name}
                     type="button"
                     onClick={() => setSelectedCategory(item.name)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 border text-xs font-bold whitespace-nowrap snap-align-start cursor-pointer shadow-sm ${isSelected
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 border text-xs sm:text-sm font-black whitespace-nowrap snap-align-start cursor-pointer shadow-sm ${isSelected
                       ? "bg-emerald-800 border-emerald-800 text-white"
                       : "bg-stone-50 border-stone-300 text-stone-600 active:bg-stone-100"
                       }`}
