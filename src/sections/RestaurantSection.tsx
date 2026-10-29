@@ -187,6 +187,32 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
   const [currentPage, setCurrentPage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [zoomScale, setZoomScale] = useState(1);
+  const [viewMode, setViewMode] = useState<'grid' | 'scroll'>('grid');
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  useEffect(() => {
+    if (cardRefs.current[currentPage]) {
+      cardRefs.current[currentPage]?.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest',
+      });
+    }
+  }, [currentPage]);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
 
   const t = restaurantLabels[lang] || restaurantLabels['IT'];
   const titles = pageTitleTranslations[lang] || pageTitleTranslations['IT'];
