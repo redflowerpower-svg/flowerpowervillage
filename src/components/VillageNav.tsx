@@ -140,40 +140,56 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
               <button
                 type="button"
                 onClick={() => setLangOpen(!langOpen)}
-                className="flex items-center gap-1.5 bg-black/35 hover:bg-black/55 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 shadow-sm text-stone-200 hover:text-white transition-all cursor-pointer font-bold text-xs uppercase"
+                className="flex items-center gap-1.5 bg-black/45 hover:bg-black/65 px-3 py-1.5 rounded-xl border border-white/20 shadow-sm text-stone-100 hover:text-white transition-all cursor-pointer font-black text-xs uppercase"
                 title="Change language"
               >
                 <Globe className="w-3.5 h-3.5 text-emerald-400" />
                 <span>{lang}</span>
                 <ChevronDown
-                  className="w-3.5 h-3.5 transition-transform duration-200 text-stone-400"
+                  className="w-3.5 h-3.5 transition-transform duration-200 text-stone-300"
                   style={{ transform: langOpen ? 'rotate(180deg)' : 'none' }}
                 />
               </button>
 
               {langOpen && (
                 <>
-                  <div className="fixed inset-0 z-40 cursor-default" onClick={() => setLangOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-36 bg-[#3b3530]/98 backdrop-blur-md rounded-2xl border border-white/15 shadow-2xl z-50 overflow-hidden py-1.5 animate-fadeIn">
-                    {languages.map((l) => (
-                      <button
-                        key={l.code}
-                        type="button"
-                        onClick={() => {
-                          setLang(l.code);
-                          setLangOpen(false);
-                        }}
-                        className={`w-full text-left px-3.5 py-2 text-xs font-bold transition-all flex items-center justify-between hover:bg-white/10 cursor-pointer ${
-                          lang === l.code ? 'text-emerald-400 bg-emerald-500/10' : 'text-stone-300'
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span>{l.flag}</span>
-                          <span>{l.label}</span>
-                        </span>
-                        {lang === l.code && <span className="text-[10px] text-emerald-400">✓</span>}
-                      </button>
-                    ))}
+                  <div className="fixed inset-0 z-[9990] bg-black/40 backdrop-blur-[2px] cursor-default" onClick={() => setLangOpen(false)} />
+                  <div
+                    className="absolute right-0 mt-2.5 w-52 bg-stone-900 border-2 border-stone-600 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] z-[9999] overflow-hidden py-1.5 animate-fadeIn"
+                    style={{ backgroundColor: '#1c1917' }}
+                  >
+                    {languages.map((l) => {
+                      const isSelected = lang === l.code;
+                      return (
+                        <button
+                          key={l.code}
+                          type="button"
+                          onClick={() => {
+                            setLang(l.code);
+                            setLangOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between cursor-pointer ${
+                            isSelected
+                              ? 'bg-emerald-600 text-white font-black'
+                              : 'text-stone-200 hover:bg-white/10 hover:text-white font-bold'
+                          }`}
+                        >
+                          <span className="flex items-center gap-3">
+                            <span className="text-xl leading-none">{l.flag}</span>
+                            <span className="font-extrabold tracking-wide">{l.label}</span>
+                          </span>
+                          {isSelected ? (
+                            <span className="text-white text-xs font-black px-2 py-0.5 bg-black/30 rounded-md">
+                              ✓ {l.code}
+                            </span>
+                          ) : (
+                            <span className="text-stone-400 text-xs font-semibold">
+                              {l.code}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </>
               )}
@@ -187,32 +203,56 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
               <button
                 type="button"
                 onClick={() => setLangOpen(!langOpen)}
-                className="flex items-center gap-1 bg-black/40 px-2.5 py-1 rounded-lg border border-white/15 text-stone-200 text-xs font-bold uppercase"
+                className="flex items-center gap-1.5 bg-black/50 hover:bg-black/70 px-3 py-1.5 rounded-xl border border-white/20 text-stone-100 text-xs font-black uppercase shadow-sm cursor-pointer"
+                title="Change language"
               >
-                <Globe className="w-3 h-3 text-emerald-400" />
+                <Globe className="w-3.5 h-3.5 text-emerald-400" />
                 <span>{lang}</span>
+                <ChevronDown
+                  className="w-3.5 h-3.5 transition-transform duration-200 text-stone-300"
+                  style={{ transform: langOpen ? 'rotate(180deg)' : 'none' }}
+                />
               </button>
 
               {langOpen && (
                 <>
-                  <div className="fixed inset-0 z-40 cursor-default" onClick={() => setLangOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-32 bg-[#3b3530]/98 backdrop-blur-md rounded-xl border border-white/15 shadow-2xl z-50 overflow-hidden py-1">
-                    {languages.map((l) => (
-                      <button
-                        key={l.code}
-                        type="button"
-                        onClick={() => {
-                          setLang(l.code);
-                          setLangOpen(false);
-                        }}
-                        className={`w-full text-left px-3 py-1.5 text-xs font-bold transition-all flex items-center gap-2 hover:bg-white/10 cursor-pointer ${
-                          lang === l.code ? 'text-emerald-400 bg-white/5' : 'text-stone-300'
-                        }`}
-                      >
-                        <span>{l.flag}</span>
-                        <span>{l.code}</span>
-                      </button>
-                    ))}
+                  <div className="fixed inset-0 z-[9990] bg-black/40 backdrop-blur-[2px] cursor-default" onClick={() => setLangOpen(false)} />
+                  <div
+                    className="absolute right-0 mt-2.5 w-52 bg-stone-900 border-2 border-stone-600 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] z-[9999] overflow-hidden py-1.5 animate-fadeIn"
+                    style={{ backgroundColor: '#1c1917' }}
+                  >
+                    {languages.map((l) => {
+                      const isSelected = lang === l.code;
+                      return (
+                        <button
+                          key={l.code}
+                          type="button"
+                          onClick={() => {
+                            setLang(l.code);
+                            setLangOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between cursor-pointer ${
+                            isSelected
+                              ? 'bg-emerald-600 text-white font-black'
+                              : 'text-stone-200 hover:bg-white/10 hover:text-white font-bold'
+                          }`}
+                        >
+                          <span className="flex items-center gap-3">
+                            <span className="text-xl leading-none">{l.flag}</span>
+                            <span className="font-extrabold tracking-wide">{l.label}</span>
+                          </span>
+                          {isSelected ? (
+                            <span className="text-white text-xs font-black px-2 py-0.5 bg-black/30 rounded-md">
+                              ✓ {l.code}
+                            </span>
+                          ) : (
+                            <span className="text-stone-400 text-xs font-semibold">
+                              {l.code}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </>
               )}
