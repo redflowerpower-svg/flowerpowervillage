@@ -18,6 +18,18 @@
 ---
 
 
+### 🟩 [29/10/2026 - ORE 20:01] · RISOLUZIONE SBORDATURA TASTO "SUCCESSIVA" SU MOBILE
+- **Cosa abbiamo fatto:**
+  1. 📐 **Layout 50/50 Anti-Sbordatura**:
+     - Sostituita la precedente riga a 3 elementi (tasto sinistro + testo centrale + tasto destro) che causava overflow orizzontale del tasto *"Successiva"* sugli schermi mobile stretti.
+     - Impostata una griglia a 2 colonne `grid grid-cols-2 gap-2 sm:gap-3 w-full` per i due pulsanti *"‹ Precedente"* e *"Successiva ›"*, che ora occupano ciascuno esattamente il 50% dello spazio utile con testo protetto da `truncate`.
+  2. 🎯 **Centratura Indicatore Pagina**:
+     - Il contatore *"PAGINA X DI 15"* è ora collocato centralmente subito sotto i due pulsanti, garantendo respiro visivo e zero collisioni.
+- **File aggiornati:** `src/sections/RestaurantSection.tsx`.
+- **Stato:** ✅ Build completata con successo (0 errori).
+
+---
+
 ### 🟩 [29/10/2026 - ORE 19:57] · RIMOZIONE TOTALE CATEGORIE & FOCUS 100% SU SFOGLIA COME UN LIBRO
 - **Cosa abbiamo fatto:**
   1. 🗑️ **Rimozione Integrale del Menù Categorie in Cima**:
