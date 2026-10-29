@@ -2269,25 +2269,25 @@ export default function DeliveryMenu() {
           {/* Card 1 (🟢 VERDE): Prenota un Tavolo o Capanna */}
           <div 
             onClick={() => setIsReservationModalOpen(true)}
-            className="p-2.5 sm:p-3.5 md:p-4.5 bg-gradient-to-br from-[#064e3b] via-[#053d2e] to-[#032b20] text-white rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2.5 shadow-md border border-emerald-600/50 hover:border-emerald-400 hover:shadow-emerald-950/40 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]"
+            className="p-2 sm:p-3 md:p-4 bg-gradient-to-br from-[#064e3b] via-[#053d2e] to-[#032b20] text-white rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2 shadow-md border border-emerald-600/50 hover:border-emerald-400 hover:shadow-emerald-950/40 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]"
           >
-            <div className="flex items-center gap-1.5 sm:gap-2.5">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 bg-emerald-800/90 border border-emerald-500/50 text-emerald-300 group-hover:scale-105 group-hover:bg-emerald-400 group-hover:text-stone-950 transition-all flex items-center justify-center shrink-0 rounded-xl shadow-xs">
-                <UtensilsCrossed className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 transition-colors" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-5.5 h-5.5 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-emerald-800/90 border border-emerald-500/50 text-emerald-300 group-hover:scale-105 group-hover:bg-emerald-400 group-hover:text-stone-950 transition-all flex items-center justify-center shrink-0 rounded-lg sm:rounded-xl shadow-xs">
+                <UtensilsCrossed className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 transition-colors" />
               </div>
-              <h4 className="text-white font-black text-[9.5px] sm:text-xs md:text-sm leading-tight group-hover:text-emerald-300 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <h4 className="text-white font-black text-[11px] sm:text-[12.5px] md:text-sm leading-tight tracking-tight group-hover:text-emerald-300 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {({"IT":"Prenota Tavolo","EN":"Book a Table","TH":"จองโต๊ะ","MM":"စားပွဲ ကြိုတင်ဘွတ်ကင်","DE":"Tisch Buchen","ES":"Reservar Mesa","FR":"Réserver une Table","RU":"Забронировать стол","ZH":"预订餐桌"})[lang] || 'Book a Table'}
               </h4>
             </div>
 
             <div className="space-y-0.5">
-              <p className="text-emerald-100/90 text-[8px] sm:text-[9.5px] md:text-xs leading-snug font-normal line-clamp-3">
+              <p className="text-emerald-100/95 text-[9.5px] sm:text-[10.5px] md:text-xs leading-snug font-medium line-clamp-2 sm:line-clamp-3">
                 {({"IT":"Tavoli al chiuso, all'aperto o in capanna","EN":"Indoor, outdoor tables or bamboo garden hut","TH":"โต๊ะในร่ม กลางแจ้ง หรือซุ้มไม้ไผ่ในสวน","MM":"အတွင်းခန်း၊ အပြင်ဘက် သို့မဟုတ် သဘာဝ ဝါးတဲ","DE":"Innen-, Außenbereich oder Bambushütte","ES":"Mesas interiores, exteriores o cabaña de bambú","FR":"Tables intérieures, extérieures ou hutte en bambou","RU":"Столики в зале, на террасе или в бамбуковом домике","ZH":"室内、室外餐桌或花园竹林小屋"})[lang] || 'Indoor, outdoor tables or bamboo garden hut'}
               </p>
             </div>
 
             <div className="pt-0.5">
-              <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-stone-950 font-black bg-emerald-400 group-hover:bg-emerald-300 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs transition-all">
+              <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10.5px] md:text-xs text-stone-950 font-black bg-emerald-400 group-hover:bg-emerald-300 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg shadow-xs transition-all">
                 <span>{({"IT":"Prenota","EN":"Book Now","TH":"จองเลย","MM":"ယခု ဘွတ်ကင်လုပ်မည်","DE":"Reservieren","ES":"Reservar","FR":"Réserver","RU":"Забронировать","ZH":"立即预订"})[lang] || 'Book Now'}</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               </span>
@@ -2296,24 +2296,24 @@ export default function DeliveryMenu() {
 
           {/* Card 2 (⚪ BIANCO & ORO): 10% Welcome Discount */}
           {isFirstOrderEligible && !appliedPromo && (
-            <div className="p-2.5 sm:p-3.5 md:p-4.5 bg-gradient-to-br from-white via-amber-50/60 to-amber-100/40 text-stone-900 rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2.5 shadow-md border-2 border-amber-300/90 ring-1 ring-amber-400/30 hover:border-amber-400 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]">
-              <div className="flex items-center gap-1.5 sm:gap-2.5">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 bg-amber-400 text-stone-950 group-hover:scale-105 group-hover:bg-stone-950 group-hover:text-amber-300 transition-all flex items-center justify-center shrink-0 rounded-xl shadow-xs">
-                  <Percent className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 stroke-[2.5] transition-colors" />
+            <div className="p-2 sm:p-3 md:p-4 bg-gradient-to-br from-white via-amber-50/60 to-amber-100/40 text-stone-900 rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2 shadow-md border-2 border-amber-300/90 ring-1 ring-amber-400/30 hover:border-amber-400 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="w-5.5 h-5.5 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-amber-400 text-stone-950 group-hover:scale-105 group-hover:bg-stone-950 group-hover:text-amber-300 transition-all flex items-center justify-center shrink-0 rounded-lg sm:rounded-xl shadow-xs">
+                  <Percent className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 stroke-[2.5] transition-colors" />
                 </div>
-                <h4 className="text-stone-950 font-black text-[9.5px] sm:text-xs md:text-sm leading-tight group-hover:text-amber-600 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                <h4 className="text-stone-950 font-black text-[11px] sm:text-[12.5px] md:text-sm leading-tight tracking-tight group-hover:text-amber-600 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
                   {({"IT":"10% Sconto","EN":"10% OFF","TH":"ลด 10%","MM":"၁၀% လျှော့စျေး","DE":"10% Rabatt","ES":"10% Descuento","FR":"10% de Réduction","RU":"Скидка 10%","ZH":"立享9折"})[lang] || '10% OFF'}
                 </h4>
               </div>
 
               <div className="space-y-0.5">
-                <p className="text-stone-700 text-[8px] sm:text-[9.5px] md:text-xs leading-snug font-medium line-clamp-3">
+                <p className="text-stone-700 text-[9.5px] sm:text-[10.5px] md:text-xs leading-snug font-medium line-clamp-2 sm:line-clamp-3">
                   {({"IT":"Il tuo 1° ordine? Sconto applicato nel carrello!","EN":"1st order? Discount applied automatically in cart!","TH":"สั่งครั้งแรก? รับส่วนลดอัตโนมัติในตะกร้าทันที","MM":"ပထမဆုံး အော်ဒါလား? ခြင်းတောင်းထဲတွင် အလိုအလျောက် လျှော့ပေးပါသည်!","DE":"1. Bestellung? Rabatt direkt im Warenkorb!","ES":"¿Primer pedido? ¡Descuento aplicado en el carrito!","FR":"1ère commande ? Réduction appliquée dans le panier !","RU":"Первый заказ? Скидка применяется в корзине!","ZH":"首次下单？结账时在购物车中自动减免！"})[lang] || '1st order? Discount applied automatically in cart!'}
                 </p>
               </div>
 
               <div className="pt-0.5">
-                <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-emerald-900 font-bold bg-emerald-100/95 border border-emerald-300/90 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs">
+                <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10.5px] md:text-xs text-emerald-900 font-bold bg-emerald-100/95 border border-emerald-300/90 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg shadow-xs">
                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
                   <span>{({"IT":"Nel Carrello","EN":"In Cart","TH":"ในตะกร้า","MM":"ခြင်းတောင်းထဲတွင်","DE":"Im Warenkorb","ES":"En el Carrito","FR":"Au Panier","RU":"В корзине","ZH":"在购物车中"})[lang] || 'In Cart'}</span>
                 </span>
@@ -2327,13 +2327,13 @@ export default function DeliveryMenu() {
               const el = document.getElementById('menu-category-section');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="p-2.5 sm:p-3.5 md:p-4.5 bg-gradient-to-br from-[#8B1E1E] via-[#781818] to-[#5a1111] text-white rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2.5 shadow-md border border-red-700/60 hover:border-red-400 hover:shadow-red-950/40 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]"
+            className="p-2 sm:p-3 md:p-4 bg-gradient-to-br from-[#8B1E1E] via-[#781818] to-[#5a1111] text-white rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2 shadow-md border border-red-700/60 hover:border-red-400 hover:shadow-red-950/40 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]"
           >
-            <div className="flex items-center gap-1.5 sm:gap-2.5">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 bg-white/15 border border-white/25 group-hover:scale-105 group-hover:bg-white group-hover:text-[#8B1E1E] transition-all flex items-center justify-center shrink-0 rounded-xl text-white shadow-xs">
-                <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 transition-colors" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-5.5 h-5.5 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-white/15 border border-white/25 group-hover:scale-105 group-hover:bg-white group-hover:text-[#8B1E1E] transition-all flex items-center justify-center shrink-0 rounded-lg sm:rounded-xl text-white shadow-xs">
+                <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 transition-colors" />
               </div>
-              <h4 className="text-white font-black text-[9.5px] sm:text-xs md:text-sm leading-tight group-hover:text-red-200 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <h4 className="text-white font-black text-[11px] sm:text-[12.5px] md:text-sm leading-tight tracking-tight group-hover:text-red-200 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 <span>{({"IT":"Delivery &","EN":"Delivery &","TH":"เดลิเวอรี่ &","MM":"ပို့ဆောင်မှု &","DE":"Lieferung &","ES":"Entrega &","FR":"Livraison &","RU":"Доставка &","ZH":"外送配送 &"})[lang] || 'Delivery &'}</span>
                 <br className="sm:hidden"/>
                 <span>{({"IT":" Asporto","EN":" Takeaway","TH":" รับที่ร้าน","MM":" ဆိုင်မှလာယူရန်","DE":" Abholung","ES":" Para Llevar","FR":" À Emporter","RU":" Самовывоз","ZH":" 门店自取"})[lang] || ' Takeaway'}</span>
@@ -2341,13 +2341,13 @@ export default function DeliveryMenu() {
             </div>
 
             <div className="space-y-0.5">
-              <p className="text-red-100/90 text-[8px] sm:text-[9.5px] md:text-xs leading-snug font-normal line-clamp-3">
+              <p className="text-red-100/95 text-[9.5px] sm:text-[10.5px] md:text-xs leading-snug font-medium line-clamp-2 sm:line-clamp-3">
                 {({"IT":"A Ranong (>300฿ gratis), asporto sempre gratis!","EN":"Ranong (>300฿ free), takeaway always free!","TH":"ส่งไว (>300฿ ฟรี) และรับเองที่ร้านฟรีเสมอ","MM":"ရနောင်းမြို့တွင်း (>300฿ အခမဲ့)၊ ဆိုင်မှလာယူပါက အမြဲအခမဲ့!","DE":"In Ranong (>300฿ gratis), Abholung immer gratis!","ES":"En Ranong (>300฿ gratis), ¡para llevar siempre gratis!","FR":"À Ranong (>300฿ gratuit), à emporter toujours gratuit !","RU":"По Ранонгу (>300฿ бесплатно), самовывоз всегда бесплатно!","ZH":"拉廊市区（满300฿包邮），外卖自取永久免费！"})[lang] || 'Ranong (>300฿ free), takeaway always free!'}
               </p>
             </div>
 
             <div className="pt-0.5">
-              <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-white font-black bg-white/20 group-hover:bg-white group-hover:text-[#8B1E1E] border border-white/25 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs transition-all">
+              <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10.5px] md:text-xs text-white font-black bg-white/20 group-hover:bg-white group-hover:text-[#8B1E1E] border border-white/25 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg shadow-xs transition-all">
                 <span>{({"IT":"Al Menu","EN":"To Menu","TH":"ดูเมนู","MM":"မီနူးသို့","DE":"Zur Karte","ES":"Ver Menú","FR":"Au Menu","RU":"В меню","ZH":"查看菜单"})[lang] || 'To Menu'}</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               </span>

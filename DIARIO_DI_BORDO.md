@@ -3,6 +3,20 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [29/10/2026 - ORE 20:25] · OTTIMIZZAZIONE TIPOGRAFICA 3 BANNER PROMO PIZZERIA (MASSIMA LEGGIBILITÀ A RETTANGOLI INVARIATI)
+- **Cosa abbiamo fatto:**
+  1. 📏 **Dimensioni Rettangoli Invariate al 100%**:
+     - Mantenuta l'altezza contenuta (`min-h-[130px] sm:min-h-[148px]`) e la griglia compatta a 3 colonne su mobile/tablet, senza alcuna espansione volumetrica dei 3 card.
+     - Ottimizzato il padding interno a `p-2 sm:p-3 md:p-4` e ridimensionata con eleganza l'icona circolare da 24px a 22px (`w-5.5 h-5.5`), ricavando prezioso spazio utile verticale e orizzontale.
+  2. 🔠 **Ingrandimento Caratteri di Tutti i Testi (+25%-30% di Dimensione Utile)**:
+     - **Titoli**: incrementati da 9.5px a **11px** su mobile (`text-[11px] sm:text-[12.5px] md:text-sm font-black tracking-tight`), con contrasto nitido e leggibile a colpo d'occhio.
+     - **Testi Descrittivi**: incrementati dal minuscolo 8px a **9.5px - 10px** (`text-[9.5px] sm:text-[10.5px] md:text-xs leading-snug font-medium text-white/95`), eliminando del tutto l'effetto micro-testo illeggibile.
+     - **Pulsanti CTA / Badge**: incrementati da 7.5px a **9px** (`text-[9px] sm:text-[10.5px] md:text-xs font-black`), perfettamente proporzionati.
+- **File aggiornati:** `src/pizza/pages/DeliveryMenu.tsx`.
+- **Stato:** ✅ Build completata con successo (0 errori).
+
+---
+
 ### 🟩 [29/10/2026 - ORE 20:05] · GOOGLE BUSINESS PROFILE API APPROVATE & LIVE 100% OPERATIVE
 - **Cosa abbiamo fatto:**
   1. 🔓 **Approvazione Ufficiale & Quota 300 QPM Rilasciata**:
