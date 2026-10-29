@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut, BookOpen, Coffee, Soup, Pizza, Globe, Flame, Salad, Sparkles, Wine, Layers, Fish, Sun, LayoutGrid } from 'lucide-react';
+import { useState } from 'react';
+import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut, BookOpen } from 'lucide-react';
 import { Language } from '../booking/lib/translations';
 
 const menuPages = [
@@ -20,104 +20,31 @@ const menuPages = [
   { file: '15 - BnB.jpg', titleKey: 14 },
 ];
 
-const categoriesData = [
-  { catKey: 0, pageIndex: 0 },
-  { catKey: 1, pageIndex: 1 },
-  { catKey: 2, pageIndex: 3 },
-  { catKey: 3, pageIndex: 5 },
-  { catKey: 4, pageIndex: 6 },
-  { catKey: 5, pageIndex: 11 },
-  { catKey: 6, pageIndex: 13 },
-];
-
 const pageTitleTranslations = {
   IT: [
-    'Flower Power Menu', 'Caffetteria', 'Bevande & Cocktails', 'Antipasti & Bruschette', 
-    'Primi Piatti (Pasta)', 'Le Nostre Focacce', 'Panini & Sandwich', 'Cucina Italiana', 
+    'Flower Power Menu', 'Caffetteria & Colazioni', 'Bevande & Cocktails', 'Antipasti & Bruschette', 
+    'Primi Piatti (Pasta Fresca)', 'Le Nostre Focacce', 'Panini & Sandwich', 'Cucina Italiana', 
     'Secondi di Pesce', 'Cucina Fusion', 'Le Nostre Pizze', 'Specialità Birmane', 
     'Cucina Thailandese', 'Opzioni Vegane', 'Bed & Breakfast & Snack'
   ],
   EN: [
-    'Flower Power Menu', 'Coffee Shop', 'Drinks & Cocktails', 'Appetizers & Bruschette', 
-    'First Courses (Pasta)', 'Our Focaccias', 'Panini & Sandwiches', 'Italian Cuisine', 
+    'Flower Power Menu', 'Coffee & Breakfast', 'Drinks & Cocktails', 'Appetizers & Bruschette', 
+    'First Courses (Fresh Pasta)', 'Our Focaccias', 'Panini & Sandwiches', 'Italian Cuisine', 
     'Fish Main Courses', 'Fusion Cuisine', 'Our Pizzas', 'Burmese Specialties', 
     'Thai Cuisine', 'Vegan Options', 'Bed & Breakfast & Snacks'
   ],
   TH: [
     'เมนูดอกไม้บาน', 'เมนูกาแฟ & เครื่องดื่มร้อน', 'เครื่องดื่ม & ค็อกเทล', 'อาหารเรียกน้ำย่อย & บรูสเก็ตตา', 
-    'พาสต้าจานแรก', 'โฟคาชชาของเรา', 'พานินี่ & แซนด์วิช', 'อาหารอิตาเลียนดั้งเดิม', 
+    'พาสต้าเส้นสดจานแรก', 'โฟคาชชาสูตรพิเศษ', 'พานินี่ & แซนด์วิช', 'อาหารอิตาเลียนดั้งเดิม', 
     'อาหารจานหลักจากปลา', 'อาหารฟิวชั่น', 'พิซซ่าอิตาเลียนดั้งเดิม', 'อาหารพม่าสูตรพิเศษ', 
     'อาหารไทยยอดนิยม', 'เมนูมังสวิรัติ (วีแกน)', 'อาหารเช้า & ของว่าง'
   ],
   DE: [
-    'Flower Power Menü', 'Kaffeespezialitäten', 'Getränke & Cocktails', 'Vorspeisen & Bruschetta', 
-    'Nudelgerichte (Pasta)', 'Unsere Focaccias', 'Panini & Sandwiches', 'Italienische Küche', 
+    'Flower Power Menü', 'Kaffeespezialitäten & Frühstück', 'Getränke & Cocktails', 'Vorspeisen & Bruschetta', 
+    'Nudelgerichte (Frische Pasta)', 'Unsere Focaccias', 'Panini & Sandwiches', 'Italienische Küche', 
     'Fischgerichte', 'Fusion-Küche', 'Unsere Pizzas', 'Birmanische Spezialitäten', 
     'Thailändische Küche', 'Vegane Optionen', 'Bed & Breakfast & Snacks'
   ]
-};
-
-const categoryTranslations = {
-  IT: [
-    'Flower Power Menu', 'Caffetteria & Drink', 'Antipasti & Primi', 'Pizze & Focacce', 
-    'Cucina Internazionale', 'Cucina Orientale', 'Vegan & Snack'
-  ],
-  EN: [
-    'Flower Power Menu', 'Coffee & Drinks', 'Appetizers & Pasta', 'Pizzas & Focaccias', 
-    'International Cuisine', 'Oriental Cuisine', 'Vegan & Snacks'
-  ],
-  TH: [
-    'แนะนำเมนู', 'กาแฟ & เครื่องดื่ม', 'อาหารเรียกน้ำย่อย & พาสต้า', 'พิซซ่า & โฟคาชชา', 
-    'อาหารตะวันตก', 'อาหารตะวันออก', 'วีแกน & ของว่าง'
-  ],
-  DE: [
-    'Flower Power Menü', 'Kaffee & Getränke', 'Vorspeisen & Pasta', 'Pizzas & Focaccias', 
-    'Internationale Küche', 'Orientalische Küche', 'Vegan & Snacks'
-  ]
-};
-
-
-const menuPageIcons = [
-  BookOpen,        // 0: Menu Completo
-  Coffee,          // 1: Caffetteria
-  Wine,            // 2: Bevande & Cocktails
-  UtensilsCrossed, // 3: Antipasti & Bruschette
-  Soup,            // 4: Primi Piatti (Pasta)
-  Pizza,           // 5: Le Nostre Focacce
-  Layers,          // 6: Panini & Sandwich
-  Sparkles,        // 7: Cucina Italiana
-  Fish,            // 8: Secondi di Pesce
-  Globe,           // 9: Cucina Fusion
-  Pizza,           // 10: Le Nostre Pizze
-  Flame,           // 11: Specialità Birmane
-  Sparkles,        // 12: Cucina Thailandese
-  Salad,           // 13: Opzioni Vegane
-  Sun,             // 14: Bed & Breakfast & Snack
-];
-
-const menuPageBlockLabels: Record<number, Record<Language, [string, string]>> = {
-  0: { IT: ['MENU', 'COMPLETO'], EN: ['FULL', 'MENU'], TH: ['เมนู', 'ทั้งหมด'], DE: ['GESAMTES', 'MENÜ'] },
-  1: { IT: ['CAFFÈ &', 'COLAZIONI'], EN: ['COFFEE &', 'DRINKS'], TH: ['กาแฟ &', 'เครื่องดื่ม'], DE: ['KAFFEE &', 'DRINKS'] },
-  2: { IT: ['DRINK &', 'COCKTAIL'], EN: ['DRINKS &', 'COCKTAILS'], TH: ['เครื่องดื่ม', '& ค็อกเทล'], DE: ['DRINKS &', 'COCKTAILS'] },
-  3: { IT: ['ANTIPASTI &', 'BRUSCHETTA'], EN: ['APPETIZERS &', 'BRUSCHETTA'], TH: ['อาหารว่าง', '& บรูสเก็ตตา'], DE: ['VORSPEISEN', '& BRUSCHETTA'] },
-  4: { IT: ['PRIMI PIATTI', '(PASTA)'], EN: ['HOMEMADE', 'PASTA'], TH: ['พาสต้า', 'จานแรก'], DE: ['PASTA &', 'NUDELN'] },
-  5: { IT: ['LE NOSTRE', 'FOCACCE'], EN: ['OUR', 'FOCACCIAS'], TH: ['โฟคาชชา', 'สูตรพิเศษ'], DE: ['UNSERE', 'FOCACCIAS'] },
-  6: { IT: ['PANINI &', 'SANDWICH'], EN: ['PANINI &', 'SANDWICHES'], TH: ['พานินี่ &', 'แซนด์วิช'], DE: ['PANINI &', 'SANDWICHES'] },
-  7: { IT: ['CUCINA', 'ITALIANA'], EN: ['ITALIAN', 'CUISINE'], TH: ['อาหาร', 'อิตาเลียน'], DE: ['ITALIENISCHE', 'KÜCHE'] },
-  8: { IT: ['SECONDI', 'DI PESCE'], EN: ['FRESH', 'FISH'], TH: ['อาหาร', 'จานปลา'], DE: ['FRISCHER', 'FISCH'] },
-  9: { IT: ['CUCINA', 'FUSION'], EN: ['FUSION', 'CUISINE'], TH: ['อาหาร', 'ฟิวชั่น'], DE: ['FUSION', 'KÜCHE'] },
-  10: { IT: ['PIZZE', 'ITALIANE'], EN: ['TRADITIONAL', 'PIZZAS'], TH: ['พิซซ่า', 'ดั้งเดิม'], DE: ['TRADITIONELLE', 'PIZZAS'] },
-  11: { IT: ['CUCINA', 'BIRMANA'], EN: ['BURMESE', 'DISHES'], TH: ['อาหาร', 'พม่า'], DE: ['BIRMANISCHE', 'KÜCHE'] },
-  12: { IT: ['CUCINA', 'THAI'], EN: ['THAI', 'CUISINE'], TH: ['อาหาร', 'ไทย'], DE: ['THAI', 'KÜCHE'] },
-  13: { IT: ['PIATTI', 'VEGANI'], EN: ['VEGAN', 'OPTIONS'], TH: ['อาหาร', 'วีแกน'], DE: ['VEGANE', 'GERICHTE'] },
-  14: { IT: ['BREAKFAST', '& SNACK'], EN: ['BREAKFAST', '& SNACKS'], TH: ['อาหารเช้า', '& ของว่าง'], DE: ['FRÜHSTÜCK', '& SNACKS'] },
-};
-
-const viewModeLabels = {
-  IT: { scroll: 'Striscia Sfogliabile (15)', grid: 'Tutte le 15 Pagine' },
-  EN: { scroll: 'Scrollable Row (15)', grid: 'All 15 Pages' },
-  TH: { scroll: 'แถบเลื่อน (15)', grid: 'แสดงทั้ง 15 หน้า' },
-  DE: { scroll: 'Horizontale Leiste (15)', grid: 'Alle 15 Seiten' },
 };
 
 const restaurantLabels = {
@@ -127,11 +54,14 @@ const restaurantLabels = {
     desc: 'Il ristorante del Flower Power è un crocevia di culture culinarie. Proponiamo piatti della tradizione italiana al 100% — con autentica pizza tradizionale italiana e pasta fresca fatta in casa — affiancati da specialità tipiche tailandesi e birmane e un intero menu dedicato a ricette vegane e salutari.',
     hours: '08:00 – 21:15 daily',
     meals: 'Breakfast · Lunch · Dinner',
-    browseMenu: 'Sfoglia il Nostro Menù Digitale',
-    browseDesc: 'Clicca sulle categorie in alto per saltare direttamente alle sezioni, usa le frecce per sfogliare le pagine, o tocca l’immagine per aprirla a schermo intero.',
+    browseMenu: 'Sfoglia il Menù come un Vero Libro',
+    browseDesc: 'Scorri con il dito verso destra o sinistra, oppure usa le frecce per voltare pagina, proprio come un vero menù cartaceo. Tocca l’immagine per aprirla a schermo intero.',
+    swipeHint: 'Scorri con il dito o usa le frecce per voltare pagina',
     fullscreen: 'Schermo Intero',
     pageText: 'Pagina {current} di {total}',
-    allPages: 'Tutte le Pagine',
+    prevPage: 'Precedente',
+    nextPage: 'Successiva',
+    allPages: 'Indice Visivo di Tutte le 15 Pagine',
     disclaimer: 'Le proposte ed i prezzi del menù sono soggetti a variazioni in base alla stagionalità ed alla reperibilità degli ingredienti locali freschi dell’isola.',
     close: 'Chiudi'
   },
@@ -141,11 +71,14 @@ const restaurantLabels = {
     desc: 'Flower Power’s restaurant is a culinary crossroads. We serve 100% traditional Italian dishes — with authentic traditional Italian pizza and homemade fresh pasta — alongside typical Thai and Burmese specialties, and a complete menu dedicated to vegan and healthy recipes.',
     hours: '08:00 – 21:15 daily',
     meals: 'Breakfast · Lunch · Dinner',
-    browseMenu: 'Browse Our Digital Menu',
-    browseDesc: 'Click the categories above to jump directly to sections, use the arrows to flip pages, or tap the image to open it in full screen.',
+    browseMenu: 'Flip Through the Menu Like a Real Book',
+    browseDesc: 'Swipe left or right with your finger, or use the arrows to turn pages, just like a real paper menu. Tap the image to view in full screen.',
+    swipeHint: 'Swipe or use arrows to turn pages',
     fullscreen: 'Full Screen',
     pageText: 'Page {current} of {total}',
-    allPages: 'All Pages',
+    prevPage: 'Previous',
+    nextPage: 'Next',
+    allPages: 'Visual Index of All 15 Pages',
     disclaimer: 'Menu items and prices are subject to change depending on seasonality and availability of fresh local ingredients.',
     close: 'Close'
   },
@@ -155,11 +88,14 @@ const restaurantLabels = {
     desc: 'ร้านอาหารของฟลาวเวอร์พาวเวอร์คือศูนย์รวมแห่งความอร่อยที่ผสมผสานความหลากหลายทางวัฒนธรรมได้อย่างลงตัว เราพร้อมเสิร์ฟเมนูอิตาเลียนดั้งเดิมแท้ๆ 100% โดดเด่นด้วยพิซซ่าอิตาเลียนแท้ๆ และพาสต้าเส้นสดทำมือ ควบคู่กับอาหารไทยและอาหารพม่ารสชาติจัดจ้าน พร้อมด้วยเมนูเพื่อสุขภาพและวีแกนที่มีให้เลือกสรรอย่างครบครัน',
     hours: 'เปิดบริการทุกวัน 08:00 – 21:15 น.',
     meals: 'อาหารเช้า · อาหารกลางวัน · อาหารค่ำ',
-    browseMenu: 'เปิดอ่านเมนูดิจิทัลของเรา',
-    browseDesc: 'คลิกหมวดหมู่ด้านบนเพื่อสลับไปยังหน้าหมวดหมู่นั้นๆ ใช้ปุ่มลูกศรเพื่อพลิกหน้าเมนู หรือแตะที่ภาพเพื่อเปิดดูขนาดใหญ่เต็มจอ',
+    browseMenu: 'เปิดอ่านเมนูเหมือนเปิดเล่มหนังสือจริง',
+    browseDesc: 'ปัดหน้าจอไปทางซ้ายหรือขวา หรือใช้ปุ่มลูกศรเพื่อพลิกหน้าเมนูเหมือนเปิดอ่านหนังสือ แตะที่ภาพเพื่อดูขนาดใหญ่เต็มจอ',
+    swipeHint: 'ปัดหน้าจอหรือกดลูกศรเพื่อพลิกหน้า',
     fullscreen: 'ขยายเต็มหน้าจอ',
     pageText: 'หน้า {current} จาก {total}',
-    allPages: 'หน้าเมนูทั้งหมด',
+    prevPage: 'หน้าก่อนหน้า',
+    nextPage: 'หน้าถัดไป',
+    allPages: 'ดัชนีหน้าเมนูทั้งหมด 15 หน้า',
     disclaimer: 'รายการอาหารและราคาอาจมีการเปลี่ยนแปลงตามฤดูกาลและความพร้อมของวัตถุดิบสดใหม่บนเกาะ',
     close: 'ปิดหน้าต่าง'
   },
@@ -169,11 +105,14 @@ const restaurantLabels = {
     desc: 'Das Restaurant von Flower Power ist ein kulinarischer Treffpunkt. Wir servieren zu 100 % traditionelle italienische Gerichte — mit authentischer traditioneller italienischer Pizza und hausgemachter Pasta — neben typisch thailändischen und birmanischen Spezialitäten sowie einer breiten Palette an veganen und gesunden Rezepten.',
     hours: 'Täglich 08:00 – 21:15 Uhr',
     meals: 'Frühstück · Mittagessen · Abendessen',
-    browseMenu: 'Durchstöbern Sie unsere digitale Speisekarte',
-    browseDesc: 'Klicken Sie auf die Kategorien oben, um direkt zu den Abschnitten zu springen, nutzen Sie die Pfeile zum Umblättern, oder tippen Sie auf das Bild, um es im Vollbildmodus zu öffnen.',
+    browseMenu: 'Speisekarte wie ein echtes Buch durchblättern',
+    browseDesc: 'Wischen Sie mit dem Finger nach links oder rechts oder nutzen Sie die Pfeile zum Umblättern wie in einem echten Menübuch. Tippen Sie auf das Bild für den Vollbildmodus.',
+    swipeHint: 'Wischen oder Pfeile nutzen zum Umblättern',
     fullscreen: 'Vollbildmodus',
     pageText: 'Seite {current} von {total}',
-    allPages: 'Alle Seiten',
+    prevPage: 'Vorherige',
+    nextPage: 'Nächste',
+    allPages: 'Visuelle Übersicht aller 15 Seiten',
     disclaimer: 'Gerichte und Preise können sich je nach Saison und Verfügbarkeit frischer lokaler Zutaten ändern.',
     close: 'Schließen'
   }
@@ -187,36 +126,13 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
   const [currentPage, setCurrentPage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [zoomScale, setZoomScale] = useState(1);
-  const [viewMode, setViewMode] = useState<'grid' | 'scroll'>('grid');
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  useEffect(() => {
-    if (cardRefs.current[currentPage]) {
-      cardRefs.current[currentPage]?.scrollIntoView({
-        behavior: 'smooth',
-        inline: 'center',
-        block: 'nearest',
-      });
-    }
-  }, [currentPage]);
-
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
-    }
-  };
+  // Touch Swipe Gesture State
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
   const t = restaurantLabels[lang] || restaurantLabels['IT'];
   const titles = pageTitleTranslations[lang] || pageTitleTranslations['IT'];
-  const catNames = categoryTranslations[lang] || categoryTranslations['IT'];
 
   const getImageUrl = (fileName: string) => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://gjqevgkbjkharczhikcl.supabase.co";
@@ -233,9 +149,25 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
     setZoomScale(1);
   };
 
-  const handleCategoryClick = (pageIndex: number) => {
-    setCurrentPage(pageIndex);
-    setZoomScale(1);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEndX(null);
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) return;
+    const distance = touchStartX - touchEndX;
+    if (distance > 45) {
+      // Swiped Left -> go Next
+      handleNext();
+    } else if (distance < -45) {
+      // Swiped Right -> go Prev
+      handlePrev();
+    }
   };
 
   const handleZoomIn = () => {
@@ -291,8 +223,13 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
         </div>
 
         {/* Digital Menu Book Section */}
-        <div className="mt-8 bg-[#F3EAE0]/40 border border-[#E6DACF] rounded-3xl p-5 md:p-6 shadow-sm">
-          <div className="text-center mb-5">
+        <div className="mt-8 bg-[#F3EAE0]/40 border border-[#E6DACF] rounded-3xl p-4 sm:p-6 shadow-sm">
+          {/* Header Introduttivo Chiaro sul Libro da Sfogliare */}
+          <div className="text-center mb-6 max-w-xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-800/10 text-emerald-850 rounded-full text-xs font-black uppercase tracking-wider mb-2">
+              <BookOpen size={14} />
+              <span>{t.swipeHint}</span>
+            </div>
             <h3
               className="text-stone-850 mb-2 text-2xl md:text-3xl font-semibold tracking-tight uppercase"
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
@@ -300,208 +237,99 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
               {t.browseMenu}
             </h3>
             <p 
-              className="text-stone-700 text-sm sm:text-base leading-relaxed max-w-lg mx-auto font-normal"
+              className="text-stone-700 text-sm sm:text-base leading-relaxed font-normal"
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
             >
               {t.browseDesc}
             </p>
           </div>
 
-          {/* CATEGORY SELECTOR (TUTTI E 15 I TITOLI SFOGLIABILI IN CIMA) */}
-          <div className="max-w-xl sm:max-w-2xl mx-auto mb-3 px-1 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span 
-                className="text-xs sm:text-sm font-black uppercase tracking-wider text-stone-800 flex items-center gap-1.5"
-                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-              >
-                <BookOpen className="w-3.5 h-3.5 text-emerald-800" />
-                <span>15 {lang === 'IT' ? 'Pagine Menù' : lang === 'TH' ? 'หน้าเมนู' : lang === 'DE' ? 'Menüseiten' : 'Menu Pages'}</span>
+          {/* Main Book Viewer */}
+          <div className="relative max-w-2xl mx-auto border-2 border-[#d9cdbe] bg-[#FAF6F0] rounded-3xl p-3 sm:p-4 shadow-xl flex flex-col items-center">
+            {/* Book Header Inside Card */}
+            <div className="w-full flex items-center justify-between mb-3 px-1.5">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse shrink-0" />
+                <span 
+                  className="text-xs sm:text-sm font-black uppercase tracking-wider text-stone-850 truncate max-w-[200px] sm:max-w-xs"
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                >
+                  {titles[menuPages[currentPage].titleKey]}
+                </span>
+              </div>
+              <span className="text-xs sm:text-sm font-black px-3 py-1 bg-emerald-800 text-white rounded-xl shadow-xs shrink-0">
+                {currentPage + 1} / {menuPages.length}
               </span>
             </div>
 
-            {/* Toggle View Mode: Griglia vs Striscia Orizzontale */}
-            <div className="flex items-center bg-[#ded0bf]/70 p-0.5 rounded-xl border border-[#cfbea6]">
-              <button
-                type="button"
-                onClick={() => setViewMode('grid')}
-                className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all flex items-center gap-1 cursor-pointer ${
-                  viewMode === 'grid'
-                    ? 'bg-emerald-800 text-white shadow-xs'
-                    : 'text-stone-700 hover:text-black'
-                }`}
-                title={viewModeLabels[lang]?.grid || viewModeLabels['IT'].grid}
-              >
-                <LayoutGrid className="w-3 h-3" />
-                <span>{lang === 'IT' ? 'Griglia (15)' : lang === 'TH' ? 'ตาราง (15)' : lang === 'DE' ? 'Gitter (15)' : 'Grid (15)'}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('scroll')}
-                className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all flex items-center gap-1 cursor-pointer ${
-                  viewMode === 'scroll'
-                    ? 'bg-emerald-800 text-white shadow-xs'
-                    : 'text-stone-700 hover:text-black'
-                }`}
-                title={viewModeLabels[lang]?.scroll || viewModeLabels['IT'].scroll}
-              >
-                <span>↔️</span>
-                <span>{lang === 'IT' ? 'Sfoglia (15)' : lang === 'TH' ? 'เลื่อน (15)' : lang === 'DE' ? 'Leiste (15)' : 'Scroll (15)'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Render View: Grid vs Scrollable Ribbon */}
-          {viewMode === 'grid' ? (
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 sm:gap-2 mb-6 max-w-xl sm:max-w-2xl mx-auto px-1 animate-fadeIn">
-              {menuPages.map((page, idx) => {
-                const Icon = menuPageIcons[idx] || BookOpen;
-                const isSelected = currentPage === idx;
-                const [line1, line2] = menuPageBlockLabels[idx]?.[lang] || menuPageBlockLabels[idx]?.['IT'] || ['MENU', ''];
-
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    ref={(el) => { cardRefs.current[idx] = el; }}
-                    onClick={() => handleCategoryClick(idx)}
-                    className={`w-full h-[58px] sm:h-[66px] flex flex-col items-center justify-center p-1 rounded-xl transition-all duration-200 border-2 text-center group cursor-pointer select-none active:scale-95 ${
-                      isSelected
-                        ? 'bg-gradient-to-b from-[#184534] to-[#0c241b] border-emerald-700 text-white shadow-md ring-2 ring-emerald-700/30 scale-[1.02]'
-                        : 'bg-[#ede5d8] border-[#cfbea6] text-[#2c1a11] shadow-xs hover:bg-[#e6dcce] hover:border-emerald-700/50 hover:text-black'
-                    }`}
-                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                  >
-                    <div
-                      className={`w-4 h-4 sm:w-5 sm:h-5 rounded-md flex items-center justify-center shrink-0 mb-0.5 transition-transform duration-200 group-hover:scale-105 ${
-                        isSelected
-                          ? 'bg-white/20 text-emerald-300'
-                          : 'bg-[#ded0bf] text-emerald-900 group-hover:bg-emerald-800/15'
-                      }`}
-                    >
-                      <Icon className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[2.3]" />
-                    </div>
-                    <div className="flex flex-col items-center justify-center w-full px-0.5 leading-[1.05]">
-                      <span className="text-[8.5px] sm:text-[9.5px] font-black tracking-tight uppercase block truncate max-w-full">
-                        {line1}
-                      </span>
-                      {line2 ? (
-                        <span className="text-[8.5px] sm:text-[9.5px] font-black tracking-tight uppercase block truncate max-w-full">
-                          {line2}
-                        </span>
-                      ) : null}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="relative max-w-xl sm:max-w-2xl mx-auto mb-6 px-1 animate-fadeIn">
-              <button
-                type="button"
-                onClick={scrollLeft}
-                className="absolute -left-1 sm:-left-3 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-[#FAF6F0] border border-[#cfbea6] shadow-md flex items-center justify-center text-stone-800 hover:bg-emerald-800 hover:text-white transition-colors cursor-pointer"
-                title="Precedente"
-              >
-                <ChevronLeft size={16} />
-              </button>
-
-              <div
-                ref={scrollContainerRef}
-                className="flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1 px-5"
-              >
-                {menuPages.map((page, idx) => {
-                  const Icon = menuPageIcons[idx] || BookOpen;
-                  const isSelected = currentPage === idx;
-                  const [line1, line2] = menuPageBlockLabels[idx]?.[lang] || menuPageBlockLabels[idx]?.['IT'] || ['MENU', ''];
-
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      ref={(el) => { cardRefs.current[idx] = el; }}
-                      onClick={() => handleCategoryClick(idx)}
-                      className={`flex-shrink-0 w-[100px] sm:w-[115px] h-[60px] sm:h-[68px] flex flex-col items-center justify-center p-1 sm:p-1.5 rounded-xl transition-all duration-200 border-2 text-center group cursor-pointer select-none active:scale-95 ${
-                        isSelected
-                          ? 'bg-gradient-to-b from-[#184534] to-[#0c241b] border-emerald-700 text-white shadow-md ring-2 ring-emerald-700/30 scale-[1.02]'
-                          : 'bg-[#ede5d8] border-[#cfbea6] text-[#2c1a11] shadow-xs hover:bg-[#e6dcce] hover:border-emerald-700/50 hover:text-black'
-                      }`}
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                    >
-                      <div
-                        className={`w-4 h-4 sm:w-5 sm:h-5 rounded-md flex items-center justify-center shrink-0 mb-0.5 transition-transform duration-200 group-hover:scale-105 ${
-                          isSelected
-                            ? 'bg-white/20 text-emerald-300'
-                            : 'bg-[#ded0bf] text-emerald-900 group-hover:bg-emerald-800/15'
-                        }`}
-                      >
-                        <Icon className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[2.3]" />
-                      </div>
-                      <div className="flex flex-col items-center justify-center w-full px-0.5 leading-[1.05]">
-                        <span className="text-[8.5px] sm:text-[9.5px] font-black tracking-tight uppercase block truncate max-w-full">
-                          {line1}
-                        </span>
-                        {line2 ? (
-                          <span className="text-[8.5px] sm:text-[9.5px] font-black tracking-tight uppercase block truncate max-w-full">
-                            {line2}
-                          </span>
-                        ) : null}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                type="button"
-                onClick={scrollRight}
-                className="absolute -right-1 sm:-right-3 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-[#FAF6F0] border border-[#cfbea6] shadow-md flex items-center justify-center text-stone-800 hover:bg-emerald-800 hover:text-white transition-colors cursor-pointer"
-                title="Successivo"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          )}
-
-          {/* Main Book Viewer */}
-          <div className="relative max-w-2xl mx-auto border border-stone-250 bg-stone-100/50 rounded-2xl p-2 shadow-inner flex flex-col items-center">
-            {/* Viewport page container */}
-            <div className="relative w-full aspect-[1/1.4] overflow-hidden rounded-xl bg-white shadow-md group">
+            {/* Viewport page container with Touch Swipe */}
+            <div 
+              className="relative w-full aspect-[1/1.4] overflow-hidden rounded-2xl bg-white shadow-2xl border border-stone-200/80 group select-none cursor-pointer"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               <img
                 src={getImageUrl(menuPages[currentPage].file)}
                 alt={titles[menuPages[currentPage].titleKey]}
-                className="w-full h-full object-contain select-none"
+                className="w-full h-full object-contain pointer-events-none"
               />
 
-              {/* Image Interaction Layer */}
+              {/* Floating Book-Turning Left Arrow Flap */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrev();
+                }}
+                aria-label={t.prevPage}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/60 hover:bg-emerald-800 text-white backdrop-blur-md flex items-center justify-center shadow-2xl border border-white/25 transition-all duration-200 active:scale-90 cursor-pointer"
+                title={t.prevPage}
+              >
+                <ChevronLeft size={26} className="stroke-[2.5]" />
+              </button>
+
+              {/* Floating Book-Turning Right Arrow Flap */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNext();
+                }}
+                aria-label={t.nextPage}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/60 hover:bg-emerald-800 text-white backdrop-blur-md flex items-center justify-center shadow-2xl border border-white/25 transition-all duration-200 active:scale-90 cursor-pointer"
+                title={t.nextPage}
+              >
+                <ChevronRight size={26} className="stroke-[2.5]" />
+              </button>
+
+              {/* Image Interaction Layer: Fullscreen on Tap */}
               <div
                 onClick={() => setIsLightboxOpen(true)}
-                className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300 cursor-zoom-in flex items-center justify-center"
+                className="absolute inset-0 bg-black/0 hover:bg-black/15 transition-colors duration-300 flex items-center justify-center"
               >
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 text-white text-xs px-4 py-2 rounded-xl flex items-center gap-2 backdrop-blur-sm border border-white/20">
-                  <Maximize2 size={12} />
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/75 text-white text-xs px-4 py-2 rounded-xl flex items-center gap-2 backdrop-blur-md border border-white/25 shadow-xl">
+                  <Maximize2 size={13} />
                   <span style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}>{t.fullscreen}</span>
                 </div>
               </div>
             </div>
 
-            {/* Pagination Controls */}
-            <div className="flex items-center justify-between w-full mt-4 px-2">
+            {/* Bottom Controls Bar */}
+            <div className="flex items-center justify-between w-full mt-3.5 px-0.5 gap-2">
               <button
+                type="button"
                 onClick={handlePrev}
-                className="p-3 bg-stone-850 hover:bg-stone-900 text-white rounded-xl transition-colors duration-300 shadow-md cursor-pointer"
+                className="flex-1 max-w-[150px] sm:max-w-[170px] py-2.5 px-3 bg-[#24201d] hover:bg-emerald-800 active:scale-95 text-white rounded-xl transition-all duration-200 shadow-md cursor-pointer flex items-center justify-center gap-1.5 font-bold text-xs sm:text-sm"
               >
                 <ChevronLeft size={18} />
+                <span>{t.prevPage}</span>
               </button>
 
-              <div className="text-center">
+              {/* Center Hint */}
+              <div className="text-center flex-1 px-1">
                 <span 
-                  className="text-xs uppercase tracking-[0.25em] text-emerald-800 font-bold block mb-0.5"
-                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                >
-                  {titles[menuPages[currentPage].titleKey]}
-                </span>
-                <span 
-                  className="text-xs sm:text-sm text-stone-700 font-semibold"
+                  className="text-[11px] sm:text-xs font-black text-stone-700 tracking-wide uppercase block"
                   style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                 >
                   {t.pageText.replace('{current}', String(currentPage + 1)).replace('{total}', String(menuPages.length))}
@@ -509,32 +337,37 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
               </div>
 
               <button
+                type="button"
                 onClick={handleNext}
-                className="p-3 bg-stone-850 hover:bg-stone-900 text-white rounded-xl transition-colors duration-300 shadow-md cursor-pointer"
+                className="flex-1 max-w-[150px] sm:max-w-[170px] py-2.5 px-3 bg-[#24201d] hover:bg-emerald-800 active:scale-95 text-white rounded-xl transition-all duration-200 shadow-md cursor-pointer flex items-center justify-center gap-1.5 font-bold text-xs sm:text-sm"
               >
+                <span>{t.nextPage}</span>
                 <ChevronRight size={18} />
               </button>
             </div>
           </div>
 
-          {/* Thumbnail preview strip */}
-          <div className="mt-6">
+          {/* Visual Thumbnail Strip (Indice Visivo di Tutte le 15 Pagine) */}
+          <div className="mt-8 pt-6 border-t border-[#E6DACF]/80">
             <h4 
-              className="text-center text-xs sm:text-sm text-stone-700 font-black mb-2.5 uppercase tracking-wider"
+              className="text-center text-xs sm:text-sm text-stone-700 font-black mb-3 uppercase tracking-wider flex items-center justify-center gap-2"
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
             >
-              {t.allPages}
+              <BookOpen size={16} className="text-emerald-800" />
+              <span>{t.allPages}</span>
             </h4>
-            <div className="flex gap-3 overflow-x-auto pb-4 pt-1 px-2 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
+            <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-4 pt-1 px-2 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
               {menuPages.map((page, idx) => {
                 const isActive = currentPage === idx;
                 return (
                   <button
                     key={idx}
+                    type="button"
                     onClick={() => { setCurrentPage(idx); setZoomScale(1); }}
-                    className={`flex-shrink-0 w-16 aspect-[1/1.4] rounded-lg overflow-hidden border-2 transition-all duration-300 shadow-sm cursor-pointer ${
-                      isActive ? 'border-emerald-700 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
+                    className={`flex-shrink-0 w-16 sm:w-20 aspect-[1/1.4] rounded-xl overflow-hidden border-2 transition-all duration-300 shadow-sm cursor-pointer relative group ${
+                      isActive ? 'border-emerald-700 scale-105 shadow-lg ring-2 ring-emerald-600/30' : 'border-[#cfbea6]/60 opacity-60 hover:opacity-100 hover:border-emerald-700/50'
                     }`}
+                    title={titles[page.titleKey]}
                   >
                     <img
                       src={getImageUrl(page.file)}
@@ -542,6 +375,11 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
                       className="w-full h-full object-cover"
                       loading="lazy"
                     />
+                    <div className={`absolute bottom-0 inset-x-0 text-[9px] sm:text-[10px] font-black text-center py-0.5 transition-colors ${
+                      isActive ? 'bg-emerald-800 text-white' : 'bg-black/60 text-white/90 group-hover:bg-black/80'
+                    }`}>
+                      {idx + 1}
+                    </div>
                   </button>
                 );
               })}
@@ -608,8 +446,13 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
             </div>
           </div>
 
-          {/* Zoomable Image Container */}
-          <div className="flex-1 flex items-center justify-center overflow-auto py-4">
+          {/* Zoomable Image Container with Swipe */}
+          <div 
+            className="flex-1 flex items-center justify-center overflow-auto py-4"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <div
               className="transition-transform duration-200 ease-out max-h-full max-w-full"
               style={{ transform: `scale(${zoomScale})` }}
@@ -617,7 +460,7 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
               <img
                 src={getImageUrl(menuPages[currentPage].file)}
                 alt={titles[menuPages[currentPage].titleKey]}
-                className="max-h-[75vh] md:max-h-[85vh] object-contain select-none"
+                className="max-h-[75vh] md:max-h-[85vh] object-contain select-none pointer-events-none"
               />
             </div>
           </div>
@@ -630,11 +473,11 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
             >
               <ChevronLeft size={16} />
-              <span className="hidden sm:inline">Prev</span>
+              <span className="hidden sm:inline">{t.prevPage}</span>
             </button>
 
             <span 
-              className="text-xs text-stone-500"
+              className="text-xs text-stone-400"
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
             >
               {t.pageText.replace('{current}', String(currentPage + 1)).replace('{total}', String(menuPages.length))}
@@ -645,7 +488,7 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
               className="px-4 py-2 hover:bg-white/10 rounded-lg transition-colors text-sm font-semibold flex items-center gap-2 cursor-pointer"
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
             >
-              <span className="hidden sm:inline">Next</span>
+              <span className="hidden sm:inline">{t.nextPage}</span>
               <ChevronRight size={16} />
             </button>
           </div>
