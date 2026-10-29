@@ -228,7 +228,7 @@ export default function GallerySection({ lang = 'IT' }: Props) {
           </h1>
 
           <p
-            className="text-stone-600 max-w-2xl mx-auto text-xs md:text-sm font-light leading-relaxed mb-6"
+            className="text-stone-700 max-w-2xl mx-auto text-sm sm:text-base font-normal leading-relaxed mb-6"
             style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
           >
             {t.subtitle}
@@ -337,7 +337,7 @@ export default function GallerySection({ lang = 'IT' }: Props) {
             href="https://www.instagram.com/flowerpowerphayam"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-stone-600 hover:text-emerald-700 transition-colors font-semibold"
+            className="inline-flex items-center gap-2.5 text-sm tracking-[0.2em] uppercase text-stone-700 hover:text-emerald-800 transition-colors font-bold"
             style={{ fontFamily: 'Outfit, sans-serif' }}
           >
             <Flower2 size={15} className="text-emerald-600" />

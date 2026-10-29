@@ -126,7 +126,7 @@ export default function VillageFooter({ onNavigate, lang = 'IT' }: Props) {
               <li key={link.id}>
                 <button
                   onClick={() => onNavigate(link.id)}
-                  className="text-stone-400 hover:text-emerald-500 transition-colors uppercase text-xs font-semibold tracking-wider text-left border-0 cursor-pointer"
+                  className="text-stone-300 hover:text-emerald-400 transition-colors uppercase text-sm font-bold tracking-wider text-left border-0 cursor-pointer"
                   style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                 >
                   {link.label}
@@ -136,7 +136,7 @@ export default function VillageFooter({ onNavigate, lang = 'IT' }: Props) {
             <li>
               <a
                 href="/admin?dept=resort"
-                className="text-stone-400 hover:text-emerald-400 transition-colors uppercase text-xs font-bold tracking-wider text-left border-0 cursor-pointer inline-flex items-center gap-1 mt-1"
+                className="text-stone-300 hover:text-emerald-400 transition-colors uppercase text-sm font-bold tracking-wider text-left border-0 cursor-pointer inline-flex items-center gap-1.5 mt-1"
                 style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
               >
                 🔒 {lang === 'IT' ? 'Area Privata' : lang === 'EN' ? 'Staff Portal' : lang === 'TH' ? 'พื้นที่เจ้าหน้าที่' : 'Mitarbeiterbereich'}
@@ -147,7 +147,7 @@ export default function VillageFooter({ onNavigate, lang = 'IT' }: Props) {
                 href="/dining"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-stone-400 hover:text-amber-400 transition-colors uppercase text-xs font-bold tracking-wider text-left border-0 cursor-pointer inline-flex items-center gap-1 mt-0.5"
+                className="text-stone-300 hover:text-amber-400 transition-colors uppercase text-sm font-bold tracking-wider text-left border-0 cursor-pointer inline-flex items-center gap-1.5 mt-0.5"
                 style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
               >
                 📱 {lang === 'IT' ? 'Dining Tablet (-5%)' : lang === 'EN' ? 'Dining Tablet (-5%)' : lang === 'TH' ? 'แท็บเล็ตสั่งที่โต๊ะ (-5%)' : 'Dining Tablet (-5%)'}
@@ -219,15 +219,15 @@ export default function VillageFooter({ onNavigate, lang = 'IT' }: Props) {
             className="mt-6 p-4 border border-emerald-800 bg-emerald-950 bg-opacity-30 rounded"
             style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
           >
-            <p className="text-xs text-emerald-500 tracking-wide font-medium mb-1">{t.directOfferTitle}</p>
-            <p className="text-xs text-stone-400">{t.directOfferDesc}</p>
+            <p className="text-sm font-bold text-emerald-400 tracking-wide mb-1">{t.directOfferTitle}</p>
+            <p className="text-sm font-medium text-stone-300">{t.directOfferDesc}</p>
           </div>
         </div>
       </div>
 
       <div className="border-t border-stone-800 px-6 py-5">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-stone-600">
+          <p className="text-xs sm:text-sm text-stone-400 font-medium">
             © {new Date().getFullYear()} Flower Power Farm Village & Spa · Koh Phayam, Thailand
           </p>
           <div className="flex items-center gap-1 text-xs text-stone-600">

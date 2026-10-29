@@ -189,7 +189,7 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
           <div className="flex-1 text-center md:text-left flex flex-col justify-between">
             <div>
               <p 
-                className="text-[10px] tracking-[0.3em] uppercase text-emerald-700 mb-1" 
+                className="text-xs font-black tracking-[0.25em] uppercase text-emerald-700 mb-1.5" 
                 style={{ fontFamily: 'Inter, sans-serif' }}
               >
                 {t.tag}
@@ -201,18 +201,18 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
                 {t.title}
               </h2>
               <p 
-                className="text-stone-550 text-xs leading-relaxed mb-3"
+                className="text-stone-700 text-sm sm:text-base leading-relaxed mb-3.5 font-normal"
                 style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
               >
                 {t.desc}
               </p>
             </div>
             <div className="flex flex-wrap justify-center md:justify-start gap-4">
-              <div className="flex items-center gap-1.5 text-xs text-stone-600">
+              <div className="flex items-center gap-2 text-sm sm:text-base font-semibold text-stone-700">
                 <Clock size={12} className="text-emerald-700" />
                 <span style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}>{t.hours}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-stone-600">
+              <div className="flex items-center gap-2 text-sm sm:text-base font-semibold text-stone-700">
                 <UtensilsCrossed size={12} className="text-emerald-700" />
                 <span style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}>{t.meals}</span>
               </div>
@@ -230,7 +230,7 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
               {t.browseMenu}
             </h3>
             <p 
-              className="text-stone-550 text-xs max-w-lg mx-auto"
+              className="text-stone-700 text-sm sm:text-base leading-relaxed max-w-lg mx-auto font-normal"
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
             >
               {t.browseDesc}
@@ -245,7 +245,7 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
                 <button
                   key={idx}
                   onClick={() => handleCategoryClick(cat.pageIndex)}
-                  className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all duration-300 ${
+                  className={`px-4.5 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 ${
                     isActive
                       ? 'bg-emerald-700 text-white shadow-sm'
                       : 'bg-stone-100 hover:bg-stone-200 text-stone-750'
@@ -297,7 +297,7 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
                   {titles[menuPages[currentPage].titleKey]}
                 </span>
                 <span 
-                  className="text-[11px] text-stone-550 font-medium"
+                  className="text-xs sm:text-sm text-stone-700 font-semibold"
                   style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                 >
                   {t.pageText.replace('{current}', String(currentPage + 1)).replace('{total}', String(menuPages.length))}
@@ -316,7 +316,7 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
           {/* Thumbnail preview strip */}
           <div className="mt-6">
             <h4 
-              className="text-center text-xs text-stone-500 font-semibold mb-2.5 uppercase tracking-wider"
+              className="text-center text-xs sm:text-sm text-stone-700 font-black mb-2.5 uppercase tracking-wider"
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
             >
               {t.allPages}
@@ -347,7 +347,7 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
 
         {/* Informative Note Footer */}
         <p 
-          className="text-center text-stone-400 text-xs mt-6 italic"
+          className="text-center text-stone-600 text-sm mt-6 italic font-medium"
           style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
         >
           {t.disclaimer}

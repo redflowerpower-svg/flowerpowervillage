@@ -631,7 +631,7 @@ export default function SpaSection({ lang = 'IT' }: Props) {
                       {t.gymTitle}
                     </h3>
                     <p 
-                      className="text-xs text-stone-550 leading-relaxed mb-6 font-light"
+                      className="text-sm sm:text-base text-stone-700 leading-relaxed mb-6 font-normal"
                       style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                     >
                       {t.gymDesc}
@@ -648,7 +648,7 @@ export default function SpaSection({ lang = 'IT' }: Props) {
                       {t.gymEquip.map((equip: string, idx: number) => (
                         <div 
                           key={idx} 
-                          className="flex items-center gap-2 text-stone-600 text-xs font-light"
+                          className="flex items-center gap-2.5 text-stone-800 text-sm font-medium"
                           style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                         >
                           <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full flex-shrink-0" />
@@ -722,13 +722,13 @@ export default function SpaSection({ lang = 'IT' }: Props) {
                       {t.yogaTitle}
                     </h3>
                     <p 
-                      className="text-xs text-stone-550 leading-relaxed mb-4 font-light"
+                      className="text-sm sm:text-base text-stone-700 leading-relaxed mb-4 font-normal"
                       style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                     >
                       {t.yogaDesc1}
                     </p>
                     <p 
-                      className="text-xs text-stone-550 leading-relaxed mb-6 font-light"
+                      className="text-sm sm:text-base text-stone-700 leading-relaxed mb-6 font-normal"
                       style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                     >
                       {t.yogaDesc2}
@@ -833,16 +833,16 @@ export default function SpaSection({ lang = 'IT' }: Props) {
                             {tr.name}
                           </h4>
                           <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200/60">
+                            <span className="text-xs font-bold text-stone-600 bg-stone-100 px-2.5 py-1 rounded-md border border-stone-200">
                               {item.duration}
                             </span>
-                            <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200/60 shadow-2xs">
+                            <span className="text-sm font-black text-emerald-800 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-200 shadow-xs">
                               {item.price}
                             </span>
                           </div>
                         </div>
                         <p 
-                          className="text-xs text-stone-600 leading-relaxed font-light"
+                          className="text-sm text-stone-700 leading-relaxed font-normal"
                           style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                         >
                           {tr.desc}
@@ -898,16 +898,16 @@ export default function SpaSection({ lang = 'IT' }: Props) {
                             {be.name}
                           </h4>
                           <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200/60">
+                            <span className="text-xs font-bold text-stone-600 bg-stone-100 px-2.5 py-1 rounded-md border border-stone-200">
                               {item.duration}
                             </span>
-                            <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200/60 shadow-2xs">
+                            <span className="text-sm font-black text-emerald-800 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-200 shadow-xs">
                               {item.price}
                             </span>
                           </div>
                         </div>
                         <p 
-                          className="text-xs text-stone-600 leading-relaxed font-light"
+                          className="text-sm text-stone-700 leading-relaxed font-normal"
                           style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                         >
                           {be.desc}
@@ -932,7 +932,7 @@ export default function SpaSection({ lang = 'IT' }: Props) {
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a
               href="mailto:flowerpowerphayam@gmail.com?subject=Prenotazione trattamenti Spa"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs tracking-[0.2em] uppercase transition-colors duration-300 font-semibold rounded-xl shadow-sm cursor-pointer"
+              className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-emerald-700 hover:bg-emerald-800 text-white text-sm sm:text-base tracking-[0.2em] uppercase transition-colors duration-300 font-black rounded-xl shadow-md cursor-pointer"
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
             >
               <Calendar size={14} />
@@ -940,7 +940,7 @@ export default function SpaSection({ lang = 'IT' }: Props) {
             </a>
             <a
               href="mailto:flowerpowerphayam@gmail.com?subject=Collaborazione Yoga / Istruttore"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-stone-800 hover:bg-stone-900 text-white text-xs tracking-[0.2em] uppercase transition-colors duration-300 font-semibold rounded-xl shadow-sm cursor-pointer"
+              className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-stone-800 hover:bg-stone-900 text-white text-sm sm:text-base tracking-[0.2em] uppercase transition-colors duration-300 font-black rounded-xl shadow-md cursor-pointer"
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
             >
               <Mail size={14} />

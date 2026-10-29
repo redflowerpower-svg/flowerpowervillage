@@ -199,7 +199,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                     href="https://maps.app.goo.gl/62jFof8xt6Fj5nwT7"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-emerald-700 hover:text-emerald-800 font-semibold inline-flex items-center gap-1 transition-colors"
+                    className="text-sm sm:text-base text-emerald-800 hover:text-emerald-900 font-bold inline-flex items-center gap-1.5 transition-colors"
                     style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                   >
                     <span>{t.mapsLink}</span>
@@ -220,10 +220,10 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                   </p>
                   <div className="flex flex-col gap-1">
                     <a href="tel:+66958825573" className="text-sm text-emerald-700 hover:text-emerald-800 font-medium">
-                      +66 95 882 5573 <span className="text-stone-450 text-xs font-normal">(English / Italiano)</span>
+                      +66 95 882 5573 <span className="text-stone-500 text-sm font-semibold">(English / Italiano)</span>
                     </a>
                     <a href="tel:+66834512741" className="text-sm text-emerald-700 hover:text-emerald-800 font-medium">
-                      +66 83 451 2741 <span className="text-stone-450 text-xs font-normal">(Thai)</span>
+                      +66 83 451 2741 <span className="text-stone-500 text-sm font-semibold">(Thai)</span>
                     </a>
                   </div>
                 </div>
@@ -302,7 +302,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label 
-                    className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                    className="block text-xs sm:text-sm font-bold text-stone-700 uppercase tracking-wider mb-2"
                     style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                   >
                     {t.fieldName}
@@ -317,7 +317,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                 </div>
                 <div>
                   <label 
-                    className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                    className="block text-xs sm:text-sm font-bold text-stone-700 uppercase tracking-wider mb-2"
                     style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                   >
                     {t.fieldEmail}
@@ -333,7 +333,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label 
-                      className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                      className="block text-xs sm:text-sm font-bold text-stone-700 uppercase tracking-wider mb-2"
                       style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                     >
                       {t.fieldCheckin}
@@ -348,7 +348,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                   </div>
                   <div>
                     <label 
-                      className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                      className="block text-xs sm:text-sm font-bold text-stone-700 uppercase tracking-wider mb-2"
                       style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                     >
                       {t.fieldCheckout}
@@ -364,7 +364,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                 </div>
                 <div>
                   <label 
-                    className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                    className="block text-xs sm:text-sm font-bold text-stone-700 uppercase tracking-wider mb-2"
                     style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                   >
                     {t.fieldGuests}
@@ -386,7 +386,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                 </div>
                 <div>
                   <label 
-                    className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                    className="block text-xs sm:text-sm font-bold text-stone-700 uppercase tracking-wider mb-2"
                     style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                   >
                     {t.fieldMessage}
@@ -402,7 +402,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 text-white text-xs tracking-[0.2em] uppercase font-bold rounded-xl transition-colors cursor-pointer"
+                  className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 text-white text-sm sm:text-base tracking-[0.2em] uppercase font-black rounded-xl transition-colors cursor-pointer shadow-md"
                   style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                 >
                   {t.submitBtn}

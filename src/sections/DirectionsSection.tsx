@@ -629,27 +629,27 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
     
     if (f.status === 'AIRBORNE') {
       return (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800 animate-pulse">
+        <span className="text-xs font-black px-2.5 py-1 rounded bg-blue-100 text-blue-800 animate-pulse">
           ✈️ {text}
         </span>
       );
     }
     if (f.status === 'BOARDING') {
       return (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 animate-pulse">
+        <span className="text-xs font-black px-2.5 py-1 rounded bg-amber-100 text-amber-800 animate-pulse">
           ⏳ {text}
         </span>
       );
     }
     if (f.status === 'LANDED') {
       return (
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-200 text-stone-700">
+        <span className="text-xs font-bold px-2.5 py-1 rounded bg-stone-200 text-stone-700">
           ✓ {text}
         </span>
       );
     }
     return (
-      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+      <span className="text-xs font-bold px-2.5 py-1 rounded bg-emerald-100 text-emerald-800">
         ✓ {text}
       </span>
     );
@@ -706,7 +706,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                 >
                   {vip.title}
                 </h3>
-                <p className="text-stone-300 text-xs md:text-sm max-w-3xl font-light leading-relaxed">
+                <p className="text-stone-200 text-sm sm:text-base max-w-3xl font-normal leading-relaxed">
                   {vip.subtitle}
                 </p>
               </div>
@@ -744,7 +744,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                   </div>
                   <h4 className="font-semibold text-white text-sm">{vip.perkName}</h4>
                 </div>
-                <p className="text-stone-300 text-xs font-light leading-relaxed">
+                <p className="text-stone-200 text-sm sm:text-base font-normal leading-relaxed">
                   {vip.perkNameDesc}
                 </p>
               </div>
@@ -756,7 +756,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                   </div>
                   <h4 className="font-semibold text-white text-sm">{vip.perkTickets}</h4>
                 </div>
-                <p className="text-stone-300 text-xs font-light leading-relaxed">
+                <p className="text-stone-200 text-sm sm:text-base font-normal leading-relaxed">
                   {vip.perkTicketsDesc}
                 </p>
               </div>
@@ -768,7 +768,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                   </div>
                   <h4 className="font-semibold text-white text-sm">{vip.perkBoatConnection}</h4>
                 </div>
-                <p className="text-stone-300 text-xs font-light leading-relaxed">
+                <p className="text-stone-200 text-sm sm:text-base font-normal leading-relaxed">
                   {vip.perkBoatConnectionDesc}
                 </p>
               </div>
@@ -810,7 +810,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
         <div className="text-center mb-12">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs md:text-sm font-semibold tracking-wide shadow-md hover:shadow-lg transition-all cursor-pointer group"
+            className="inline-flex items-center gap-3 px-8 py-4.5 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm sm:text-base font-black tracking-wide shadow-md hover:shadow-lg transition-all cursor-pointer group"
             style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
           >
             <Compass size={18} className="text-emerald-300 group-hover:rotate-45 transition-transform duration-300" />
@@ -850,7 +850,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                     <Plane className="text-emerald-700" size={24} />
                   </div>
                   <div>
-                    <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block">
+                    <span className="text-xs sm:text-sm text-emerald-700 font-black uppercase tracking-wider block">
                       {lang === 'IT' ? 'Fase 1' : lang === 'EN' ? 'Step 1' : lang === 'TH' ? 'ขั้นตอนที่ 1' : 'Schritt 1'}
                     </span>
                     <h3 className="text-stone-850 font-bold text-lg">
@@ -858,13 +858,13 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                     </h3>
                   </div>
                 </div>
-                <p className="text-stone-600 text-xs leading-relaxed mb-4 font-light">
+                <p className="text-stone-700 text-sm sm:text-base leading-relaxed mb-4 font-normal">
                   {lang === 'IT' ? "Ranong è la porta d'accesso sulla terraferma per Koh Phayam. I collegamenti principali:" :
                    lang === 'EN' ? 'Ranong on the mainland is the gateway to Koh Phayam. Main transport links:' :
                    lang === 'TH' ? 'จังหวัดระนองเป็นประตูสู่เกาะพยาม การเดินทางหลักมีดังนี้:' :
                    'Ranong auf dem Festland ist das Tor nach Koh Phayam. Die wichtigsten Verbindungen:'}
                 </p>
-                <ul className="space-y-3.5 mb-4 text-xs text-stone-600 font-light">
+                <ul className="space-y-3.5 mb-4 text-sm sm:text-base text-stone-700 font-normal">
                   <li className="flex items-start gap-2">
                     <Plane size={15} className="text-emerald-600 mt-0.5 shrink-0" />
                     <span><strong>{lang === 'IT' ? 'In Aereo' : lang === 'EN' ? 'By Plane' : lang === 'TH' ? 'เครื่องบิน' : 'Flugzeug'}:</strong> {lang === 'IT' ? "Voli Don Mueang (DMK) con AirAsia (1h 15m). L'aeroporto dista 45m dal molo." : lang === 'EN' ? 'Flights from Don Mueang (DMK) with AirAsia (1h 15m). Airport is 45m from pier.' : lang === 'TH' ? 'เที่ยวบินดอนเมือง (DMK) กับแอร์เอเชีย (1 ชม. 15 นาที) สนามบินห่างจากท่าเรือ 45 นาที' : 'Flüge ab Don Mueang (DMK) mit AirAsia (1 Std. 15 Min.). Flughafen 45 Min. zum Pier.'}</span>
@@ -880,7 +880,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                 </ul>
 
                 {/* Symmetrical Flight Radar Notice Mobile */}
-                <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200/60 text-[11px] text-blue-900 font-light leading-relaxed mb-4">
+                <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200/60 text-xs sm:text-sm text-blue-950 font-normal leading-relaxed mb-4">
                   <strong>🛰️ {t.flightRadarNoticeTitle}:</strong> {t.flightRadarNoticeText}
                 </div>
 
@@ -901,7 +901,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                     <Ship className="text-emerald-700" size={24} />
                   </div>
                   <div>
-                    <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block">
+                    <span className="text-xs sm:text-sm text-emerald-700 font-black uppercase tracking-wider block">
                       {lang === 'IT' ? 'Fase 2' : lang === 'EN' ? 'Step 2' : lang === 'TH' ? 'ขั้นตอนที่ 2' : 'Schritt 2'}
                     </span>
                     <h3 className="text-stone-850 font-bold text-lg">
@@ -909,13 +909,13 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                     </h3>
                   </div>
                 </div>
-                <p className="text-stone-600 text-xs leading-relaxed mb-4 font-light">
+                <p className="text-stone-700 text-sm sm:text-base leading-relaxed mb-4 font-normal">
                   {lang === 'IT' ? "Le barche partono dal Molo di Ranong (Saphan Pla Pier) direttamente per l'isola:" :
                    lang === 'EN' ? 'Boats depart from Ranong Pier (Saphan Pla Pier) directly to the island:' :
                    lang === 'TH' ? 'เรือโดยสารออกจากท่าเรือสะพานปลา ระนอง ตรงสู่เกาะพยาม:' :
                    'Die Boote fahren vom Ranong Pier (Saphan Pla Pier) direkt zur Insel:'}
                 </p>
-                <ul className="space-y-3.5 mb-4 text-xs text-stone-600 font-light">
+                <ul className="space-y-3.5 mb-4 text-sm sm:text-base text-stone-700 font-normal">
                   <li className="flex items-start gap-2">
                     <Ship size={15} className="text-emerald-600 mt-0.5 shrink-0" />
                     <span><strong>Speedboat:</strong> {lang === 'IT' ? 'Partenze frequenti ogni 60-90 minuti (08:00 - 17:30, 40 min, 350 THB).' : lang === 'EN' ? 'Frequent departures every 60-90 min (08:00 - 17:30, 40 min, 350 THB).' : lang === 'TH' ? 'ออกบ่อยทุก 60-90 นาที (08:00 - 17:30 น. 40 นาที 350 บาท)' : 'Abfahrten alle 60-90 Min. (08:00 - 17:30 Uhr, 40 Min., 350 THB).'}</span>
@@ -927,7 +927,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                 </ul>
 
                 {/* Tidal note */}
-                <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200/60 text-[11px] text-blue-900 font-light leading-relaxed">
+                <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200/60 text-xs sm:text-sm text-blue-950 font-normal leading-relaxed">
                   <strong>🌊 {t.boatScheduleNoticeTitle}:</strong> {t.boatScheduleNoticeText}
                 </div>
               </div>
@@ -940,7 +940,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                     <MapPin className="text-emerald-700" size={24} />
                   </div>
                   <div>
-                    <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block">
+                    <span className="text-xs sm:text-sm text-emerald-700 font-black uppercase tracking-wider block">
                       {lang === 'IT' ? 'Fase 3' : lang === 'EN' ? 'Step 3' : lang === 'TH' ? 'ขั้นตอนที่ 3' : 'Schritt 3'}
                     </span>
                     <h3 className="text-stone-850 font-bold text-lg">
@@ -948,13 +948,13 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                     </h3>
                   </div>
                 </div>
-                <p className="text-stone-600 text-xs leading-relaxed mb-4 font-light">
+                <p className="text-stone-700 text-sm sm:text-base leading-relaxed mb-4 font-normal">
                   {lang === 'IT' ? 'Sbarcato al molo di Koh Phayam, raggiungi Buffalo Bay con le opzioni locali:' :
                    lang === 'EN' ? 'Once at Koh Phayam pier, reach Buffalo Bay with local island options:' :
                    lang === 'TH' ? 'เมื่อถึงท่าเรือเกาะพยาม เดินทางสู่อ่าวเขาควายได้ด้วยยานพาหนะท้องถิ่น:' :
                    'Am Pier von Koh Phayam angekommen, gibt es lokale Optionen nach Buffalo Bay:'}
                 </p>
-                <ul className="space-y-3 mb-4 text-xs text-stone-600 font-light">
+                <ul className="space-y-3 mb-4 text-sm sm:text-base text-stone-700 font-normal">
                   <li><strong>Tuk-Tuk (Sidecar):</strong> ~200-250 THB {lang === 'IT' ? '(comodo con valigie)' : '(ideal with luggage)'}</li>
                   <li><strong>Moto Taxi:</strong> 60-80 THB {lang === 'IT' ? '(rapido per chi viaggia solo)' : '(fast for solo travellers)'}</li>
                   <li><strong>{lang === 'IT' ? 'Noleggio Scooter' : 'Scooter Rental'}:</strong> 150-250 THB/{lang === 'IT' ? 'giorno' : 'day'} {lang === 'IT' ? '(al molo o in villaggio)' : '(at pier or resort)'}</li>
@@ -962,12 +962,12 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                 </ul>
 
                 {/* Island transport disclaimer */}
-                <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80 text-[11px] text-amber-950 font-light leading-relaxed mb-3">
+                <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80 text-xs sm:text-sm text-amber-950 font-normal leading-relaxed mb-3">
                   <strong>⚠️ {t.islandTransportDisclaimerTitle}:</strong> {t.islandTransportDisclaimerText}
                 </div>
               </div>
             )}
-            <div className="text-[11px] text-stone-400 italic pt-3 border-t border-stone-100 font-light">
+            <div className="text-xs sm:text-sm text-stone-600 italic pt-3 border-t border-stone-100 font-medium">
               {lang === 'IT' ? 'Indica al conducente: "Flower Power Village - Ao Khao Kwai (Buffalo Bay)"' :
                lang === 'EN' ? 'Tell the driver: "Flower Power Village - Buffalo Bay (Ao Khao Kwai)"' :
                lang === 'TH' ? 'แจ้งคนขับ: "ฟลาวเวอร์ พาวเวอร์ วิลเลจ - อ่าวเขาควาย"' :

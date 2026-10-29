@@ -2115,3 +2115,11 @@
   - **Z-Index Layering Corretto**: Portato il backdrop overlay a `z-[9990]` e il drawer panel del menu a `z-[9999]` (e la navbar a `z-[90]`), azzerando qualsiasi sovrapposizione anomala con il banner di ricerca prenotazioni (`z-50`). Il menu mobile ora si apre sempre in primo piano assoluto sopra ogni altro elemento.
   - **Eliminazione Sezione Bassa del Menu**: Rimossa integralmente la griglia di cambio lingua e il pulsante di accesso a `/admin` ("Area Privata Staff") dal fondo del drawer, mantenendo il menu 100% pulito, leggero e focalizzato unicamente sulle pagine del resort.
 
+
+- **Upgrade Globale Tipografia Senior su Tutte le Sezioni del Villaggio**:
+  - **Come Raggiungerci (`DirectionsSection.tsx`)**: Elevati tutti i testi guida, le descrizioni di fase (aereo, bus, barca, tuk-tuk), gli avvisi meteo/maree e le tabelle orarie da `12px font-light` a **`14px-16px font-normal text-stone-700`** e badge in `12px font-bold`.
+  - **Ristorante & Pizzeria (`RestaurantSection.tsx`)**: Descrizioni piatti e atmosfera portate a **`14px-16px text-stone-700`**, orari e badge in **`14px font-semibold`**, tabs categorie in **`14px font-bold`**.
+  - **Spa, Yoga & Sport (`SpaSection.tsx`)**: Descrizioni palestra, orari corsi yoga e listino massaggi thai portati a **`14px font-normal text-stone-700`**, durate e prezzi massaggi a **`14px font-black text-emerald-800`**, pulsanti prenotazione a **`14px-16px font-black`**.
+  - **Contattaci (`ContactSection.tsx`)**: Numeri di telefono, orari WhatsApp/email, etichette campi form e tasto di invio portati a **`14px-16px font-bold/font-black`**.
+  - **Galleria Fotografica (`GallerySection.tsx`)**: Didascalie e categorie delle foto portate a **`14px-16px`**.
+  - **Footer Villaggio (`VillageFooter.tsx`)**: Tutti i link di navigazione, recapiti telefonici e avvisi direct booking portati a **`14px font-bold text-stone-300`**.
