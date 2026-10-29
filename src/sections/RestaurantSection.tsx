@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut, BookOpen, Coffee, Soup, Pizza, Globe, Flame, Salad, Sparkles } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut, BookOpen, Coffee, Soup, Pizza, Globe, Flame, Salad, Sparkles, Wine, Layers, Fish, Sun, LayoutGrid } from 'lucide-react';
 import { Language } from '../booking/lib/translations';
 
 const menuPages = [
@@ -46,7 +46,7 @@ const pageTitleTranslations = {
   TH: [
     'เมนูดอกไม้บาน', 'เมนูกาแฟ & เครื่องดื่มร้อน', 'เครื่องดื่ม & ค็อกเทล', 'อาหารเรียกน้ำย่อย & บรูสเก็ตตา', 
     'พาสต้าจานแรก', 'โฟคาชชาของเรา', 'พานินี่ & แซนด์วิช', 'อาหารอิตาเลียนดั้งเดิม', 
-    'อาหารจานหลักจากปลา', 'อาหารฟิวชั่น', 'พิซซ่าเตาถ่านของเรา', 'อาหารพม่าสูตรพิเศษ', 
+    'อาหารจานหลักจากปลา', 'อาหารฟิวชั่น', 'พิซซ่าอิตาเลียนดั้งเดิม', 'อาหารพม่าสูตรพิเศษ', 
     'อาหารไทยยอดนิยม', 'เมนูมังสวิรัติ (วีแกน)', 'อาหารเช้า & ของว่าง'
   ],
   DE: [
@@ -77,26 +77,47 @@ const categoryTranslations = {
 };
 
 
-const restaurantCategoryTabs = [
-  { id: 0, pageIndex: 0, icon: BookOpen },
-  { id: 1, pageIndex: 1, icon: Coffee },
-  { id: 2, pageIndex: 3, icon: Soup },
-  { id: 3, pageIndex: 5, icon: Pizza },
-  { id: 4, pageIndex: 6, icon: Globe },
-  { id: 5, pageIndex: 12, icon: Flame },     // Cucina Thai (page 12)
-  { id: 6, pageIndex: 11, icon: Sparkles },  // Specialità Birmane (page 11)
-  { id: 7, pageIndex: 13, icon: Salad },     // Vegan & Snacks (page 13)
+const menuPageIcons = [
+  BookOpen,        // 0: Menu Completo
+  Coffee,          // 1: Caffetteria
+  Wine,            // 2: Bevande & Cocktails
+  UtensilsCrossed, // 3: Antipasti & Bruschette
+  Soup,            // 4: Primi Piatti (Pasta)
+  Pizza,           // 5: Le Nostre Focacce
+  Layers,          // 6: Panini & Sandwich
+  Sparkles,        // 7: Cucina Italiana
+  Fish,            // 8: Secondi di Pesce
+  Globe,           // 9: Cucina Fusion
+  Pizza,           // 10: Le Nostre Pizze
+  Flame,           // 11: Specialità Birmane
+  Sparkles,        // 12: Cucina Thailandese
+  Salad,           // 13: Opzioni Vegane
+  Sun,             // 14: Bed & Breakfast & Snack
 ];
 
-const restaurantCategoryBlockLabels: Record<number, Record<Language, [string, string]>> = {
+const menuPageBlockLabels: Record<number, Record<Language, [string, string]>> = {
   0: { IT: ['MENU', 'COMPLETO'], EN: ['FULL', 'MENU'], TH: ['เมนู', 'ทั้งหมด'], DE: ['GESAMTES', 'MENÜ'] },
-  1: { IT: ['CAFFÈ &', 'DRINK'], EN: ['COFFEE &', 'DRINKS'], TH: ['กาแฟ &', 'เครื่องดื่ม'], DE: ['KAFFEE &', 'DRINKS'] },
-  2: { IT: ['ANTIPASTI', '& PRIMI'], EN: ['APPETIZERS', '& PASTA'], TH: ['อาหารว่าง', '& พาสต้า'], DE: ['VORSPEISEN', '& PASTA'] },
-  3: { IT: ['PIZZE &', 'FOCACCE'], EN: ['PIZZAS &', 'FOCACCIAS'], TH: ['พิซซ่า &', 'โฟคาชชา'], DE: ['PIZZAS &', 'FOCACCIAS'] },
-  4: { IT: ['SECONDI', '& PESCE'], EN: ['MAINS &', 'FISH'], TH: ['จานหลัก', '& ปลา'], DE: ['HAUPT-', 'GERICHTE'] },
-  5: { IT: ['CUCINA', 'THAI'], EN: ['THAI', 'CUISINE'], TH: ['อาหาร', 'ไทย'], DE: ['THAI-', 'KÜCHE'] },
-  6: { IT: ['CUCINA', 'BIRMANA'], EN: ['BURMESE', 'DISHES'], TH: ['อาหาร', 'พม่า'], DE: ['BIRMANISCH', ''] },
-  7: { IT: ['VEGAN &', 'SNACKS'], EN: ['VEGAN &', 'SNACKS'], TH: ['วีแกน &', 'ของว่าง'], DE: ['VEGAN &', 'SNACKS'] },
+  1: { IT: ['CAFFÈ &', 'COLAZIONI'], EN: ['COFFEE &', 'DRINKS'], TH: ['กาแฟ &', 'เครื่องดื่ม'], DE: ['KAFFEE &', 'DRINKS'] },
+  2: { IT: ['DRINK &', 'COCKTAIL'], EN: ['DRINKS &', 'COCKTAILS'], TH: ['เครื่องดื่ม', '& ค็อกเทล'], DE: ['DRINKS &', 'COCKTAILS'] },
+  3: { IT: ['ANTIPASTI &', 'BRUSCHETTA'], EN: ['APPETIZERS &', 'BRUSCHETTA'], TH: ['อาหารว่าง', '& บรูสเก็ตตา'], DE: ['VORSPEISEN', '& BRUSCHETTA'] },
+  4: { IT: ['PRIMI PIATTI', '(PASTA)'], EN: ['HOMEMADE', 'PASTA'], TH: ['พาสต้า', 'จานแรก'], DE: ['PASTA &', 'NUDELN'] },
+  5: { IT: ['LE NOSTRE', 'FOCACCE'], EN: ['OUR', 'FOCACCIAS'], TH: ['โฟคาชชา', 'สูตรพิเศษ'], DE: ['UNSERE', 'FOCACCIAS'] },
+  6: { IT: ['PANINI &', 'SANDWICH'], EN: ['PANINI &', 'SANDWICHES'], TH: ['พานินี่ &', 'แซนด์วิช'], DE: ['PANINI &', 'SANDWICHES'] },
+  7: { IT: ['CUCINA', 'ITALIANA'], EN: ['ITALIAN', 'CUISINE'], TH: ['อาหาร', 'อิตาเลียน'], DE: ['ITALIENISCHE', 'KÜCHE'] },
+  8: { IT: ['SECONDI', 'DI PESCE'], EN: ['FRESH', 'FISH'], TH: ['อาหาร', 'จานปลา'], DE: ['FRISCHER', 'FISCH'] },
+  9: { IT: ['CUCINA', 'FUSION'], EN: ['FUSION', 'CUISINE'], TH: ['อาหาร', 'ฟิวชั่น'], DE: ['FUSION', 'KÜCHE'] },
+  10: { IT: ['PIZZE', 'ITALIANE'], EN: ['TRADITIONAL', 'PIZZAS'], TH: ['พิซซ่า', 'ดั้งเดิม'], DE: ['TRADITIONELLE', 'PIZZAS'] },
+  11: { IT: ['CUCINA', 'BIRMANA'], EN: ['BURMESE', 'DISHES'], TH: ['อาหาร', 'พม่า'], DE: ['BIRMANISCHE', 'KÜCHE'] },
+  12: { IT: ['CUCINA', 'THAI'], EN: ['THAI', 'CUISINE'], TH: ['อาหาร', 'ไทย'], DE: ['THAI', 'KÜCHE'] },
+  13: { IT: ['PIATTI', 'VEGANI'], EN: ['VEGAN', 'OPTIONS'], TH: ['อาหาร', 'วีแกน'], DE: ['VEGANE', 'GERICHTE'] },
+  14: { IT: ['BREAKFAST', '& SNACK'], EN: ['BREAKFAST', '& SNACKS'], TH: ['อาหารเช้า', '& ของว่าง'], DE: ['FRÜHSTÜCK', '& SNACKS'] },
+};
+
+const viewModeLabels = {
+  IT: { scroll: 'Striscia Sfogliabile (15)', grid: 'Tutte le 15 Pagine' },
+  EN: { scroll: 'Scrollable Row (15)', grid: 'All 15 Pages' },
+  TH: { scroll: 'แถบเลื่อน (15)', grid: 'แสดงทั้ง 15 หน้า' },
+  DE: { scroll: 'Horizontale Leiste (15)', grid: 'Alle 15 Seiten' },
 };
 
 const restaurantLabels = {
@@ -260,60 +281,160 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
             </p>
           </div>
 
-          {/* CATEGORY SELECTOR (2 File 4 e 4 compatto, senza numeri di pagina) */}
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-2.5 mb-6 max-w-xl sm:max-w-2xl mx-auto px-1">
-            {restaurantCategoryTabs.map((tab) => {
-              const Icon = tab.icon;
-              const isSelected = 
-                (tab.id === 0 && currentPage === 0) ||
-                (tab.id === 1 && (currentPage === 1 || currentPage === 2)) ||
-                (tab.id === 2 && (currentPage === 3 || currentPage === 4)) ||
-                (tab.id === 3 && (currentPage === 5 || currentPage === 10)) ||
-                (tab.id === 4 && (currentPage >= 6 && currentPage <= 9)) ||
-                (tab.id === 5 && currentPage === 12) ||
-                (tab.id === 6 && currentPage === 11) ||
-                (tab.id === 7 && currentPage >= 13);
+          {/* CATEGORY SELECTOR (TUTTI E 15 I TITOLI SFOGLIABILI IN CIMA) */}
+          <div className="max-w-xl sm:max-w-2xl mx-auto mb-3 px-1 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span 
+                className="text-xs sm:text-sm font-black uppercase tracking-wider text-stone-800 flex items-center gap-1.5"
+                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+              >
+                <BookOpen className="w-3.5 h-3.5 text-emerald-800" />
+                <span>15 {lang === 'IT' ? 'Pagine Menù' : lang === 'TH' ? 'หน้าเมนู' : lang === 'DE' ? 'Menüseiten' : 'Menu Pages'}</span>
+              </span>
+            </div>
 
-              const [line1, line2] = restaurantCategoryBlockLabels[tab.id][lang] || restaurantCategoryBlockLabels[tab.id]['IT'];
-
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => handleCategoryClick(tab.pageIndex)}
-                  className={`w-full h-[62px] sm:h-[72px] flex flex-col items-center justify-center p-1 sm:p-1.5 rounded-xl transition-all duration-200 border-2 text-center group cursor-pointer select-none active:scale-95 ${
-                    isSelected
-                      ? 'bg-gradient-to-b from-[#184534] to-[#0c241b] border-emerald-700 text-white shadow-md ring-2 ring-emerald-700/30 scale-[1.02]'
-                      : 'bg-[#ede5d8] border-[#cfbea6] text-[#2c1a11] shadow-xs hover:bg-[#e6dcce] hover:border-emerald-700/50 hover:text-black'
-                  }`}
-                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                >
-                  {/* Top icon in small container */}
-                  <div
-                    className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg flex items-center justify-center shrink-0 mb-0.5 transition-transform duration-200 group-hover:scale-105 ${
-                      isSelected
-                        ? 'bg-white/20 text-emerald-300'
-                        : 'bg-[#ded0bf] text-emerald-900 group-hover:bg-emerald-800/15'
-                    }`}
-                  >
-                    <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.3]" />
-                  </div>
-
-                  {/* Two-line text */}
-                  <div className="flex flex-col items-center justify-center w-full px-0.5 leading-[1.08]">
-                    <span className="text-[9px] sm:text-[10px] font-black tracking-tight uppercase block truncate max-w-full">
-                      {line1}
-                    </span>
-                    {line2 ? (
-                      <span className="text-[9px] sm:text-[10px] font-black tracking-tight uppercase block truncate max-w-full">
-                        {line2}
-                      </span>
-                    ) : null}
-                  </div>
-                </button>
-              );
-            })}
+            {/* Toggle View Mode: Griglia vs Striscia Orizzontale */}
+            <div className="flex items-center bg-[#ded0bf]/70 p-0.5 rounded-xl border border-[#cfbea6]">
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all flex items-center gap-1 cursor-pointer ${
+                  viewMode === 'grid'
+                    ? 'bg-emerald-800 text-white shadow-xs'
+                    : 'text-stone-700 hover:text-black'
+                }`}
+                title={viewModeLabels[lang]?.grid || viewModeLabels['IT'].grid}
+              >
+                <LayoutGrid className="w-3 h-3" />
+                <span>{lang === 'IT' ? 'Griglia (15)' : lang === 'TH' ? 'ตาราง (15)' : lang === 'DE' ? 'Gitter (15)' : 'Grid (15)'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('scroll')}
+                className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-black uppercase transition-all flex items-center gap-1 cursor-pointer ${
+                  viewMode === 'scroll'
+                    ? 'bg-emerald-800 text-white shadow-xs'
+                    : 'text-stone-700 hover:text-black'
+                }`}
+                title={viewModeLabels[lang]?.scroll || viewModeLabels['IT'].scroll}
+              >
+                <span>↔️</span>
+                <span>{lang === 'IT' ? 'Sfoglia (15)' : lang === 'TH' ? 'เลื่อน (15)' : lang === 'DE' ? 'Leiste (15)' : 'Scroll (15)'}</span>
+              </button>
+            </div>
           </div>
+
+          {/* Render View: Grid vs Scrollable Ribbon */}
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 sm:gap-2 mb-6 max-w-xl sm:max-w-2xl mx-auto px-1 animate-fadeIn">
+              {menuPages.map((page, idx) => {
+                const Icon = menuPageIcons[idx] || BookOpen;
+                const isSelected = currentPage === idx;
+                const [line1, line2] = menuPageBlockLabels[idx]?.[lang] || menuPageBlockLabels[idx]?.['IT'] || ['MENU', ''];
+
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    ref={(el) => { cardRefs.current[idx] = el; }}
+                    onClick={() => handleCategoryClick(idx)}
+                    className={`w-full h-[58px] sm:h-[66px] flex flex-col items-center justify-center p-1 rounded-xl transition-all duration-200 border-2 text-center group cursor-pointer select-none active:scale-95 ${
+                      isSelected
+                        ? 'bg-gradient-to-b from-[#184534] to-[#0c241b] border-emerald-700 text-white shadow-md ring-2 ring-emerald-700/30 scale-[1.02]'
+                        : 'bg-[#ede5d8] border-[#cfbea6] text-[#2c1a11] shadow-xs hover:bg-[#e6dcce] hover:border-emerald-700/50 hover:text-black'
+                    }`}
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                  >
+                    <div
+                      className={`w-4 h-4 sm:w-5 sm:h-5 rounded-md flex items-center justify-center shrink-0 mb-0.5 transition-transform duration-200 group-hover:scale-105 ${
+                        isSelected
+                          ? 'bg-white/20 text-emerald-300'
+                          : 'bg-[#ded0bf] text-emerald-900 group-hover:bg-emerald-800/15'
+                      }`}
+                    >
+                      <Icon className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[2.3]" />
+                    </div>
+                    <div className="flex flex-col items-center justify-center w-full px-0.5 leading-[1.05]">
+                      <span className="text-[8.5px] sm:text-[9.5px] font-black tracking-tight uppercase block truncate max-w-full">
+                        {line1}
+                      </span>
+                      {line2 ? (
+                        <span className="text-[8.5px] sm:text-[9.5px] font-black tracking-tight uppercase block truncate max-w-full">
+                          {line2}
+                        </span>
+                      ) : null}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="relative max-w-xl sm:max-w-2xl mx-auto mb-6 px-1 animate-fadeIn">
+              <button
+                type="button"
+                onClick={scrollLeft}
+                className="absolute -left-1 sm:-left-3 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-[#FAF6F0] border border-[#cfbea6] shadow-md flex items-center justify-center text-stone-800 hover:bg-emerald-800 hover:text-white transition-colors cursor-pointer"
+                title="Precedente"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <div
+                ref={scrollContainerRef}
+                className="flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1 px-5"
+              >
+                {menuPages.map((page, idx) => {
+                  const Icon = menuPageIcons[idx] || BookOpen;
+                  const isSelected = currentPage === idx;
+                  const [line1, line2] = menuPageBlockLabels[idx]?.[lang] || menuPageBlockLabels[idx]?.['IT'] || ['MENU', ''];
+
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      ref={(el) => { cardRefs.current[idx] = el; }}
+                      onClick={() => handleCategoryClick(idx)}
+                      className={`flex-shrink-0 w-[100px] sm:w-[115px] h-[60px] sm:h-[68px] flex flex-col items-center justify-center p-1 sm:p-1.5 rounded-xl transition-all duration-200 border-2 text-center group cursor-pointer select-none active:scale-95 ${
+                        isSelected
+                          ? 'bg-gradient-to-b from-[#184534] to-[#0c241b] border-emerald-700 text-white shadow-md ring-2 ring-emerald-700/30 scale-[1.02]'
+                          : 'bg-[#ede5d8] border-[#cfbea6] text-[#2c1a11] shadow-xs hover:bg-[#e6dcce] hover:border-emerald-700/50 hover:text-black'
+                      }`}
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      <div
+                        className={`w-4 h-4 sm:w-5 sm:h-5 rounded-md flex items-center justify-center shrink-0 mb-0.5 transition-transform duration-200 group-hover:scale-105 ${
+                          isSelected
+                            ? 'bg-white/20 text-emerald-300'
+                            : 'bg-[#ded0bf] text-emerald-900 group-hover:bg-emerald-800/15'
+                        }`}
+                      >
+                        <Icon className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[2.3]" />
+                      </div>
+                      <div className="flex flex-col items-center justify-center w-full px-0.5 leading-[1.05]">
+                        <span className="text-[8.5px] sm:text-[9.5px] font-black tracking-tight uppercase block truncate max-w-full">
+                          {line1}
+                        </span>
+                        {line2 ? (
+                          <span className="text-[8.5px] sm:text-[9.5px] font-black tracking-tight uppercase block truncate max-w-full">
+                            {line2}
+                          </span>
+                        ) : null}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={scrollRight}
+                className="absolute -right-1 sm:-right-3 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-[#FAF6F0] border border-[#cfbea6] shadow-md flex items-center justify-center text-stone-800 hover:bg-emerald-800 hover:text-white transition-colors cursor-pointer"
+                title="Successivo"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
 
           {/* Main Book Viewer */}
           <div className="relative max-w-2xl mx-auto border border-stone-250 bg-stone-100/50 rounded-2xl p-2 shadow-inner flex flex-col items-center">
