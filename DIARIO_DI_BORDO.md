@@ -18,6 +18,21 @@
 ---
 
 
+### 🟩 [29/10/2026 - ORE 19:51] · TUTTI E 15 I TITOLI DEL MENU SFOGLIABILI IN CIMA (ZERO PIATTI NASCOSTI & DOPPIA MODALITÀ)
+- **Cosa abbiamo fatto:**
+  1. 📖 **Copertura Totale delle 15 Pagine del Menù**:
+     - Superata la precedente suddivisione in sole 8 categorie parziali: ora ogni singola pagina (da 1 a 15) ha il proprio pulsante dedicato in cima (Menu Completo, Caffè & Colazioni, Drink & Cocktails, Antipasti & Bruschette, Primi Piatti Pasta, Focacce Farcite, Panini & Sandwich, Cucina Italiana, Secondi di Pesce, Cucina Fusion, Pizze Tradizionali, Cucina Birmana, Cucina Thai, Opzioni Vegane, Breakfast & Snack).
+     - Assegnata a ciascuna delle 15 pagine l'icona semantica dedicata (BookOpen, Coffee, Wine, UtensilsCrossed, Soup, Pizza, Layers, Sparkles, Fish, Globe, Flame, Salad, Sun).
+  2. 🎛️ **Doppia Modalità di Visualizzazione (Griglia Completa vs Striscia Sfogliabile)**:
+     - **Griglia (15)**: Griglia a 5 colonne compatta (3 righe da 5 su tablet/desktop, 3x5 su mobile) che mostra tutti e 15 i titoli contemporaneamente a colpo d'occhio senza nascondere alcuna portata.
+     - **Sfoglia (15)**: Striscia orizzontale a scorrimento con snap fluido, freccette di navigazione laterali e auto-scroll sincronizzato sulla pagina attiva quando si sfoglia l'immagine sottostante.
+  3. 🛡️ **Blindatura Regola 18 (Zero Forno a Legna)**:
+     - Sanitizzata la dicitura tailandese della pagina pizza (rimosso 'เตาถ่าน' sostituito con 'พิซซ่าอิตาเลียนดั้งเดิม').
+- **File aggiornati:** `src/sections/RestaurantSection.tsx`.
+- **Stato:** ✅ Build completata con successo (0 errori).
+
+---
+
 ### 🟩 [29/10/2026 - ORE 19:42] · FIX TRASPARENZA & CONTRASTO DROPDOWN LINGUE (ACCESSIBILITÀ SENIOR & ZERO OVERLAP)
 - **Cosa abbiamo fatto:**
   1. 🎨 **Risoluzione Sfondo Trasparente Dropdown**:
