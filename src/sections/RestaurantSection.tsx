@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut, BookOpen } from 'lucide-react';
+import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut, BookOpen, Wine, ArrowRight } from 'lucide-react';
 import { Language } from '../booking/lib/translations';
 
 const menuPages = [
@@ -220,6 +220,33 @@ export default function RestaurantSection({ lang = 'IT' }: Props) {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Banner Vini Pregiati / Wine List */}
+        <div className="mt-6 bg-gradient-to-r from-[#3b3530] to-[#2b2622] text-stone-100 rounded-3xl p-5 sm:p-6 shadow-md border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 text-center sm:text-left">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 mx-auto sm:mx-0">
+              <Wine className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider mb-1">
+                <span>Dine-in Cellar</span>
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-white leading-tight" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
+                {lang === 'TH' ? 'เมนูไวน์นำเข้าคุณภาพพรีเมียม & ไวน์ประจำร้าน' : lang === 'IT' ? 'Carta dei Vini Pregiati & Vino della Casa' : lang === 'DE' ? 'Exklusive Weinkarte & Hauswein' : 'Fine Wine Selection & House Wine'}
+              </h3>
+              <p className="text-stone-300 text-xs mt-0.5">
+                {lang === 'TH' ? 'ไวน์แดง ไวน์ขาว โรเซ่ และสปาร์กลิงไวน์ เสิร์ฟที่ร้านอาหารเกาะพยาม' : lang === 'IT' ? 'Selezione di etichette italiane e internazionali per la degustazione al tavolo' : lang === 'DE' ? 'Ausgewählte italienische und internationale Weine am Tisch' : 'Selected Italian and international wines for dining at our restaurant'}
+              </p>
+            </div>
+          </div>
+          <a
+            href="/wine-list"
+            className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all text-center shrink-0 active:scale-95 flex items-center justify-center gap-2"
+          >
+            <span>{lang === 'TH' ? 'เปิดเมนูไวน์' : lang === 'IT' ? 'Scopri i Vini' : lang === 'DE' ? 'Zur Weinkarte' : 'View Wine List'}</span>
+            <ArrowRight size={14} />
+          </a>
         </div>
 
         {/* Digital Menu Book Section */}

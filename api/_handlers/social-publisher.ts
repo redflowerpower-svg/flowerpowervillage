@@ -10,7 +10,14 @@ import os from "os";
 
 // Helper risoluzione binario FFmpeg (previene l'impacchettamento di 80MB di binari compilati su Vercel Serverless)
 function getFFmpegPath(): string {
-  return process.env.FFMPEG_PATH || "ffmpeg";
+  if (process.env.FFMPEG_PATH && fs.existsSync(process.env.FFMPEG_PATH)) {
+    return process.env.FFMPEG_PATH;
+  }
+  const winCandidate = path.resolve("./node_modules/@ffmpeg-installer/win32-x64/ffmpeg.exe");
+  if (fs.existsSync(winCandidate)) {
+    return winCandidate;
+  }
+  return "ffmpeg";
 }
 
 // Configura il dispatcher globale con timeout esteso (180s) per prevenire HeadersTimeoutError durante invii di file multimediali su Telegram
@@ -826,7 +833,7 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
               }
               // Se non ancora disponibile e abbiamo il video buffer, estraiamo al volo con FFmpeg a t=2.0s
               if (!thumbBuf && optimizedVideoBuf) {
-                const ffmpegPath = process.env.FFMPEG_PATH || ffmpegStatic || "ffmpeg";
+                const ffmpegPath = getFFmpegPath();
                 const tmpDir = os.tmpdir();
                 const tmpIn = path.join(tmpDir, `tmp_in_${Date.now()}.mp4`);
                 const tmpTh = path.join(tmpDir, `tmp_th_${Date.now()}.jpg`);
@@ -2666,15 +2673,48 @@ MANDATORY RULES:
         }
       }
 
+      const now = new Date();
+      const inOneWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      // Google vieta tassativamente i post di tipo OFFER o PRODUCT per le strutture ricettive/resort (Resort Hotel).
+      // Per il Villaggio (brand === 'village'), convertiamo sempre in post STANDARD con CTA BOOK, includendo la promo nel testo.
+      const isHotelCategory = brand === "village";
+      const effectiveTopicType = (isHotelCategory && topicType === "OFFER") ? "STANDARD" : (topicType === "OFFER" ? "OFFER" : "STANDARD");
+
       const postPayload: any = {
         languageCode: "en",
         summary: summary.slice(0, 1500),
-        topicType: topicType || "STANDARD",
-        callToAction: actionUrl ? {
+        topicType: effectiveTopicType
+      };
+
+      if (topicType === "OFFER") {
+        const firstLine = (summary.split("\n")[0] || "Special Promotion").replace(/[^\p{L}\p{N}\s]+/gu, "").trim();
+        postPayload.event = {
+          title: (firstLine || "Special Promotion").slice(0, 58),
+          schedule: {
+            startDate: {
+              year: now.getFullYear(),
+              month: now.getMonth() + 1,
+              day: now.getDate()
+            },
+            endDate: {
+              year: inOneWeek.getFullYear(),
+              month: inOneWeek.getMonth() + 1,
+              day: inOneWeek.getDate()
+            }
+          }
+        };
+        postPayload.offer = {
+          couponCode: brand === "village" ? "DIRECT10" : "PIZZA10",
+          redeemOnlineUrl: actionUrl || (brand === "village" ? "https://flowerpowervillage.com" : "https://flowerpowerpizza.com"),
+          termsConditions: "Valid for direct online booking or food delivery orders."
+        };
+      } else if (actionUrl) {
+        postPayload.callToAction = {
           actionType: actionType || (brand === "village" ? "BOOK" : "ORDER"),
           url: actionUrl
-        } : undefined
-      };
+        };
+      }
 
       if (mediaUrl) {
         postPayload.media = [
@@ -2701,14 +2741,16 @@ MANDATORY RULES:
 
       if (!gRes.ok || gData.error) {
         const status = gRes.status || 400;
-        const isAccessDisabled = status === 403 && (errDetail.includes("SERVICE_DISABLED") || errDetail.includes("mybusiness.googleapis.com"));
-        const isQuotaZero = status === 429 || errDetail.includes("Quota exceeded");
+        const errDetail = gData.error?.message || gData.error?.status || (typeof gData.error === "string" ? gData.error : JSON.stringify(gData.error || gData));
+        const isAuthError = status === 401 || String(errDetail).includes("UNAUTHENTICATED") || String(errDetail).includes("invalid_grant");
+        const isAccessDisabled = status === 403 && (String(errDetail).includes("SERVICE_DISABLED") || String(errDetail).includes("mybusiness.googleapis.com"));
+        const isQuotaZero = status === 429 || String(errDetail).includes("Quota exceeded");
 
         let userError = `Google Business Profile API: ${errDetail}`;
         if (isAuthError) {
           userError = "Autorizzazione Google Business Profile scaduta. Riconnetti l'account da Google Login su /social per autorizzare la pubblicazione reale su Google Maps.";
         } else if (isAccessDisabled || isQuotaZero) {
-          userError = "Google Business Profile API richiede l'abilitazione della quota da parte di Google per il progetto 129023399780 (Google impone quota 0 di default per le API My Business). Per testare subito l'intero flusso video e invio Telegram con successo, attiva lo switch 'Test (Sandbox)' in alto a sinistra!";
+          userError = "Google Business Profile API: quota limitata o servizio non abilitato.";
         }
 
         return res.status(status).json({

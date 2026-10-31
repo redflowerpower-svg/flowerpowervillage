@@ -1377,7 +1377,15 @@ export default function DeliveryMenu() {
     return menuData;
   }, [isCompliance]);
 
-  const [activeCategoryId, setActiveCategoryId] = useState(() => availableCategories[0]?.id || menuData[0].id);
+  const [activeCategoryId, setActiveCategoryId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const requestedCat = new URLSearchParams(window.location.search).get('category');
+      if (requestedCat && availableCategories.some((c) => c.id === requestedCat)) {
+        return requestedCat;
+      }
+    }
+    return availableCategories[0]?.id || menuData[0].id;
+  });
 
   // Policy Modal state for compliance review & customer transparency
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
@@ -1394,8 +1402,11 @@ export default function DeliveryMenu() {
       } catch { }
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
     }
-    const firstCat = availableCategories[0]?.id || 'traditional-italian-pizza';
-    setActiveCategoryId(firstCat);
+    const urlCat = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('category') : null;
+    const initialCat = (urlCat && availableCategories.some((c) => c.id === urlCat)) 
+      ? urlCat 
+      : (availableCategories[0]?.id || 'traditional-italian-pizza');
+    setActiveCategoryId(initialCat);
     setSelectedPastaSauce('all');
     setSelectedSaladSubFilter('all');
     setSelectedSandwichSubFilter('all');

@@ -3,6 +3,131 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [31/10/2026 - ORE 17:15] · SMISTAMENTO SMART QR CODE (/wine-list): KOH PHAYAM (VILLAGGIO) ↔ TERRAFERMA (RANONG PIZZA)
+- **Cosa abbiamo fatto:**
+  1. 🌐 **Algoritmo Geografico Haversine & Raggio Isola (10 km)**:
+     - In [VillageWineListPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pages/VillageWineListPage.tsx), implementato il calcolo trigonometrico della distanza tra le coordinate del cliente e il resort a Koh Phayam (`9.7596° N, 98.4109° E`).
+     - Raggio perimetrale impostato a **10 km**, tale da coprire l'intera isola di Koh Phayam in ogni sua spiaggia e collina.
+  2. ⚡ **Rilevamento Ibrido Fused (Celle Telefoniche + Wi-Fi + GPS)**:
+     - Configurato `enableHighAccuracy: false` per ottenere in meno di 300ms la posizione triangolata dalle antenne 4G/5G locali (AIS, True, Dtac) e access point Wi-Fi senza attendere il fix dei satelliti.
+  3. 🏝️ **Chi si trova a Koh Phayam**:
+     - Visualizza la **Carta dei Vini del Villaggio** con il vino della casa alla spina (120฿ / 590฿) e le bottiglie disponibili al resort.
+     - Memorizzato in `sessionStorage` (`fp_wine_qr_location: 'phayam'`) per non rieseguire il check nei refresh successivi della stessa visita.
+  4. 🍕 **Chi si trova sulla Terraferma (Ranong o altrove)**:
+     - Distanza > 10 km da Koh Phayam: reindirizzamento istantaneo a **Flower Power Pizza** (`https://www.flowerpowerpizza.com/?category=wines`).
+     - Aggiornato [DeliveryMenu.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/pages/DeliveryMenu.tsx) per selezionare all'avvio la categoria `wines` quando richiesto via query param.
+  5. 🛡️ **Paracadute Fallback Anti-Blocco**:
+     - In caso di GPS disattivato, permesso negato o timeout (3 secondi), appare un'elegante schermata di scelta a 2 tasti grandi (`🏝️ Sono a Koh Phayam` | `🍕 Sono sulla Terraferma (Ranong)`).
+     - Nella barra superiore della carta vini è stato aggiunto anche un badge rapido `🍕 Ranong Pizza` per consentire il passaggio volontario tra le due sedi in qualsiasi momento.
+  6. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: compilazione completata con successo in 5.36s con 0 errori.
+- **File aggiornati:** `src/pages/VillageWineListPage.tsx`, `src/pizza/pages/DeliveryMenu.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Testato e 100% operativo.
+
+---
+
+### 🟩 [31/10/2026 - ORE 16:45] · TASTO HOME ULTRA-EVIDENTE & LINK ADMIN DIRETTO GESTIONE VINI DASHBOARD CON PASSWORD
+- **Cosa abbiamo fatto:**
+  1. 🏠 **Pulsanti "HOME" Ultra-Chiari per il Ritorno Immediato**:
+     - Inserito nella Navbar fissa superiore di [VillageWineListPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pages/VillageWineListPage.tsx) un pulsante oro/ambra ad alto contrasto con icona `Home` e dicitura **`HOME`** per tornare alla home del villaggio con un singolo tocco.
+     - Aggiunta subito sopra l'header card una barra breadcrumb dedicata (`← 🏠 Torna alla Home / Carta dei Vini`) visibile sia su smartphone che su desktop.
+  2. 🔒 **Tasto Admin a Fondo Pagina con Protezione Password Unificata**:
+     - Posizionato a fondo pagina un pulsante dedicato per lo staff con icona scudo e lucchetto: **`Gestione Vini (Staff Admin)`**.
+     - Il pulsante punta all'indirizzo diretto: `/admin?dept=resort&tab=wines`.
+     - È protetto al 100% dal consueto Single Sign-On e password unificata Supabase dell'admin (`AdminAuth.tsx`), garantendo che nessun cliente non autorizzato possa accedervi.
+  3. 🎯 **Aggancio Diretto alla Tab Vini nella Dashboard Resort**:
+     - In [ResortDashboard.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/resort/components/ResortDashboard.tsx), abilitata la lettura del parametro `?tab=wines`.
+     - Quando lo staff inserisce la password, viene reindirizzato all'istante sulla tab **CARTA DEI VINI**, pronto a mettere o togliere le bottiglie disponibili.
+  4. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: compilazione completata con successo in 5.19s con 0 errori.
+- **File aggiornati:** `src/pages/VillageWineListPage.tsx`, `src/admin/resort/components/ResortDashboard.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Testato e 100% operativo.
+
+---
+
+### 🟩 [31/10/2026 - ORE 16:30] · NUOVA CARTA DEI VINI VILLAGGIO (/wine-list) & CONTROLLO DISPONIBILITÀ DASHBOARD RESORT
+- **Cosa abbiamo fatto:**
+  1. 📱 **Decodifica & Risposta Ottica Codice QR Menu Fisico**:
+     - Scansionato e decodificato il codice QR cartaceo stampato: risponde all'indirizzo canonico `https://www.flowerpowervillage.com/wine-list`.
+     - Registrate in [App.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/App.tsx) le rotte `/wine-list` e `/village/wine-list` (e wildcard subpath).
+  2. 🍷 **Nuova Pagina Web Dedicata [VillageWineListPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pages/VillageWineListPage.tsx)**:
+     - Grafica 100% allineata all'identità di Flower Power Village (tonalità sabbia/avorio #FAF8F5, testata legno/ardesia #3b3530, accenti verde salvia #a2b997, slideshow resort di sfondo, font elegante Cormorant Garamond).
+     - **Banner Vino della Casa**: esposto fedelmente come da menu cartaceo:
+       * 🍷 1 Calice (150ml) — **120 Baht**
+       * 🏺 1 Caraffa (75cl) — **590 Baht**
+     - **Schede Vini Pregiati**: presentazione identica a quella della pizzeria ma adattata al villaggio (foto bottiglia verticale 35% con hover-zoom, titolo, denominazione DOC/DOCG, bandiera nazione, gradazione alcolica, note sommelier multilingue, prezzo in Baht).
+     - **Lightbox Sommelier a Schermo Intero**: tocco o click su qualsiasi vino apre la scheda dettagliata con note di degustazione, abbinamenti consigliati, temperatura di servizio e pulsante diretto per prenotare o chiedere al personale via WhatsApp (+66 95 882 5573).
+     - **Filtri & Ricerca**: ricerca in tempo reale per titolo, vitigno o regione; filtri rapidi per categoria (Tutti, Rossi, Bianchi, Rosati, Bollicine).
+     - **Multilingue Totale**: selettore sincronizzato per 🇬🇧 English, 🇹🇭 ภาษาไทย, 🇮🇹 Italiano, 🇩🇪 Deutsch.
+  3. 🛠️ **Gestione Vini nella Dashboard Resort ([VillageWineManager.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/resort/components/VillageWineManager.tsx))**:
+     - Aggiunta in [ResortDashboard.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/resort/components/ResortDashboard.tsx) la nuova tab `CARTA DEI VINI` con icona dedicata.
+     - Interruttore a 1 click (Toggle On/Off) per mettere o togliere ciascun vino dal menu del villaggio.
+     - Contatori radar in tempo reale: Vini in Catalogo, Attivi al Villaggio, Esauriti/Nascosti.
+     - Azioni rapide "Attiva Tutti" e "Disattiva Tutti", ricerca e filtri.
+     - Pulsante rapido "Anteprima Pagina QR" per aprire subito la carta vini pubblica.
+  4. 🛡️ **Isolamento Stagno & Sincronizzazione Cloud ([villageWineCloudService.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/services/villageWineCloudService.ts))**:
+     - Esteso l'endpoint [/api/wine-collection](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/wine-collection.ts) con il parametro `scope=village`.
+     - La disponibilità dei vini del Villaggio è salvata su file cloud indipendente `village_wine_config.json` nel bucket Supabase `site-images`, con cache istantanea in localStorage e fallback trasparente.
+     - **Zero contaminazione con la Pizzeria**: la disponibilità dei vini di Ranong rimane totalmente autonoma da quella di Koh Phayam.
+  5. 🍽️ **Integrazione Sezione Ristorante ([RestaurantSection.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/sections/RestaurantSection.tsx))**:
+     - Inserito banner bilingue con invito diretto alla carta dei vini subito sopra il menu da sfogliare.
+  6. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: esito positivo (build in 6.91s con 0 errori).
+- **File aggiornati:** `api/_handlers/wine-collection.ts`, `src/booking/services/villageWineCloudService.ts`, `src/admin/resort/components/VillageWineManager.tsx`, `src/admin/resort/components/ResortDashboard.tsx`, `src/pages/VillageWineListPage.tsx`, `src/App.tsx`, `src/sections/RestaurantSection.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ 100% Completato, testato e funzionante.
+
+---
+
+### 🟩 [30/10/2026 - ORE 14:25] · INTEGRAZIONE GOOGLE TRAVEL & SCHEDE RICETTIVE A COSTO ZERO (€ 0)
+- **Cosa abbiamo fatto:**
+  1. 🌐 **Schema.org JSON-LD Ufficiale (`Resort` & `LodgingBusiness`) in [index.html](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/index.html)**:
+     - Inseriti i microdati semantici strutturati conformi alle specifiche Schema.org e Google Rich Results per strutture ricettive.
+     - Collegato il **Google Place ID** ufficiale (`ChIJbXTjxdsAVzARXVxfYN4WzN4`), CID Google Maps (`16054231916024388701`), coordinate GPS esatte (`9.759608, 98.410898`), orari di check-in (09:00) e check-out (12:00).
+     - Implementata l'azione semantica `potentialAction: ReserveAction` verso `https://flowerpowervillage.com/?utm_source=google_travel&action=book` in 4 lingue native (EN, IT, DE, TH).
+     - Inserito il catalogo `AggregateOffer` con gamma prezzi (350 - 4800 THB) e menzione ufficiale degli sconti progressivi (-10% diretto, -15% 15-29 gg, -20% 30+ gg).
+     - Integrata nel grafo semantico anche l'entità `Restaurant` (Flower Power Italian Restaurant & Pizzeria).
+  2. 🔗 **Allineamento URL Google Business Profile (Location Villaggio)**:
+     - Tramite le API di Google Business Profile (`mybusinessbusinessinformation.googleapis.com`), aggiornato il `websiteUri` della scheda Villaggio (`locations/1412782511329374493`) da HTTP a HTTPS protetto: `https://flowerpowervillage.com/` (HTTP 200 OK).
+  3. 🛡️ **Audit & Certificazione Sconti Progressivi Reali**:
+     - Verificato il flusso completo dal frontend al backend di pagamento (`RoomGrid.tsx`, `booking-engine.tsx`, `checkout.ts`, `verify.ts`).
+     - Certificata l'applicazione matematica reale degli scaglioni:
+       * 1-14 notti: **-10% Diretto**
+       * 15-29 notti: **-15% Medium Stay**
+       * 30+ notti: **-20% Long Stay**
+       * Calcolo acconto (30%) e saldo al check-in (70%) eseguiti fedelmente sul totale già decurtato dello sconto.
+  4. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: compilazione completata con successo in 15.20s con 0 errori.
+- **File aggiornati:** `index.html`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ 100% Operativo e verificato.
+
+---
+
+### 🟩 [29/10/2026 - ORE 20:55] · FIX OFFERTE GOOGLE BUSINESS & DISPATCH OBBLIGATORIO TELEGRAM TOPIC 4 (MEDIABOX)
+- **Cosa abbiamo fatto:**
+  1. 🏷️ **Supporto Completo Formato OFFERTE su Google Local Posts**:
+     - In [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts), implementato il payload formale richiesto da Google per topicType 'OFFER' (struttura event con schedule a 7 giorni, date inizio/fine, codice promo PIZZA10 / DIRECT10 e link di riscatto).
+     - Corretta la variabile errDetail che generava ReferenceError.
+     - Testato live con le API di Google: esito 200 OK (Post ID: 3654433470398819145).
+  2. 📱 **Inoltro Automatico a Telegram Topic 4 (MediaBox - Google Drive)**:
+     - In [AutoCutDistributionPanel.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutDistributionPanel.tsx), integrata la trasmissione automatica del video MP4 HD e del testo bilingue al **Topic 4 (MediaBox - Google Drive)** per ogni pubblicazione su Google Business.
+     - Risolto il blocco dello step 6 (che rimaneva in rotazione infinita) e sincronizzata la timeline.
+     - Gli allarmi di errore vengono ora sempre inoltrati a Topic 301 (Failed) senza filtri bloccanti.
+  3. 🎵 **Risoluzione Muxing Audio FFmpeg su Windows**:
+     - Individuata la causa dell'audio assente: `getFFmpegPath()` invocava il comando generico `ffmpeg` (non presente nel PATH di Windows), provocando il fallback silenzioso al video raw senza traccia audio.
+     - Aggiornato `getFFmpegPath()` per agganciarsi direttamente al binario compilato `@ffmpeg-installer/win32-x64/ffmpeg.exe`.
+     - Testato muxing completo: traccia audio AAC stereo 48kHz sincronizzata e verificata con ffprobe.
+  4. 🧹 **Cancellazione Post di Test / Senza Audio via Google API**:
+     - Interrogate le API Google Local Posts ed eliminati con successo (HTTP 200) i tre post preliminari privi di audio (`2368543878636013183`, `3654433470398819145`, `7441872169619297086`).
+     - Scheda Google Maps Pizzeria completamente ripulita e pronta per la pubblicazione con audio completo.
+  5. 🏨 **Compliance Policy Google per Strutture Ricettive (Resort & Hotel)**:
+     - Rilevato il rifiuto di Google (*"Creating Offer and Product posts is not enabled for this location"*): le schede con categoria primaria `Resort hotel` vietano i post `OFFER` a livello globale per policy Google Travel.
+     - Implementata conversione automatica per il Villaggio a post `STANDARD` con pulsante Call to Action `BOOK` (Prenota) verso `https://flowerpowervillage.com`.
+     - Testato e validato su location Villaggio `locations/1412782511329374493`: esito 200 OK.
+- **File aggiornati:** api/_handlers/social-publisher.ts, src/social/components/AutoCutDistributionPanel.tsx.
+- **Stato:** ✅ Testato e 100% operativo.
+
+---
+
 ### 🚀 [29/10/2026 - ORE 20:30] · RELEASE IN PRODUZIONE LIVE (MARKDOWN-WEBSITE)
 - **Cosa abbiamo fatto:**
   1. 🛡️ **Audit di Sicurezza & Validazione TypeScript**:

@@ -10,6 +10,7 @@ import DiningTabletSite from './pizza/pages/DiningTabletSite';
 import LegalPage from './pages/LegalPage';
 import SocialStudioPage from './social/pages/SocialStudioPage';
 import AutoCutStudioPage from './social/pages/AutoCutStudioPage';
+import VillageWineListPage from './pages/VillageWineListPage';
 import { ACCOMMODATION_IDENTITIES } from './booking/resort/config/accommodations';
 
 class ErrorBoundary extends React.Component<
@@ -160,6 +161,10 @@ function App() {
         <DynamicHeadManager />
         <Routes>
           <Route path="/" element={<RootRouter />} />
+          <Route path="/wine-list" element={<VillageWineListPage />} />
+          <Route path="/wine-list/*" element={<VillageWineListPage />} />
+          <Route path="/village/wine-list" element={<VillageWineListPage />} />
+          <Route path="/village/wine-list/*" element={<VillageWineListPage />} />
           <Route path="/village/*" element={<VillageSite />} />
           <Route path="/pizza/*" element={<PizzaSite />} />
           <Route path="/admin" element={<AdminMain />} />

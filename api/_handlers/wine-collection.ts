@@ -12,17 +12,27 @@ export async function handleWineCollection(req: VercelRequest, res: VercelRespon
 
   if (req.method === 'GET') {
     try {
+      const scope = req.query.scope;
+      const fileName = scope === 'village' ? 'village_wine_config.json' : 'wine_collection.json';
+
       const { data, error } = await supabase.storage
         .from('site-images')
-        .download('wine_collection.json');
+        .download(fileName);
 
       if (error || !data) {
+        if (scope === 'village') {
+          return res.status(200).json({ success: true, config: { disabledWineIds: [], priceOverrides: {} } });
+        }
         return res.status(200).json({ success: false, message: 'No cloud collection found', collection: [] });
       }
 
       const text = await data.text();
-      const collection = JSON.parse(text);
-      return res.status(200).json({ success: true, collection });
+      const parsed = JSON.parse(text);
+
+      if (scope === 'village') {
+        return res.status(200).json({ success: true, config: parsed });
+      }
+      return res.status(200).json({ success: true, collection: parsed });
     } catch (err: any) {
       return res.status(500).json({ success: false, error: err.message });
     }
@@ -30,7 +40,34 @@ export async function handleWineCollection(req: VercelRequest, res: VercelRespon
 
   if (req.method === 'POST') {
     try {
-      const { collection, uploadImage } = req.body || {};
+      const { collection, uploadImage, scope, config } = req.body || {};
+
+      // Gestione configurazione disponibilità vini specifica per il Villaggio a Koh Phayam
+      if (scope === 'village') {
+        const villagePayload = config || { disabledWineIds: [], priceOverrides: {}, updatedAt: new Date().toISOString() };
+        const jsonBuffer = Buffer.from(JSON.stringify(villagePayload, null, 2), 'utf8');
+
+        const { error: saveErr } = await supabase.storage
+          .from('site-images')
+          .upload('village_wine_config.json', jsonBuffer, {
+            contentType: 'application/json',
+            cacheControl: '0',
+            upsert: true
+          });
+
+        if (saveErr) {
+          console.error('[API wine-collection] Village config save error:', saveErr);
+          return res.status(500).json({ success: false, error: `Village config save failed: ${saveErr.message}` });
+        }
+
+        return res.status(200).json({
+          success: true,
+          scope: 'village',
+          disabledCount: villagePayload.disabledWineIds?.length || 0,
+          updatedAt: villagePayload.updatedAt
+        });
+      }
+
       let uploadedImageUrl: string | undefined = undefined;
 
       // Se c'è un'immagine da caricare via backend con service_role (bypassa RLS 100%)

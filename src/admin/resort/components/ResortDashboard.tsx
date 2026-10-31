@@ -48,8 +48,10 @@ import {
   Ticket,
   Send,
   Bot,
+  Wine as WineIcon,
   X
 } from 'lucide-react';
+import { VillageWineManager } from './VillageWineManager';
 import { 
   isValidActiveBooking, 
   addBookingToBlacklist, 
@@ -127,7 +129,22 @@ export function ResortDashboard() {
   } = useResortAdminStore();
 
   const [activeOptimizationTab, setActiveOptimizationTab] = useState<OptimizationTab>('cascade');
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'seasonal_rates' | 'messages' | 'octorate' | 'channel_restrictions' | 'telegram'>('bookings');
+  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'seasonal_rates' | 'messages' | 'octorate' | 'channel_restrictions' | 'telegram' | 'wines'>(() => {
+    if (typeof window !== 'undefined') {
+      const tabParam = new URLSearchParams(window.location.search).get('tab');
+      if (tabParam === 'wines') return 'wines';
+    }
+    return 'bookings';
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const tabParam = new URLSearchParams(window.location.search).get('tab');
+      if (tabParam === 'wines') {
+        setActiveTab('wines');
+      }
+    }
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   // Doppio click per Calendario Annuale (componente pesante ~9000 celle)
   const [calendarConfirm, setCalendarConfirm] = useState(false);
@@ -1127,6 +1144,14 @@ export function ResortDashboard() {
               }`}
             >
               OCTORATE PMS
+            </button>
+
+            <button
+              onClick={() => setActiveTab('wines')}
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 flex items-center gap-1.5 ${activeTab === 'wines' ? 'bg-amber-600 text-white shadow-md shadow-amber-950/40 ring-1 ring-amber-400/30' : 'text-stone-400 hover:text-white hover:bg-stone-800/50'}`}
+            >
+              <WineIcon className="w-3.5 h-3.5 text-amber-400" />
+              <span>CARTA DEI VINI</span>
             </button>
 
             <button
@@ -2480,6 +2505,13 @@ export function ResortDashboard() {
       {/* Tab: Gestione Stagionale Tariffe */}
       {activeTab === 'seasonal_rates' && (
         <GestioneStagionaleTariffe />
+      )}
+
+      {/* Tab: Gestione Carta dei Vini Koh Phayam */}
+      {activeTab === 'wines' && (
+        <div className="max-w-7xl mx-auto space-y-6">
+          <VillageWineManager />
+        </div>
       )}
 
       {/* Tab: Gestione Restrizioni Canali (Dynamic Timeline Matrix) */}

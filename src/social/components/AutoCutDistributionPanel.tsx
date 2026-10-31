@@ -193,7 +193,7 @@ export function AutoCutDistributionPanel({
       { label: 'Muxing audio jingle digitale 48kHz stereo', status: 'pending' },
       { label: 'Finalizzazione container video MP4 HD', status: 'pending' },
       { label: 'Upload su Cloud Storage (Supabase S3 bucket)', status: 'pending' },
-      { label: `Invio al bot Telegram Staff (${activeChannel === 'facebook' && formats.facebook === 'group' ? 'Topic 2 Koh Phayam Group' : 'Topic 3 Stories'})`, status: 'pending' },
+      { label: `Invio al bot Telegram Staff (${activeChannel === 'facebook' && formats.facebook === 'group' ? 'Topic 2 Koh Phayam Group' : activeChannel === 'tiktok' && formats.tiktok === 'story' ? 'Topic 3 Stories' : 'Topic 4 MediaBox - Google Drive'})`, status: 'pending' },
       { label: 'Consegna completata con successo!', status: 'pending' }
     ];
     setLiveSteps(initialSteps);
@@ -295,6 +295,30 @@ export function AutoCutDistributionPanel({
           throw new Error(tgRes.error || 'Errore durante la trasmissione Telegram');
         }
       }
+
+      // Invio REALE al bot Telegram Topic 4 (MediaBox - Google Drive) per Google Business o backup archivio
+      if (activeChannel === 'google') {
+        const copyResult = generatePostCopy(testRun, 0);
+        const captionText = liveCaptions?.google || copyResult.fullCaptionInstagram;
+        const brandLabel = selectedBrand === 'pizza' ? 'Flower Power Pizza (Ranong)' : 'Flower Power Farm Village (Koh Phayam)';
+        const tgRes = await dispatchPostToTelegramTopic({
+          topic: 'mediaBoxGoogleDrive',
+          title: `Google Business Update · ${testRun.scenes[0]?.titlePrimary || brandLabel}`,
+          copyText: `Scheda Google Maps: ${brandLabel}\nFormato: ${formats.google === 'offer' ? 'Offerta Speciale' : 'Novità'}\n\n${captionText}`,
+          format: testRun.mode,
+          brand: selectedBrand,
+          priceBadge: testRun.scenes[0]?.priceLabel,
+          imageUrl: finalMediaUrl,
+          mediaUrl: finalMediaUrl,
+          thumbnailUrl: (window as any).__lastGeneratedThumbnailUrl,
+          mediaType: 'video'
+        });
+        if (!tgRes.success) {
+          console.warn('[AutoCutDistributionPanel] Avviso invio Telegram Topic 4:', tgRes.error);
+        }
+      }
+
+      updateStep(6, 'done');
 
       // 1. Invio REALE alla Pagina Facebook (Post Video di Pagina, Reels o Storie 24h)
       let publishedFacebookUrl: string | undefined = undefined;
@@ -412,7 +436,7 @@ export function AutoCutDistributionPanel({
               summary: captionText,
               brand: selectedBrand,
               mediaUrl: finalMediaUrl,
-              topicType: formats.google === 'offer' ? 'OFFER' : 'STANDARD',
+              topicType: (selectedBrand === 'village' || formats.google === 'update') ? 'STANDARD' : 'OFFER',
               actionType: selectedBrand === 'village' ? 'BOOK' : 'ORDER',
               actionUrl: selectedBrand === 'village' ? 'https://flowerpowervillage.com' : 'https://flowerpowerpizza.com',
               simulate: environment === 'test'
@@ -533,8 +557,7 @@ export function AutoCutDistributionPanel({
       });
 
       // 🚨 Invio Allarme Immediato al Topic 301 (Failed)
-      if (environment === 'production') {
-        dispatchPublishReportToTelegram({
+      dispatchPublishReportToTelegram({
           title: testRun?.scenes[0]?.titlePrimary || `Flower Power ${selectedBrand === 'pizza' ? 'Pizza' : 'Village'}`,
           format: testRun?.mode,
           brand: selectedBrand,
@@ -547,7 +570,6 @@ export function AutoCutDistributionPanel({
             }
           ]
         }).catch(e => console.warn('[AutoCutDistributionPanel] Error report dispatch failed:', e));
-      }
     } finally {
       setIsPublishing(false);
     }
@@ -702,7 +724,9 @@ export function AutoCutDistributionPanel({
               <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  <span className={formats.google === 'offer' ? 'font-bold text-white' : ''}>Offerta Speciale Promo</span>
+                  <span className={formats.google === 'offer' ? 'font-bold text-white' : ''}>
+                    {selectedBrand === 'village' ? 'Promo Alloggi (con CTA Prenota)' : 'Offerta Speciale Promo'}
+                  </span>
                 </span>
                 <input
                   type="radio"

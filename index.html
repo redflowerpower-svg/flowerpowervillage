@@ -23,6 +23,111 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Flower Power" />
     <script src="https://cdn.omise.co/omise.js" async></script>
+
+    <!-- Structured Data (Schema.org) for Google Travel, Google Maps & Search Engine Optimization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": ["Resort", "LodgingBusiness"],
+          "@id": "https://flowerpowervillage.com/#resort",
+          "name": "Flower Power Village & Italian Restaurant-Pizzeria",
+          "alternateName": [
+            "Flower Power Village",
+            "Flower Power Farm Village & Spa",
+            "Flower Power Koh Phayam"
+          ],
+          "url": "https://flowerpowervillage.com",
+          "logo": "https://flowerpowervillage.com/FP_04_-_LOGO_OFFICIAL_HD.png",
+          "image": "https://flowerpowervillage.com/FP_04_-_LOGO_OFFICIAL_HD.png",
+          "description": "Eco-friendly tropical resort on Koh Phayam (Buffalo Bay), Thailand. Featuring villas, bungalows, glamping tents, outdoor swimming pool, Swedish sauna, ice bath, open-air gym, coworking high-speed WiFi, and authentic Italian restaurant-pizzeria. Tiered long-stay discounts exclusively available on direct booking: -10% standard, -15% for 15-29 days, -20% for 30+ days.",
+          "telephone": "+66958825573",
+          "priceRange": "฿฿",
+          "currenciesAccepted": "THB, EUR, USD",
+          "paymentAccepted": "Credit Card, PromptPay QR, Cash, Wise, Revolut, PayPal",
+          "checkinTime": "09:00:00+07:00",
+          "checkoutTime": "12:00:00+07:00",
+          "petsAllowed": true,
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Buffalo Bay - 14/32 Mu 1, Than Boun",
+            "addressLocality": "Koh Phayam",
+            "addressRegion": "Ranong",
+            "postalCode": "85000",
+            "addressCountry": "TH"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 9.759608,
+            "longitude": 98.410898
+          },
+          "hasMap": "https://maps.google.com/maps?cid=16054231916024388701",
+          "sameAs": [
+            "https://maps.google.com/maps?cid=16054231916024388701",
+            "https://www.facebook.com/flowerpowerkohphayam"
+          ],
+          "amenityFeature": [
+            { "@type": "LocationFeatureSpecification", "name": "Outdoor Swimming Pool", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Swedish Sauna & Ice Bath", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Open-air Fitness & Gym", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Yoga Space", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "High-Speed Resort WiFi & Coworking", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Authentic Italian Restaurant & Traditional Pizzeria", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Traditional Thai Massage & Spa", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Shared Kitchen for Long Stays", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Solar & Clean Energy", "value": true }
+          ],
+          "potentialAction": {
+            "@type": "ReserveAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://flowerpowervillage.com/?utm_source=google_travel&action=book",
+              "inLanguage": ["en", "it", "de", "th"],
+              "actionPlatform": [
+                "http://schema.org/DesktopWebPlatform",
+                "http://schema.org/MobileWebPlatform"
+              ]
+            },
+            "result": {
+              "@type": "LodgingReservation",
+              "name": "Direct Booking - Tiered Discounts (-10% Standard, -15% 15-29 days, -20% 30+ days)"
+            }
+          },
+          "offers": {
+            "@type": "AggregateOffer",
+            "priceCurrency": "THB",
+            "lowPrice": "350",
+            "highPrice": "4800",
+            "offerCount": "18",
+            "description": "Best rate guaranteed on official direct booking with tiered long-stay discounts: -10% standard, -15% for 15-29 days, -20% for 30+ days."
+          }
+        },
+        {
+          "@type": ["Restaurant", "FoodEstablishment"],
+          "@id": "https://flowerpowervillage.com/#restaurant",
+          "name": "Flower Power Italian Restaurant & Pizzeria",
+          "url": "https://flowerpowervillage.com",
+          "telephone": "+66958825573",
+          "servesCuisine": ["Italian", "Pizza", "Burmese", "Thai", "Vegetarian"],
+          "priceRange": "฿฿",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Buffalo Bay - 14/32 Mu 1, Than Boun",
+            "addressLocality": "Koh Phayam",
+            "addressRegion": "Ranong",
+            "postalCode": "85000",
+            "addressCountry": "TH"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 9.759608,
+            "longitude": 98.410898
+          }
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
