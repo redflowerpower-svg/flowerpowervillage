@@ -11,7 +11,7 @@ export type AutoCutLabMode = 'P1' | 'P2' | 'P3' | 'V1' | 'V2' | 'V3' | 'R1' | 'L
  */
 export function getTodayOctoratePrice(motherId: number): number {
   const today = new Date().toISOString().substring(0, 10);
-  const currentPeriod = DEFAULT_PERIODS.find(p => today >= p.dateFrom && today <= p.dateTo) 
+  const currentPeriod = DEFAULT_PERIODS.find(p => today >= p.dateFrom && today <= p.dateTo)
     || DEFAULT_PERIODS[DEFAULT_PERIODS.length - 1]; // Fallback su Low Season
   const matrix = DEFAULT_PRICES_MATRIX[currentPeriod.id] || DEFAULT_PRICES_MATRIX['p9'];
   return matrix[motherId] || 990;
@@ -31,14 +31,14 @@ export interface AutoCutScene {
     size8Price: number;
     size12Price: number;
   };
-  trajectory: 
-    | 'food_macro_focus_lr' 
-    | 'food_macro_focus_rl' 
-    | 'pan_left_zoom_in' 
-    | 'pan_right_zoom_in' 
-    | 'pan_left_zoom_out' 
-    | 'pan_right_zoom_out' 
-    | 'push_in_focal';
+  trajectory:
+  | 'food_macro_focus_lr'
+  | 'food_macro_focus_rl'
+  | 'pan_left_zoom_in'
+  | 'pan_right_zoom_in'
+  | 'pan_left_zoom_out'
+  | 'pan_right_zoom_out'
+  | 'push_in_focal';
   badgeCategory?: string;
   badgeCategoryTh?: string;
   sourceName?: string;
@@ -416,7 +416,7 @@ export function getKitchenAvailabilityCache(): Record<string, boolean> {
       cachedKitchenAvailability = JSON.parse(local);
       return cachedKitchenAvailability || {};
     }
-  } catch (_) {}
+  } catch (_) { }
   return {};
 }
 
@@ -430,7 +430,7 @@ export function getCachedDailySpecialsOverrides(): Record<string, boolean> {
       cachedDailySpecialsOverrides = JSON.parse(local);
       return cachedDailySpecialsOverrides || {};
     }
-  } catch (_) {}
+  } catch (_) { }
   return {};
 }
 
@@ -542,7 +542,7 @@ export function isDishAvailableInKitchen(dish: MenuItem): boolean {
 
   const overrides = getKitchenAvailabilityCache();
   const dishId = dish.id;
-  
+
   if (dishId && overrides[dishId] === false) {
     return false; // Escluso categoricamente perché Sold Out nel Kitchen Monitor
   }
@@ -570,9 +570,9 @@ export function getAvailableDishesFromCategory(items: MenuItem[]): MenuItem[] {
 export function getCategoryThaiName(catNameOrId?: string): string {
   if (!catNameOrId) return '';
   const clean = catNameOrId.replace(/^[✦⭐\s*]+/, '').trim();
-  const found = menuData.find(c => 
-    c.id.toLowerCase() === clean.toLowerCase() || 
-    c.name.toLowerCase() === clean.toLowerCase() || 
+  const found = menuData.find(c =>
+    c.id.toLowerCase() === clean.toLowerCase() ||
+    c.name.toLowerCase() === clean.toLowerCase() ||
     (c as any).categoryName?.toLowerCase() === clean.toLowerCase()
   );
   if (found?.nameTh) return found.nameTh;
@@ -592,7 +592,7 @@ export function getCategoryThaiName(catNameOrId?: string): string {
 }
 
 // 🍝 Categorie Ammesse Pizzeria Generali
-export const ELIGIBLE_FOOD_CATEGORIES = menuData.filter(cat => 
+export const ELIGIBLE_FOOD_CATEGORIES = menuData.filter(cat =>
   !isExcludedBeverageCategory(cat.id, cat.name || (cat as any).categoryName)
 );
 
@@ -784,7 +784,7 @@ export function generateP1Test(): AutoCutTestRun {
   };
 
   const audio = getRandomItem(PIZZA_JINGLE_TRACKS);
-  
+
   // 🎵 Intero brano MP3 utilizzato!
   const totalDuration = audio.duration;
   const sceneDuration = audio.p1CutDuration || 8.85;
@@ -834,13 +834,13 @@ export function generateP2Test(): AutoCutTestRun {
     .filter(c => c.availableItems.length >= 3);
 
   // Fallback se nessuna ha 3 disponibili
-  const selectedCat = categoriesWithAvailableDishes.length > 0 
+  const selectedCat = categoriesWithAvailableDishes.length > 0
     ? getRandomItem(categoriesWithAvailableDishes)
     : {
-        category: ELIGIBLE_FOOD_CATEGORIES[0],
-        name: ELIGIBLE_FOOD_CATEGORIES[0].name || (ELIGIBLE_FOOD_CATEGORIES[0] as any).categoryName,
-        availableItems: getAvailableDishesFromCategory(ELIGIBLE_FOOD_CATEGORIES[0].items)
-      };
+      category: ELIGIBLE_FOOD_CATEGORIES[0],
+      name: ELIGIBLE_FOOD_CATEGORIES[0].name || (ELIGIBLE_FOOD_CATEGORIES[0] as any).categoryName,
+      availableItems: getAvailableDishesFromCategory(ELIGIBLE_FOOD_CATEGORIES[0].items)
+    };
 
   const catName = selectedCat.name;
   const selectedDishes = getRandomItems(selectedCat.availableItems, Math.min(3, selectedCat.availableItems.length));
@@ -1066,7 +1066,7 @@ export function generateV3Test(): AutoCutTestRun {
  * Zero Bibite, Zero Vini, Zero Birre E ZERO Insalate. Solo autentica cucina calda (Pizze, Paste, Secondi, Dessert).
  */
 export function generateR1Test(): AutoCutTestRun {
-  const eligibleCategories = ELIGIBLE_RESTAURANT_CATEGORIES.filter(cat => 
+  const eligibleCategories = ELIGIBLE_RESTAURANT_CATEGORIES.filter(cat =>
     Array.isArray(cat.items) && cat.items.some(item => !!item.image)
   );
 
@@ -1211,11 +1211,14 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
     { lodging: lagoon, livePrice: 387, availability: 1 }
   ];
 
-  const rooms = (customRooms && customRooms.length > 0)
+  const rawRooms = (customRooms && customRooms.length > 0)
     ? customRooms
     : (cachedLiveLastMinuteRooms && cachedLiveLastMinuteRooms.length > 0)
       ? cachedLiveLastMinuteRooms
       : defaultRooms;
+
+  // 🔀 Rimescolamento casuale delle stanze libere: azzera la monotonia e alterna la copertina/hero
+  const rooms = getRandomItems(rawRooms, rawRooms.length);
 
   // 🌺 REGOLA: Tutti i formati Koh Phayam Village (V1, V2, V3, LM1, R1) usano le tracce Koh Phayam Village
   const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
@@ -1274,10 +1277,10 @@ export function generateDSTest(customDishes?: MenuItem[]): AutoCutTestRun {
   let isFromShowcase = false;
 
   if (liveShowcaseDishes && liveShowcaseDishes.length > 0) {
-    heroDish = liveShowcaseDishes[0];
+    heroDish = getRandomItem(liveShowcaseDishes);
     isFromShowcase = true;
   } else if (allDailyDishes && allDailyDishes.length > 0) {
-    heroDish = allDailyDishes[0];
+    heroDish = getRandomItem(allDailyDishes);
     isFromShowcase = false;
   }
 

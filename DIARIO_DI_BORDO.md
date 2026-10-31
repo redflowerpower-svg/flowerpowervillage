@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [31/10/2026 - ORE 18:30] · RANDOMIZZAZIONE DINAMICA IMMAGINI & STANZE NEI FORMATI LM1 E DS (ZERO MONOTONIA)
+- **Cosa abbiamo fatto:**
+  1. 🔀 **Shuffle Casuale Stanze Libere in LM1 ([autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts))**:
+     - Eliminato l'ordine statico fisso con cui le stanze del calendario Octorate (Green Bungalow, Camel Tent, Lagoon Tent) venivano passate al video.
+     - Applicato getRandomItems(rawRooms, rawRooms.length) per rimescolare casualmente l'elenco delle stanze libere a ogni generazione.
+     - La copertina / prima scena (hero) varia dinamicamente ad ogni ciclo, azzerando la ripetitività.
+  2. 🔗 **Allineamento Matematico 1:1 Video ➔ Testo del Post**:
+     - Poiché sia il copywriter locale ([autoCutCopywriterEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutCopywriterEngine.ts)) sia il prompt DeepSeek ([AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx)) leggono le scene generate (testRun.scenes.map(...)), le stanze menzionate nel post (in Thai e in Inglese) seguono **tassativamente lo stesso identico ordine rimescolato del video**.
+  3. 🍕 **Selezione Casuale Piatto Hero in DS ([autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts))**:
+     - Sostituito l'indice statico liveShowcaseDishes[0] / allDailyDishes[0] con getRandomItem(liveShowcaseDishes) / getRandomItem(allDailyDishes).
+     - Se in vetrina o nei piatti del giorno sono presenti più piatti, ogni generazione estrae dinamicamente un piatto diverso senza proporre sempre lo stesso elemento.
+  4. 🧪 **Collaudo di Build**:
+     - Eseguito npm run build: compilazione Vite completata con successo in 7.13s (0 errori).
+- **File aggiornati:** src/social/services/autoCutLabEngine.ts, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Testato e 100% operativo.
+
+---
+
 ### 🟩 [31/10/2026 - ORE 17:15] · SMISTAMENTO SMART QR CODE (/wine-list): KOH PHAYAM (VILLAGGIO) ↔ TERRAFERMA (RANONG PIZZA)
 - **Cosa abbiamo fatto:**
   1. 🌐 **Algoritmo Geografico Haversine & Raggio Isola (10 km)**:
