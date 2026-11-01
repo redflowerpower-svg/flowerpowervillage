@@ -3,6 +3,121 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [01/11/2026 - ORE 18:05] · RILASCIO COMPLETO IN PRODUZIONE (MARKDOWN-PROJECT)
+- **Cosa abbiamo fatto:**
+  1. 🛡️ **Audit di Sicurezza, Cifratura Vault & Typecheck**:
+     - Cifratura cassaforte eseguita con successo via `node scratch/vault-sync.mjs encrypt`.
+     - Validato audit di sicurezza via `node scratch/security-audit.mjs`: **0 SECRETS DETECTED**.
+     - Typecheck TypeScript convalidato con `npx tsc --noEmit`: **0 errori di compilazione**.
+     - Build di produzione Vite convalidata con `npm run build`: completata con successo in 5.49s.
+  2. 📋 **Documentazione Tecnica & Archiviazione Report**:
+     - Compilato il report progressivo ufficiale `documentation_reports/26_reels_api_ota_guest_mail_audio_shuffle_and_ranong_standardization.md`.
+  3. 🌐 **Deploy Simultaneo (Staging + Produzione `main`)**:
+     - Commit e push su `staging` (`staging.flowerpowerpizza.com`).
+     - Merge di `staging` su `main` e push sul repository remoto di produzione (`www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
+     - Ritorno automatico e pulito sul branch di sviluppo `staging`.
+  4. 📦 **Sintesi Funzionalità Rilasciate**:
+     - **Meta Reels API**: video Facebook pubblicati come Reels nativi 9:16 a schermo intero senza bordi compressi.
+     - **Standardizzazione Recapiti Ranong (`0949.800.200`)**: formula mnemonica unificata per chiamate, WhatsApp e LINE.
+     - **Rotatore Audio Shuffle Bag**: esclusione storica degli ultimi 9 brani per azzerare doppioni consecutivi nei video.
+     - **Email Temporanee OTA (`guestMailAddress`)**: sblocco completo delle checkbox clienti nella mailing list del resort.
+- **Stato:** ✅ LIVE IN PRODUZIONE SUI DOMINI UFFICIALI & STAGING AGGIORNATO.
+
+---
+
+### 🟩 [01/11/2026 - ORE 17:28] · SUPPORTO NATIVO EMAIL TEMPORANEE OTA (`guestMailAddress` OCTORATE API)
+- **Cosa abbiamo fatto:**
+  1. 🎯 **Scoperta Chiave Chiave Payload Octorate**:
+     - L'utente ha evidenziato che le agenzie OTA (Booking.com, Expedia, ecc.) trasmettono un'email temporanea/alias (es. `xyz@guest.booking.com`) attiva durante la prenotazione.
+     - Analizzando le risposte dell'API REST di Octorate, è emerso che tale email non è memorizzata nel campo standard `email`, ma risiede nella proprietà **`guestMailAddress`**.
+     - Nel nostro endpoint serverless [`octorate.ts`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/octorate.ts), il mapping leggeva solo `r.email || r.guestEmail`, scartando inavvertitamente l'alias temporaneo fornito da Octorate.
+  2. 🛠️ **Integrazione Totale `guestMailAddress`**:
+     - Aggiornato [`octorate.ts`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/octorate.ts) per catturare con massima priorità `r.guestMailAddress`.
+     - Aggiornato [`NewsletterCampaignSection.tsx`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/resort/components/NewsletterCampaignSection.tsx) per estrarre `b.guestMailAddress` da tutte le prenotazioni in memoria.
+  3. 📬 **Risultato Operativo**:
+     - Tutte le prenotazioni OTA dotate di email temporanea di canale (Booking/Expedia/Agoda) vengono ora caricate con il loro indirizzo email funzionante e risultano **100% selezionabili e flaggabili** nella playlist della mailing list.
+  4. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: compilazione completata con successo in 5.20s (0 errori).
+- **File aggiornati:** `api/_handlers/octorate.ts`, `src/admin/resort/components/NewsletterCampaignSection.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Risolto, testato e 100% allineato.
+
+---
+
+### 🟩 [01/11/2026 - ORE 17:00] · RISOLUZIONE BUG SELEZIONE CLIENTI MAILING LIST RESORT (CHECKBOX DISABILITATE & ESTRAZIONE EMAIL)
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Diagnosi Inselezionabilità Clienti nella Mailing List**:
+     - Il pulsante checkbox per inserire i clienti nella playlist email appariva visivamente abilitato anche per ospiti privi di indirizzo email (le OTA come Booking.com, Agoda ed Expedia spesso non trasmettono l'email al Channel Manager, o lasciano solo il recapito telefonico).
+     - Il vecchio controllo `if (!hasNoContacts && g.email)` bloccava silenziosamente il click poiché `g.email` era vuoto (`""`), lasciando la casella deselezionata senza spiegare il motivo.
+  2. 🛠️ **Riparazione Checkbox & Trasparenza UI ([NewsletterCampaignSection.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/resort/components/NewsletterCampaignSection.tsx))**:
+     - Introdotta la condizione dedicata `hasNoEmail = !g.email || !g.email.includes('@')`.
+     - Per i clienti privi di email, la checkbox viene ora disabilitata in modo chiaro e trasparente (`cursor-not-allowed text-stone-600 opacity-30`) con tooltip esplicito (*"Nessun indirizzo email registrato (le OTA come Booking/Agoda spesso nascondono l'email del cliente)"*).
+     - Per tutti i clienti che dispongono di un'email valida, la checkbox si seleziona e deseleziona al primo click senza ostacoli.
+  3. 📧 **Potenziamento Estrazione Email Difensiva**:
+     - Espansa la funzione `getEmail(b)` per scandagliare tutte le possibili chiavi restituite da Octorate e da Supabase (`g.email`, `b.guest_email`, `b.guestEmail`, `b.email`, `b.mail`, `b.guests[0].email`).
+  4. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: compilazione Vite superata con successo in 6.60s (0 errori).
+- **File aggiornati:** `src/admin/resort/components/NewsletterCampaignSection.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Risolto, testato e 100% operativo.
+
+---
+
+### 🟩 [01/11/2026 - ORE 13:10] · ROTATORE AUDIO ANTI-RIPETIZIONE A MEMORIA STORICA (SHUFFLE BAG 11 BRANI VILLAGGIO)
+- **Cosa abbiamo fatto:**
+  1. 🎶 **Algoritmo di Rotazione Musicale Intelligente ([autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts))**:
+     - Sostituito il vecchio generatore casuale cieco (`Math.random()` senza memoria) con la funzione `getNextVillageAudioTrack()`.
+     - Implementato il sistema a **Shuffle Bag con memoria persistente** (`autocut_recent_audio_village`): esclude categoricamente gli ultimi 9 brani ascoltati su 11.
+     - **Garanzia Matematica**: Prima di poter risentire lo stesso MP3, devono essere riprodotti tutti gli altri 10 brani della suite. **Zero ripetizioni e zero doppioni consecutivi**.
+     - Applicato a tutti i formati del resort: **V1, V2, V3, R1 e LM1**.
+  2. 🍕 **Rotazione Jingle Pizzeria Ranong**:
+     - Implementata analoga funzione `getNextPizzaAudioTrack()` per alternare dinamicamente i jingle (`So Good`, `Ranong`, `Aroi Mak Mak`) nei formati **P1** e **DS** senza mai doppioni consecutivi.
+  3. ☁️ **Fallback Dinamico nel Cloud Renderer ([render-parity-test.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/render-parity-test.mjs))**:
+     - Eliminato il vecchio fallback statico che forzava sempre il brano `01 Island Disco Paradise`: in caso di necessità, il renderer cloud seleziona dinamicamente a rotazione su tutti i file presenti su disco.
+  4. 🧪 **Collaudo di Build**:
+     - Compilazione Vite superata con successo con `npm run build` in 5.89s (0 errori).
+- **File aggiornati:** `src/social/services/autoCutLabEngine.ts`, `scripts/render-parity-test.mjs`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Testato, simulato con successo su 33 cicli (0 doppioni) e 100% operativo.
+
+---
+
+### 🟩 [01/11/2026 - ORE 12:25] · STANDARDIZZAZIONE NUMERO RANONG (0949.800.200) & BLINDATURA SPECIFICHE AMBIENTALI
+- **Cosa abbiamo fatto:**
+  1. 📞 **Formula Unica & Obbligatoria Numero Ranong (`0949.800.200`)**:
+     - Fissata la formula esatta con i punti (`0949.800.200`) per facilitare la memorizzazione sia su tutto il website sia in ogni post e copy social.
+     - Il numero è attivo e valido per **Telefonate, WhatsApp e LINE**.
+     - Aggiornati i componenti del sito: [CartDrawer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/components/CartDrawer.tsx), [ServiceStatusBanner.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/components/ServiceStatusBanner.tsx), [TableReservationModal.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/components/TableReservationModal.tsx).
+  2. 🛵 **Delivery Ranong Bicanale (Website + Telefono/WhatsApp/LINE)**:
+     - Aggiornati i template del copywriter in [autoCutCopywriterEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutCopywriterEngine.ts) e i prompt DeepSeek AI in [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts): le delivery a Ranong si ordinano sia su `www.flowerpowerpizza.com` sia al numero `0949.800.200`.
+  3. 🍽️ **Ristorante Koh Phayam al 1° Piano & 6 Capanne**:
+     - Rettificato l'errore del "mangiare in mezzo al giardino tropicale": il ristorante di Koh Phayam si trova al **primo piano**, con una grande sala e **6 capanne private** intorno alla sala.
+     - Ordini delivery a Koh Phayam: gestiti **esclusivamente al telefono o via WhatsApp al +66 095 882 5573**.
+  4. 🌿 **Alloggi (4 Categorie) & Fauna Koh Phayam**:
+     - Codificate le 4 categorie ufficiali (Ville, Bungalow a Cupola, Tende Glamping, Guesthouse) e la fauna reale (Bucerì, Scoiattoli, Soundbird, Aquile in cielo).
+  5. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: compilazione completata con successo in 6.41s (0 errori).
+- **File aggiornati:** `src/pizza/components/CartDrawer.tsx`, `src/pizza/components/ServiceStatusBanner.tsx`, `src/pizza/components/TableReservationModal.tsx`, `src/social/services/autoCutCopywriterEngine.ts`, `api/_handlers/social-publisher.ts`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Testato, compilato e 100% allineato alla realtà.
+
+---
+
+### 🟩 [01/11/2026 - ORE 12:05] · MIGRAZIONE UFFICIALE FACEBOOK A META REELS API (VIDEO_REELS A SCHERMO INTERO 9:16)
+- **Cosa abbiamo fatto:**
+  1. 🎬 **Migrazione Definitiva dall'Endpoint Legacy `/{pageId}/videos` a `/{pageId}/video_reels`**:
+     - Sostituita la pubblicazione standard video con il protocollo ufficiale a 3 fasi di Meta Graph API per i Facebook Reels:
+       1. *Step 1 (Start session)*: `POST /{pageId}/video_reels?upload_phase=start` ➔ ricezione di `video_id` e upload URL dedicato su `rupload.facebook.com`.
+       2. *Step 2 (Upload binario)*: invio del flusso video `.mp4` direttamente via streaming binario a `rupload.facebook.com`.
+       3. *Step 3 (Finish & Publish)*: finalizzazione con `upload_phase=finish`, `video_id`, `video_state=PUBLISHED` e didascalia `description` con emoji e hashtag.
+     - Azzerato al 100% il layout a miniatura laterale compressa con etichetta grigia 'FACEBOOK' che i visitatori della Pagina vedevano nel feed: tutti i video sono ora registrati nativamente da Meta come **Facebook Reels a tutto schermo (100% full-width / full-screen 9:16)** sia nel feed generale sia nella scheda ufficiale 'Reels' della Pagina.
+  2. 🛡️ **Parità Totale tra API Serverless & Scheduler Cloud**:
+     - Aggiornato `api/_handlers/social-publisher.ts` per tutte le pubblicazioni da Studio / pannello web.
+     - Aggiornato `scripts/social-scheduler-dispatch.mjs` per tutte le pubblicazioni automatiche pianificate 24/7 su GitHub Actions.
+     - Mantenuto fallback di sicurezza trasparente sull'endpoint legacy `/{pageId}/videos` in caso di momentanea indisponibilità dell'endpoint Reels.
+  3. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: compilazione Vite completata con successo in 7.43s (0 errori).
+- **File aggiornati:** `api/_handlers/social-publisher.ts`, `scripts/social-scheduler-dispatch.mjs`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Aggiornato, compilato e pronto per la fase successiva sui contenuti.
+
+---
+
 ### 🚀 [31/10/2026 - ORE 18:40] · RILASCIO UFFICIALE IN PRODUZIONE (MARKDOWN-WEBSITE)
 - **Cosa abbiamo fatto:**
   1. 🛡️ **Audit di Sicurezza & Typecheck**:

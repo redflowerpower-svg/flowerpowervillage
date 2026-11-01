@@ -205,7 +205,8 @@ export const NewsletterCampaignSection: React.FC = () => {
   const getGuest = (b: any) => b?.guest || b?.customer || b?.reservation?.guest || {};
   const getEmail = (b: any) => {
     const g = getGuest(b);
-    return (g.email || b?.guest_email || '').toLowerCase().trim();
+    const raw = b?.guestMailAddress || b?.guest_email || b?.guestEmail || b?.email || b?.customerEmail || b?.mail || g.email || g.mailAddress || g.guestMailAddress || (Array.isArray(b?.guests) && (b?.guests[0]?.email || b?.guests[0]?.mailAddress)) || '';
+    return String(raw).toLowerCase().trim();
   };
   const getGuestName = (b: any) => {
     const g = getGuest(b);
@@ -1338,6 +1339,7 @@ export const NewsletterCampaignSection: React.FC = () => {
                           <tbody className="divide-y divide-stone-800/50">
                             {groupGuests.map((g) => {
                               const hasNoContacts = !g.email && !g.phone;
+                              const hasNoEmail = !g.email || !g.email.includes('@');
                               const isSelected = Boolean(g.email && selectedEmails.has(g.email));
                               const cleanPhoneNum = g.phone.replace(/[^0-9]/g, '');
 
@@ -1345,7 +1347,7 @@ export const NewsletterCampaignSection: React.FC = () => {
                                 <tr
                                   key={g.id}
                                   className={`hover:bg-stone-900/80 transition-colors ${
-                                    hasNoContacts
+                                    hasNoEmail
                                       ? 'opacity-60 bg-stone-950/40'
                                       : isSelected
                                       ? isTestGroup
@@ -1354,23 +1356,29 @@ export const NewsletterCampaignSection: React.FC = () => {
                                       : ''
                                   }`}
                                 >
-                                  {/* Checkbox Playlist (Disabilitata per chi ha hasNoContacts) */}
+                                  {/* Checkbox Playlist (Disabilitata per chi non ha email) */}
                                   <td className="py-2.5 px-3 text-center" onClick={(e) => e.stopPropagation()}>
                                     <button
                                       type="button"
-                                      disabled={hasNoContacts}
+                                      disabled={hasNoEmail}
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        if (!hasNoContacts && g.email) {
+                                        if (!hasNoEmail && g.email) {
                                           handleToggleSelectOne(g.email);
                                         }
                                       }}
                                       className={`transition-colors ${
-                                        hasNoContacts
+                                        hasNoEmail
                                           ? 'opacity-30 cursor-not-allowed text-stone-600'
                                           : 'text-stone-400 hover:text-white cursor-pointer'
                                       }`}
-                                      title={hasNoContacts ? 'Nessun recapito disponibile per la selezione' : isSelected ? 'Deseleziona' : 'Seleziona'}
+                                      title={
+                                        hasNoEmail
+                                          ? "Nessun indirizzo email registrato (le OTA come Booking/Agoda spesso nascondono l'email del cliente)"
+                                          : isSelected
+                                          ? 'Deseleziona dalla mailing list'
+                                          : 'Seleziona per la mailing list'
+                                      }
                                     >
                                       {isSelected ? <CheckSquare className="w-4 h-4 text-emerald-400" /> : <Square className="w-4 h-4" />}
                                     </button>

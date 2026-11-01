@@ -715,11 +715,69 @@ async function publishToFacebook({ videoUrl, videoBuffer, title = '', caption = 
     console.log(`🎉 [scheduler-dispatch] Facebook Story pubblicata con successo! (ID: ${storyId})`);
     return { ok: true, id: storyId };
   } else {
-    console.log(`[scheduler-dispatch] Invio Reel video su Pagina Facebook (Page ID: ${pageId})...`);
+    console.log(`[scheduler-dispatch] Inizio pubblicazione Facebook REEL 9:16 nativo (Page ID: ${pageId})...`);
+    const postDesc = (caption || title || '').slice(0, 5000);
+
+    // 🎬 METODO PRIMARIO: Meta Reels API (video_reels a 3 fasi) per visualizzazione Full-Width 9:16 senza miniature
+    try {
+      console.log(`[scheduler-dispatch] Avvio sessione Facebook video_reels (Page ID: ${pageId})...`);
+      const reelStartRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/video_reels?upload_phase=start&access_token=${pageToken}`, {
+        method: 'POST'
+      });
+      const reelStartData = await reelStartRes.json();
+      console.log('[scheduler-dispatch] Facebook video_reels start response:', reelStartData);
+
+      if (reelStartRes.ok && reelStartData.upload_url && reelStartData.video_id) {
+        // Step 2: Fetch video e upload binario su rupload.facebook.com
+        const vBuf = videoBuffer || Buffer.from(await (await fetch(videoUrl)).arrayBuffer());
+        const upRes = await fetch(reelStartData.upload_url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `OAuth ${pageToken}`,
+            'offset': '0',
+            'file_size': String(vBuf.length)
+          },
+          body: vBuf
+        });
+        const upData = await upRes.json();
+        console.log('[scheduler-dispatch] Facebook video_reels binary upload response:', upData);
+
+        // Step 3: Finalizzazione e pubblicazione Reel a schermo intero (video_state=PUBLISHED)
+        const fParams = new URLSearchParams();
+        fParams.append('access_token', pageToken);
+        fParams.append('upload_phase', 'finish');
+        fParams.append('video_id', reelStartData.video_id);
+        fParams.append('video_state', 'PUBLISHED');
+        if (postDesc) fParams.append('description', postDesc);
+        if (title) fParams.append('title', title.slice(0, 255));
+
+        const finishRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/video_reels`, {
+          method: 'POST',
+          body: fParams
+        });
+        const finishData = await finishRes.json();
+        console.log('[scheduler-dispatch] Facebook video_reels finish response:', finishData);
+
+        if (finishRes.ok && !finishData.error) {
+          const reelId = reelStartData.video_id;
+          console.log(`🎉 [scheduler-dispatch] Facebook REEL 9:16 nativo pubblicato con successo! (Reel ID: ${reelId})`);
+          return { ok: true, id: reelId, postUrl: `https://www.facebook.com/reel/${reelId}`, isReel: true };
+        } else {
+          console.warn('[scheduler-dispatch] Errore finish video_reels, fallback su endpoint standard:', finishData);
+        }
+      } else {
+        console.warn('[scheduler-dispatch] video_reels start non riuscito, fallback su endpoint standard:', reelStartData);
+      }
+    } catch (reelErr) {
+      console.warn('[scheduler-dispatch] Eccezione video_reels, fallback su legacy videos:', reelErr.message);
+    }
+
+    // 🛡️ FALLBACK DI SICUREZZA: Endpoint legacy /videos se video_reels non è disponibile
+    console.log(`[scheduler-dispatch] Esecuzione fallback legacy /videos (Page ID: ${pageId})...`);
     const params = new URLSearchParams();
     params.append('access_token', pageToken);
     params.append('file_url', videoUrl);
-    if (caption || title) params.append('description', (caption || title).slice(0, 5000));
+    if (postDesc) params.append('description', postDesc);
     if (title) params.append('title', title.slice(0, 255));
 
     const fbRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/videos`, {
@@ -730,7 +788,7 @@ async function publishToFacebook({ videoUrl, videoBuffer, title = '', caption = 
     if (!fbRes.ok || fbData.error) {
       throw new Error(`FB Reel publish failed: ${JSON.stringify(fbData.error || fbData)}`);
     }
-    console.log(`🎉 [scheduler-dispatch] Facebook Reel pubblicato con successo! (Video ID: ${fbData.id})`);
+    console.log(`🎉 [scheduler-dispatch] Facebook Reel pubblicato con successo (legacy)! (Video ID: ${fbData.id})`);
     return { ok: true, id: fbData.id, postUrl: `https://www.facebook.com/${fbData.id}` };
   }
 }

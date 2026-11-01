@@ -1249,7 +1249,10 @@ ${dishListText}
 - Fascia oraria: ${mealMoment}
 - Situazione meteo del momento: ${weatherAngle}
 - Stagione: ${season || 'Clima tropicale'}
-- Sito ufficiale: www.flowerpowerpizza.com (10% di sconto sul primo ordine online, consegna veloce in tutta Ranong o tavolo al ristorante)
+- Location & Atmosfera: A 150 metri dalle Terme Raksawarin a Ranong. Struttura artigianale unica: sala al chiuso, posti all'aperto, 4 caratteristiche capanne e piccolo giardino con cascata privata (NON un tropical garden!).
+- Canali Ordinazione Delivery & Contatti:
+  * Website ufficiale: www.flowerpowerpizza.com (10% di sconto sul primo ordine online)
+  * Telefono / WhatsApp / LINE: 0949.800.200 (REGOLA CATEGORICA: scrivi sempre il numero con la formula esatta con i punti: 0949.800.200)
 
 REGOLE FONDAMENTALI DI SCRITTURA:
 0. REGOLA IDENTITÀ BRAND OBBLIGATORIA (PIZZERIA):
@@ -1270,7 +1273,7 @@ REGOLE FONDAMENTALI DI SCRITTURA:
    - MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Spaziatura ariosa, zero muri di testo.
    - Nomi dei piatti: REGOLA IMMODIFICABILE: il nome del piatto NON DEVE MAI andare a capo a metà! È una locuzione unica continua su singola riga.
    - Proverbio del Giorno: inserisci sempre come firma distintiva un proverbio o battuta sulla vita, il cibo o il relax (in Thai: 📜 สุภาษิตประจำวัน: "..." | in Inglese: 📜 Proverb of the Day: "...").
-   - Chiusura breve: invito a ordinare su www.flowerpowerpizza.com con il 10% di sconto prima ordinazione.
+   - Chiusura breve: invito a ordinare su www.flowerpowerpizza.com (10% sconto online) oppure al Telefono/WhatsApp/LINE al numero 0949.800.200 (formula con i punti obbligatoria).
     - Hashtag: NON scrivere alcun hashtag (#) nei testi: vengono aggiunti dal sistema in fondo al post, dopo le due lingue.
     - Bandiera: ogni testo (thaiContent / englishContent) DEVE iniziare con la propria bandiera prima della prima lettera (🇹🇭 per il Thai, 🇬🇧 per l'Inglese).
     - DIVIETO CATEGORICO FORNO A LEGNA: NON ABBIAMO IL FORNO A LEGNA! È TASSATIVAMENTE E SEVERAMENTE VIETATO menzionare forno a legna, "wood-fired", "wood-fired oven", "wood oven", "เตาฟืน", "Holzofen", "aroma di legna" o alludere alla legna! La pizza è autentica pizza tradizionale italiana cotta su pietra refrattaria ad alta temperatura / forno per pizza.
@@ -1305,13 +1308,14 @@ REGOLE FONDAMENTALI DI SCRITTURA:
    FLOWER POWER VILLAGE NON È FRONTE MARE!
    È SEVERAMENTE E TASSATIVAMENTE VIETATO parlare di "rumore del mare", "suono delle onde", "ocean waves", "sound of waves", "brezza marina", "ocean breeze", "svegliarsi in riva al mare" o usare l'emoji 🌊 per il villaggio!
    Né siamo sul mare né si sente il mare: siamo un'oasi incastonata nella giungla tropicale protetta, con un rigoglioso giardino tropicale stile Eden.
-3. SE E QUANDO PARLI DI NATURA, RISVEGLIO O SUONI (ZERO OBBLIGO MA MASSIMA AUTENTICITÀ):
-   Non è un obbligo forzato parlare sempre dell'ecosistema, ma SE e quando decidi di parlare della natura o dei suoni del villaggio, parla TASSATIVAMENTE della realtà locale:
-   - Svegliarsi con il volo maestoso e i richiami dei buceri (Hornbills / นกเงือก), simbolo magico di Koh Phayam;
-   - Gli scoiattoli tra i rami e le palme (Squirrels / กระรอก);
-   - Il cinguettio delle vivaci nettarine (Sunbirds / นกกินปลี);
-   - Le farfalle multicolori tra i fiori tropicali (Butterflies / ผีเสื้อ);
-   - L'oasi piscina circondata dalla foresta tropicale.
+3. AMBIENTE, FAUNA & LE 4 CATEGORIE DI ALLOGGIO:
+   - Il villaggio sorge in un grande giardino tropicale stile Eden a Buffalo Bay, con piscina e oasi relax tra palme da cocco.
+   - Fauna reale osservabile: Bucerì (Hornbills / นกเงือก), Scoiattoli tra i rami (Squirrels / กระรอก), Soundbird (uccelli canterini) e Aquile in cielo (Sea Eagles / นกอินทรี).
+   - Le 4 Tipologie di Alloggio:
+     1. Ville (Penthouse Villa, Jungle Villa, Peace & Love Villa...)
+     2. Bungalow a cupola (Dome Bungalows: Red, Yellow, Green, Blue, Bamboo...)
+     3. Tende Glamping (Camel Tent, Safari Tent, Lagoon Tent...)
+     4. Guest House con le camere confortevoli.
 4. CULTURA SLOW LIFE DI KOH PHAYAM:
    Evoca la pace autentica dell'isola, il dondolarsi sull'amaca all'ombra delle piante tropicali, la quiete a Buffalo Bay, il piacere di staccare la spina.
 5. STRUTTURA & LUNGHEZZA:
@@ -1344,7 +1348,7 @@ ${dishListText}
 - Fascia oraria: ${mealMoment}
 - Situazione meteo del momento: ${weatherAngle}
 - Stagione: ${season || 'Stagione tropicale'}
-- Canali di contatto: WhatsApp Delivery +66 095 882 5573 | Tavolo nel giardino tropicale a Buffalo Bay | www.flowerpowervillage.com
+- Canali di contatto: WhatsApp Delivery +66 095 882 5573 | Ristorante al 1° Piano con grande sala e 6 capanne private | WhatsApp/Tel Delivery: +66 095 882 5573 | www.flowerpowervillage.com
 
 REGOLE FONDAMENTALI DI SCRITTURA:
 0. REGOLA IDENTITÀ BRAND OBBLIGATORIA (RESTAURANT KOH PHAYAM):
@@ -1361,7 +1365,7 @@ REGOLE FONDAMENTALI DI SCRITTURA:
    - MASSIMO 4 RIGHE AD ALTO IMPATTO per lingua. Spaziatura ariosa, zero muri di parole.
    - Nomi dei piatti: REGOLA IMMODIFICABILE: il nome del piatto NON DEVE MAI andare a capo a metà! È una locuzione unica continua su singola riga.
    - Proverbio del Giorno: proverbio o battuta sulla buona tavola, la convivialità o il relax (Thai: 📜 สุภาษิตประจำวัน: "..." | Inglese: 📜 Proverb of the Day: "...").
-   - Chiusura: invito a ordinare comodamente via WhatsApp (+66 095 882 5573) o venire a trovarci nel giardino tropicale a Buffalo Bay.
+   - Chiusura: invito a ordinare via WhatsApp/Tel (+66 095 882 5573) o venire a mangiare al 1° piano del nostro ristorante (grande sala panoramica e 6 capanne private - si mangia nel ristorante, non in giardino!).
    - Bandiera: ogni blocco inizia con la propria bandiera (🇹🇭 per il Thai, 🇬🇧 per l'Inglese).
    - Zero hashtag nel testo (vengono aggiunti dal sistema in fondo).
    - DIVIETO CATEGORICO FORNO A LEGNA: NON ABBIAMO IL FORNO A LEGNA! È severamente vietato parlare di forno a legna o wood-fired.
@@ -1952,11 +1956,76 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     }
 
     try {
-      console.log(`[SocialPublisher] Invio video su Pagina Facebook (Brand: ${brand}, Page ID: ${pageId}, Video: ${videoUrl})...`);
+      console.log(`[SocialPublisher] Invio Facebook REEL 9:16 nativo su Pagina (Brand: ${brand}, Page ID: ${pageId}, Video: ${videoUrl})...`);
 
       const postDescription = (caption || title || "").slice(0, 5000);
       const postTitle = (title || "").slice(0, 255);
 
+      // 🎬 METODO PRIMARIO: Meta Reels API (video_reels a 3 fasi) per visualizzazione Full-Width 9:16 a tutto schermo senza miniature
+      try {
+        console.log(`[SocialPublisher] Avvio sessione Facebook video_reels (Page ID: ${pageId})...`);
+        const reelStartRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/video_reels?upload_phase=start&access_token=${pageToken}`, {
+          method: "POST"
+        });
+        const reelStartData = await reelStartRes.json();
+        console.log("[SocialPublisher] Facebook video_reels start response:", reelStartData);
+
+        if (reelStartRes.ok && reelStartData.upload_url && reelStartData.video_id) {
+          // Step 2: Download buffer video e upload binario su rupload.facebook.com
+          const vRes = await fetch(videoUrl);
+          if (!vRes.ok) throw new Error(`Impossibile scaricare video per Reel (${vRes.statusText})`);
+          const vBuf = Buffer.from(await vRes.arrayBuffer());
+
+          const upRes = await fetch(reelStartData.upload_url, {
+            method: "POST",
+            headers: {
+              "Authorization": `OAuth ${pageToken}`,
+              "offset": "0",
+              "file_size": String(vBuf.length)
+            },
+            body: vBuf
+          });
+          const upData = await upRes.json();
+          console.log("[SocialPublisher] Facebook video_reels binary upload response:", upData);
+
+          // Step 3: Finalizzazione e pubblicazione Reel a schermo intero (video_state=PUBLISHED)
+          const fParams = new URLSearchParams();
+          fParams.append("access_token", pageToken);
+          fParams.append("upload_phase", "finish");
+          fParams.append("video_id", reelStartData.video_id);
+          fParams.append("video_state", "PUBLISHED");
+          if (postDescription) fParams.append("description", postDescription);
+          if (postTitle) fParams.append("title", postTitle);
+
+          const finishRes = await fetch(`https://graph.facebook.com/v19.0/${pageId}/video_reels`, {
+            method: "POST",
+            body: fParams
+          });
+          const finishData = await finishRes.json();
+          console.log("[SocialPublisher] Facebook video_reels finish response:", finishData);
+
+          if (finishRes.ok && !finishData.error) {
+            const reelId = reelStartData.video_id;
+            console.log(`[SocialPublisher] ✅ Facebook REEL 9:16 nativo pubblicato con successo! (Reel ID: ${reelId})`);
+            return res.status(200).json({
+              success: true,
+              isReel: true,
+              videoId: reelId,
+              postUrl: `https://www.facebook.com/reel/${reelId}`,
+              raw: finishData
+            });
+          } else {
+            console.warn("[SocialPublisher] Errore finish video_reels, fallback su endpoint standard:", finishData);
+          }
+        } else {
+          console.warn("[SocialPublisher] video_reels start non riuscito, fallback su endpoint standard:", reelStartData);
+        }
+      } catch (reelErr: any) {
+        console.warn("[SocialPublisher] Eccezione durante video_reels, fallback su legacy /videos:", reelErr.message);
+      }
+
+      // 🛡️ FALLBACK DI SICUREZZA: Endpoint legacy /videos se video_reels non è disponibile
+      console.log(`[SocialPublisher] Esecuzione fallback legacy /videos (Page ID: ${pageId})...`);
       const params = new URLSearchParams();
       params.append("access_token", pageToken);
       params.append("file_url", videoUrl);
@@ -2242,8 +2311,8 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     try {
       const isPizza = brand === "pizza";
       const brandContext = isPizza
-        ? "Flower Power Pizza Ranong: Authentic Italian pizza (48h slow-fermented crust, 100% Italian flour, traditional high-temp stone deck pizza oven), homemade fresh pasta, Italian craft sausages, and fine wines in a tropical garden near Raksawarin Hot Springs in Ranong, Thailand."
-        : "Flower Power Farm Village & Spa: Tropical eco-resort on Koh Phayam island, Thailand. Organic farm, luxury bungalows, swimming pool, natural wellness, and authentic Italian dining.";
+        ? "Flower Power Pizza Ranong: Authentic Italian pizza (48h slow-fermented crust, 100% Italian flour, traditional high-temp stone deck pizza oven), homemade fresh pasta, and craft dishes located 150m from Raksawarin Hot Springs in Ranong. Unique artisanal venue with indoor dining, outdoor area, 4 cozy huts, and a private waterfall in the courtyard garden. Fast delivery via website www.flowerpowerpizza.com or Phone/WhatsApp/LINE: 0949.800.200 (mandatory dot format: 0949.800.200)."
+        : "Flower Power Farm Village & Restaurant: Tropical eco-resort in Buffalo Bay, Koh Phayam, Thailand. Lush tropical garden with exotic flowers and wildlife (hornbills, squirrels, soundbirds, sea eagles), coconut palm pool oasis. 4 lodging types: Villas, Dome Bungalows, Glamping Tents, and Guesthouse Rooms. 1st-floor restaurant with spacious hall & 6 private dining huts (guests dine in the 1st floor restaurant/huts, not in the garden). Island delivery via Phone/WhatsApp: +66 095 882 5573. Direct stays booking on www.flowerpowervillage.com.";
 
       const prompt = `You are a world-class viral social media manager for "${brandContext}".
 Create a high-converting, viral caption with relevant hashtags for ${platform.toUpperCase()}.

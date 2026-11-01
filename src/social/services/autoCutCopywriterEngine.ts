@@ -483,7 +483,7 @@ La buona tavola non aspetta: regalatevi un momento di autentica bontà a Ranong!
 Approfitta subito del 10% di sconto sul tuo primo ordine! 🛵💨`;
     }
 
-    fixedLink = `🍕 FLOWER POWER PIZZA🌸 - Ranong Hotspring\n📍 Google Maps: https://maps.app.goo.gl/qjpYt6t69y17R4DF6\n🌐 www.flowerpowerpizza.com`;
+    fixedLink = `🍕 FLOWER POWER PIZZA🌸 - Ranong Hot Springs\n📞 Tel / WhatsApp / LINE: 0949.800.200\n🛵 Delivery: www.flowerpowerpizza.com\n📍 Google Maps: https://maps.app.goo.gl/qjpYt6t69y17R4DF6`;
     crossTag = `@flowerpowerphayam`;
 
   } else if (testRun.mode === 'R1') {
@@ -512,7 +512,7 @@ Approfitta subito del 10% di sconto sul tuo primo ordine! 🛵💨`;
       '🇬🇧 Craving authentic Italian food on Koh Phayam? Flower Power Restaurant & Village 🍝🍕 is cooking for you!',
       '🇬🇧 Freshly cooked Italian specialties at Flower Power Restaurant & Village, Buffalo Bay, Koh Phayam 🌴🔥',
       '🇬🇧 Handmade pasta 🍝 and artisan pizza 🍕 at Flower Power Restaurant on Koh Phayam island 🇮🇹🥥',
-      '🇬🇧 Dine in lush tropical gardens at Flower Power Restaurant & Village or get delivery on Koh Phayam 🛵✨'
+      '🇬🇧 Dine in our 1st-floor restaurant & 6 private huts at Flower Power Restaurant & Village or get island delivery 🛵✨'
     ];
 
     const rIdx = Math.abs(proverbIndexSeed) % r1EnHooks.length;

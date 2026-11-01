@@ -174,6 +174,96 @@ export const VILLAGE_AUDIO_TRACKS_LAB: AutoCutAudioTrack[] = [
     duration: 30.9
   }
 ];
+// 🔁 ROTATORE AUDIO ANTI-RIPETIZIONE A MEMORIA STORICA (SHUFFLE BAG PERMANENTE)
+// Garantisce categoricamente che tutte le 11 tracce del villaggio e i jingle pizza ruotino a ciclo continuo senza doppioni
+const STORAGE_AUDIO_VILLAGE_KEY = 'autocut_recent_audio_village';
+const STORAGE_AUDIO_PIZZA_KEY = 'autocut_recent_audio_pizza';
+
+let inMemoryRecentVillage: string[] = [];
+let inMemoryRecentPizza: string[] = [];
+
+export function getNextVillageAudioTrack(): AutoCutAudioTrack {
+  const tracks = VILLAGE_AUDIO_TRACKS_LAB;
+  if (!tracks || tracks.length === 0) return VILLAGE_AUDIO_TRACKS_LAB[0];
+
+  let recent: string[] = [...inMemoryRecentVillage];
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const stored = localStorage.getItem(STORAGE_AUDIO_VILLAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          recent = parsed;
+        }
+      }
+    } catch {}
+  }
+
+  // Finestra di memoria anti-ripetizione: esclude fino a 9 brani su 11 prima di riproporli
+  const maxHistory = Math.max(1, tracks.length - 2);
+  let available = tracks.filter(t => !recent.includes(t.id));
+
+  // Quando il sacchetto è quasi esaurito, resettiamo la storia mantenendo l'ultimo ascoltato per zero doppioni consecutivi
+  if (available.length === 0) {
+    const lastId = recent[recent.length - 1];
+    recent = lastId ? [lastId] : [];
+    available = tracks.filter(t => t.id !== lastId);
+  }
+
+  // Estrazione casuale tra i brani freschi disponibili
+  const selected = available[Math.floor(Math.random() * available.length)] || tracks[0];
+
+  recent.push(selected.id);
+  if (recent.length > maxHistory) {
+    recent = recent.slice(-maxHistory);
+  }
+  inMemoryRecentVillage = recent;
+
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      localStorage.setItem(STORAGE_AUDIO_VILLAGE_KEY, JSON.stringify(recent));
+    } catch {}
+  }
+
+  return selected;
+}
+
+export function getNextPizzaAudioTrack(): AutoCutAudioTrack {
+  const tracks = PIZZA_JINGLE_TRACKS;
+  if (!tracks || tracks.length === 0) return PIZZA_JINGLE_TRACKS[0];
+
+  let recent: string[] = [...inMemoryRecentPizza];
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const stored = localStorage.getItem(STORAGE_AUDIO_PIZZA_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          recent = parsed;
+        }
+      }
+    } catch {}
+  }
+
+  const lastId = recent[recent.length - 1];
+  const available = tracks.filter(t => t.id !== lastId);
+  const selected = available.length > 0
+    ? available[Math.floor(Math.random() * available.length)]
+    : tracks[0];
+
+  recent.push(selected.id);
+  if (recent.length > 2) recent = recent.slice(-2);
+  inMemoryRecentPizza = recent;
+
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      localStorage.setItem(STORAGE_AUDIO_PIZZA_KEY, JSON.stringify(recent));
+    } catch {}
+  }
+
+  return selected;
+}
+
 
 const STORAGE_ACC = 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/accommodations';
 
@@ -783,7 +873,7 @@ export function generateP1Test(): AutoCutTestRun {
     categoryName: 'Traditional Pizza'
   };
 
-  const audio = getRandomItem(PIZZA_JINGLE_TRACKS);
+  const audio = getNextPizzaAudioTrack();
 
   // 🎵 Intero brano MP3 utilizzato!
   const totalDuration = audio.duration;
@@ -945,7 +1035,7 @@ export function generateP3Test(): AutoCutTestRun {
 export function generateV1Test(): AutoCutTestRun {
   const lodgings = getVillageLodgingsLive();
   const lodging = getRandomItem(lodgings);
-  const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
+  const audio = getNextVillageAudioTrack();
   const effectiveDuration = Math.min(8.0, audio.duration);
 
   // Prezzo Octorate reale odierno verificato dalla matrice stagionale
@@ -985,7 +1075,7 @@ export function generateV1Test(): AutoCutTestRun {
 export function generateV2Test(): AutoCutTestRun {
   const lodgings = getVillageLodgingsLive();
   const lodging = getRandomItem(lodgings);
-  const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
+  const audio = getNextVillageAudioTrack();
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / 5;
 
@@ -1026,7 +1116,7 @@ export function generateV2Test(): AutoCutTestRun {
 export function generateV3Test(): AutoCutTestRun {
   const lodgings = getRandomItems(getVillageLodgingsLive(), 5);
   // 🌺 REGOLA: Tutti i formati Koh Phayam Village (V1, V2, V3, LM1, R1) usano le tracce Koh Phayam Village
-  const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
+  const audio = getNextVillageAudioTrack();
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / 5;
 
@@ -1084,7 +1174,7 @@ export function generateR1Test(): AutoCutTestRun {
 
   // Seleziona 5 piatti ben assortiti
   const selectedDishes = getRandomItems(allEligibleDishes, Math.min(5, allEligibleDishes.length));
-  const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
+  const audio = getNextVillageAudioTrack();
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / 5;
 
@@ -1221,7 +1311,7 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
   const rooms = getRandomItems(rawRooms, rawRooms.length);
 
   // 🌺 REGOLA: Tutti i formati Koh Phayam Village (V1, V2, V3, LM1, R1) usano le tracce Koh Phayam Village
-  const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
+  const audio = getNextVillageAudioTrack();
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / rooms.length;
 
@@ -1284,7 +1374,7 @@ export function generateDSTest(customDishes?: MenuItem[]): AutoCutTestRun {
     isFromShowcase = false;
   }
 
-  const audio = getRandomItem(PIZZA_JINGLE_TRACKS);
+  const audio = getNextPizzaAudioTrack();
   const totalDuration = audio.duration;
   const sceneDuration = audio.p1CutDuration || 8.85;
 

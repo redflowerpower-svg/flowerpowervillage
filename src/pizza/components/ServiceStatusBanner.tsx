@@ -178,11 +178,11 @@ export function ServiceStatusBanner({ lang: propLang, onStatusChange }: ServiceS
       {/* Call Button */}
       <div className="shrink-0 flex items-center gap-2">
         <a
-          href="tel:0958825698"
+          href="tel:0949800200"
           className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-bold flex items-center gap-2 border border-white/20 shadow-sm transition-all"
         >
           <Phone className="w-4 h-4 text-emerald-400" />
-          <span>{activeContent.callText}</span>
+          <span>{activeContent.callText}: 0949.800.200</span>
         </a>
       </div>
     </aside>

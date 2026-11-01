@@ -110,9 +110,18 @@ async function main() {
           } else if (fs.existsSync(altRoot)) {
             bgPath = altRoot;
           } else {
-            // Fallback rigoroso per brand: se villaggio MAI traccia pizza!
+            // Fallback dinamico anti-ripetizione su tutte le tracce disponibili
             if (brand === 'village') {
-              bgPath = path.resolve('./public/audio/village/01 Flower Power Village - Island Disco Paradise (Disco Funk).mp3');
+              const villageFiles = fs.existsSync('./public/audio/village')
+                ? fs.readdirSync('./public/audio/village').filter(f => f.endsWith('.mp3'))
+                : [];
+              if (villageFiles.length > 0) {
+                // Rotazione dinamica per non ripetere sempre la stessa traccia
+                const randPick = villageFiles[Math.floor(Math.random() * villageFiles.length)];
+                bgPath = path.resolve('./public/audio/village', randPick);
+              } else {
+                bgPath = path.resolve('./public/audio/village/01 Flower Power Village - Island Disco Paradise (Disco Funk).mp3');
+              }
             } else {
               bgPath = path.resolve('./public/audio/02-flower-power-so-good.mp3');
             }

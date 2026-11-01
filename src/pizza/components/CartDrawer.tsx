@@ -2375,11 +2375,11 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                   {serviceCalc.state === 'PAUSED' ? t.ordersPausedBtn : t.ordersClosedBtn}
                 </button>
                 <a
-                  href="tel:0958825698"
+                  href="tel:0949800200"
                   className="w-full py-2.5 bg-stone-800 hover:bg-stone-700 text-amber-300 text-xs font-bold rounded-full flex items-center justify-center gap-2 transition-colors cursor-pointer shadow"
                 >
                   <Phone size={14} className="text-emerald-400" />
-                  <span>{t.callPizzeria}</span>
+                  <span>{t.callPizzeria}: 0949.800.200</span>
                 </a>
               </div>
             )}

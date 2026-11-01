@@ -422,7 +422,7 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
           return {
             id: String(r.id || r.reservationId || Math.random()),
             guest_name: r.guestName || r.guest_name || `${r.firstName || r.first_name || 'Ospite'} ${r.lastName || r.last_name || ''}`.trim(),
-            guest_email: r.email || r.guestEmail || (r.guests && r.guests[0]?.email) || '',
+            guest_email: r.guestMailAddress || r.email || r.guestEmail || r.customerEmail || (r.guests && r.guests[0]?.email) || (r.guests && r.guests[0]?.mailAddress) || '',
             guest_phone: r.phone || (r.guests && r.guests[0]?.phone) || '',
             accommodation_id: String(r.product || r.roomTypeId || r.roomId || r.accommodation_id || ''),
             accommodation_name: r.roomName || r.accommodation_name || '',
