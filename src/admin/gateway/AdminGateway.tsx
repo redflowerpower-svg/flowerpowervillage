@@ -194,7 +194,7 @@ export function AdminGateway({ onSelectDepartment }: AdminGatewayProps) {
 
           {/* Card 4: Social Media Studio (TikTok, Meta, Reels, AutoCut) */}
           <Link
-            to="/social"
+            to="/social-studio"
             className="group relative bg-stone-900/80 hover:bg-stone-900 border border-stone-800 hover:border-fuchsia-600/60 rounded-3xl p-6 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-fuchsia-950/20 cursor-pointer flex flex-col justify-between overflow-hidden text-left"
           >
             {/* Top Accent Line */}

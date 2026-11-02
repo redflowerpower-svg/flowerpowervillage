@@ -694,12 +694,14 @@ export default function AutoCutStudioPage() {
             </button>
 
             <a
-              href="/social"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white transition cursor-pointer"
-              title="Vai alla console TikTok Review Ufficiale"
+              href="/social?view=audit"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-xs font-bold text-rose-300 hover:text-white transition cursor-pointer shadow-sm"
+              target="_blank" rel="noopener noreferrer" title="Apri Fake Social Studio TikTok (Audit & Sandbox Review)"
             >
-              <span>‹</span>
-              <span>TikTok Review Hub</span>
+              
+              <TikTokIcon className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+              <span>Fake Social Studio TikTok</span>
+              <ExternalLink className="w-3 h-3 text-rose-400/80" />
             </a>
 
             <button

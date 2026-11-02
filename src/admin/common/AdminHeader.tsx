@@ -124,7 +124,7 @@ export function AdminHeader({ userEmail, activeDept, onSelectDept, onLogout }: A
         {/* Right User Info, Social Studio & Logout */}
         <div className="flex items-center gap-2.5">
           <a
-            href="/social"
+            href="/social-studio"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-xs text-fuchsia-300 hover:text-white bg-fuchsia-950/40 hover:bg-fuchsia-900/60 border border-fuchsia-700/50 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer font-bold shadow-sm"

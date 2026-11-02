@@ -350,7 +350,7 @@ export const AUTOCUT_RULES_REGISTRY: Record<AutoCutLabMode, AutoCutModeRuleDetai
       'DIVIETO SITO WEB NEL BANNER SUPERIORE: Nel banner R1 non va messo il sito web (solo WhatsApp per consegna locale rapida).'
     ],
     typographyRules: {
-      topBanner: 'Banner superiore a 3 righe: FLOWER POWER VILLAGE / [🟢 DELIVERY] lampeggiante · เดลิเวอรี่ / [✆ WhatsApp] +66 095 882 5573 (logo 48px, respiro a destra, zero sito web).',
+      topBanner: 'Banner superiore a 3 righe: FLOWER POWER VILLAGE / [🟢 DELIVERY] lampeggiante · เดลิเวอรี่ / [✆ WhatsApp] +66 (0)95.882.5573 (logo 48px, respiro a destra, zero sito web).',
       primaryTitle: '🇹🇭 Thai grande sopra.',
       secondaryTitle: '🇬🇧 Inglese sotto.',
       priceBadge: 'Prezzo singolo standard (in ฿) per tutti i piatti. Per le pizze viene esposto SOLO il prezzo della 12" (senza specifica delle 8", esattamente come piatto unico).'

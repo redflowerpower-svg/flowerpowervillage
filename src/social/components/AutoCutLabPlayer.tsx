@@ -751,7 +751,7 @@ export function AutoCutLabPlayer({
           targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
           targetCtx.shadowBlur = 10;
           targetCtx.shadowOffsetY = 3;
-          targetCtx.fillText('✆ WhatsApp +66 095 882 5573', cx, btnY + 56);
+          targetCtx.fillText('✆ WhatsApp +66 (0)95.882.5573', cx, btnY + 56);
 
           // Highlights Piatto e Servizio d'Impatto (Font 26px - 29px Bold)
           targetCtx.font = '900 29px "Outfit", "Inter", sans-serif';
@@ -1006,7 +1006,7 @@ export function AutoCutLabPlayer({
       targetCtx.fillStyle = '#ffffff';
       targetCtx.textAlign = 'center';
       targetCtx.fillText(
-        mode === 'R1' ? '✆ WhatsApp +66 095 882 5573' : (brand === 'pizza' ? '🌐 flowerpowerpizza.com' : '🌐 flowerpowervillage.com'),
+        mode === 'R1' ? '✆ WhatsApp +66 (0)95.882.5573' : (brand === 'pizza' ? '🌐 flowerpowerpizza.com' : '🌐 flowerpowervillage.com'),
         cx43,
         cardY + 46
       );
@@ -1618,7 +1618,7 @@ export function AutoCutLabPlayer({
         oCtx.font = `900 ${Math.round(24.2 * s)}px "Outfit", sans-serif`;
         const delivW = oCtx.measureText('DELIVERY ').width + (24 * s);
         oCtx.font = `900 ${Math.round(17.6 * s)}px "Outfit", sans-serif`;
-        const phoneW = (15.2 * 4 + 13) * s + oCtx.measureText('+66 095 882 5573').width;
+        const phoneW = (15.2 * 4 + 13) * s + oCtx.measureText('+66 (0)95.882.5573').width;
         maxSubW = Math.max(fpW, phoneW, delivW);
       } else if (mode === 'DS') {
         oCtx.font = `900 ${Math.round(23 * s)}px "Prompt", "Kanit", sans-serif`;
@@ -1806,7 +1806,7 @@ export function AutoCutLabPlayer({
 
         // Numero con font Outfit 900 con ombra nera protettiva
         oCtx.font = `900 ${Math.round(18.2 * s)}px "Outfit", sans-serif`;
-        drawTextWithShadow('+66 095 882 5573', curIconX + iconR + (6.5 * s), ty + (2 * s), '#25D366', 3.8 * s);
+        drawTextWithShadow('+66 (0)95.882.5573', curIconX + iconR + (6.5 * s), ty + (2 * s), '#25D366', 3.8 * s);
         ty += (iconR * 2) + (10 * s); // Distacco perfetto: Koh Phayam sotto alle icone e al numero (zero accavallamento)
 
         // Koh Phayam con font Outfit 700 (+10%) con ombra nera protettiva
@@ -3719,7 +3719,7 @@ export function AutoCutLabPlayer({
                       <path d={LINE_ICON_PATH_DATA} />
                     </svg>
                   </span>
-                  <span>+66 095 882 5573</span>
+                  <span>+66 (0)95.882.5573</span>
                 </div>
                 {/* Koh Phayam bianca subito sotto a WhatsApp con font Outfit (+10%) */}
                 <span className="text-[15.5px] sm:text-[16.5px] font-bold text-white tracking-wide whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">

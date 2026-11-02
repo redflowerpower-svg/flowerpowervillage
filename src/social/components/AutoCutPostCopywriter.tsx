@@ -561,14 +561,14 @@ ${dishListText}
 - Fascia oraria: ${mealMoment}
 - Situazione meteo del momento: ${weatherAngle}
 - Stagione: ${basePostData.seasonContext || 'Stagione tropicale'}
-- Canali di contatto: WhatsApp Delivery +66 095 882 5573 | Tavolo nel giardino tropicale a Buffalo Bay | www.flowerpowervillage.com
+- Canali di contatto: WhatsApp Delivery +66 (0)95.882.5573 | Tavolo nel giardino tropicale a Buffalo Bay | www.flowerpowervillage.com
 
 REGOLE FONDAMENTALI DI SCRITTURA:
 1. DIVIETO ASSOLUTO DI PARLARE DI UN SOLO PIATTO (REGOLA CORALE 5 PIATTI):
    Il video mostra una carrellata di 5 piatti diversi (es. pasta fresca fatta a mano, pizze tradizionali italiane da 12 pollici, secondi, insalate, burger).
    NON concentrarti solo sul primo piatto! Parla della varietà del menu o presenta i piatti protagonisti come un banchetto ideale da condividere in compagnia (Food Sharing).
 2. CONTESTUALITÀ UMANA & METEO: Sfrutta pioggia, sole o serata dopo il mare in modo complice.
-3. STRUTTURA: MASSIMO 4 RIGHE per lingua. Nomi piatti continui su singola riga. Proverbio del giorno. Chiusura WhatsApp (+66 095 882 5573). Zero forno a legna. Emoji contestuali.`;
+3. STRUTTURA: MASSIMO 4 RIGHE per lingua. Nomi piatti continui su singola riga. Proverbio del giorno. Chiusura WhatsApp (+66 (0)95.882.5573). Zero forno a legna. Emoji contestuali.`;
     }
 
     if (testRun.mode === 'LM1') {

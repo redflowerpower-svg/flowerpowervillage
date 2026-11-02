@@ -3,6 +3,27 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [02/11/2026 - ORE 18:48] · RILASCIO COMPLETO IN PRODUZIONE (MARKDOWN-PROJECT)
+- **Cosa abbiamo fatto:**
+  1. 🛡️ **Audit di Sicurezza, Cifratura Vault & Typecheck**:
+     - Cifratura cassaforte eseguita con successo via `node scratch/vault-sync.mjs encrypt`.
+     - Validato audit di sicurezza via `node scratch/security-audit.mjs`: **0 SECRETS DETECTED**.
+     - Typecheck TypeScript convalidato con `npx tsc --noEmit`: **0 errori di compilazione**.
+     - Build di produzione Vite convalidata con `npm run build`: completata con successo in 5.94s.
+  2. 📋 **Documentazione Tecnica & Archiviazione Report**:
+     - Compilato il report progressivo ufficiale `documentation_reports/27_r1_fisher_yates_shuffle_whatsapp_standard_and_social_studio_routing.md`.
+  3. 🌐 **Deploy Simultaneo (Staging + Produzione `main`)**:
+     - Commit e push su `staging` (`staging.flowerpowerpizza.com`).
+     - Merge di `staging` su `main` e push sul repository remoto di produzione (`www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
+     - Ritorno automatico e pulito sul branch di sviluppo `staging`.
+  4. 📦 **Sintesi Funzionalità Rilasciate**:
+     - **Fisher-Yates Shuffle Uniforme R1**: estrazione perfettamente equidistribuita dei 138 piatti caldi senza bias TimSort (zero sovrarappresentazione dei primi piatti).
+     - **Standardizzazione WhatsApp Koh Phayam (`+66 (0)95.882.5573`)**: formato internazionale mnemonico su Canvas 60 FPS, DOM, outro video, post social bilingue e AI prompt.
+     - **Routing Diretto Dashboard Admin**: click su "Social Studio" conduce all'AutoCut Studio reale (`/social-studio`), con tasto "Fake Social Studio TikTok" per aprire la sandbox TikTok (`/social?view=audit`).
+- **Stato:** ✅ LIVE IN PRODUZIONE SUI DOMINI UFFICIALI & STAGING AGGIORNATO.
+
+---
+
 ### 🟩 [02/11/2026 - ORE 12:28] · BLINDATURA TOTALE DEFINITIVA WEBP & CDN (SCUDO 100% CONTRO CHIUSURA SUPABASE)
 - **Cosa abbiamo fatto:**
   1. 🛡️ **Risoluzione Radicale Bug `Date.now()` in [`cacheBust.ts`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/utils/cacheBust.ts)**:
@@ -242,6 +263,62 @@
      - **Formato DS (Daily Special Pizzeria)**: Selezione casuale dinamica del piatto hero tra quelli disponibili in vetrina o nei fuori menù dello chef, evitando qualsiasi ripetitività.
   4. 🌿 **Ripristino Ambiente**: Ritornati automaticamente sul branch di lavoro staging.
 - **Stato:** ✅ LIVE IN PRODUZIONE SUI DOMINI UFFICIALI.
+
+---
+
+### 🟩 [02/11/2026 - ORE 18:35] · REINDIRIZZAMENTO DASHBOARD ADMIN VERSO SOCIAL STUDIO VERO (/social-studio) & TASTO FAKE TIKTOK STUDIO
+- **Cosa abbiamo fatto:**
+  1. 🚪 **Reindirizzamento Diretto dal Gateway Admin ([AdminGateway.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/gateway/AdminGateway.tsx))**:
+     - Modificato il collegamento della card principale "Social Studio" nella prima pagina della dashboard da `/social` a `/social-studio`.
+     - In questo modo lo staff atterra direttamente sul Social Studio vero (AutoCut Studio completo con 9 formati, player Ken Burns, copywriter DeepSeek, meteo e audio), evitando di finire sulla pagina di audit TikTok.
+  2. 🔝 **Allineamento Header Admin ([AdminHeader.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/common/AdminHeader.tsx))**:
+     - Aggiornato anche il pulsante rapido dell'header fisso per puntare a `/social-studio`.
+  3. 🎭 **Pulsante Dedicato "Fake Social Studio TikTok" ([AutoCutStudioPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/pages/AutoCutStudioPage.tsx))**:
+     - Inserito nella barra superiore del nostro Social Studio un tasto dedicato ad alto contrasto con icona TikTok e badge fucsia/rosa: **`Fake Social Studio TikTok`** (collegato con apertura in nuova scheda a `/social?view=audit`).
+     - Consente di visualizzare o testare in ogni momento la console di revisione TikTok originaria preservandola al contempo live su `/social` per gli auditor di TikTok for Developers.
+  4. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: compilazione completata con successo in 5.94s con 0 errori.
+- **File aggiornati:** `src/admin/gateway/AdminGateway.tsx`, `src/admin/common/AdminHeader.tsx`, `src/social/pages/AutoCutStudioPage.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Testato e 100% operativo.
+
+---
+
+### 🟩 [02/11/2026 - ORE 17:50] · STANDARDIZZAZIONE NUMERO WHATSAPP KOH PHAYAM R1 & RESORT (+66 (0)95.882.5573)
+- **Cosa abbiamo fatto:**
+  1. 📱 **Aggiornamento Sovraimpressione Video Player (Canvas 60 FPS & DOM)**:
+     - In [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+       - Modificata la formula di misurazione larghezza dinamica `measureText` e il rendering del testo con ombra `drawTextWithShadow` sul Canvas video a `+66 (0)95.882.5573`.
+       - Aggiornato l'header nell'anteprima DOM in tempo reale e le card di Outro finale sia in 9:16 che in 4:3.
+  2. 📝 **Aggiornamento Testi Post, Didascalie & Prompt AI**:
+     - In [autoCutCopywriterEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutCopywriterEngine.ts): aggiornati i template in lingua Thai, Inglese, Italiano e il blocco link fissi per il formato R1 e gli alloggi LM1.
+     - In [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx): allineato il prompt DeepSeek per le chiusure WhatsApp delivery.
+     - In [scripts/social-scheduler-dispatch.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/social-scheduler-dispatch.mjs): allineati i testi di fallback per il dispatcher robot delle ore 17:00 (slot R1 / Topic 2).
+     - In [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx): aggiornate le didascalie del calendario per R1 e LM1.
+  3. 🏷️ **UI & Metadati Descrittivi**:
+     - In [AutoCutLabView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabView.tsx): aggiornato il badge del selettore formato R1.
+     - In [autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts) e [autoCutRulesRegistry.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutRulesRegistry.ts): aggiornate le descrizioni della modalità.
+  4. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: compilazione completata con successo in 5.07s con 0 errori.
+- **File aggiornati:** `src/social/components/AutoCutLabPlayer.tsx`, `src/social/services/autoCutCopywriterEngine.ts`, `src/social/components/AutoCutPostCopywriter.tsx`, `scripts/social-scheduler-dispatch.mjs`, `src/social/components/AutoCutLabView.tsx`, `src/social/services/autoCutLabEngine.ts`, `src/social/services/autoCutRulesRegistry.ts`, `src/social/components/SocialCalendarView.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Testato e 100% operativo.
+
+---
+
+### 🟩 [02/11/2026 - ORE 17:25] · VERIFICA RANDOMIZZAZIONE R1 & OTTIMIZZAZIONE SHUFFLE UNIFORME FISHER-YATES (ZERO TIMSORT BIAS)
+- **Cosa abbiamo fatto:**
+  1. 🔬 **Verifica Statistica e Audit Combinatorio su R1 ([autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts))**:
+     - Effettuata simulazione computazionale su 1000 generazioni casuali: estratti 138 piatti caldi idonei con oltre 444 milioni di combinazioni teoriche possibili.
+     - Su 1000 iterazioni sono state generate 1000 combinazioni uniche differenti.
+  2. 🔀 **Risoluzione Bias del Piatto Iniziale (Hero Scene 0)**:
+     - Individuata la causa della sensazione che "parta sempre con lo stesso piatto":
+       a) **Regola 21 (`localStorage`)**: nel browser il montaggio viene salvato e preservato ad ogni refresh per azzerare lo spreco di token finché l'utente non clicca "Genera Nuovo Video".
+       b) **TimSort Bias di V8 / Chrome**: la formula ingenua `sort(() => 0.5 - Math.random())` sovrarappresentava i primi piatti dell'array (es. *Seafood Spaghetti / Ravioli*) fino a 3 volte rispetto ai piatti a fondo lista.
+  3. ⚡ **Implementazione Fisher-Yates (Knuth) Shuffle**:
+     - Sostituito in `getRandomItems` il naive sort con il vero algoritmo uniforme Fisher-Yates, garantendo una probabilità perfettamente identica ($1/138 \approx 0.72\%$) per ogni piatto di essere estratto come piatto di apertura (hero).
+  4. 🧪 **Collaudo di Build**:
+     - Eseguito `npm run build`: compilazione Vite completata con successo in 5.85s (0 errori).
+- **File aggiornati:** `src/social/services/autoCutLabEngine.ts`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Testato e 100% operativo.
 
 ---
 

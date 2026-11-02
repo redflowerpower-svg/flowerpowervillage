@@ -444,7 +444,12 @@ function getRandomItem<T>(arr: T[]): T {
 }
 
 function getRandomItems<T>(arr: T[], count: number): T[] {
-  const shuffled = [...arr].sort(() => 0.5 - Math.random());
+  // Fisher-Yates (Knuth) Shuffle: estrazione 100% uniforme a zero bias
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
   return shuffled.slice(0, count);
 }
 
@@ -1201,7 +1206,7 @@ export function generateR1Test(): AutoCutTestRun {
   return {
     mode: 'R1',
     modeTitle: 'R1) Stories Restaurant (5 Piatti + WhatsApp Delivery)',
-    modeDescription: '5 piatti iconici del Ristorante Flower Power a Koh Phayam (Pizze artigianali, Paste, Secondi caldi, Focacce, Dessert; zero bevande, zero insalate). Banner con WhatsApp Delivery +66 095 882 5573.',
+    modeDescription: '5 piatti iconici del Ristorante Flower Power a Koh Phayam (Pizze artigianali, Paste, Secondi caldi, Focacce, Dessert; zero bevande, zero insalate). Banner con WhatsApp Delivery +66 (0)95.882.5573.',
     brand: 'village',
     audioTrack: {
       ...audio,

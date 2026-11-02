@@ -528,7 +528,7 @@ ${dishesThList}
 มื้ออร่อยสร้างความสุขได้เสมอ แวะมาทานที่ร้านท่ามกลางสวนธรรมชาติ หรือสั่งเดลิเวอรี่ส่งตรงถึงที่พักบนเกาะพยามได้เลยครับ!
 
 🛵 บริการส่งเดลิเวอรี่บนเกาะพยาม สั่งง่ายๆ ผ่าน WhatsApp:
-✆ WhatsApp: +66 095 882 5573
+✆ WhatsApp: +66 (0)95.882.5573
 🌐 ข้อมูลและที่พัก: www.flowerpowervillage.com`;
 
     englishContent = `${r1EnHooks[rIdx]}
@@ -542,7 +542,7 @@ As the wise proverb says: ${cleanEnProverb}
 Good food shared in paradise creates unforgettable memories. Treat yourself to real Italian taste on Koh Phayam! 🤙
 
 🛵 Island Delivery on Koh Phayam — order via WhatsApp:
-✆ WhatsApp: +66 095 882 5573
+✆ WhatsApp: +66 (0)95.882.5573
 🌐 Resort & Dining: www.flowerpowervillage.com`;
 
     italianContent = `🇮🇹 Voglia di vera cucina italiana a Koh Phayam? Il ristorante Flower Power è aperto! 🍝🍕✨
@@ -555,10 +555,10 @@ Pasta fresca fatta a mano, pizze e specialità italiane autentiche a Buffalo Bay
 Un saggio proverbio ricorda: "${proverb.it}"
 La buona cucina italiana nel cuore dell'isola di Koh Phayam!
 
-🛵 Consegna a domicilio sull'isola tramite WhatsApp: +66 095 882 5573
+🛵 Consegna a domicilio sull'isola tramite WhatsApp: +66 (0)95.882.5573
 🌐 www.flowerpowervillage.com`;
 
-    fixedLink = `🌺 FLOWER POWER RESTAURANT & RESORT 🌸 - Buffalo Bay, Koh Phayam\n📍 WhatsApp Delivery: +66 095 882 5573\n🌐 www.flowerpowervillage.com`;
+    fixedLink = `🌺 FLOWER POWER RESTAURANT & RESORT 🌸 - Buffalo Bay, Koh Phayam\n📍 WhatsApp Delivery: +66 (0)95.882.5573\n🌐 www.flowerpowervillage.com`;
     crossTag = `@flowerpowerphayam`;
 
   } else if (testRun.mode === 'LM1') {
@@ -620,7 +620,7 @@ ${lm1ThRooms}
 
 🎁 รับส่วนลดพิเศษเพิ่มอีก 10% ทันทีเมื่อจองผ่านเว็บไซต์ของเรา:
 👉 www.flowerpowervillage.com
-💬 หรือติดต่อด่วนทาง WhatsApp: +66 095 882 5573`;
+💬 หรือติดต่อด่วนทาง WhatsApp: +66 (0)95.882.5573`;
 
     englishContent = `${lm1EnHooks[lmIdx]}
 
@@ -635,7 +635,7 @@ Pack your flip-flops and let nature recharge your soul! 🤙
 🎁 DIRECT BOOKING PRIVILEGE:
 Get an EXTRA -10% OFF automatically when booking on our official website:
 👉 www.flowerpowervillage.com
-💬 Or message us on WhatsApp: +66 095 882 5573`;
+💬 Or message us on WhatsApp: +66 (0)95.882.5573`;
 
     italianContent = `🇮🇹 Offerta Last Minute per stanotte a Buffalo Bay, Koh Phayam! 🌴🔥✨
 
@@ -649,7 +649,7 @@ Camere limitate disponibili solo per questa notte!
 
 🎁 Approfitta del 10% di sconto extra automatico sul nostro sito:
 👉 www.flowerpowervillage.com
-💬 WhatsApp: +66 095 882 5573`;
+💬 WhatsApp: +66 (0)95.882.5573`;
 
     fixedLink = `🌴 FLOWER POWER VILLAGE 🌸 - Buffalo Bay, Koh Phayam\n📍 Google Maps: https://maps.app.goo.gl/mugY88Wpuzjeebf56\n🌐 www.flowerpowervillage.com`;
     crossTag = `@flowerpowerpizzaranong`;

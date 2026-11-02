@@ -416,7 +416,7 @@ export function AutoCutLabView() {
                   <span className="text-[9px] px-1 rounded bg-[#25D366] text-stone-950 font-bold">WA</span>
                 </div>
                 <span className="text-[10px] font-semibold mt-0.5 leading-tight">5 Piatti Resort</span>
-                <span className="text-[9px] opacity-80 text-emerald-300 font-mono">+66 095 882 5573</span>
+                <span className="text-[9px] opacity-80 text-emerald-300 font-mono">+66 (0)95.882.5573</span>
               </button>
 
               <button
