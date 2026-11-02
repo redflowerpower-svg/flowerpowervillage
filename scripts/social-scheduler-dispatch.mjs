@@ -260,6 +260,23 @@ async function uploadToGoogleDrive({ name, buffer }) {
     }
 
     console.log(`✅ [Google Drive 5TB] Video archiviato con successo nel Cloud permanente! (File: ${uploadData.name}, ID: ${uploadData.id})`);
+
+    // ⚡ Condivisione pubblica diretta (Zero-Egress Supabase): permette a Meta di scaricare da Google Drive
+    try {
+      await fetch(`https://www.googleapis.com/drive/v3/files/${uploadData.id}/permissions`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ role: "reader", type: "anyone" })
+      });
+      uploadData.directStreamUrl = `https://lh3.googleusercontent.com/d/${uploadData.id}`;
+      console.log(`⚡ [Google Drive 5TB] Stream URL pubblico attivo (Zero Supabase Egress): ${uploadData.directStreamUrl}`);
+    } catch (permErr) {
+      console.warn('[scheduler-dispatch] Permessi pubblici Google Drive warning:', permErr.message);
+    }
+
     return uploadData;
   } catch (gdErr) {
     console.warn('⚠️ [scheduler-dispatch] Avviso archiviazione Google Drive:', gdErr.message);
@@ -267,38 +284,41 @@ async function uploadToGoogleDrive({ name, buffer }) {
   }
 }
 
-// Upload video buffer su Google Drive 5TB (Permanente) e Supabase Storage (Temporaneo con rotazione)
+// ⚡ Zero-Egress Cloud Video Provider: Google Drive 5TB primario, Supabase Storage solo fallback estremo
 async function ensureCloudVideoUrl(filePath) {
   const buf = fs.readFileSync(filePath);
   const fileName = `dispatch_${Date.now()}_${path.basename(filePath)}`;
   const cloudPath = `social_stories/${fileName}`;
 
-  // 1. Archiviazione Permanente su Google Drive 5TB (Nessun limite di spazio)
-  await uploadToGoogleDrive({ name: fileName, buffer: buf });
-
-  // 2. Buffer temporaneo su Supabase Storage (per download immediato di Meta Graph API e Telegram)
-  console.log(`[scheduler-dispatch] Upload buffer temporaneo Supabase (${(buf.length / 1024 / 1024).toFixed(1)} MB) su ${cloudPath}...`);
-  const { error: upErr } = await sb.storage.from('assets').upload(cloudPath, buf, {
-    contentType: 'video/mp4',
-    upsert: true
-  });
-  if (upErr) throw upErr;
-
-  const videoUrl = sb.storage.from('assets').getPublicUrl(cloudPath).data.publicUrl;
-
-  // 3. Rotazione intelligente: conserva solo gli ultimi 8 video su Supabase (< 60MB), evitando ogni rischio di esaurire il limite di 1GB
-  try {
-    const { data: list } = await sb.storage.from('assets').list('social_stories', { sortBy: { column: 'created_at', order: 'asc' } });
-    if (list && list.length > 8) {
-      const toRemove = list.slice(0, list.length - 8).map(f => `social_stories/${f.name}`);
-      await sb.storage.from('assets').remove(toRemove);
-      console.log(`🧹 [scheduler-dispatch] Rotazione storage Supabase: rimossi ${toRemove.length} file temporanei (l'archivio permanente su Google Drive 5TB è intatto e sicuro).`);
-    }
-  } catch (cleanErr) {
-    // Non bloccante
+  // 1. Archiviazione Permanente su Google Drive 5TB & Generazione Stream URL per Meta (Zero Supabase Egress)
+  let videoUrl = null;
+  const gdriveRes = await uploadToGoogleDrive({ name: fileName, buffer: buf });
+  if (gdriveRes?.directStreamUrl) {
+    videoUrl = gdriveRes.directStreamUrl;
+    console.log(`[scheduler-dispatch] ⚡ URL Video Diretto Google Drive 5TB pronto per Meta: ${videoUrl}`);
   }
 
-  return { videoUrl, buffer: buf };
+  // 2. Solo se Google Drive non è disponibile, usiamo Supabase Storage come paracadute di riserva
+  if (!videoUrl) {
+    console.log(`[scheduler-dispatch] Google Drive non disponibile: fallback su Supabase Storage (${(buf.length / 1024 / 1024).toFixed(1)} MB) su ${cloudPath}...`);
+    const { error: upErr } = await sb.storage.from('assets').upload(cloudPath, buf, {
+      contentType: 'video/mp4',
+      upsert: true
+    });
+    if (!upErr) {
+      videoUrl = sb.storage.from('assets').getPublicUrl(cloudPath).data.publicUrl;
+    }
+
+    try {
+      const { data: list } = await sb.storage.from('assets').list('social_stories', { sortBy: { column: 'created_at', order: 'asc' } });
+      if (list && list.length > 8) {
+        const toRemove = list.slice(0, list.length - 8).map(f => `social_stories/${f.name}`);
+        await sb.storage.from('assets').remove(toRemove);
+      }
+    } catch {}
+  }
+
+  return { videoUrl: videoUrl || '', buffer: buf };
 }
 
 function escapeHtml(str) {
@@ -378,7 +398,7 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
       `▫️ Fresh handmade pasta & savory sauces 🍝\n` +
       `▫️ Island favorites cooked from scratch with genuine passion 🌿✨\n\n` +
       `Dine in our lush tropical garden or get hot delivery directly to your resort or bungalow on Koh Phayam! 🛵🌴\n\n` +
-      `🛵 Island Delivery via WhatsApp: +66 095 882 5573\n` +
+      `🛵 Island Delivery via WhatsApp: +66 (0)95.882.5573\n` +
       `🌐 Resort & Dining: flowerpowervillage.com\n` +
       `📍 Buffalo Bay (Ao Khao Kwai), Koh Phayam\n` +
       `@flowerpowerphayam\n\n` +
@@ -387,7 +407,7 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
       `▫️ พาสต้าเส้นสดทำเอง ซอสสูตรดั้งเดิมอิตาเลียน 🍝\n` +
       `▫️ ปรุงสดใหม่จานต่อจานด้วยวัตถุดิบคุณภาพ 🌿🔥\n\n` +
       `แวะมาทานที่ร้านท่ามกลางสวนธรรมชาติ หรือสั่งเดลิเวอรี่ส่งตรงถึงที่พักบนเกาะพยามได้เลยครับ! 🛵🌴\n\n` +
-      `🛵 สั่งอาหารและเดลิเวอรี่ผ่าน WhatsApp: +66 095 882 5573\n` +
+      `🛵 สั่งอาหารและเดลิเวอรี่ผ่าน WhatsApp: +66 (0)95.882.5573\n` +
       `🌐 ข้อมูลและที่พัก: flowerpowervillage.com\n` +
       `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
       `#KohPhayam #KohPhayamRestaurant #KohPhayamFood #PhayamDelivery #ItalianRestaurantPhayam #BuffaloBay #เกาะพยาม #อ่าวเขาควาย`
@@ -402,7 +422,7 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
       `▫️ King size beds, private hammocks & high-speed fiber Wi-Fi 📶\n` +
       `▫️ On-site authentic Italian restaurant & scooter rental 🛵🍕\n\n` +
       `🏝️ Check live rates & book direct: flowerpowervillage.com\n` +
-      `💬 WhatsApp Staff: +66 095 882 5573\n` +
+      `💬 WhatsApp Staff: +66 (0)95.882.5573\n` +
       `📍 Buffalo Bay, Koh Phayam Island\n` +
       `@flowerpowerphayam\n\n` +
       `🇹🇭 พักผ่อนท่ามกลางสวนธรรมชาติอ่าวเขาควาย เกาะพยาม 🌴 ห้องพักว่างวันนี้พร้อมส่วนลดจองตรงพิเศษ!\n\n` +
@@ -410,7 +430,7 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
       `▫️ เตียงคิงไซส์ เปลญวนส่วนตัว และ Wi-Fi ไฟเบอร์ความเร็วสูง 📶\n` +
       `▫️ ร้านอาหารอิตาเลียนในที่พัก และบริการเช่ามอเตอร์ไซค์ 🛵🍕\n\n` +
       `🏝️ จองตรงราคาดีที่สุด: flowerpowervillage.com\n` +
-      `💬 ติดต่อสอบถามทาง WhatsApp: +66 095 882 5573\n` +
+      `💬 ติดต่อสอบถามทาง WhatsApp: +66 (0)95.882.5573\n` +
       `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
       `#KohPhayam #PhayamBungalow #KohPhayamResort #BuffaloBay #ThailandTravel #เกาะพยาม #ที่พักเกาะพยาม #อ่าวเขาควาย`
     ));
