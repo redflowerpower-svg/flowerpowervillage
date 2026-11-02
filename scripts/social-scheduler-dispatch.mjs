@@ -793,10 +793,10 @@ async function publishToFacebook({ videoUrl, videoBuffer, title = '', caption = 
   }
 }
 
-// 📸 Pubblicazione automatica su Instagram (Reels o 24h Stories)
-async function publishToInstagram({ videoUrl, caption = '', brand = 'village', isStory = false }) {
+// 📸 Pubblicazione automatica su Instagram (Reels o 24h Stories) con upload binario Zero-Egress
+async function publishToInstagram({ videoUrl, videoBuffer, caption = '', brand = 'village', isStory = false }) {
   if (dryRun) {
-    console.log(`[DRY-RUN] Pubblicazione Instagram (${brand}, isStory: ${isStory}) con URL: ${videoUrl}`);
+    console.log(`[DRY-RUN] Pubblicazione Instagram (${brand}, isStory: ${isStory}) con URL: ${videoUrl || 'binary-buffer'}`);
     return { ok: true, dryRun: true, id: 'mock_ig_id' };
   }
 
@@ -819,22 +819,73 @@ async function publishToInstagram({ videoUrl, caption = '', brand = 'village', i
     }
   } catch {}
 
-  console.log(`[scheduler-dispatch] Creazione container Instagram ${isStory ? 'STORIES' : 'REELS'} (IG ID: ${igId})...`);
-  const cParams = new URLSearchParams();
-  cParams.append('access_token', pageToken);
-  cParams.append('media_type', isStory ? 'STORIES' : 'REELS');
-  cParams.append('video_url', videoUrl);
-  if (!isStory && caption) cParams.append('caption', caption.slice(0, 2200));
+  let creationId = null;
 
-  const cRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media`, {
-    method: 'POST',
-    body: cParams
-  });
-  const cData = await cRes.json();
-  if (!cRes.ok || !cData.id) {
-    throw new Error(`IG Container creation failed: ${JSON.stringify(cData.error || cData)}`);
+  // ⚡ METODO PRIMARIO ZERO-EGRESS: Upload binario diretto su rupload.facebook.com (zero download da Supabase)
+  if (videoBuffer && videoBuffer.length > 0) {
+    try {
+      console.log(`[scheduler-dispatch] Tentativo upload binario diretto Instagram (Zero-Egress Supabase, ${(videoBuffer.length / 1024 / 1024).toFixed(1)} MB)...`);
+      const rParams = new URLSearchParams();
+      rParams.append('access_token', pageToken);
+      rParams.append('upload_type', 'resumable');
+      rParams.append('media_type', isStory ? 'STORIES' : 'REELS');
+      if (!isStory && caption) rParams.append('caption', caption.slice(0, 2200));
+
+      const rRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media`, {
+        method: 'POST',
+        body: rParams
+      });
+      const rData = await rRes.json();
+      if (rRes.ok && rData.id) {
+        const uploadUri = rData.uri || `https://rupload.facebook.com/ig-api-upload/v19.0/${rData.id}`;
+        console.log(`[scheduler-dispatch] Uploading binary to Instagram rupload: ${uploadUri}...`);
+        const upRes = await fetch(uploadUri, {
+          method: 'POST',
+          headers: {
+            'Authorization': `OAuth ${pageToken}`,
+            'offset': '0',
+            'file_size': String(videoBuffer.length)
+          },
+          body: videoBuffer
+        });
+        const upData = await upRes.json().catch(() => ({}));
+        if (upRes.ok || upData.success) {
+          creationId = rData.id;
+          console.log(`🎉 [scheduler-dispatch] Upload binario Instagram completato senza consumare banda Supabase! (Container ID: ${creationId})`);
+        } else {
+          console.warn('[scheduler-dispatch] Upload binario Instagram rupload non riuscito, fallback su URL:', upData);
+        }
+      } else {
+        console.warn('[scheduler-dispatch] Creazione sessione resumable Instagram non riuscita, fallback su URL:', rData);
+      }
+    } catch (resumableErr) {
+      console.warn('[scheduler-dispatch] Errore upload binario Instagram, fallback su URL:', resumableErr.message);
+    }
   }
-  const creationId = cData.id;
+
+  // 🛡️ FALLBACK: Se l'upload binario non è riuscito o manca il buffer, usiamo il parametro video_url standard
+  if (!creationId && videoUrl) {
+    console.log(`[scheduler-dispatch] Creazione container Instagram via URL ${isStory ? 'STORIES' : 'REELS'} (IG ID: ${igId})...`);
+    const cParams = new URLSearchParams();
+    cParams.append('access_token', pageToken);
+    cParams.append('media_type', isStory ? 'STORIES' : 'REELS');
+    cParams.append('video_url', videoUrl);
+    if (!isStory && caption) cParams.append('caption', caption.slice(0, 2200));
+
+    const cRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media`, {
+      method: 'POST',
+      body: cParams
+    });
+    const cData = await cRes.json();
+    if (!cRes.ok || !cData.id) {
+      throw new Error(`IG Container creation failed: ${JSON.stringify(cData.error || cData)}`);
+    }
+    creationId = cData.id;
+  }
+
+  if (!creationId) {
+    throw new Error('Impossibile creare container Instagram (né via binario diretto né via URL)');
+  }
 
   console.log(`[scheduler-dispatch] Attesa elaborazione container Instagram (ID: ${creationId})...`);
   let isReady = false;
@@ -1036,9 +1087,9 @@ async function run() {
   } else if (is0930) {
     console.log(`🌿 [09:30 BANGKOK] Slot Story Mattino — PUBBLICAZIONE INSTAGRAM STORIES V1`);
     const storyRes = await renderVideoMode('V1');
-    const { videoUrl } = await ensureCloudVideoUrl(storyRes.filePath);
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(storyRes.filePath);
     try {
-      const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
+      const igRes = await publishToInstagram({ videoUrl, videoBuffer: buffer, brand: 'village', isStory: true });
       await sendPublishedLog({
         brand: 'village',
         channel: '📸 Instagram Stories',
@@ -1067,12 +1118,13 @@ async function run() {
   } else if (is1130) {
     console.log(`🍝 [11:30 BANGKOK] Slot Pranzo Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
     const p2Res = await renderVideoMode('P2');
-    const { videoUrl } = await ensureCloudVideoUrl(p2Res.filePath);
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(p2Res.filePath);
     const p2Caption = getBilingualPostCopy('P2', 'pizza', p2Res.copy);
 
     try {
       const fbRes = await publishToFacebook({
         videoUrl,
+        videoBuffer: buffer,
         title: 'Pranzo Pasta Fresca Ranong 🍝 Piatto Espresso Caldo',
         caption: p2Caption,
         brand: 'pizza',
@@ -1145,12 +1197,13 @@ async function run() {
   } else if (is1600) {
     console.log(`🌿 [16:00 BANGKOK] Slot Pomeriggio Relax — PUBBLICAZIONE INSTAGRAM REEL V2`);
     const v2Res = await renderVideoMode('V2');
-    const { videoUrl } = await ensureCloudVideoUrl(v2Res.filePath);
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(v2Res.filePath);
     const v2Caption = getBilingualPostCopy('V2', 'village', v2Res.copy);
 
     try {
       const igRes = await publishToInstagram({
         videoUrl,
+        videoBuffer: buffer,
         caption: v2Caption,
         brand: 'village',
         isStory: false
@@ -1227,9 +1280,9 @@ async function run() {
   } else if (is1800) {
     console.log(`🌿 [18:00 BANGKOK] Slot Story Serale — PUBBLICAZIONE INSTAGRAM STORIES V3`);
     const sunsetRes = await renderVideoMode('V3');
-    const { videoUrl } = await ensureCloudVideoUrl(sunsetRes.filePath);
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(sunsetRes.filePath);
     try {
-      const igRes = await publishToInstagram({ videoUrl, brand: 'village', isStory: true });
+      const igRes = await publishToInstagram({ videoUrl, videoBuffer: buffer, brand: 'village', isStory: true });
       await sendPublishedLog({
         brand: 'village',
         channel: '📸 Instagram Stories',
@@ -1261,12 +1314,13 @@ async function run() {
   } else if (is1930) {
     console.log(`🍕 [19:30 BANGKOK] Slot Cena Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
     const p1Res = await renderVideoMode('P1');
-    const { videoUrl } = await ensureCloudVideoUrl(p1Res.filePath);
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(p1Res.filePath);
     const p1Caption = getBilingualPostCopy('P1', 'pizza', p1Res.copy);
 
     try {
       const fbRes = await publishToFacebook({
         videoUrl,
+        videoBuffer: buffer,
         title: 'Cena Pizza Tradizionale Ranong 🍕 Impasto Naturale 48h',
         caption: p1Caption,
         brand: 'pizza',
@@ -1339,12 +1393,13 @@ async function run() {
   } else if (is2100) {
     console.log(`🌙 [21:00 BANGKOK] Slot Notte — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM REEL`);
     const v3Res = await renderVideoMode('V3');
-    const { videoUrl } = await ensureCloudVideoUrl(v3Res.filePath);
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(v3Res.filePath);
     const v3Caption = getBilingualPostCopy('V3', 'village', v3Res.copy);
 
     try {
       const igRes = await publishToInstagram({
         videoUrl,
+        videoBuffer: buffer,
         caption: v3Caption,
         brand: 'village',
         isStory: false

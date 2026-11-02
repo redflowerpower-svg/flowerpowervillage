@@ -28,7 +28,7 @@ function getSupabaseAdmin() {
         }
         if (key) break;
       }
-    } catch {}
+    } catch { }
   }
 
   return (url && key) ? createClient(url, key) : null;
@@ -65,7 +65,7 @@ export async function handleOctorateExchange(req: VercelRequest, res: VercelResp
 
   try {
     const octorateUrl = "https://api.octorate.com/octobook/rest/v1/identity/token";
-    
+
     const bodyParams = new URLSearchParams({
       grant_type: "code",
       code: code,
@@ -140,7 +140,7 @@ export async function handleOctorateRefresh(req: VercelRequest, res: VercelRespo
     }
 
     const octorateUrl = "https://api.octorate.com/connect/rest/v1/identity/refresh";
-    
+
     const bodyParams = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: currentTokens.refresh_token,
@@ -396,8 +396,8 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
 
           if (octRes.ok) {
             const octJson = await octRes.json();
-            const pageItems = octJson && Array.isArray(octJson.data) 
-              ? octJson.data 
+            const pageItems = octJson && Array.isArray(octJson.data)
+              ? octJson.data
               : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
 
             if (Array.isArray(pageItems) && pageItems.length > 0) {
@@ -788,9 +788,9 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
       console.warn('[handleOctorateMinStay] Telegram notification error:', tgErr);
     }
 
-    return res.status(200).json({ 
-      success: true, 
-      dryRun: false, 
+    return res.status(200).json({
+      success: true,
+      dryRun: false,
       message: `Sincronizzazione Soggiorno Minimo ${modeLabel} completata su Octorate (${roomsPayload.length} blocchi inviati su ${chunks.length} batch)`,
       updatesCount: roomsPayload.length,
       chunksCount: chunks.length
@@ -798,4 +798,69 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Serverless min-stay execution error' });
   }
+}
+
+// 9. handleOctorateEnrichEmails — Recupera le email cifrate alias OTA (guestMailAddress) dai singoli dettagli prenotazione
+export async function handleOctorateEnrichEmails(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) {
+    return res.status(500).json({ error: 'Supabase configuration missing' });
+  }
+
+  const { data: tokenData } = await supabaseAdmin
+    .from('octorate_tokens')
+    .select('*')
+    .eq('id', 'singleton')
+    .maybeSingle();
+
+  if (!tokenData?.access_token) {
+    return res.status(500).json({ error: 'Octorate access token not found' });
+  }
+
+  const token = tokenData.access_token;
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+  const ids: (number | string)[] = Array.isArray(body.ids) ? body.ids.filter(Boolean) : [];
+
+  if (ids.length === 0) {
+    return res.status(400).json({ error: 'Nessun ID prenotazione fornito' });
+  }
+
+  // Limite aumentato a 400 prenotazioni per batch (concorrenza 25 per completare 300 ID in ~8s)
+  const targetIds = ids.slice(0, 400);
+  const contacts: Record<string, { email: string; phone: string }> = {};
+
+  const concurrency = 25;
+  for (let i = 0; i < targetIds.length; i += concurrency) {
+    const chunk = targetIds.slice(i, i + concurrency);
+    await Promise.all(
+      chunk.map(async (id) => {
+        try {
+          const detailRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation/366879/${id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          });
+          if (detailRes.ok) {
+            const dJson = await detailRes.json();
+            const email = (dJson.guestMailAddress || dJson.email || dJson.guestEmail || (dJson.guests && dJson.guests[0]?.email) || '').trim().toLowerCase();
+            const phone = (dJson.phone || (dJson.guests && dJson.guests[0]?.phone) || '').trim();
+            contacts[String(id)] = { email, phone };
+          }
+        } catch (err) {
+          console.warn(`[enrichEmails] Errore recupero ID ${id}:`, err);
+        }
+      })
+    );
+  }
+
+  return res.status(200).json({
+    success: true,
+    count: Object.keys(contacts).length,
+    contacts
+  });
 }

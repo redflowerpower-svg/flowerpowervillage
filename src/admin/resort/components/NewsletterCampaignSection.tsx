@@ -31,7 +31,8 @@ import {
   MapPin,
   Ticket,
   FlaskConical,
-  Moon
+  Moon,
+  Sparkles
 } from 'lucide-react';
 import { useResortAdminStore } from '../store/useResortAdminStore';
 import { getCanonicalAccommodation, ALL_ACCOMMODATIONS_MAP } from '../lib/octorateAdmin';
@@ -169,11 +170,11 @@ export const NewsletterCampaignSection: React.FC = () => {
 
   // Filtro interattivo sulle card superiori: 'all' | 'warn' | 'already'
   const [activeFilter, setActiveFilter] = useState<'all' | 'warn' | 'already'>('all');
-  
+
   // Pannello Filtri Smart Intelligenti Esteso
   const [timeFilter, setTimeFilter] = useState<TimeFilterOption>('all');
   const [contactFilter, setContactFilter] = useState<ContactFilterOption>('all');
-  
+
   // Intervallo Date Personalizzato (Calendario Da / A)
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -195,6 +196,11 @@ export const NewsletterCampaignSection: React.FC = () => {
 
   // 1. STATO PER LA SELEZIONE DELLE CAMPAGNE DELLO STORICO (Cancellazione Multipla)
   const [selectedLogIds, setSelectedLogIds] = useState<Set<string>>(new Set());
+
+  // Stato per l'arricchimento in tempo reale delle email cifrate OTA da Octorate
+  const [isEnriching, setIsEnriching] = useState(false);
+  const [enrichStatus, setEnrichStatus] = useState<string | null>(null);
+
 
   // Storia campagne per email: { "email@x.com": ["03-08-26 PHISHING", "PROMO_02"] }
   const [history, setHistory] = useState<Record<string, string[]>>({});
@@ -522,6 +528,76 @@ export const NewsletterCampaignSection: React.FC = () => {
         return allUniqueGuests.filter((g) => !g.isExcluded);
     }
   }, [allUniqueGuests, activeFilter, codeActive]);
+
+  const missingEmailsCount = useMemo(() => {
+    return displayedGuests.filter((g) => (!g.email || !g.email.includes('@')) && g.rawBooking?.id).length;
+  }, [displayedGuests]);
+
+  const handleEnrichOtaEmails = async () => {
+    const targetBookings = displayedGuests
+      .filter((g) => (!g.email || !g.email.includes('@')) && g.rawBooking?.id)
+      .map((g) => String(g.rawBooking.id));
+
+    if (targetBookings.length === 0) return;
+
+    setIsEnriching(true);
+    setEnrichStatus(`Recupero email alias per ${targetBookings.length} prenotazioni da Octorate...`);
+
+    try {
+      const chunkSize = 250;
+      const allContacts: Record<string, { email: string; phone: string }> = {};
+
+      for (let i = 0; i < targetBookings.length; i += chunkSize) {
+        const slice = targetBookings.slice(i, i + chunkSize);
+        if (targetBookings.length > chunkSize) {
+          setEnrichStatus(`Recupero email alias: blocco ${Math.floor(i / chunkSize) + 1} di ${Math.ceil(targetBookings.length / chunkSize)} (${slice.length} prenotazioni)...`);
+        }
+
+        const res = await fetch('/api/octorate-enrich-emails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: slice })
+        });
+
+        if (!res.ok) throw new Error('Errore server durante il recupero');
+        const json = await res.json();
+        if (json.contacts) {
+          Object.assign(allContacts, json.contacts);
+        }
+      }
+
+      const contactsMap = allContacts;
+      let enrichedCount = 0;
+
+      const updatedBookings = (rawOctorateBookings || []).map((b: any) => {
+        const bId = String(b.id || b.reservationId || '');
+        if (contactsMap[bId]) {
+          const c = contactsMap[bId];
+          if (c.email) enrichedCount++;
+          return {
+            ...b,
+            guestMailAddress: c.email || b.guestMailAddress,
+            guest_email: c.email || b.guest_email || b.email,
+            email: c.email || b.email,
+            phone: c.phone || b.phone || b.guest_phone,
+            guest_phone: c.phone || b.guest_phone || b.phone
+          };
+        }
+        return b;
+      });
+
+      useResortAdminStore.getState().setRawOctorateBookings(updatedBookings);
+      useResortAdminStore.getState().saveToCache(updatedBookings);
+
+      setEnrichStatus(`✅ Recuperate con successo ${enrichedCount} email alias da Octorate! Ora puoi selezionare i clienti.`);
+      setTimeout(() => setEnrichStatus(null), 6000);
+    } catch (err: any) {
+      setEnrichStatus(`❌ Errore: ${err.message}`);
+      setTimeout(() => setEnrichStatus(null), 6000);
+    } finally {
+      setIsEnriching(false);
+    }
+  };
 
   // Raggruppamento per Agenzia / OTA
   const guestsByOta = useMemo(() => {
@@ -852,11 +928,10 @@ export const NewsletterCampaignSection: React.FC = () => {
             setActiveFilter('all');
             setIsListOpen(true);
           }}
-          className={`p-3.5 rounded-2xl text-center transition-all cursor-pointer select-none ${
-            activeFilter === 'all'
+          className={`p-3.5 rounded-2xl text-center transition-all cursor-pointer select-none ${activeFilter === 'all'
               ? 'bg-stone-900 border-2 border-cyan-400 shadow-lg shadow-cyan-950/50 ring-2 ring-cyan-500/30 scale-[1.02]'
               : 'bg-stone-950/60 border border-stone-800 hover:bg-stone-900/80 hover:opacity-90'
-          }`}
+            }`}
         >
           <div className="text-2xl font-black text-white">{allUniqueGuests.length}</div>
           <div className="text-[10px] text-stone-300 font-extrabold uppercase tracking-wider flex items-center justify-center gap-1 mt-1">
@@ -872,13 +947,11 @@ export const NewsletterCampaignSection: React.FC = () => {
               setIsListOpen(true);
             }
           }}
-          className={`p-3.5 rounded-2xl text-center transition-all select-none ${
-            codeActive ? 'cursor-pointer hover:opacity-90' : 'opacity-60 cursor-not-allowed'
-          } ${
-            activeFilter === 'warn' && codeActive
+          className={`p-3.5 rounded-2xl text-center transition-all select-none ${codeActive ? 'cursor-pointer hover:opacity-90' : 'opacity-60 cursor-not-allowed'
+            } ${activeFilter === 'warn' && codeActive
               ? 'bg-rose-950/60 border-2 border-amber-400 shadow-lg shadow-rose-950/50 ring-2 ring-amber-500/30 scale-[1.02]'
               : 'bg-rose-950/30 border border-rose-700/30'
-          }`}
+            }`}
           title={!codeActive ? 'Inserisci un Codice Campagna nel compositore per attivare la verifica' : ''}
         >
           <div className="text-2xl font-black text-rose-400">
@@ -897,13 +970,11 @@ export const NewsletterCampaignSection: React.FC = () => {
               setIsListOpen(true);
             }
           }}
-          className={`p-3.5 rounded-2xl text-center transition-all select-none ${
-            codeActive ? 'cursor-pointer hover:opacity-90' : 'opacity-60 cursor-not-allowed'
-          } ${
-            activeFilter === 'already' && codeActive
+          className={`p-3.5 rounded-2xl text-center transition-all select-none ${codeActive ? 'cursor-pointer hover:opacity-90' : 'opacity-60 cursor-not-allowed'
+            } ${activeFilter === 'already' && codeActive
               ? 'bg-emerald-950/60 border-2 border-emerald-400 shadow-lg shadow-emerald-950/50 ring-2 ring-emerald-500/30 scale-[1.02]'
               : 'bg-emerald-950/30 border border-emerald-700/30'
-          }`}
+            }`}
           title={!codeActive ? 'Inserisci un Codice Campagna nel compositore per attivare la verifica' : ''}
         >
           <div className="text-2xl font-black text-emerald-400">
@@ -1080,11 +1151,10 @@ export const NewsletterCampaignSection: React.FC = () => {
                   key={opt.id}
                   type="button"
                   onClick={() => setTimeFilter(opt.id as TimeFilterOption)}
-                  className={`px-2.5 py-1 text-[11px] font-bold rounded-xl border transition-all cursor-pointer ${
-                    timeFilter === opt.id
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-xl border transition-all cursor-pointer ${timeFilter === opt.id
                       ? 'bg-cyan-950 border-cyan-400 text-cyan-300 shadow shadow-cyan-950'
                       : 'bg-stone-900 border-stone-800 text-stone-400 hover:text-white hover:bg-stone-800'
-                  }`}
+                    }`}
                 >
                   {opt.label}
                 </button>
@@ -1136,11 +1206,10 @@ export const NewsletterCampaignSection: React.FC = () => {
                   key={opt.id}
                   type="button"
                   onClick={() => setContactFilter(opt.id as ContactFilterOption)}
-                  className={`px-2.5 py-1 text-[11px] font-bold rounded-xl border transition-all cursor-pointer ${
-                    contactFilter === opt.id
+                  className={`px-2.5 py-1 text-[11px] font-bold rounded-xl border transition-all cursor-pointer ${contactFilter === opt.id
                       ? 'bg-emerald-950 border-emerald-400 text-emerald-300 shadow shadow-emerald-950'
                       : 'bg-stone-900 border-stone-800 text-stone-400 hover:text-white hover:bg-stone-800'
-                  }`}
+                    }`}
                 >
                   {opt.label}
                 </button>
@@ -1223,6 +1292,28 @@ export const NewsletterCampaignSection: React.FC = () => {
               Comprimi Tutte
             </button>
 
+            {missingEmailsCount > 0 && (
+              <button
+                type="button"
+                onClick={handleEnrichOtaEmails}
+                disabled={isEnriching}
+                className="flex items-center gap-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-emerald-950 transition-all cursor-pointer ml-1"
+                title="Interroga i dettagli Octorate per scaricare le email alias temporanee (@guest.booking.com, @agoda-messaging.com)"
+              >
+                {isEnriching ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>Recupero email OTA in corso...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3 h-3 text-amber-300" />
+                    <span>Scarica Email Cifrate OTA ({missingEmailsCount})</span>
+                  </>
+                )}
+              </button>
+            )}
+
             {excludedEmails.size > 0 && (
               <button
                 type="button"
@@ -1244,6 +1335,13 @@ export const NewsletterCampaignSection: React.FC = () => {
           </div>
         </div>
 
+        {enrichStatus && (
+          <div className="p-3 rounded-2xl bg-stone-900 border border-emerald-500/50 text-emerald-300 text-xs font-bold flex items-center gap-2.5 shadow-lg">
+            {isEnriching ? <Loader2 className="w-4 h-4 animate-spin text-emerald-400" /> : <Sparkles className="w-4 h-4 text-amber-300" />}
+            <span>{enrichStatus}</span>
+          </div>
+        )}
+
         {isListOpen && (
           <div className="space-y-3">
             {otaKeys.length === 0 ? (
@@ -1253,6 +1351,7 @@ export const NewsletterCampaignSection: React.FC = () => {
             ) : (
               otaKeys.map((otaName) => {
                 const groupGuests = guestsByOta[otaName] || [];
+                const validEmailCount = groupGuests.filter((g) => Boolean(g.email && g.email.includes('@'))).length;
                 const isOpen = Boolean(openOtas[otaName]);
                 const otaGroupSelected = isOtaGroupAllSelected(otaName);
                 const isTestGroup = otaName === '🧪 TEST / VERIFICA';
@@ -1260,20 +1359,18 @@ export const NewsletterCampaignSection: React.FC = () => {
                 return (
                   <div
                     key={otaName}
-                    className={`border rounded-2xl overflow-hidden shadow-lg transition-all ${
-                      isTestGroup
+                    className={`border rounded-2xl overflow-hidden shadow-lg transition-all ${isTestGroup
                         ? 'bg-indigo-950/40 border-indigo-500/60 ring-1 ring-indigo-500/30'
                         : 'bg-stone-950/90 border-stone-800/80'
-                    }`}
+                      }`}
                   >
                     {/* Header Riga OTA Accordion con Checkbox "Seleziona Tutti" per OTA */}
                     <div
                       onClick={() => toggleOtaAccordion(otaName)}
-                      className={`w-full flex items-center justify-between px-4 py-3 border-b text-left transition-colors cursor-pointer select-none ${
-                        isTestGroup
+                      className={`w-full flex items-center justify-between px-4 py-3 border-b text-left transition-colors cursor-pointer select-none ${isTestGroup
                           ? 'bg-indigo-900/40 hover:bg-indigo-900/60 border-indigo-500/40'
                           : 'bg-stone-900/90 hover:bg-stone-850 border-stone-800/60'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <button
@@ -1297,7 +1394,12 @@ export const NewsletterCampaignSection: React.FC = () => {
                           {otaName}
                         </span>
                         <span className={`text-xs font-extrabold ${isTestGroup ? 'text-indigo-200' : 'text-stone-200'}`}>
-                          ({groupGuests.length} {groupGuests.length === 1 ? 'contatto' : 'contatti'})
+                          ({groupGuests.length} {groupGuests.length === 1 ? 'contatto' : 'contatti'}
+                          {groupGuests.length > 0 && (
+                            <span className={`ml-1 font-semibold ${validEmailCount === groupGuests.length ? 'text-emerald-400' : 'text-amber-400'}`}>
+                              · {validEmailCount} con email
+                            </span>
+                          )})
                         </span>
                       </div>
 
@@ -1346,15 +1448,14 @@ export const NewsletterCampaignSection: React.FC = () => {
                               return (
                                 <tr
                                   key={g.id}
-                                  className={`hover:bg-stone-900/80 transition-colors ${
-                                    hasNoEmail
+                                  className={`hover:bg-stone-900/80 transition-colors ${hasNoEmail
                                       ? 'opacity-60 bg-stone-950/40'
                                       : isSelected
-                                      ? isTestGroup
-                                        ? 'bg-indigo-950/50'
-                                        : 'bg-emerald-950/30'
-                                      : ''
-                                  }`}
+                                        ? isTestGroup
+                                          ? 'bg-indigo-950/50'
+                                          : 'bg-emerald-950/30'
+                                        : ''
+                                    }`}
                                 >
                                   {/* Checkbox Playlist (Disabilitata per chi non ha email) */}
                                   <td className="py-2.5 px-3 text-center" onClick={(e) => e.stopPropagation()}>
@@ -1367,17 +1468,16 @@ export const NewsletterCampaignSection: React.FC = () => {
                                           handleToggleSelectOne(g.email);
                                         }
                                       }}
-                                      className={`transition-colors ${
-                                        hasNoEmail
+                                      className={`transition-colors ${hasNoEmail
                                           ? 'opacity-30 cursor-not-allowed text-stone-600'
                                           : 'text-stone-400 hover:text-white cursor-pointer'
-                                      }`}
+                                        }`}
                                       title={
                                         hasNoEmail
                                           ? "Nessun indirizzo email registrato (le OTA come Booking/Agoda spesso nascondono l'email del cliente)"
                                           : isSelected
-                                          ? 'Deseleziona dalla mailing list'
-                                          : 'Seleziona per la mailing list'
+                                            ? 'Deseleziona dalla mailing list'
+                                            : 'Seleziona per la mailing list'
                                       }
                                     >
                                       {isSelected ? <CheckSquare className="w-4 h-4 text-emerald-400" /> : <Square className="w-4 h-4" />}
@@ -1537,11 +1637,10 @@ export const NewsletterCampaignSection: React.FC = () => {
                     return (
                       <div
                         key={log.id}
-                        className={`border rounded-2xl p-3.5 space-y-2.5 text-xs transition-all ${
-                          isLogSelected
+                        className={`border rounded-2xl p-3.5 space-y-2.5 text-xs transition-all ${isLogSelected
                             ? 'bg-rose-950/30 border-rose-600/50 ring-1 ring-rose-500/30'
                             : 'bg-stone-900/80 border-stone-800'
-                        }`}
+                          }`}
                       >
                         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-stone-800 pb-2">
                           <div className="flex items-center gap-2.5">
@@ -1621,7 +1720,7 @@ export const NewsletterCampaignSection: React.FC = () => {
       {selectedBooking && (
         <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="bg-stone-950 border-2 border-emerald-500/50 rounded-3xl max-w-xl w-full p-6 shadow-2xl shadow-emerald-950/50 space-y-5 ring-1 ring-emerald-500/20 max-h-[90vh] overflow-y-auto">
-            
+
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-stone-800 pb-3">
               <div className="flex items-center gap-2.5">

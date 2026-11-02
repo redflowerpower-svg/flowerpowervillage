@@ -16,7 +16,8 @@ import {
   handleOctorateClientClear,
   handleOctorateBookings,
   handleOctorateGrid,
-  handleOctorateMinStay
+  handleOctorateMinStay,
+  handleOctorateEnrichEmails
 } from "./_handlers/octorate.js";
 import { handleOctorateWebhook } from "./_handlers/octorate-webhook.js";
 import { handleEmailAlerts } from "./_handlers/email-alerts.js";
@@ -181,6 +182,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('min-stay') || cleanPath.includes('minstay')) {
     return handleOctorateMinStay(req, res);
+  }
+
+  if (cleanPath.includes('octorate-enrich-emails') || cleanPath.includes('octorate_enrich_emails')) {
+    return handleOctorateEnrichEmails(req, res);
   }
 
   if (cleanPath.includes('octorate-bookings') || cleanPath.includes('octorate_bookings')) {

@@ -63,3 +63,4 @@ Questa release completa una serie cruciale di ottimizzazioni cross-platform per 
 - `src/social/services/autoCutCopywriterEngine.ts`: Template bilingue con recapito unificato Ranong e specifiche sala Phayam.
 - `src/social/services/autoCutLabEngine.ts`: Shuffle Bag a memoria per rotazione audio resort e pizzeria.
 - `DIARIO_DI_BORDO.md`: Tracciamento puntuale delle sessioni e delle migliorie operative.
+

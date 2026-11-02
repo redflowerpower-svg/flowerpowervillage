@@ -35,6 +35,39 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL ||
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
+// ⚡ Zero-Egress Memory Cache: conserva i buffer video temporanei per evitare il rimbalzo su Supabase Egress
+const videoBufferCache = new Map<string, { buffer: Buffer; timestamp: number }>();
+
+function cacheVideoBuffer(key: string, buffer: Buffer) {
+  if (!key || !buffer) return;
+  const now = Date.now();
+  for (const [k, v] of videoBufferCache.entries()) {
+    if (now - v.timestamp > 30 * 60 * 1000) {
+      videoBufferCache.delete(k);
+    }
+  }
+  const cleanKey = key.split('?')[0];
+  videoBufferCache.set(cleanKey, { buffer, timestamp: now });
+  const baseKey = path.basename(cleanKey);
+  videoBufferCache.set(baseKey, { buffer, timestamp: now });
+}
+
+function getCachedVideoBuffer(key: string): Buffer | null {
+  if (!key) return null;
+  const cleanKey = key.split('?')[0];
+  const direct = videoBufferCache.get(cleanKey);
+  if (direct) return direct.buffer;
+  const baseKey = path.basename(cleanKey);
+  const byBase = videoBufferCache.get(baseKey);
+  if (byBase) return byBase.buffer;
+  for (const [k, v] of videoBufferCache.entries()) {
+    if (cleanKey.includes(k) || k.includes(cleanKey)) {
+      return v.buffer;
+    }
+  }
+  return null;
+}
+
 /**
  * ⚡ Ottimizzatore Video MP4 Broadcast con FFmpeg:
  * Applica `-movflags +faststart` al file MP4 in meno di 100ms:
@@ -682,6 +715,8 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
 
       // 🛡️ Archiviazione permanente di sicurezza su Google Drive 5TB (Zero Egress, spazio illimitato)
       uploadFileToGoogleDrive({ name: path.basename(masterPath), buffer: finalBuffer }).catch(() => {});
+      cacheVideoBuffer(publicUrl, finalBuffer);
+      cacheVideoBuffer(masterPath, finalBuffer);
 
       // 📸 Upload Thumbnail Ufficiale Supabase se presente
       let publicThumbUrl: string | undefined;
@@ -732,6 +767,8 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
       }
 
       const { data: { publicUrl } } = supabase.storage.from("assets").getPublicUrl(path);
+      cacheVideoBuffer(publicUrl, buffer);
+      cacheVideoBuffer(path, buffer);
       return res.status(200).json({ ok: true, url: publicUrl });
     } catch (err: any) {
       console.error("[social-publisher] Upload story media error:", err);
@@ -868,8 +905,13 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
               form.append("width", "1080");
               form.append("height", "1920");
 
-              // Invio URL CDN se valido
-              form.append("video", fullMediaUrl);
+              if (optimizedVideoBuf && optimizedVideoBuf.length > 0) {
+                const vidBlob = new Blob([new Uint8Array(optimizedVideoBuf.buffer, optimizedVideoBuf.byteOffset, optimizedVideoBuf.byteLength)], { type: "video/mp4" });
+                form.append("video", vidBlob, "story_video_916.mp4");
+                console.log(`[social-publisher] ⚡ Video allegato come buffer binario diretto a Telegram (Zero Egress Supabase, ${optimizedVideoBuf.length} bytes)`);
+              } else {
+                form.append("video", fullMediaUrl);
+              }
 
               // 📸 THUMBNAIL UFFICIALE: Passata come InputFile binario
               if (thumbBuf && thumbBuf.length > 1000) {
@@ -1899,12 +1941,17 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
           });
         }
 
-        // Step 2: Fetch video e upload binario su rupload.facebook.com
-        const vRes = await fetch(videoUrl);
-        if (!vRes.ok) {
-          throw new Error(`Impossibile scaricare il video per la Storia (${vRes.statusText})`);
+        // Step 2: Upload binario su rupload.facebook.com (con cache Zero-Egress Supabase)
+        let vBuf = getCachedVideoBuffer(videoUrl);
+        if (!vBuf) {
+          const vRes = await fetch(videoUrl);
+          if (!vRes.ok) {
+            throw new Error(`Impossibile scaricare il video per la Storia (${vRes.statusText})`);
+          }
+          vBuf = Buffer.from(await vRes.arrayBuffer());
+        } else {
+          console.log(`[SocialPublisher] ⚡ Video Storia Facebook prelevato da cache Zero-Egress (${vBuf.length} bytes)`);
         }
-        const vBuf = Buffer.from(await vRes.arrayBuffer());
 
         const upRes = await fetch(startData.upload_url, {
           method: "POST",
@@ -1971,10 +2018,15 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
         console.log("[SocialPublisher] Facebook video_reels start response:", reelStartData);
 
         if (reelStartRes.ok && reelStartData.upload_url && reelStartData.video_id) {
-          // Step 2: Download buffer video e upload binario su rupload.facebook.com
-          const vRes = await fetch(videoUrl);
-          if (!vRes.ok) throw new Error(`Impossibile scaricare video per Reel (${vRes.statusText})`);
-          const vBuf = Buffer.from(await vRes.arrayBuffer());
+          // Step 2: Upload binario su rupload.facebook.com (con cache Zero-Egress Supabase)
+          let vBuf = getCachedVideoBuffer(videoUrl);
+          if (!vBuf) {
+            const vRes = await fetch(videoUrl);
+            if (!vRes.ok) throw new Error(`Impossibile scaricare video per Reel (${vRes.statusText})`);
+            vBuf = Buffer.from(await vRes.arrayBuffer());
+          } else {
+            console.log(`[SocialPublisher] ⚡ Video Facebook Reel prelevato da cache Zero-Egress (${vBuf.length} bytes)`);
+          }
 
           const upRes = await fetch(reelStartData.upload_url, {
             method: "POST",
