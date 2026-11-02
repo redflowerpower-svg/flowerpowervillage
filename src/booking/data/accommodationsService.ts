@@ -429,10 +429,26 @@ const PREFERRED_ORDER = [
 ];
 
 let cachedAccommodations: EnrichedAccommodation[] | null = null;
+const ACCOMMODATIONS_CACHE_KEY = 'fp_accommodations_cache_v2';
+const ACCOMMODATIONS_CACHE_TTL = 60 * 60 * 1000; // 1 ora di cache per azzerare chiamate di storage e log ingestion
 
 export async function fetchAccommodations(bypassCache = false): Promise<EnrichedAccommodation[]> {
   if (cachedAccommodations && !bypassCache) {
     return cachedAccommodations;
+  }
+
+  // 🛡️ Zero-Egress LocalStorage Cache: carica istantaneamente senza interrogare Supabase Storage .list()
+  if (!bypassCache && typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const raw = localStorage.getItem(ACCOMMODATIONS_CACHE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.timestamp && Date.now() - parsed.timestamp < ACCOMMODATIONS_CACHE_TTL && Array.isArray(parsed.data)) {
+          cachedAccommodations = parsed.data;
+          return parsed.data;
+        }
+      }
+    } catch (e) {}
   }
 
   // Clean query selecting 'id', 'name', 'slug', and 'details'

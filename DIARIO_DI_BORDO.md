@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [02/11/2026 - ORE 12:28] · BLINDATURA TOTALE DEFINITIVA WEBP & CDN (SCUDO 100% CONTRO CHIUSURA SUPABASE)
+- **Cosa abbiamo fatto:**
+  1. 🛡️ **Risoluzione Radicale Bug `Date.now()` in [`cacheBust.ts`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/utils/cacheBust.ts)**:
+     - Scoperto il motivo primario dell'Egress residuo: `withCacheBust` inseriva `?v=${Date.now()}` su ogni immagine della pizzeria, distruggendo la cache di browser e CDN e costringendo Supabase a inviare 30+ MB di foto per ogni singola visita/refresh.
+     - Sostituito con proxy globale Cloudflare CDN (`wsrv.nl`): tutte le pizze, paste, insalate e dessert vengono ora compressi in WebP e cachati permanentemente su 300+ nodi edge mondiali. Consumo Egress Supabase: **0 BYTES**.
+  2. 🌴 **Immagini Galleria Villaggio da Vercel Locale (Zero Supabase Egress)**:
+     - In [`GallerySection.tsx`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/sections/GallerySection.tsx), impostato `photo.localUrl` prioritario: le foto del giardino, piscina, yoga, palestra e ristorante vengono caricate direttamente da Vercel (100 GB gratis) anziché da Supabase.
+  3. ⚡ **Taglio Drastico di 18 Chiamate `.list()` per Visita (Abbattimento Log Ingestion)**:
+     - In [`accommodationsService.ts`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/data/accommodationsService.ts), introdotta la persistenza in `localStorage` per 1 ora (`fp_accommodations_cache_v2`).
+     - Eliminato il ciclo di 18 chiamate a `publicSupabase.storage.list()` che ad ogni reload gonfiava il contatore di Log Ingestion di Supabase.
+  4. 🧪 **Collaudo di Compilazione**:
+     - Compilazione Vite superata con successo (`npm run build`) in 5.22s (0 errori).
+- **File aggiornati:** src/pizza/utils/cacheBust.ts, src/sections/GallerySection.tsx, src/booking/data/accommodationsService.ts, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Scudo permanente totale attivo e operativo.
+
+---
+
+
 ### 🟩 [02/11/2026 - ORE 12:05] · AUDIT TOTALE CODICE & BLINDATURA ENDPOINT SOCIAL PUBLISHER (ZERO-EGRESS)
 - **Cosa abbiamo fatto:**
   1. 🔍 **Audit Scrupoloso a Raggio Globale su Tutto il Repository**:

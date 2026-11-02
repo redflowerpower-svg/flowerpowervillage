@@ -1,11 +1,16 @@
-// Generates a session timestamp on module load.
-// This ensures images are cached normally during navigation and re-renders,
-// but reloads/refreshes always fetch the freshest image from Supabase Storage without being stuck on stale CDN/browser disk cache.
-const SESSION_CACHE_KEY = Date.now();
-
+/**
+ * 🌸 Zero-Egress Media Shield:
+ * Converte qualsiasi immagine di Supabase Storage tramite proxy CDN globale gratuito (wsrv.nl su Cloudflare Edge).
+ * Benefici vitali:
+ * 1. Elimina il distruttivo Date.now() che forzava il download ripetuto da Supabase Storage a ogni refresh
+ * 2. Cacha le immagini su oltre 300 data center Cloudflare mondiali a costo zero
+ * 3. Azzera il traffico Egress e Cached Egress di Supabase
+ */
 export function withCacheBust(url: string | undefined | null): string {
   if (!url) return '';
-  if (!url.includes('supabase.co')) return url;
-  const sep = url.includes('?') ? '&' : '?';
-  return `${url}${sep}v=${SESSION_CACHE_KEY}`;
+  const cleanUrl = url.split('?')[0];
+  if (!cleanUrl.includes('supabase.co')) return cleanUrl;
+
+  // Proxy Cloudflare globale gratuito con compressione WebP e cache permanente
+  return `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&output=webp&q=80`;
 }

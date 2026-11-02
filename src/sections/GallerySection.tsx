@@ -303,8 +303,8 @@ export default function GallerySection({ lang = 'IT' }: Props) {
               className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-stone-100 shadow-xs hover:shadow-xl transition-all duration-300 border border-stone-200/80 cursor-pointer"
             >
               <img
-                src={photo.url}
-                onError={(e) => { e.currentTarget.src = photo.localUrl; }}
+                src={photo.localUrl || photo.url}
+                onError={(e) => { e.currentTarget.src = photo.url; }}
                 alt={photo.categoryName}
                 loading="lazy"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
