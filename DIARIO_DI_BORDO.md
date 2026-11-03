@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 12:45] · OTTIMIZZAZIONE SPAZI MOBILE (/calendar): NOME BUNGALOW CLICCABILE CON FOTO & 7-8 GIORNI AFFIANCATI
+- **Cosa abbiamo fatto:**
+  1. 📱 **Massimizzazione Spazio Schermo Mobile (7-8 Giorni a Vista)**:
+     - Rimossa l'anteprima fotografica permanente dalla colonna di sinistra: larghezza ridotta a soli ~100px.
+     - Colonne giorni ottimizzate a 38px: su qualsiasi smartphone (375px-414px di larghezza), l'ospite visualizza 7 o 8 giorni consecutivi affiancati (un'intera settimana da Lunedì a Domenica a colpo d'occhio senza dover scorrere!).
+  2. 📷 **Nome Bungalow Cliccabile con Pop-up Galleria Standard**:
+     - Toccando il nome di ciascuna camera si apre la modale standard a schermo intero con foto grandi, swipe, descrizione e servizi.
+     - Alla chiusura (tasto X o Esc), si ritorna all'istante al calendario esattamente dove ci si trovava con camera e date preservate.
+  3. ⚡ **Rimozione Ingombri Verticali**:
+     - Eliminata la card alta Hero: la matrice dei prezzi parte subito in cima per massimizzare la visibilità delle stanze.
+  4. 🧪 **Collaudo Tecnico**:
+     - Typecheck superato (0 errori) e Build Vite superata in 5.50s.
+- **File aggiornati:** src/pages/ResortPublicCalendarPage.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato `feat/room-availability-calendar`.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 11:45] · CALENDARIO LIVE: AGGIUNTA TIMELINE PANORAMICA A RIGHE & TOGGLE BI-MODALE
 - **Cosa abbiamo fatto:**
   1. 📊 **Implementazione Vista a Righe (Timeline Panoramica / Matrice Orizzontale)**:
