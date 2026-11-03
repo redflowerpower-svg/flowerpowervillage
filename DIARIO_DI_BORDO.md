@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 13:05] · RIMOZIONE PREZZO SCHEDA, FOTOCAMERA ANGOLO INFERIORE DX & FILTRO ALLOGGI CON 0 DISPONIBILITÀ
+- **Cosa abbiamo fatto:**
+  1. 🚫 **Eliminazione Prezzo Statico dalla Scheda Alloggio**:
+     - Rimosso il prezzo dalle schede camera della colonna fissa di sinistra e dalla vista a blocchi. La tariffa statica risultava superflua e fuorviante poiché il prezzo cambia dinamicamente giorno per giorno ed è già chiaramente visibile all'interno di ogni singola casella del calendario.
+  2. 📷 **Icona Fotocamera nell'Angolo in Basso a Destra**:
+     - Posizionata in modo assoluto nell'angolino inferiore destro della scheda, occupando zero spazio orizzontale.
+     - La larghezza minima della colonna alloggi è stata ulteriormente snellita a soli 80px, lasciando ancora più spazio per visualizzare fino a 8 giorni pieni contemporaneamente su smartphone.
+  3. 🛡️ **Filtro Categorico Alloggi Non Disponibili (Zero Disponibilità)**:
+     - Implementata funzione di controllo isRoomAvailableInMonth: gli alloggi che nel mese selezionato non hanno nemmeno una data libera/disponibile (come le Room 1, 2, 3, 4, 5, Lodge 1 e Lodge 2 che risultano chiuse/con 0 disponibilità in Octorate) vengono automaticamente esclusi e non compaiono a schermo.
+     - Se un alloggio torna ad aprire in mesi futuri (es. Dicembre o Gennaio), apparirà automaticamente navigando in quei mesi.
+  4. 🧪 **Collaudo Tecnico**:
+     - Build Vite superata a pieni voti in 5.83s.
+- **File aggiornati:** src/pages/ResortPublicCalendarPage.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato feat/room-availability-calendar.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 12:55] · OTTIMIZZAZIONE NOMI 2 RIGHE, FOTOCAMERA ACCANTO AL PREZZO & ZERO CASELLE VUOTE
 - **Cosa abbiamo fatto:**
   1. 🏷️ **Nomi Alloggi su Due Righe (`getRoomNameTwoLines`)**:
