@@ -572,6 +572,27 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     setError(null)
   }, [])
 
+  // When arriving with room and dates, jump immediately to #rooms-grid avoiding hero banner
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = params.get('room');
+    const inDate = params.get('checkIn') || params.get('from');
+    const isCheckout = params.get('checkout') === '1';
+
+    if (!isCheckout && roomParam && inDate) {
+      const jumpToGrid = () => {
+        const el = document.getElementById('rooms-grid');
+        if (el) {
+          el.scrollIntoView({ behavior: 'instant', block: 'start' });
+        }
+      };
+      jumpToGrid();
+      requestAnimationFrame(jumpToGrid);
+      setTimeout(jumpToGrid, 50);
+    }
+  }, []);
+
   // Auto-activate Direct Checkout when arriving from interactive calendar with ?checkout=1&room=...
   useEffect(() => {
     if (typeof window === 'undefined') return;

@@ -571,10 +571,14 @@ export default function ResortPublicCalendarPage() {
     navigate(`/village?room=${targetRoomSlug}&checkIn=${checkIn}&checkOut=${checkOut}&breakfast=${extraBreakfast}&ac=${extraAC}&checkout=1`);
   };
 
-  // Proceed to Booking Engine with pre-filled room and dates (fallback)
+  // Proceed to Booking Engine with pre-filled room and dates (Option 2: Direct to Configured Card)
   const handleProceedToBooking = () => {
     if (!bookingSelectionSummary) return;
-    setIsConfigDrawerOpen(true);
+    const { room } = bookingSelectionSummary;
+    const ident = getRoomIdent(room);
+    const targetRoomSlug = ident ? ident.canonicalSlug : cleanSlug(room.slug);
+
+    navigate(`/village?room=${targetRoomSlug}&checkIn=${checkIn}&checkOut=${checkOut}#rooms-grid`);
   };
 
   // WhatsApp share link generator

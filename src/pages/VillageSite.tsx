@@ -48,8 +48,11 @@ export default function VillageSite() {
 
   useEffect(() => {
     setActivePage(getPageFromPath());
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [location.pathname]);
+    const isDirectBookingFlow = Boolean(location.search.includes('room=') && (location.search.includes('checkIn=') || location.search.includes('from=')));
+    if (!isDirectBookingFlow && !location.hash) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [location.pathname, location.search, location.hash]);
 
   const navigatePage = (page: string) => {
     let target = page;

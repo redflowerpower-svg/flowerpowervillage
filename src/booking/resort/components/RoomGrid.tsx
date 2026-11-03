@@ -328,17 +328,18 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
             setActiveGalleryRoom(null);
             setExpandedRoomId(found.id);
 
-            // Scroll fluido mirato alla scheda configurata
-            setTimeout(() => {
+            // Posizionamento istantaneo immediato a 0ms sulla scheda alloggio espansa
+            const scrollToConfiguredCard = () => {
               const el = document.getElementById(`room-card-${canonicalKey}`) || 
                          document.getElementById(`room-card-${cleanSlug(found.slug)}`) || 
                          document.getElementById(`room-card-${found.id}`);
               if (el) {
-                const rect = el.getBoundingClientRect();
-                const targetScroll = window.scrollY + rect.top - 100;
-                window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                el.scrollIntoView({ behavior: 'instant', block: 'center' });
               }
-            }, 450);
+            };
+            scrollToConfiguredCard();
+            setTimeout(scrollToConfiguredCard, 50);
+            setTimeout(scrollToConfiguredCard, 150);
           } else {
             // Link informativo senza date: apri anteprima fotografica
             setActiveGalleryRoom(found);
