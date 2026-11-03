@@ -85,3 +85,4 @@ try {
   console.error('\n❌ ERRORE DURANTE IL PROCESSO DI SINCRONIZZAZIONE:', err.message);
   process.exit(1);
 }
+

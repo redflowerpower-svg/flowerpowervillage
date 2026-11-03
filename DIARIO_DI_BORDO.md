@@ -3015,3 +3015,9 @@
     - Integrata la pulizia automatica dei branch remoti fantasma (`git fetch --all --prune`) e l'aggiornamento del branch locale (`git pull`) prima della decifratura del vault e dell'allineamento dei file `.env` e delle dipendenze npm.
   - **Allineamento Immediato su GitHub**: Eseguito il push ufficiale del branch `feat/room-availability-calendar` su GitHub origin, rendendolo immediatamente scaricabile e visibile su qualsiasi postazione (Ranong compresa).
   - **Aggiornamento Regole di Sistema & Master Blueprint**: Codificato il nuovo flusso sia in `.agents/AGENTS.md` sia nei documenti core `03_regole_sistema_agents.md`, `22_regole_operative_agents.md` e `AGENTS.md` in `documentation_reports/`.
+
+
+- **Blindatura Definitiva Multi-Postazione & Auto-Bonifica Branch Fossili (`vault-sync.mjs project`)**:
+  - **Auto-Bonifica dei Rami Locali Fossili (`cleanOrphanLocalBranches()`)**: Integrata la scansione automatica dei branch locali all'interno di `syncPullVault()`. Qualsiasi branch locale (come `integrazione coupon` o altri vecchi rami di test) che non risulti più attivo su GitHub `origin` viene rimosso in modo automatico e sicuro, spostandosi preventivamente su `staging`.
+  - **Supporto Ufficiale Alias `vault project` (`npm run vault:project`)**: Entrambi i comandi `VAULT-SYNC` e `VAULT-PROJECT` condividono ora la medesima automazione a prova d'errore.
+  - **Sincronizzazione Bilaterale a 360°**: Eliminato alla radice ogni rischio di discrepanza di codice, branch o credenziali tra le postazioni fisiche di Koh Phayam e Ranong.

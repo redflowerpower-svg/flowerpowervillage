@@ -92,20 +92,68 @@ export function decryptVault() {
   return true;
 }
 
+export function cleanOrphanLocalBranches() {
+  const protectedBranches = ['main', 'staging'];
+  try {
+    const rawLocal = execSync('git branch --format="%(refname:short)"', { encoding: 'utf8', cwd: process.cwd() });
+    const localBranches = rawLocal.split('\n').map(b => b.trim()).filter(Boolean);
+
+    const rawRemote = execSync('git branch -r --format="%(refname:short)"', { encoding: 'utf8', cwd: process.cwd() });
+    const remoteBranches = rawRemote.split('\n').map(b => b.trim().replace(/^origin\//, '')).filter(Boolean);
+
+    let currentBranch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8', cwd: process.cwd() }).trim();
+
+    for (const branch of localBranches) {
+      if (protectedBranches.includes(branch)) continue;
+      // Se il branch locale non è presente nei rami remoti tracciati su origin
+      if (!remoteBranches.includes(branch)) {
+        console.log(`🧹 Auto-bonifica: Rilevato ramo locale orfano/fossile [${branch}] non presente su origin.`);
+        // Se ci troviamo attualmente su questo ramo, ci spostiamo preventivamente su staging
+        if (currentBranch === branch) {
+          console.log(`↩️ Spostamento automatico di sicurezza su [staging]...`);
+          execSync('git checkout staging', { stdio: 'inherit', cwd: process.cwd() });
+          currentBranch = 'staging';
+        }
+        try {
+          execSync(`git branch -D "${branch}"`, { stdio: 'inherit', cwd: process.cwd() });
+          console.log(`✅ Ramo locale orfano [${branch}] rimosso con successo.`);
+        } catch (e) {
+          console.warn(`⚠️ Impossibile eliminare automaticamente il ramo [${branch}]:`, e.message);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('⚠️ Avviso durante auto-bonifica branch locali:', err.message);
+  }
+}
+
 export function syncPullVault() {
-  console.log('🔄 Sincronizzazione postazione con GitHub Origin...');
+  console.log('🔄 Sincronizzazione postazione con GitHub Origin (VAULT-PROJECT)...');
   try {
     console.log('🧹 1. Pulizia rami remoti eliminati (git fetch --all --prune)...');
     execSync('git fetch --all --prune', { stdio: 'inherit', cwd: process.cwd() });
 
-    const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8', cwd: process.cwd() }).trim();
-    console.log(`📥 2. Aggiornamento branch locale [${currentBranch}]...`);
+    console.log('🧼 2. Auto-bonifica dei branch locali orfani/fossili...');
+    cleanOrphanLocalBranches();
+
+    let currentBranch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8', cwd: process.cwd() }).trim();
+    if (currentBranch !== 'staging' && currentBranch !== 'main') {
+      const rawRemote = execSync('git branch -r --format="%(refname:short)"', { encoding: 'utf8', cwd: process.cwd() });
+      const remoteBranches = rawRemote.split('\n').map(b => b.trim().replace(/^origin\//, ''));
+      if (!remoteBranches.includes(currentBranch)) {
+        console.log(`↩️ Ramo corrente non presente su origin. Spostamento automatico su [staging]...`);
+        execSync('git checkout staging', { stdio: 'inherit', cwd: process.cwd() });
+        currentBranch = 'staging';
+      }
+    }
+
+    console.log(`📥 3. Aggiornamento branch locale [${currentBranch}]...`);
     execSync(`git pull origin ${currentBranch}`, { stdio: 'inherit', cwd: process.cwd() });
   } catch (err) {
     console.warn('⚠️ Avviso durante sincronizzazione git:', err.message);
   }
 
-  console.log('🔓 3. Decifratura Vault e allineamento file .env...');
+  console.log('🔓 4. Decifratura Vault e allineamento file .env...');
   decryptVault();
 }
 
@@ -301,10 +349,10 @@ if (mode === 'encrypt' || mode === 'lock') {
   encryptVault();
 } else if (mode === 'decrypt' || mode === 'unlock') {
   decryptVault();
-} else if (mode === 'sync' || mode === 'pull') {
+} else if (mode === 'sync' || mode === 'pull' || mode === 'project') {
   syncPullVault();
 } else if (mode === 'deps') {
   syncDependencies();
 } else if (mode) {
-  console.log(`Uso: node scratch/vault-sync.mjs [lock|unlock|encrypt|decrypt|sync|pull|deps]`);
+  console.log(`Uso: node scratch/vault-sync.mjs [lock|unlock|encrypt|decrypt|sync|pull|project|deps]`);
 }
