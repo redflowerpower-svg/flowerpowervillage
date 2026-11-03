@@ -527,7 +527,7 @@ export default function ResortPublicCalendarPage() {
     if (!bookingSelectionSummary) return;
     const { room } = bookingSelectionSummary;
     const ident = getRoomIdent(room);
-    const targetRoomSlug = ident ? ident.legacySlug : cleanSlug(room.slug);
+    const targetRoomSlug = ident ? ident.canonicalSlug : cleanSlug(room.slug);
 
     navigate(`/village?room=${targetRoomSlug}&checkIn=${checkIn}&checkOut=${checkOut}`);
   };

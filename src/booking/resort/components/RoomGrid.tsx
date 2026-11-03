@@ -317,11 +317,33 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
         });
 
         if (found) {
-          setActiveGalleryRoom(found);
-          setActiveImageIndex(0);
           const foundIdent = findAccommodationIdentity(found.slug) || findAccommodationIdentity(found.name) || findAccommodationIdentity(found.id);
           const canonicalKey = foundIdent ? foundIdent.canonicalSlug : cleanSlug(found.slug || found.id);
           setHighlightedRoomSlug(canonicalKey);
+
+          const hasDates = Boolean(urlParams.get('checkIn') || urlParams.get('from'));
+          if (hasDates) {
+            // FLUSSO PRENOTAZIONE DA CALENDARIO INTERATTIVO:
+            // Nessun popup immagine! Espandi la scheda in modalità "Configura" con extra e opzioni attive
+            setActiveGalleryRoom(null);
+            setExpandedRoomId(found.id);
+
+            // Scroll fluido mirato alla scheda configurata
+            setTimeout(() => {
+              const el = document.getElementById(`room-card-${canonicalKey}`) || 
+                         document.getElementById(`room-card-${cleanSlug(found.slug)}`) || 
+                         document.getElementById(`room-card-${found.id}`);
+              if (el) {
+                const rect = el.getBoundingClientRect();
+                const targetScroll = window.scrollY + rect.top - 100;
+                window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+              }
+            }, 450);
+          } else {
+            // Link informativo senza date: apri anteprima fotografica
+            setActiveGalleryRoom(found);
+            setActiveImageIndex(0);
+          }
         }
       }
     }
