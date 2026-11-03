@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 11:45] · CALENDARIO LIVE: AGGIUNTA TIMELINE PANORAMICA A RIGHE & TOGGLE BI-MODALE
+- **Cosa abbiamo fatto:**
+  1. 📊 **Implementazione Vista a Righe (Timeline Panoramica / Matrice Orizzontale)**:
+     - Impostata come vista **predefinita**: tutte le 18 stanze sono impilate su righe parallele con i giorni del mese (1..31) in orizzontale.
+     - **Confronto Immediato a Colpo d'Occhio**: l'ospite può vedere istantaneamente su una colonna verticale (es. sabato o domenica) quali camere sono libere e quali occupate con relativi prezzi.
+     - **Colonna Sinistra Sticky**: foto e nome della stanza rimangono ancorati a sinistra durante lo scorrimento orizzontale (touch swipe su smartphone e desktop).
+     - **Auto-scroll Intelligente**: la tabella scorre automaticamente in orizzontale posizionandosi sulla giornata odierna o sulla data di check-in richiesta.
+     - **Hero Room in Cima**: la camera richiesta via link WhatsApp (es. Green Bungalow) si colloca nella primissima riga con bordo oro/ambra evidenziato.
+  2. 🔀 **Interruttore Rapido Bi-Modale (Toggle in Testata)**:
+     - Permette di alternare all'istante tra **[ 📊 Panoramica a Righe ]** e **[ 📅 Vista a Blocchi ]**.
+  3. 🧪 **Collaudo Tecnico**:
+     - Typecheck TypeScript: 0 errori.
+     - Build Vite superata in 5.48s.
+- **File aggiornati:** src/pages/ResortPublicCalendarPage.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato `feat/room-availability-calendar`.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 11:30] · CALENDARIO DISPONIBILITÀ LIVE UNIFICATO (/calendar) & LINK WHATSAPP
 - **Cosa abbiamo fatto:**
   1. 🌿 **Sviluppo su Branch Dedicato (`feat/room-availability-calendar`)**:
