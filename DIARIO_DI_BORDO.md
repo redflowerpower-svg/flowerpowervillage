@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 15:25] · IMPLEMENTAZIONE OPZIONE 2: ATTERRAGGIO ISTANTANEO A 0MS SULLA SCHEDA ALLOGGIO IN MODALITÀ "CONFIGURA"
+- **Cosa abbiamo fatto:**
+  1. ⚡ **Bypass Totale della Prima Pagina / Hero Slideshow (Atterraggio a 0ms)**:
+     - In `VillageSite.tsx`: disattivato categoricamente lo scroll in cima (`window.scrollTo({ top: 0 })`) quando la richiesta include parametri di prenotazione e l'ancora `#rooms-grid`.
+     - In `BookingEngine.tsx`: all'arrivo con alloggio e date, il viewport viene ancorato istantaneamente a 0ms sulla sezione alloggi (`#rooms-grid`), impedendo totalmente al cliente di vedere la testata o la prima pagina del villaggio.
+  2. 🎛️ **Pre-espansione Istantanea della Scheda Alloggio in "Configura"**:
+     - In `RoomGrid.tsx`: eliminato il ritardo di 450ms; la scheda della camera selezionata (`#room-card-${canonicalKey}`) viene espansa istantaneamente in modalità Configura (`setExpandedRoomId`), centrandola nel viewport.
+     - L'ospite vede subito la sua scheda aperta con date, notti, sconto -10%, toggle per Colazione, toggle per Aria Condizionata, dotazioni camera e pulsante "Conferma" per il checkout.
+  3. 🚀 **Integrazione con il Calendario (`/calendar`)**:
+     - Il pulsante "Configura e Prenota" reindirizza fluidamente a `/village?room=${targetRoomSlug}&checkIn=${checkIn}&checkOut=${checkOut}#rooms-grid`.
+  4. 🧪 **Collaudo Tecnico**:
+     - Build Vite superata con 0 errori in 5.78s.
+- **File aggiornati:** src/pages/VillageSite.tsx, src/booking/resort/components/RoomGrid.tsx, src/booking/components/booking-engine.tsx, src/pages/ResortPublicCalendarPage.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato feat/room-availability-calendar.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 15:15] · DRAWER DI CONFIGURAZIONE SOGGIORNO INTEGRATO NEL CALENDARIO (0MS, ZERO HOMEPAGE) & CHECKOUT DIRETTO
 - **Cosa abbiamo fatto:**
   1. 🎛️ **Configurazione Sul Posto a 0ms Direttamente in `/calendar` (Opzione 1)**:
