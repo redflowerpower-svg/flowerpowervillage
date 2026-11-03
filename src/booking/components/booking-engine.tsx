@@ -125,10 +125,29 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [hasSearched, setHasSearched] = useState(false)
+  const [hasSearched, setHasSearched] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return Boolean((params.get('checkIn') || params.get('from')) && (params.get('checkOut') || params.get('to')));
+    }
+    return false;
+  })
 
-  const [checkIn, setCheckIn] = useState("")
-  const [checkOut, setCheckOut] = useState("")
+  const [checkIn, setCheckIn] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('checkIn') || params.get('from') || '';
+    }
+    return '';
+  })
+
+  const [checkOut, setCheckOut] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('checkOut') || params.get('to') || '';
+    }
+    return '';
+  })
   const [guests, setGuests] = useState(1)
   const [selectedCategory, setSelectedCategory] = useState("Tutti")
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Check, Users, BedDouble, Bath, ArrowLeft, Home, Loader2, Globe, ChevronDown } from 'lucide-react';
+import { Check, Users, BedDouble, Bath, ArrowLeft, Home, Loader2, Globe, ChevronDown, Calendar as CalendarIcon } from 'lucide-react';
 import { fetchAccommodationBySlug, type Accommodation, typeLabels } from '../data/accommodationsData';
 import { Language } from '../booking/lib/translations';
 
@@ -410,6 +410,15 @@ export default function AccommodationDetailPage() {
                 style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
               >
                 {t.bookNow}
+              </Link>
+
+              <Link
+                to={`/calendar?room=${slug}`}
+                className="block w-full py-3 bg-stone-900 text-amber-300 text-xs tracking-[0.1em] uppercase text-center font-black rounded-xl hover:bg-stone-850 border border-amber-400/40 transition-colors shadow-sm cursor-pointer flex items-center justify-center gap-2"
+                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+              >
+                <CalendarIcon size={14} className="text-amber-400" />
+                <span>{lang === 'TH' ? 'ปฏิทินห้องว่าง' : lang === 'DE' ? 'Verfügbarkeitskalender' : lang === 'EN' ? 'Availability Calendar' : 'Calendario Disponibilità'}</span>
               </Link>
 
               <p className="text-xs text-stone-500 text-center leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>

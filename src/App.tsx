@@ -11,6 +11,7 @@ import LegalPage from './pages/LegalPage';
 import SocialStudioPage from './social/pages/SocialStudioPage';
 import AutoCutStudioPage from './social/pages/AutoCutStudioPage';
 import VillageWineListPage from './pages/VillageWineListPage';
+import ResortPublicCalendarPage from './pages/ResortPublicCalendarPage';
 import { ACCOMMODATION_IDENTITIES } from './booking/resort/config/accommodations';
 
 class ErrorBoundary extends React.Component<
@@ -64,6 +65,7 @@ function DynamicHeadManager() {
     const isDining = pathname.startsWith('/dining') || pathname.startsWith('/dining-tablet') || pathname.startsWith('/tavoli') || pathname.startsWith('/table');
     const isKitchen = pathname.startsWith('/kitchen') || pathname.startsWith('/kds');
     const isPizza = host.includes('flowerpowerpizza.com') || pathname.startsWith('/pizza') || isKitchen || isDining;
+    const isCalendar = pathname.startsWith('/calendar') || pathname.startsWith('/village/calendar');
     const isVillage = host.includes('flowerpowervillage.com') || pathname.startsWith('/village') || pathname.startsWith('/rooms');
 
     try {
@@ -76,7 +78,16 @@ function DynamicHeadManager() {
       const isAdmin = pathname.startsWith('/admin');
       const isSocial = pathname.startsWith('/social');
 
-      if (isAdmin) {
+      if (isCalendar) {
+        document.title = 'Flower Power Village · Calendario Disponibilità Live & Tariffe';
+        if (manifestLink) manifestLink.href = '/manifest.json';
+        if (appleTitle) appleTitle.content = 'FP Calendar';
+        if (themeColor) themeColor.content = '#0c0a09';
+        if (metaDesc) {
+          metaDesc.content = 'Verifica la disponibilità delle camere in tempo reale a Flower Power Village (Koh Phayam, Thailandia). Prenota direttamente con il miglior prezzo garantito e risparmia il 10%.';
+        }
+        if (ogImage) ogImage.content = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+      } else if (isAdmin) {
         document.title = 'Admin FP — Flower Power Staff Portal';
         if (manifestLink) manifestLink.href = '/manifest.json';
         if (appleTitle) appleTitle.content = 'Admin FP';
@@ -161,6 +172,10 @@ function App() {
         <DynamicHeadManager />
         <Routes>
           <Route path="/" element={<RootRouter />} />
+          <Route path="/calendar" element={<ResortPublicCalendarPage />} />
+          <Route path="/calendar/*" element={<ResortPublicCalendarPage />} />
+          <Route path="/village/calendar" element={<ResortPublicCalendarPage />} />
+          <Route path="/village/calendar/*" element={<ResortPublicCalendarPage />} />
           <Route path="/wine-list" element={<VillageWineListPage />} />
           <Route path="/wine-list/*" element={<VillageWineListPage />} />
           <Route path="/village/wine-list" element={<VillageWineListPage />} />

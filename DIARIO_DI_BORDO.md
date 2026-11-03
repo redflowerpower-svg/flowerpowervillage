@@ -3,6 +3,32 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 11:30] · CALENDARIO DISPONIBILITÀ LIVE UNIFICATO (/calendar) & LINK WHATSAPP
+- **Cosa abbiamo fatto:**
+  1. 🌿 **Sviluppo su Branch Dedicato (`feat/room-availability-calendar`)**:
+     - Confinato il lavoro in totale sicurezza su branch isolato, preservando `staging` e `main`.
+  2. 📅 **Creazione Pagina Calendario Unificato (`src/pages/ResortPublicCalendarPage.tsx`)**:
+     - Rotta pubblica autonoma `/calendar` (e `/village/calendar`) con supporto OpenGraph metadata.
+     - **Top Showcase (Camera in Evidenza)**: camera richiesta mostrata per prima in cima con bordo ambra acceso e badge ⭐ LA TUA SELEZIONE.
+     - **Griglia Multi-Alloggio**: tutte le altre 17 camere elencate ordinatamente sotto in fila con il loro calendario mensile live.
+     - **Navigazione Mesi & Legenda Tariffe**: date verdi con prezzi live da Octorate PMS (es. `฿790`), chiusure/occupato in rosso e badge soggiorno minimo (`Min. 2n`).
+  3. 📲 **Condivisione Link per Richieste WhatsApp**:
+     - Tasto dedicato "Condividi su WhatsApp" che crea il link con parametri URL (`?room=...&month=...&from=...&to=...`).
+     - Il cliente può visualizzare le date direttamente nel browser WhatsApp e fare la prenotazione preferita.
+  4. ⚡ **Prenotazione Diretta con Sconto 10%**:
+     - Selezione interattiva Check-In / Check-Out direttamente sulle celle del calendario.
+     - Barra flottante sticky in basso con riepilogo notti e totale calcolato.
+     - Bottone "Procedi con la Prenotazione" che pre-popola le date nel motore di prenotazione di `/village`.
+  5. 🏨 **Pulsanti "Calendario Completo" Integrati nel Sito**:
+     - Inserito il tasto `📅 Calendario Completo` nelle schede alloggio (`RoomGrid.tsx`), nel pop-up galleria foto/servizi, e nella pagina singola alloggio (`AccommodationDetailPage.tsx`).
+  6. 🧪 **Collaudo Tecnico**:
+     - Typecheck superato con `npx tsc --noEmit` (0 errori).
+     - Build Vite superata con `npm run build` in 5.52s.
+- **File aggiornati:** src/pages/ResortPublicCalendarPage.tsx, src/App.tsx, src/booking/components/booking-engine.tsx, src/booking/resort/components/RoomGrid.tsx, src/pages/AccommodationDetailPage.tsx, src/booking/lib/translations.ts, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato con successo su branch dedicato `feat/room-availability-calendar`.
+
+---
+
 ### 🚀 [02/11/2026 - ORE 18:48] · RILASCIO COMPLETO IN PRODUZIONE (MARKDOWN-PROJECT)
 - **Cosa abbiamo fatto:**
   1. 🛡️ **Audit di Sicurezza, Cifratura Vault & Typecheck**:
