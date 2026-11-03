@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 14:18] · TRANSIZIONE DAL CALENDARIO ALLA SCHEDA ALLOGGIO IN MODALITÀ "CONFIGURA" (ZERO POPUP IMMAGINE)
+- **Cosa abbiamo fatto:**
+  1. 🚫 **Eliminazione Radicale del Popup Galleria Immagini nel Flusso Prenotazione**:
+     - Risolto il comportamento indesiderato in `RoomGrid.tsx`: quando l'utente atterra da `/calendar` con date impostate (`checkIn` e `checkOut`), il modale a schermo intero della foto alloggio (`activeGalleryRoom`) viene categoricamente disattivato.
+  2. 🎛️ **Apertura Diretta della Scheda in Modalità "Configura" (`expandedRoomId`)**:
+     - La scheda dell'alloggio selezionato viene automaticamente aperta nel drawer di configurazione (`isExpanded = true`), con date di soggiorno e prezzo scontato (-10% prenotazione diretta) precalcolati.
+     - L'ospite può comodamente selezionare gli extra desiderati (Colazione, Aria Condizionata), consultare la dotazione completa delle caratteristiche e cliccare sul tasto "Conferma" per accedere al form finale di checkout.
+  3. 🎯 **Centratura e Scroll Morbido Automatico**:
+     - La pagina scorre in modo fluido posizionando al centro del viewport la scheda evidenziata con bordo oro (`#room-card-${canonicalKey}`).
+  4. 🧪 **Collaudo Tecnico**:
+     - Build Vite superata con 0 errori in 5.60s.
+- **File aggiornati:** src/booking/resort/components/RoomGrid.tsx, src/pages/ResortPublicCalendarPage.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato feat/room-availability-calendar.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 14:02] · BILANCIAMENTO BANNER ATTESA: VIA DI MEZZO CON SPINNER CENTRALE, TITOLO SU RIGA UNICA & TIMELINE
 - **Cosa abbiamo fatto:**
   1. ⚖️ **Design Bilanciato a "Via di Mezzo"**:
