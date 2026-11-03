@@ -2980,3 +2980,17 @@
   - Separata la **Cucina Thai** (Pag. 12) dalle **Specialità Birmane** (Pag. 11) in due tessere dedicate e distinte:
     - Fila 1: `[MENU COMPLETO]` `[CAFFÈ & DRINK]` `[ANTIPASTI & PRIMI]` `[PIZZE & FOCACCE]`
     - Fila 2: `[SECONDI & PESCE]` `[CUCINA THAI]` `[CUCINA BIRMANA]` `[VEGAN & SNACKS]`
+
+
+- **Modulo Configurazione Alloggio a Tutto Schermo dal Calendario Interattivo (Screenshot Fidelity)**:
+  - **Apertura Modale Full-Screen Diretta da `/calendar`**: Al click su "Configura e Prenota" dalla barra inferiore fissa del calendario delle disponibilità (`/calendar`), non avviene più alcun reindirizzamento disorientante con attese: si apre istantaneamente il modulo di configurazione alloggio a tutto schermo (`bg-[#e7e5e4]`) che replica fedelmente la card autentica dell'alloggio selezionato.
+  - **Fedeltà Grafica Totale allo Screenshot**:
+    - **Header Ufficiale Villaggio**: Barra scura superiore con freccia indietro `← FLOWER POWER Village` (che permette di tornare al calendario senza perdere le date), selettore lingua `[IT]` e icona chiusura.
+    - **Pill Date Selezionate**: Box chiaro con riassunto delle date di check-in e check-out, conteggio notti e link rapido per modificare le date.
+    - **Card Alloggio Stile Flower Power**: `bg-stone-50 rounded-[2rem] border border-stone-300 shadow-xl overflow-hidden max-w-md mx-auto`.
+    - **Hero Foto & Badge**: Foto ad alta risoluzione priva di bagni/toilette (Regola 9), badge categoria (`VILLE`, `BUNGALOW`, ecc.), badge capienza (`Fino a X ospiti`) e badge sconto diretto (`SCONTO (-10%)`).
+    - **Descrizione & Letti**: Titolo e testo descrittivo dell'alloggio, con riga dedicata ai letti (es. `Letti: 1 King Size + 1 Sofa Bed Queen`).
+    - **Sezione 2. Servizi Aggiuntivi (Opzionali)**: Toggle interattivi per `Colazione` (+200 THB/notte) e `Aria Condizionata` (+500 THB), con calcolo in tempo reale del dettaglio costi.
+    - **Dettaglio Costi Reale**: Alloggio per il numero di notti selezionato, eventuali supplementi attivi, Subtotale Lordo e Sconto Diretto (-10%) in verde smeraldo.
+    - **Barra Inferiore Card**: Etichetta `TOTALE FINITO` con badge animato `LIVE OCTORATE`, prezzo scontato in grande ed evidenza del prezzo lordo barrato, affiancato dal pulsante **`Conferma`** in pillola scura.
+  - **Transizione Diretta al Form Checkout Dati Personali**: Al click su **`Conferma`**, l'utente viene indirizzato direttamente a `/village?room=...&checkIn=...&checkOut=...&breakfast=...&ac=...&checkout=1`, atterrando direttamente e senza alcuno scatto in testa al modulo di inserimento dati personali e checkout, pronto per finalizzare la prenotazione.
