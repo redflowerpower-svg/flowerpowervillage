@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 15:15] · DRAWER DI CONFIGURAZIONE SOGGIORNO INTEGRATO NEL CALENDARIO (0MS, ZERO HOMEPAGE) & CHECKOUT DIRETTO
+- **Cosa abbiamo fatto:**
+  1. 🎛️ **Configurazione Sul Posto a 0ms Direttamente in `/calendar` (Opzione 1)**:
+     - Risolto alla radice il disorientamento dell'ospite: quando vengono selezionate le date sul calendario, il tasto "Configura e Prenota" apre all'istante (0ms) un elegante Drawer/Modale scuro Flower Power (`#201c1a` / `#24201d`) senza cambiare pagina e senza mai mostrare la prima pagina o l'Hero banner del villaggio.
+  2. ☕ **Selezione Extra & Dotazioni Complete**:
+     - Toggle interattivo **Colazione nel Giardino Tropicale** (`+200 THB/notte/persona`) con aggiornamento dinamico del totale in tempo reale.
+     - Toggle interattivo **Aria Condizionata** (`+500 THB forfait soggiorno`, disabilitato per glamping tent).
+     - Griglia dotazioni e servizi camera completa (`RoomFeaturesGrid`: Wi-Fi, Veranda con amaca, Bagno privato, Doccia calda, ecc.).
+     - Dettaglio prezzi trasparente: Soggiorno Lordo, Sconto Diretto -10%, Extra attivi e Totale Netto in evidenza oro/ambra con badge di garanzia miglior tariffa.
+  3. 🚀 **Handoff Diretto al Checkout Finale (`checkout=1`)**:
+     - Al click su *"Procedi al Checkout e Inserisci i Dati"*, il sistema atterra direttamente a inizio checkout form su `/village` con camera, date ed extra già caricati, pronto per compilare Nome, Email, Telefono e pagare, saltando a piè pari l'intera homepage.
+  4. 🧪 **Collaudo Tecnico**:
+     - Build Vite superata con 0 errori in 5.61s.
+- **File aggiornati:** src/pages/ResortPublicCalendarPage.tsx, src/booking/components/booking-engine.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato feat/room-availability-calendar.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 14:18] · TRANSIZIONE DAL CALENDARIO ALLA SCHEDA ALLOGGIO IN MODALITÀ "CONFIGURA" (ZERO POPUP IMMAGINE)
 - **Cosa abbiamo fatto:**
   1. 🚫 **Eliminazione Radicale del Popup Galleria Immagini nel Flusso Prenotazione**:
