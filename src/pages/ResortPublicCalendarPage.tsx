@@ -5,7 +5,8 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Share2, 
-  ArrowLeft, 
+  ArrowLeft,
+  Globe, 
   Users, 
   Sparkles, 
   CheckCircle2, 
@@ -547,6 +548,7 @@ export default function ResortPublicCalendarPage() {
     const breakfastTotal = extraBreakfast ? breakfastPrice * 1 * nights : 0;
     const acTotal = (!isGlamping && extraAC) ? acPrice : 0;
     const grandTotal = netTotal + breakfastTotal + acTotal;
+    const totalLordo = grossTotal + breakfastTotal + acTotal;
 
     return {
       room,
@@ -556,6 +558,7 @@ export default function ResortPublicCalendarPage() {
       netTotal,
       breakfastTotal,
       acTotal,
+      totalLordo,
       grandTotal,
       isGlamping
     };
@@ -571,14 +574,10 @@ export default function ResortPublicCalendarPage() {
     navigate(`/village?room=${targetRoomSlug}&checkIn=${checkIn}&checkOut=${checkOut}&breakfast=${extraBreakfast}&ac=${extraAC}&checkout=1`);
   };
 
-  // Proceed to Booking Engine with pre-filled room and dates (Option 2: Direct to Configured Card)
+  // Proceed to Configure Room Modal (Opens full-screen exact room configure card)
   const handleProceedToBooking = () => {
     if (!bookingSelectionSummary) return;
-    const { room } = bookingSelectionSummary;
-    const ident = getRoomIdent(room);
-    const targetRoomSlug = ident ? ident.canonicalSlug : cleanSlug(room.slug);
-
-    navigate(`/village?room=${targetRoomSlug}&checkIn=${checkIn}&checkOut=${checkOut}#rooms-grid`);
+    setIsConfigDrawerOpen(true);
   };
 
   // WhatsApp share link generator
@@ -1496,212 +1495,234 @@ export default function ResortPublicCalendarPage() {
         );
       })()}
 
-      {/* 🎛️ IN-CALENDAR CONFIGURATION DRAWER / MODAL */}
+      {/* 🎛️ FULL-SCREEN ROOM CONFIGURE MODULE (SCREENSHOT EXACT MATCH) */}
       {isConfigDrawerOpen && configPricingSummary && (() => {
         const room = configPricingSummary.room;
         const roomImages = (Array.isArray(room.images) && room.images.length > 0)
           ? room.images.filter((img: string) => !/toilet|bathroom|washroom/i.test(img))
           : (room.image_url ? [room.image_url] : []);
-        const heroPhoto = roomImages[0];
+        const heroPhoto = roomImages[0] || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80';
+
+        const roomTitle = (lang === 'TH' && room.title_th) || (lang === 'DE' && room.title_de) || (lang === 'EN' && room.title_en) || (lang === 'IT' && room.title_it) || room.title || room.name;
+        const roomDesc = (lang === 'TH' && room.description_th) || (lang === 'DE' && room.description_de) || (lang === 'EN' && room.description_en) || (lang === 'IT' && room.description_it) || room.description;
 
         return (
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-5 bg-stone-950/85 backdrop-blur-md overflow-y-auto animate-fadeIn">
-            {/* Modal Card Container */}
-            <div className="relative w-full max-w-xl bg-[#201c1a] border border-stone-700 rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[92vh]">
-              
-              {/* TOP HEADER */}
-              <div className="px-5 py-3.5 bg-[#2a2421] border-b border-stone-800 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="text-[11px] font-black uppercase tracking-wider text-amber-300">
-                    {lang === 'IT' ? 'Configura il tuo soggiorno' : lang === 'TH' ? 'ปรับแต่งการเข้าพักของคุณ' : lang === 'DE' ? 'Aufenthalt anpassen' : 'Configure your stay'}
-                  </span>
-                </div>
+          <div className="fixed inset-0 z-[99999] bg-[#e7e5e4] overflow-y-auto animate-fadeIn min-h-screen flex flex-col">
+            {/* AUTHENTIC VILLAGE TOP BAR */}
+            <header className="sticky top-0 z-50 bg-[#1c1917] text-white border-b border-stone-800 shadow-md">
+              <div className="max-w-md sm:max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
                 <button
                   type="button"
                   onClick={() => setIsConfigDrawerOpen(false)}
-                  className="w-8 h-8 rounded-full bg-stone-800/80 hover:bg-stone-700 text-stone-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                  className="flex items-center gap-2 group cursor-pointer text-left"
                 >
-                  <X className="w-4 h-4" />
+                  <ArrowLeft className="w-5 h-5 text-white group-hover:-translate-x-1 transition-transform" />
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-black text-sm tracking-wide text-white">FLOWER POWER</span>
+                    <span className="font-serif italic text-xs text-stone-400">Village</span>
+                  </div>
                 </button>
-              </div>
-
-              {/* SCROLLABLE BODY */}
-              <div className="overflow-y-auto p-4 sm:p-6 space-y-4">
                 
-                {/* ROOM & DATES BANNER */}
-                <div className="bg-[#28221f] rounded-2xl p-3.5 border border-stone-800/80 flex items-center gap-3.5">
-                  {heroPhoto && (
-                    <img 
-                      src={heroPhoto} 
-                      alt={room.title} 
-                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover flex-shrink-0 border border-stone-700" 
-                    />
-                  )}
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <span className="text-[9px] uppercase font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      {room.category}
-                    </span>
-                    <h3 className="text-base sm:text-lg font-black text-white truncate">
-                      {room.title}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-stone-300 font-bold">
-                      <span className="text-amber-300">{checkIn}</span>
-                      <span>➔</span>
-                      <span className="text-amber-300">{checkOut}</span>
-                      <span className="text-stone-400">({configPricingSummary.nights} {configPricingSummary.nights === 1 ? (lang === 'IT' ? 'notte' : 'night') : (lang === 'IT' ? 'notti' : 'nights')})</span>
-                    </div>
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-1.5 bg-stone-800/90 border border-stone-700/80 rounded-full px-2.5 py-1 text-xs font-bold text-stone-200">
+                    <Globe className="w-3.5 h-3.5 text-stone-400" />
+                    <span>{lang}</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsConfigDrawerOpen(false)}
+                    className="w-7 h-7 rounded-full bg-stone-800/80 hover:bg-stone-700 text-stone-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                    title={lang === 'IT' ? 'Torna al calendario' : 'Return to calendar'}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
-
-                {/* EXTRA 1: COLAZIONE */}
-                <div className={`p-4 rounded-2xl border transition-all duration-200 ${
-                  extraBreakfast ? 'bg-emerald-950/30 border-emerald-500/50 shadow-md' : 'bg-[#25201d] border-stone-800 hover:border-stone-700'
-                }`}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className={`p-2.5 rounded-xl flex-shrink-0 ${extraBreakfast ? 'bg-emerald-500 text-stone-950' : 'bg-stone-800 text-stone-300'}`}>
-                        <Coffee className="w-5 h-5" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-xs sm:text-sm font-black text-white">
-                            {lang === 'IT' ? 'Colazione nel Giardino Tropicale' : lang === 'TH' ? 'อาหารเช้าในสวนเขตร้อน' : lang === 'DE' ? 'Frühstück im Tropengarten' : 'Tropical Garden Breakfast'}
-                          </h4>
-                          <span className="text-[10px] font-bold text-amber-300 bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">
-                            +200 THB / {lang === 'IT' ? 'notte' : 'night'}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-stone-400 leading-snug">
-                          {lang === 'IT' ? 'Caffè italiano, frutta tropicale fresca, croissant, yogurt e uova fresche serviti ogni mattina.'
-                            : lang === 'TH' ? 'กาแฟอิตาเลียน ผลไม้เขตร้อนสด ขนมอบ โยเกิร์ต และไข่ เสิร์ฟทุกเช้า'
-                            : lang === 'DE' ? 'Italienischer Kaffee, frische tropische Früchte, Gebäck, Joghurt und Eier jeden Morgen serviert.'
-                            : 'Italian coffee, fresh tropical fruits, pastries, yogurt, and eggs freshly served every morning.'}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setExtraBreakfast((prev) => !prev)}
-                      className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer flex-shrink-0 ${
-                        extraBreakfast
-                          ? 'bg-emerald-500 hover:bg-emerald-400 text-stone-950 shadow'
-                          : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700'
-                      }`}
-                    >
-                      {extraBreakfast ? '✓ Attivo' : '+ Aggiungi'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* EXTRA 2: ARIA CONDIZIONATA (SE DISPONIBILE / NON TENDA) */}
-                {!configPricingSummary.isGlamping && (
-                  <div className={`p-4 rounded-2xl border transition-all duration-200 ${
-                    extraAC ? 'bg-emerald-950/30 border-emerald-500/50 shadow-md' : 'bg-[#25201d] border-stone-800 hover:border-stone-700'
-                  }`}>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2.5 rounded-xl flex-shrink-0 ${extraAC ? 'bg-emerald-500 text-stone-950' : 'bg-stone-800 text-stone-300'}`}>
-                          <Wind className="w-5 h-5" />
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-xs sm:text-sm font-black text-white">
-                              {lang === 'IT' ? 'Aria Condizionata Inclusa' : lang === 'TH' ? 'เครื่องปรับอากาศ' : lang === 'DE' ? 'Klimaanlage' : 'Air Conditioning Included'}
-                            </h4>
-                            <span className="text-[10px] font-bold text-amber-300 bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">
-                              +500 THB forfait
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-stone-400 leading-snug">
-                            {lang === 'IT' ? 'Impianto silenzioso con telecomando per il massimo comfort nelle ore più calde e notturne.'
-                              : lang === 'TH' ? 'แอร์ปรับอุณหภูมิเงียบพร้อมรีโมทคอนโทรล เพื่อความสบายสูงสุด'
-                              : lang === 'DE' ? 'Leise Klimaanlage mit Fernbedienung für optimalen Komfort.'
-                              : 'Quiet air conditioning with remote control for maximum freshness and comfort.'}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setExtraAC((prev) => !prev)}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer flex-shrink-0 ${
-                          extraAC
-                            ? 'bg-emerald-500 hover:bg-emerald-400 text-stone-950 shadow'
-                            : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700'
-                        }`}
-                      >
-                        {extraAC ? '✓ Attivo' : '+ Aggiungi'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* DOTAZIONI ALLOGGIO */}
-                {room.features && (
-                  <div className="space-y-2 pt-2 border-t border-stone-800">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-stone-400">
-                      {lang === 'IT' ? 'Dotazioni & Caratteristiche Alloggio' : lang === 'TH' ? 'สิ่งอำนวยความสะดวกในห้องพัก' : lang === 'DE' ? 'Ausstattung & Merkmale' : 'Room Amenities & Features'}
-                    </span>
-                    <div className="bg-[#1c1816] rounded-xl p-3 border border-stone-800">
-                      <RoomFeaturesGrid features={room.features} lang={lang} />
-                    </div>
-                  </div>
-                )}
-
-                {/* COST BREAKDOWN SUMMARY */}
-                <div className="bg-[#181513] rounded-2xl p-4 border border-stone-800 space-y-2 text-xs">
-                  <div className="flex justify-between text-stone-400 font-medium">
-                    <span>{lang === 'IT' ? `Soggiorno (${configPricingSummary.nights} notti)` : `Stay (${configPricingSummary.nights} nights)`}:</span>
-                    <span>{formatPrice(configPricingSummary.grossTotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-emerald-400 font-bold">
-                    <span>{lang === 'IT' ? 'Sconto Prenotazione Diretta (-10%)' : 'Direct Booking Discount (-10%)'}:</span>
-                    <span>-{formatPrice(configPricingSummary.directDiscount)}</span>
-                  </div>
-                  {extraBreakfast && (
-                    <div className="flex justify-between text-stone-300">
-                      <span>{lang === 'IT' ? 'Supplemento Colazione' : 'Breakfast Surcharge'}:</span>
-                      <span>+{formatPrice(configPricingSummary.breakfastTotal)}</span>
-                    </div>
-                  )}
-                  {extraAC && !configPricingSummary.isGlamping && (
-                    <div className="flex justify-between text-stone-300">
-                      <span>{lang === 'IT' ? 'Supplemento Aria Condizionata' : 'A/C Surcharge'}:</span>
-                      <span>+{formatPrice(configPricingSummary.acTotal)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-baseline pt-2 border-t border-dashed border-stone-700 font-black text-white text-sm sm:text-base">
-                    <span>{lang === 'IT' ? 'Totale Soggiorno' : 'Total Stay'}:</span>
-                    <span className="text-amber-300 text-lg sm:text-xl">
-                      {formatPrice(configPricingSummary.grandTotal)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 pt-0.5">
-                    <span>✓</span>
-                    <span>{lang === 'IT' ? 'Miglior Tariffa Diretta Garantita' : 'Best Direct Rate Guaranteed'}</span>
-                  </div>
-                </div>
-
               </div>
+            </header>
 
-              {/* STICKY FOOTER CTA */}
-              <div className="p-4 bg-[#2a2421] border-t border-stone-800 flex items-center justify-between gap-3">
+            {/* MAIN CONTENT AREA */}
+            <div className="flex-1 w-full max-w-md mx-auto p-4 sm:p-5 flex flex-col justify-start">
+              
+              {/* DATES SELECTION PILL BANNER */}
+              <div className="bg-stone-50 rounded-2xl border border-stone-300 shadow-sm p-3.5 flex items-center justify-between text-xs text-stone-700 font-bold mb-4">
+                <div className="flex items-center gap-2">
+                  <CalendarIcon className="w-4 h-4 text-emerald-800" />
+                  <span>{checkIn} ➔ {checkOut} ({configPricingSummary.nights} {configPricingSummary.nights === 1 ? (lang === 'IT' ? 'notte' : 'night') : (lang === 'IT' ? 'notti' : 'nights')})</span>
+                </div>
                 <button
                   type="button"
                   onClick={() => setIsConfigDrawerOpen(false)}
-                  className="px-4 py-2.5 rounded-full text-xs font-bold text-stone-400 hover:text-white hover:bg-stone-800 transition-all cursor-pointer"
+                  className="text-[11px] font-extrabold text-emerald-800 hover:underline cursor-pointer"
                 >
                   {lang === 'IT' ? 'Modifica Date' : 'Change Dates'}
                 </button>
-                <button
-                  type="button"
-                  onClick={handleProceedToCheckout}
-                  className="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm px-6 py-3 rounded-full shadow-lg shadow-emerald-700/40 hover:shadow-emerald-600/50 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <span>{lang === 'IT' ? 'Procedi al Checkout e Inserisci i Dati' : lang === 'TH' ? 'ดำเนินการชำระเงิน' : lang === 'DE' ? 'Zur Kasse und Buchung' : 'Proceed to Checkout'}</span>
-                  <span>➔</span>
-                </button>
               </div>
+
+              {/* CENTERPIECE ROOM CONFIGURE CARD (Exact match to screenshot) */}
+              <article className="bg-stone-50 rounded-[2rem] border border-stone-300 shadow-xl overflow-hidden flex flex-col w-full mb-8">
+                
+                {/* HERO PHOTO CONTAINER */}
+                <div className="relative h-60 sm:h-64 bg-stone-300 overflow-hidden flex-shrink-0">
+                  <img
+                    src={heroPhoto}
+                    alt={roomTitle}
+                    className="object-cover w-full h-full brightness-[0.97] contrast-[1.03]"
+                  />
+                  {/* Subtle top/bottom gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/35 pointer-events-none" />
+
+                  {/* Category badge - top left */}
+                  <span className={`absolute top-4 left-4 bg-emerald-800/95 border border-emerald-600/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md ${room.category.toUpperCase() !== "THE HUB GUESTHOUSE" ? "uppercase" : ""}`}>
+                    {room.category.toUpperCase() === "THE HUB GUESTHOUSE" ? "GUESTHOUSE" : room.category}
+                  </span>
+
+                  {/* Direct booking discount badge - top right */}
+                  <span className="absolute top-4 right-4 bg-emerald-800 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-sm uppercase">
+                    {lang === 'TH' ? 'ส่วนลด (-10%)' : lang === 'DE' ? 'RABATT (-10%)' : lang === 'EN' ? 'DISCOUNT (-10%)' : 'SCONTO (-10%)'}
+                  </span>
+
+                  {/* Capacity badge - bottom right */}
+                  <span className="absolute bottom-4 right-4 bg-emerald-800/95 border border-emerald-600/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5 inline-block" />
+                    {lang === 'TH' ? `สูงสุด ${room.capacity || 2} ท่าน` : lang === 'DE' ? `Bis zu ${room.capacity || 2} Gäste` : lang === 'EN' ? `Up to ${room.capacity || 2} guests` : `Fino a ${room.capacity || 2} ospiti`}
+                  </span>
+                </div>
+
+                {/* CARD BODY */}
+                <div className="p-6 flex flex-col flex-grow">
+                  
+                  {/* Room Title */}
+                  <h3 className="font-sans text-lg sm:text-xl font-black text-stone-900 leading-snug tracking-tight mb-2">
+                    {roomTitle}
+                  </h3>
+
+                  {/* Room Description */}
+                  {roomDesc && (
+                    <p className="text-stone-700 text-xs sm:text-sm font-normal leading-relaxed mb-4">
+                      {roomDesc}
+                    </p>
+                  )}
+
+                  {/* Beds */}
+                  {room.beds && (
+                    <p className="text-stone-900 text-xs sm:text-sm font-bold mb-4">
+                      {lang === 'TH' ? `เตียง: ${room.beds}` : lang === 'DE' ? `Betten: ${room.beds}` : lang === 'EN' ? `Beds: ${room.beds}` : `Letti: ${room.beds}`}
+                    </p>
+                  )}
+
+                  {/* SECTION 2: SERVIZI AGGIUNTIVI (OPZIONALI) */}
+                  <div className="mb-6 bg-stone-200/40 p-4 rounded-2xl border border-stone-300/50 space-y-4">
+                    <span className="block text-[9px] uppercase tracking-wider text-stone-500 font-extrabold mb-1">
+                      {lang === 'TH' ? '2. บริการเพิ่มเติม (ตัวเลือก):' : lang === 'DE' ? '2. Zusatzleistungen (Optional):' : lang === 'EN' ? '2. Optional Extras:' : '2. SERVIZI AGGIUNTIVI (OPZIONALI):'}
+                    </span>
+                    
+                    <div className="flex gap-2">
+                      {/* Breakfast Toggle */}
+                      <button
+                        type="button"
+                        onClick={() => setExtraBreakfast(prev => !prev)}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-[10px] font-bold transition-all duration-200 cursor-pointer shadow-sm ${
+                          extraBreakfast
+                            ? "bg-emerald-800 border-emerald-800 text-white"
+                            : "bg-white border-stone-300 text-stone-600 hover:bg-stone-100/50"
+                        }`}
+                      >
+                        <Coffee className="w-3.5 h-3.5" />
+                        <span>{lang === 'TH' ? 'อาหารเช้า' : lang === 'DE' ? 'Frühstück' : lang === 'EN' ? 'Breakfast' : 'Colazione'}</span>
+                      </button>
+
+                      {/* AC Toggle (Hidden for Glamping) */}
+                      {!configPricingSummary.isGlamping && (
+                        <button
+                          type="button"
+                          onClick={() => setExtraAC(prev => !prev)}
+                          className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-[10px] font-bold transition-all duration-200 cursor-pointer shadow-sm ${
+                            extraAC
+                              ? "bg-emerald-800 border-emerald-800 text-white"
+                              : "bg-white border-stone-300 text-stone-600 hover:bg-stone-100/50"
+                          }`}
+                        >
+                          <Wind className="w-3.5 h-3.5" />
+                          <span>{lang === 'TH' ? 'แอร์' : lang === 'DE' ? 'Klima' : lang === 'EN' ? 'A/C' : 'Aria Cond.'}</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* DETTAGLIO COSTI */}
+                    <div className="space-y-2 pt-3 border-t border-stone-300 text-xs">
+                      <span className="block text-[9px] uppercase tracking-wider text-stone-500 font-extrabold mb-1">
+                        {lang === 'TH' ? 'รายละเอียดค่าใช้จ่าย' : lang === 'DE' ? 'Kostenaufstellung' : lang === 'EN' ? 'Cost Breakdown' : 'DETTAGLIO COSTI:'}
+                      </span>
+                      <div className="space-y-1.5 text-stone-600 font-medium">
+                        <div className="flex justify-between">
+                          <span>
+                            {lang === 'TH' ? `ที่พัก (${configPricingSummary.nights} คืน):` : lang === 'DE' ? `Unterkunft (${configPricingSummary.nights} ${configPricingSummary.nights === 1 ? 'Nacht' : 'Nächte'}):` : lang === 'EN' ? `Accommodation (${configPricingSummary.nights} ${configPricingSummary.nights === 1 ? 'night' : 'nights'}):` : `Alloggio (${configPricingSummary.nights} ${configPricingSummary.nights === 1 ? 'notte' : 'notti'}):`}
+                          </span>
+                          <span>{formatPrice(configPricingSummary.grossTotal)}</span>
+                        </div>
+
+                        {extraBreakfast && (
+                          <div className="flex justify-between">
+                            <span>{lang === 'TH' ? 'อาหารเช้า:' : lang === 'DE' ? 'Frühstück:' : lang === 'EN' ? 'Breakfast:' : 'Colazione:'}</span>
+                            <span>+{formatPrice(configPricingSummary.breakfastTotal)}</span>
+                          </div>
+                        )}
+
+                        {extraAC && !configPricingSummary.isGlamping && (
+                          <div className="flex justify-between">
+                            <span>{lang === 'TH' ? 'เครื่องปรับอากาศ:' : lang === 'DE' ? 'Klimaanlage:' : lang === 'EN' ? 'Air Conditioning:' : 'Aria Condizionata:'}</span>
+                            <span>+{formatPrice(configPricingSummary.acTotal)}</span>
+                          </div>
+                        )}
+
+                        <div className="flex justify-between font-bold border-t border-dashed border-stone-300 pt-1.5 text-stone-700">
+                          <span>{lang === 'TH' ? 'ยอดรวมก่อนส่วนลด:' : lang === 'DE' ? 'Brutto-Zwischensumme:' : lang === 'EN' ? 'Gross Subtotal:' : 'Subtotale Lordo:'}</span>
+                          <span>{formatPrice(configPricingSummary.totalLordo)}</span>
+                        </div>
+
+                        <div className="flex justify-between text-emerald-700 font-bold">
+                          <span>
+                            {lang === 'TH' ? 'ส่วนลดจองตรง (-10%):' : lang === 'DE' ? 'Direktbuchungs-Rabatt (-10%):' : lang === 'EN' ? 'Direct Discount (-10%):' : 'Sconto Diretto (-10%):'}
+                          </span>
+                          <span>-{formatPrice(configPricingSummary.directDiscount)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CARD BOTTOM BAR */}
+                  <div className="flex items-center justify-between gap-2 mt-auto">
+                    <div>
+                      <span className="block text-[10px] uppercase tracking-wider text-stone-500 font-semibold flex items-center gap-1.5 flex-wrap">
+                        {lang === 'TH' ? 'ยอดรวมทั้งหมด' : lang === 'DE' ? 'Gesamtpreis' : lang === 'EN' ? 'Grand Total' : 'TOTALE FINITO'}
+                        <span className="inline-block bg-emerald-100 text-emerald-800 text-[8px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider border border-emerald-400/20 backdrop-blur-sm shadow-sm animate-pulse">
+                          Live Octorate
+                        </span>
+                      </span>
+                      
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xl font-extrabold text-emerald-800">
+                            {formatPrice(configPricingSummary.grandTotal)}
+                          </span>
+                          <span className="text-xs line-through text-stone-400">
+                            {formatPrice(configPricingSummary.totalLordo)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleProceedToCheckout}
+                      className="bg-stone-900 hover:bg-emerald-700 active:scale-95 text-white text-sm font-black px-7 py-3.5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    >
+                      {lang === 'TH' ? 'ยืนยัน' : lang === 'DE' ? 'Bestätigen' : lang === 'EN' ? 'Confirm' : 'Conferma'}
+                    </button>
+                  </div>
+
+                </div>
+              </article>
 
             </div>
           </div>
