@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 14:02] · BILANCIAMENTO BANNER ATTESA: VIA DI MEZZO CON SPINNER CENTRALE, TITOLO SU RIGA UNICA & TIMELINE
+- **Cosa abbiamo fatto:**
+  1. ⚖️ **Design Bilanciato a "Via di Mezzo"**:
+     - Ripristinata la chiara presenza centrale a centro schermo con generoso respiro verticale (`p-6 sm:p-10`, `min-h-[260px]`) e grande spinner rotante smeraldo (`w-12 h-12`) con stella ambra pulsante, che comunica immediatamente e chiaramente l'idea di attesa.
+  2. 📏 **Titolo su Riga Singola Immodificabile (`whitespace-nowrap`)**:
+     - Mantenuto il titolo su un'unica linea orizzontale nitida, impedendo categoricamente qualsiasi interruzione o a capo sgradevole su smartphone.
+  3. ⏱️ **Timeline di Sincronizzazione Live Perfettamente Integrata**:
+     - Collocata la barra di avanzamento e i 3 milestone (`1 Connessione PMS` ➔ `2 Tariffe Dirette` ➔ `3 Camere Libere`) armoniosamente sotto il titolo e la spiegazione, accompagnata in basso dal badge di certificazione Octorate PMS Live Sync.
+  4. 🧪 **Collaudo Tecnico**:
+     - Build Vite superata con 0 errori in 6.12s.
+- **File aggiornati:** src/pages/ResortPublicCalendarPage.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato feat/room-availability-calendar.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 13:58] · BANNER ATTESA: TITOLO SU RIGA UNICA (ZERO A CAPO) & TIMELINE SINCRONIZZAZIONE LIVE
 - **Cosa abbiamo fatto:**
   1. 📏 **Titolo Banner su Riga Singola Immodificabile (`whitespace-nowrap`)**:
