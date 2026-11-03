@@ -18,12 +18,16 @@ import {
   ExternalLink,
   Home,
   LayoutGrid,
-  Rows3
+  Rows3,
+  Image as ImageIcon,
+  X,
+  Camera
 } from 'lucide-react';
 import { fetchAccommodations, EnrichedAccommodation } from '../booking/data/accommodationsService';
 import { fetchOctorateMonthlyGrid, OctorateDayData } from '../booking/lib/octorate';
 import { translations, Language } from '../booking/lib/translations';
 import { findAccommodationIdentity, ACCOMMODATION_IDENTITIES } from '../booking/resort/config/accommodations';
+import RoomFeaturesGrid from '../booking/resort/components/RoomFeaturesGrid';
 
 const MONTH_NAMES: Record<Language, string[]> = {
   IT: ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'],
@@ -130,12 +134,50 @@ export default function ResortPublicCalendarPage() {
   // Timeline horizontal scroll ref
   const timelineScrollRef = useRef<HTMLDivElement | null>(null);
 
+  // Full-screen Room Preview Modal on demand
+  const [previewModalRoom, setPreviewModalRoom] = useState<EnrichedAccommodation | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
+
   // Notification toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  // Keyboard navigation for Preview Modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!previewModalRoom) return;
+      if (e.key === 'Escape') {
+        setPreviewModalRoom(null);
+      } else if (e.key === 'ArrowRight') {
+        const imgs = previewModalRoom.images || [];
+        if (imgs.length > 1) {
+          setActiveImageIndex((prev) => (prev + 1) % imgs.length);
+        }
+      } else if (e.key === 'ArrowLeft') {
+        const imgs = previewModalRoom.images || [];
+        if (imgs.length > 1) {
+          setActiveImageIndex((prev) => (prev - 1 + imgs.length) % imgs.length);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [previewModalRoom]);
+
+  // Lock body scroll when preview modal is active
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = previewModalRoom ? 'hidden' : '';
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.body.style.overflow = '';
+      }
+    };
+  }, [previewModalRoom]);
 
   // 5. Fetch Accommodations
   useEffect(() => {
@@ -226,8 +268,8 @@ export default function ResortPublicCalendarPage() {
         targetDay = today.getDate();
       }
 
-      if (targetDay > 3) {
-        const cellApproxWidth = window.innerWidth < 640 ? 54 : 64;
+      if (targetDay > 2) {
+        const cellApproxWidth = window.innerWidth < 640 ? 38 : 44;
         const scrollOffset = (targetDay - 2) * cellApproxWidth;
         setTimeout(() => {
           timelineScrollRef.current?.scrollTo({ left: scrollOffset, behavior: 'smooth' });
@@ -298,6 +340,12 @@ export default function ResortPublicCalendarPage() {
     return { heroRoom: targetRoom, sortedRoomsList: list };
   }, [rooms, heroRoomSlug, selectedCategory]);
 
+  // Open Preview Modal for Room
+  const openPreviewModal = (room: EnrichedAccommodation) => {
+    setPreviewModalRoom(room);
+    setActiveImageIndex(0);
+  };
+
   // Handle clicking a room to set as Hero
   const handleSelectHeroRoom = (room: EnrichedAccommodation) => {
     const ident = getRoomIdent(room);
@@ -305,12 +353,11 @@ export default function ResortPublicCalendarPage() {
     setHeroRoomSlug(slugToSet);
     updateUrlParams({ room: slugToSet });
 
-    showToast(`⭐ ${room.title} messa in evidenza!`);
+    showToast(`⭐ ${room.title} in cima!`);
   };
 
   // Handle Date Cell Click for Booking Selection
   const handleDayClick = (room: EnrichedAccommodation, dateStr: string) => {
-    // If clicking a date on a room different from the active booking room, switch active booking room
     if (bookingRoomSlug !== room.slug) {
       setBookingRoomSlug(room.slug);
       setCheckIn(dateStr);
@@ -319,23 +366,20 @@ export default function ResortPublicCalendarPage() {
     }
 
     if (!checkIn || (checkIn && checkOut)) {
-      // Start new selection
       setCheckIn(dateStr);
       setCheckOut(null);
       setBookingRoomSlug(room.slug);
     } else if (checkIn && !checkOut) {
       if (dateStr <= checkIn) {
-        // Reset check-in to the new earlier date
         setCheckIn(dateStr);
         setCheckOut(null);
       } else {
-        // Verify that all days in between are physically available
         const startDate = new Date(checkIn);
         const endDate = new Date(dateStr);
         let hasConflict = false;
 
         const cur = new Date(startDate);
-        cur.setDate(cur.getDate() + 1); // check nights
+        cur.setDate(cur.getDate() + 1);
         while (cur < endDate) {
           const checkDateStr = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
           const dData = getDayData(room, checkDateStr);
@@ -382,7 +426,6 @@ export default function ResortPublicCalendarPage() {
       cur.setDate(cur.getDate() + 1);
     }
 
-    // Direct booking discount 10%
     const directDiscount = Math.round(grossTotal * 0.10);
     const netTotal = grossTotal - directDiscount;
 
@@ -427,7 +470,6 @@ export default function ResortPublicCalendarPage() {
       });
     }
 
-    // Open WhatsApp Web/App
     const waUrl = `https://wa.me/?text=${encodeURIComponent(textToShare)}`;
     window.open(waUrl, '_blank');
   };
@@ -448,19 +490,13 @@ export default function ResortPublicCalendarPage() {
   };
 
   // =========================================================================
-  // RENDER 1: TIMELINE / PANORAMICA A RIGHE (MATRICE MULTI-ALLOGGIO)
+  // RENDER 1: ULTRA-ESSENTIAL TIMELINE / MATRICE COMPATTA (7-8 GIORNI SU SMARTPHONE)
   // =========================================================================
   const renderTimelineView = () => {
     return (
       <div className="w-full bg-stone-900 border border-stone-800 rounded-2xl shadow-xl overflow-hidden flex flex-col">
         
-        {/* Horizontal scroll instructions bar on mobile */}
-        <div className="sm:hidden bg-stone-950 px-3 py-1.5 border-b border-stone-800 text-[10px] text-amber-300 flex items-center justify-between">
-          <span>👈 Scorri in orizzontale per vedere tutti i giorni 👉</span>
-          <span className="font-extrabold">{daysInMonth} giorni</span>
-        </div>
-
-        {/* Scrollable Container with Sticky Left Column */}
+        {/* Scrollable Container with Ultra-Slim Sticky Left Column */}
         <div 
           ref={timelineScrollRef}
           className="w-full overflow-x-auto overflow-y-visible relative scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-stone-900"
@@ -471,22 +507,22 @@ export default function ResortPublicCalendarPage() {
             <thead>
               <tr className="bg-stone-925 text-stone-300 text-xs">
                 
-                {/* STICKY TOP-LEFT CORNER: Alloggi header */}
+                {/* STICKY TOP-LEFT CORNER: Alloggi label */}
                 <th 
                   scope="col"
-                  className="sticky left-0 z-30 bg-stone-925 border-b-2 border-r border-stone-800 p-3 w-48 sm:w-64 min-w-[190px] sm:min-w-[256px] shadow-[4px_0_10px_rgba(0,0,0,0.5)]"
+                  className="sticky left-0 z-30 bg-stone-925 border-b-2 border-r border-stone-800 p-2 sm:p-2.5 w-26 sm:w-36 min-w-[100px] sm:min-w-[140px] shadow-[4px_0_10px_rgba(0,0,0,0.5)]"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-black text-white text-xs uppercase tracking-wider">
-                      Alloggi ({sortedRoomsList.length})
+                    <span className="font-black text-white text-[11px] sm:text-xs uppercase tracking-wider">
+                      Alloggi
                     </span>
-                    <span className="text-[10px] font-bold text-stone-400">
-                      Prezzo Base
+                    <span className="text-[9px] font-bold text-amber-400">
+                      Base
                     </span>
                   </div>
                 </th>
 
-                {/* DAY COLUMNS HEADERS */}
+                {/* SLIM DAY COLUMNS (38px on mobile, 44px on desktop) */}
                 {monthDayNumbers.map((dayNum) => {
                   const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
                   const dayObj = new Date(currentYear, currentMonth, dayNum);
@@ -498,7 +534,7 @@ export default function ResortPublicCalendarPage() {
                     <th 
                       key={`th-${dayNum}`}
                       scope="col"
-                      className={`border-b-2 border-r border-stone-800 text-center py-2 px-1 w-13 sm:w-16 min-w-[52px] sm:min-w-[64px] transition-colors ${
+                      className={`border-b-2 border-r border-stone-800 text-center py-1.5 px-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] transition-colors ${
                         isToday 
                           ? 'bg-amber-400/20 text-amber-300 border-b-amber-400' 
                           : isWeekend 
@@ -506,11 +542,11 @@ export default function ResortPublicCalendarPage() {
                           : 'bg-stone-925 text-stone-300'
                       }`}
                     >
-                      <div className="flex flex-col items-center">
-                        <span className={`text-[9px] sm:text-[10px] font-bold uppercase ${isWeekend ? 'text-amber-400' : 'text-stone-400'}`}>
+                      <div className="flex flex-col items-center leading-none">
+                        <span className={`text-[9px] font-bold uppercase ${isWeekend ? 'text-amber-400' : 'text-stone-400'}`}>
                           {DAY_NAMES_SHORT[lang][weekdayIndex]}
                         </span>
-                        <span className={`text-xs sm:text-sm font-black leading-none mt-0.5 ${isToday ? 'text-amber-300 underline font-extrabold' : 'text-white'}`}>
+                        <span className={`text-[11px] sm:text-xs font-black mt-0.5 ${isToday ? 'text-amber-300 underline font-extrabold' : 'text-white'}`}>
                           {dayNum}
                         </span>
                       </div>
@@ -521,12 +557,11 @@ export default function ResortPublicCalendarPage() {
               </tr>
             </thead>
 
-            {/* Table Body: 1 Row per Accommodation */}
+            {/* Table Body: 1 Slim Row per Accommodation */}
             <tbody>
               {sortedRoomsList.map((room, roomIdx) => {
                 const isHero = heroRoom?.id === room.id;
                 const isBookingSelected = bookingRoomSlug === room.slug;
-                const ident = getRoomIdent(room);
 
                 return (
                   <tr 
@@ -543,64 +578,47 @@ export default function ResortPublicCalendarPage() {
                     } hover:bg-stone-850/50`}
                   >
 
-                    {/* STICKY LEFT COLUMN: Room thumbnail & Info */}
+                    {/* ULTRA-SLIM STICKY LEFT COLUMN: Clickable Room Name + Camera Icon */}
                     <td 
-                      className={`sticky left-0 z-20 p-2 sm:p-2.5 border-r border-stone-800 w-48 sm:w-64 min-w-[190px] sm:min-w-[256px] shadow-[4px_0_10px_rgba(0,0,0,0.4)] ${
+                      className={`sticky left-0 z-20 p-1.5 sm:p-2 border-r border-stone-800 w-26 sm:w-36 min-w-[100px] sm:min-w-[140px] shadow-[4px_0_10px_rgba(0,0,0,0.4)] ${
                         isHero ? 'bg-stone-900 border-l-4 border-l-amber-400' : 'bg-stone-900'
                       }`}
                     >
-                      <div className="flex items-center gap-2 sm:gap-2.5">
-                        {/* Thumbnail */}
-                        <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-lg overflow-hidden bg-stone-800 flex-shrink-0">
-                          {room.images && room.images.length > 0 ? (
-                            <img 
-                              src={room.images[0]} 
-                              alt={room.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[8px] text-stone-500">
-                              Foto
-                            </div>
-                          )}
-                          {isHero && (
-                            <span className="absolute -top-1 -left-1 bg-amber-400 text-stone-950 text-[8px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow">
+                      <div className="flex flex-col justify-center min-w-0">
+                        {/* Clickable Room Name triggering standard photo modal */}
+                        <button
+                          type="button"
+                          onClick={() => openPreviewModal(room)}
+                          className="text-left font-black text-[11px] sm:text-xs text-white hover:text-amber-300 transition-colors flex items-center gap-1 group/name cursor-pointer leading-snug truncate"
+                          title="Tocca per vedere foto e dettagli"
+                        >
+                          <span className="truncate">{room.title}</span>
+                          <Camera className="w-3 h-3 text-amber-400/80 group-hover/name:text-amber-300 shrink-0" />
+                        </button>
+
+                        <div className="flex items-center justify-between text-[10px] text-stone-400 mt-0.5 leading-none">
+                          <span className="font-extrabold text-amber-400">
+                            {formatPrice(room.base_price_high)}
+                          </span>
+                          {isHero ? (
+                            <span className="text-[9px] font-black text-amber-400 bg-amber-400/10 px-1 rounded">
                               ★
                             </span>
-                          )}
-                        </div>
-
-                        {/* Title & Specs */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1">
-                            <h4 className="text-xs sm:text-sm font-black text-white truncate leading-tight">
-                              {room.title}
-                            </h4>
-                          </div>
-
-                          <div className="flex items-center justify-between text-[10px] text-stone-400 mt-0.5">
-                            <span className="truncate">{room.category}</span>
-                            <span className="font-extrabold text-amber-400 ml-1">
-                              {formatPrice(room.base_price_high)}
-                            </span>
-                          </div>
-
-                          {/* Quick hero highlight button if not hero */}
-                          {!isHero && (
+                          ) : (
                             <button
                               type="button"
                               onClick={() => handleSelectHeroRoom(room)}
-                              className="text-[9px] font-bold text-stone-400 hover:text-amber-300 flex items-center gap-1 mt-0.5 transition-colors cursor-pointer"
-                              title="Porta in cima come selezione principale"
+                              className="text-[9px] text-stone-500 hover:text-amber-300 transition-colors cursor-pointer"
+                              title="Porta in cima"
                             >
-                              <span>★ Metti in cima</span>
+                              ★
                             </button>
                           )}
                         </div>
                       </div>
                     </td>
 
-                    {/* DAY CELLS IN THE ROW */}
+                    {/* ULTRA-COMPACT DAY CELLS */}
                     {monthDayNumbers.map((dayNum) => {
                       const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
                       const isPast = dateStr < todayStr;
@@ -633,26 +651,26 @@ export default function ResortPublicCalendarPage() {
                         <td 
                           key={`td-${room.id}-${dayNum}`}
                           onClick={() => !isPast && isPhysicallyAvailable && handleDayClick(room, dateStr)}
-                          className={`border-r border-stone-800 text-center p-0.5 sm:p-1 w-13 sm:w-16 min-w-[52px] sm:min-w-[64px] h-13 sm:h-14 transition-all duration-150 select-none ${cellBg}`}
+                          className={`border-r border-stone-800 text-center p-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] h-11 sm:h-12 transition-all duration-150 select-none ${cellBg}`}
                           title={
                             isPast ? t('legendPast')
                             : !isPhysicallyAvailable ? t('legendOccupied')
                             : `${formatPrice(price)}/notte ${minStay > 1 ? `(Min. ${minStay}n)` : ''}`
                           }
                         >
-                          <div className="w-full h-full flex flex-col items-center justify-center relative">
+                          <div className="w-full h-full flex flex-col items-center justify-center relative leading-none">
                             {isPast ? (
-                              <span className="text-[10px] text-stone-700">✕</span>
+                              <span className="text-[9px] text-stone-700">✕</span>
                             ) : !isPhysicallyAvailable ? (
-                              <span className="text-[9px] sm:text-[10px] text-rose-400 font-bold tracking-tight">
-                                {lang === 'TH' ? 'เต็ม' : lang === 'DE' ? 'Belegt' : lang === 'EN' ? 'Sold' : 'Pieno'}
+                              <span className="text-[9px] text-rose-400 font-bold tracking-tight">
+                                ✕
                               </span>
                             ) : (
                               <>
-                                <span className={`text-[10px] sm:text-xs font-black leading-tight ${
+                                <span className={`text-[10px] sm:text-[11px] font-black tracking-tight ${
                                   isSelectedCheckIn || isSelectedCheckOut ? 'text-stone-950' : 'text-emerald-400'
                                 }`}>
-                                  {formatPrice(price)}
+                                  {price >= 1000 ? `${(price / 1000).toFixed(1)}k` : price}
                                 </span>
                                 {minStay > 1 && (
                                   <span className="text-[8px] text-amber-300/90 font-bold leading-none mt-0.5">
@@ -662,7 +680,6 @@ export default function ResortPublicCalendarPage() {
                               </>
                             )}
 
-                            {/* Range Tags */}
                             {isSelectedCheckIn && (
                               <span className="absolute -top-1 -left-1 bg-black text-emerald-400 text-[8px] font-black px-1 rounded shadow">
                                 In
@@ -696,7 +713,6 @@ export default function ResortPublicCalendarPage() {
   const renderCalendarGridForBlocks = (room: EnrichedAccommodation) => {
     return (
       <div className="w-full">
-        {/* Day Name Headers (Mon - Sun) */}
         <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mb-1.5 text-center">
           {DAY_NAMES_SHORT[lang].map((dName, idx) => (
             <div 
@@ -710,7 +726,6 @@ export default function ResortPublicCalendarPage() {
           ))}
         </div>
 
-        {/* Calendar Day Cells */}
         <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
           {Array.from({ length: leadBlanksCount }).map((_, i) => (
             <div key={`blank-${i}`} className="min-h-[44px] sm:min-h-[58px] rounded-xl bg-stone-900/20 opacity-20 border border-dashed border-stone-800" />
@@ -802,148 +817,49 @@ export default function ResortPublicCalendarPage() {
 
   const renderBlocksView = () => {
     return (
-      <div className="space-y-6">
-        {/* 🌟 1. HERO ROOM IN EVIDENZA */}
-        {heroRoom && (
-          <section 
-            id="hero-room-showcase"
-            className="relative bg-gradient-to-b from-stone-900 to-stone-925 rounded-3xl border-2 border-amber-400 ring-4 ring-amber-400/20 shadow-[0_15px_45px_rgba(245,158,11,0.2)] p-4 sm:p-6 transition-all duration-500 overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 bg-gradient-to-l from-amber-400 to-yellow-500 text-stone-950 text-[10px] sm:text-xs font-black px-4 py-1.5 rounded-bl-2xl uppercase tracking-wider shadow-md flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{t('selectedRoom')}</span>
-            </div>
+      <div className="space-y-4">
+        {sortedRoomsList.map((room) => {
+          const isSelected = bookingRoomSlug === room.slug;
+          const isHero = heroRoom?.id === room.id;
 
-            <div className="flex flex-col lg:flex-row gap-6 items-start">
-              
-              <div className="w-full lg:w-1/3 flex flex-col sm:flex-row lg:flex-col gap-4 flex-shrink-0">
-                <div className="relative w-full sm:w-1/2 lg:w-full h-48 sm:h-52 rounded-2xl overflow-hidden bg-stone-800 border border-stone-700 group">
-                  {heroRoom.images && heroRoom.images.length > 0 ? (
-                    <img 
-                      src={heroRoom.images[0]} 
-                      alt={heroRoom.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-stone-500 text-xs italic">
-                      Foto in arrivo
-                    </div>
-                  )}
-                  <span className="absolute top-3 left-3 bg-emerald-800/90 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg backdrop-blur-md">
-                    {heroRoom.category}
-                  </span>
-                  <span className="absolute bottom-3 right-3 bg-stone-900/90 text-white text-[10px] font-black px-2.5 py-1 rounded-lg backdrop-blur-md flex items-center gap-1">
-                    <Users className="w-3 h-3 text-amber-400" />
-                    <span>Fino a {heroRoom.capacity} ospiti</span>
-                  </span>
+          return (
+            <article
+              key={room.id}
+              id={`room-calendar-card-${cleanSlug(room.slug)}`}
+              className={`bg-stone-900/90 rounded-2xl border transition-all duration-300 p-3 sm:p-5 flex flex-col lg:flex-row gap-4 items-start ${
+                isHero
+                  ? 'border-2 border-amber-400 ring-4 ring-amber-400/20 shadow-xl'
+                  : isSelected
+                  ? 'border-emerald-500 ring-2 ring-emerald-500/30'
+                  : 'border-stone-800 hover:border-stone-700'
+              }`}
+            >
+              <div className="w-full lg:w-1/4 flex items-center justify-between lg:flex-col lg:items-start gap-2 flex-shrink-0">
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => openPreviewModal(room)}
+                    className="text-left font-black text-sm sm:text-base text-white hover:text-amber-300 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>{room.title}</span>
+                    <Camera className="w-3.5 h-3.5 text-amber-400" />
+                  </button>
+                  <span className="text-[10px] text-stone-400 block mt-0.5">{room.category} · Fino a {room.capacity} ospiti</span>
                 </div>
 
-                <div className="flex-1 space-y-2">
-                  <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
-                    {heroRoom.title}
-                  </h2>
-                  <p className="text-stone-300 text-xs sm:text-sm line-clamp-3 leading-relaxed">
-                    {heroRoom.description}
-                  </p>
-                  
-                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-stone-800">
-                    <div>
-                      <span className="block text-[10px] uppercase text-stone-400 font-extrabold">A partire da</span>
-                      <span className="text-lg font-black text-amber-400">
-                        {formatPrice(heroRoom.base_price_high)} <span className="text-xs font-semibold text-stone-300">/notte</span>
-                      </span>
-                    </div>
-
-                    <div className="text-[11px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-1 rounded-lg">
-                      ⚡ Sconto Diretto -10%
-                    </div>
-                  </div>
+                <div className="text-right lg:text-left">
+                  <span className="block text-xs font-black text-amber-400">
+                    da {formatPrice(room.base_price_high)} <span className="text-[10px] text-stone-400 font-normal">/notte</span>
+                  </span>
                 </div>
               </div>
 
-              <div className="w-full lg:w-2/3 bg-stone-950/60 rounded-2xl border border-stone-800/90 p-3 sm:p-5">
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-800">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-stone-200">
-                      Disponibilità {MONTH_NAMES[lang][currentMonth]}
-                    </span>
-                  </div>
-                  <span className="text-[11px] text-stone-400 italic">
-                    {checkIn ? (checkOut ? 'Date selezionate' : t('selectCheckOut')) : t('selectCheckIn')}
-                  </span>
-                </div>
-
-                {renderCalendarGridForBlocks(heroRoom)}
+              <div className="w-full lg:w-3/4 bg-stone-950/40 rounded-xl border border-stone-800/80 p-2 sm:p-4">
+                {renderCalendarGridForBlocks(room)}
               </div>
-
-            </div>
-          </section>
-        )}
-
-        {/* 🏨 2. ALTRE CAMERE */}
-        <div className="space-y-4">
-          {sortedRoomsList.filter((r) => r.id !== heroRoom?.id).map((room) => {
-            const isSelected = bookingRoomSlug === room.slug;
-            return (
-              <article
-                key={room.id}
-                id={`room-calendar-card-${cleanSlug(room.slug)}`}
-                className={`bg-stone-900/90 rounded-2xl border transition-all duration-300 p-4 sm:p-5 flex flex-col lg:flex-row gap-5 items-start ${
-                  isSelected
-                    ? 'border-emerald-500 ring-2 ring-emerald-500/30 bg-stone-900 shadow-xl'
-                    : 'border-stone-800 hover:border-stone-700'
-                }`}
-              >
-                <div className="w-full lg:w-1/4 flex flex-col sm:flex-row lg:flex-col gap-3 flex-shrink-0">
-                  <div className="relative w-full sm:w-40 lg:w-full h-32 sm:h-36 rounded-xl overflow-hidden bg-stone-800 flex-shrink-0">
-                    {room.images && room.images.length > 0 ? (
-                      <img 
-                        src={room.images[0]} 
-                        alt={room.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-stone-500 text-xs italic">
-                        Foto
-                      </div>
-                    )}
-                    <span className="absolute top-2 left-2 bg-black/70 text-emerald-300 text-[9px] font-black uppercase px-2 py-0.5 rounded-md backdrop-blur-xs">
-                      {room.category}
-                    </span>
-                  </div>
-
-                  <div className="flex-1 space-y-1">
-                    <h4 className="text-base sm:text-lg font-black text-white leading-tight">
-                      {room.title}
-                    </h4>
-                    <p className="text-stone-400 text-xs line-clamp-2">
-                      {room.description}
-                    </p>
-                    <div className="flex items-center gap-2 pt-1 text-xs">
-                      <span className="font-black text-amber-400">
-                        {formatPrice(room.base_price_high)} <span className="text-[10px] text-stone-400 font-normal">/notte</span>
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleSelectHeroRoom(room)}
-                      className="mt-2 w-full py-1.5 px-3 rounded-lg bg-stone-800 hover:bg-stone-750 active:scale-95 text-amber-300 border border-stone-700 text-xs font-bold tracking-wide flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                    >
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{lang === 'TH' ? 'ดูที่พักนี้เป็นหลัก' : lang === 'DE' ? 'Hervorheben' : lang === 'EN' ? 'Highlight Room' : 'Metti in Evidenza'}</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="w-full lg:w-3/4 bg-stone-950/40 rounded-xl border border-stone-800/80 p-2.5 sm:p-4">
-                  {renderCalendarGridForBlocks(room)}
-                </div>
-              </article>
-            );
-          })}
-        </div>
+            </article>
+          );
+        })}
       </div>
     );
   };
@@ -960,34 +876,34 @@ export default function ResortPublicCalendarPage() {
       )}
 
       {/* TOP BRAND HEADER */}
-      <header className="sticky top-0 z-40 bg-stone-900/95 backdrop-blur-md border-b border-stone-800 px-4 sm:px-6 py-3 shadow-xl">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 bg-stone-900/95 backdrop-blur-md border-b border-stone-800 px-3 sm:px-6 py-2.5 shadow-xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           
           {/* Logo & Navigation to Village */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link 
               to="/village"
-              className="p-2 rounded-xl bg-stone-800/80 hover:bg-stone-700 text-stone-300 hover:text-white transition-all flex items-center gap-1.5 text-xs font-bold"
+              className="p-1.5 sm:p-2 rounded-xl bg-stone-800/80 hover:bg-stone-700 text-stone-300 hover:text-white transition-all flex items-center gap-1 text-xs font-bold"
               title="Torna al Villaggio"
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Villaggio</span>
             </Link>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <img 
                 src="/FP_04_-_LOGO_OFFICIAL_HD.png" 
                 alt="Flower Power Village" 
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-amber-400/40 object-cover shadow-md"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-amber-400/40 object-cover shadow-md"
               />
               <div>
-                <h1 className="text-sm sm:text-base font-black tracking-tight text-white flex items-center gap-1.5">
-                  <span>Flower Power Village</span>
-                  <span className="hidden md:inline-block text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-md">
-                    Koh Phayam
+                <h1 className="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1.5 leading-none">
+                  <span>Flower Power</span>
+                  <span className="text-[9px] font-black uppercase bg-amber-400/20 text-amber-300 px-1.5 py-0.2 rounded">
+                    Live
                   </span>
                 </h1>
-                <p className="text-[10px] sm:text-xs text-stone-400 font-semibold">
+                <p className="text-[9px] sm:text-[10px] text-stone-400 font-semibold mt-0.5">
                   {t('availabilityAndRates')}
                 </p>
               </div>
@@ -995,16 +911,15 @@ export default function ResortPublicCalendarPage() {
           </div>
 
           {/* Action buttons: WhatsApp Share & Language Selector */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={handleShareWhatsApp}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-black px-3 sm:px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] sm:text-xs font-black px-2.5 sm:px-3 py-1.5 rounded-xl flex items-center gap-1 shadow-md active:scale-95 transition-all cursor-pointer"
               title={t('shareWhatsApp')}
             >
-              <Share2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t('shareWhatsApp')}</span>
-              <span className="sm:hidden">Condividi</span>
+              <Share2 className="w-3 h-3" />
+              <span className="hidden sm:inline">WhatsApp</span>
             </button>
 
             {/* Language Selector */}
@@ -1017,7 +932,7 @@ export default function ResortPublicCalendarPage() {
                     setLang(l);
                     updateUrlParams({ lang: l });
                   }}
-                  className={`text-[10px] sm:text-xs font-black px-2 py-1.5 rounded-lg transition-all ${
+                  className={`text-[9px] sm:text-xs font-black px-1.5 sm:px-2 py-1 rounded-lg transition-all ${
                     lang === l ? 'bg-amber-400 text-stone-950 shadow-sm' : 'text-stone-300 hover:text-white'
                   }`}
                 >
@@ -1031,25 +946,25 @@ export default function ResortPublicCalendarPage() {
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className="max-w-7xl mx-auto w-full px-3 sm:px-6 py-6 space-y-6 flex-grow">
+      <main className="max-w-7xl mx-auto w-full px-2 sm:px-6 py-3 sm:py-5 space-y-3 sm:space-y-4 flex-grow">
 
-        {/* TOOLBAR: MONTH CONTROLS & VIEW TOGGLE (TIMELINE vs BLOCKS) */}
-        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* COMPACT TOOLBAR: MONTH CONTROLS & ESSENTIAL BUTTONS */}
+        <div className="bg-stone-900 border border-stone-800 rounded-xl p-2 sm:p-3 shadow-md flex flex-wrap items-center justify-between gap-2">
           
           {/* Month Navigator */}
-          <div className="flex items-center justify-between w-full md:w-auto gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-2 sm:p-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-200 transition-all cursor-pointer border border-stone-700"
+              className="p-1.5 sm:p-2 rounded-lg bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-200 transition-all cursor-pointer border border-stone-700"
               title="Mese Precedente"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-2 text-center min-w-[180px] sm:min-w-[220px] justify-center">
-              <CalendarIcon className="w-5 h-5 text-amber-400" />
-              <span className="text-base sm:text-xl font-black text-white tracking-wide">
+            <div className="flex items-center gap-1.5 text-center px-1">
+              <CalendarIcon className="w-4 h-4 text-amber-400" />
+              <span className="text-sm sm:text-base font-black text-white tracking-wide">
                 {MONTH_NAMES[lang][currentMonth]} {currentYear}
               </span>
             </div>
@@ -1057,106 +972,106 @@ export default function ResortPublicCalendarPage() {
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-2 sm:p-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-200 transition-all cursor-pointer border border-stone-700"
+              className="p-1.5 sm:p-2 rounded-lg bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-200 transition-all cursor-pointer border border-stone-700"
               title="Mese Successivo"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
 
             <button
               type="button"
               onClick={handleCurrentMonth}
-              className="hidden sm:inline-flex text-[11px] font-extrabold uppercase px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-750 text-amber-300 border border-stone-700 ml-1 active:scale-95 transition-all cursor-pointer"
+              className="text-[10px] font-extrabold uppercase px-2 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-750 text-amber-300 border border-stone-700 active:scale-95 transition-all cursor-pointer"
             >
-              {lang === 'TH' ? 'เดือนนี้' : lang === 'DE' ? 'Heute' : lang === 'EN' ? 'Today' : 'Mese Corrente'}
+              Oggi
             </button>
           </div>
 
-          {/* VIEW MODE TOGGLE (TIMELINE / RIGHE vs BLOCCHI) */}
-          <div className="flex items-center bg-stone-950 p-1 rounded-xl border border-stone-800">
-            <button
-              type="button"
-              onClick={() => setViewMode('timeline')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                viewMode === 'timeline'
-                  ? 'bg-amber-400 text-stone-950 shadow-md scale-[1.02]'
-                  : 'text-stone-400 hover:text-white'
-              }`}
-            >
-              <Rows3 className="w-3.5 h-3.5" />
-              <span>{lang === 'TH' ? 'ตารางภาพรวม' : lang === 'DE' ? 'Timeline' : lang === 'EN' ? 'Timeline Grid' : 'Panoramica a Righe'}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('blocks')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                viewMode === 'blocks'
-                  ? 'bg-amber-400 text-stone-950 shadow-md scale-[1.02]'
-                  : 'text-stone-400 hover:text-white'
-              }`}
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-              <span>{lang === 'TH' ? 'บล็อกรายเดือน' : lang === 'DE' ? 'Monatsblöcke' : lang === 'EN' ? 'Monthly Blocks' : 'Vista a Blocchi'}</span>
-            </button>
-          </div>
+          {/* VIEW MODE TOGGLE & LEGEND */}
+          <div className="flex items-center gap-2">
+            
+            <div className="flex items-center bg-stone-950 p-0.5 rounded-lg border border-stone-800">
+              <button
+                type="button"
+                onClick={() => setViewMode('timeline')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-black transition-all flex items-center gap-1 cursor-pointer ${
+                  viewMode === 'timeline'
+                    ? 'bg-amber-400 text-stone-950 shadow-xs'
+                    : 'text-stone-400 hover:text-white'
+                }`}
+                title="Panoramica a righe"
+              >
+                <Rows3 className="w-3 h-3" />
+                <span className="hidden sm:inline">Righe</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('blocks')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-black transition-all flex items-center gap-1 cursor-pointer ${
+                  viewMode === 'blocks'
+                    ? 'bg-amber-400 text-stone-950 shadow-xs'
+                    : 'text-stone-400 hover:text-white'
+                }`}
+                title="Vista a blocchi mensili"
+              >
+                <LayoutGrid className="w-3 h-3" />
+                <span className="hidden sm:inline">Blocchi</span>
+              </button>
+            </div>
 
-          {/* Legend Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] sm:text-xs">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              {t('legendFree')}
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950/80 border border-rose-800/60 text-rose-300 font-bold">
-              <span className="w-2 h-2 rounded-full bg-rose-500" />
-              {t('legendOccupied')}
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-950/80 border border-amber-800/60 text-amber-300 font-bold">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
-              {t('legendMinStay', { count: 2 })}
-            </span>
+            {/* Quick Link Copy */}
             <button
               type="button"
               onClick={handleCopyLink}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-stone-800 hover:bg-stone-750 border border-stone-700 text-stone-300 font-bold active:scale-95 transition-all cursor-pointer"
-              title="Copia link calendario"
+              className="text-[10px] font-bold px-2 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-750 border border-stone-700 text-stone-300 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+              title="Copia link"
             >
-              🔗 {lang === 'IT' ? 'Copia Link' : 'Copy Link'}
+              🔗 <span className="hidden sm:inline">Link</span>
             </button>
+
           </div>
 
         </div>
 
         {/* CATEGORY FILTER PILLS */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-stone-400">
-              Filtra per categoria:
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-1.5 bg-stone-900 p-1 rounded-xl border border-stone-800">
+        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 no-scrollbar">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
-                className={`text-[10px] sm:text-xs font-extrabold uppercase px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`text-[9px] sm:text-[10px] font-black uppercase px-2.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                   selectedCategory === cat
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-stone-400 hover:text-white hover:bg-stone-800'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-stone-400 hover:text-white hover:bg-stone-900 border border-stone-800'
                 }`}
               >
                 {cat}
               </button>
             ))}
           </div>
+
+          <div className="hidden md:flex items-center gap-2 text-[10px]">
+            <span className="flex items-center gap-1 text-emerald-400 font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              Libero
+            </span>
+            <span className="flex items-center gap-1 text-rose-400 font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+              Occupato
+            </span>
+            <span className="text-stone-400">
+              (Tocca 📷 sul nome per le foto)
+            </span>
+          </div>
         </div>
 
         {/* LOADING INDICATOR */}
         {loadingRooms && (
-          <div className="py-20 text-center text-stone-400 animate-pulse space-y-3">
-            <CalendarIcon className="w-10 h-10 mx-auto text-amber-400 animate-bounce" />
-            <p className="font-bold text-sm">Caricamento disponibilità alloggi...</p>
+          <div className="py-20 text-center text-stone-400 animate-pulse space-y-2">
+            <CalendarIcon className="w-8 h-8 mx-auto text-amber-400 animate-bounce" />
+            <p className="font-bold text-xs">Caricamento disponibilità...</p>
           </div>
         )}
 
@@ -1171,25 +1086,25 @@ export default function ResortPublicCalendarPage() {
       {checkIn && (
         <aside 
           aria-label="Riepilogo prenotazione"
-          className="sticky bottom-0 z-50 bg-stone-900/95 backdrop-blur-xl border-t-2 border-emerald-500 px-4 sm:px-6 py-3.5 shadow-[0_-10px_35px_rgba(0,0,0,0.8)] animate-slideUp"
+          className="sticky bottom-0 z-50 bg-stone-900/95 backdrop-blur-xl border-t-2 border-emerald-500 px-3 sm:px-6 py-2.5 shadow-[0_-10px_35px_rgba(0,0,0,0.8)] animate-slideUp"
         >
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
             
             {/* Selection info */}
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/40 hidden sm:flex">
-                <CheckCircle2 className="w-6 h-6" />
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+              <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/40 hidden sm:flex">
+                <CheckCircle2 className="w-5 h-5" />
               </div>
-              <div>
-                <p className="text-xs uppercase tracking-wider text-stone-400 font-extrabold">
-                  {t('bookingSummaryBar')} {bookingSelectionSummary?.room.title || heroRoom?.title}
+              <div className="leading-tight">
+                <p className="text-[10px] uppercase tracking-wider text-stone-400 font-extrabold truncate">
+                  {bookingSelectionSummary?.room.title || heroRoom?.title}
                 </p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-sm sm:text-base font-black text-white">
-                    {checkIn} {checkOut ? `➔ ${checkOut} (${bookingSelectionSummary?.nights || 1} notti)` : '(Seleziona Check-Out)'}
+                  <span className="text-xs sm:text-sm font-black text-white">
+                    {checkIn} {checkOut ? `➔ ${checkOut} (${bookingSelectionSummary?.nights || 1}n)` : '(Scegli Check-Out)'}
                   </span>
                   {bookingSelectionSummary && (
-                    <span className="text-base sm:text-lg font-black text-emerald-400">
+                    <span className="text-sm sm:text-base font-black text-emerald-400">
                       = {formatPrice(bookingSelectionSummary.netTotal)}
                     </span>
                   )}
@@ -1198,7 +1113,7 @@ export default function ResortPublicCalendarPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               <button
                 type="button"
                 onClick={() => {
@@ -1206,7 +1121,7 @@ export default function ResortPublicCalendarPage() {
                   setCheckOut(null);
                   updateUrlParams({ from: null, to: null });
                 }}
-                className="px-3 py-2 rounded-xl text-stone-400 hover:text-white text-xs font-bold hover:bg-stone-800 transition-all cursor-pointer"
+                className="px-2.5 py-1.5 rounded-lg text-stone-400 hover:text-white text-[11px] font-bold hover:bg-stone-800 transition-all cursor-pointer"
               >
                 Reset
               </button>
@@ -1215,14 +1130,14 @@ export default function ResortPublicCalendarPage() {
                 type="button"
                 disabled={!checkOut}
                 onClick={handleProceedToBooking}
-                className={`flex-1 sm:flex-initial text-xs sm:text-sm font-black px-6 py-3 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+                className={`flex-1 sm:flex-initial text-xs sm:text-sm font-black px-5 py-2.5 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center gap-1.5 ${
                   checkOut
                     ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white cursor-pointer active:scale-95 shadow-emerald-600/30'
                     : 'bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700'
                 }`}
               >
                 <span>{t('applyAndBook')}</span>
-                <span className="text-xs opacity-90">(-10%)</span>
+                <span className="text-[10px] opacity-90">(-10%)</span>
               </button>
             </div>
 
@@ -1230,13 +1145,167 @@ export default function ResortPublicCalendarPage() {
         </aside>
       )}
 
+      {/* 🖼️ STANDARD IMMERSIVE FULL-SCREEN PHOTO GALLERY MODAL (ON DEMAND) */}
+      {Boolean(previewModalRoom) && (() => {
+        const roomImages = (Array.isArray(previewModalRoom?.images) && previewModalRoom.images.length > 0)
+          ? previewModalRoom.images
+          : (previewModalRoom?.image_url ? [previewModalRoom.image_url] : ['https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80']);
+        const bgImage = roomImages[0];
+
+        const nextImg = () => {
+          if (roomImages.length <= 1) return;
+          setActiveImageIndex((prev) => (prev + 1) % roomImages.length);
+        };
+        const prevImg = () => {
+          if (roomImages.length <= 1) return;
+          setActiveImageIndex((prev) => (prev - 1 + roomImages.length) % roomImages.length);
+        };
+
+        return (
+          <div className="fixed inset-0 z-[99999] w-screen h-screen flex flex-col lg:flex-row bg-stone-950/85 backdrop-blur-md overflow-hidden animate-fadeIn">
+            
+            {/* Background blur */}
+            {bgImage && (
+              <img 
+                src={bgImage} 
+                className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-20 pointer-events-none scale-110 -z-10" 
+                alt="" 
+              />
+            )}
+
+            {/* Close Button top-right */}
+            <button
+              onClick={() => setPreviewModalRoom(null)}
+              className="fixed top-3 right-3 md:top-6 md:right-6 p-2.5 rounded-full bg-stone-900/90 hover:bg-stone-800 border border-stone-800 text-stone-300 hover:text-white cursor-pointer transition-all duration-200 z-[120] shadow-2xl hover:scale-105 active:scale-95"
+              title="Chiudi e torna al calendario"
+            >
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+
+            {/* LEFT / TOP PANEL: Photo Showcase */}
+            <div className="w-full lg:w-3/5 h-[45vh] lg:h-full relative bg-black/50 flex flex-col justify-between p-3 sm:p-6 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-stone-800/80 z-10">
+              
+              <div className="relative w-full flex-1 flex items-center justify-center min-h-0">
+                {roomImages.length > 1 && (
+                  <button
+                    onClick={prevImg}
+                    className="absolute left-2 p-2.5 rounded-full bg-stone-900/80 hover:bg-stone-800 text-white border border-stone-800/60 cursor-pointer transition-all z-10 shadow-lg"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                )}
+
+                <div className="w-full h-full flex items-center justify-center overflow-hidden rounded-2xl bg-stone-950/30">
+                  <img
+                    src={roomImages[activeImageIndex] || roomImages[0]}
+                    alt={`${previewModalRoom?.title} - ${activeImageIndex + 1}`}
+                    className="max-h-full max-w-full object-contain rounded-2xl transition-all duration-300 shadow-2xl"
+                  />
+                </div>
+
+                {roomImages.length > 1 && (
+                  <button
+                    onClick={nextImg}
+                    className="absolute right-2 p-2.5 rounded-full bg-stone-900/80 hover:bg-stone-800 text-white border border-stone-800/60 cursor-pointer transition-all z-10 shadow-lg"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Thumbnails row */}
+              {roomImages.length > 1 && (
+                <div className="w-full flex items-center justify-center gap-1.5 overflow-x-auto py-2 px-1 no-scrollbar flex-shrink-0 mt-2">
+                  {roomImages.map((src: string, i: number) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveImageIndex(i)}
+                      className={`relative w-14 h-10 sm:w-16 sm:h-12 flex-shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${
+                        i === activeImageIndex
+                          ? "border-amber-400 scale-105 opacity-100 shadow-md"
+                          : "border-stone-800 opacity-40 hover:opacity-100"
+                      }`}
+                    >
+                      <img src={src} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT / BOTTOM PANEL: Room Details & Amenities */}
+            <div className="w-full lg:w-2/5 h-[55vh] lg:h-full overflow-y-auto p-4 sm:p-8 bg-stone-950/60 backdrop-blur-xl border-t lg:border-t-0 lg:border-l border-white/5 space-y-4 relative z-10">
+              
+              <div className="space-y-2 pr-8">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 bg-stone-800 border border-stone-700 text-amber-400 font-extrabold text-[10px] rounded-md uppercase tracking-wider">
+                    {previewModalRoom?.category}
+                  </span>
+                  <span className="text-[10px] text-stone-400">
+                    Fino a {previewModalRoom?.capacity} ospiti · {previewModalRoom?.beds}
+                  </span>
+                </div>
+
+                <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                  {previewModalRoom?.title}
+                </h3>
+
+                <p className="text-stone-300 text-xs sm:text-sm font-normal leading-relaxed">
+                  {previewModalRoom?.description}
+                </p>
+
+                <div className="pt-1 flex items-baseline gap-2">
+                  <span className="text-xs uppercase text-stone-400 font-bold">Tariffa Base:</span>
+                  <span className="text-lg font-black text-amber-400">
+                    {formatPrice(previewModalRoom?.base_price_high || 0)}
+                  </span>
+                  <span className="text-xs text-stone-400">/notte</span>
+                </div>
+              </div>
+
+              {/* AMENITIES & FEATURES */}
+              <div className="pt-3 border-t border-white/10 space-y-2">
+                <h4 className="text-[11px] font-black uppercase tracking-wider text-stone-300 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Caratteristiche & Servizi</span>
+                </h4>
+                <RoomFeaturesGrid
+                  features={previewModalRoom?.features || previewModalRoom?.details?.features}
+                  details={previewModalRoom?.details}
+                  lang={lang}
+                />
+              </div>
+
+              {/* ACTION: Return to calendar with this room as Hero */}
+              <div className="pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (previewModalRoom) {
+                      handleSelectHeroRoom(previewModalRoom);
+                      setPreviewModalRoom(null);
+                    }
+                  }}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-black text-xs sm:text-sm shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Sparkles className="w-4 h-4 text-stone-950" />
+                  <span>Scegli questa camera e torna al calendario</span>
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        );
+      })()}
+
       {/* FOOTER */}
-      <footer className="mt-auto border-t border-stone-800 bg-stone-950 py-6 px-4 text-center text-xs text-stone-500 space-y-1">
+      <footer className="mt-auto border-t border-stone-800 bg-stone-950 py-4 px-4 text-center text-[10px] sm:text-xs text-stone-500">
         <p className="font-bold text-stone-400">
           Flower Power Village & Spa · Koh Phayam, Ranong, Thailand
         </p>
-        <p>
-          Prenotazione diretta garantita con il miglior prezzo online senza commissioni di agenzia.
+        <p className="mt-0.5">
+          Miglior tariffa diretta garantita senza commissioni di agenzia.
         </p>
       </footer>
 
