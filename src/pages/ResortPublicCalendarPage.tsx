@@ -197,6 +197,11 @@ export default function ResortPublicCalendarPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  // Assicura che la pagina si apra SEMPRE in cima (anche quando si proviene da link in fondo al sito)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [searchParams]);
+
   // Keyboard navigation for Preview Modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -556,22 +561,40 @@ export default function ResortPublicCalendarPage() {
   const renderTimelineView = () => {
     if (loadingRooms || (loadingGrid && (!gridData || Object.keys(gridData).length === 0))) {
       return (
-        <div className="w-full bg-white border border-stone-300 rounded-2xl shadow-sm p-12 flex flex-col items-center justify-center gap-3">
-          <div className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs sm:text-sm font-bold text-stone-700">
-            {lang === 'IT' ? 'Caricamento disponibilità live...' : lang === 'TH' ? 'กำลังโหลดข้อมูลห้องว่าง...' : 'Loading live availability...'}
-          </span>
+        <div className="w-full bg-[#24201d] border-2 border-emerald-500/50 rounded-2xl shadow-2xl p-8 sm:p-12 flex flex-col items-center justify-center text-center space-y-4 animate-fadeIn my-2">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+            <Sparkles className="w-5 h-5 text-amber-300 absolute inset-0 m-auto animate-pulse" />
+          </div>
+          <div className="space-y-1.5 max-w-md">
+            <h3 className="text-base sm:text-lg font-black text-white tracking-wide">
+              {lang === 'IT' ? 'Caricamento disponibilità in tempo reale...' 
+                : lang === 'TH' ? 'กำลังตรวจสอบห้องว่างแบบเรียลไทม์...' 
+                : lang === 'DE' ? 'Live-Verfügbarkeitsprüfung läuft...' 
+                : 'Checking live real-time availability...'}
+            </h3>
+            <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
+              {lang === 'IT' ? 'Stiamo interrogando il calendario ufficiale di Flower Power Village per scaricare le date libere e le tariffe aggiornate. Attendi qualche secondo...' 
+                : lang === 'TH' ? 'กำลังเชื่อมต่อระบบจองของ Flower Power Village เพื่ออัปเดตวันว่างและราคาล่าสุด กรุณารอสักครู่...' 
+                : lang === 'DE' ? 'Verbindung zum Buchungssystem von Flower Power Village wird hergestellt. Bitte warten Sie einige Sekunden...' 
+                : 'Connecting to Flower Power Village booking engine to fetch updated free dates and direct rates. Please wait a few seconds...'}
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+            <span>Octorate PMS Live Sync</span>
+          </div>
         </div>
       );
     }
 
     if (sortedRoomsList.length === 0) {
       return (
-        <div className="w-full bg-white border border-stone-300 rounded-2xl shadow-sm p-12 text-center space-y-2">
-          <p className="text-sm sm:text-base font-black text-stone-900">
+        <div className="w-full bg-[#24201d] border border-stone-800 rounded-2xl shadow-xl p-10 text-center space-y-2 my-2">
+          <p className="text-sm sm:text-base font-bold text-amber-300">
             {lang === 'IT' ? 'Nessun alloggio disponibile per questo mese.' : lang === 'TH' ? 'ไม่มีห้องว่างในเดือนนี้' : 'No accommodations available for this month.'}
           </p>
-          <p className="text-xs text-stone-500 font-medium">
+          <p className="text-xs text-stone-400">
             {lang === 'IT' ? 'Prova a navigare nei mesi successivi per verificare le date libere.' : lang === 'TH' ? 'ลองเลือกเดือนถัดไปเพื่อดูวันว่าง' : 'Try browsing next months to check free dates.'}
           </p>
         </div>
@@ -579,23 +602,23 @@ export default function ResortPublicCalendarPage() {
     }
 
     return (
-      <div className="w-full bg-white border border-stone-300 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+      <div className="w-full bg-[#201c1a] border border-stone-800 rounded-2xl shadow-xl overflow-hidden flex flex-col">
         
         {/* Scrollable Container with Ultra-Slim Sticky Left Column */}
         <div 
           ref={timelineScrollRef}
-          className="w-full overflow-x-auto overflow-y-visible relative scrollbar-thin scrollbar-thumb-stone-400 scrollbar-track-stone-100"
+          className="w-full overflow-x-auto overflow-y-visible relative scrollbar-thin scrollbar-thumb-stone-700 scrollbar-track-stone-900"
         >
           <table className="w-full border-collapse text-left border-spacing-0">
             
             {/* Table Header: Sticky Left Cell + Days of Month (starts directly from first valid day!) */}
             <thead>
-              <tr className="bg-[#3b3530] text-stone-200 text-xs">
+              <tr className="bg-[#2a2522] text-stone-300 text-xs">
                 
                 {/* STICKY TOP-LEFT CORNER: Alloggi label */}
                 <th 
                   scope="col"
-                  className="sticky left-0 z-30 bg-[#3b3530] border-b-2 border-r border-stone-700 p-1.5 sm:p-2 w-20 sm:w-26 min-w-[80px] sm:min-w-[98px] shadow-[4px_0_10px_rgba(0,0,0,0.15)] text-left"
+                  className="sticky left-0 z-30 bg-[#2a2522] border-b-2 border-r border-stone-800 p-1.5 sm:p-2 w-20 sm:w-26 min-w-[80px] sm:min-w-[98px] shadow-[4px_0_10px_rgba(0,0,0,0.4)] text-left"
                 >
                   <span className="font-black text-white text-[10px] sm:text-xs uppercase tracking-wider block">
                     Alloggi
@@ -614,16 +637,16 @@ export default function ResortPublicCalendarPage() {
                     <th 
                       key={`th-${dayNum}`}
                       scope="col"
-                      className={`border-b-2 border-r border-stone-700/60 text-center py-1.5 px-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] transition-colors ${
+                      className={`border-b-2 border-r border-stone-800 text-center py-1.5 px-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] transition-colors ${
                         isToday 
-                          ? 'bg-amber-500/25 text-amber-300 border-b-amber-400' 
+                          ? 'bg-amber-400/20 text-amber-300 border-b-amber-400' 
                           : isWeekend 
-                          ? 'bg-[#332e2a] text-amber-300' 
-                          : 'bg-[#3b3530] text-stone-300'
+                          ? 'bg-[#221e1c] text-amber-400' 
+                          : 'bg-[#2a2522] text-stone-300'
                       }`}
                     >
                       <div className="flex flex-col items-center leading-none">
-                        <span className={`text-[9px] font-bold uppercase ${isWeekend ? 'text-amber-300 font-extrabold' : 'text-stone-300'}`}>
+                        <span className={`text-[9px] font-bold uppercase ${isWeekend ? 'text-amber-400' : 'text-stone-400'}`}>
                           {DAY_NAMES_SHORT[lang][weekdayIndex]}
                         </span>
                         <span className={`text-[11px] sm:text-xs font-black mt-0.5 ${isToday ? 'text-amber-300 underline font-extrabold' : 'text-white'}`}>
@@ -648,21 +671,21 @@ export default function ResortPublicCalendarPage() {
                   <tr 
                     key={room.id}
                     id={`timeline-row-${cleanSlug(room.slug)}`}
-                    className={`transition-colors border-b border-stone-200 ${
+                    className={`transition-colors border-b border-stone-800/80 ${
                       isHero 
-                        ? 'bg-amber-50/80 ring-2 ring-inset ring-amber-400/60' 
+                        ? 'bg-amber-950/25 ring-2 ring-inset ring-amber-400/50' 
                         : isBookingSelected 
-                        ? 'bg-emerald-50/60' 
+                        ? 'bg-emerald-950/25' 
                         : roomIdx % 2 === 0 
-                        ? 'bg-white' 
-                        : 'bg-stone-50/40'
-                    } hover:bg-stone-100/70`}
+                        ? 'bg-[#201c1a]' 
+                        : 'bg-[#1b1816]'
+                    } hover:bg-[#282320]`}
                   >
 
                     {/* ULTRA-SLIM STICKY LEFT COLUMN: 2-Line Name + Camera Icon in bottom-right corner (zero horizontal widening, NO PRICE) */}
                     <td 
-                      className={`sticky left-0 z-20 p-1.5 sm:p-2 border-r border-stone-200 w-20 sm:w-26 min-w-[80px] sm:min-w-[98px] shadow-[4px_0_10px_rgba(0,0,0,0.05)] ${
-                        isHero ? 'bg-amber-50/95 border-l-4 border-l-amber-500' : 'bg-white'
+                      className={`sticky left-0 z-20 p-1.5 sm:p-2 border-r border-stone-800 w-20 sm:w-26 min-w-[80px] sm:min-w-[98px] shadow-[4px_0_10px_rgba(0,0,0,0.4)] ${
+                        isHero ? 'bg-[#24201d] border-l-4 border-l-amber-400' : 'bg-[#24201d]'
                       }`}
                     >
                       <button
@@ -673,17 +696,17 @@ export default function ResortPublicCalendarPage() {
                       >
                         {/* Riga 1 e Riga 2 del Nome Alloggio */}
                         <div className="leading-tight">
-                          <span className="block text-[11px] sm:text-xs font-black text-stone-900 group-hover/name:text-emerald-700 transition-colors truncate">
+                          <span className="block text-[11px] sm:text-xs font-black text-white group-hover/name:text-amber-300 transition-colors truncate">
                             {nameTwoLines.line1}
                           </span>
-                          <span className="block text-[10px] sm:text-[11px] font-extrabold text-stone-500 group-hover/name:text-emerald-600 transition-colors truncate">
+                          <span className="block text-[10px] sm:text-[11px] font-extrabold text-stone-300 group-hover/name:text-amber-200 transition-colors truncate">
                             {nameTwoLines.line2}
                           </span>
                         </div>
 
                         {/* Icona Macchina Fotografica nell'angolo in basso a destra (zero ingombro orizzontale) */}
                         <span 
-                          className="absolute bottom-0 right-0 p-0.5 text-stone-400 group-hover/name:text-emerald-600 transition-colors"
+                          className="absolute bottom-0 right-0 p-0.5 text-stone-400 group-hover/name:text-amber-400 transition-colors"
                           title="Foto e dettagli"
                         >
                           <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
@@ -707,22 +730,22 @@ export default function ResortPublicCalendarPage() {
                       const isSelectedCheckOut = isCurrentBookingRoom && checkOut === dateStr;
                       const isInSelectedRange = isCurrentBookingRoom && checkIn && checkOut && dateStr > checkIn && dateStr < checkOut;
 
-                      let cellBg = 'bg-emerald-50/90 text-emerald-950 border border-emerald-200/80 hover:bg-emerald-100 hover:border-emerald-400 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)]';
+                      let cellBg = 'bg-emerald-950/25 text-emerald-300 border border-emerald-800/40 hover:bg-emerald-900/40 hover:border-emerald-500 cursor-pointer shadow-2xs';
                       if (isPast) {
-                        cellBg = 'bg-stone-100/60 text-stone-400 opacity-40 cursor-not-allowed border border-stone-200/40';
+                        cellBg = 'bg-[#151210] text-stone-700 opacity-40 cursor-not-allowed border border-stone-900/60';
                       } else if (!isPhysicallyAvailable) {
-                        cellBg = 'bg-stone-100/90 text-stone-400 border border-stone-200/70 cursor-not-allowed opacity-80';
+                        cellBg = 'bg-stone-900/70 text-stone-500 border border-stone-800/70 cursor-not-allowed opacity-60';
                       } else if (isSelectedCheckIn || isSelectedCheckOut) {
-                        cellBg = 'bg-emerald-600 text-white font-black shadow-md scale-95 z-10 border border-emerald-700';
+                        cellBg = 'bg-emerald-600 text-white font-black shadow-lg scale-95 z-10 border border-emerald-400';
                       } else if (isInSelectedRange) {
-                        cellBg = 'bg-emerald-100 text-emerald-950 font-bold border-y border-emerald-300';
+                        cellBg = 'bg-emerald-900/60 text-emerald-200 font-bold border-y border-emerald-600/70';
                       }
 
                       return (
                         <td 
                           key={`td-${room.id}-${dayNum}`}
                           onClick={() => !isPast && isPhysicallyAvailable && handleDayClick(room, dateStr)}
-                          className={`border-r border-stone-200 text-center p-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] h-11 sm:h-12 transition-all duration-150 select-none ${cellBg}`}
+                          className={`border-r border-stone-800 text-center p-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] h-11 sm:h-12 transition-all duration-150 select-none ${cellBg}`}
                           title={
                             isPast ? t('legendPast')
                             : !isPhysicallyAvailable ? t('legendOccupied')
@@ -731,20 +754,20 @@ export default function ResortPublicCalendarPage() {
                         >
                           <div className="w-full h-full flex flex-col items-center justify-center relative leading-none">
                             {isPast ? (
-                              <span className="text-[9px] text-stone-300">✕</span>
+                              <span className="text-[9px] text-stone-700">✕</span>
                             ) : !isPhysicallyAvailable ? (
-                              <span className="text-[9px] text-stone-400 font-bold tracking-tight">
+                              <span className="text-[9px] text-stone-500 font-bold tracking-tight">
                                 —
                               </span>
                             ) : (
                               <>
                                 <span className={`text-[10px] sm:text-[11px] font-black tracking-tight ${
-                                  isSelectedCheckIn || isSelectedCheckOut ? 'text-white' : 'text-emerald-950'
+                                  isSelectedCheckIn || isSelectedCheckOut ? 'text-white' : 'text-emerald-300'
                                 }`}>
                                   {price >= 1000 ? `${(price / 1000).toFixed(1)}k` : price}
                                 </span>
                                 {minStay > 1 && (
-                                  <span className="text-[8px] bg-amber-100 text-amber-900 font-extrabold leading-none mt-0.5 px-0.5 rounded">
+                                  <span className="text-[8px] bg-amber-950/60 text-amber-300 border border-amber-800/50 font-bold leading-none mt-0.5 px-0.5 rounded">
                                     {minStay}n
                                   </span>
                                 )}
@@ -752,12 +775,12 @@ export default function ResortPublicCalendarPage() {
                             )}
 
                             {isSelectedCheckIn && (
-                              <span className="absolute -top-1 -left-1 bg-emerald-900 text-white text-[8px] font-black px-1 rounded shadow">
+                              <span className="absolute -top-1 -left-1 bg-black text-emerald-400 text-[8px] font-black px-1 rounded shadow">
                                 In
                               </span>
                             )}
                             {isSelectedCheckOut && (
-                              <span className="absolute -top-1 -right-1 bg-emerald-900 text-white text-[8px] font-black px-1 rounded shadow">
+                              <span className="absolute -top-1 -right-1 bg-black text-amber-400 text-[8px] font-black px-1 rounded shadow">
                                 Out
                               </span>
                             )}
@@ -804,15 +827,15 @@ export default function ResortPublicCalendarPage() {
             const isSelectedCheckOut = isCurrentBookingRoom && checkOut === dateStr;
             const isInSelectedRange = isCurrentBookingRoom && checkIn && checkOut && dateStr > checkIn && dateStr < checkOut;
 
-            let cellBg = 'bg-white border-stone-200 text-stone-800 hover:border-emerald-500 hover:bg-emerald-50 cursor-pointer shadow-2xs';
+            let cellBg = 'bg-[#24201d] border-stone-800 text-stone-200 hover:border-emerald-500 hover:bg-[#2c2724] cursor-pointer';
             if (isPast) {
-              cellBg = 'bg-stone-100/60 border-stone-200/50 text-stone-300 opacity-40 cursor-not-allowed';
+              cellBg = 'bg-[#151210] border-stone-900/60 text-stone-700 opacity-40 cursor-not-allowed';
             } else if (!isPhysicallyAvailable) {
-              cellBg = 'bg-stone-100 border-stone-200 text-stone-400 cursor-not-allowed opacity-80';
+              cellBg = 'bg-stone-900/60 border-stone-800/60 text-stone-600 cursor-not-allowed opacity-60';
             } else if (isSelectedCheckIn || isSelectedCheckOut) {
-              cellBg = 'bg-emerald-600 border-emerald-700 text-white font-black shadow-md scale-95';
+              cellBg = 'bg-emerald-600 border-emerald-400 text-white font-black shadow-lg scale-95';
             } else if (isInSelectedRange) {
-              cellBg = 'bg-emerald-100 border-emerald-300 text-emerald-950 font-bold';
+              cellBg = 'bg-emerald-900/60 border-emerald-600/60 text-emerald-200';
             }
 
             return (
@@ -824,28 +847,28 @@ export default function ResortPublicCalendarPage() {
                 className={`relative min-h-[46px] sm:min-h-[60px] p-1 rounded-xl border flex flex-col justify-between items-center transition-all duration-200 select-none ${cellBg}`}
               >
                 <div className="w-full flex items-center justify-between px-0.5">
-                  <span className={`text-[10px] sm:text-xs font-bold leading-none ${isWeekend ? 'text-amber-600' : 'text-stone-500'}`}>
+                  <span className={`text-[10px] sm:text-xs font-bold leading-none ${isWeekend ? 'text-amber-400' : 'text-stone-400'}`}>
                     {DAY_NAMES_SHORT[lang][weekdayIndex]}
                   </span>
-                  <span className={`text-[11px] sm:text-xs font-black leading-none ${isToday ? 'text-emerald-700 font-extrabold underline' : 'text-stone-900'}`}>
+                  <span className={`text-[11px] sm:text-xs font-black leading-none ${isToday ? 'text-amber-400 font-extrabold underline' : 'text-white'}`}>
                     {dayNum}
                   </span>
                 </div>
 
                 <div className="w-full text-center mt-auto">
                   {isPast ? (
-                    <span className="text-[9px] text-stone-300 font-bold opacity-60">✕</span>
+                    <span className="text-[9px] text-stone-700 font-bold opacity-60">✕</span>
                   ) : !isPhysicallyAvailable ? (
-                    <span className="text-[9px] sm:text-[10px] text-stone-400 font-bold tracking-tight">
+                    <span className="text-[9px] sm:text-[10px] text-stone-500 font-bold tracking-tight">
                       {lang === 'TH' ? 'เต็ม' : lang === 'DE' ? 'Belegt' : lang === 'EN' ? 'Sold' : 'Pieno'}
                     </span>
                   ) : (
                     <div className="flex flex-col items-center">
-                      <span className={`text-[10px] sm:text-xs font-black leading-none ${isSelectedCheckIn || isSelectedCheckOut ? 'text-white' : 'text-emerald-900'}`}>
+                      <span className={`text-[10px] sm:text-xs font-black leading-none ${isSelectedCheckIn || isSelectedCheckOut ? 'text-white' : 'text-emerald-300'}`}>
                         {formatPrice(price)}
                       </span>
                       {minStay > 1 && (
-                        <span className="text-[8px] sm:text-[9px] bg-amber-100 text-amber-900 font-extrabold mt-0.5 leading-none px-1 rounded">
+                        <span className="text-[8px] sm:text-[9px] bg-amber-950/60 text-amber-300 border border-amber-800/50 font-bold mt-0.5 leading-none px-1 rounded">
                           {minStay}n
                         </span>
                       )}
@@ -942,22 +965,22 @@ export default function ResortPublicCalendarPage() {
   };
 
   return (
-    <div className="min-h-screen text-stone-900 flex flex-col font-sans antialiased selection:bg-[#a2b997] selection:text-stone-900" style={{ backgroundColor: '#e7e5e4' }}>
+    <div className="min-h-screen bg-[#181513] text-stone-100 flex flex-col font-sans antialiased selection:bg-amber-400 selection:text-stone-950">
       
       {/* TOAST NOTIFICATION */}
       {toastMessage && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[99999] bg-[#3b3530] border-2 border-emerald-400 text-white font-extrabold text-xs sm:text-sm px-6 py-3 rounded-full shadow-2xl animate-bounce flex items-center gap-2">
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[99999] bg-[#24201d] border-2 border-emerald-400 text-white font-extrabold text-xs sm:text-sm px-6 py-3 rounded-full shadow-2xl animate-bounce flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-300" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* TOP BRAND NAVBAR (Stile Ufficiale Flower Power Village) */}
-      <nav className="sticky top-0 z-40 bg-[#3b3530] text-white border-b border-stone-700/60 px-3 sm:px-6 py-2.5 sm:py-3 shadow-md">
+      <nav className="sticky top-0 z-40 bg-[#24201d] text-white border-b border-stone-800 px-3 sm:px-6 py-2 sm:py-2.5 shadow-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           
           {/* Brand & Back Link */}
-          <div className="flex items-center gap-2.5 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link 
               to="/village"
               className="inline-flex items-center gap-1.5 text-stone-300 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider"
@@ -966,12 +989,12 @@ export default function ResortPublicCalendarPage() {
               <ArrowLeft size={16} />
               <span className="hidden sm:inline">Home</span>
             </Link>
-            <div className="h-4 w-px bg-stone-600/70 hidden sm:block" />
+            <div className="h-4 w-px bg-stone-700/60 hidden sm:block" />
             <Link to="/village" className="flex items-center gap-2 group">
               <img 
                 src="/FP_04_-_LOGO_OFFICIAL_HD.png" 
                 alt="Flower Power Village Logo" 
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 shadow-sm"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-amber-400/30 shadow-sm"
               />
               <span className="font-sans font-black tracking-tight text-white text-sm sm:text-base md:text-lg group-hover:text-emerald-400 transition-colors">
                 FLOWER POWER <span className="font-light italic text-[#a2b997]">Village</span>
@@ -979,8 +1002,8 @@ export default function ResortPublicCalendarPage() {
             </Link>
           </div>
 
-          {/* Right Controls: WhatsApp, Share, Language Selector */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5">
+          {/* Right Controls: WhatsApp & Language Selector */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={handleShareWhatsApp}
@@ -992,7 +1015,7 @@ export default function ResortPublicCalendarPage() {
             </button>
 
             {/* Language Dropdown Selector */}
-            <div className="flex items-center bg-black/35 rounded-xl p-0.5 border border-white/15">
+            <div className="flex items-center bg-[#181513] rounded-xl p-0.5 border border-stone-700">
               {(['IT', 'EN', 'TH', 'DE'] as Language[]).map((l) => (
                 <button
                   key={l}
@@ -1002,7 +1025,7 @@ export default function ResortPublicCalendarPage() {
                     updateUrlParams({ lang: l });
                   }}
                   className={`text-[10px] sm:text-xs font-black px-1.5 sm:px-2 py-1 rounded-lg transition-all ${
-                    lang === l ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-300 hover:text-white'
+                    lang === l ? 'bg-amber-400 text-stone-950 shadow-xs' : 'text-stone-300 hover:text-white'
                   }`}
                 >
                   {l}
@@ -1015,46 +1038,25 @@ export default function ResortPublicCalendarPage() {
       </nav>
 
       {/* MAIN CONTENT AREA */}
-      <main className="max-w-7xl mx-auto w-full px-2.5 sm:px-6 py-3 sm:py-5 space-y-3 flex-grow">
+      <main className="max-w-7xl mx-auto w-full px-2 sm:px-6 py-2 sm:py-3 space-y-2 flex-grow">
 
-        {/* HERO HEADER CARD (Stile Flower Power Village) */}
-        <header className="relative text-stone-100 py-3 sm:py-4 px-3 sm:px-5 overflow-hidden rounded-2xl shadow-md border border-stone-700/50" style={{ backgroundColor: '#3b3530' }}>
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div>
-              <span className="text-[#a2b997] font-extrabold tracking-widest text-[10px] sm:text-[11px] uppercase block">
-                KOH PHAYAM • THAILANDIA
-              </span>
-              <h1 className="text-base sm:text-xl font-sans font-black tracking-tight text-white leading-tight">
-                {lang === 'IT' ? 'Calendario Disponibilità Live & Tariffe' : lang === 'TH' ? 'ตารางห้องว่างและราคาเรียลไทม์' : lang === 'DE' ? 'Live-Verfügbarkeitskalender & Tarife' : 'Live Availability Calendar & Direct Rates'}
-              </h1>
-              <p className="text-stone-300 text-[11px] sm:text-xs font-medium mt-0.5">
-                {lang === 'IT' ? 'Miglior tariffa garantita: risparmia il 10% prenotando direttamente.' : lang === 'TH' ? 'รับประกันราคาดีที่สุด ประหยัด 10% เมื่อจองตรง' : lang === 'DE' ? 'Bester Preis garantiert: 10% Rabatt bei Direktbuchung.' : 'Best rate guaranteed: save 10% with direct booking.'}
-              </p>
-            </div>
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-[#a2b997] bg-black/25 px-3 py-1.5 rounded-xl border border-white/10 font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>-10% Direct Booking Discount</span>
-            </div>
-          </div>
-        </header>
-
-        {/* COMPACT TOOLBAR: MONTH CONTROLS & ESSENTIAL BUTTONS */}
-        <div className="bg-white border border-stone-300 rounded-2xl p-2.5 sm:p-3 shadow-sm flex flex-wrap items-center justify-between gap-2">
+        {/* ULTRA-COMPACT INTEGRATED TOOLBAR: Month + Categories + View Mode in 1 Single Bar */}
+        <div className="bg-[#24201d] border border-stone-800 rounded-xl p-1.5 sm:p-2 shadow-md flex flex-wrap items-center justify-between gap-1.5 sm:gap-2">
           
           {/* Month Navigator */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5">
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-1.5 sm:p-2 rounded-xl bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-700 transition-all cursor-pointer border border-stone-200"
+              className="p-1.5 rounded-lg bg-[#2d2825] hover:bg-[#38322e] active:scale-95 text-stone-200 transition-all cursor-pointer border border-stone-700/60"
               title="Mese Precedente"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
             <div className="flex items-center gap-1.5 text-center px-1">
-              <CalendarIcon className="w-4 h-4 text-emerald-700" />
-              <span className="text-sm sm:text-base font-black text-stone-900 tracking-wide">
+              <CalendarIcon className="w-4 h-4 text-amber-400" />
+              <span className="text-xs sm:text-sm font-black text-white tracking-wide whitespace-nowrap">
                 {MONTH_NAMES[lang][currentMonth]} {currentYear}
               </span>
             </div>
@@ -1062,7 +1064,7 @@ export default function ResortPublicCalendarPage() {
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-1.5 sm:p-2 rounded-xl bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-700 transition-all cursor-pointer border border-stone-200"
+              className="p-1.5 rounded-lg bg-[#2d2825] hover:bg-[#38322e] active:scale-95 text-stone-200 transition-all cursor-pointer border border-stone-700/60"
               title="Mese Successivo"
             >
               <ChevronRight className="w-4 h-4" />
@@ -1071,22 +1073,40 @@ export default function ResortPublicCalendarPage() {
             <button
               type="button"
               onClick={handleCurrentMonth}
-              className="text-[10px] font-extrabold uppercase px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-200 active:scale-95 transition-all cursor-pointer"
+              className="text-[9px] sm:text-[10px] font-extrabold uppercase px-2 py-1 rounded-lg bg-[#2d2825] hover:bg-[#38322e] text-amber-300 border border-stone-700/60 active:scale-95 transition-all cursor-pointer"
             >
               Oggi
             </button>
           </div>
 
-          {/* VIEW MODE TOGGLE & QUICK ACTIONS */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center bg-stone-100 p-0.5 rounded-xl border border-stone-200">
+          {/* Inline Category Pills */}
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCategory(cat)}
+                className={`text-[9px] sm:text-[10px] font-black uppercase px-2 sm:px-2.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                  selectedCategory === cat
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-[#2d2825] text-stone-300 hover:text-white border border-stone-700/60'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* View Mode Toggle & Quick Link */}
+          <div className="flex items-center gap-1.5 ml-auto sm:ml-0">
+            <div className="flex items-center bg-[#181513] p-0.5 rounded-lg border border-stone-800">
               <button
                 type="button"
                 onClick={() => setViewMode('timeline')}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-black transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black transition-all flex items-center gap-1 cursor-pointer ${
                   viewMode === 'timeline'
-                    ? 'bg-white text-stone-900 shadow-xs'
-                    : 'text-stone-500 hover:text-stone-900'
+                    ? 'bg-amber-400 text-stone-950 shadow-xs'
+                    : 'text-stone-400 hover:text-white'
                 }`}
                 title="Panoramica a righe"
               >
@@ -1096,10 +1116,10 @@ export default function ResortPublicCalendarPage() {
               <button
                 type="button"
                 onClick={() => setViewMode('blocks')}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-black transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black transition-all flex items-center gap-1 cursor-pointer ${
                   viewMode === 'blocks'
-                    ? 'bg-white text-stone-900 shadow-xs'
-                    : 'text-stone-500 hover:text-stone-900'
+                    ? 'bg-amber-400 text-stone-950 shadow-xs'
+                    : 'text-stone-400 hover:text-white'
                 }`}
                 title="Vista a blocchi mensili"
               >
@@ -1108,11 +1128,10 @@ export default function ResortPublicCalendarPage() {
               </button>
             </div>
 
-            {/* Quick Link Copy */}
             <button
               type="button"
               onClick={handleCopyLink}
-              className="text-[10px] font-bold px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-700 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+              className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#2d2825] hover:bg-[#38322e] border border-stone-700/60 text-stone-300 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
               title="Copia link"
             >
               🔗 <span className="hidden sm:inline">Link</span>
@@ -1121,52 +1140,8 @@ export default function ResortPublicCalendarPage() {
 
         </div>
 
-        {/* CATEGORY FILTER PILLS & LEGEND */}
-        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 no-scrollbar">
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`text-[9px] sm:text-[10px] font-black uppercase px-2.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                  selectedCategory === cat
-                    ? 'bg-[#3b3530] text-white shadow-xs border border-[#3b3530]'
-                    : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-300 shadow-2xs'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <div className="hidden md:flex items-center gap-2 text-[10px]">
-            <span className="flex items-center gap-1 text-emerald-700 font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-600" />
-              Libero
-            </span>
-            <span className="flex items-center gap-1 text-stone-500 font-bold">
-              <span className="w-2 h-2 rounded-full bg-stone-400" />
-              Occupato
-            </span>
-            <span className="text-stone-500">
-              (Tocca 📷 sul nome per le foto)
-            </span>
-          </div>
-        </div>
-
-        {/* LOADING INDICATOR */}
-        {loadingRooms && (
-          <div className="py-20 text-center text-stone-600 animate-pulse space-y-2">
-            <CalendarIcon className="w-8 h-8 mx-auto text-emerald-700 animate-bounce" />
-            <p className="font-bold text-xs">Caricamento disponibilità...</p>
-          </div>
-        )}
-
         {/* RENDER CHOSEN VIEW */}
-        {!loadingRooms && (
-          viewMode === 'timeline' ? renderTimelineView() : renderBlocksView()
-        )}
+        {viewMode === 'timeline' ? renderTimelineView() : renderBlocksView()}
 
       </main>
 
@@ -1174,13 +1149,13 @@ export default function ResortPublicCalendarPage() {
       {checkIn && (
         <aside 
           aria-label="Riepilogo prenotazione"
-          className="sticky bottom-0 z-50 bg-[#3b3530]/95 backdrop-blur-xl border-t border-stone-700 px-3 sm:px-6 py-2.5 shadow-[0_-10px_35px_rgba(0,0,0,0.25)] animate-slideUp text-white"
+          className="sticky bottom-0 z-50 bg-[#24201d]/95 backdrop-blur-xl border-t border-stone-700 px-3 sm:px-6 py-2.5 shadow-[0_-10px_35px_rgba(0,0,0,0.8)] animate-slideUp text-white"
         >
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
             
             {/* Selection info */}
             <div className="flex items-center gap-2.5 w-full sm:w-auto">
-              <div className="p-2 bg-emerald-500/20 text-emerald-300 rounded-xl border border-emerald-500/40 hidden sm:flex">
+              <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/40 hidden sm:flex">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <div className="leading-tight">
@@ -1192,7 +1167,7 @@ export default function ResortPublicCalendarPage() {
                     {checkIn} {checkOut ? `➔ ${checkOut} (${bookingSelectionSummary?.nights || 1}n)` : '(Scegli Check-Out)'}
                   </span>
                   {bookingSelectionSummary && (
-                    <span className="text-sm sm:text-base font-black text-amber-300">
+                    <span className="text-sm sm:text-base font-black text-amber-400">
                       = {formatPrice(bookingSelectionSummary.netTotal)}
                     </span>
                   )}
@@ -1209,7 +1184,7 @@ export default function ResortPublicCalendarPage() {
                   setCheckOut(null);
                   updateUrlParams({ from: null, to: null });
                 }}
-                className="px-2.5 py-1.5 rounded-xl text-stone-300 hover:text-white text-[11px] font-bold hover:bg-white/10 transition-all cursor-pointer"
+                className="px-2.5 py-1.5 rounded-lg text-stone-400 hover:text-white text-[11px] font-bold hover:bg-white/10 transition-all cursor-pointer"
               >
                 Reset
               </button>
@@ -1221,7 +1196,7 @@ export default function ResortPublicCalendarPage() {
                 className={`flex-1 sm:flex-initial text-xs sm:text-sm font-black px-5 py-2.5 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center gap-1.5 ${
                   checkOut
                     ? 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer active:scale-95 shadow-emerald-700/40'
-                    : 'bg-stone-700 text-stone-400 cursor-not-allowed border border-stone-600'
+                    : 'bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700'
                 }`}
               >
                 <span>{t('applyAndBook')}</span>
