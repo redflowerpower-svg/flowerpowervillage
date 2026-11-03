@@ -574,30 +574,35 @@ export default function ResortPublicCalendarPage() {
   };
 
   // =========================================================================
-  // BANNER DI ATTESA CON TITOLO SU RIGA UNICA & TIMELINE DI SINCRONIZZAZIONE LIVE
+  // BANNER DI ATTESA CENTRALE: VIA DI MEZZO TRA PRESENZA VISIVA, TITOLO SU RIGA UNICA & TIMELINE LIVE
   // =========================================================================
   const renderLiveSyncLoadingBanner = () => {
     return (
-      <div className="w-full bg-[#24201d] border border-emerald-500/40 rounded-2xl shadow-2xl p-4 sm:p-6 flex flex-col items-center justify-center text-center space-y-3.5 animate-fadeIn my-2">
-        {/* RIGA 1: TITOLO TASSATIVAMENTE SU RIGA UNICA (ZERO A CAPO) */}
-        <div className="w-full flex items-center justify-center gap-2 overflow-hidden px-1">
-          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center flex-shrink-0">
-            <div className="w-3 h-3 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
-          </div>
-          <h3 className="text-[12px] min-[380px]:text-[13px] sm:text-base font-black text-white whitespace-nowrap tracking-tight truncate">
+      <div className="w-full bg-[#24201d] border-2 border-emerald-500/40 rounded-2xl shadow-2xl p-6 sm:p-10 flex flex-col items-center justify-center text-center space-y-5 animate-fadeIn my-4 min-h-[260px]">
+        {/* GRANDE SPINNER CENTRALE CON GLOW E SPARKLE */}
+        <div className="relative">
+          <div className="w-12 h-12 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(16,185,129,0.35)]" />
+          <Sparkles className="w-5 h-5 text-amber-300 absolute inset-0 m-auto animate-pulse" />
+        </div>
+
+        {/* TITOLO SU RIGA UNICA (ZERO A CAPO) + SPIEGAZIONE */}
+        <div className="space-y-1.5 w-full max-w-lg">
+          <h3 className="text-xs min-[360px]:text-sm sm:text-lg font-black text-white whitespace-nowrap tracking-wide">
             {lang === 'IT' ? 'Caricamento disponibilità in tempo reale' 
               : lang === 'TH' ? 'กำลังตรวจสอบห้องว่างแบบเรียลไทม์' 
               : lang === 'DE' ? 'Live-Verfügbarkeitsprüfung läuft' 
               : 'Checking live real-time availability'}
           </h3>
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold flex-shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-            <span>Octorate PMS</span>
-          </span>
+          <p className="text-[11px] sm:text-xs text-stone-300/90 leading-relaxed max-w-md mx-auto">
+            {lang === 'IT' ? 'Stiamo interrogando il calendario ufficiale di Flower Power Village per scaricare le date libere e le tariffe aggiornate. Attendi qualche secondo...' 
+              : lang === 'TH' ? 'กำลังเชื่อมต่อระบบจองของ Flower Power Village เพื่ออัปเดตวันว่างและราคาล่าสุด กรุณารอสักครู่...' 
+              : lang === 'DE' ? 'Verbindung zum Buchungssystem von Flower Power Village wird hergestellt. Bitte warten Sie einige Sekunden...' 
+              : 'Connecting to Flower Power Village booking engine to fetch updated free dates and direct rates. Please wait a few seconds...'}
+          </p>
         </div>
 
-        {/* RIGA 2: TIMELINE DI SINCRONIZZAZIONE LIVE (TRACK ANIMATO + MILESTONES) */}
-        <div className="w-full max-w-xl mx-auto space-y-2">
+        {/* TIMELINE DI SINCRONIZZAZIONE (BARRA DI AVANZAMENTO + 3 FASI) */}
+        <div className="w-full max-w-md mx-auto space-y-2 pt-1">
           {/* Timeline progress track */}
           <div className="w-full h-2 bg-stone-900/90 rounded-full overflow-hidden p-0.5 border border-stone-800">
             <div 
@@ -615,7 +620,7 @@ export default function ResortPublicCalendarPage() {
               }`}>
                 {syncProgress > 50 ? '✓' : '1'}
               </div>
-              <span className={`text-[9px] min-[380px]:text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
+              <span className={`text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
                 syncProgress >= 25 ? 'text-emerald-300' : 'text-stone-500'
               }`}>
                 {lang === 'IT' ? 'Connessione PMS' : lang === 'TH' ? 'เชื่อมต่อ PMS' : lang === 'DE' ? 'PMS Connect' : 'PMS Connect'}
@@ -629,7 +634,7 @@ export default function ResortPublicCalendarPage() {
               }`}>
                 {syncProgress > 80 ? '✓' : '2'}
               </div>
-              <span className={`text-[9px] min-[380px]:text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
+              <span className={`text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
                 syncProgress >= 55 ? 'text-emerald-300' : 'text-stone-500'
               }`}>
                 {lang === 'IT' ? 'Tariffe Dirette' : lang === 'TH' ? 'ดึงราคาตรง' : lang === 'DE' ? 'Direktpreise' : 'Direct Rates'}
@@ -643,7 +648,7 @@ export default function ResortPublicCalendarPage() {
               }`}>
                 3
               </div>
-              <span className={`text-[9px] min-[380px]:text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
+              <span className={`text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
                 syncProgress >= 80 ? 'text-amber-300 font-black' : 'text-stone-500'
               }`}>
                 {lang === 'IT' ? 'Camere Libere' : lang === 'TH' ? 'ตรวจสอบวันว่าง' : lang === 'DE' ? 'Verfügbarkeit' : 'Live Calendar'}
@@ -652,13 +657,11 @@ export default function ResortPublicCalendarPage() {
           </div>
         </div>
 
-        {/* RIGA 3: NOTA ESPLICATIVA RASSICURANTE */}
-        <p className="text-[10.5px] min-[380px]:text-[11.5px] sm:text-xs text-stone-300/90 max-w-lg leading-relaxed pt-0.5">
-          {lang === 'IT' ? 'Stiamo interrogando il calendario ufficiale di Flower Power Village per scaricare le date libere e le tariffe aggiornate. Attendi qualche secondo...' 
-            : lang === 'TH' ? 'กำลังเชื่อมต่อระบบจองของ Flower Power Village เพื่ออัปเดตวันว่างและราคาล่าสุด กรุณารอสักครู่...' 
-            : lang === 'DE' ? 'Verbindung zum Buchungssystem von Flower Power Village wird hergestellt. Bitte warten Sie einige Sekunden...' 
-            : 'Connecting to Flower Power Village booking engine to fetch updated free dates and direct rates. Please wait a few seconds...'}
-        </p>
+        {/* BADGE DI CERTIFICAZIONE OCTORATE PMS LIVE */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          <span>Octorate PMS Live Sync</span>
+        </div>
       </div>
     );
   };
