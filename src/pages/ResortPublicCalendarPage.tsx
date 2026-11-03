@@ -169,6 +169,24 @@ export default function ResortPublicCalendarPage() {
   const [loadingGrid, setLoadingGrid] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('TUTTI');
 
+  // Animated Timeline Progress for Live Octorate PMS Sync
+  const [syncProgress, setSyncProgress] = useState(25);
+  useEffect(() => {
+    if (!loadingGrid && !loadingRooms) {
+      setSyncProgress(100);
+      return;
+    }
+    setSyncProgress(25);
+    const t1 = setTimeout(() => setSyncProgress(55), 450);
+    const t2 = setTimeout(() => setSyncProgress(80), 1100);
+    const t3 = setTimeout(() => setSyncProgress(94), 2200);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [loadingGrid, loadingRooms]);
+
   // Hero Room selection
   const [heroRoomSlug, setHeroRoomSlug] = useState<string | null>(() => {
     return searchParams.get('room') || searchParams.get('slug') || null;
@@ -556,36 +574,101 @@ export default function ResortPublicCalendarPage() {
   };
 
   // =========================================================================
+  // BANNER DI ATTESA CON TITOLO SU RIGA UNICA & TIMELINE DI SINCRONIZZAZIONE LIVE
+  // =========================================================================
+  const renderLiveSyncLoadingBanner = () => {
+    return (
+      <div className="w-full bg-[#24201d] border border-emerald-500/40 rounded-2xl shadow-2xl p-4 sm:p-6 flex flex-col items-center justify-center text-center space-y-3.5 animate-fadeIn my-2">
+        {/* RIGA 1: TITOLO TASSATIVAMENTE SU RIGA UNICA (ZERO A CAPO) */}
+        <div className="w-full flex items-center justify-center gap-2 overflow-hidden px-1">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center flex-shrink-0">
+            <div className="w-3 h-3 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+          </div>
+          <h3 className="text-[12px] min-[380px]:text-[13px] sm:text-base font-black text-white whitespace-nowrap tracking-tight truncate">
+            {lang === 'IT' ? 'Caricamento disponibilità in tempo reale' 
+              : lang === 'TH' ? 'กำลังตรวจสอบห้องว่างแบบเรียลไทม์' 
+              : lang === 'DE' ? 'Live-Verfügbarkeitsprüfung läuft' 
+              : 'Checking live real-time availability'}
+          </h3>
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold flex-shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+            <span>Octorate PMS</span>
+          </span>
+        </div>
+
+        {/* RIGA 2: TIMELINE DI SINCRONIZZAZIONE LIVE (TRACK ANIMATO + MILESTONES) */}
+        <div className="w-full max-w-xl mx-auto space-y-2">
+          {/* Timeline progress track */}
+          <div className="w-full h-2 bg-stone-900/90 rounded-full overflow-hidden p-0.5 border border-stone-800">
+            <div 
+              className="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-amber-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_rgba(16,185,129,0.7)]"
+              style={{ width: `${syncProgress}%` }}
+            />
+          </div>
+
+          {/* Timeline Milestones / Step */}
+          <div className="grid grid-cols-3 gap-1 relative pt-0.5">
+            {/* Step 1 */}
+            <div className="flex flex-col items-center gap-1">
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${
+                syncProgress >= 25 ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/40 ring-2 ring-emerald-400/30' : 'bg-stone-800 text-stone-500'
+              }`}>
+                {syncProgress > 50 ? '✓' : '1'}
+              </div>
+              <span className={`text-[9px] min-[380px]:text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
+                syncProgress >= 25 ? 'text-emerald-300' : 'text-stone-500'
+              }`}>
+                {lang === 'IT' ? 'Connessione PMS' : lang === 'TH' ? 'เชื่อมต่อ PMS' : lang === 'DE' ? 'PMS Connect' : 'PMS Connect'}
+              </span>
+            </div>
+
+            {/* Step 2 */}
+            <div className="flex flex-col items-center gap-1">
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${
+                syncProgress >= 55 ? 'bg-emerald-500 text-stone-950 shadow-md shadow-emerald-500/40 ring-2 ring-emerald-400/30' : 'bg-stone-800 text-stone-500'
+              }`}>
+                {syncProgress > 80 ? '✓' : '2'}
+              </div>
+              <span className={`text-[9px] min-[380px]:text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
+                syncProgress >= 55 ? 'text-emerald-300' : 'text-stone-500'
+              }`}>
+                {lang === 'IT' ? 'Tariffe Dirette' : lang === 'TH' ? 'ดึงราคาตรง' : lang === 'DE' ? 'Direktpreise' : 'Direct Rates'}
+              </span>
+            </div>
+
+            {/* Step 3 */}
+            <div className="flex flex-col items-center gap-1">
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${
+                syncProgress >= 80 ? 'bg-amber-400 text-stone-950 shadow-md shadow-amber-400/40 ring-2 ring-amber-300/40 animate-pulse' : 'bg-stone-800 text-stone-500'
+              }`}>
+                3
+              </div>
+              <span className={`text-[9px] min-[380px]:text-[10px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
+                syncProgress >= 80 ? 'text-amber-300 font-black' : 'text-stone-500'
+              }`}>
+                {lang === 'IT' ? 'Camere Libere' : lang === 'TH' ? 'ตรวจสอบวันว่าง' : lang === 'DE' ? 'Verfügbarkeit' : 'Live Calendar'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGA 3: NOTA ESPLICATIVA RASSICURANTE */}
+        <p className="text-[10.5px] min-[380px]:text-[11.5px] sm:text-xs text-stone-300/90 max-w-lg leading-relaxed pt-0.5">
+          {lang === 'IT' ? 'Stiamo interrogando il calendario ufficiale di Flower Power Village per scaricare le date libere e le tariffe aggiornate. Attendi qualche secondo...' 
+            : lang === 'TH' ? 'กำลังเชื่อมต่อระบบจองของ Flower Power Village เพื่ออัปเดตวันว่างและราคาล่าสุด กรุณารอสักครู่...' 
+            : lang === 'DE' ? 'Verbindung zum Buchungssystem von Flower Power Village wird hergestellt. Bitte warten Sie einige Sekunden...' 
+            : 'Connecting to Flower Power Village booking engine to fetch updated free dates and direct rates. Please wait a few seconds...'}
+        </p>
+      </div>
+    );
+  };
+
+  // =========================================================================
   // RENDER 1: ULTRA-ESSENTIAL TIMELINE / MATRICE COMPATTA (7-8 GIORNI SU SMARTPHONE)
   // =========================================================================
   const renderTimelineView = () => {
     if (loadingRooms || (loadingGrid && (!gridData || Object.keys(gridData).length === 0))) {
-      return (
-        <div className="w-full bg-[#24201d] border-2 border-emerald-500/50 rounded-2xl shadow-2xl p-8 sm:p-12 flex flex-col items-center justify-center text-center space-y-4 animate-fadeIn my-2">
-          <div className="relative">
-            <div className="w-12 h-12 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin" />
-            <Sparkles className="w-5 h-5 text-amber-300 absolute inset-0 m-auto animate-pulse" />
-          </div>
-          <div className="space-y-1.5 max-w-md">
-            <h3 className="text-base sm:text-lg font-black text-white tracking-wide">
-              {lang === 'IT' ? 'Caricamento disponibilità in tempo reale...' 
-                : lang === 'TH' ? 'กำลังตรวจสอบห้องว่างแบบเรียลไทม์...' 
-                : lang === 'DE' ? 'Live-Verfügbarkeitsprüfung läuft...' 
-                : 'Checking live real-time availability...'}
-            </h3>
-            <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
-              {lang === 'IT' ? 'Stiamo interrogando il calendario ufficiale di Flower Power Village per scaricare le date libere e le tariffe aggiornate. Attendi qualche secondo...' 
-                : lang === 'TH' ? 'กำลังเชื่อมต่อระบบจองของ Flower Power Village เพื่ออัปเดตวันว่างและราคาล่าสุด กรุณารอสักครู่...' 
-                : lang === 'DE' ? 'Verbindung zum Buchungssystem von Flower Power Village wird hergestellt. Bitte warten Sie einige Sekunden...' 
-                : 'Connecting to Flower Power Village booking engine to fetch updated free dates and direct rates. Please wait a few seconds...'}
-            </p>
-          </div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span>Octorate PMS Live Sync</span>
-          </div>
-        </div>
-      );
+      return renderLiveSyncLoadingBanner();
     }
 
     if (sortedRoomsList.length === 0) {
@@ -896,23 +979,16 @@ export default function ResortPublicCalendarPage() {
 
   const renderBlocksView = () => {
     if (loadingRooms || (loadingGrid && (!gridData || Object.keys(gridData).length === 0))) {
-      return (
-        <div className="w-full bg-white border border-stone-300 rounded-2xl shadow-sm p-12 flex flex-col items-center justify-center gap-3">
-          <div className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs sm:text-sm font-bold text-stone-700">
-            {lang === 'IT' ? 'Caricamento disponibilità live...' : lang === 'TH' ? 'กำลังโหลดข้อมูลห้องว่าง...' : 'Loading live availability...'}
-          </span>
-        </div>
-      );
+      return renderLiveSyncLoadingBanner();
     }
 
     if (sortedRoomsList.length === 0) {
       return (
-        <div className="w-full bg-white border border-stone-300 rounded-2xl shadow-sm p-12 text-center space-y-2">
-          <p className="text-sm sm:text-base font-black text-stone-900">
+        <div className="w-full bg-[#24201d] border border-stone-800 rounded-2xl shadow-xl p-10 text-center space-y-2 my-2">
+          <p className="text-sm sm:text-base font-bold text-amber-300">
             {lang === 'IT' ? 'Nessun alloggio disponibile per questo mese.' : lang === 'TH' ? 'ไม่มีห้องว่างในเดือนนี้' : 'No accommodations available for this month.'}
           </p>
-          <p className="text-xs text-stone-500 font-medium">
+          <p className="text-xs text-stone-400">
             {lang === 'IT' ? 'Prova a navigare nei mesi successivi per verificare le date libere.' : lang === 'TH' ? 'ลองเลือกเดือนถัดไปเพื่อดูวันว่าง' : 'Try browsing next months to check free dates.'}
           </p>
         </div>
