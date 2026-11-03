@@ -3,6 +3,26 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 13:58] · BANNER ATTESA: TITOLO SU RIGA UNICA (ZERO A CAPO) & TIMELINE SINCRONIZZAZIONE LIVE
+- **Cosa abbiamo fatto:**
+  1. 📏 **Titolo Banner su Riga Singola Immodificabile (`whitespace-nowrap`)**:
+     - Eliminato qualsiasi a capo del titolo del banner sia su schermi piccoli (smartphone 360-430px) che su tablet/desktop.
+     - Dimensionamento dinamico fluido con micro-spinner e badge PMS allineati orizzontalmente.
+  2. ⏱️ **Timeline di Sincronizzazione Live a Fasi (Milestone Track)**:
+     - Implementata barra di timeline animata fluida che mostra in tempo reale l'avanzamento della sincronizzazione Octorate PMS:
+       - **Fase 1**: `Connessione PMS` (indicatore verde smeraldo con checkmark).
+       - **Fase 2**: `Tariffe Dirette` (download tariffe e sconti diretti).
+       - **Fase 3**: `Camere Libere` (elaborazione griglia live e disponibilità reale).
+     - Track progressivo con gradiente verde smeraldo ➔ ambra e luce pulsante morbida.
+  3. 🛡️ **Coerenza Globale Viste**:
+     - Applicato lo stesso identico componente coerente sia alla visualizzazione a Matrice Timeline (`renderTimelineView`) sia alla visualizzazione a Blocchi Mensili (`renderBlocksView`).
+  4. 🧪 **Collaudo Tecnico**:
+     - Build Vite superata con 0 errori in 5.73s.
+- **File aggiornati:** src/pages/ResortPublicCalendarPage.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato feat/room-availability-calendar.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 13:50] · RITORNO AL TEMA DARK WARM VILLAGE, BARRA INTEGRATA SLIM, SCROLL IN CIMA & BANNER SYNC LIVE
 - **Cosa abbiamo fatto:**
   1. 🌓 **Ritorno al Tema Caldo & Accogliente Dark Village**:
