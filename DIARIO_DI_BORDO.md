@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 13:20] · RESTYLING COMPLETO IN STILE UFFICIALE FLOWER POWER VILLAGE
+- **Cosa abbiamo fatto:**
+  1. 🎨 **Abbandono Estetica Dark Dashboard / KDS**:
+     - Eliminati il tema nero scuro da terminale (`bg-stone-950`, bordi neri `border-stone-800` e sfondi grigi da pannello di controllo) che faceva assomigliare il calendario alla dashboard interna staff.
+  2. 🌴 **Integrazione Identity Ufficiale Flower Power Village**:
+     - **Sfondo Canvas**: tonalità calda e naturale della pietra tropicale (`#e7e5e4`), identica a quella del sito madre (`booking-engine.tsx` e `PageLayout.tsx`).
+     - **Top Brand Navbar**: barra superiore in terracotta/pietra naturale (`bg-[#3b3530]`) con dicitura ufficiale `FLOWER POWER` e corsivo in verde salvia (`text-[#a2b997]` *Village*), link diretto a Home, tasto WhatsApp `#25D366` e selettore lingua a bandierine.
+     - **Hero Header Card**: scheda superiore brandizzata con claim di garanzia -10% prenotazione diretta e accenti `#a2b997`.
+     - **Matrice Timeline e Schede Alloggi**: contenitore elegante in `bg-white` con bordi morbidi in `border-stone-300`, testata tabella in `bg-[#3b3530]`, nomi alloggi in `text-stone-900` nitido e caselle libere in verde fresco naturale (`bg-emerald-50` con tariffe in `text-emerald-950`).
+     - **Footer Ufficiale**: integrato il `VillageFooter` a fondo pagina con contatti, mappa, social e garanzia di prenotazione diretta.
+  3. 🧪 **Collaudo Tecnico**:
+     - Build Vite superata a pieni voti in 6.92s con 0 errori.
+- **File aggiornati:** src/pages/ResortPublicCalendarPage.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato feat/room-availability-calendar.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 13:05] · RIMOZIONE PREZZO SCHEDA, FOTOCAMERA ANGOLO INFERIORE DX & FILTRO ALLOGGI CON 0 DISPONIBILITÀ
 - **Cosa abbiamo fatto:**
   1. 🚫 **Eliminazione Prezzo Statico dalla Scheda Alloggio**:
