@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 12:55] · OTTIMIZZAZIONE NOMI 2 RIGHE, FOTOCAMERA ACCANTO AL PREZZO & ZERO CASELLE VUOTE
+- **Cosa abbiamo fatto:**
+  1. 🏷️ **Nomi Alloggi su Due Righe (`getRoomNameTwoLines`)**:
+     - Prima riga: nome identificativo (`Red`, `Yellow`, `Green`, `Peace & Love`, `Penthouse`, `Jungle Left`, `Camel Tent`, `Room 1..5`, ecc.).
+     - Seconda riga: tipologia (`Bungalow`, `Villa`, `Room`, `Lodge`).
+     - Supporto multilingue anche in Thailandese (es. `เรด` / `บังกะโล`, `พีซ แอนด์ เลิฟ` / `วิลล่า`).
+  2. 📷 **Icona Fotocamera Accanto al Prezzo (Zero Allungamento Colonna)**:
+     - L'icona della macchina fotografica è collocata nella riga inferiore accanto al prezzo minimo (`฿790 📷`), evitando categoricamente di allargare la scheda camera.
+  3. 🚀 **Inizio Diretto dal Primo Giorno Libero (Zero Caselle Vuote Iniziali)**:
+     - Rimosse tutte le caselle vuote o giorni passati (`leadBlanksCount` rimosso): per il mese corrente la griglia parte all'istante dalla data odierna/primo giorno valido, sfruttando al 100% ogni singolo pixel dello schermo mobile.
+  4. 🧪 **Collaudo Tecnico**:
+     - Build Vite superata a pieni voti in 5.37s.
+- **File aggiornati:** src/pages/ResortPublicCalendarPage.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato `feat/room-availability-calendar`.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 12:45] · OTTIMIZZAZIONE SPAZI MOBILE (/calendar): NOME BUNGALOW CLICCABILE CON FOTO & 7-8 GIORNI AFFIANCATI
 - **Cosa abbiamo fatto:**
   1. 📱 **Massimizzazione Spazio Schermo Mobile (7-8 Giorni a Vista)**:
