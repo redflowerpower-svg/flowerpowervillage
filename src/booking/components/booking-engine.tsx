@@ -32,7 +32,8 @@ import {
 } from "lucide-react"
 import { getAuthorizationUrl, isAuthenticated, exchangeToken, clearTokens } from "../lib/octorate"
 import { RoomGrid } from "../resort/components/RoomGrid"
-import { ACCOMMODATIONS, PRICE_CONFIG } from "../resort/config/accommodations"
+import { ACCOMMODATIONS, PRICE_CONFIG, findAccommodationIdentity } from "../resort/config/accommodations"
+import { fetchAccommodations } from "../data/accommodationsService"
 import { translations, Language } from "../lib/translations"
 import { getBaselineMinStay } from "../../admin/resort/lib/octorateAdmin"
 import { calculatePaymentTotal } from "../../lib/paymentCalculations"
@@ -570,6 +571,47 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     setLoading(false)
     setError(null)
   }, [])
+
+  // Auto-activate Direct Checkout when arriving from interactive calendar with ?checkout=1&room=...
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const isCheckout = params.get('checkout') === '1';
+    const roomParam = params.get('room');
+    const inDate = params.get('checkIn') || params.get('from');
+    const outDate = params.get('checkOut') || params.get('to');
+
+    if (isCheckout && roomParam && inDate && outDate) {
+      const cleanParam = String(roomParam).toLowerCase().replace(/^\d+[-_]/, '').trim();
+      fetchAccommodations().then((allRooms) => {
+        const ident = findAccommodationIdentity(roomParam);
+        const match = allRooms.find((r) => {
+          if (!r) return false;
+          const rClean = String(r.slug || r.id).toLowerCase().replace(/^\d+[-_]/, '').trim();
+          if (ident) {
+            const rIdent = findAccommodationIdentity(r.slug) || findAccommodationIdentity(r.name) || findAccommodationIdentity(r.id);
+            if (rIdent && rIdent.canonicalSlug === ident.canonicalSlug) return true;
+            if (rClean === ident.canonicalSlug || ident.aliases.includes(r.slug) || ident.name.toLowerCase() === (r.name || '').toLowerCase()) return true;
+          }
+          return rClean === cleanParam || rClean.includes(cleanParam) || cleanParam.includes(rClean);
+        });
+
+        if (match) {
+          setSelectedRoom(match);
+          setSelectedPricing({
+            basePriceLordo: match.base_price_high,
+            savings: 10,
+            isAvailable: true
+          });
+          const hasBreakfast = params.get('breakfast') === 'true' || params.get('breakfast') === '1';
+          const hasAC = params.get('ac') === 'true' || params.get('ac') === '1';
+          setExtraBreakfast(hasBreakfast);
+          setExtraAC(hasAC);
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+      }).catch((err) => console.warn('[BookingEngine] Direct checkout pre-fetch failed:', err));
+    }
+  }, []);
 
   const stayDays = useMemo(() => calculateStayDays(checkIn, checkOut), [checkIn, checkOut])
   const lowSeason = useMemo(() => isLowSeason(checkIn, checkOut), [checkIn, checkOut])
