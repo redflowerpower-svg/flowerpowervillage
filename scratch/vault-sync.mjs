@@ -92,6 +92,23 @@ export function decryptVault() {
   return true;
 }
 
+export function syncPullVault() {
+  console.log('🔄 Sincronizzazione postazione con GitHub Origin...');
+  try {
+    console.log('🧹 1. Pulizia rami remoti eliminati (git fetch --all --prune)...');
+    execSync('git fetch --all --prune', { stdio: 'inherit', cwd: process.cwd() });
+
+    const currentBranch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8', cwd: process.cwd() }).trim();
+    console.log(`📥 2. Aggiornamento branch locale [${currentBranch}]...`);
+    execSync(`git pull origin ${currentBranch}`, { stdio: 'inherit', cwd: process.cwd() });
+  } catch (err) {
+    console.warn('⚠️ Avviso durante sincronizzazione git:', err.message);
+  }
+
+  console.log('🔓 3. Decifratura Vault e allineamento file .env...');
+  decryptVault();
+}
+
 export function syncDependencies() {
   const pkgPath = path.resolve(process.cwd(), 'package.json');
   if (!fs.existsSync(pkgPath)) return false;
@@ -284,8 +301,10 @@ if (mode === 'encrypt' || mode === 'lock') {
   encryptVault();
 } else if (mode === 'decrypt' || mode === 'unlock') {
   decryptVault();
+} else if (mode === 'sync' || mode === 'pull') {
+  syncPullVault();
 } else if (mode === 'deps') {
   syncDependencies();
 } else if (mode) {
-  console.log(`Uso: node scratch/vault-sync.mjs [lock|unlock|encrypt|decrypt|deps]`);
+  console.log(`Uso: node scratch/vault-sync.mjs [lock|unlock|encrypt|decrypt|sync|pull|deps]`);
 }

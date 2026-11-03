@@ -3000,3 +3000,18 @@
   - **Sincronizzazione Esatta Prezzo Notte (`basePrice`) & Ospiti (`guests`)**: Nel passaggio da `/calendar` a `/village` con `checkout=1`, vengono passati via query params il prezzo notte medio effettivo calcolato dal calendario (`nightlyBasePrice = Math.round(grossTotal / nights)`) e la capienza ospiti di base della camera.
   - **Ricucitura Diretta nel Checkout Tradizionale (`booking-engine.tsx`)**: All'arrivo su `/village`, `booking-engine.tsx` inizializza direttamente la camera corrispondente (`selectedRoom`), il tariffario coerente (`selectedPricing.basePriceLordo = effectiveBasePrice`), i supplementi colazione/AC e la capienza ospiti.
   - **Zero Duplicazioni di Backend / Nessuna Nuova Linea di Rischio**: L'utente si trova inserito al 100% nel checkout standard esistente: il riepilogo laterale dei costi combacia al singolo Baht (฿) con la card, l'inserimento dei dati personali e la selezione del metodo di pagamento (Stripe, PromptPay QR, Bonifico) usano le medesime funzioni collaudate (`handleConfirmBooking`), e il pulsante `← Torna alla selezione` riconduce normalmente alla griglia alloggi con le date preservate.
+
+
+- **Potenziamento MARKDOWN-PROJECT & Protocollo Sincronizzazione Multi-Postazione (Koh Phayam <-> Ranong)**:
+  - **Automazione Totale con `scripts/project-sync.mjs` (`npm run project:sync`)**: Ingegnerizzato uno script Node.js che esegue in sequenza atomica e senza possibilità di errore umano:
+    1. Audit anti-secret leak (`scratch/security-audit.mjs`).
+    2. Cifratura automatica della cassaforte vault (`scratch/vault-sync.mjs encrypt`).
+    3. Rilevamento automatico e sincronizzazione di qualsiasi **feature branch** attivo (`git push -u origin <branch>`), azzerando il rischio di rami di sviluppo orfani confinati a una sola postazione.
+    4. Sincronizzazione e push su **`staging`** (`git push origin staging`).
+    5. Merge automatico e push su **`main`** (`git push origin main`).
+    6. Pulizia automatica della cache e dei branch remoti eliminati (`git fetch --all --prune`).
+    7. Ripristino ordinato sul branch di lavoro originario.
+  - **Comando `VAULT-SYNC` Potenziato (`npm run vault:sync` / `node scratch/vault-sync.mjs sync`)**:
+    - Integrata la pulizia automatica dei branch remoti fantasma (`git fetch --all --prune`) e l'aggiornamento del branch locale (`git pull`) prima della decifratura del vault e dell'allineamento dei file `.env` e delle dipendenze npm.
+  - **Allineamento Immediato su GitHub**: Eseguito il push ufficiale del branch `feat/room-availability-calendar` su GitHub origin, rendendolo immediatamente scaricabile e visibile su qualsiasi postazione (Ranong compresa).
+  - **Aggiornamento Regole di Sistema & Master Blueprint**: Codificato il nuovo flusso sia in `.agents/AGENTS.md` sia nei documenti core `03_regole_sistema_agents.md`, `22_regole_operative_agents.md` e `AGENTS.md` in `documentation_reports/`.

@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
-    "render:cloud": "node scripts/render-social-video-cloud.mjs"
+    "render:cloud": "node scripts/render-social-video-cloud.mjs",
+    "project:sync": "node scripts/project-sync.mjs",
+    "vault:sync": "node scratch/vault-sync.mjs sync"
   },
   "dependencies": {
     "@imgly/background-removal": "^1.7.0",

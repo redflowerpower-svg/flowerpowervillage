@@ -369,7 +369,7 @@ La modalità **Dining Tablet** è il modulo dedicato all'ordinazione autonoma di
 
 ### 1. `VAULT-SYNC` (Workflow Sincronizzazione Nuova Postazione)
 Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** sulla postazione:
-1. **Aggiornamento Automatico Git**: Esegue preliminare `git pull` da origin per scaricare l'ultimo codice e il file cifrato aggiornato `.md.enc`.
+1. **Aggiornamento Automatico Git & Pulizia Prune (`npm run vault:sync` / `node scratch/vault-sync.mjs sync`)**: Esegue `git fetch --all --prune` per eliminare dalla memoria locale tutti i rami obsoleti cancellati su GitHub origin, e scarica l'ultimo codice del branch attivo e il file cifrato aggiornato `.md.enc`.
 2. **Decifratura Vault**: Esegui `node scratch/vault-sync.mjs decrypt` (usando `MASTER_VAULT_KEY`).
 3. **Allineamento Ambiente**: Rigenera e allinea automaticamente i file `.env` e `.env.local` locali.
 4. **Allineamento Dipendenze NPM**: Esegue la verifica automatica di tutte le librerie in `package.json` (`syncDependencies()`); se mancano pacchetti in `node_modules` (es. aggiunti dall'altra postazione), lancia automaticamente `npm install` per azzerare ogni rischio di import mancanti in Vite.
@@ -421,13 +421,15 @@ Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi
    - Cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
    - Controllo zero secret leak (`node scratch/security-audit.mjs`).
    - Typecheck (`npx tsc --noEmit`).
-2. **Fase 2 - Deploy Simultaneo (Staging + Produzione)**:
+2. **Fase 2 - Sincronizzazione Multi-Postazione & Deploy Simultaneo (`npm run project:sync` / `node scripts/project-sync.mjs`):**
+   - **Sincronizzazione Feature Branch**: Se è attivo un feature branch locale (es. `feat/*`), viene automaticamente salvato e pushato su origin (`git push -u origin <branch>`) per renderlo immediatamente accessibile su tutte le postazioni (Ranong ↔ Koh Phayam).
    - Commit delle modifiche sul branch `staging`.
    - `git push origin staging` (Aggiorna all'istante `staging.flowerpowerpizza.com`).
    - `git checkout main`
    - `git merge staging -m "Release: <descrizione_rilascio>"`
    - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
-   - Ritorno automatico su `staging` (`git checkout staging`).
+   - Pulizia rami remoti eliminati (`git fetch --all --prune`).
+   - Ritorno automatico su `staging` (o sul branch di partenza).
 3. **Fase 3 - Report Handoff a 5 Punti per Gemini Notebook**:
    - Emissione del report compatto per il taccuino Gemini e conferma dell'allineamento globale.
 
