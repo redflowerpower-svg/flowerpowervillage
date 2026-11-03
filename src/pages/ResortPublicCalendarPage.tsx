@@ -339,15 +339,44 @@ export default function ResortPublicCalendarPage() {
     return findAccommodationIdentity(room.slug) || findAccommodationIdentity(room.name) || findAccommodationIdentity(room.id);
   };
 
-  // Ordered Rooms: Hero Room FIRST, followed by other rooms (filtered by category if selected)
+  // Verifica se un alloggio ha almeno 1 giorno disponibile/prenotabile nel mese visualizzato
+  const isRoomAvailableInMonth = (room: EnrichedAccommodation): boolean => {
+    if (!gridData || Object.keys(gridData).length === 0) return true;
+
+    for (const dayNum of monthDayNumbers) {
+      const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+      const dData = getDayData(room, dateStr);
+      // È disponibile se esiste dData, available è true, stopSell non è attivo e il prezzo non è quello fittizio di chiusura (>= 10.000)
+      if (dData && dData.available && !dData.stopSell && dData.price > 0 && dData.price < 10000) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Ordered Rooms: Hero Room FIRST, followed by other rooms (filtered by availability and category)
+  // Gli alloggi non disponibili (come Room 1,2,3,4,5, Lodge 1,2 con 0 disponibilità) non compaiono
   const { heroRoom, sortedRoomsList } = useMemo(() => {
     if (!rooms || rooms.length === 0) return { heroRoom: null, sortedRoomsList: [] };
+
+    // 1. Esclude alloggi fittizi o test
+    const realRooms = rooms.filter((r) => {
+      const slug = cleanSlug(r.slug || r.name);
+      return !slug.includes('fake');
+    });
+
+    // 2. Filtra per disponibilità nel mese (se i dati Octorate sono caricati)
+    // Se un alloggio non ha nemmeno 1 giorno libero (0 disponibilità), NON deve comparire
+    const hasGrid = Boolean(gridData && Object.keys(gridData).length > 0);
+    const availableRooms = hasGrid
+      ? realRooms.filter((r) => isRoomAvailableInMonth(r))
+      : realRooms;
 
     let targetRoom: EnrichedAccommodation | null = null;
 
     if (heroRoomSlug) {
       const cleanHero = cleanSlug(heroRoomSlug);
-      targetRoom = rooms.find((r) => {
+      targetRoom = availableRooms.find((r) => {
         const ident = getRoomIdent(r);
         if (ident && (ident.canonicalSlug === cleanHero || ident.legacySlug === heroRoomSlug || ident.aliases.includes(heroRoomSlug))) {
           return true;
@@ -356,11 +385,11 @@ export default function ResortPublicCalendarPage() {
       }) || null;
     }
 
-    if (!targetRoom && rooms.length > 0) {
-      targetRoom = rooms[0];
+    if (!targetRoom && availableRooms.length > 0) {
+      targetRoom = availableRooms[0];
     }
 
-    const others = rooms.filter((r) => r.id !== targetRoom?.id);
+    const others = availableRooms.filter((r) => r.id !== targetRoom?.id);
 
     const filteredOthers = selectedCategory === 'TUTTI'
       ? others
@@ -369,7 +398,7 @@ export default function ResortPublicCalendarPage() {
     const list = targetRoom ? [targetRoom, ...filteredOthers] : filteredOthers;
 
     return { heroRoom: targetRoom, sortedRoomsList: list };
-  }, [rooms, heroRoomSlug, selectedCategory]);
+  }, [rooms, heroRoomSlug, selectedCategory, gridData, monthDayNumbers, currentYear, currentMonth]);
 
   // Open Preview Modal for Room
   const openPreviewModal = (room: EnrichedAccommodation) => {
@@ -524,6 +553,30 @@ export default function ResortPublicCalendarPage() {
   // RENDER 1: ULTRA-ESSENTIAL TIMELINE / MATRICE COMPATTA (7-8 GIORNI SU SMARTPHONE)
   // =========================================================================
   const renderTimelineView = () => {
+    if (loadingRooms || (loadingGrid && (!gridData || Object.keys(gridData).length === 0))) {
+      return (
+        <div className="w-full bg-stone-900 border border-stone-800 rounded-2xl shadow-xl p-12 flex flex-col items-center justify-center gap-3">
+          <div className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs sm:text-sm font-semibold text-stone-300">
+            {lang === 'IT' ? 'Caricamento disponibilità live...' : lang === 'TH' ? 'กำลังโหลดข้อมูลห้องว่าง...' : 'Loading live availability...'}
+          </span>
+        </div>
+      );
+    }
+
+    if (sortedRoomsList.length === 0) {
+      return (
+        <div className="w-full bg-stone-900 border border-stone-800 rounded-2xl shadow-xl p-12 text-center space-y-2">
+          <p className="text-sm sm:text-base font-bold text-amber-300">
+            {lang === 'IT' ? 'Nessun alloggio disponibile per questo mese.' : lang === 'TH' ? 'ไม่มีห้องว่างในเดือนนี้' : 'No accommodations available for this month.'}
+          </p>
+          <p className="text-xs text-stone-400">
+            {lang === 'IT' ? 'Prova a navigare nei mesi successivi per verificare le date libere.' : lang === 'TH' ? 'ลองเลือกเดือนถัดไปเพื่อดูวันว่าง' : 'Try browsing next months to check free dates.'}
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="w-full bg-stone-900 border border-stone-800 rounded-2xl shadow-xl overflow-hidden flex flex-col">
         
@@ -541,16 +594,11 @@ export default function ResortPublicCalendarPage() {
                 {/* STICKY TOP-LEFT CORNER: Alloggi label */}
                 <th 
                   scope="col"
-                  className="sticky left-0 z-30 bg-stone-925 border-b-2 border-r border-stone-800 p-2 w-24 sm:w-28 min-w-[92px] sm:min-w-[110px] shadow-[4px_0_10px_rgba(0,0,0,0.5)]"
+                  className="sticky left-0 z-30 bg-stone-925 border-b-2 border-r border-stone-800 p-1.5 sm:p-2 w-20 sm:w-26 min-w-[80px] sm:min-w-[98px] shadow-[4px_0_10px_rgba(0,0,0,0.5)]"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-black text-white text-[11px] sm:text-xs uppercase tracking-wider">
-                      Alloggi
-                    </span>
-                    <span className="text-[9px] font-bold text-amber-400">
-                      Base
-                    </span>
-                  </div>
+                  <span className="font-black text-white text-[10px] sm:text-xs uppercase tracking-wider block">
+                    Alloggi
+                  </span>
                 </th>
 
                 {/* SLIM DAY COLUMNS (starts directly from first free/valid day, zero blanks!) */}
@@ -610,16 +658,16 @@ export default function ResortPublicCalendarPage() {
                     } hover:bg-stone-850/50`}
                   >
 
-                    {/* ULTRA-SLIM STICKY LEFT COLUMN: 2-Line Name + Camera Icon inside without widening */}
+                    {/* ULTRA-SLIM STICKY LEFT COLUMN: 2-Line Name + Camera Icon in bottom-right corner (zero horizontal widening, NO PRICE) */}
                     <td 
-                      className={`sticky left-0 z-20 p-1.5 sm:p-2 border-r border-stone-800 w-24 sm:w-28 min-w-[92px] sm:min-w-[110px] shadow-[4px_0_10px_rgba(0,0,0,0.4)] ${
+                      className={`sticky left-0 z-20 p-1.5 sm:p-2 border-r border-stone-800 w-20 sm:w-26 min-w-[80px] sm:min-w-[98px] shadow-[4px_0_10px_rgba(0,0,0,0.4)] ${
                         isHero ? 'bg-stone-900 border-l-4 border-l-amber-400' : 'bg-stone-900'
                       }`}
                     >
                       <button
                         type="button"
                         onClick={() => openPreviewModal(room)}
-                        className="w-full text-left cursor-pointer group/name block select-none"
+                        className="relative w-full h-full min-h-[38px] text-left cursor-pointer group/name flex flex-col justify-center select-none pr-4"
                         title="Tocca per vedere foto e dettagli"
                       >
                         {/* Riga 1 e Riga 2 del Nome Alloggio */}
@@ -632,15 +680,13 @@ export default function ResortPublicCalendarPage() {
                           </span>
                         </div>
 
-                        {/* Riga inferiore: Prezzo a sinistra, Icona Macchina Fotografica a destra (zero allargamento!) */}
-                        <div className="flex items-center justify-between mt-1 pt-0.5 border-t border-stone-800/60 leading-none">
-                          <span className="text-[10px] sm:text-[11px] font-black text-amber-400">
-                            {formatPrice(room.base_price_high)}
-                          </span>
-                          <span className="p-0.5 rounded bg-stone-800 text-amber-400 group-hover/name:bg-amber-400 group-hover/name:text-stone-950 transition-colors" title="Foto alloggio">
-                            <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                          </span>
-                        </div>
+                        {/* Icona Macchina Fotografica nell'angolo in basso a destra (zero ingombro orizzontale) */}
+                        <span 
+                          className="absolute bottom-0 right-0 p-0.5 text-stone-400 group-hover/name:text-amber-400 transition-colors"
+                          title="Foto e dettagli"
+                        >
+                          <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                        </span>
                       </button>
                     </td>
 
@@ -829,6 +875,30 @@ export default function ResortPublicCalendarPage() {
   };
 
   const renderBlocksView = () => {
+    if (loadingRooms || (loadingGrid && (!gridData || Object.keys(gridData).length === 0))) {
+      return (
+        <div className="w-full bg-stone-900 border border-stone-800 rounded-2xl shadow-xl p-12 flex flex-col items-center justify-center gap-3">
+          <div className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs sm:text-sm font-semibold text-stone-300">
+            {lang === 'IT' ? 'Caricamento disponibilità live...' : lang === 'TH' ? 'กำลังโหลดข้อมูลห้องว่าง...' : 'Loading live availability...'}
+          </span>
+        </div>
+      );
+    }
+
+    if (sortedRoomsList.length === 0) {
+      return (
+        <div className="w-full bg-stone-900 border border-stone-800 rounded-2xl shadow-xl p-12 text-center space-y-2">
+          <p className="text-sm sm:text-base font-bold text-amber-300">
+            {lang === 'IT' ? 'Nessun alloggio disponibile per questo mese.' : lang === 'TH' ? 'ไม่มีห้องว่างในเดือนนี้' : 'No accommodations available for this month.'}
+          </p>
+          <p className="text-xs text-stone-400">
+            {lang === 'IT' ? 'Prova a navigare nei mesi successivi per verificare le date libere.' : lang === 'TH' ? 'ลองเลือกเดือนถัดไปเพื่อดูวันว่าง' : 'Try browsing next months to check free dates.'}
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-4">
         {sortedRoomsList.map((room) => {
@@ -862,12 +932,6 @@ export default function ResortPublicCalendarPage() {
                   </div>
                   <span className="text-[10px] text-stone-400 block mt-0.5">{room.category} · Fino a {room.capacity} ospiti</span>
                 </button>
-
-                <div className="text-right lg:text-left">
-                  <span className="block text-xs font-black text-amber-400">
-                    da {formatPrice(room.base_price_high)} <span className="text-[10px] text-stone-400 font-normal">/notte</span>
-                  </span>
-                </div>
               </div>
 
               <div className="w-full lg:w-3/4 bg-stone-950/40 rounded-xl border border-stone-800/80 p-2 sm:p-4">
