@@ -567,11 +567,13 @@ export default function ResortPublicCalendarPage() {
   // Proceed directly to Checkout with pre-filled room, dates, and extras
   const handleProceedToCheckout = () => {
     if (!configPricingSummary) return;
-    const { room } = configPricingSummary;
+    const { room, nights, grossTotal } = configPricingSummary;
     const ident = getRoomIdent(room);
     const targetRoomSlug = ident ? ident.canonicalSlug : cleanSlug(room.slug);
+    const nightlyBasePrice = Math.round(grossTotal / nights);
+    const guestsCount = room.baseGuests || 2;
 
-    navigate(`/village?room=${targetRoomSlug}&checkIn=${checkIn}&checkOut=${checkOut}&breakfast=${extraBreakfast}&ac=${extraAC}&checkout=1`);
+    navigate(`/village?room=${targetRoomSlug}&checkIn=${checkIn}&checkOut=${checkOut}&breakfast=${extraBreakfast}&ac=${extraAC}&basePrice=${nightlyBasePrice}&guests=${guestsCount}&checkout=1`);
   };
 
   // Proceed to Configure Room Modal (Opens full-screen exact room configure card)

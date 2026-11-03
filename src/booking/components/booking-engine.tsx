@@ -617,10 +617,14 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           return rClean === cleanParam || rClean.includes(cleanParam) || cleanParam.includes(rClean);
         });
 
-        if (match) {
+                if (match) {
+          const urlBasePrice = Number(params.get('basePrice'));
+          const effectiveBasePrice = (urlBasePrice && urlBasePrice > 0) ? urlBasePrice : match.base_price_high;
+          const urlGuests = Number(params.get('guests'));
+
           setSelectedRoom(match);
           setSelectedPricing({
-            basePriceLordo: match.base_price_high,
+            basePriceLordo: effectiveBasePrice,
             savings: 10,
             isAvailable: true
           });
@@ -628,6 +632,9 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           const hasAC = params.get('ac') === 'true' || params.get('ac') === '1';
           setExtraBreakfast(hasBreakfast);
           setExtraAC(hasAC);
+          if (urlGuests && urlGuests > 0) {
+            setGuests(urlGuests);
+          }
           window.scrollTo({ top: 0, behavior: 'instant' });
         }
       }).catch((err) => console.warn('[BookingEngine] Direct checkout pre-fetch failed:', err));
