@@ -3,6 +3,25 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [03/11/2026 - ORE 13:50] · RITORNO AL TEMA DARK WARM VILLAGE, BARRA INTEGRATA SLIM, SCROLL IN CIMA & BANNER SYNC LIVE
+- **Cosa abbiamo fatto:**
+  1. 🌓 **Ritorno al Tema Caldo & Accogliente Dark Village**:
+     - Abbandonata la versione bianca/chiara su richiesta dell'utente. Adottata la palette ufficiale premium Flower Power Village: sfondo scuro caldo (`#181513`), card e colonna fissa in pietra scura (`#24201d`), accenti oro/ambra (`#fbbf24`), verde smeraldo per le disponibilità (`#10b981`) e salvia per il brand (`#a2b997`).
+  2. 📏 **Top Bar Integrata Slim (~45px) & Zero Spreco di Spazio**:
+     - Eliminata la scheda Hero voluminosa che spingeva in basso la griglia.
+     - Integrati in un'unica barra orizzontale compatta: navigatore mese precedente/successivo, pillole filtri categoria (Tutti, Bungalow, Ville, Tende), selettore vista (Righe/Blocchi) e pulsante copia link.
+     - Il calendario delle disponibilità compare ora immediatamente visibile in cima al viewport, massimizzando lo spazio per le date libere su smartphone.
+  3. ⬆️ **Apertura Pagina Sempre in Cima (`window.scrollTo(0,0)`)**:
+     - Risolto il salto di scroll: quando si clicca "Calendario Completo" dalle schede alloggi in basso sul sito, la pagina ora si apre istantaneamente e categoricamente in cima (`y = 0`).
+  4. ⏳ **Banner Reassuring Sincronizzazione Live Octorate PMS**:
+     - Durante il caricamento delle disponibilità in tempo reale (scaricamento di oltre 240 tariffe/rate plan da Octorate PMS), viene mostrato un banner esplicativo con spinner animato e spiegazione multilingue amichevole: *"Caricamento disponibilità in tempo reale... Stiamo interrogando il calendario ufficiale di Flower Power Village per scaricare le date libere e le tariffe aggiornate. Attendi qualche secondo..."*.
+  5. 🧪 **Collaudo Tecnico**:
+     - Build Vite superata con 0 errori in 7.09s.
+- **File aggiornati:** src/pages/ResortPublicCalendarPage.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch dedicato feat/room-availability-calendar.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 13:20] · RESTYLING COMPLETO IN STILE UFFICIALE FLOWER POWER VILLAGE
 - **Cosa abbiamo fatto:**
   1. 🎨 **Abbandono Estetica Dark Dashboard / KDS**:
