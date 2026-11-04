@@ -52,6 +52,9 @@ scratch/*.json
 scratch/*.mp3
 scratch/*.wav
 scratch/*.txt
+scratch/*.zip
+scratch/*_temp/
+scratch/*_download/
 scratch/*.mjs
 scratch/*.ts
 !scratch/vault-sync.mjs

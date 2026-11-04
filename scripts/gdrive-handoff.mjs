@@ -180,66 +180,100 @@ async function main() {
       console.log('✅ Archivio chat, brain e PIN creato: antigravity_chats_backup.zip');
     }
 
-    // 7. Creazione dell'archivio zip complessivo handoff_completo.zip
-    const handoffZipPath = path.resolve(process.cwd(), 'scratch/handoff_completo.zip');
-    if (fs.existsSync(handoffZipPath)) fs.unlinkSync(handoffZipPath);
-    console.log('🤐 Creazione handoff_completo.zip...');
-    execSync(`powershell -NoProfile -Command "Compress-Archive -Path '${tempDir}/*' -DestinationPath '${handoffZipPath}' -Force"`);
-
-    // 8. Upload di tutti i file su Google Drive
+    // 7. Upload dei file su Google Drive con supporto Resumable per grandi archivi
     console.log('\n🚀 Passo 5: Caricamento su Google Drive 5TB...');
 
     async function uploadFile(filePath, fileName, mimeType = 'application/octet-stream') {
       const fileBuffer = fs.readFileSync(filePath);
-      const boundary = "-------FP_HANDOFF_" + Date.now();
-      const delimiter = "\r\n--" + boundary + "\r\n";
-      const closeDelim = "\r\n--" + boundary + "--";
+      const fileSize = fileBuffer.length;
+      const sizeMb = (fileSize / (1024 * 1024)).toFixed(2);
 
-      const metadata = {
-        name: fileName,
-        parents: [folderId]
-      };
+      // Per file piccoli (<= 5MB), usiamo il multipart rapido
+      if (fileSize <= 5 * 1024 * 1024) {
+        const boundary = "-------FP_HANDOFF_" + Date.now();
+        const delimiter = "\r\n--" + boundary + "\r\n";
+        const closeDelim = "\r\n--" + boundary + "--";
 
-      const metadataPart = delimiter +
-        "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
-        JSON.stringify(metadata) + "\r\n";
+        const metadata = {
+          name: fileName,
+          parents: [folderId]
+        };
 
-      const fileHeader = "--" + boundary + "\r\n" +
-        `Content-Type: ${mimeType}\r\n\r\n`;
+        const metadataPart = delimiter +
+          "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
+          JSON.stringify(metadata) + "\r\n";
 
-      const bodyBuffer = Buffer.concat([
-        Buffer.from(metadataPart, "utf8"),
-        Buffer.from(fileHeader, "utf8"),
-        fileBuffer,
-        Buffer.from(closeDelim, "utf8")
-      ]);
+        const fileHeader = "--" + boundary + "\r\n" +
+          `Content-Type: ${mimeType}\r\n\r\n`;
 
-      const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,size", {
+        const bodyBuffer = Buffer.concat([
+          Buffer.from(metadataPart, "utf8"),
+          Buffer.from(fileHeader, "utf8"),
+          fileBuffer,
+          Buffer.from(closeDelim, "utf8")
+        ]);
+
+        const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,size", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": `multipart/related; boundary=${boundary}`,
+            "Content-Length": bodyBuffer.length.toString()
+          },
+          body: bodyBuffer
+        });
+
+        const resData = await res.json();
+        if (!res.ok) {
+          throw new Error(`Upload fallito per ${fileName}: ${JSON.stringify(resData)}`);
+        }
+        console.log(`  ⬆️ Caricato: ${fileName} (${sizeMb} MB)`);
+        return resData;
+      }
+
+      // Per file grandi (> 5MB, es. archivio chat zip), usiamo il protocollo ufficiale Resumable Upload di Google Drive
+      console.log(`  ⏳ Avvio upload resumable per file grande: ${fileName} (${sizeMb} MB)...`);
+      const initRes = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": `multipart/related; boundary=${boundary}`,
-          "Content-Length": bodyBuffer.length.toString()
+          "Content-Type": "application/json; charset=UTF-8",
+          "X-Upload-Content-Type": mimeType,
+          "X-Upload-Content-Length": fileSize.toString()
         },
-        body: bodyBuffer
+        body: JSON.stringify({ name: fileName, parents: [folderId] })
       });
 
-      const resData = await res.json();
-      if (!res.ok) {
-        throw new Error(`Upload fallito per ${fileName}: ${JSON.stringify(resData)}`);
+      if (!initRes.ok) {
+        const initErr = await initRes.text();
+        throw new Error(`Inizializzazione resumable upload fallita per ${fileName}: ${initErr}`);
       }
-      const sizeMb = (fileBuffer.length / (1024 * 1024)).toFixed(2);
-      console.log(`  ⬆️ Caricato: ${fileName} (${sizeMb} MB)`);
+
+      const uploadUrl = initRes.headers.get("location");
+      if (!uploadUrl) {
+        throw new Error(`Location header mancante per upload resumable di ${fileName}`);
+      }
+
+      const uploadRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": mimeType,
+          "Content-Length": fileSize.toString()
+        },
+        body: fileBuffer
+      });
+
+      const resData = await uploadRes.json();
+      if (!uploadRes.ok) {
+        throw new Error(`Upload resumable fallito per ${fileName}: ${JSON.stringify(resData)}`);
+      }
+      console.log(`  ⬆️ Caricato con successo (resumable): ${fileName} (${sizeMb} MB)`);
       return resData;
     }
 
-    // Carica handoff_completo.zip
-    await uploadFile(handoffZipPath, 'handoff_completo.zip', 'application/zip');
-
-    // Carica anche i singoli file sciolti per consultazione immediata
+    // Carica tutti i file del pacchetto per la postazione
     const uploadFiles = fs.readdirSync(tempDir);
     for (const f of uploadFiles) {
-      if (f === 'handoff_completo.zip') continue;
       const fullPath = path.join(tempDir, f);
       const isZip = f.endsWith('.zip');
       const isJson = f.endsWith('.json');
@@ -252,7 +286,7 @@ async function main() {
     // 9. Pulizia scratch locale temporaneo
     fs.rmSync(tempDir, { recursive: true, force: true });
     if (fs.existsSync(chatsTempDir)) fs.rmSync(chatsTempDir, { recursive: true, force: true });
-    if (fs.existsSync(handoffZipPath)) fs.unlinkSync(handoffZipPath);
+    const hPath = path.resolve(process.cwd(), 'scratch/handoff_completo.zip'); if (fs.existsSync(hPath)) fs.unlinkSync(hPath);
 
     console.log('\n===========================================================');
     console.log('🎉 PACCHETTO HANDOFF CARICATO CON SUCCESSO SU GOOGLE DRIVE!');
