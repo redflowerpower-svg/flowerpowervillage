@@ -3,6 +3,25 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [04/11/2026 - ORE 18:55] · MODALE INGREDIENTI EXTRA PIZZERIA: UNICO SCROLLBAR FLUIDO & CARD STRUTTURATE A CAMPATA PIENA (ZERO A CAPO ANOMALO)
+- **Cosa abbiamo fatto:**
+  1. 🚫 **Eliminazione Radicale del Doppio Scrollbar Sovrapposto**:
+     - Rimosso il box nidificato ad altezza fissa (`max-h-52 overflow-y-auto pr-1`) dalla griglia degli extra a pagamento sia in `MenuGrid.tsx` sia in `ProductModal.tsx`.
+     - Tutti gli ingredienti extra fluiscono ora in modo armonico e continuo all'interno dell'unico scrollbar principale della scheda di personalizzazione.
+  2. 🎛️ **Card Strutturata a Due Livelli & Spazio Orizzontale Pieno (+100% Ampiezza)**:
+     - Separati gli elementi della card:
+       - **Riga superiore**: Selettore checkbox (`[✓]`) a sinistra e Prezzo (`+50 ฿`) a destra, con allineamento pulito `flex items-center justify-between w-full`.
+       - **Riga inferiore**: Nome dell'ingrediente a tutta larghezza (`w-full block`) senza alcun elemento laterale che ne rubi spazio.
+     - Spazio utile per il testo raddoppiato da ~65px a oltre 135px+: azzerata qualsiasi sillabazione sgradevole su parole lunghe (`"Salame Calabrese"`, `"Sweet Bell Peppers"`, `"Sausage"`) in tutte le 9 lingue supportate (Italiano, Inglese, Thai, Tedesco, Malese, Spagnolo, Francese, Russo, Cinese).
+  3. 🧪 **Collaudo Tecnico**:
+     - TypeScript `npx tsc --noEmit` completato con 0 errori.
+     - Security Audit `node scratch/security-audit.mjs` completato con `0 SECRETS DETECTED`.
+     - Build Vite completata con 0 errori in 12.95s.
+- **File aggiornati:** `src/pizza/components/MenuGrid.tsx`, `src/pizza/components/ProductModal.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Testato e rilasciato con workflow `MARKDOWN-WEBSITE`.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 15:25] · IMPLEMENTAZIONE OPZIONE 2: ATTERRAGGIO ISTANTANEO A 0MS SULLA SCHEDA ALLOGGIO IN MODALITÀ "CONFIGURA"
 - **Cosa abbiamo fatto:**
   1. ⚡ **Bypass Totale della Prima Pagina / Hero Slideshow (Atterraggio a 0ms)**:

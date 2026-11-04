@@ -10,6 +10,7 @@ import { GestioneStagionaleTariffe } from './GestioneStagionaleTariffe';
 import { GestioneRestrizioniCanali } from './GestioneRestrizioniCanali';
 import { AccommodationFeaturesEditor } from './AccommodationFeaturesEditor';
 import { TelegramVillageConfigSection } from './TelegramVillageConfigSection';
+import { BookingConciergeStudio } from './BookingConciergeStudio';
 import { supabase } from '../../../lib/supabase';
 import { toThailandDateStr } from '../lib/octorateAdmin';
 import { 
@@ -129,7 +130,7 @@ export function ResortDashboard() {
   } = useResortAdminStore();
 
   const [activeOptimizationTab, setActiveOptimizationTab] = useState<OptimizationTab>('cascade');
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'seasonal_rates' | 'messages' | 'octorate' | 'channel_restrictions' | 'telegram' | 'wines'>(() => {
+  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'seasonal_rates' | 'messages' | 'octorate' | 'channel_restrictions' | 'telegram' | 'wines' | 'booking_concierge'>(() => {
     if (typeof window !== 'undefined') {
       const tabParam = new URLSearchParams(window.location.search).get('tab');
       if (tabParam === 'wines') return 'wines';
@@ -1164,6 +1165,17 @@ export function ResortDashboard() {
             >
               <Send className="w-3.5 h-3.5" />
               <span>BOT TELEGRAM</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('booking_concierge')}
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 flex items-center gap-1.5 ${
+                activeTab === 'booking_concierge'
+                  ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-950/40 ring-1 ring-amber-300 font-black'
+                  : 'text-amber-400 hover:text-white hover:bg-stone-800/50'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>AI CONCIERGE</span>
             </button>
           </div>
         </div>
@@ -2493,6 +2505,12 @@ export function ResortDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      
+      {/* Tab: AI Booking Concierge & Smart Calendar Offers */}
+      {activeTab === 'booking_concierge' && (
+        <BookingConciergeStudio />
       )}
 
       {/* Tab: Telegram Bot Villaggio Indipendente */}

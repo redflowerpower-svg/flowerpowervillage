@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import { processBookingInquiry } from "../_helpers/ai-booking-concierge.js";
 import {
   getTelegramCredentials,
   updateTelegramCredentials,
@@ -401,7 +402,137 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
     
     return res.status(200).json({ status: "location_updated", latitude, longitude });
   }
-  
+  // 3b. AI Booking Concierge message handling (Village Supergroup / Topic 'Booking Offers')
+  const incomingMsg = update.message;
+  if (incomingMsg && incomingMsg.text) {
+    const deptQuery = String(req.query?.dept || '').toLowerCase();
+    const isVillage = deptQuery === 'village' || String(incomingMsg.chat?.id) === '-1004329392611';
+
+    if (isVillage || deptQuery === 'village') {
+      const { botToken: vBotToken } = await getTelegramCredentials('village');
+      if (vBotToken) {
+        const msgText = incomingMsg.text.trim();
+        const chatId = incomingMsg.chat.id;
+        const threadId = incomingMsg.message_thread_id;
+        const messageId = incomingMsg.message_id;
+
+        // /start or /help
+        if (msgText === '/start' || msgText === '/help' || msgText.startsWith('/start@') || msgText.startsWith('/help@')) {
+          const welcomeText = [
+            '🌺 <b>Flower Power Village — AI Booking Concierge</b>',
+            '',
+            'Benvenuto nel topic <b>Booking Offers</b>!',
+            'Incolla qui qualsiasi richiesta ricevuta dai clienti via WhatsApp, Email o Social (in qualunque lingua).',
+            '',
+            '🤖 <b>Cosa farò per te:</b>',
+            '• Estrarrò automaticamente date, alloggio, numero ospiti e lingua.',
+            '• Genererò una risposta calda ed educata pronta da inviare.',
+            '• Genererò il link diretto al <b>calendario live</b> posizionato sul mese corretto per far prenotare l\'ospite!'
+          ].join('\n');
+
+          await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: welcomeText,
+              parse_mode: 'HTML',
+              ...(threadId ? { message_thread_id: threadId } : {}),
+              reply_to_message_id: messageId
+            })
+          });
+          return res.status(200).json({ status: 'welcome_sent' });
+        }
+
+        // Only process inquiries of at least 4 characters that are not isolated slash commands
+        if (msgText.length >= 4 && (!msgText.startsWith('/') || msgText.includes(' '))) {
+          // Send typing indicator
+          fetch(`https://api.telegram.org/bot${vBotToken}/sendChatAction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              action: 'typing',
+              ...(threadId ? { message_thread_id: threadId } : {})
+            })
+          }).catch(() => {});
+
+          try {
+            const inquiryResult = await processBookingInquiry({
+              text: msgText,
+              currentDate: new Date()
+            });
+
+            const langBadge = inquiryResult.detectedLanguage || 'EN';
+            const datesText = (inquiryResult.checkInDate && inquiryResult.checkOutDate)
+              ? `${inquiryResult.checkInDate} ➔ ${inquiryResult.checkOutDate} (${inquiryResult.numNights || '?'} notti)`
+              : (inquiryResult.targetMonth ? `Mese target: ${inquiryResult.targetMonth}` : 'Date flessibili');
+
+            const roomText = inquiryResult.accommodationSlug || inquiryResult.requestedAccommodation || 'Qualsiasi / Non specificato';
+            const guestsText = inquiryResult.numGuests ? `${inquiryResult.numGuests} persone` : 'Non specificato';
+            const guestName = inquiryResult.guestName ? inquiryResult.guestName : 'Ospite';
+
+            const replyHtml = [
+              '🌺 <b>AI CONCIERGE — OFFERTA PRONTA</b>',
+              '',
+              '📌 <b>Dati Rilevati:</b>',
+              `• 🌍 <b>Lingua:</b> ${langBadge}`,
+              `• 👤 <b>Cliente:</b> ${escapeHtml(guestName)}`,
+              `• 📅 <b>Periodo:</b> ${datesText}`,
+              `• 🏠 <b>Alloggio:</b> ${escapeHtml(roomText)}`,
+              `• 👥 <b>Ospiti:</b> ${guestsText}`,
+              '',
+              '💬 <b>Risposta per WhatsApp / Chat (Tocca per copiare):</b>',
+              `<code>${escapeHtml(inquiryResult.politeReplyWhatsApp)}</code>`,
+              '',
+              '🔗 <b>Link Calendario Live:</b>',
+              `<a href="${inquiryResult.calendarUrl}">${inquiryResult.calendarUrl}</a>`
+            ].join('\n');
+
+            const inlineKeyboard = {
+              inline_keyboard: [
+                [
+                  { text: '🌐 Apri Calendario Live', url: inquiryResult.calendarUrl }
+                ]
+              ]
+            };
+
+            const sendRes = await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: replyHtml,
+                parse_mode: 'HTML',
+                disable_web_page_preview: false,
+                reply_markup: inlineKeyboard,
+                ...(threadId ? { message_thread_id: threadId } : {}),
+                reply_to_message_id: messageId
+              })
+            });
+
+            const sendJson = await sendRes.json();
+            return res.status(200).json({ status: 'concierge_replied', ok: sendJson.ok });
+          } catch (inqErr) {
+            console.error('[AI Concierge Error]:', inqErr);
+            await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: `⚠️ <b>AI Concierge:</b> Impossibile interpretare la richiesta: ${escapeHtml(inqErr.message)}`,
+                parse_mode: 'HTML',
+                ...(threadId ? { message_thread_id: threadId } : {}),
+                reply_to_message_id: messageId
+              })
+            }).catch(() => {});
+            return res.status(200).json({ status: 'concierge_error', error: inqErr.message });
+          }
+        }
+      }
+    }
+  }
+
   if (!update.callback_query) {
     return res.status(200).json({ status: "skipped" });
   }
@@ -833,14 +964,14 @@ export async function handleSyncTelegramWebhook(req: VercelRequest, res: VercelR
 
   // Set webhook if pizza or explicitly requested
   let targetWebhookUrl: string | null = null;
-  if (targetDept === 'pizza' || webhookUrl) {
+  if (targetDept === 'pizza' || targetDept === 'village' || webhookUrl) {
     try {
       targetWebhookUrl = webhookUrl;
       if (!targetWebhookUrl) {
         const host = req.headers.host || "";
         const isLocal = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.");
         const protocol = isLocal ? "http" : "https";
-        targetWebhookUrl = `${protocol}://${host}/api/telegram-webhook`;
+        targetWebhookUrl = targetDept === "village" ? `${protocol}://${host}/api/telegram-webhook?dept=village` : `${protocol}://${host}/api/telegram-webhook`;
       }
 
       console.log(`[Sync Webhook] Registering webhook URL: ${targetWebhookUrl}`);

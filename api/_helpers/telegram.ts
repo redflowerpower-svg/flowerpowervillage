@@ -11,7 +11,7 @@ export interface TelegramCredentials {
 export function getSupabaseClient(authHeader?: string) {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
-  
+
   const options: any = {};
   if (authHeader && authHeader.startsWith("Bearer ")) {
     const jwt = authHeader.substring(7);
@@ -119,7 +119,8 @@ export const VILLAGE_TOPICS = {
   BOOKINGS: 3,
   MODIFICATIONS_CANCELLATIONS: 7,
   ALERTS_OVERBOOKING: 8,
-  DAILY_REPORT: 9
+  DAILY_REPORT: 9,
+  BOOKING_OFFERS: 12
 } as const;
 
 export { formatDateDMY, formatAllDatesToDMY } from "./date-formatter.js";
@@ -139,6 +140,8 @@ export async function sendDepartmentTelegramMessage(
     disableWebPagePreview?: boolean;
     threadId?: number;
     topic?: VillageTopicKey;
+    replyMarkup?: any;
+    replyToMessageId?: number;
   }
 ): Promise<{ success: boolean; error?: string; result?: any }> {
   const { botToken, chatId } = await getTelegramCredentials(department);
@@ -162,6 +165,13 @@ export async function sendDepartmentTelegramMessage(
     if (threadId) {
       payload.message_thread_id = threadId;
     }
+  }
+
+  if (options?.replyMarkup) {
+    payload.reply_markup = options.replyMarkup;
+  }
+  if (options?.replyToMessageId) {
+    payload.reply_to_message_id = options.replyToMessageId;
   }
 
   try {
