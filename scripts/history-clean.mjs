@@ -198,3 +198,4 @@ export function cleanHistory(options = {}) {
 if (process.argv[1] && process.argv[1].endsWith('history-clean.mjs')) {
   cleanHistory();
 }
+

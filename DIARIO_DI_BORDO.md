@@ -3,6 +3,35 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [04/11/2026 - ORE 17:59] · RILASCIO UFFICIALE IN PRODUZIONE (MARKDOWN-WEBSITE): REDESIGN COMPLETO VISTA A BLOCCHI (/calendar), DESKTOP SIDE-BY-SIDE CENTRATO & TOOLBAR MOBILE
+- **Cosa abbiamo fatto:**
+  1. 🎨 **Redesign & Leggibilità Cristallina Vista a Blocchi Mensili**:
+     - Risolto il contrasto nero-su-scuro nell'alloggio hero: titolo dorato brillante `text-amber-300 font-black` su fondo scuro elegante.
+     - Eliminato l'abbagliamento delle card bianche e del contenitore grigio: palette Dark Luxury coerente su tutte le schede (`bg-[#201c1a]` e `bg-[#181513]`).
+     - Risolto il troncamento dei giorni a 2 cifre: numero giorno centrato su riga dedicata, fine dei tagli ("15", "22", "28", "30").
+     - Inserita la testata settimanale fissa Lun ➔ Dom con offset esatto del 1° del mese e weekend in ambra.
+  2. 🖥️ **Layout Desktop Side-by-Side Centrato (`max-w-5xl mx-auto`)**:
+     - Eliminato lo sbilanciamento a sinistra e il vuoto nero a destra.
+     - Layout prestigioso a due colonne su desktop: colonna sinistra con thumbnail fotografica 16:9 (badge foto e zoom hover che apre la gallery), titolo e capienza; colonna destra con il calendario mensile a campata piena.
+  3. ⭐ **Banner Oro Alloggio Selezionato Essenziale**:
+     - Rimossa l'icona scintillii extra, lasciando unicamente la stella `★`.
+     - Rimossa la pillola destra *"Prima in Alto"* per un'estetica minimale ed esclusiva.
+  4. 📱 **Toolbar Mobile & Desktop Ottimizzata**:
+     - **Vista a Blocchi come default** all'apertura del calendario (/calendar).
+     - **Categorie su 1 riga**: abbreviate in `Tutti`, `Ville`, `Bungalow`, `Glamping` e `Guesthouse` con padding ottimizzato per smartphone.
+     - **Posizione selettore viste e link**: sotto le categorie su mobile, a sinistra il commutatore `[Blocchi | Righe]` (con scritte visibili anche su mobile) e a destra il pulsante `🔗 Link`.
+  5. 🔒 **Audit di Sicurezza & Build**:
+     - Convalidato audit anti secret-leak (`node scratch/security-audit.mjs`): 0 secrets detected.
+     - Convalidata cifratura Vault (`node scratch/vault-sync.mjs encrypt`).
+     - Convalidato build di produzione Vite (`npm run build`): 0 errori in 8.22s.
+  6. 🚀 **Deploy in Produzione Ufficiale**:
+     - Push su origin/staging, merge su main e push su origin/main.
+     - Rilascio live istantaneo su `www.flowerpowervillage.com` e `www.flowerpowerpizza.com`.
+- **File aggiornati:** `src/pages/ResortPublicCalendarPage.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 ONLINE IN PRODUZIONE.
+
+---
+
 ### 🚀 [04/11/2026 - ORE 17:35] · SEPARAZIONE MARKDOWN-PROJECT (QUOTIDIANO RAPIDO) & MARKDOWN-TRANSFER (CAMBIO POSTAZIONE CLOUD) + MOTORE HOUSEKEEPING STORICO CHAT
 - **Cosa abbiamo fatto:**
   1. ✂️ **Separazione Netta dei Comandi Markdown**:

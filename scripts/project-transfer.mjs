@@ -31,3 +31,4 @@ try {
   console.error('\n❌ ERRORE DURANTE IL TRASFERIMENTO POSTAZIONE:', err.message);
   process.exit(1);
 }
+
