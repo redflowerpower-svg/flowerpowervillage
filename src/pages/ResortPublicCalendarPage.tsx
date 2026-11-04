@@ -40,6 +40,109 @@ const DAY_NAMES_SHORT: Record<Language, string[]> = {
 
 const CATEGORIES = ['TUTTI', 'VILLE', 'BUNGALOW', 'TENDE GLAMPING', 'THE HUB GUESTHOUSE'] as const;
 
+const CATEGORY_LABELS: Record<Language, Record<typeof CATEGORIES[number], string>> = {
+  IT: {
+    'TUTTI': 'Tutti',
+    'VILLE': 'Ville',
+    'BUNGALOW': 'Bungalow',
+    'TENDE GLAMPING': 'Tende Glamping',
+    'THE HUB GUESTHOUSE': 'The Hub Guesthouse'
+  },
+  EN: {
+    'TUTTI': 'All',
+    'VILLE': 'Villas',
+    'BUNGALOW': 'Bungalows',
+    'TENDE GLAMPING': 'Glamping Tents',
+    'THE HUB GUESTHOUSE': 'The Hub Guesthouse'
+  },
+  TH: {
+    'TUTTI': 'ทั้งหมด',
+    'VILLE': 'วิลล่า',
+    'BUNGALOW': 'บังกะโล',
+    'TENDE GLAMPING': 'เต็นท์แกลมปิ้ง',
+    'THE HUB GUESTHOUSE': 'เดอะฮับ เกสต์เฮาส์'
+  },
+  DE: {
+    'TUTTI': 'Alle',
+    'VILLE': 'Villen',
+    'BUNGALOW': 'Bungalows',
+    'TENDE GLAMPING': 'Glamping-Zelte',
+    'THE HUB GUESTHOUSE': 'The Hub Guesthouse'
+  }
+};
+
+const TOOLBAR_I18N: Record<Language, {
+  today: string;
+  prevMonth: string;
+  nextMonth: string;
+  rowsView: string;
+  rowsViewTitle: string;
+  blocksView: string;
+  blocksViewTitle: string;
+  copyLink: string;
+  copyLinkTitle: string;
+  accommodationsHeader: string;
+  chooseCheckOut: string;
+  reset: string;
+}> = {
+  IT: {
+    today: 'Oggi',
+    prevMonth: 'Mese Precedente',
+    nextMonth: 'Mese Successivo',
+    rowsView: 'Righe',
+    rowsViewTitle: 'Panoramica a righe',
+    blocksView: 'Blocchi',
+    blocksViewTitle: 'Vista a blocchi mensili',
+    copyLink: 'Link',
+    copyLinkTitle: 'Copia link',
+    accommodationsHeader: 'Alloggi',
+    chooseCheckOut: '(Scegli Check-Out)',
+    reset: 'Reset'
+  },
+  EN: {
+    today: 'Today',
+    prevMonth: 'Previous Month',
+    nextMonth: 'Next Month',
+    rowsView: 'Rows',
+    rowsViewTitle: 'Rows overview',
+    blocksView: 'Blocks',
+    blocksViewTitle: 'Monthly blocks view',
+    copyLink: 'Link',
+    copyLinkTitle: 'Copy link',
+    accommodationsHeader: 'Rooms',
+    chooseCheckOut: '(Choose Check-Out)',
+    reset: 'Reset'
+  },
+  TH: {
+    today: 'วันนี้',
+    prevMonth: 'เดือนก่อนหน้า',
+    nextMonth: 'เดือนถัดไป',
+    rowsView: 'แถว',
+    rowsViewTitle: 'มุมมองแบบแถว',
+    blocksView: 'บล็อก',
+    blocksViewTitle: 'มุมมองแบบบล็อกรายเดือน',
+    copyLink: 'ลิงก์',
+    copyLinkTitle: 'คัดลอกลิงก์',
+    accommodationsHeader: 'ห้องพัก',
+    chooseCheckOut: '(เลือกวันเช็คเอาท์)',
+    reset: 'รีเซ็ต'
+  },
+  DE: {
+    today: 'Heute',
+    prevMonth: 'Vorheriger Monat',
+    nextMonth: 'Nächster Monat',
+    rowsView: 'Zeilen',
+    rowsViewTitle: 'Zeilenübersicht',
+    blocksView: 'Blöcke',
+    blocksViewTitle: 'Monatsblock-Ansicht',
+    copyLink: 'Link',
+    copyLinkTitle: 'Link kopieren',
+    accommodationsHeader: 'Unterkünfte',
+    chooseCheckOut: '(Check-Out wählen)',
+    reset: 'Zurücksetzen'
+  }
+};
+
 function cleanSlug(s: string): string {
   if (!s) return '';
   return String(s).toLowerCase().replace(/^\d+[-_]/, '').trim();
@@ -760,7 +863,7 @@ export default function ResortPublicCalendarPage() {
                   className="sticky left-0 z-30 bg-[#2a2522] border-b-2 border-r border-stone-800 p-1.5 sm:p-2 w-20 sm:w-26 min-w-[80px] sm:min-w-[98px] shadow-[4px_0_10px_rgba(0,0,0,0.4)] text-left"
                 >
                   <span className="font-black text-white text-[10px] sm:text-xs uppercase tracking-wider block">
-                    Alloggi
+                    {TOOLBAR_I18N[lang]?.accommodationsHeader || 'Alloggi'}
                   </span>
                 </th>
 
@@ -838,8 +941,8 @@ export default function ResortPublicCalendarPage() {
                         {/* BADGE DI RICONOSCIMENTO ALLOGGIO SELEZIONATO */}
                         {isHero && (
                           <div className="mb-1">
-                            <span className="inline-flex items-center gap-1 text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 px-1.5 py-0.5 rounded shadow-sm">
-                              ★ {lang === 'TH' ? 'เลือกแล้ว' : lang === 'DE' ? 'Ausgewählt' : lang === 'EN' ? 'Selected' : 'Selezionata'}
+                            <span className="inline-flex items-center gap-1 text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap">
+                              ★ {lang === 'TH' ? 'เลือกแล้ว' : lang === 'DE' ? 'Wahl' : lang === 'EN' ? 'Selected' : 'Selezione'}
                             </span>
                           </div>
                         )}
@@ -1213,7 +1316,7 @@ export default function ResortPublicCalendarPage() {
               type="button"
               onClick={handlePrevMonth}
               className="p-1.5 rounded-lg bg-[#2d2825] hover:bg-[#38322e] active:scale-95 text-stone-200 transition-all cursor-pointer border border-stone-700/60"
-              title="Mese Precedente"
+              title={TOOLBAR_I18N[lang]?.prevMonth || 'Mese Precedente'}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -1229,7 +1332,7 @@ export default function ResortPublicCalendarPage() {
               type="button"
               onClick={handleNextMonth}
               className="p-1.5 rounded-lg bg-[#2d2825] hover:bg-[#38322e] active:scale-95 text-stone-200 transition-all cursor-pointer border border-stone-700/60"
-              title="Mese Successivo"
+              title={TOOLBAR_I18N[lang]?.nextMonth || 'Mese Successivo'}
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -1239,7 +1342,7 @@ export default function ResortPublicCalendarPage() {
               onClick={handleCurrentMonth}
               className="text-[9px] sm:text-[10px] font-extrabold uppercase px-2 py-1 rounded-lg bg-[#2d2825] hover:bg-[#38322e] text-amber-300 border border-stone-700/60 active:scale-95 transition-all cursor-pointer"
             >
-              Oggi
+              {TOOLBAR_I18N[lang]?.today || 'Oggi'}
             </button>
           </div>
 
@@ -1256,7 +1359,7 @@ export default function ResortPublicCalendarPage() {
                     : 'bg-[#2d2825] text-stone-300 hover:text-white border border-stone-700/60'
                 }`}
               >
-                {cat}
+                {CATEGORY_LABELS[lang]?.[cat] || cat}
               </button>
             ))}
           </div>
@@ -1272,10 +1375,10 @@ export default function ResortPublicCalendarPage() {
                     ? 'bg-amber-400 text-stone-950 shadow-xs'
                     : 'text-stone-400 hover:text-white'
                 }`}
-                title="Panoramica a righe"
+                title={TOOLBAR_I18N[lang]?.rowsViewTitle || 'Panoramica a righe'}
               >
                 <Rows3 className="w-3 h-3" />
-                <span className="hidden sm:inline">Righe</span>
+                <span className="hidden sm:inline">{TOOLBAR_I18N[lang]?.rowsView || 'Righe'}</span>
               </button>
               <button
                 type="button"
@@ -1285,10 +1388,10 @@ export default function ResortPublicCalendarPage() {
                     ? 'bg-amber-400 text-stone-950 shadow-xs'
                     : 'text-stone-400 hover:text-white'
                 }`}
-                title="Vista a blocchi mensili"
+                title={TOOLBAR_I18N[lang]?.blocksViewTitle || 'Vista a blocchi mensili'}
               >
                 <LayoutGrid className="w-3 h-3" />
-                <span className="hidden sm:inline">Blocchi</span>
+                <span className="hidden sm:inline">{TOOLBAR_I18N[lang]?.blocksView || 'Blocchi'}</span>
               </button>
             </div>
 
@@ -1296,9 +1399,9 @@ export default function ResortPublicCalendarPage() {
               type="button"
               onClick={handleCopyLink}
               className="text-[10px] font-bold px-2 py-1 rounded-lg bg-[#2d2825] hover:bg-[#38322e] border border-stone-700/60 text-stone-300 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
-              title="Copia link"
+              title={TOOLBAR_I18N[lang]?.copyLinkTitle || 'Copia link'}
             >
-              🔗 <span className="hidden sm:inline">Link</span>
+              🔗 <span className="hidden sm:inline">{TOOLBAR_I18N[lang]?.copyLink || 'Link'}</span>
             </button>
           </div>
 
@@ -1328,7 +1431,7 @@ export default function ResortPublicCalendarPage() {
                 </p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-xs sm:text-sm font-black text-white">
-                    {checkIn} {checkOut ? `➔ ${checkOut} (${bookingSelectionSummary?.nights || 1}n)` : '(Scegli Check-Out)'}
+                    {checkIn} {checkOut ? `➔ ${checkOut} (${bookingSelectionSummary?.nights || 1}n)` : (TOOLBAR_I18N[lang]?.chooseCheckOut || '(Scegli Check-Out)')}
                   </span>
                   {bookingSelectionSummary && (
                     <span className="text-sm sm:text-base font-black text-amber-400">
@@ -1350,7 +1453,7 @@ export default function ResortPublicCalendarPage() {
                 }}
                 className="px-2.5 py-1.5 rounded-lg text-stone-400 hover:text-white text-[11px] font-bold hover:bg-white/10 transition-all cursor-pointer"
               >
-                Reset
+                {TOOLBAR_I18N[lang]?.reset || 'Reset'}
               </button>
 
               <button

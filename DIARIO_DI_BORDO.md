@@ -3,6 +3,31 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [04/11/2026 - ORE 17:22] · RILASCIO UFFICIALE IN PRODUZIONE (MARKDOWN-WEBSITE): FIX BADGE ALLOGGIO SELEZIONATO & INTERNAZIONALIZZAZIONE COMPLETA CALENDARIO PUBBLICO (/calendar)
+- **Cosa abbiamo fatto:**
+  1. 🏷️ **Fix Badge Alloggio Selezionato (Colonna Sticky)**:
+     - Risolto il difetto dell'a capo che aumentava l'altezza della riga dell'alloggio selezionato in italiano e tedesco.
+     - Sostituita la parola italiana "Selezionata" con "★ Selezione" e la parola tedesca "Ausgewählt" con "★ Wahl" (4 caratteri).
+     - Applicata la regola `whitespace-nowrap` sul contenitore del badge per impedire categoricamente qualunque interruzione di riga su ogni viewport.
+  2. 🌐 **Internazionalizzazione Matrice Toolbar Superiore (IT, EN, TH, DE)**:
+     - Traduzione reattiva del pulsante *Oggi* (*Today* / *วันนี้* / *Heute*).
+     - Traduzione delle pillole filtro alloggi (*Tutti*, *Ville*, *Bungalow*, *Tende Glamping*, *The Hub Guesthouse*) mantenendo invariate le chiavi logiche di filtraggio.
+     - Traduzione pulsanti vista *Righe* (*Rows* / *แถว* / *Zeilen*) e *Blocchi* (*Blocks* / *บล็อก* / *Blöcke*) con relativi tooltip.
+     - Traduzione pulsante *Link* e tooltip di copia.
+     - Traduzione intestazione colonna sinistra sticky *Alloggi* (*Rooms* / *ห้องพัก* / *Unterkünfte*).
+     - Traduzione testi sticky bar inferiore: *(Scegli Check-Out)* e pulsante *Reset*.
+  3. 🔒 **Audit di Sicurezza & Build di Produzione**:
+     - Convalidato audit anti secret-leak (`node scratch/security-audit.mjs`): 0 secrets detected.
+     - Convalidata cifratura Vault (`node scratch/vault-sync.mjs encrypt`).
+     - Convalidato build di produzione Vite: 0 errori in 9.18s.
+  4. 🚀 **Deploy Produzione su Domini Ufficiali**:
+     - Sincronizzazione branch `staging` e deploy su `main` (`origin main`).
+     - Pubblicazione istantanea su `www.flowerpowervillage.com` e `www.flowerpowerpizza.com`.
+- **File aggiornati:** `src/pages/ResortPublicCalendarPage.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 ONLINE IN PRODUZIONE.
+
+---
+
 ### 🟩 [04/11/2026 - ORE 16:32] · OTTIMIZZAZIONE CALENDARIO COMPLETO: RIMOZIONE EMOJI TASTO NERO & EVIDENZA ORO STANZA SELEZIONATA (SEMPRE PRIMA IN ALTO)
 - **Cosa abbiamo fatto:**
   1. 🎨 **Tasto "Calendario Completo" 100% Stilizzato (Zero Emoji 📅)**:
