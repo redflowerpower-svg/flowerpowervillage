@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [04/11/2026 - ORE 17:35] · SEPARAZIONE MARKDOWN-PROJECT (QUOTIDIANO RAPIDO) & MARKDOWN-TRANSFER (CAMBIO POSTAZIONE CLOUD) + MOTORE HOUSEKEEPING STORICO CHAT
+- **Cosa abbiamo fatto:**
+  1. ✂️ **Separazione Netta dei Comandi Markdown**:
+     - **`MARKDOWN-PROJECT` (`npm run project:sync`)**: Ripristinato come comando quotidiano ultra-rapido (~10s). Esegue audit di sicurezza, cifratura vault, housekeeping locale leggero, commit/push su staging e merge/push su main (deploy Vercel). **Rimosso totalmente l'upload su Google Drive**.
+     - **`MARKDOWN-TRANSFER` (`npm run project:transfer`)**: Nuovo comando dedicato da eseguire prima di cambiare postazione fisica (Ranong <-> Koh Phayam). Esegue `MARKDOWN-PROJECT` e carica su Google Drive 5TB il pacchetto di handoff leggero.
+  2. 🧹 **Motore di Housekeeping Storico Chat Antigravity (`scripts/history-clean.mjs` / `npm run history:clean`)**:
+     - Analizzato lo storico di Antigravity: rilevati **706 MB** non compressi distribuiti su 47 file, con sessioni storiche obsolete da luglio/agosto con fino a 5.919 step e 57 MB ciascuna.
+     - Eseguita la prima bonifica atomica: eliminate 41 sessioni obsolete, liberando **659.54 MB** all'istante dal disco fisso C: e riducendo la cartella a soli 36 MB (12 file).
+     - Integrato il controllo silenzioso rapido (0.1s) all'interno di `MARKDOWN-PROJECT` per impedire accumuli futuri.
+  3. 🎯 **Filtro Intelligente & Snello su Google Drive (`scripts/gdrive-handoff.mjs`)**:
+     - Preservati l'indice completo dei titoli (`conversation_summaries.db`) e le annotazioni (`annotations/`).
+     - Estratte e zippate solo le sessioni attive/recenti degli ultimi 7 giorni.
+     - L'archivio per il trasferimento è sceso da ~200 MB a soli **20 MB**, caricabile in pochissimi secondi su Google Drive 5TB.
+- **File aggiornati:** `scripts/history-clean.mjs`, `scripts/project-sync.mjs`, `scripts/project-transfer.mjs`, `scripts/gdrive-handoff.mjs`, `scripts/gdrive-handoff-pull.mjs`, `package.json`, `.agents/AGENTS.md`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Completato e collaudato con successo.
+
+---
+
 ### 🚀 [04/11/2026 - ORE 17:22] · RILASCIO UFFICIALE IN PRODUZIONE (MARKDOWN-WEBSITE): FIX BADGE ALLOGGIO SELEZIONATO & INTERNAZIONALIZZAZIONE COMPLETA CALENDARIO PUBBLICO (/calendar)
 - **Cosa abbiamo fatto:**
   1. 🏷️ **Fix Badge Alloggio Selezionato (Colonna Sticky)**:

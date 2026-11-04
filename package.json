@@ -17,7 +17,9 @@
     "handoff:push": "node scripts/gdrive-handoff.mjs",
     "handoff:pull": "node scripts/gdrive-handoff-pull.mjs",
     "vault:sync": "node scratch/vault-sync.mjs sync",
-    "vault:project": "node scratch/vault-sync.mjs sync"
+    "vault:project": "node scratch/vault-sync.mjs sync",
+    "project:transfer": "node scripts/project-transfer.mjs",
+    "history:clean": "node scripts/history-clean.mjs"
   },
   "dependencies": {
     "@imgly/background-removal": "^1.7.0",

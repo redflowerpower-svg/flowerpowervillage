@@ -28,7 +28,7 @@ function getOutput(command) {
 }
 
 console.log('===========================================================');
-console.log('🚀 AVVIO WORKFLOW SINCRONIZZAZIONE TOTALE: MARKDOWN-PROJECT');
+console.log('🚀 AVVIO WORKFLOW DEPLOY E SINCRONIZZAZIONE: MARKDOWN-PROJECT');
 console.log('===========================================================');
 
 try {
@@ -67,10 +67,19 @@ try {
   console.log('\n🔐 Passo 2: Cifratura Vault Credenziali...');
   run('node scratch/vault-sync.mjs encrypt');
 
-  // 4. Verifica stato git su staging (commit automatico se ci sono modifiche tracciate/piste)
+  // 4. Housekeeping Locale Storico Chat Antigravity (snello, silenzioso e ultra-veloce)
+  console.log('\n🧹 Passo 3: Housekeeping Locale Storico Antigravity...');
+  try {
+    run('node scripts/history-clean.mjs --silent');
+    console.log('✅ Storico locale verificato e snellito.');
+  } catch (cleanErr) {
+    console.warn('⚠️ Avviso durante housekeeping storico:', cleanErr.message);
+  }
+
+  // 5. Verifica stato git su staging (commit automatico se ci sono modifiche tracciate/piste)
   const status = getOutput('git status --porcelain');
   if (status) {
-    console.log('\n📦 Passo 3: Rilevate modifiche non committate su staging. Creazione commit...');
+    console.log('\n📦 Passo 4: Rilevate modifiche non committate su staging. Creazione commit...');
     run('git add .');
     const commitMsg = process.argv[2] || 'chore(project): full multi-workstation sync (staging)';
     run(`git commit -m "${commitMsg}"`);
@@ -78,40 +87,32 @@ try {
     console.log('\n✅ Nessuna modifica pendente da committare su staging.');
   }
 
-  // 5. Push su origin staging
-  console.log('\n🌐 Passo 4: Push su origin/staging (Ambiente Virtuale Vercel)...');
+  // 6. Push su origin staging
+  console.log('\n🌐 Passo 5: Push su origin/staging (Ambiente Virtuale Vercel)...');
   runWithRetry('git push origin staging');
 
-  // 6. Merge e Push su origin main (Produzione)
-  console.log('\n🚀 Passo 5: Merge in [main] e Push su origin/main (Produzione Ufficiale)...');
+  // 7. Merge e Push su origin main (Produzione)
+  console.log('\n🚀 Passo 6: Merge in [main] e Push su origin/main (Produzione Ufficiale)...');
   run('git checkout main');
   run('git merge staging --no-edit');
   runWithRetry('git push origin main');
 
-  // 7. Pulizia rami remoti eliminati (prune)
-  console.log('\n🧹 Passo 6: Pulizia rami obsoleti (git fetch --all --prune)...');
+  // 8. Pulizia rami remoti eliminati (prune)
+  console.log('\n🧹 Passo 7: Pulizia rami obsoleti (git fetch --all --prune)...');
   run('git fetch --all --prune');
 
-  // 8. Ritorno sempre a staging per lasciare l'ambiente pronto
-  console.log('\n↩️ Passo 7: Ritorno al branch di lavoro [staging]...');
+  // 9. Ritorno sempre a staging per lasciare l'ambiente pronto
+  console.log('\n↩️ Passo 8: Ritorno al branch di lavoro [staging]...');
   run('git checkout staging');
 
-  // 9. Upload Pacchetto Handoff su Google Drive 5TB (Codice, Vault, Chat & Pin)
-  console.log('\n☁️ Passo 8: Upload Pacchetto Handoff su Google Drive 5TB...');
-  try {
-    run('node scripts/gdrive-handoff.mjs');
-  } catch (gdErr) {
-    console.warn('⚠️ Avviso durante upload Google Drive handoff:', gdErr.message);
-  }
-
   console.log('\n===========================================================');
-  console.log('🎉 SINCRONIZZAZIONE COMPLETATA CON SUCCESSO SU STAGING E PRODUZIONE!');
+  console.log('🎉 DEPLOY E SINCRONIZZAZIONE COMPLETATI CON SUCCESSO!');
   console.log('===========================================================');
-  console.log('- Staging:      Aggiornato su origin/staging');
-  console.log('- Produzione:   Aggiornato su origin/main');
-  console.log('- Google Drive: Pacchetto Handoff aggiornato (Codice, Chat, Pin)');
+  console.log('- Staging:      Aggiornato su origin/staging (Vercel Preview)');
+  console.log('- Produzione:   Aggiornato su origin/main (Vercel Produzione)');
   console.log('- Branch:       Posizionato su [staging] per la prossima sessione');
   console.log('- Vault:        Cifrato e protetto');
+  console.log('- Housekeeping: Cronologia locale verificata e snellita');
   console.log('- Prune:        Cache remota ripulita al 100%');
   console.log('===========================================================\n');
 } catch (err) {

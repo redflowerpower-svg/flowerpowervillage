@@ -111,6 +111,8 @@ async function main() {
     const projectMappings = {
       'AGENTS.md': '.agents/AGENTS.md',
       'project-sync.mjs': 'scripts/project-sync.mjs',
+      'project-transfer.mjs': 'scripts/project-transfer.mjs',
+      'history-clean.mjs': 'scripts/history-clean.mjs',
       'branch-sync.mjs': 'scripts/branch-sync.mjs',
       'branch-merge.mjs': 'scripts/branch-merge.mjs',
       'vault-sync.mjs': 'scratch/vault-sync.mjs',
