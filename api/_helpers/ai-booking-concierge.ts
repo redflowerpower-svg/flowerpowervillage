@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 /**
  * AI Booking Concierge & Smart Calendar Assistant for Flower Power Village (Koh Phayam)
  * 
@@ -95,6 +96,34 @@ export function buildVillageCalendarUrl(params: {
 /**
  * Invia il messaggio a DeepSeek AI per interpretarlo ed estrarre tutti i parametri di prenotazione
  */
+
+/**
+ * Recupera la chiave API di DeepSeek dall'environment o con fallback su Supabase
+ */
+async function getDeepSeekApiKey(): Promise<string | null> {
+  const direct = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY;
+  if (direct && direct.trim()) return direct.trim();
+
+  try {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+    if (supabaseUrl && supabaseKey) {
+      const client = createClient(supabaseUrl, supabaseKey);
+      const { data } = await client
+        .from('telegram_config')
+        .select('bot_token, chat_id')
+        .eq('id', 'deepseek_api_key')
+        .maybeSingle();
+      if (data?.bot_token && data.bot_token.trim()) return data.bot_token.trim();
+      if (data?.chat_id && data.chat_id.trim()) return data.chat_id.trim();
+    }
+  } catch (e) {
+    console.warn('[getDeepSeekApiKey] Error fetching from Supabase fallback:', e);
+  }
+
+  return null;
+}
+
 export async function processBookingInquiry(options: ProcessBookingInquiryOptions): Promise<BookingInquiryResult> {
   const { text, currentDate = new Date() } = options;
 
@@ -102,7 +131,7 @@ export async function processBookingInquiry(options: ProcessBookingInquiryOption
     throw new Error('Nessun testo fornito per l\'interpretazione');
   }
 
-  const apiKey = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY;
+  const apiKey = await getDeepSeekApiKey();
   if (!apiKey) {
     throw new Error('DEEPSEEK_API_KEY non configurata nel server');
   }
