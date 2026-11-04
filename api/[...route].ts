@@ -37,10 +37,10 @@ import { handleDocumentReader } from "./_handlers/reader.js";
 import { handleDocumentsApi } from "./_handlers/documents-api.js";
 import { handlePaymentsAdmin } from "./_handlers/payments-admin.js";
 import { handlePizzaServiceStatus } from "./_handlers/pizza-service-status.js";
-import { 
-  handleOmiseCharge, 
-  handleOmiseCheckStatus, 
-  handleOmiseWebhook 
+import {
+  handleOmiseCharge,
+  handleOmiseCheckStatus,
+  handleOmiseWebhook
 } from "./_handlers/omise-payment.js";
 import { handlePizzaFirstOrderCheck } from "./_handlers/pizza-first-order.js";
 import { handleTableReservation } from "./_handlers/table-reservation.js";
@@ -52,13 +52,14 @@ import { handleResortSentinel } from "./_handlers/resort-sentinel.js";
 import { handleSocialCallback } from "./_handlers/social-callback.js";
 import { handleSocialPublisher } from "./_handlers/social-publisher.js";
 import { handleRanongFlights } from "./_handlers/ranong-flights.js";
+import { handleBookingConcierge } from "./_handlers/booking-concierge.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
-      if (req.method === 'GET' || req.method === 'HEAD') {
-          return res.status(200).json({ status: "Webhook Ready" });
-      }
-      return handleOctorateWebhook(req, res); 
+    if (req.method === 'GET' || req.method === 'HEAD') {
+      return res.status(200).json({ status: "Webhook Ready" });
+    }
+    return handleOctorateWebhook(req, res);
   }
 
   // Extract path from req.url or req.query.route with failsafe decoding and normalization
@@ -90,6 +91,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.startsWith('ranong-flights') || cleanPath.startsWith('flights')) {
     return handleRanongFlights(req, res);
+  }
+
+  if (cleanPath.startsWith('booking-concierge') || cleanPath.startsWith('resort/booking-concierge') || cleanPath.includes('ai-concierge')) {
+    return handleBookingConcierge(req, res);
   }
 
   if (cleanPath.startsWith('social-publisher') || cleanPath.startsWith('social/publisher') || cleanPath.startsWith('social-publish') || cleanPath.startsWith('tiktok-publish')) {
@@ -225,6 +230,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     case 'pizza-order-status':
     case 'telegram-update-status':
       return handleTelegramUpdateStatus(req, res);
+
+    case 'booking-concierge':
+      return handleBookingConcierge(req, res);
 
     case 'telegram-webhook':
       return handleTelegramWebhook(req, res);

@@ -2450,7 +2450,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                           <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                             {group.title}
                           </p>
-                          <div className="grid grid-cols-2 gap-2 max-h-52 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                             {group.items.map((extra) => {
                               const checked = !!selectedExtras.find((e) => e.id === extra.id);
                               return (
@@ -2458,15 +2458,16 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                                   key={extra.id}
                                   type="button"
                                   onClick={() => toggleExtra(extra)}
-                                  className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                                  className={`flex flex-col justify-between p-2.5 sm:p-3 text-left rounded-xl border transition-all duration-150 cursor-pointer min-h-[68px] ${
                                     checked
                                       ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold shadow-xs'
                                       : 'border-stone-200 bg-white hover:border-stone-300'
                                   }`}
                                 >
-                                  <div className="flex items-center gap-2 min-w-0 flex-1 pr-1">
+                                  {/* Top row: Checkbox (left) + Price (right) */}
+                                  <div className="w-full flex items-center justify-between mb-1.5 pointer-events-none">
                                     <div
-                                      className={`w-3.5 h-3.5 flex items-center justify-center rounded transition-all flex-shrink-0 ${
+                                      className={`w-4 h-4 flex items-center justify-center rounded transition-all flex-shrink-0 ${
                                         checked
                                           ? 'border-[#8B1E1E] bg-[#8B1E1E]'
                                           : 'border-stone-300 bg-stone-100'
@@ -2474,21 +2475,25 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                                       style={{ borderWidth: '1px' }}
                                     >
                                       {checked && (
-                                        <svg width="7" height="6" viewBox="0 0 10 8" fill="none">
+                                        <svg width="8" height="7" viewBox="0 0 10 8" fill="none">
                                           <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                       )}
                                     </div>
-                                    <span className="text-stone-850 text-xs font-semibold leading-snug break-words flex-1 min-w-0">{getTranslatedName(extra)}</span>
+                                    {extra.price > 0 ? (
+                                      <span className="text-[#8B1E1E] text-xs font-extrabold inline-flex items-baseline gap-0.5">
+                                        <span>+{extra.price}</span>
+                                        <span className="text-[10px] font-black select-none text-[#8B1E1E]">฿</span>
+                                      </span>
+                                    ) : (
+                                      <span className="text-stone-400 text-[10px] font-medium">{t.freeText}</span>
+                                    )}
                                   </div>
-                                  {extra.price > 0 ? (
-                                    <span className="text-[#8B1E1E] text-xs font-extrabold inline-flex items-baseline gap-0.5 ml-auto flex-shrink-0">
-                                      <span>+{extra.price}</span>
-                                      <span className="text-[10px] font-black select-none text-[#8B1E1E]">฿</span>
-                                    </span>
-                                  ) : (
-                                    <span className="text-stone-400 text-[10px] ml-auto flex-shrink-0">{t.freeText}</span>
-                                  )}
+
+                                  {/* Bottom row: Extra ingredient name spanning full width */}
+                                  <span className="text-stone-850 text-xs font-semibold leading-snug w-full block">
+                                    {getTranslatedName(extra)}
+                                  </span>
                                 </button>
                               );
                             })}
