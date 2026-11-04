@@ -7,6 +7,22 @@ function run(command, options = {}) {
   return execSync(command, { stdio: 'inherit', cwd: process.cwd(), ...options });
 }
 
+function runWithRetry(command, maxRetries = 4, delaySec = 2) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`\n⚙️  Esecuzione (tentativo ${attempt}/${maxRetries}): ${command}`);
+      return execSync(command, { stdio: 'inherit', cwd: process.cwd() });
+    } catch (err) {
+      if (attempt < maxRetries) {
+        console.warn(`⚠️ Risposta temporanea remota di GitHub non andata a buon fine. Riprovo tra ${delaySec}s...`);
+        execSync(`powershell -NoProfile -Command "Start-Sleep -Seconds ${delaySec}"`);
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
 function getOutput(command) {
   return execSync(command, { encoding: 'utf8', cwd: process.cwd() }).trim();
 }
@@ -64,13 +80,13 @@ try {
 
   // 5. Push su origin staging
   console.log('\n🌐 Passo 4: Push su origin/staging (Ambiente Virtuale Vercel)...');
-  run('git push origin staging');
+  runWithRetry('git push origin staging');
 
   // 6. Merge e Push su origin main (Produzione)
   console.log('\n🚀 Passo 5: Merge in [main] e Push su origin/main (Produzione Ufficiale)...');
   run('git checkout main');
   run('git merge staging --no-edit');
-  run('git push origin main');
+  runWithRetry('git push origin main');
 
   // 7. Pulizia rami remoti eliminati (prune)
   console.log('\n🧹 Passo 6: Pulizia rami obsoleti (git fetch --all --prune)...');
