@@ -49,6 +49,7 @@ import {
   Ticket,
   Send,
   Bot,
+  Sparkles,
   Wine as WineIcon,
   X
 } from 'lucide-react';
