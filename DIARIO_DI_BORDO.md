@@ -3,6 +3,88 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [04/11/2026 - ORE 16:32] · OTTIMIZZAZIONE CALENDARIO COMPLETO: RIMOZIONE EMOJI TASTO NERO & EVIDENZA ORO STANZA SELEZIONATA (SEMPRE PRIMA IN ALTO)
+- **Cosa abbiamo fatto:**
+  1. 🎨 **Tasto "Calendario Completo" 100% Stilizzato (Zero Emoji 📅)**:
+     - In `src/booking/lib/translations.ts`: rimossa l'emoji `📅` da tutte le 4 lingue (IT: *Calendario Completo*, EN: *Full Calendar*, TH: *ปฏิทินห้องว่าง*, DE: *Vollständiger Kalender*).
+     - In `src/booking/resort/components/RoomGrid.tsx`: lasciata esclusivamente l'icona stilizzata SVG `<Calendar className="w-3.5 h-3.5 text-amber-400" />`, ottenendo un design minimalista, elegante e senza ripetizioni visive.
+  2. 🔝 **Stanza Selezionata Tassativamente Prima in Alto (`/calendar`)**:
+     - In `src/pages/ResortPublicCalendarPage.tsx`: perfezionato il memo di ordinamento (`sortedRoomsList`). Se l'utente atterra da una scheda stanza (`?room=...`), o se seleziona un alloggio, la camera viene posta **categoricamente come primo elemento in assoluto in cima alla lista**, anche se vengono filtrati i mesi successivi.
+  3. ✨ **Evidenza Oro e Massima Riconoscibilità Visiva**:
+     - **Timeline Matrice**:
+       - Bordo sinistro sticky allargato e potenziato con `border-l-[6px] border-l-amber-400` e sfondo caldo scuro `#2f2720` con bagliore dorato.
+       - Aggiunto badge dorato dedicato: `★ SELEZIONATA` (o `SELECTED` / `เลือกแล้ว`) sopra il nome dell'alloggio.
+       - Titolo stanza in ambra brillante (`text-amber-300 font-extrabold`).
+       - Sull'intera riga orizzontale: gradiente oro scuro `bg-gradient-to-r from-amber-950/70 via-amber-950/40 to-amber-950/20` con bordi dorati orizzontali `border-y-2 border-y-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.3)]` e celle giorno collegate visivamente.
+     - **Card View**:
+       - Vistoso banner superiore in gradiente oro ambra: `★ Alloggio Selezionato (In Evidenza)` con icona `Sparkles` e pill `Prima in Alto`, con bordo oro `border-2 border-amber-400 ring-4 ring-amber-400/25 shadow-2xl`.
+  4. 🧪 **Collaudo Tecnico**:
+     - Build Vite completata con 0 errori in 12.33s.
+     - Security Audit: 0 secrets detected.
+- **File aggiornati:** `src/booking/lib/translations.ts`, `src/booking/resort/components/RoomGrid.tsx`, `src/pages/ResortPublicCalendarPage.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Completato e verificato su staging.
+
+---
+
+### 🟩 [04/11/2026 - ORE 16:15] · FUSIONE RELAZIONALE SQLITE BIDIREZIONALE CHAT & BRAIN IN RIPRISTINA_TUTTO.BAT (ZERO SOVRASCRITTURE)
+- **Cosa abbiamo fatto:**
+  1. 🔄 **Evoluzione Bidirezionale del Ripristino Chat (`scripts/gdrive-handoff-pull.mjs` / `RIPRISTINA_TUTTO.bat`)**:
+     - Eliminata categoricamente la decompressione distruttiva (`Expand-Archive -Force`) che rischiava di sovrascrivere `conversation_summaries.db` cancellando le nuove chat generate sulla macchina di destinazione.
+     - Introdotto l'algoritmo di **fusione atomica SQLite (`node:sqlite`)**: esegue `ATTACH DATABASE` e un `INSERT INTO ... ON CONFLICT(conversation_id) DO UPDATE` intelligente, mantenendo sempre il titolo, lo stato, il timestamp e lo `step_count` più recente.
+     - Rigenerazione trasparente dell'indice di ricerca Full-Text `conversations_fts` per trovare immediatamente le chat di entrambe le postazioni.
+  2. 🧠 **Inclusione Completa Contesti Brain (`scripts/gdrive-handoff.mjs`)**:
+     - L'archivio compresso `antigravity_chats_backup.zip` include ora anche l'intera cartella `brain/` (artefatti, transcript, screenshot e scratch), garantendo la portabilità completa delle sessioni di lavoro tra Ranong e Koh Phayam.
+  3. 🛡️ **Snapshot Preventivo di Sicurezza Locale**:
+     - Prima di toccare qualsiasi file, il launcher crea uno snapshot locale di sicurezza con timestamp in `.gemini/antigravity_backups/backup_YYYYMMDD_HHMMSS/` per garantire il rollback istantaneo a prova di bomba.
+  4. 🚀 **Integrazione Totale in MARKDOWN-PROJECT & RIPRISTINA_TUTTO.bat**:
+     - Nessun comando manuale necessario: basta scrivere `MARKDOWN-PROJECT` quando si lascia una postazione, e fare doppio click su `RIPRISTINA_TUTTO.bat` quando si arriva sull'altra. Codice, credenziali del Vault e cronologia chat si fondono all'istante al 100%.
+- **File aggiornati:** `scripts/gdrive-handoff.mjs`, `scripts/gdrive-handoff-pull.mjs`, `documentation_reports/03_regole_sistema_agents.md`, `.agents/AGENTS.md`, `DIARIO_DI_BORDO.md`.
+- **Stato:** ✅ Completato e verificato.
+
+---
+
+### 🟩 [04/11/2026 - ORE 11:05] · GOOGLE DRIVE 5TB HANDOFF: UPLOAD AUTOMATICO POSTAZIONE, SYNC CHAT & PIN ANTIGRAVITY E LAUNCHER 1-CLICK RIPRISTINA_TUTTO.BAT
+- **Cosa abbiamo fatto:**
+  1. ☁️ **Upload Automatico su Google Drive 5TB (`scripts/gdrive-handoff.mjs` / `npm run handoff:push`)**:
+     - Al termine di `MARKDOWN-PROJECT`, il sistema si connette via OAuth2 API a Google Drive 5TB.
+     - Crea/rinomina la cartella cloud dedicata con timestamp dinamico Bangkok: `HANDOFF_POSTAZIONI_FP [DD-MM-YYYY HH:mm]`.
+     - Svuota ed elimina automaticamente tutti i vecchi file precedenti, garantendo zero duplicati e zero disordine.
+     - Carica i file di sistema e di configurazione aggiornati (`AGENTS.md`, script di sincronizzazione, chiavi cifrate del Vault, `package.json`).
+  2. 💬 **Backup & Sincronizzazione Totale Chat e PIN Antigravity (`antigravity_chats_backup.zip`)**:
+     - Risolto alla radice il problema delle chat e dei Pin mancanti sull'altra postazione: vengono impacchettati automaticamente il database `conversation_summaries.db`, la cartella `annotations/` e la cronologia delle conversazioni da `C:\Users\Red\.gemini\antigravity`.
+  3. 📥 **Launcher Automatico 1-Click (`RIPRISTINA_TUTTO.bat` & `scripts/gdrive-handoff-pull.mjs`)**:
+     - All'arrivo a Koh Phayam, basta un solo doppio click su `RIPRISTINA_TUTTO.bat` (presente sia dentro Google Drive sia fissabile come collegamento permanente sul Desktop):
+       * Si connette a Google Drive e scarica l'ultimo pacchetto datato inviato da Ranong.
+       * Allinea il codice locale e decifra il Vault credenziali (`.env`).
+       * Ripristina la cronologia delle chat e i Pin in alto dentro Antigravity.
+     - Zero copia-incolla manuale, zero chiavette USB, zero passaggi dal browser.
+  4. 🗑️ **Deprecazione & Rimozione Definitiva di `MARKDOWN-WAIT`**:
+     - Poiché la rotta `/social` di produzione è congelata e protetta nativamente nel codice per TikTok, `MARKDOWN-WAIT` è formalmente rimosso. `MARKDOWN-PROJECT` resta l'unico comando master a 360 gradi.
+- **File aggiornati:** scripts/gdrive-handoff.mjs, scripts/gdrive-handoff-pull.mjs, RIPRISTINA_TUTTO.bat, scripts/project-sync.mjs, package.json, .agents/AGENTS.md, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch staging.
+
+---
+
+### 🟩 [04/11/2026 - ORE 10:25] · ARCHITETTURA A 4 STADI: NUOVI COMANDI MARKDOWN-BRANCH E MERGE-BRANCH PER LA GESTIONE PROTETTA DEI FEATURE BRANCH (ZERO MERGE ACCIDENTALI)
+- **Cosa abbiamo fatto:**
+  1. 🌿 **Nuovo Comando `MARKDOWN-BRANCH` (`scripts/branch-sync.mjs` / `npm run branch:sync`)**:
+     - Sincronizza sul cloud GitHub **esclusivamente il feature branch attivo**.
+     - Esegue audit di sicurezza e cifratura vault automatica.
+     - **Isolamento Totale**: zero modifiche su `staging`, zero modifiche su `main`, zero invio a Vercel. Permette di spegnere il PC o cambiare postazione (Ranong ↔ Koh Phayam) senza mai fondere codice incompleto.
+  2. 🔀 **Nuovo Comando `MERGE-BRANCH` (`scripts/branch-merge.mjs` / `npm run branch:merge`)**:
+     - Si esegue **solo a lavoro terminato**: unisce il feature branch completato dentro `staging` locale.
+     - Posiziona l'utente su `staging`, pronto per il collaudo privato con `MARKDOWN-STAGING`.
+  3. 🛡️ **Blindatura di Sicurezza su `MARKDOWN-PROJECT` (`scripts/project-sync.mjs`)**:
+     - Rimossa l'istruzione di merge automatico dei feature branch.
+     - Blocco preventivo con avviso chiaro se lanciato da un feature branch anziché da `staging`.
+  4. 📋 **Allineamento Documentazione & Regole**:
+     - Codificati i comandi in `.agents/AGENTS.md` e nel `package.json`.
+     - Quadro operativo verificato e integrato al 100%.
+- **File aggiornati:** scripts/branch-sync.mjs, scripts/branch-merge.mjs, scripts/project-sync.mjs, package.json, .agents/AGENTS.md, DIARIO_DI_BORDO.md.
+- **Stato:** ✅ Completato e verificato su branch staging.
+
+---
+
 ### 🟩 [03/11/2026 - ORE 15:25] · IMPLEMENTAZIONE OPZIONE 2: ATTERRAGGIO ISTANTANEO A 0MS SULLA SCHEDA ALLOGGIO IN MODALITÀ "CONFIGURA"
 - **Cosa abbiamo fatto:**
   1. ⚡ **Bypass Totale della Prima Pagina / Hero Slideshow (Atterraggio a 0ms)**:

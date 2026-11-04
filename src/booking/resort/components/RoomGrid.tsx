@@ -844,7 +844,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                       className="w-full mt-2.5 bg-stone-900 hover:bg-stone-850 active:bg-black text-amber-300 text-xs font-black py-2.5 px-3 rounded-full shadow-sm hover:shadow border border-amber-400/40 hover:border-amber-400 transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer text-center"
                     >
                       <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{t('viewCalendarBtn' as any) || '📅 Calendario Completo'}</span>
+                      <span>{t('viewCalendarBtn' as any) || 'Calendario Completo'}</span>
                     </Link>
                   </div>
                 ) : (
@@ -1219,7 +1219,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                 className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-black text-xs sm:text-sm tracking-wide shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Calendar className="w-4 h-4 text-stone-950" />
-                <span>{t('viewCalendarBtn' as any) || '📅 Calendario Completo & Tariffe'}</span>
+                <span>{t('viewCalendarBtn' as any) || 'Calendario Completo & Tariffe'}</span>
               </Link>
             </div>
           </div>

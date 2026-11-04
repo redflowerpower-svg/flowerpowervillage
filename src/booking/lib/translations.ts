@@ -101,7 +101,7 @@ export const translations = {
     selectCheckOut: "Tocca un giorno libero per il Check-Out",
     bookingSummaryBar: "Soggiorno selezionato:",
     switchRoomNotice: "Tocca un'altra camera per metterla in evidenza",
-    viewCalendarBtn: "📅 Calendario Completo",
+    viewCalendarBtn: "Calendario Completo",
     exploreAllRooms: "Confronta tutte le 18 camere del villaggio",
   },
   EN: {
@@ -204,7 +204,7 @@ export const translations = {
     selectCheckOut: "Tap an available day for Check-Out",
     bookingSummaryBar: "Selected stay:",
     switchRoomNotice: "Tap another room to highlight it",
-    viewCalendarBtn: "📅 Full Calendar",
+    viewCalendarBtn: "Full Calendar",
     exploreAllRooms: "Compare all 18 resort accommodations",
   },
   TH: {
@@ -307,7 +307,7 @@ export const translations = {
     selectCheckOut: "แตะวันที่ว่างเพื่อเลือกวันเช็คเอาท์",
     bookingSummaryBar: "ช่วงเวลาที่เลือก:",
     switchRoomNotice: "แตะห้องพักอื่นเพื่อดูรายละเอียด",
-    viewCalendarBtn: "📅 ปฏิทินห้องว่าง",
+    viewCalendarBtn: "ปฏิทินห้องว่าง",
     exploreAllRooms: "เปรียบเทียบห้องพักทั้งหมด 18 หลัง",
   },
   DE: {
@@ -410,7 +410,7 @@ export const translations = {
     selectCheckOut: "Tippen Sie auf einen freien Tag für Check-out",
     bookingSummaryBar: "Ausgewählter Aufenthalt:",
     switchRoomNotice: "Tippen Sie auf ein anderes Zimmer, um es hervorzuheben",
-    viewCalendarBtn: "📅 Vollständiger Kalender",
+    viewCalendarBtn: "Vollständiger Kalender",
     exploreAllRooms: "Vergleichen Sie alle 18 Unterkünfte des Resorts",
   }
 };

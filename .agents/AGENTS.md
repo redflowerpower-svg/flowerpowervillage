@@ -379,6 +379,45 @@ Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** sulla postazione:
 
 ---
 
+### 1-zero. `RIPRISTINA_TUTTO.bat` (Ripristino Totale 1-Click da Google Drive 5TB: Codice, Vault, Chat & PIN)
+All'arrivo su una postazione (Ranong ↔ Koh Phayam), l'utente fa **doppio click su `RIPRISTINA_TUTTO.bat`** (sul Desktop o nella cartella del progetto):
+1. **Connessione Cloud API**: Si collega via OAuth2 a Google Drive 5TB senza bisogno di aprire il browser.
+2. **Ricerca Pacchetto Handoff**: Rileva in automatico l'ultima cartella caricata da Ranong: `HANDOFF_POSTAZIONI_FP [DD-MM-YYYY HH:mm]`.
+3. **Allineamento File Progetto**: Scarica e applica i file di sistema aggiornati (`AGENTS.md`, script di sincronizzazione, chiavi cifrate del Vault, `package.json`).
+4. **Ripristino Memoria Chat & PIN**: Decomprime `antigravity_chats_backup.zip` dentro `C:\Users\Red\.gemini\antigravity`, ripristinando all'istante l'elenco delle chat, i messaggi e tutti i **Pin in alto**.
+5. **Decifratura Vault**: Rigenera e allinea i file `.env` e `.env.local` locali.
+6. **Esito**: La macchina è allineata al 100% prima ancora di aprire l'IDE Antigravity.
+
+---
+
+### 1-bis. `MARKDOWN-BRANCH` (Salvataggio & Sync Feature Branch su GitHub - Zero Merge)
+Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-BRANCH`** (oppure `npm run branch:sync`):
+Esegue il salvataggio e la sincronizzazione sicura **ESCLUSIVAMENTE sul Feature Branch corrente (zero merge, staging e main intoccati)**:
+1. **Rilevamento Branch**: Identifica il feature branch attivo (es. `feat/room-availability-calendar`). Se l'utente è su `main`, blocca l'esecuzione per sicurezza.
+2. **Audit Sicurezza & Cifratura Silenziosa**:
+   - Convalida zero secret leak (`node scratch/security-audit.mjs`).
+   - Cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
+3. **Commit & Push Diretto su Origin del Ramo**:
+   - `git add .`
+   - `git commit -m "feat(<branch>): work in progress sync"`
+   - `git push -u origin <branch>`
+4. **Garanzia Assoluta**: Non tocca `staging`, non tocca `main`, non invia codice incompleto a Vercel. Il lavoro è al sicuro su GitHub per spegnere il PC o cambiare postazione (Ranong ↔ Koh Phayam).
+
+---
+
+### 1-ter. `MERGE-BRANCH` (Fusione Feature Branch in Staging a Fine Funzionalità)
+Quando l'utente pronuncia la parola d'ordine **`MERGE-BRANCH`** (oppure `npm run branch:merge`):
+Viene lanciato **SOLO quando la nuova funzionalità è terminata al 100%** e si vuole portarla dentro staging per il collaudo:
+1. **Verifica & Push Finale del Feature Branch**: Salva eventuali modifiche e pusha l'ultimo stato su GitHub.
+2. **Passaggio su Staging**:
+   - `git checkout staging`
+   - `git pull origin staging --ff-only`
+3. **Fusione Pulita**:
+   - `git merge <feature-branch> --no-edit`
+4. **Notifica Operativa**: Notifica l'avvenuto merge e posiziona l'utente su `staging`, pronto per lanciare `MARKDOWN-STAGING` e testare su Vercel Staging.
+
+---
+
 ### 2. `MARKDOWN-STAGING` / `MARKDOWN-STAGING-PIZZA` / `MARKDOWN-STAGING-VILLAGE` (Deploy Staging)
 Quando l'utente pronuncia **`MARKDOWN-STAGING`** (o le varianti di reparto **`MARKDOWN-STAGING-PIZZA`** / **`MARKDOWN-STAGING-VILLAGE`**):
 Esegue il deploy rapido e sicuro **ESCLUSIVAMENTE sul branch `staging` di Vercel (zero impatto sui clienti di produzione)**:
@@ -422,7 +461,7 @@ Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi
    - Controllo zero secret leak (`node scratch/security-audit.mjs`).
    - Typecheck (`npx tsc --noEmit`).
 2. **Fase 2 - Sincronizzazione Multi-Postazione & Deploy Simultaneo (`npm run project:sync` / `node scripts/project-sync.mjs`):**
-   - **Sincronizzazione Feature Branch**: Se è attivo un feature branch locale (es. `feat/*`), viene automaticamente salvato e pushato su origin (`git push -u origin <branch>`) per renderlo immediatamente accessibile su tutte le postazioni (Ranong ↔ Koh Phayam).
+   - **Blocco di Sicurezza Feature Branch**: Se lanciato mentre ci si trova su un feature branch (es. `feat/*`), il comando si blocca per sicurezza per non effettuare merge prematuri verso la produzione. L'utente deve usare `MARKDOWN-BRANCH` per salvare il branch isolato, oppure `MERGE-BRANCH` se la funzione è completata, oppure spostarsi su `staging`.
    - Commit delle modifiche sul branch `staging`.
    - `git push origin staging` (Aggiorna all'istante `staging.flowerpowerpizza.com`).
    - `git checkout main`
@@ -430,12 +469,17 @@ Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi
    - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
    - Pulizia rami remoti eliminati (`git fetch --all --prune`).
    - Ritorno automatico su `staging` (o sul branch di partenza).
-3. **Fase 3 - Report Handoff a 5 Punti per Gemini Notebook**:
+   - **Upload Handoff su Google Drive 5TB (scripts/gdrive-handoff.mjs)**: Carica la cartella HANDOFF_POSTAZIONI_FP [timestamp] contenente codice, vault, archivio chat/brain e il launcher RIPRISTINA_TUTTO.bat.
+3. **Fase 3 - Ripristino a 1 Click sull'Altra Postazione (RIPRISTINA_TUTTO.bat / gdrive-handoff-pull.mjs)**:
+   - Sull'altra postazione in arrivo, basta fare doppio click su RIPRISTINA_TUTTO.bat.
+   - Esegue in automatico il download cloud, la decifratura del vault (ault-sync.mjs), l'allineamento librerie (pm install se necessario) e la **fusione relazionale SQLite bidirezionale su conversation_summaries.db** (somma tutte le chat locali e remote preservando i pin e azzerando ogni rischio di sovrascrittura).
+4. **Fase 4 - Report Handoff a 5 Punti per Gemini Notebook**:
    - Emissione del report compatto per il taccuino Gemini e conferma dell'allineamento globale.
 
 ---
 
-### 5. `MARKDOWN-WAIT` (Identico al 100% a MARKDOWN-PROJECT + Freeze Social TikTok Online + Report Gemini)
+### 5. `MARKDOWN-WAIT` (Deprecato / Rimosso)
+*(Nota: Il comando `MARKDOWN-WAIT` è formalmente rimosso. La rotta `/social` su produzione rimane permanentemente online e congelata in modo nativo; `MARKDOWN-PROJECT` è l'unico comando master).*
 Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WAIT`** (o *markdown wait*):
 È **TASSATIVAMENTE IDENTICO IN OGNI SINGOLO MILLIMETRO A `MARKDOWN-PROJECT`**, eseguendo SEMPRE E SENZA ECCEZIONI:
 1. **Aggiornamento Documentazione & Diario**: Aggiornamento fisico dei file in `/documentation_reports/` e di `DIARIO_DI_BORDO.md`.

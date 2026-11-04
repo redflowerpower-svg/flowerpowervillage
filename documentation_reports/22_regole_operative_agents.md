@@ -430,7 +430,11 @@ Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi
    - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
    - Pulizia rami remoti eliminati (`git fetch --all --prune`).
    - Ritorno automatico su `staging` (o sul branch di partenza).
-3. **Fase 3 - Report Handoff a 5 Punti per Gemini Notebook**:
+   - **Upload Handoff su Google Drive 5TB (scripts/gdrive-handoff.mjs)**: Carica la cartella HANDOFF_POSTAZIONI_FP [timestamp] contenente codice, vault, archivio chat/brain e il launcher RIPRISTINA_TUTTO.bat.
+3. **Fase 3 - Ripristino a 1 Click sull'Altra Postazione (RIPRISTINA_TUTTO.bat / gdrive-handoff-pull.mjs)**:
+   - Sull'altra postazione in arrivo, basta fare doppio click su RIPRISTINA_TUTTO.bat.
+   - Esegue in automatico il download cloud, la decifratura del vault (ault-sync.mjs), l'allineamento librerie (pm install se necessario) e la **fusione relazionale SQLite bidirezionale su conversation_summaries.db** (somma tutte le chat locali e remote preservando i pin e azzerando ogni rischio di sovrascrittura).
+4. **Fase 4 - Report Handoff a 5 Punti per Gemini Notebook**:
    - Emissione del report compatto per il taccuino Gemini e conferma dell'allineamento globale.
 
 ---

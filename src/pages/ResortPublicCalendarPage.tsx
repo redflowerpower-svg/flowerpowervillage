@@ -414,11 +414,13 @@ export default function ResortPublicCalendarPage() {
 
     let targetRoom: EnrichedAccommodation | null = null;
 
-    if (heroRoomSlug) {
-      const cleanHero = cleanSlug(heroRoomSlug);
-      targetRoom = availableRooms.find((r) => {
+    const requestedSlug = heroRoomSlug || bookingRoomSlug;
+    if (requestedSlug) {
+      const cleanHero = cleanSlug(requestedSlug);
+      // Cerca prima tra tutti i realRooms (così la stanza richiesta dall'utente non viene mai esclusa e resta sempre visibile)
+      targetRoom = realRooms.find((r) => {
         const ident = getRoomIdent(r);
-        if (ident && (ident.canonicalSlug === cleanHero || ident.legacySlug === heroRoomSlug || ident.aliases.includes(heroRoomSlug))) {
+        if (ident && (ident.canonicalSlug === cleanHero || ident.legacySlug === requestedSlug || ident.aliases.includes(requestedSlug))) {
           return true;
         }
         return cleanSlug(r.slug) === cleanHero || cleanSlug(r.name) === cleanHero;
@@ -435,6 +437,7 @@ export default function ResortPublicCalendarPage() {
       ? others
       : others.filter((r) => r.category.toUpperCase() === selectedCategory);
 
+    // La stanza selezionata (targetRoom) è TASSATIVAMENTE E SEMPRE LA PRIMA IN ALTO
     const list = targetRoom ? [targetRoom, ...filteredOthers] : filteredOthers;
 
     return { heroRoom: targetRoom, sortedRoomsList: list };
@@ -807,42 +810,59 @@ export default function ResortPublicCalendarPage() {
                   <tr 
                     key={room.id}
                     id={`timeline-row-${cleanSlug(room.slug)}`}
-                    className={`transition-colors border-b border-stone-800/80 ${
+                    className={`transition-all border-b ${
                       isHero 
-                        ? 'bg-amber-950/25 ring-2 ring-inset ring-amber-400/50' 
+                        ? 'bg-gradient-to-r from-amber-950/70 via-amber-950/40 to-amber-950/20 border-y-2 border-y-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.3)] relative z-10' 
                         : isBookingSelected 
-                        ? 'bg-emerald-950/25' 
+                        ? 'bg-emerald-950/25 border-stone-800/80' 
                         : roomIdx % 2 === 0 
-                        ? 'bg-[#201c1a]' 
-                        : 'bg-[#1b1816]'
+                        ? 'bg-[#201c1a] border-stone-800/80' 
+                        : 'bg-[#1b1816] border-stone-800/80'
                     } hover:bg-[#282320]`}
                   >
 
-                    {/* ULTRA-SLIM STICKY LEFT COLUMN: 2-Line Name + Camera Icon in bottom-right corner (zero horizontal widening, NO PRICE) */}
+                    {/* ULTRA-SLIM STICKY LEFT COLUMN: Con Evidenza Oro e Badge Stanza Selezionata */}
                     <td 
-                      className={`sticky left-0 z-20 p-1.5 sm:p-2 border-r border-stone-800 w-20 sm:w-26 min-w-[80px] sm:min-w-[98px] shadow-[4px_0_10px_rgba(0,0,0,0.4)] ${
-                        isHero ? 'bg-[#24201d] border-l-4 border-l-amber-400' : 'bg-[#24201d]'
+                      className={`sticky left-0 z-20 p-1.5 sm:p-2 border-r border-stone-800 w-22 sm:w-28 min-w-[88px] sm:min-w-[110px] shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-all ${
+                        isHero 
+                          ? 'bg-[#2f2720] border-l-[6px] border-l-amber-400 shadow-[inset_0_0_20px_rgba(251,191,36,0.2),4px_0_12px_rgba(0,0,0,0.5)]' 
+                          : 'bg-[#24201d]'
                       }`}
                     >
                       <button
                         type="button"
                         onClick={() => openPreviewModal(room)}
-                        className="relative w-full h-full min-h-[38px] text-left cursor-pointer group/name flex flex-col justify-center select-none pr-4"
+                        className="relative w-full h-full min-h-[42px] text-left cursor-pointer group/name flex flex-col justify-center select-none pr-4"
                         title="Tocca per vedere foto e dettagli"
                       >
+                        {/* BADGE DI RICONOSCIMENTO ALLOGGIO SELEZIONATO */}
+                        {isHero && (
+                          <div className="mb-1">
+                            <span className="inline-flex items-center gap-1 text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 px-1.5 py-0.5 rounded shadow-sm">
+                              ★ {lang === 'TH' ? 'เลือกแล้ว' : lang === 'DE' ? 'Ausgewählt' : lang === 'EN' ? 'Selected' : 'Selezionata'}
+                            </span>
+                          </div>
+                        )}
+
                         {/* Riga 1 e Riga 2 del Nome Alloggio */}
                         <div className="leading-tight">
-                          <span className="block text-[11px] sm:text-xs font-black text-white group-hover/name:text-amber-300 transition-colors truncate">
+                          <span className={`block text-[11px] sm:text-xs font-black transition-colors truncate ${
+                            isHero ? 'text-amber-300 font-extrabold' : 'text-white group-hover/name:text-amber-300'
+                          }`}>
                             {nameTwoLines.line1}
                           </span>
-                          <span className="block text-[10px] sm:text-[11px] font-extrabold text-stone-300 group-hover/name:text-amber-200 transition-colors truncate">
+                          <span className={`block text-[10px] sm:text-[11px] font-extrabold transition-colors truncate ${
+                            isHero ? 'text-amber-200' : 'text-stone-300 group-hover/name:text-amber-200'
+                          }`}>
                             {nameTwoLines.line2}
                           </span>
                         </div>
 
-                        {/* Icona Macchina Fotografica nell'angolo in basso a destra (zero ingombro orizzontale) */}
+                        {/* Icona Macchina Fotografica nell'angolo in basso a destra */}
                         <span 
-                          className="absolute bottom-0 right-0 p-0.5 text-stone-400 group-hover/name:text-amber-400 transition-colors"
+                          className={`absolute bottom-0 right-0 p-0.5 transition-colors ${
+                            isHero ? 'text-amber-400' : 'text-stone-400 group-hover/name:text-amber-400'
+                          }`}
                           title="Foto e dettagli"
                         >
                           <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
@@ -866,7 +886,10 @@ export default function ResortPublicCalendarPage() {
                       const isSelectedCheckOut = isCurrentBookingRoom && checkOut === dateStr;
                       const isInSelectedRange = isCurrentBookingRoom && checkIn && checkOut && dateStr > checkIn && dateStr < checkOut;
 
-                      let cellBg = 'bg-emerald-950/25 text-emerald-300 border border-emerald-800/40 hover:bg-emerald-900/40 hover:border-emerald-500 cursor-pointer shadow-2xs';
+                      const isHeroCell = isHero && !isSelectedCheckIn && !isSelectedCheckOut && !isInSelectedRange && !isPast && isPhysicallyAvailable;
+                      let cellBg = isHeroCell
+                        ? 'bg-amber-950/35 text-amber-300 border border-amber-600/50 hover:bg-amber-900/40 hover:border-amber-400 cursor-pointer shadow-2xs'
+                        : 'bg-emerald-950/25 text-emerald-300 border border-emerald-800/40 hover:bg-emerald-900/40 hover:border-emerald-500 cursor-pointer shadow-2xs';
                       if (isPast) {
                         cellBg = 'bg-[#151210] text-stone-700 opacity-40 cursor-not-allowed border border-stone-900/60';
                       } else if (!isPhysicallyAvailable) {
@@ -1059,14 +1082,26 @@ export default function ResortPublicCalendarPage() {
             <article
               key={room.id}
               id={`room-calendar-card-${cleanSlug(room.slug)}`}
-              className={`bg-white rounded-2xl border transition-all duration-300 p-3 sm:p-5 flex flex-col lg:flex-row gap-4 items-start ${
+              className={`rounded-2xl border transition-all duration-300 p-3 sm:p-5 flex flex-col gap-4 items-start ${
                 isHero
-                  ? 'border-2 border-amber-400 ring-4 ring-amber-400/20 shadow-md'
+                  ? 'bg-[#26201c] border-2 border-amber-400 ring-4 ring-amber-400/25 shadow-2xl'
                   : isSelected
-                  ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm'
-                  : 'border-stone-300 hover:border-stone-400 shadow-sm'
+                  ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm'
+                  : 'bg-white border-stone-300 hover:border-stone-400 shadow-sm'
               }`}
             >
+              {/* VISTOSO BANNER ORO QUANDO È L'ALLOGGIO SELEZIONATO */}
+              {isHero && (
+                <div className="w-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-950 font-black text-xs uppercase tracking-widest py-2 px-4 rounded-xl flex items-center justify-between shadow-md">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-stone-950" />
+                    <span>{lang === 'TH' ? '★ ห้องที่เลือก (เน้นเป็นพิเศษ)' : lang === 'DE' ? '★ Ausgewähltes Zimmer' : lang === 'EN' ? '★ Selected Room' : '★ Alloggio Selezionato'}</span>
+                  </div>
+                  <span className="text-[10px] font-extrabold uppercase bg-stone-950/20 px-2 py-0.5 rounded-full">
+                    {lang === 'TH' ? 'อันดับแรก' : lang === 'DE' ? 'Oben' : lang === 'EN' ? 'Top' : 'Prima in Alto'}
+                  </span>
+                </div>
+              )}
               <div className="w-full lg:w-1/4 flex items-center justify-between lg:flex-col lg:items-start gap-2 flex-shrink-0">
                 <button
                   type="button"

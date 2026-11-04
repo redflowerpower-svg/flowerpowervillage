@@ -12,6 +12,10 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "render:cloud": "node scripts/render-social-video-cloud.mjs",
     "project:sync": "node scripts/project-sync.mjs",
+    "branch:sync": "node scripts/branch-sync.mjs",
+    "branch:merge": "node scripts/branch-merge.mjs",
+    "handoff:push": "node scripts/gdrive-handoff.mjs",
+    "handoff:pull": "node scripts/gdrive-handoff-pull.mjs",
     "vault:sync": "node scratch/vault-sync.mjs sync",
     "vault:project": "node scratch/vault-sync.mjs sync"
   },
