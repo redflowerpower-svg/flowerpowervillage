@@ -28,6 +28,7 @@ import fs from 'fs';
 import path from 'path';
 import { spawnSync, execFileSync } from 'child_process';
 import { createClient } from '@supabase/supabase-js';
+import { neon } from '@neondatabase/serverless';
 import { runSupabaseQuotaSentinel } from './supabase-sentinel.mjs';
 
 const env = { ...process.env };
@@ -102,6 +103,7 @@ console.log(`[scheduler-dispatch] Orario attuale Bangkok: ${currentBk.timeStr} �
 const supabaseUrl = env.VITE_SUPABASE_URL || env.SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co';
 const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY;
 const sb = createClient(supabaseUrl, supabaseKey);
+const neonSql = env.NEON_DATABASE_URL ? neon(env.NEON_DATABASE_URL) : null;
 
 // Carica configurazione Telegram
 let telegramToken = env.TELEGRAM_SOCIAL_BOT_TOKEN;
@@ -168,6 +170,18 @@ async function sendFailedAlert(errOrPayload, context = '') {
 
 async function getTelegramToken() {
   if (telegramToken) return telegramToken;
+  if (neonSql) {
+    try {
+      const rows = await neonSql`SELECT bot_token FROM telegram_config WHERE id = 'social' LIMIT 1;`;
+      if (rows?.[0]?.bot_token) {
+        telegramToken = rows[0].bot_token;
+        console.log('[scheduler-dispatch] 🐘 Token Telegram caricato da Neon Database (Zero Supabase)');
+        return telegramToken;
+      }
+    } catch (neonErr) {
+      console.warn('[scheduler-dispatch] Avviso lettura Neon telegram_token:', neonErr.message);
+    }
+  }
   try {
     const { data } = await sb.from('telegram_config').select('bot_token').eq('id', 'social').maybeSingle();
     telegramToken = data?.bot_token;
@@ -177,8 +191,19 @@ async function getTelegramToken() {
   return telegramToken;
 }
 
-// Carica configurazione Google Drive 5TB da Supabase
+// Carica configurazione Google Drive 5TB da Neon (Zero Supabase)
 async function getGoogleDriveCredentials() {
+  if (neonSql) {
+    try {
+      const rows = await neonSql`SELECT chat_id FROM telegram_config WHERE id = 'google_drive' LIMIT 1;`;
+      if (rows?.[0]?.chat_id) {
+        console.log('[scheduler-dispatch] 🐘 Credenziali Google Drive 5TB caricate da Neon Database (Zero Supabase)');
+        return JSON.parse(rows[0].chat_id);
+      }
+    } catch (neonErr) {
+      console.warn('[scheduler-dispatch] Avviso lettura Neon google_drive:', neonErr.message);
+    }
+  }
   try {
     const { data } = await sb.from('telegram_config').select('chat_id').eq('id', 'google_drive').maybeSingle();
     if (data?.chat_id) {
@@ -1067,6 +1092,17 @@ async function renderVideoMode(mode) {
 }
 
 async function run() {
+  const is0800 = targetSlot === '08:00';
+  const is0930 = targetSlot === '09:30';
+  const is1130 = targetSlot === '11:30';
+  const is1230 = targetSlot === '12:30';
+  const is1600 = targetSlot === '16:00';
+  const is1700 = targetSlot === '17:00';
+  const is1800 = targetSlot === '18:00';
+  const is1830 = targetSlot === '18:30';
+  const is1930 = targetSlot === '19:30';
+  const is2000 = targetSlot === '20:00';
+  const is2100 = targetSlot === '21:00';
 
   // 🛡️ Monitoraggio Sanitario & Egress Guard Supabase Storage (Auto-Healing attivo)
   // Alle 08:00 invia automaticamente il report quotidiano di telemetria su Topic 301

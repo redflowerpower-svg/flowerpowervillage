@@ -115,3 +115,4 @@ export async function listSocialConfigsLike(prefix: string): Promise<SocialConfi
 
   return [];
 }
+
