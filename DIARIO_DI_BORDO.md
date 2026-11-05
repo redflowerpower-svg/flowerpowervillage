@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [05/11/2026 - ORE 13:30] · GOVERNANCE DEFINITIVA WORKTREE, MERGE SICUREZZA GITGUARDIAN & STRUMENTO WORKTREE-MANAGE
+- **Cosa abbiamo fatto:**
+  1. 🛡️ **Fusione Security Fix GitGuardian in staging (Passo 1)**:
+     - Fuso il commit f6c4785 con rimozione token hardcoded in `scripts/gdrive-handoff-pull.mjs` ed estensione security audit a `scripts/` e root.
+  2. 🗑️ **Rimozione Worktree Temporaneo (Passo 2)**:
+     - Rimosso fisicamente il worktree usa-e-getta `quantum_surge_arcs_10h51` ed eliminato il relativo branch.
+  3. 📜 **Regola Immodificabile 29 & Governance Worktree (Passo 3)**:
+     - Inserita la Regola 29 in `.agents/AGENTS.md` e in `C:\Users\Red\.gemini\GEMINI.md`: divieto assoluto auto-branching (obbligo Workspace: 'inherit'), controllo esclusivo all'utente Red, divieto proliferazione cloni.
+  4. 🛠️ **Creazione Helper Governance Worktree (Passo 4)**:
+     - Creato `scripts/worktree-manage.mjs` con comandi `npm run worktree:list`, `npm run worktree:clean <nome>` e `npm run worktree:prune`.
+  5. 🔍 **Verifica Finale & Audit di Sicurezza (Passo 5)**:
+     - Eseguito audit di sicurezza: 🎉 0 SECRETS DETECTED!
+     - Build Vite production compilata con successo (8.53s) e workspace staging 100% pulito.
+- **File aggiornati:** `.agents/AGENTS.md`, `package.json`, `scripts/worktree-manage.mjs`, `C:\Users\Red\.gemini\GEMINI.md`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 ATTIVO, 100% COLLAUDATO E BLINDATO.
+
+---
+
 ### 🚀 [04/11/2026 - ORE 22:08] · CREAZIONE WORKTREE "Telegram Assistant Bot", ISOLAMENTO CHAT ANTIGRAVITY & POTENZIAMENTO TRASFERIMENTO GOOGLE DRIVE 5TB
 - **Cosa abbiamo fatto:**
   1. 🌿 **Creazione Worktree Fisico Dedicato (`D:\WEB SITE Antigravity\Telegram Assistant Bot`)**:
