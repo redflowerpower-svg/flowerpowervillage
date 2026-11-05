@@ -534,6 +534,85 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     return false;
   }
 
+  // ⚡ STREAMING ENDPOINT PER TIKTOK PULL_FROM_URL & MEDIA DELIVERY SU DOMINIO VERIFICATO
+  // Permette a TikTok Content Posting API di scaricare i video generati direttamente dal dominio approvato flowerpowerpizza.com
+  const isStreamAction = action === "stream_video" || action === "stream" || action === "video" ||
+    (typeof req.url === "string" && (req.url.includes("action=stream_video") || req.url.includes("/stream/")));
+
+  if (isStreamAction) {
+    try {
+      let fileParam = String(query.file || query.path || query.name || "").trim();
+      if (!fileParam && req.url) {
+        const streamMatch = req.url.match(/\/stream\/([^?]+)/);
+        if (streamMatch) fileParam = streamMatch[1];
+      }
+      if (!fileParam) {
+        return res.status(400).json({ error: "Missing file parameter" });
+      }
+
+      fileParam = decodeURIComponent(fileParam);
+      const safeFilename = path.basename(fileParam).replace(/[^a-zA-Z0-9_.-]/g, "_");
+
+      let videoBuf = getCachedVideoBuffer(safeFilename);
+      if (!videoBuf && supabase) {
+        try {
+          const storagePath = `social_stories/${safeFilename}`;
+          const { data, error } = await supabase.storage.from("assets").download(storagePath);
+          if (!error && data) {
+            const ab = await data.arrayBuffer();
+            videoBuf = Buffer.from(ab);
+            cacheVideoBuffer(safeFilename, videoBuf);
+          }
+        } catch (dlErr) {
+          console.warn("[social-publisher] Failed downloading video from Supabase:", dlErr);
+        }
+      }
+
+      if (!videoBuf) {
+        return res.status(404).json({ error: "Video not found or expired" });
+      }
+
+      const totalSize = videoBuf.length;
+      res.setHeader("Content-Type", "video/mp4");
+      res.setHeader("Accept-Ranges", "bytes");
+      res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400");
+      res.setHeader("Content-Disposition", `inline; filename="${safeFilename}"`);
+
+      const range = req.headers.range;
+      if (range) {
+        const parts = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : totalSize - 1;
+
+        if (start >= totalSize || end >= totalSize || start > end) {
+          res.setHeader("Content-Range", `bytes */${totalSize}`);
+          return res.status(416).end();
+        }
+
+        const chunkSize = (end - start) + 1;
+        res.writeHead(206, {
+          "Content-Range": `bytes ${start}-${end}/${totalSize}`,
+          "Accept-Ranges": "bytes",
+          "Content-Length": chunkSize,
+          "Content-Type": "video/mp4"
+        });
+        if (req.method === "HEAD") {
+          return res.end();
+        }
+        return res.end(videoBuf.subarray(start, end + 1));
+      }
+
+      res.setHeader("Content-Length", totalSize);
+      if (req.method === "HEAD") {
+        return res.status(200).end();
+      }
+      return res.status(200).end(videoBuf);
+    } catch (streamErr: any) {
+      console.error("[social-publisher] Stream video error:", streamErr);
+      return res.status(500).json({ error: "Stream error", message: streamErr?.message });
+    }
+  }
+
   // 0. GET/POST /api/social-publisher?action=trigger_scheduler (Innesco GitHub Actions per Social Media Studio)
   if (action === "trigger_scheduler" || action === "cron_trigger") {
     try {
@@ -1994,6 +2073,24 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     }
 
     try {
+      // 🛡️ TIKTOK URL OWNERSHIP CHECK:
+      // TikTok verifica che l'URL del video appartenga al dominio verificato nell'app TikTok for Developers (flowerpowerpizza.com).
+      // Se il video è ospitato su Supabase storage (gjqevgkbjkharczhikcl.supabase.co), TikTok lo rifiuta con "url_ownership_unverified".
+      // Lo convertiamo quindi nello streaming endpoint sicuro su flowerpowerpizza.com.
+      let targetVideoUrl = String(videoUrl).trim();
+      if (!targetVideoUrl.includes("flowerpowerpizza.com")) {
+        try {
+          const parsedUrl = new URL(targetVideoUrl);
+          const fileName = path.basename(parsedUrl.pathname);
+          if (fileName && (fileName.endsWith(".mp4") || fileName.includes("story_video"))) {
+            targetVideoUrl = `https://www.flowerpowerpizza.com/api/social-publisher?action=stream_video&file=${encodeURIComponent(fileName)}`;
+            console.log(`[SocialPublisher] Converted video URL for TikTok ownership verification: ${targetVideoUrl}`);
+          }
+        } catch (uErr) {
+          console.warn("[SocialPublisher] Could not parse videoUrl for proxying:", uErr);
+        }
+      }
+
       const payload = {
         post_info: {
           title: title.slice(0, 2200),
@@ -2005,7 +2102,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
         },
         source_info: {
           source: "PULL_FROM_URL",
-          video_url: videoUrl
+          video_url: targetVideoUrl
         }
       };
 
@@ -2087,9 +2184,26 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       }
 
       if (!isSuccess) {
+        let userMessage = ttData.error?.message || "Failed to initialize TikTok video publish";
+        const errCode = ttData.error?.code || "";
+
+        if (
+          errCode === "unaudited_client_can_only_post_to_private_accounts" ||
+          userMessage.toLowerCase().includes("unaudited") ||
+          userMessage.toLowerCase().includes("private accounts")
+        ) {
+          userMessage = `L'app TikTok è in modalità Sandbox/App Tester: TikTok consente la pubblicazione solo su account impostati come 'Account Privato'. Per pubblicare, apri l'app TikTok sul telefono con ${targetBrand === 'village' ? '@flowerpowervillage' : '@flowerpowerpizza_ranong'}, vai in Profilo > Menu in alto a destra > Impostazioni e Privacy > Privacy > attiva 'Account Privato' (oppure aggiungi l'account come App Tester nel portale TikTok for Developers).`;
+        } else if (
+          errCode === "url_ownership_unverified" ||
+          userMessage.toLowerCase().includes("ownership")
+        ) {
+          userMessage = `Errore verifica dominio TikTok: l'URL del video non appartiene a un dominio verificato su TikTok for Developers.`;
+        }
+
         return res.status(ttRes.status || 400).json({
           success: false,
-          error: ttData.error?.message || "Failed to initialize TikTok video publish",
+          error: userMessage,
+          code: errCode,
           raw: ttData
         });
       }

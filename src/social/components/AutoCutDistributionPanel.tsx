@@ -255,13 +255,15 @@ export function AutoCutDistributionPanel({
       });
 
       const videoUrl = await (window as any).__autoCutGetVideo((pct: number, stepIndex?: number, stepMsg?: string) => {
-        setPublishProgressPct(Math.round(5 + (pct * 0.70)));
+        setPublishProgressPct(pct);
         if (typeof stepIndex === 'number') {
           if (stepIndex === 0) updateStep(0, 'active');
           else if (stepIndex === 1) updateStep(1, 'active');
           else if (stepIndex === 2) updateStep(2, 'active');
-          else if (stepIndex === 3) updateStep(4, 'active');
-          else if (stepIndex === 4) updateStep(5, 'active');
+          else if (stepIndex === 3) updateStep(3, 'active');
+          else if (stepIndex === 4) updateStep(4, 'active');
+          else if (stepIndex === 5) updateStep(5, 'active');
+          else if (stepIndex === 6) updateStep(6, 'active');
         }
         setPublishStatus({
           type: null,
@@ -274,11 +276,13 @@ export function AutoCutDistributionPanel({
       }
 
       finalMediaUrl = videoUrl;
-      updateStep(1, 'done');
+      updateStep(2, 'done');
+      updateStep(3, 'done');
+      updateStep(4, 'done');
       updateStep(5, 'done');
       updateStep(6, 'active');
 
-      setPublishProgressPct(88);
+      setPublishProgressPct(92);
       setPublishStatus({
         type: null,
         message: 'Invio video MP4 e testo bilingue a Telegram...'
@@ -428,6 +432,9 @@ export function AutoCutDistributionPanel({
       let publishedTikTokId: string | undefined = undefined;
       if (activeChannel === 'tiktok' && formats.tiktok === 'feed') {
         if (environment === 'production') {
+          setPublishProgressPct(95);
+          updateStep(6, 'done');
+          updateStep(7, 'active');
           setPublishStatus({
             type: null,
             message: `Trasmissione video a TikTok Content Posting API (${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'})...`

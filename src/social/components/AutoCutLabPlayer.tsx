@@ -2914,8 +2914,9 @@ export function AutoCutLabPlayer({
               videoFrame.close();
 
               if (currentFrame % 30 === 0) {
-                const pct = Math.min(85, Math.round((currentFrame / totalFrames) * 85));
-                if (onProgress) onProgress(pct, 2, `Rendering fluido 60 FPS (${Math.round((currentFrame / totalFrames) * 100)}%)...`);
+                const framePct = Math.round((currentFrame / totalFrames) * 100);
+                const mappedPct = 12 + Math.round((currentFrame / totalFrames) * 63);
+                if (onProgress) onProgress(mappedPct, 2, `Rendering fotogrammi: ${currentFrame}/${totalFrames} (${framePct}%)...`);
                 await new Promise(r => setTimeout(r, 0));
               }
             }
@@ -2936,7 +2937,7 @@ export function AutoCutLabPlayer({
 
             cleanupOff();
 
-            if (onProgress) onProgress(88, 3, 'Finalizzazione file MP4 broadcast con Cover Art...');
+            if (onProgress) onProgress(78, 4, 'Finalizzazione file MP4 broadcast con Cover Art...');
             const videoBlob = new Blob([muxer.target.buffer], { type: 'video/mp4' });
             (window as any).__lastGeneratedVideoBuffer = muxer.target.buffer;
             (window as any).__lastGeneratedVideoBlob = videoBlob;
@@ -2949,7 +2950,7 @@ export function AutoCutLabPlayer({
             }
 
             const cleanFilename = `story_video_${testRun.mode}_${brand}_${Date.now()}.mp4`;
-            if (onProgress) onProgress(92, 4, 'Upload su Cloud Storage (Supabase S3)...');
+            if (onProgress) onProgress(82, 5, 'Upload su Cloud Storage (Supabase S3)...');
 
             // Upload della Thumbnail Ufficiale su Supabase S3
             if (thumbBlob) {
@@ -2988,7 +2989,7 @@ export function AutoCutLabPlayer({
               if (putRes.ok && signData.publicUrl) {
                 // Muxing audio istantaneo lato server (0.2s) con inserimento Cover Art nell'MP4
                 if (audioTrack?.src) {
-                  if (onProgress) onProgress(96, 5, 'Sincronizzazione audio jingle e Cover Art ufficiale...');
+                  if (onProgress) onProgress(88, 3, 'Sincronizzazione audio jingle e Cover Art ufficiale...');
                   try {
                     const muxRes = await fetch('/api/social-publisher?action=attach_audio_to_story', {
                       method: 'POST',
@@ -3007,7 +3008,7 @@ export function AutoCutLabPlayer({
                       if (muxData.thumbnail_url) {
                         (window as any).__lastGeneratedThumbnailUrl = muxData.thumbnail_url;
                       }
-                      if (onProgress) onProgress(100, 6, 'Master Video 60 FPS completato con successo!');
+                      if (onProgress) onProgress(92, 6, 'Master Video 60 FPS completato con successo!');
                       return muxData.url;
                     }
                   } catch (muxErr) {
