@@ -296,6 +296,58 @@ async function main() {
       console.warn('⚠️ Avviso durante sincronizzazione vault:', e.message);
     }
 
+    // 8b. Ripristino e allineamento automatico dei Worktrees
+    const wtMetaPath = path.join(tempDir, 'worktrees_info.json');
+    if (fs.existsSync(wtMetaPath)) {
+      try {
+        console.log('\n🌿 Passo 5b: Ripristino e Sincronizzazione Worktrees...');
+        const wtList = JSON.parse(fs.readFileSync(wtMetaPath, 'utf8'));
+        const parentDir = path.dirname(process.cwd());
+        const agyWorktreesDir = path.join(userHome, '.gemini/antigravity/worktrees/flowerpowervillage');
+        if (!fs.existsSync(agyWorktreesDir)) {
+          fs.mkdirSync(agyWorktreesDir, { recursive: true });
+        }
+
+        for (const wt of wtList) {
+          const targetWtPath = wt.isAntigravityInternal
+            ? path.join(agyWorktreesDir, wt.name)
+            : path.join(parentDir, wt.name);
+          console.log(`  👉 Controllo Worktree [${wt.name}] sul branch [${wt.branch}]...`);
+
+          try {
+            execSync(`git fetch origin ${wt.branch}`, { stdio: 'inherit', cwd: process.cwd() });
+          } catch (_) {}
+
+          if (!fs.existsSync(targetWtPath)) {
+            console.log(`  ✨ Creazione automatica Worktree in [${targetWtPath}]...`);
+            try {
+              execSync(`git worktree add "${targetWtPath}" ${wt.branch}`, { stdio: 'inherit', cwd: process.cwd() });
+              console.log(`  ✅ Worktree [${wt.name}] creato con successo!`);
+            } catch (addErr) {
+              console.warn('  ⚠️ Avviso creazione worktree:', addErr.message);
+            }
+          } else {
+            console.log(`  🔄 Worktree già presente. Aggiornamento codice da GitHub...`);
+            try {
+              execSync(`git -C "${targetWtPath}" pull origin ${wt.branch}`, { stdio: 'inherit' });
+              console.log(`  ✅ Worktree [${wt.name}] allineato con successo!`);
+            } catch (pullErr) {
+              console.warn('  ⚠️ Avviso pull worktree:', pullErr.message);
+            }
+          }
+
+          if (fs.existsSync('.env') && fs.existsSync(targetWtPath)) {
+            try {
+              fs.copyFileSync('.env', path.join(targetWtPath, '.env'));
+              console.log('  🔑 File .env sincronizzato nel Worktree.');
+            } catch (_) {}
+          }
+        }
+      } catch (wtErr) {
+        console.warn('⚠️ Avviso durante ripristino worktrees:', wtErr.message);
+      }
+    }
+
     // 9. Pulizia scratch locale
     fs.rmSync(tempDir, { recursive: true, force: true });
 
