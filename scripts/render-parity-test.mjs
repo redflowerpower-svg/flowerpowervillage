@@ -78,6 +78,49 @@ async function main() {
 
   const page = await context.newPage();
 
+  let capturedRawVideoBuffer = null;
+
+  // 🛡️ Zero-Egress Storage Shield: intercetta l'upload del video grezzo per prelevarlo direttamente dalla RAM
+  await context.route('**/*.supabase.co/storage/v1/object/upload/sign/**', async (route) => {
+    const req = route.request();
+    if (req.method() === 'PUT') {
+      try {
+        capturedRawVideoBuffer = req.postDataBuffer();
+        log(`[Zero-Egress Shield] Video grezzo catturato direttamente in RAM (${(capturedRawVideoBuffer.length / 1e6).toFixed(1)} MB) - Upload Supabase evitato al 100%!`);
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' });
+        return;
+      } catch (capErr) {
+        log('Avviso cattura buffer:', capErr.message);
+      }
+    }
+    await route.continue();
+  });
+
+  // 🛡️ Zero-Egress CDN Shield: dirotta tutte le immagini di Supabase Storage sul proxy Cloudflare CDN WebP
+  await context.route('https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/**', async (route) => {
+    const req = route.request();
+    const url = req.url();
+    if (url.match(/\.(webp|jpg|jpeg|png)$/i)) {
+      const cleanUrl = url.split('?')[0];
+      const cdnUrl = `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&output=webp&q=80`;
+      try {
+        const cdnRes = await fetch(cdnUrl);
+        if (cdnRes.ok) {
+          const buf = Buffer.from(await cdnRes.arrayBuffer());
+          await route.fulfill({
+            status: 200,
+            contentType: cdnRes.headers.get('content-type') || 'image/webp',
+            body: buf
+          });
+          return;
+        }
+      } catch (cdnErr) {
+        log('Avviso CDN proxy:', cdnErr.message);
+      }
+    }
+    await route.continue();
+  });
+
   // 🎵 Intercettatore API: muxing audio istantaneo in locale con FFmpeg per evitare timeout Vercel (15s)
   await context.route('**/api/social-publisher**', async (route) => {
     const req = route.request();
@@ -90,9 +133,15 @@ async function main() {
         const { video_url, audio_track, outro_start_time, brand, thumbnail_url } = body;
         log('Muxing audio locale con FFmpeg...');
         
-        const vRes = await fetch(video_url);
-        if (!vRes.ok) throw new Error('Download video fallito: ' + vRes.status);
-        const vBuf = Buffer.from(await vRes.arrayBuffer());
+        let vBuf = capturedRawVideoBuffer;
+        if (!vBuf || vBuf.length === 0) {
+          log('[Zero-Egress Shield] Buffer in RAM non intercettato, fallback download remoto:', video_url);
+          const vRes = await fetch(video_url);
+          if (!vRes.ok) throw new Error('Download video fallito: ' + vRes.status);
+          vBuf = Buffer.from(await vRes.arrayBuffer());
+        } else {
+          log(`[Zero-Egress Shield] Utilizzo buffer locale in RAM (${(vBuf.length / 1e6).toFixed(1)} MB) - Zero Egress Supabase!`);
+        }
         const tmpV = path.join(outDir, `temp_in_${Date.now()}.mp4`);
         const tmpOut = path.join(outDir, `temp_master_${Date.now()}.mp4`);
         fs.writeFileSync(tmpV, vBuf);
@@ -151,34 +200,9 @@ async function main() {
         let masterUrl = video_url;
         const supabaseUrl = env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co';
         const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-        if (supabaseKey) {
-          const masterBuf = fs.readFileSync(tmpOut);
-          const uObj = new URL(video_url);
-          const origPath = uObj.pathname.split('/public/assets/')[1] || `social_stories/story_${Date.now()}.mp4`;
-          const cleanP = origPath.split('?')[0];
-          const masterStoragePath = cleanP.replace(/(_master)?\.mp4$/i, '') + '_master.mp4';
-          
-          try {
-            const upRes = await fetch(`${supabaseUrl}/storage/v1/object/assets/${masterStoragePath}`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${supabaseKey}`,
-                'apikey': supabaseKey,
-                'Content-Type': 'video/mp4',
-                'x-upsert': 'true'
-              },
-              body: masterBuf
-            });
-            if (upRes.ok) {
-              masterUrl = `${supabaseUrl}/storage/v1/object/public/assets/${masterStoragePath}`;
-              log(`Master audio muxato caricato con successo su Supabase: ${masterUrl} (${(masterBuf.length / 1e6).toFixed(1)} MB)`);
-            } else {
-              log('Avviso upload master Supabase:', upRes.status, await upRes.text());
-            }
-          } catch (upErr) {
-            log('Avviso eccezione upload master Supabase:', upErr.message);
-          }
-        }
+        // 🛡️ Zero-Egress Shield: evita l'upload ridondante del master su Supabase (viene salvato localmente e inviato a Google Drive 5TB)
+        masterUrl = `file://${tmpOut}`;
+        log(`[Zero-Egress Shield] Master audio muxato salvato direttamente su disco locale: ${tmpOut} - Zero Upload Supabase!`);
 
         try { fs.unlinkSync(tmpV); } catch {}
 
@@ -295,11 +319,19 @@ async function main() {
   });
   if (result.error) throw new Error(result.error);
   if (result.remoteUrl) {
-    log(`Il player ha restituito URL remoto: ${result.remoteUrl}`);
-    const buf = Buffer.from(await (await fetch(result.remoteUrl)).arrayBuffer());
-    result.type = 'video/mp4';
-    result.size = buf.length;
-    result.b64 = buf.toString('base64');
+    log(`Il player ha restituito URL master: ${result.remoteUrl}`);
+    if (lastMuxedAudioPath && fs.existsSync(lastMuxedAudioPath)) {
+      log('[Zero-Egress Shield] Utilizzo master audio già pronto su disco locale (Zero Download Supabase)');
+      const buf = fs.readFileSync(lastMuxedAudioPath);
+      result.type = 'video/mp4';
+      result.size = buf.length;
+      result.b64 = buf.toString('base64');
+    } else {
+      const buf = Buffer.from(await (await fetch(result.remoteUrl)).arrayBuffer());
+      result.type = 'video/mp4';
+      result.size = buf.length;
+      result.b64 = buf.toString('base64');
+    }
   }
 
   const ext = /webm/.test(result.type) ? 'webm' : 'mp4';

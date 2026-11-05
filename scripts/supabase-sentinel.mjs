@@ -23,11 +23,29 @@ if (fs.existsSync('.env')) {
 
 const supabaseUrl = env.VITE_SUPABASE_URL || env.SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co';
 const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY;
+const managementToken = env.SUPABASE_MANAGEMENT_TOKEN || process.env.SUPABASE_MANAGEMENT_TOKEN || '';
 if (!supabaseUrl || !supabaseKey) {
   console.error('[sentinel] Credenziali Supabase mancanti in .env');
   process.exit(1);
 }
 const sb = createClient(supabaseUrl, supabaseKey);
+
+// 🛡️ Verifica telemetria ufficiale stato infrastruttura via Supabase Management API
+async function checkManagementHealth() {
+  if (!managementToken) return { ok: false, status: 'NO_TOKEN' };
+  try {
+    const res = await fetch('https://api.supabase.com/v1/projects/gjqevgkbjkharczhikcl', {
+      headers: { 'Authorization': `Bearer ${managementToken}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return { ok: true, status: data.status, name: data.name, region: data.region, pgVersion: data.database?.postgres_engine };
+    }
+  } catch (err) {
+    console.warn('[sentinel] Avviso Management API:', err.message);
+  }
+  return { ok: false, status: 'ERROR' };
+}
 
 const chatId = '-1004492692624';
 const TOPIC_FAILED = 301;
@@ -188,6 +206,28 @@ export async function runSupabaseQuotaSentinel({ autoFix = true, notifyTelegram 
     alertMsg += `\n🛡️ <i>Tutti i video continuano a essere archiviati in sicurezza su Google Drive 5TB a costo zero.</i>`;
 
     await sendTelegramAlert(alertMsg);
+  }
+
+  const mgmtHealth = await checkManagementHealth();
+  if (mgmtHealth.ok) {
+    console.log(`[sentinel] Telemetria Ufficiale Supabase API: ${mgmtHealth.status} (${mgmtHealth.name}, Regione: ${mgmtHealth.region})`);
+  }
+
+  // 📊 Invio Report Quotidiano trasparente (se richiesto o se inviato con flag --daily-report)
+  if ((process.argv.includes('--daily-report') || options.isDailyReport) && notifyTelegram) {
+    let reportMsg = `📊 <b>[SUPABASE TELEMETRY · REPORT QUOTIDIANO STAFF]</b>\n\n`;
+    reportMsg += `🟢 <b>Stato Infrastruttura:</b> <code>${mgmtHealth.status || 'ACTIVE_HEALTHY'}</code>\n`;
+    reportMsg += `💾 <b>Storage Occupato:</b> ${postHealingGrandTotalMb} MB / 1000 MB (<b>${((parseFloat(postHealingGrandTotalMb) / 1000) * 100).toFixed(1)}%</b>)\n`;
+    reportMsg += `🎬 <b>Buffer Video Social:</b> ${postHealingSocialMb} MB\n`;
+    reportMsg += `🛡️ <b>Zero-Egress Shield:</b> <code>ATTIVO</code> (RAM in-memory & Cloudflare CDN)\n`;
+    reportMsg += `\n🔍 <b>Dettaglio Bucket Principali:</b>\n`;
+    for (const b of bucketReports) {
+      if (parseFloat(b.totalMb) > 1.0) {
+        reportMsg += `▫️ <code>${b.bucketName}</code>: ${b.totalMb} MB\n`;
+      }
+    }
+    reportMsg += `\n✅ <i>Tutti i video montati dai robot vengono gestiti in RAM e archiviati su Google Drive 5TB a costo zero.</i>`;
+    await sendTelegramAlert(reportMsg);
   }
 
   console.log(`✅ [sentinel] Scansione completata. Stato: ${isStorageWarn || isSocialWarn ? 'ATTENZIONE' : 'OTTIMALE 🟢'}`);

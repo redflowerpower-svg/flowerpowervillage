@@ -1,14 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   FlaskConical, Rocket, Check, AlertCircle, Send,
   Share2, Video, Smartphone, Clock, Users,
   MapPin, Tag, Sparkles, CheckCircle2, ChevronRight, ExternalLink,
-  Pizza, Palmtree, Camera, XCircle
+  Pizza, Palmtree, Camera, XCircle, Link2
 } from 'lucide-react';
 import { AutoCutTestRun } from '../services/autoCutLabEngine';
 import { THIRD_PARTY_COMMUNITY_GROUPS } from '../config/thirdPartyGroups';
 import { dispatchPostToTelegramTopic, dispatchPublishReportToTelegram } from '../services/telegramStudioDispatcher';
 import { generatePostCopy } from '../services/autoCutCopywriterEngine';
+import { getTikTokAuthUrl } from '../services/tiktokService';
 
 export type DistributionEnvironment = 'test' | 'production';
 export type DistributionChannelId = 'tiktok' | 'google' | 'facebook' | 'instagram';
@@ -150,6 +151,25 @@ export function AutoCutDistributionPanel({
     details?: string[];
   }>({ type: null, message: '' });
 
+  // Stato connessione account social in tempo reale per il brand selezionato
+  const [accountStatus, setAccountStatus] = useState<any>(null);
+
+  const fetchChannelStatus = async () => {
+    try {
+      const res = await fetch(`/api/social-publisher?action=status&brand=${selectedBrand}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAccountStatus(data);
+      }
+    } catch (e) {
+      console.warn('[AutoCutDistributionPanel] Could not fetch channel status:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchChannelStatus();
+  }, [selectedBrand]);
+
   // Controller e ref per abortire il processo in qualsiasi momento
   const abortControllerRef = useRef<AbortController | null>(null);
   const isAbortedRef = useRef<boolean>(false);
@@ -181,6 +201,19 @@ export function AutoCutDistributionPanel({
 
   // Gestione Pubblicazione o Test: TASSATIVAMENTE VIDEO MP4 9:16
   const handleExecute = async () => {
+    // Controllo preventivo: se in Produzione Live su TikTok Feed e l'account non è autorizzato, avvisa subito
+    if (environment === 'production' && activeChannel === 'tiktok' && formats.tiktok === 'feed' && accountStatus?.tiktok && !accountStatus.tiktok.connected) {
+      setPublishStatus({
+        type: 'error',
+        message: `Account TikTok non collegato per ${selectedBrand === 'pizza' ? 'Pizzeria Ranong (@flowerpowerpizza_ranong)' : 'il Villaggio Koh Phayam (@flowerpowervillage)'}.`,
+        details: [
+          'Prima di pubblicare in Produzione Live, autorizza l\'accesso cliccando sul pulsante rosso "Connetti TikTok" nel riquadro TikTok in alto.',
+          'Una volta autorizzato, i tuoi video verranno inviati direttamente alla Content Posting API v2 di TikTok.'
+        ]
+      });
+      return;
+    }
+
     isAbortedRef.current = false;
     abortControllerRef.current = new AbortController();
     setIsPublishing(true);
@@ -640,9 +673,36 @@ export function AutoCutDistributionPanel({
               <span className="text-[10px] text-slate-500 font-mono">Seleziona</span>
             )}
           </div>
-          <div className="text-[10px] text-cyan-300/80 font-mono pl-6 pt-0.5">
-            Profilo: {selectedBrand === 'pizza' ? '@flowerpowerpizza_ranong' : '@flowerpowervillage'}
+          <div className="text-[10px] text-cyan-300/80 font-mono pl-6 pt-0.5 flex flex-wrap items-center gap-1.5">
+            <span>Profilo: {selectedBrand === 'pizza' ? '@flowerpowerpizza_ranong' : '@flowerpowervillage'}</span>
+            {accountStatus?.tiktok ? (
+              accountStatus.tiktok.connected ? (
+                <span className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-700/60 px-1.5 py-0.2 rounded">
+                  🟢 Live Connesso
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-300 bg-amber-950/80 border border-amber-700/60 px-1.5 py-0.2 rounded">
+                  ⚠️ Non Connesso
+                </span>
+              )
+            ) : null}
           </div>
+
+          {/* Pulsante rapido autorizzazione OAuth TikTok per il brand attivo */}
+          {activeChannel === 'tiktok' && accountStatus?.tiktok && !accountStatus.tiktok.connected && (
+            <div className="mt-2 ml-6" onClick={e => e.stopPropagation()}>
+              <a
+                href={accountStatus.tiktok.authUrl || getTikTokAuthUrl(selectedBrand)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10px] shadow-md transition active:scale-95"
+              >
+                <Link2 className="w-3 h-3" />
+                <span>Connetti TikTok ({selectedBrand === 'pizza' ? 'Pizzeria' : 'Villaggio'})</span>
+                <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+            </div>
+          )}
 
           {activeChannel === 'tiktok' && (
             <div className="mt-3 pt-2.5 space-y-1.5 pl-3 border-l-2 border-cyan-500/40 text-[11px]" onClick={e => e.stopPropagation()}>

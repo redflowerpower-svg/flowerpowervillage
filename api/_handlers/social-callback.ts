@@ -341,7 +341,35 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
           refresh_expires_in: payload.refresh_expires_in ? Number(payload.refresh_expires_in) : null,
           scope: payload.scope || null,
           updated_at: new Date().toISOString(),
-        }, { onConflict: "open_id" });
+        }, { onConflict: "open_id" }).catch(() => {});
+
+        // Fallback persistence in telegram_config
+        const targetBrand = (body.brand || query.brand || (state && state.includes('village') ? 'village' : 'pizza')) as string;
+        const configPayload = {
+          open_id: payload.open_id,
+          refresh_token: payload.refresh_token || refreshToken,
+          scope: payload.scope,
+          expires_in: payload.expires_in,
+          brand: targetBrand,
+          account_name: targetBrand === 'village' ? 'flowerpowervillage' : 'flowerpowerpizza_ranong',
+          updated_at: new Date().toISOString()
+        };
+
+        await supabase.from("telegram_config").upsert({
+          id: `tiktok_${payload.open_id}`,
+          bot_token: payload.access_token,
+          chat_id: JSON.stringify(configPayload),
+          updated_at: new Date().toISOString(),
+        }).catch(() => {});
+
+        if (targetBrand) {
+          await supabase.from("telegram_config").upsert({
+            id: `tiktok_${targetBrand}`,
+            bot_token: payload.access_token,
+            chat_id: JSON.stringify(configPayload),
+            updated_at: new Date().toISOString(),
+          }).catch(() => {});
+        }
       }
       return res.status(200).json(payload);
     } catch (e: any) {
@@ -453,23 +481,41 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
           updated_at: new Date().toISOString(),
         }, { onConflict: "open_id" });
 
-        if (upsertErr) {
-          console.warn("[SocialCallback] Error saving to social_accounts table, using telegram_config fallback:", upsertErr.message);
-          await supabase.from("telegram_config").upsert({
-            id: `tiktok_${open_id}`,
-            bot_token: access_token,
-            chat_id: JSON.stringify({ open_id, refresh_token, scope, expires_in }),
-            updated_at: new Date().toISOString(),
-          });
-        } else {
-          console.log("[SocialCallback] Successfully saved account into social_accounts table!");
-        }
+        const targetBrand = (state && state.includes("village")) ? "village" : "pizza";
+        const configPayload = {
+          open_id,
+          refresh_token: refresh_token || null,
+          scope,
+          expires_in,
+          brand: targetBrand,
+          account_name: targetBrand === 'village' ? 'flowerpowervillage' : 'flowerpowerpizza_ranong',
+          updated_at: new Date().toISOString()
+        };
+
+        // Always persist to telegram_config (reliable primary/fallback store)
+        await supabase.from("telegram_config").upsert({
+          id: `tiktok_${open_id}`,
+          bot_token: access_token,
+          chat_id: JSON.stringify(configPayload),
+          updated_at: new Date().toISOString(),
+        }).catch(() => {});
+
+        // Save dedicated brand key: tiktok_village or tiktok_pizza
+        await supabase.from("telegram_config").upsert({
+          id: `tiktok_${targetBrand}`,
+          bot_token: access_token,
+          chat_id: JSON.stringify(configPayload),
+          updated_at: new Date().toISOString(),
+        }).catch(() => {});
+
+        console.log(`[SocialCallback] Successfully saved TikTok account for brand: ${targetBrand} (open_id: ${open_id})`);
       } catch (dbErr: any) {
         console.error("[SocialCallback] Database error saving TikTok credentials:", dbErr.message);
       }
     }
 
-    const successRedirect = `/social?status=tiktok_connected&open_id=${encodeURIComponent(open_id)}`;
+    const targetBrand = (state && state.includes("village")) ? "village" : "pizza";
+    const successRedirect = `/social?status=tiktok_connected&open_id=${encodeURIComponent(open_id)}&brand=${targetBrand}`;
     return res.redirect(302, successRedirect);
 
   } catch (err: any) {

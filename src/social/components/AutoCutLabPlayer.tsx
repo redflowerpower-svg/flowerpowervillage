@@ -2938,6 +2938,8 @@ export function AutoCutLabPlayer({
 
             if (onProgress) onProgress(88, 3, 'Finalizzazione file MP4 broadcast con Cover Art...');
             const videoBlob = new Blob([muxer.target.buffer], { type: 'video/mp4' });
+            (window as any).__lastGeneratedVideoBuffer = muxer.target.buffer;
+            (window as any).__lastGeneratedVideoBlob = videoBlob;
 
             const cleanFilename = `story_video_${testRun.mode}_${brand}_${Date.now()}.mp4`;
             if (onProgress) onProgress(92, 4, 'Upload su Cloud Storage (Supabase S3)...');

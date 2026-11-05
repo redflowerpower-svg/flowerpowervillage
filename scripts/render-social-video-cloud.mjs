@@ -85,7 +85,12 @@ async function getTelegramBotToken() {
 async function downloadAsset(url, localPath) {
   if (fs.existsSync(localPath) && fs.statSync(localPath).size > 1000) return true;
   try {
-    const res = await fetch(url);
+    // 🛡️ Zero-Egress Cloudflare CDN Proxy: non consuma banda da Supabase Storage
+    const cleanUrl = url.split('?')[0];
+    const fetchUrl = cleanUrl.includes('supabase.co') && cleanUrl.match(/\.(webp|jpg|jpeg|png)$/i)
+      ? `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&output=webp&q=80`
+      : url;
+    const res = await fetch(fetchUrl);
     if (res.ok) {
       const buf = Buffer.from(await res.arrayBuffer());
       fs.writeFileSync(localPath, buf);

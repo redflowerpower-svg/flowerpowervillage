@@ -1082,9 +1082,11 @@ async function renderVideoMode(mode) {
 }
 
 async function run() {
+
   // 🛡️ Monitoraggio Sanitario & Egress Guard Supabase Storage (Auto-Healing attivo)
+  // Alle 08:00 invia automaticamente il report quotidiano di telemetria su Topic 301
   try {
-    await runSupabaseQuotaSentinel({ autoFix: true, notifyTelegram: true });
+    await runSupabaseQuotaSentinel({ autoFix: true, notifyTelegram: true, isDailyReport: is0800 });
   } catch (sentinelErr) {
     console.warn('[scheduler-dispatch] Watchdog sentinel warning:', sentinelErr.message);
   }

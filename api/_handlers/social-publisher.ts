@@ -306,6 +306,162 @@ async function cleanExpiredSocialStories() {
 }
 
 /**
+ * Refreshes an expired TikTok user access token via grant_type: refresh_token
+ */
+async function refreshTikTokAccessToken(refreshToken: string, clientKey: string, clientSecret: string) {
+  try {
+    const refreshParams = new URLSearchParams();
+    refreshParams.append("client_key", clientKey);
+    refreshParams.append("client_secret", clientSecret);
+    refreshParams.append("grant_type", "refresh_token");
+    refreshParams.append("refresh_token", refreshToken);
+
+    const rRes = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Cache-Control": "no-cache",
+      },
+      body: refreshParams.toString(),
+    });
+    const rData = await rRes.json();
+    if (rRes.ok && (rData.data || !rData.error || rData.error.code === 'ok' || rData.error.code === 0)) {
+      return rData.data || rData;
+    }
+    console.error("[SocialPublisher] TikTok refresh call failed:", rData);
+  } catch (err: any) {
+    console.error("[SocialPublisher] TikTok refresh exception:", err.message);
+  }
+  return null;
+}
+
+interface TikTokTokenRecord {
+  token: string;
+  openId?: string;
+  refreshToken?: string;
+  scope?: string;
+  isMock: boolean;
+  brand?: string;
+  accountName?: string;
+  updatedAt?: string;
+}
+
+/**
+ * Retrieves the TikTok token for the specified brand ('village' or 'pizza'),
+ * automatically filtering out sandbox mocks and auto-refreshing expired tokens.
+ */
+async function getTikTokTokenForBrand(brand: string = 'pizza'): Promise<TikTokTokenRecord | null> {
+  if (!supabase) return null;
+  const clientKey = process.env.TIKTOK_CLIENT_KEY;
+  const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+
+  // 1. Check dedicated brand row in telegram_config: tiktok_village or tiktok_pizza
+  let { data: row } = await supabase
+    .from("telegram_config")
+    .select("*")
+    .eq("id", `tiktok_${brand}`)
+    .maybeSingle();
+
+  // 2. If not found, check any active non-sandbox tiktok_%
+  if (!row) {
+    const { data: rows } = await supabase
+      .from("telegram_config")
+      .select("*")
+      .like("id", "tiktok_%")
+      .neq("id", "tiktok_sb_user_flowerpower_review")
+      .order("updated_at", { ascending: false });
+
+    if (rows && rows.length > 0) {
+      const brandMatch = rows.find(r => {
+        try {
+          const p = JSON.parse(r.chat_id || "{}");
+          return p.brand === brand;
+        } catch { return false; }
+      });
+      row = brandMatch || rows[0];
+    }
+  }
+
+  if (!row || !row.bot_token) return null;
+
+  // Detect sandbox mock tokens
+  const isMock = row.id.startsWith("tiktok_sb_") || row.bot_token.startsWith("act.tiktok_sandbox_");
+  if (isMock) {
+    return { token: row.bot_token, isMock: true, brand };
+  }
+
+  let parsed: any = {};
+  try {
+    parsed = JSON.parse(row.chat_id || "{}");
+  } catch {}
+
+  const openId = parsed.open_id || row.id.replace("tiktok_", "");
+  const refreshToken = parsed.refresh_token;
+  const scope = parsed.scope || "user.info.basic,video.publish,video.upload";
+  const accountName = parsed.account_name || (brand === "village" ? "flowerpowervillage" : "flowerpowerpizza_ranong");
+
+  // Check token age / expiration (TikTok access tokens expire in 24 hours = 86400s)
+  const updatedAtMs = row.updated_at ? new Date(row.updated_at).getTime() : 0;
+  const nowMs = Date.now();
+  const ageSeconds = (nowMs - updatedAtMs) / 1000;
+  const expiresIn = Number(parsed.expires_in) || 86400;
+
+  // Auto-refresh if older than 20 hours and we have refresh_token and client credentials
+  const isNearExpiry = ageSeconds > (expiresIn - 14400);
+  if (isNearExpiry && refreshToken && clientKey && clientSecret) {
+    console.log(`[SocialPublisher] TikTok token for ${brand} is near expiry (${Math.round(ageSeconds/3600)}h old). Refreshing automatically...`);
+    const refreshed = await refreshTikTokAccessToken(refreshToken, clientKey, clientSecret);
+    if (refreshed?.access_token) {
+      const updatedChatId = JSON.stringify({
+        ...parsed,
+        open_id: refreshed.open_id || openId,
+        refresh_token: refreshed.refresh_token || refreshToken,
+        expires_in: refreshed.expires_in || 86400,
+        brand,
+        account_name: accountName,
+        updated_at: new Date().toISOString()
+      });
+
+      await supabase.from("telegram_config").upsert({
+        id: row.id,
+        bot_token: refreshed.access_token,
+        chat_id: updatedChatId,
+        updated_at: new Date().toISOString()
+      }).catch(() => {});
+
+      await supabase.from("telegram_config").upsert({
+        id: `tiktok_${brand}`,
+        bot_token: refreshed.access_token,
+        chat_id: updatedChatId,
+        updated_at: new Date().toISOString()
+      }).catch(() => {});
+
+      return {
+        token: refreshed.access_token,
+        openId: refreshed.open_id || openId,
+        refreshToken: refreshed.refresh_token || refreshToken,
+        scope,
+        isMock: false,
+        brand,
+        accountName,
+        updatedAt: new Date().toISOString()
+      };
+    }
+  }
+
+  return {
+    token: row.bot_token,
+    openId,
+    refreshToken,
+    scope,
+    isMock: false,
+    brand,
+    accountName,
+    updatedAt: row.updated_at
+  };
+}
+
+/**
  * Social Publisher & Content Posting API Handler
  * Reparto Stagno: Social Media Studio (/social)
  * Supports TikTok Content Posting API v2 & Meta Graph API
@@ -319,7 +475,8 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     return res.status(200).end();
   }
 
-  const action = (req.query.action as string) || req.body?.action || "";
+  const action = (req.query?.action as string) || req.body?.action || "";
+  const query = req.query || {};
   const body = req.body || {};
 
   // 🛡️ Helper di Autenticazione Blindata: Convalida CRON_SECRET oppure sessione Staff Supabase JWT
@@ -1609,44 +1766,26 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
   // 1. GET /api/social-publisher?action=status
   if (action === "status" || action === "get_account") {
     try {
-      let tiktokAccount: any = null;
+      const reqBrand = ((query.brand || body.brand || "pizza") as string).toLowerCase();
 
-      if (supabase) {
-        // Try social_accounts
-        const { data } = await supabase
-          .from("social_accounts")
-          .select("open_id, account_name, avatar_url, expires_in, scope, updated_at, is_active")
-          .eq("platform", "tiktok")
-          .order("updated_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
+      // Retrieve brand-isolated TikTok accounts (filtering out review sandbox mocks)
+      const villageTikTok = await getTikTokTokenForBrand("village");
+      const pizzaTikTok = await getTikTokTokenForBrand("pizza");
 
-        if (data) {
-          tiktokAccount = data;
-        } else {
-          // Check telegram_config fallback
-          const { data: fbData } = await supabase
-            .from("telegram_config")
-            .select("*")
-            .like("id", "tiktok_%")
-            .order("updated_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
+      const isVillageTikTokConnected = !!(villageTikTok && !villageTikTok.isMock);
+      const isPizzaTikTokConnected = !!(pizzaTikTok && !pizzaTikTok.isMock);
+      const activeTikTokRecord = reqBrand === "village" ? villageTikTok : pizzaTikTok;
+      const isCurrentBrandTikTokConnected = reqBrand === "village" ? isVillageTikTokConnected : isPizzaTikTokConnected;
 
-          if (fbData) {
-            try {
-              const parsed = JSON.parse(fbData.chat_id);
-              tiktokAccount = {
-                open_id: parsed.open_id || fbData.id.replace("tiktok_", ""),
-                scope: parsed.scope || "user.info.basic,video.publish,video.upload",
-                updated_at: fbData.updated_at,
-                is_active: true,
-                is_fallback: true
-              };
-            } catch {}
-          }
-        }
-      }
+      const tiktokAccount = activeTikTokRecord ? {
+        open_id: activeTikTokRecord.openId,
+        brand: activeTikTokRecord.brand,
+        account_name: activeTikTokRecord.accountName,
+        scope: activeTikTokRecord.scope,
+        updated_at: activeTikTokRecord.updatedAt,
+        is_mock: activeTikTokRecord.isMock,
+        is_active: !activeTikTokRecord.isMock
+      } : null;
 
       // Check Google Business Profile Account
       let googleAccount: any = null;
@@ -1701,9 +1840,15 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       const clientKey = process.env.TIKTOK_CLIENT_KEY || "";
       const redirectUri = process.env.TIKTOK_REDIRECT_URI || "https://flowerpowerpizza.com/api/social-callback";
       
-      const authUrl = clientKey
-        ? `https://www.tiktok.com/v2/auth/authorize/?client_key=${encodeURIComponent(clientKey)}&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=fp_social_studio`
+      const authUrlVillage = clientKey
+        ? `https://www.tiktok.com/v2/auth/authorize/?client_key=${encodeURIComponent(clientKey)}&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=tiktok_village`
         : "";
+
+      const authUrlPizza = clientKey
+        ? `https://www.tiktok.com/v2/auth/authorize/?client_key=${encodeURIComponent(clientKey)}&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=tiktok_pizza`
+        : "";
+
+      const authUrl = reqBrand === "village" ? authUrlVillage : authUrlPizza;
 
       // Google OAuth URL (Dedicated Google Business Profile Client)
       let googleClientId = process.env.GOOGLE_BUSINESS_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || "";
@@ -1735,10 +1880,15 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       return res.status(200).json({
         success: true,
         tiktok: {
-          connected: !!tiktokAccount,
+          connected: isCurrentBrandTikTokConnected,
+          villageConnected: isVillageTikTokConnected,
+          pizzaConnected: isPizzaTikTokConnected,
+          activeBrand: reqBrand,
           clientKey: clientKey ? `${clientKey.slice(0, 6)}...` : null,
           redirectUri,
           authUrl,
+          authUrlVillage,
+          authUrlPizza,
           account: tiktokAccount
         },
         google: {
@@ -1782,36 +1932,25 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       brand = "pizza"
     } = body;
 
+    const targetBrand = (brand === "village" || String(brand).toLowerCase().includes("village")) ? "village" : "pizza";
+    const clientKey = process.env.TIKTOK_CLIENT_KEY;
+    const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+
     let token = accessToken;
+    let tokenRecord: TikTokTokenRecord | null = null;
 
-    // If token not passed, look up active token from DB
     if (!token && supabase) {
-      const { data } = await supabase
-        .from("social_accounts")
-        .select("access_token")
-        .eq("platform", "tiktok")
-        .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (data?.access_token) {
-        token = data.access_token;
-      } else {
-        const { data: fbData } = await supabase
-          .from("telegram_config")
-          .select("bot_token")
-          .like("id", "tiktok_%")
-          .limit(1)
-          .maybeSingle();
-        if (fbData?.bot_token) {
-          token = fbData.bot_token;
-        }
+      tokenRecord = await getTikTokTokenForBrand(targetBrand);
+      if (tokenRecord && !tokenRecord.isMock) {
+        token = tokenRecord.token;
       }
     }
 
     if (!token) {
+      const brandLabel = targetBrand === "village" ? "il Villaggio Koh Phayam (@flowerpowervillage)" : "la Pizzeria Ranong (@flowerpowerpizza_ranong)";
       return res.status(400).json({
-        error: "Missing TikTok access token. Please authorize your TikTok account first."
+        success: false,
+        error: `Nessun account TikTok reale collegato per ${brandLabel}. Clicca sul pulsante "Connetti TikTok" per autorizzare l'accesso OAuth.`
       });
     }
 
@@ -1835,9 +1974,9 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
         }
       };
 
-      console.log("[SocialPublisher] Initializing TikTok video publish:", payload);
+      console.log(`[SocialPublisher] Initializing TikTok video publish for brand: ${targetBrand}`, payload);
 
-      const ttRes = await fetch("https://open.tiktokapis.com/v2/post/publish/video/init/", {
+      let ttRes = await fetch("https://open.tiktokapis.com/v2/post/publish/video/init/", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -1846,8 +1985,50 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
         body: JSON.stringify(payload)
       });
 
-      const ttData = await ttRes.json();
+      let ttData = await ttRes.json();
       console.log("[SocialPublisher] TikTok init response:", ttData);
+
+      // Self-healing: if token expired (401 or access_token_invalid), attempt one emergency refresh
+      const isAuthError = !ttRes.ok && (
+        ttRes.status === 401 ||
+        ttData.error?.code === "access_token_invalid" ||
+        (ttData.error?.message && ttData.error.message.toLowerCase().includes("access token is invalid"))
+      );
+
+      if (isAuthError && tokenRecord?.refreshToken && clientKey && clientSecret) {
+        console.log(`[SocialPublisher] 401/Invalid token detected. Attempting emergency refresh for brand ${targetBrand}...`);
+        const refreshed = await refreshTikTokAccessToken(tokenRecord.refreshToken, clientKey, clientSecret);
+        if (refreshed?.access_token) {
+          token = refreshed.access_token;
+          const updatedChatId = JSON.stringify({
+            open_id: refreshed.open_id || tokenRecord.openId,
+            refresh_token: refreshed.refresh_token || tokenRecord.refreshToken,
+            expires_in: refreshed.expires_in || 86400,
+            brand: targetBrand,
+            account_name: targetBrand === 'village' ? 'flowerpowervillage' : 'flowerpowerpizza_ranong',
+            updated_at: new Date().toISOString()
+          });
+
+          await supabase.from("telegram_config").upsert({
+            id: `tiktok_${targetBrand}`,
+            bot_token: token,
+            chat_id: updatedChatId,
+            updated_at: new Date().toISOString()
+          }).catch(() => {});
+
+          console.log("[SocialPublisher] Retrying TikTok video publish with refreshed token...");
+          ttRes = await fetch("https://open.tiktokapis.com/v2/post/publish/video/init/", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json; charset=UTF-8"
+            },
+            body: JSON.stringify(payload)
+          });
+          ttData = await ttRes.json();
+          console.log("[SocialPublisher] TikTok retry response:", ttData);
+        }
+      }
 
       const publishId = ttData?.data?.publish_id;
       const isSuccess = ttRes.ok && (!ttData.error || ttData.error.code === "ok" || ttData.error.code === 0);
@@ -2302,24 +2483,21 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 
   // 3. POST /api/social-publisher?action=check_status
   if (action === "check_status") {
-    const { publishId, accessToken } = body;
+    const { publishId, accessToken, brand = "pizza" } = body;
     if (!publishId) {
       return res.status(400).json({ error: "Missing publishId" });
     }
 
     let token = accessToken;
     if (!token && supabase) {
-      const { data } = await supabase
-        .from("social_accounts")
-        .select("access_token")
-        .eq("platform", "tiktok")
-        .limit(1)
-        .maybeSingle();
-      if (data?.access_token) token = data.access_token;
+      const record = await getTikTokTokenForBrand(brand);
+      if (record && !record.isMock) {
+        token = record.token;
+      }
     }
 
     if (!token) {
-      return res.status(400).json({ error: "Missing TikTok token" });
+      return res.status(400).json({ error: "Missing TikTok token for status check" });
     }
 
     try {

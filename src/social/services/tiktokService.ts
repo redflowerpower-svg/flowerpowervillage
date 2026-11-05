@@ -31,44 +31,85 @@ export interface TikTokStatusResult {
 }
 
 /**
- * Fetches the active TikTok account credentials from Supabase
+ * Generates the official TikTok OAuth 2.0 authorization URL for a specific brand ('village' or 'pizza')
  */
-export async function getActiveTikTokAccount(openId?: string): Promise<TikTokTokenData | null> {
+export function getTikTokAuthUrl(brand: 'village' | 'pizza' = 'village'): string {
+  const clientKey = import.meta.env.VITE_TIKTOK_CLIENT_KEY || 'awsghb9gm4smzsic';
+  const redirectUri = 'https://flowerpowerpizza.com/api/social-callback';
+  const state = `tiktok_${brand}`;
+  return `https://www.tiktok.com/v2/auth/authorize/?client_key=${encodeURIComponent(clientKey)}&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+}
+
+/**
+ * Fetches the active TikTok account credentials from Supabase, brand-isolated and excluding sandbox mocks
+ */
+export async function getActiveTikTokAccount(brandOrOpenId?: string): Promise<TikTokTokenData | null> {
   if (!supabase) return null;
 
+  const isBrand = brandOrOpenId === 'village' || brandOrOpenId === 'pizza';
+  const brand = isBrand ? brandOrOpenId : undefined;
+  const openId = !isBrand ? brandOrOpenId : undefined;
+
   try {
+    // 1. Check brand-dedicated row in telegram_config
+    if (brand) {
+      const { data: brandData } = await supabase
+        .from('telegram_config')
+        .select('*')
+        .eq('id', `tiktok_${brand}`)
+        .maybeSingle();
+
+      if (brandData && brandData.bot_token && !brandData.bot_token.startsWith('act.tiktok_sandbox_')) {
+        try {
+          const parsed = JSON.parse(brandData.chat_id || '{}');
+          return {
+            open_id: parsed.open_id || brandData.id.replace('tiktok_', ''),
+            access_token: brandData.bot_token,
+            refresh_token: parsed.refresh_token || '',
+            expires_in: parsed.expires_in || 86400,
+            refresh_expires_in: parsed.refresh_expires_in || 31536000,
+            scope: parsed.scope || 'video.publish,video.upload,user.info.basic',
+            updated_at: brandData.updated_at
+          };
+        } catch {}
+      }
+    }
+
+    // 2. Query social_accounts table if available
     let query = supabase.from('social_accounts').select('*').eq('platform', 'tiktok');
     if (openId) {
       query = query.eq('open_id', openId);
     }
     const { data, error } = await query.order('updated_at', { ascending: false }).limit(1).maybeSingle();
 
-    if (!error && data) {
+    if (!error && data && data.access_token && !data.access_token.startsWith('act.tiktok_sandbox_')) {
       return data as TikTokTokenData;
     }
 
-    // Fallback: Check telegram_config store
-    const { data: fallbackData } = await supabase
+    // 3. Fallback: Check telegram_config store for any non-mock TikTok token
+    const { data: fallbackList } = await supabase
       .from('telegram_config')
       .select('*')
       .like('id', 'tiktok_%')
-      .order('updated_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .neq('id', 'tiktok_sb_user_flowerpower_review')
+      .order('updated_at', { ascending: false });
 
-    if (fallbackData) {
-      try {
-        const parsed = JSON.parse(fallbackData.chat_id);
-        return {
-          open_id: parsed.open_id || fallbackData.id.replace('tiktok_', ''),
-          access_token: fallbackData.bot_token,
-          refresh_token: parsed.refresh_token || '',
-          expires_in: parsed.expires_in || 86400,
-          refresh_expires_in: parsed.refresh_expires_in || 31536000,
-          scope: parsed.scope || 'video.publish,video.upload,user.info.basic',
-          updated_at: fallbackData.updated_at
-        };
-      } catch {}
+    if (fallbackList && fallbackList.length > 0) {
+      const nonMock = fallbackList.find(f => f.bot_token && !f.bot_token.startsWith('act.tiktok_sandbox_'));
+      if (nonMock) {
+        try {
+          const parsed = JSON.parse(nonMock.chat_id || '{}');
+          return {
+            open_id: parsed.open_id || nonMock.id.replace('tiktok_', ''),
+            access_token: nonMock.bot_token,
+            refresh_token: parsed.refresh_token || '',
+            expires_in: parsed.expires_in || 86400,
+            refresh_expires_in: parsed.refresh_expires_in || 31536000,
+            scope: parsed.scope || 'video.publish,video.upload,user.info.basic',
+            updated_at: nonMock.updated_at
+          };
+        } catch {}
+      }
     }
   } catch (err) {
     console.warn('[TikTokService] Error retrieving account:', err);
