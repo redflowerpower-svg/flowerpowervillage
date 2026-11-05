@@ -2091,22 +2091,71 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
         }
       }
 
-      const payload = {
-        post_info: {
-          title: title.slice(0, 2200),
-          privacy_level: privacyLevel,
-          disable_duet: disableDuet,
-          disable_comment: disableComment,
-          disable_stitch: disableStitch,
-          video_cover_timestamp_ms: 1000
-        },
-        source_info: {
-          source: "PULL_FROM_URL",
-          video_url: targetVideoUrl
-        }
-      };
+      // 🎬 TIKTOK DIRECT UPLOAD: Prova prima FILE_UPLOAD (standard TikTok per caricamento diretto del buffer)
+      // Evita al 100% qualsiasi blocco 'url_ownership_unverified' di TikTok trasferendo i byte direttamente al server TikTok
+      let videoBuffer: Buffer | null = null;
+      let targetFileName = "";
+      try {
+        const u = new URL(videoUrl);
+        targetFileName = path.basename(u.pathname);
+      } catch {
+        targetFileName = path.basename(String(videoUrl));
+      }
 
-      console.log(`[SocialPublisher] Initializing TikTok video publish for brand: ${targetBrand}`, payload);
+      if (targetFileName) {
+        videoBuffer = getCachedVideoBuffer(targetFileName);
+        if (!videoBuffer && supabase) {
+          try {
+            const { data: dlData, error: dlErr } = await supabase.storage.from("assets").download(`social_stories/${targetFileName}`);
+            if (!dlErr && dlData) {
+              const ab = await dlData.arrayBuffer();
+              videoBuffer = Buffer.from(ab);
+              cacheVideoBuffer(targetFileName, videoBuffer);
+            }
+          } catch (dlEx) {
+            console.warn("[SocialPublisher] Fallback buffer download warning:", dlEx);
+          }
+        }
+      }
+
+      let payload: any;
+      const isDirectFileUpload = !!(videoBuffer && videoBuffer.length > 0);
+
+      if (isDirectFileUpload) {
+        payload = {
+          post_info: {
+            title: title.slice(0, 2200),
+            privacy_level: privacyLevel,
+            disable_duet: disableDuet,
+            disable_comment: disableComment,
+            disable_stitch: disableStitch,
+            video_cover_timestamp_ms: 1000
+          },
+          source_info: {
+            source: "FILE_UPLOAD",
+            video_size: videoBuffer!.length,
+            chunk_size: videoBuffer!.length,
+            total_chunk_count: 1
+          }
+        };
+      } else {
+        payload = {
+          post_info: {
+            title: title.slice(0, 2200),
+            privacy_level: privacyLevel,
+            disable_duet: disableDuet,
+            disable_comment: disableComment,
+            disable_stitch: disableStitch,
+            video_cover_timestamp_ms: 1000
+          },
+          source_info: {
+            source: "PULL_FROM_URL",
+            video_url: targetVideoUrl
+          }
+        };
+      }
+
+      console.log(`[SocialPublisher] Initializing TikTok video publish (${isDirectFileUpload ? 'FILE_UPLOAD' : 'PULL_FROM_URL'}) for brand: ${targetBrand}`, payload);
 
       let ttRes = await fetch("https://open.tiktokapis.com/v2/post/publish/video/init/", {
         method: "POST",
@@ -2119,6 +2168,25 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 
       let ttData = await ttRes.json();
       console.log("[SocialPublisher] TikTok init response:", ttData);
+
+      // Se FILE_UPLOAD init ha successo, invia immediatamente il buffer video all'upload_url di TikTok
+      if (ttRes.ok && ttData?.data?.upload_url && videoBuffer) {
+        try {
+          console.log(`[SocialPublisher] Streaming ${videoBuffer.length} bytes to TikTok upload_url...`);
+          const putRes = await fetch(ttData.data.upload_url, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "video/mp4",
+              "Content-Range": `bytes 0-${videoBuffer.length - 1}/${videoBuffer.length}`,
+              "Content-Length": String(videoBuffer.length)
+            },
+            body: videoBuffer
+          });
+          console.log(`[SocialPublisher] TikTok upload_url completed with status ${putRes.status}`);
+        } catch (upErr) {
+          console.error("[SocialPublisher] TikTok upload_url stream exception:", upErr);
+        }
+      }
 
       // Self-healing: if token expired (401 or access_token_invalid), attempt one emergency refresh
       const isAuthError = !ttRes.ok && (
