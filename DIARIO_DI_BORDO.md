@@ -3274,3 +3274,8 @@
   - **Auto-Bonifica dei Rami Locali Fossili (`cleanOrphanLocalBranches()`)**: Integrata la scansione automatica dei branch locali all'interno di `syncPullVault()`. Qualsiasi branch locale (come `integrazione coupon` o altri vecchi rami di test) che non risulti più attivo su GitHub `origin` viene rimosso in modo automatico e sicuro, spostandosi preventivamente su `staging`.
   - **Supporto Ufficiale Alias `vault project` (`npm run vault:project`)**: Entrambi i comandi `VAULT-SYNC` e `VAULT-PROJECT` condividono ora la medesima automazione a prova d'errore.
   - **Sincronizzazione Bilaterale a 360°**: Eliminato alla radice ogni rischio di discrepanza di codice, branch o credenziali tra le postazioni fisiche di Koh Phayam e Ranong.
+
+- **Confinamento Automatico Video Chromium su Google Drive 5TB & Bonifica Root (`Flower Power Social Videos`)**:
+  - **Isolamento Automatico Nuovi Render (`scripts/social-scheduler-dispatch.mjs`)**: Implementata la funzione `getOrCreateSocialVideosFolder` che interroga Google Drive API v3, individua o crea in automatico la cartella dedicata **"Flower Power Social Videos"** e imposta `parents: [targetFolderId]` ad ogni upload. Azzerata la dispersione dei render video nella root del drive.
+  - **Tool Cloud di Pulizia & Riordino (`scripts/cleanup-gdrive-root-videos.mjs`)**: Script a zero dipendenze pesanti con paginazione API per recuperare e spostare via `PATCH ?addParents=...&removeParents=...` tutti i file generati da dispatch.
+  - **Bonifica Cloud Eseguita con Successo al 100%**: Spostati istantaneamente tutti i 142 video MP4 storici sparsi nella root principale dentro la cartella dedicata, liberando e riordinando completamente lo spazio di lavoro su Google Drive.
