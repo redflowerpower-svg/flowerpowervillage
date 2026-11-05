@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [05/11/2026 - ORE 16:45] · RISOLUZIONE CRITICA MODAL PERSONALIZZAZIONE PIZZE & EXTRA SU DINING TABLET (XIAOMI MI PAD 4)
+- **Cosa abbiamo fatto:**
+  1. 🛠️ **Risoluzione Bug Centratura & Espansione Modale (`src/pizza/components/MenuGrid.tsx`)**:
+     - Eliminata la classe Tailwind inesistente `h-38` (sostituita con `h-40 sm:h-48`), che su tablet portrait faceva espandere la testata con foto a oltre $400\text{px}$.
+     - Rimosso `max-h-[80dvh]` non riconosciuto su Android WebView / Chromium tablet (dove `sm:` non scattava per via della larghezza $584\text{px}$), sostituito con vincolo universale `max-h-[90vh] sm:max-h-[86vh]` e `style={{ maxHeight: 'min(90vh, 90dvh, 860px)' }}`.
+  2. 📱 **Sblocco Touch Screen & Prevenzione Trappola Negativa Flexbox**:
+     - Sostituito `flex items-center` dell'overlay con `flex justify-center p-2.5 sm:p-4 overflow-y-auto overscroll-contain` combinato con `my-auto` sulla modale: se il contenuto supera l'altezza, la testata e il pulsante `X` di chiusura partono sempre da $Y \ge 0$ (mai più spinti a coordinate negative fuori schermo).
+     - Rimosso il padding asimmetrico `pb-16` che sbilanciava il centro di $26\text{px}$ verso l'alto.
+     - Abilitato scorrimento touch fluido inerziale sul corpo interno con `flex-1 min-h-0 touch-pan-y` e `WebkitOverflowScrolling: 'touch'`.
+  3. 🔍 **Verifica & Collaudo Build**:
+     - Compilazione production Vite completata con successo (`✓ built in 9.98s`), zero errori di runtime o bundling.
+- **File aggiornati:** `src/pizza/components/MenuGrid.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 ATTIVO, 100% COLLAUDATO E RISOLTO.
+
+---
+
 ### 🚀 [05/11/2026 - ORE 13:30] · GOVERNANCE DEFINITIVA WORKTREE, MERGE SICUREZZA GITGUARDIAN & STRUMENTO WORKTREE-MANAGE
 - **Cosa abbiamo fatto:**
   1. 🛡️ **Fusione Security Fix GitGuardian in staging (Passo 1)**:
@@ -3313,3 +3329,16 @@
   - **Isolamento Automatico Nuovi Render (`scripts/social-scheduler-dispatch.mjs`)**: Implementata la funzione `getOrCreateSocialVideosFolder` che interroga Google Drive API v3, individua o crea in automatico la cartella dedicata **"Flower Power Social Videos"** e imposta `parents: [targetFolderId]` ad ogni upload. Azzerata la dispersione dei render video nella root del drive.
   - **Tool Cloud di Pulizia & Riordino (`scripts/cleanup-gdrive-root-videos.mjs`)**: Script a zero dipendenze pesanti con paginazione API per recuperare e spostare via `PATCH ?addParents=...&removeParents=...` tutti i file generati da dispatch.
   - **Bonifica Cloud Eseguita con Successo al 100%**: Spostati istantaneamente tutti i 142 video MP4 storici sparsi nella root principale dentro la cartella dedicata, liberando e riordinando completamente lo spazio di lavoro su Google Drive.
+
+
+- **Migrazione Telegram Supergruppo Forum & Routing Topic Automatico (Order Restaurant & Order Website)**:
+  - **Transizione Supergruppo FPP Dashboard (`-1004448978470`)**: Rilevata e registrata in Supabase (`telegram_config`) la migrazione da gruppo base all'ID supergruppo con modalità Forum attiva.
+  - **Mappatura Topic Dedicati**:
+    - 🍽️ **`Order restaurant`** (`message_thread_id: 3`): dedicato alle comande della sala e tavoli (Dining Tablet & QR tavolo).
+    - 🛵 **`order website`** (`message_thread_id: 5`): dedicato agli ordini online delivery e asporto da `flowerpowerpizza.com`.
+  - **Routing Intelligente nel Backend (`api/_handlers/telegram.ts`, `api/_helpers/telegram.ts`, `api/_handlers/omise-payment.ts`)**:
+    - Rilevamento automatico delle comande tavolo (`[DINE-IN:]`, `table_number`, pagamenti al tavolo) con instradamento al Topic 3, header dedicato `🍽️ NUOVA COMANDA TAVOLO` e bottoni sala (`[🟢 Confirm]`, `[🍽️ Served at Table]`).
+    - Smistamento ordini online su Topic 5 con header `📦 NEW PIZZA ORDER` e bottoni delivery per rider.
+  - **Ripopolamento Totale Storico (224/224 Ordini)**:
+    - Sviluppato ed eseguito lo script `scripts/replay-orders-to-telegram-topics.mjs`.
+    - Esportati tutti i 224 ordini dal database Supabase verso i rispettivi topic in modalità silenziosa (`disable_notification: true`) con gestione automatica del rate limit Telegram (`429 Too Many Requests`). Ripristinati al 100% senza errori.

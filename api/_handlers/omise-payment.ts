@@ -98,6 +98,7 @@ async function notifyKitchenTelegram(orderId: string | number) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
+        message_thread_id: 5,
         text: messageText,
         parse_mode: "HTML",
         reply_markup: inlineKeyboard

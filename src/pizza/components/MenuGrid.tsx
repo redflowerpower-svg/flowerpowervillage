@@ -1976,15 +1976,16 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       {/* DEDICATED CUSTOMIZATION MODAL (Zero layout shift, 100% structured touch interface) */}
       {customizingItem && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[999990] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-3 pb-16 sm:p-4 md:p-6 animate-fadeIn"
+          className="fixed inset-0 z-[999990] bg-stone-950/80 backdrop-blur-sm flex justify-center p-2.5 sm:p-4 md:p-6 overflow-y-auto overscroll-contain animate-fadeIn"
           onClick={handleCloseCustomize}
         >
           <div
-            className="relative w-full max-w-2xl max-h-[80dvh] sm:max-h-[85vh] bg-white rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn min-h-0"
+            className="relative w-full max-w-2xl max-h-[90vh] sm:max-h-[86vh] my-auto bg-white rounded-3xl sm:rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn min-h-0"
+            style={{ maxHeight: 'min(90vh, 90dvh, 860px)' }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* MODAL HEADER WITH IMAGE */}
-            <div className="relative h-38 sm:h-52 bg-stone-100 flex-shrink-0 overflow-hidden">
+            <div className="relative h-40 sm:h-48 bg-stone-100 flex-shrink-0 overflow-hidden">
               <img
                 src={withCacheBust(customizingItem.image)}
                 alt={getTranslatedName(customizingItem)}
@@ -2021,7 +2022,10 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
             </div>
 
             {/* SCROLLABLE BODY */}
-            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-grow min-h-0 overscroll-contain scrollbar-thin scrollbar-thumb-stone-300">
+            <div
+              className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 min-h-0 overscroll-contain scrollbar-thin scrollbar-thumb-stone-300 touch-pan-y"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
               {/* Description */}
               {getTranslatedDesc(customizingItem) && (
                 <p

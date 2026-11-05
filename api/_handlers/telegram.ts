@@ -6,7 +6,8 @@ import {
   updateTelegramCredentials,
   buildContactLines,
   getSupabaseClient,
-  formatAllDatesToDMY
+  formatAllDatesToDMY,
+  PIZZA_TOPICS
 } from "../_helpers/telegram.js";
 import {
   sendPizzaOrderEmail,
@@ -99,8 +100,21 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
         ? `🎁 <b>1st ORDER DISCOUNT (10%):</b> -${discountAmount} THB / ส่วนลดสั่งครั้งแรก 10%`
         : null;
 
+    const isDining = Boolean(
+      (order.address && (order.address.includes('[DINE-IN:') || order.address.includes('[TABLE_RESERVATION]'))) ||
+      order.table_number ||
+      (order.phone && String(order.phone).includes('Dining Table')) ||
+      (order.payment_method && String(order.payment_method).includes('at_table'))
+    );
+
+    const targetThreadId = isDining ? PIZZA_TOPICS.RESTAURANT : PIZZA_TOPICS.WEBSITE;
+
+    const headerTitle = isDining
+      ? `🍽️ <b>NUOVA COMANDA TAVOLO / ออเดอร์ที่โต๊ะ</b>`
+      : `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`;
+
     const messageText = [
-      `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
+      headerTitle,
       discountLine,
       isHotelGuest ? `🏨 <b>LOCATION NOTE:</b> Guest at known hotel/resort / ลูกค้าพักที่โรงแรม/สถานที่ที่เคยส่ง` : null,
       ``,
@@ -124,18 +138,30 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
       .filter((line) => line !== null)
       .join("\n");
 
-    const inlineKeyboard = {
-      inline_keyboard: [
-        [
-          { text: "🟢 Confirm / ยืนยัน", callback_data: `prepare_${order.id}` },
-          { text: "✖ Reject / ยกเลิก", callback_data: `reject_${order.id}` }
-        ],
-        [
-          { text: "🛵 Rider Departed / ไรเดอร์ออกแล้ว", callback_data: `start_track_${order.id}` },
-          { text: "🏁 Delivered / ถึงแล้ว", callback_data: `stop_track_${order.id}` }
-        ]
-      ]
-    };
+    const inlineKeyboard = isDining
+      ? {
+          inline_keyboard: [
+            [
+              { text: "🟢 Confirm / ยืนยัน", callback_data: `prepare_${order.id}` },
+              { text: "✖ Reject / ยกเลิก", callback_data: `reject_${order.id}` }
+            ],
+            [
+              { text: "🍽️ Served at Table / เสิร์ฟที่โต๊ะแล้ว", callback_data: `complete_${order.id}` }
+            ]
+          ]
+        }
+      : {
+          inline_keyboard: [
+            [
+              { text: "🟢 Confirm / ยืนยัน", callback_data: `prepare_${order.id}` },
+              { text: "✖ Reject / ยกเลิก", callback_data: `reject_${order.id}` }
+            ],
+            [
+              { text: "🛵 Rider Departed / ไรเดอร์ออกแล้ว", callback_data: `start_track_${order.id}` },
+              { text: "🏁 Delivered / ถึงแล้ว", callback_data: `stop_track_${order.id}` }
+            ]
+          ]
+        };
 
     const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
     const response = await fetch(telegramUrl, {
@@ -143,6 +169,7 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
+        message_thread_id: targetThreadId,
         text: formatAllDatesToDMY(messageText),
         parse_mode: "HTML",
         reply_markup: inlineKeyboard,

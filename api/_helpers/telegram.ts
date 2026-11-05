@@ -115,6 +115,13 @@ export async function updateTelegramCredentials(
   }
 }
 
+export const PIZZA_TOPICS = {
+  RESTAURANT: 3, // Topic: 'Order restaurant' (Dining Tablet & QR Tavoli)
+  WEBSITE: 5     // Topic: 'order website' (Delivery & Asporto Sito Web)
+} as const;
+
+export type PizzaTopicKey = keyof typeof PIZZA_TOPICS;
+
 export const VILLAGE_TOPICS = {
   BOOKINGS: 3,
   MODIFICATIONS_CANCELLATIONS: 7,
