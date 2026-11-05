@@ -92,6 +92,7 @@ export async function getActiveTikTokAccount(brandOrOpenId?: string): Promise<Ti
       .select('*')
       .like('id', 'tiktok_%')
       .neq('id', 'tiktok_sb_user_flowerpower_review')
+      .neq('id', 'tiktok_app_config')
       .order('updated_at', { ascending: false });
 
     if (fallbackList && fallbackList.length > 0) {

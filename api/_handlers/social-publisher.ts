@@ -384,6 +384,7 @@ async function getTikTokTokenForBrand(brand: string = 'pizza'): Promise<TikTokTo
       .select("*")
       .like("id", "tiktok_%")
       .neq("id", "tiktok_sb_user_flowerpower_review")
+      .neq("id", "tiktok_app_config")
       .order("updated_at", { ascending: false });
 
     if (rows && rows.length > 0) {
@@ -397,7 +398,7 @@ async function getTikTokTokenForBrand(brand: string = 'pizza'): Promise<TikTokTo
     }
   }
 
-  if (!row || !row.bot_token) return null;
+  if (!row || !row.bot_token || row.id === "tiktok_app_config") return null;
 
   // Detect sandbox mock tokens
   const isMock = row.id.startsWith("tiktok_sb_") || row.bot_token.startsWith("act.tiktok_sandbox_");

@@ -15,30 +15,15 @@ export type UILanguage = 'EN' | 'IT';
  *   - ?view=audit force-loads the TikTok Audit page (for local verification).
  */
 export default function SocialStudioPage() {
-  const isLocalOrModern = useMemo(() => {
+  const isAudit = useMemo(() => {
     if (typeof window === 'undefined') return false;
-
-    const hostname = window.location.hostname;
     const search = window.location.search;
-
-    // Explicit manual overrides
-    if (search.includes('view=modern')) return true;
-    if (search.includes('view=audit')) return false;
-
-    // Local development hosts
-    const isLocalhost =
-      hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
-      hostname.startsWith('192.168.') ||
-      hostname.startsWith('10.') ||
-      hostname.endsWith('.local');
-
-    return isLocalhost;
+    return search.includes('view=audit');
   }, []);
 
-  if (isLocalOrModern) {
-    return <AutoCutStudioPage />;
+  if (isAudit) {
+    return <TikTokAuditStudioPage />;
   }
 
-  return <TikTokAuditStudioPage />;
+  return <AutoCutStudioPage />;
 }
