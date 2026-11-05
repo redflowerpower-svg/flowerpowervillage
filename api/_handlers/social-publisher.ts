@@ -352,8 +352,23 @@ interface TikTokTokenRecord {
  */
 async function getTikTokTokenForBrand(brand: string = 'pizza'): Promise<TikTokTokenRecord | null> {
   if (!supabase) return null;
-  const clientKey = process.env.TIKTOK_CLIENT_KEY;
-  const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+  let clientKey = process.env.TIKTOK_CLIENT_KEY;
+  let clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+
+  if ((!clientKey || !clientSecret || clientKey.startsWith("sb")) && supabase) {
+    try {
+      const { data: appConfig } = await supabase
+        .from("telegram_config")
+        .select("chat_id")
+        .eq("id", "tiktok_app_config")
+        .maybeSingle();
+      if (appConfig?.chat_id) {
+        const p = JSON.parse(appConfig.chat_id);
+        if (p.client_key) clientKey = p.client_key;
+        if (p.client_secret) clientSecret = p.client_secret;
+      }
+    } catch {}
+  }
 
   // 1. Check dedicated brand row in telegram_config: tiktok_village or tiktok_pizza
   let { data: row } = await supabase
@@ -1837,7 +1852,20 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
         ];
       }
 
-      const clientKey = process.env.TIKTOK_CLIENT_KEY || "";
+      let clientKey = process.env.TIKTOK_CLIENT_KEY || "";
+      if ((!clientKey || clientKey.startsWith("sb")) && supabase) {
+        try {
+          const { data: appConfig } = await supabase
+            .from("telegram_config")
+            .select("chat_id")
+            .eq("id", "tiktok_app_config")
+            .maybeSingle();
+          if (appConfig?.chat_id) {
+            const p = JSON.parse(appConfig.chat_id);
+            if (p.client_key) clientKey = p.client_key;
+          }
+        } catch {}
+      }
       const redirectUri = process.env.TIKTOK_REDIRECT_URI || "https://flowerpowerpizza.com/api/social-callback";
       
       const authUrlVillage = clientKey

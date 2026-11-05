@@ -296,8 +296,25 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
   // =========================================================================
   // 2. TIKTOK CONTENT POSTING API OAUTH HANDLER
   // =========================================================================
-  const clientKey = process.env.TIKTOK_CLIENT_KEY;
-  const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+  let clientKey = process.env.TIKTOK_CLIENT_KEY;
+  let clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+
+  // Fallback to Supabase vault if env credentials are missing or still using old sandbox (starts with 'sb')
+  if ((!clientKey || !clientSecret || clientKey.startsWith("sb")) && supabase) {
+    try {
+      const { data: appConfig } = await supabase
+        .from("telegram_config")
+        .select("chat_id")
+        .eq("id", "tiktok_app_config")
+        .maybeSingle();
+      if (appConfig?.chat_id) {
+        const p = JSON.parse(appConfig.chat_id);
+        if (p.client_key) clientKey = p.client_key;
+        if (p.client_secret) clientSecret = p.client_secret;
+      }
+    } catch {}
+  }
+
   const redirectUri = process.env.TIKTOK_REDIRECT_URI || "https://flowerpowerpizza.com/api/social-callback";
 
   // Action: Refresh Token
