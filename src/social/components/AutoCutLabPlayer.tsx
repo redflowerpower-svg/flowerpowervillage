@@ -2941,6 +2941,13 @@ export function AutoCutLabPlayer({
             (window as any).__lastGeneratedVideoBuffer = muxer.target.buffer;
             (window as any).__lastGeneratedVideoBlob = videoBlob;
 
+            // 🛡️ ZERO-EGRESS SHIELD PER I ROBOT CI / PLAYWRIGHT
+            if ((window as any).__skipSupabaseUpload || window.navigator.webdriver) {
+              console.log('[Zero-Egress Shield] Robot Playwright / CI rilevato: bypass totale upload Supabase S3.');
+              if (onProgress) onProgress(100, 6, 'Master Video completato in RAM (Zero-Egress)!');
+              return URL.createObjectURL(videoBlob);
+            }
+
             const cleanFilename = `story_video_${testRun.mode}_${brand}_${Date.now()}.mp4`;
             if (onProgress) onProgress(92, 4, 'Upload su Cloud Storage (Supabase S3)...');
 

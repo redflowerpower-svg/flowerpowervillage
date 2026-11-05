@@ -344,24 +344,9 @@ async function ensureCloudVideoUrl(filePath) {
     console.log(`[scheduler-dispatch] ⚡ URL Video Diretto Google Drive 5TB pronto per Meta: ${videoUrl}`);
   }
 
-  // 2. Solo se Google Drive non è disponibile, usiamo Supabase Storage come paracadute di riserva
+  // 2. 🛡️ ZERO-EGRESS SHIELD: Divieto categorico upload video su Supabase Storage
   if (!videoUrl) {
-    console.log(`[scheduler-dispatch] Google Drive non disponibile: fallback su Supabase Storage (${(buf.length / 1024 / 1024).toFixed(1)} MB) su ${cloudPath}...`);
-    const { error: upErr } = await sb.storage.from('assets').upload(cloudPath, buf, {
-      contentType: 'video/mp4',
-      upsert: true
-    });
-    if (!upErr) {
-      videoUrl = sb.storage.from('assets').getPublicUrl(cloudPath).data.publicUrl;
-    }
-
-    try {
-      const { data: list } = await sb.storage.from('assets').list('social_stories', { sortBy: { column: 'created_at', order: 'asc' } });
-      if (list && list.length > 8) {
-        const toRemove = list.slice(0, list.length - 8).map(f => `social_stories/${f.name}`);
-        await sb.storage.from('assets').remove(toRemove);
-      }
-    } catch {}
+    console.log(`[scheduler-dispatch] [Zero-Egress Shield] Upload Supabase Storage BLOCCATO preventivamente. Video gestito 100% in memoria locale per upload binario Meta/Telegram.`);
   }
 
   return { videoUrl: videoUrl || '', buffer: buf };

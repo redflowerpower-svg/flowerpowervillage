@@ -343,8 +343,35 @@ async function main() {
     log(`Master video ufficiale con traccia audio MP3 + SFX salvato: ${videoPath} (${(sz / 1e6).toFixed(1)} MB, ${((Date.now() - t0) / 1000).toFixed(0)}s)`);
     try { fs.unlinkSync(lastMuxedAudioPath); } catch {}
   } else {
-    fs.writeFileSync(videoPath, Buffer.from(result.b64, 'base64'));
-    log(`Video: ${videoPath} (${result.type}, ${(result.size / 1e6).toFixed(1)} MB, ${((Date.now() - t0) / 1000).toFixed(0)}s)`);
+    const rawPath = path.join(outDir, `${mode}.${tag}.raw.mp4`);
+    fs.writeFileSync(rawPath, Buffer.from(result.b64, 'base64'));
+    log(`[Zero-Egress Shield] Video grezzo WebCodecs salvato: ${rawPath} (${(fs.statSync(rawPath).size / 1e6).toFixed(1)} MB). Avvio muxing audio locale FFmpeg...`);
+    
+    // Muxing audio locale diretto 100% offline (Zero Supabase Egress)
+    const isVillage = mode.startsWith('V') || mode === 'LM1';
+    let bgPath = path.resolve('./public/audio/02-flower-power-so-good.mp3');
+    if (isVillage) {
+      const villageDir = path.resolve('./public/audio/village');
+      const villageFiles = fs.existsSync(villageDir) ? fs.readdirSync(villageDir).filter(f => f.endsWith('.mp3')) : [];
+      if (villageFiles.length > 0) {
+        bgPath = path.resolve(villageDir, villageFiles[Math.floor(Math.random() * villageFiles.length)]);
+      }
+    }
+    const sfxPath = path.resolve('./public/audio', isVillage ? 'sfx-outro-village.wav' : 'sfx-outro-pizza.wav');
+    const delay = 8850;
+
+    const ffArgs = [
+      '-y', '-i', rawPath, '-i', bgPath, '-i', sfxPath,
+      '-filter_complex', `[1:a]volume=1.0,apad[bg];[2:a]adelay=${delay}|${delay},volume=1.8[sfx];[bg][sfx]amix=inputs=2:duration=longest:dropout_transition=2[a]`,
+      '-map', '0:v', '-map', '[a]',
+      '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k',
+      '-movflags', '+faststart',
+      '-shortest', videoPath
+    ];
+    execFileSync(ffmpeg, ffArgs);
+    try { fs.unlinkSync(rawPath); } catch {}
+    const sz = fs.statSync(videoPath).size;
+    log(`[Zero-Egress Shield] Master audio muxato con successo in locale (Zero Supabase): ${videoPath} (${(sz / 1e6).toFixed(1)} MB, ${((Date.now() - t0) / 1000).toFixed(0)}s)`);
   }
   await browser.close();
 

@@ -110,7 +110,7 @@ async function scanBucket(bucketName, prefix = '') {
   return { bucketName, fileCount, totalBytes, totalMb: (totalBytes / 1024 / 1024).toFixed(2), filesList };
 }
 
-export async function runSupabaseQuotaSentinel({ autoFix = true, notifyTelegram = true } = {}) {
+export async function runSupabaseQuotaSentinel({ autoFix = true, notifyTelegram = true, isDailyReport = false } = {}) {
   console.log('🛡️ [sentinel] Avvio scansione sanitaria quote Supabase Storage & Egress Guard...');
 
   const { data: buckets, error: bErr } = await sb.storage.listBuckets();
@@ -214,7 +214,7 @@ export async function runSupabaseQuotaSentinel({ autoFix = true, notifyTelegram 
   }
 
   // 📊 Invio Report Quotidiano trasparente (se richiesto o se inviato con flag --daily-report)
-  if ((process.argv.includes('--daily-report') || options.isDailyReport) && notifyTelegram) {
+  if ((process.argv.includes('--daily-report') || isDailyReport) && notifyTelegram) {
     let reportMsg = `📊 <b>[SUPABASE TELEMETRY · REPORT QUOTIDIANO STAFF]</b>\n\n`;
     reportMsg += `🟢 <b>Stato Infrastruttura:</b> <code>${mgmtHealth.status || 'ACTIVE_HEALTHY'}</code>\n`;
     reportMsg += `💾 <b>Storage Occupato:</b> ${postHealingGrandTotalMb} MB / 1000 MB (<b>${((parseFloat(postHealingGrandTotalMb) / 1000) * 100).toFixed(1)}%</b>)\n`;
