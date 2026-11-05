@@ -26,8 +26,20 @@ async function main() {
     }
 
     if (!supabaseKey) {
-      // Fallback service role key per bootstrap iniziale se il file .env non è ancora presente
-      supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNicnlvbWZzcGR0d2ludGpvY2d5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDIxMzEyNCwiZXhwIjoyMDU1Nzg5MTI0fQ.zFvUjS8Qo1_1Jqg9YfE9Qj3FvUjS8Qo1_1Jqg9YfE9Q';
+      const altPaths = ['../.env', '../../.env', 'D:/WEB SITE Antigravity/flowerpowervillage/.env'];
+      for (const p of altPaths) {
+        if (fs.existsSync(p)) {
+          const ec = fs.readFileSync(p, 'utf8');
+          supabaseUrl = ec.match(/SUPABASE_URL=([^\s\r\n]+)/)?.[1] || supabaseUrl;
+          supabaseKey = ec.match(/SUPABASE_SERVICE_ROLE_KEY=([^\s\r\n]+)/)?.[1] || 
+                        ec.match(/VITE_SUPABASE_ANON_KEY=([^\s\r\n]+)/)?.[1] || '';
+          if (supabaseKey) break;
+        }
+      }
+    }
+
+    if (!supabaseKey) {
+      throw new Error('⚠️ Impossibile procedere: SUPABASE_SERVICE_ROLE_KEY o VITE_SUPABASE_ANON_KEY mancanti.');
     }
 
     const sb = createClient(supabaseUrl, supabaseKey);

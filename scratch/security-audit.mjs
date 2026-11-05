@@ -18,8 +18,8 @@ const SECRET_REGEXES = [
 ];
 
 // Folders to scan
-const SCAN_DIRS = ['api', 'src', '.agents', 'documentation_reports'];
-const IGNORED_FILES = ['.env', '.secret_docs'];
+const SCAN_DIRS = ['api', 'src', '.agents', 'documentation_reports', 'scripts'];
+const IGNORED_FILES = ['.env', '.secret_docs', 'package-lock.json', 'clean-jwt.mjs'];
 
 const issues = [];
 
@@ -31,41 +31,53 @@ function scanDir(dir) {
   for (const entry of entries) {
     const relPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name !== 'node_modules' && entry.name !== '.git') {
+      if (entry.name !== 'node_modules' && entry.name !== '.git' && !IGNORED_FILES.includes(entry.name)) {
         scanDir(relPath);
       }
     } else if (entry.isFile()) {
-      scanFile(relPath);
+      if (!IGNORED_FILES.includes(entry.name)) {
+        scanFile(relPath);
+      }
     }
   }
 }
 
 function scanFile(filePath) {
   const fullPath = path.join(projectRoot, filePath);
-  const content = fs.readFileSync(fullPath, 'utf8');
-  const lines = content.split('\n');
+  try {
+    const content = fs.readFileSync(fullPath, 'utf8');
+    const lines = content.split('\n');
 
-  lines.forEach((line, idx) => {
-    for (const rule of SECRET_REGEXES) {
-      if (rule.regex.test(line)) {
-        // Exclude generic documentation placeholder patterns like sk_test_... or skey_test_...
-        if (line.includes('placeholder') || line.includes('sk_test_...') || line.includes('skey_test_...')) {
-          continue;
+    lines.forEach((line, idx) => {
+      for (const rule of SECRET_REGEXES) {
+        if (rule.regex.test(line)) {
+          // Exclude generic documentation placeholder patterns like sk_test_... or skey_test_...
+          if (line.includes('placeholder') || line.includes('sk_test_...') || line.includes('skey_test_...')) {
+            continue;
+          }
+          issues.push({
+            file: filePath,
+            line: idx + 1,
+            rule: rule.name,
+            preview: line.trim()
+          });
         }
-        issues.push({
-          file: filePath,
-          line: idx + 1,
-          rule: rule.name,
-          preview: line.trim()
-        });
       }
-    }
-  });
+    });
+  } catch (_) {}
 }
 
 console.log('🔍 Starting Comprehensive Security Audit across codebase...');
 for (const dir of SCAN_DIRS) {
   scanDir(dir);
+}
+
+// Scansiona anche i file nella root (esclusi node_modules, .git, etc.)
+const rootEntries = fs.readdirSync(projectRoot, { withFileTypes: true });
+for (const entry of rootEntries) {
+  if (entry.isFile() && !IGNORED_FILES.includes(entry.name) && !entry.name.endsWith('.enc')) {
+    scanFile(entry.name);
+  }
 }
 
 console.log('\n--- SCAN RESULTS ---');
