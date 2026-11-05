@@ -1,3 +1,4 @@
+import { getSocialConfig, upsertSocialConfig, listSocialConfigsLike } from "./socialDb.js";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { uploadFileToGoogleDrive } from "../_helpers/google-drive.js";
@@ -510,7 +511,7 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     let expectedSecret = process.env.CRON_SECRET || process.env.SOCIAL_CRON_SECRET || "";
     if (!expectedSecret && supabase) {
       try {
-        const { data: secRow } = await supabase.from("telegram_config").select("bot_token").eq("id", "social_cron_secret").single();
+        const secRow = await getSocialConfig("social_cron_secret");
         if (secRow?.bot_token) expectedSecret = secRow.bot_token.trim();
       } catch {}
     }
@@ -636,7 +637,7 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
       let expectedSecret = process.env.CRON_SECRET || process.env.SOCIAL_CRON_SECRET || "";
       if (!expectedSecret && supabase) {
         try {
-          const { data: secRow } = await supabase.from("telegram_config").select("bot_token").eq("id", "social_cron_secret").single();
+          const secRow = await getSocialConfig("social_cron_secret");
           if (secRow?.bot_token) expectedSecret = secRow.bot_token;
         } catch {}
       }

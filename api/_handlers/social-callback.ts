@@ -1,3 +1,4 @@
+import { getSocialConfig, upsertSocialConfig } from "./socialDb.js";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 
