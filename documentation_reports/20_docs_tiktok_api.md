@@ -1,7 +1,9 @@
 # TikTok Content Posting API Reference (v2) — Social Publishing
 
 *Data Creazione:* 17 Ottobre 2026  
-*Versione API Target:* `v2` (`https://open.tiktokapis.com/v2/`)  
+*Stato Approvazione:* **Live in Production** (Approvata ufficialmente il 4 Novembre 2026)
+*Versione API Target:* `v2` (`https://open.tiktokapis.com/v2/`)
+*Client Key Ufficiale:* `awsghb9gm4smzsic`  
 *Ambito:* Flower Power Social Media Scheduler (Pizzeria Ranong & Villaggio Koh Phayam)
 
 ---
@@ -9,14 +11,18 @@
 ## 1. Architettura & Autenticazione OAuth 2.0
 
 * **Portale Sviluppatori:** [TikTok for Developers](https://developers.tiktok.com/)
-* **Prodotto Richiesto nell'App:** *Content Posting API* (Direct Post feature)
+* **App Name:** `Flower Power Social Studio`
+* **Stato App:** `Live in Production (Approved)`
 * **Credenziali App:**
-  - `Client Key` (corrisponde all'App ID di TikTok)
-  - `Client Secret` (chiave segreta per lo scambio token)
-* **Scope Richiesti:**
-  - `video.publish`: Pubblicazione diretta sul profilo del creator / account aziendale.
-  - `video.upload`: Caricamento bozze nell'inbox creator.
-  - `user.info.basic`: Lettura profilo base e username TikTok.
+  - `Client Key`: `awsghb9gm4smzsic`
+  - `Client Secret`: (Custodito nel Vault cifrato AES-256 e variabili d'ambiente TIKTOK_CLIENT_SECRET)
+* **Redirect URIs Ufficiali Configurate:**
+  - `https://flowerpowerpizza.com/api/social-callback`
+  - `https://www.flowerpowerpizza.com/api/social-callback`
+  - `https://staging.flowerpowerpizza.com/api/social-callback`
+* **Prodotti & Scope Ufficialmente Approvati:**
+  - **Login Kit:** `user.info.basic` (profilo base, open id, avatar)
+  - **Content Posting API:** `video.upload` (bozze), `video.publish` (pubblicazione diretta video & reels)
 
 ### Flusso Token OAuth 2.0 (v2)
 1. Autorizzazione utente:

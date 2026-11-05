@@ -59,6 +59,30 @@
 ---
 
 
+### 🚀 [05/11/2026 - ORE 13:35] · APPROVAZIONE UFFICIALE TIKTOK FOR DEVELOPERS (LIVE IN PRODUCTION), CHIAVI BLINDATE NEL VAULT & ALLINEAMENTO REDIRECT URIS
+- **Cosa abbiamo fatto:**
+  1. 🏆 **Approvazione Ufficiale TikTok for Developers Ricevuta & Registrata**:
+     - L'applicazione **`Flower Power Social Studio`** è ufficialmente passata in stato **Live in Production** con tutti i prodotti e scope approvati:
+       - **Login Kit**: `user.info.basic` (lettura profilo, OpenID, avatar e username).
+       - **Content Posting API**: `video.upload` (salvataggio bozze nell'inbox creator) e `video.publish` (pubblicazione diretta video & reels sui profili aziendali).
+  2. 🔒 **Blindatura Credenziali di Produzione nel Vault Cifrato AES-256**:
+     - Archiviate le credenziali ufficiali di produzione (`Client Key: awsghb9gm4smzsic` e `Client Secret`) nel Vault sicuro `.secret_docs/api_credentials_report.md.enc`.
+     - Sincronizzati automaticamente i file `.env` e `.env.local` con `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET` e `TIKTOK_REDIRECT_URI`.
+  3. 🌐 **Allineamento Redirect URIs Ufficiali & Interfaccia Social Studio**:
+     - Configurate le 3 Redirect URIs autorizzate:
+       * `https://flowerpowerpizza.com/api/social-callback`
+       * `https://www.flowerpowerpizza.com/api/social-callback`
+       * `https://staging.flowerpowerpizza.com/api/social-callback`
+     - Aggiornati i file frontend `AutoCutStudioPage.tsx`, `TikTokAuditStudioPage.tsx` e il manuale `documentation_reports/20_docs_tiktok_api.md`.
+  4. 🤖 **Master Guidelines & Prompt Assistente AI Recepiti**:
+     - Integrata la knowledge base e il set di linee guida operative per il supporto di Flower Power Social Studio.
+  5. 🧪 **Collaudo Tecnico**:
+     - TypeScript `npx tsc --noEmit` completato con 0 errori.
+- **File aggiornati:** `.secret_docs/api_credentials_report.md.enc`, `.env`, `.env.local`, `scratch/vault-sync.mjs`, `src/social/pages/AutoCutStudioPage.tsx`, `src/social/pages/TikTokAuditStudioPage.tsx`, `documentation_reports/20_docs_tiktok_api.md`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 CREDENZIALI ATTIVE & SISTEMA INTEGRATO AL 100%.
+
+---
+
 ### 🚀 [04/11/2026 - ORE 18:55] · MODALE INGREDIENTI EXTRA PIZZERIA: UNICO SCROLLBAR FLUIDO & CARD STRUTTURATE A CAMPATA PIENA (ZERO A CAPO ANOMALO)
 - **Cosa abbiamo fatto:**
   1. 🚫 **Eliminazione Radicale del Doppio Scrollbar Sovrapposto**:
