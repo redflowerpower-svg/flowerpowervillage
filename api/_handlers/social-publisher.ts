@@ -31,9 +31,14 @@ try {
   // Ignora se già registrato in un'altra invocazione
 }
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
-const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+const DEFAULT_SUPABASE_URL = "https://gjqevgkbjkharczhikcl.supabase.co";
+const DEFAULT_SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqcWV2Z2tiamtoYXJjemhpa2NsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzcxMjQ0MCwiZXhwIjoyMDk5Mjg4NDQwfQ.rMk5Yg3ZNLdK4bLnIjc7K6ZpZcsTSns9iMOJVnwv160";
+
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || DEFAULT_SUPABASE_SERVICE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
 
 // ⚡ Zero-Egress Memory Cache: conserva i buffer video temporanei per evitare il rimbalzo su Supabase Egress
 const videoBufferCache = new Map<string, { buffer: Buffer; timestamp: number }>();

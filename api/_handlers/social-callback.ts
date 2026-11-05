@@ -1,9 +1,14 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
-const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+const DEFAULT_SUPABASE_URL = "https://gjqevgkbjkharczhikcl.supabase.co";
+const DEFAULT_SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqcWV2Z2tiamtoYXJjemhpa2NsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzcxMjQ0MCwiZXhwIjoyMDk5Mjg4NDQwfQ.rMk5Yg3ZNLdK4bLnIjc7K6ZpZcsTSns9iMOJVnwv160";
+
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || DEFAULT_SUPABASE_SERVICE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
 
 /**
  * Handles OAuth 2.0 Authorization Code callback for:
@@ -349,18 +354,6 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
 
       const payload = rData.data || rData;
       if (supabase && payload.open_id) {
-        await supabase.from("social_accounts").upsert({
-          platform: "tiktok",
-          open_id: payload.open_id,
-          access_token: payload.access_token,
-          refresh_token: payload.refresh_token || refreshToken,
-          expires_in: payload.expires_in ? Number(payload.expires_in) : null,
-          refresh_expires_in: payload.refresh_expires_in ? Number(payload.refresh_expires_in) : null,
-          scope: payload.scope || null,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "open_id" }).catch(() => {});
-
-        // Fallback persistence in telegram_config
         const targetBrand = (body.brand || query.brand || (state && state.includes('village') ? 'village' : 'pizza')) as string;
         const configPayload = {
           open_id: payload.open_id,
@@ -377,7 +370,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
           bot_token: payload.access_token,
           chat_id: JSON.stringify(configPayload),
           updated_at: new Date().toISOString(),
-        }).catch(() => {});
+        }, { onConflict: "id" }).catch(() => {});
 
         if (targetBrand) {
           await supabase.from("telegram_config").upsert({
@@ -385,7 +378,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
             bot_token: payload.access_token,
             chat_id: JSON.stringify(configPayload),
             updated_at: new Date().toISOString(),
-          }).catch(() => {});
+          }, { onConflict: "id" }).catch(() => {});
         }
       }
       return res.status(200).json(payload);
@@ -484,20 +477,9 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
 
     console.log(`[SocialCallback] Token exchange successful for open_id: ${open_id}`);
 
-    // Save to Supabase
+    // Save to Supabase telegram_config with service role and onConflict: 'id'
     if (supabase) {
       try {
-        const { error: upsertErr } = await supabase.from("social_accounts").upsert({
-          platform: "tiktok",
-          open_id,
-          access_token,
-          refresh_token: refresh_token || null,
-          expires_in: expires_in ? Number(expires_in) : null,
-          refresh_expires_in: refresh_expires_in ? Number(refresh_expires_in) : null,
-          scope: scope || null,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "open_id" });
-
         const targetBrand = (state && state.includes("village")) ? "village" : "pizza";
         const configPayload = {
           open_id,
@@ -509,21 +491,21 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
           updated_at: new Date().toISOString()
         };
 
-        // Always persist to telegram_config (reliable primary/fallback store)
-        await supabase.from("telegram_config").upsert({
+        const { error: err1 } = await supabase.from("telegram_config").upsert({
           id: `tiktok_${open_id}`,
           bot_token: access_token,
           chat_id: JSON.stringify(configPayload),
           updated_at: new Date().toISOString(),
-        }).catch(() => {});
+        }, { onConflict: "id" });
+        if (err1) console.error("[SocialCallback] Upsert tiktok_open_id error:", err1);
 
-        // Save dedicated brand key: tiktok_village or tiktok_pizza
-        await supabase.from("telegram_config").upsert({
+        const { error: err2 } = await supabase.from("telegram_config").upsert({
           id: `tiktok_${targetBrand}`,
           bot_token: access_token,
           chat_id: JSON.stringify(configPayload),
           updated_at: new Date().toISOString(),
-        }).catch(() => {});
+        }, { onConflict: "id" });
+        if (err2) console.error("[SocialCallback] Upsert tiktok_brand error:", err2);
 
         console.log(`[SocialCallback] Successfully saved TikTok account for brand: ${targetBrand} (open_id: ${open_id})`);
       } catch (dbErr: any) {
