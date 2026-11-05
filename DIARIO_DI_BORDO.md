@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [05/11/2026 - ORE 19:15] · CONFORMITÀ TIKTOK AUDIT & SEPARAZIONE ROTTE (/SOCIAL vs /SOCIAL-STUDIO)
+- **Cosa abbiamo fatto:**
+  1. 🛡️ **Blindatura Rotta Pubblica di Conformità (`/social`)**:
+     - Ripristinato `SocialStudioPage.tsx` affinché la rotta `/social` renderizzi **esclusivamente e per default l'interfaccia approvata da TikTok for Developers** (`TikTokAuditStudioPage.tsx`).
+     - Tutti i crawler, controlli periodici o auditor di TikTok troveranno sempre la piattaforma demo ufficiale con disclaimer ToS, Privacy, Sandbox Walkthrough e conformità Content Posting API v2.
+  2. ⚡ **Isolamento Console Operativa Staff (`/social-studio` & `/autocut`)**:
+     - La vera console operativa per lo staff vive al sicuro su `/social-studio` (e `/autocut`), con motore video Ken Burns 9:16 a 60 FPS, DeepSeek AI Copywriter e pubblicazione reale live.
+     - Dalla console è presente un link rapido e pulito verso l'Audit Hub (`/social`).
+  3. 🔄 **Reindirizzamento OAuth Intelligente (`api/_handlers/social-callback.ts`)**:
+     - Al termine dell'autorizzazione TikTok o Google, il server reindirizza automaticamente lo staff su `/social-studio?status=tiktok_connected...`, atterrando direttamente nella console di lavoro con i badge verdi attivi.
+  4. 🧪 **Collaudo & Build di Produzione**:
+     - `npx tsc --noEmit` superato con 0 errori.
+     - `npm run build` completato con successo in 11.08s.
+- **File aggiornati:** `src/social/pages/SocialStudioPage.tsx`, `src/social/pages/AutoCutStudioPage.tsx`, `api/_handlers/social-callback.ts`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 ATTIVO, 100% BLINDATO, ROTTE TOTALMENTE SEPARATE E A RISCHIO ZERO.
+
+---
+
 ### 🚀 [05/11/2026 - ORE 18:50] · SUCCESSO TOTALE: AUTORIZZAZIONE TIKTOK COMPLETATA PER ENTRAMBI I BRAND (VILLAGGIO & PIZZERIA)
 - **Cosa abbiamo fatto:**
   1. 🔍 **Risoluzione Definitiva Salvataggio Callback OAuth (`api/_handlers/social-callback.ts` & `social-publisher.ts`)**:

@@ -48,7 +48,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
     // Google Error
     if (error) {
       console.error("[SocialCallback:Google] OAuth Error:", error, errorDescription);
-      return res.redirect(302, `/social?status=google_error&error=${encodeURIComponent(error)}&message=${encodeURIComponent(errorDescription || "Google authorization failed")}`);
+      return res.redirect(302, `/social-studio?status=google_error&error=${encodeURIComponent(error)}&message=${encodeURIComponent(errorDescription || "Google authorization failed")}`);
     }
 
     // Refresh Google Token Action
@@ -113,7 +113,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
     }
 
     if (!code) {
-      return res.redirect(302, "/social?status=missing_code&platform=google");
+      return res.redirect(302, "/social-studio?status=missing_code&platform=google");
     }
 
     let googleClientId = process.env.GOOGLE_BUSINESS_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
@@ -140,7 +140,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
 
     if (!googleClientId || !googleClientSecret) {
       console.error("[SocialCallback:Google] Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET");
-      return res.redirect(302, "/social?status=google_error&message=Server+credentials+missing");
+      return res.redirect(302, "/social-studio?status=google_error&message=Server+credentials+missing");
     }
 
     try {
@@ -163,7 +163,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
       if (!tokenRes.ok || tokenData.error) {
         console.error("[SocialCallback:Google] Token exchange error:", tokenData);
         const msg = tokenData.error_description || tokenData.error || "Token exchange failed";
-        return res.redirect(302, `/social?status=google_error&message=${encodeURIComponent(msg)}`);
+        return res.redirect(302, `/social-studio?status=google_error&message=${encodeURIComponent(msg)}`);
       }
 
       const accessToken = tokenData.access_token;
@@ -291,10 +291,10 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
         }
       }
 
-      return res.redirect(302, `/social?status=google_connected&account=${encodeURIComponent(primaryAccountName)}&locations=${locationsList.length}`);
+      return res.redirect(302, `/social-studio?status=google_connected&account=${encodeURIComponent(primaryAccountName)}&locations=${locationsList.length}`);
     } catch (err: any) {
       console.error("[SocialCallback:Google] Server exception:", err);
-      return res.redirect(302, `/social?status=google_error&message=${encodeURIComponent(err.message || "Internal server error")}`);
+      return res.redirect(302, `/social-studio?status=google_error&message=${encodeURIComponent(err.message || "Internal server error")}`);
     }
   }
 
@@ -390,7 +390,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
   // 1. Check if user or TikTok returned an error
   if (error) {
     console.error("[SocialCallback] TikTok OAuth Error:", error, errorDescription);
-    const redirectUrl = `/social?status=error&error=${encodeURIComponent(error)}&message=${encodeURIComponent(errorDescription || "Autorizzazione TikTok annullata o non riuscita")}`;
+    const redirectUrl = `/social-studio?status=error&error=${encodeURIComponent(error)}&message=${encodeURIComponent(errorDescription || "Autorizzazione TikTok annullata o non riuscita")}`;
     return res.redirect(302, redirectUrl);
   }
 
@@ -400,7 +400,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
     if (req.headers.accept?.includes("application/json")) {
       return res.status(400).json({ error: "Missing authorization code" });
     }
-    return res.redirect(302, "/social?status=missing_code");
+    return res.redirect(302, "/social-studio?status=missing_code");
   }
 
   // Support Sandbox Demo / Review Authorization Code
@@ -421,7 +421,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
         }, { onConflict: "open_id" });
       } catch {}
     }
-    return res.redirect(302, `/social?status=tiktok_connected&open_id=${encodeURIComponent(sandboxOpenId)}`);
+    return res.redirect(302, `/social-studio?status=tiktok_connected&open_id=${encodeURIComponent(sandboxOpenId)}`);
   }
 
   if (!clientKey || !clientSecret) {
@@ -457,7 +457,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
     if (!tokenRes.ok || (tokenData.error && tokenData.error.code !== "ok" && tokenData.error.code !== 0 && tokenData.error.code !== "")) {
       const errMsg = tokenData.error?.message || tokenData.message || "Failed to exchange TikTok code for token";
       console.error("[SocialCallback] TikTok Token Exchange Failed:", tokenData);
-      return res.redirect(302, `/social?status=error&message=${encodeURIComponent(errMsg)}`);
+      return res.redirect(302, `/social-studio?status=error&message=${encodeURIComponent(errMsg)}`);
     }
 
     const payload = tokenData.data || tokenData;
@@ -472,7 +472,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
 
     if (!open_id || !access_token) {
       console.error("[SocialCallback] Invalid token response payload:", tokenData);
-      return res.redirect(302, "/social?status=error&message=Invalid+payload+from+TikTok");
+      return res.redirect(302, "/social-studio?status=error&message=Invalid+payload+from+TikTok");
     }
 
     console.log(`[SocialCallback] Token exchange successful for open_id: ${open_id}`);
@@ -519,6 +519,6 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
 
   } catch (err: any) {
     console.error("[SocialCallback] Unexpected server exception:", err);
-    return res.redirect(302, `/social?status=error&message=${encodeURIComponent(err.message || "Internal server error")}`);
+    return res.redirect(302, `/social-studio?status=error&message=${encodeURIComponent(err.message || "Internal server error")}`);
   }
 }

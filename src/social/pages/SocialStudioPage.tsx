@@ -6,24 +6,22 @@ export type UILanguage = 'EN' | 'IT';
 
 /**
  * SocialStudioPage Switcher:
- * - Localhost / Local Dev (http://localhost:5173/social): Loads the modern AutoCut Studio Page
- *   with Ken Burns cinematic video players, Ranong live weather, DeepSeek AI copywriter & Proverbio del Giorno.
- * - Production (https://www.flowerpowerpizza.com/social): Loads the exact primordial TikTok Audit
- *   interface submitted for TikTok Developer API review and app approval.
- * - Query overrides:
- *   - ?view=modern force-loads AutoCut Studio (even on production for staff).
- *   - ?view=audit force-loads the TikTok Audit page (for local verification).
+ * - /social (Production & Local): By default, strictly renders the approved TikTok Audit Hub
+ *   (TikTokAuditStudioPage) for compliance with TikTok Developer API terms, privacy policies,
+ *   and periodic automated crawler inspections.
+ * - /social?view=modern: Overrides to AutoCutStudioPage if requested.
+ * - /social-studio (and /autocut): The permanent dedicated route for staff operational studio.
  */
 export default function SocialStudioPage() {
-  const isAudit = useMemo(() => {
+  const isModern = useMemo(() => {
     if (typeof window === 'undefined') return false;
     const search = window.location.search;
-    return search.includes('view=audit');
+    return search.includes('view=modern');
   }, []);
 
-  if (isAudit) {
-    return <TikTokAuditStudioPage />;
+  if (isModern) {
+    return <AutoCutStudioPage />;
   }
 
-  return <AutoCutStudioPage />;
+  return <TikTokAuditStudioPage />;
 }

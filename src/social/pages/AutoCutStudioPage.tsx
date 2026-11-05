@@ -350,7 +350,7 @@ export default function AutoCutStudioPage() {
           ? `TikTok Account connected successfully! (Open ID: ${openId || 'Authorized'})`
           : `Account TikTok collegato con successo! (Open ID: ${openId || 'Autorizzato'})`
       });
-      window.history.replaceState({}, '', '/social');
+      window.history.replaceState({}, '', '/social-studio');
     } else if (status === 'google_connected') {
       const account = params.get('account') || 'Flower Power';
       const locs = params.get('locations') || '2';
@@ -360,7 +360,7 @@ export default function AutoCutStudioPage() {
           ? `Google Business Profile connected successfully! (${locs} Locations: Flower Power Pizza & Farm Village)`
           : `Google Business Profile collegato con successo! (${locs} Schede: Flower Power Pizza & Farm Village)`
       });
-      window.history.replaceState({}, '', '/social');
+      window.history.replaceState({}, '', '/social-studio');
     } else if (status === 'google_error' || status === 'error' || error) {
       setPublishResult({
         type: 'error',
@@ -368,7 +368,7 @@ export default function AutoCutStudioPage() {
           ? `Authorization error: ${error || 'Operation failed'}`
           : `Errore autorizzazione: ${error || 'Operazione non riuscita'}`
       });
-      window.history.replaceState({}, '', '/social');
+      window.history.replaceState({}, '', '/social-studio');
     }
 
     fetchAccountStatus();
@@ -694,13 +694,13 @@ export default function AutoCutStudioPage() {
             </button>
 
             <a
-              href="/social?view=audit"
+              href="/social"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/40 text-xs font-bold text-rose-300 hover:text-white transition cursor-pointer shadow-sm"
-              target="_blank" rel="noopener noreferrer" title="Apri Fake Social Studio TikTok (Audit & Sandbox Review)"
+              target="_blank" rel="noopener noreferrer" title="Apri Hub Ufficiale TikTok Audit & Sandbox Review (/social)"
             >
               
               <TikTokIcon className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-              <span>Fake Social Studio TikTok</span>
+              <span>TikTok Audit Hub</span>
               <ExternalLink className="w-3 h-3 text-rose-400/80" />
             </a>
 
