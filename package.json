@@ -19,7 +19,10 @@
     "vault:sync": "node scratch/vault-sync.mjs sync",
     "vault:project": "node scratch/vault-sync.mjs sync",
     "project:transfer": "node scripts/project-transfer.mjs",
-    "history:clean": "node scripts/history-clean.mjs"
+    "history:clean": "node scripts/history-clean.mjs",
+    "worktree:list": "node scripts/worktree-manage.mjs list",
+    "worktree:clean": "node scripts/worktree-manage.mjs clean",
+    "worktree:prune": "node scripts/worktree-manage.mjs prune"
   },
   "dependencies": {
     "@imgly/background-removal": "^1.7.0",

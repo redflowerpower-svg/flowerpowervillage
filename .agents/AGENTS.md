@@ -184,6 +184,13 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
       * `Stay`, `Discount Applied`, `Coupon Details` (se presente), `Gateway & Session`, ed eventuale `Administrative Note` sempre posizionati rigorosamente in fondo.
 
 
+29. **Regola Immodificabile Governance dei Worktree Git & Divieto Assoluto Auto-Branching degli Agenti**:
+    - **DIVIETO ASSOLUTO DI AUTO-BRANCHING**: Tutti i subagenti, task in background o invocazioni `invoke_subagent` devono usare **TASSATIVAMENTE ED ESCLUSIVAMENTE** `Workspace: 'inherit'`. È severamente e categoricamente vietato agli agenti creare branch o worktree isolati in autonomia (`Workspace: 'branch'` o `Workspace: 'share'`).
+    - **CONTROLLO SOVRANO ESCLUSIVO A RED**: Nessun worktree o branch separato può essere creato a meno che Red non scriva esplicitamente nel prompt comandi non ambigui come *"apri un worktree"* o *"crea un worktree"*. L'agente non deve mai prendere l'iniziativa di generare cantieri usa-e-getta con nomi arbitrari.
+    - **RIUTILIZZO DELLO STESSO AMBIENTE ATTIVO**: Si lavora sempre all'interno dello stesso workspace attivo (`D:\WEB SITE Antigravity\flowerpowervillage`). Se Red ordina l'apertura di un worktree dedicato per una feature specifica, l'agente deve operare e proseguire all'interno di quello stesso specifico worktree per tutta la durata del lavoro, senza proliferare cartelle parallele.
+    - **CICLO DI VITA & CHIUSURA ASSISTITA**: Quando il lavoro su una feature isolata è concluso o validato, il codice utile deve essere tempestivamente fuso in `staging` e il worktree temporaneo deve essere rimosso da disco (`git worktree remove --force`, `git branch -d`, `git worktree prune`) per prevenire la proliferazione di cloni orfani, spreco di gigabyte e branch bloccati.
+
+
 # 🛡️ PROTOCOLLO DI AUTO-APPROVAZIONE SICURA (AUTONOMOUS EXECUTION & ZERO-DISRUPTION GUARDRAILS)
 Il sistema opera in modalità di **esecuzione completamente autonoma, rapida e continua** (predefinita su tutte le richieste, e tassativa con `/goal`, `AUTOPILOT`, `procedi` o `In autonomia:`):
 
