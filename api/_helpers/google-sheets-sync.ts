@@ -303,7 +303,7 @@ export async function getCompleteKnowledgePromptContext(): Promise<string> {
   blocks.push("--- 01. ACCOMMODATIONS & CAPACITY (ALLOGGI & CAPIENZE) ---");
   for (const a of VILLAGE_MASTER_DATA.alloggi) {
     blocks.push(
-      `• [${a.Alloggio} (${a.Slug})]: Capienza: ${a["Capacità Base"]} ospiti (max ${a["Capacità Max"]}). Letti: ${a["Configurazione Letti"]}. Climatizzazione: ${a.Climatizzazione}. Bagni: ${a.Bagni}. Zanzariere: ${a.Zanzariere}. Prezzo indicativo: ${a["Prezzo Indicativo (THB)"]} THB/notte. Dettagli: ${a["Punti di Forza"]}`
+      `• [${a.Alloggio} (${a.Slug})]: Capienza: ${a["Capacità Base"]} ospiti (max ${a["Capacità Max"]}). Letti: ${a["Configurazione Letti"]}. Climatizzazione: ${a.Climatizzazione}. Bagni: ${a.Bagni}. Zanzariere: ${a.Zanzariere}. Tariffe: Caricate dinamicamente in tempo reale da Octorate PMS. Dettagli: ${a["Punti di Forza"]}`
     );
   }
 

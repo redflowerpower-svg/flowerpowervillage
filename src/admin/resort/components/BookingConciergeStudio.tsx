@@ -1079,7 +1079,7 @@ export function BookingConciergeStudio() {
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-800 text-stone-300 font-mono">Doc 1</span>
                 </div>
                 <p className="text-xs text-stone-400 leading-relaxed">
-                  Penthouse (4 pax), Peace & Love (3 pax), Jungle (4 pax), Bungalow Red/Yellow/Green (2 pax), Tende Glamping (2 pax). Dotazioni, letti, bagni tropicali e prezzi base.
+                  Penthouse (4 pax), Peace & Love (3 pax), Jungle (4 pax), Bungalow Red/Yellow/Green (2 pax), Tende Glamping (2 pax). Dotazioni, letti, climatizzazione e bagni tropicali (i prezzi alloggio sono dinamici e caricati live da Octorate PMS).
                 </p>
               </div>
 

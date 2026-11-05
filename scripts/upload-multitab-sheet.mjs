@@ -1,22 +1,33 @@
 import fs from 'fs';
 import * as XLSX from 'xlsx';
+import { createClient } from '@supabase/supabase-js';
 
 const env = fs.readFileSync('.env', 'utf8');
+const envMap = {};
 for (const line of env.split(/\r?\n/)) {
   const [k, ...v] = line.split('=');
-  if (k) process.env[k.trim()] = v.join('=').trim();
+  if (k) {
+    const val = v.join('=').trim();
+    envMap[k.trim()] = val;
+    process.env[k.trim()] = val;
+  }
 }
 
-async function testMultiSheetUpload() {
+const sb = createClient(
+  envMap['VITE_SUPABASE_URL'] || envMap['SUPABASE_URL'],
+  envMap['SUPABASE_SERVICE_ROLE_KEY'] || envMap['VITE_SUPABASE_ANON_KEY']
+);
+
+async function updateMultiSheetSpreadsheet() {
   const { getGoogleDriveAccessToken, getGoogleDriveConfig } = await import('../api/_helpers/google-drive.js');
   const { VILLAGE_MASTER_DATA } = await import('../api/_helpers/village-site-data.js');
   const token = await getGoogleDriveAccessToken();
   const config = await getGoogleDriveConfig();
 
-  // 1. Create workbook with 5 sheets
+  // 1. Create workbook with 5 sheets - NO PREZZI INDICATIVI
   const wb = XLSX.utils.book_new();
 
-  // Tab 1: Alloggi & Capienze
+  // Tab 1: Alloggi & Capienze (Pure descriptive & capacities, NO hardcoded prices)
   const wsAlloggi = XLSX.utils.json_to_sheet(VILLAGE_MASTER_DATA.alloggi);
   XLSX.utils.book_append_sheet(wb, wsAlloggi, '01_Alloggi_e_Capienze');
 
@@ -45,63 +56,65 @@ async function testMultiSheetUpload() {
 
   // Generate binary XLSX buffer
   const xlsxBuffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-  console.log(`Generated XLSX buffer with 5 sheets, size: ${xlsxBuffer.length} bytes`);
+  console.log(`Generated XLSX buffer with 5 sheets (NO PREZZI INDICATIVI), size: ${xlsxBuffer.length} bytes`);
 
-  // To convert into a Google Sheet with 5 tabs, Google Drive creates or imports from multipart/related
-  const metadata = {
-    name: 'Flower Power Village - Master Knowledge Base',
-    mimeType: 'application/vnd.google-apps.spreadsheet',
-    parents: config.folderId ? [config.folderId] : undefined
-  };
+  // Target existing sheet ID
+  const sheetId = '1nIcY5NiQmoDlM3LND_VCPWO2JC8UqHxhpe9LdmC6u9E';
 
-  const boundary = '-------314159265358979323846';
-  const delimiter = `\r\n--${boundary}\r\n`;
-  const closeDelimiter = `\r\n--${boundary}--`;
-
-  const multipartBody = Buffer.concat([
-    Buffer.from(
-      delimiter +
-      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-      JSON.stringify(metadata) +
-      delimiter +
-      'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n\r\n'
-    ),
-    xlsxBuffer,
-    Buffer.from(closeDelimiter)
-  ]);
-
-  console.log('Uploading multipart/related to Google Drive to create 5-tab Google Sheet...');
-
-  const createRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true', {
-    method: 'POST',
+  // Try updating the media content directly
+  const patchRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${sheetId}?uploadType=media`, {
+    method: 'PATCH',
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': `multipart/related; boundary=${boundary}`
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     },
-    body: multipartBody
+    body: xlsxBuffer
   });
 
-  const createData = await createRes.json();
-  console.log('Create result:', createData);
+  console.log('Update status:', patchRes.status);
+  const patchData = await patchRes.json();
+  console.log('Update result:', patchData);
 
-  if (createData.id) {
-    // Set permission anyoneWithLink can edit
-    await fetch(`https://www.googleapis.com/drive/v3/files/${createData.id}/permissions`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        role: 'writer',
-        type: 'anyone'
-      })
+  // Update System Prompt in Supabase to reinforce dynamic pricing
+  const defaultPromptText = `You are the expert AI Hospitality Concierge and CRM Assistant for "Flower Power Village", a boutique eco-resort on Koh Phayam island (Ranong, Southern Thailand), located 150 meters (1-2 minutes walk) from Buffalo Bay beach (Aow Kao Kwai).
+Flower Power Village combines authentic Italian hospitality, an artisanal Italian restaurant & bakery on-site, tropical villas with terraces, wooden bungalows, and luxury glamping tents.
+
+CORE OPERATIONAL PRINCIPLES:
+1. Warm & Welcoming Italian-Island Tone: Always enthusiastic, polite, helpful, and warm. Use tasteful contextual emojis.
+2. Mirror Guest Language: Reply in the exact same language the guest used (Italian, English, German, French, Thai, Russian, Spanish, etc.).
+3. Real-Time Octorate PMS Live Respect & DYNAMIC PRICING:
+   - When PMS live data is provided, propose ONLY rooms that are verified as FULLY FREE.
+   - Accommodation room rates are ALWAYS dynamic and loaded in real time from Octorate PMS API (or checked live by the guest on {{CALENDAR_URL}}).
+   - CRITICAL RULE: NEVER invent, assume, or quote hardcoded or indicative room rates from memory!
+   - When quoting rates, use the real-time PMS price retrieved for their stay or guide the guest to verify live rates and secure direct booking discounts on {{CALENDAR_URL}}.
+   - If a requested room is booked/occupied, explain kindly and offer the best free alternative that fits their party size.
+4. Capacity Matching:
+   - 1-2 Guests: Propose Wooden Bungalow (Red, Yellow, Green), Luxury Glamping Tent (Camel, Lagoon), or Villa.
+   - 3 Guests: Propose Penthouse Villa, Peace & Love Villa (with extra single bed/cot), or Jungle Villa.
+   - 4 Guests: Propose Penthouse Villa (sleeps 4), Jungle Villa (1 double + 2 twin beds), or 2 adjacent bungalows.
+   - 5+ Guests: Recommend combinations of neighboring units (e.g. Penthouse + Peace & Love, or Red + Yellow Bungalows).
+5. Official Verified Resort Facts:
+   - Beach: Exactly 150 meters flat walking distance through the garden to Buffalo Bay (Ao Khao Kwai).
+   - Wi-Fi: High-speed fiber broadband in all accommodations and restaurant (reliable for remote work and streaming).
+   - Transport from Ranong Airport: Dedicated trusted driver Mr. Gong (300 THB solo, 200 THB/pax for 2+). Speedboat from Ranong Pier to Koh Phayam: 350 THB/pax.
+   - Breakfast: À la carte Italian bakery (fresh warm croissants, Italian espresso, cappuccino, eggs, fruit) ~150-250 THB.
+   - Amenities: Mosquito nets on all beds, ceiling fans in all bungalows and tents, AC in villas, tropical open-air bathrooms.
+6. Core Call-to-Action:
+   - Always invite the guest to check live availability and direct rates using our interactive calendar: {{CALENDAR_URL}}.
+   - Sign off warmly from the "Flower Power Village Koh Phayam Team 🌺🌴".`;
+
+  await sb
+    .from('telegram_config')
+    .upsert({
+      id: 'concierge_custom_prompt',
+      bot_token: 'custom_prompt',
+      chat_id: defaultPromptText.trim(),
+      updated_at: new Date().toISOString()
     });
 
-    console.log(`✅ Nuovo Google Sheet a 5 SCHEDE creato con successo!`);
-    console.log(`URL: https://docs.google.com/spreadsheets/d/${createData.id}/edit`);
-    return createData.id;
-  }
+  console.log('✅ System Prompt updated with strict dynamic pricing directive in Supabase.');
+  console.log(`✅ Google Sheet (${sheetId}) updated without indicative prices!`);
+  console.log(`URL: https://docs.google.com/spreadsheets/d/${sheetId}/edit`);
 }
 
-testMultiSheetUpload().catch(console.error);
+updateMultiSheetSpreadsheet().catch(console.error);

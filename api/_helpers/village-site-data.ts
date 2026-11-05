@@ -32,7 +32,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "2 Bagni privati con acqua calda (1 padronale + 1 salotto)",
       "Zanzariere": "Presenti su tutti i letti",
       "Cucina": "Cucina outdoor privata attrezzata",
-      "Prezzo Indicativo (THB)": 2400,
       "Punti di Forza": "La sistemazione più esclusiva del villaggio, giardino privato, 2 bagni completi, Android TV 40 pollici, massima privacy."
     },
     {
@@ -46,7 +45,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "1 Bagno privato con doccia calda e design tropicale",
       "Zanzariere": "Presenti su tutti i letti",
       "Cucina": "Cucina interna attrezzata",
-      "Prezzo Indicativo (THB)": 2400,
       "Punti di Forza": "Affacciata direttamente sulla piscina, ampia terrazza privata con amaca, Android TV 40 pollici, ideale per famiglie o coppie."
     },
     {
@@ -60,7 +58,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "2 Bagni privati",
       "Zanzariere": "Presenti su tutti i letti",
       "Cucina": "Doppia cucina privata attrezzata",
-      "Prezzo Indicativo (THB)": 4800,
       "Punti di Forza": "La struttura più ampia del villaggio, doppi salotti outdoor, piscina di fronte, perfetta per 2 famiglie o grandi gruppi."
     },
     {
@@ -74,7 +71,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "1 Bagno privato al piano terra",
       "Zanzariere": "Presenti su tutti i letti",
       "Cucina": "Cucina privata e zona pranzo al piano terra",
-      "Prezzo Indicativo (THB)": 2400,
       "Punti di Forza": "Villa su 2 piani, salotto outdoor al secondo piano affacciato sulla piscina, ottima privacy e comfort."
     },
     {
@@ -88,7 +84,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "1 Bagno privato al piano terra",
       "Zanzariere": "Presenti su tutti i letti",
       "Cucina": "Cucina privata e zona pranzo al piano terra",
-      "Prezzo Indicativo (THB)": 2400,
       "Punti di Forza": "Villa su 2 piani affiancata a Jungle Left, ideale per coppie di amici o famiglie che viaggiano insieme."
     },
     {
@@ -102,7 +97,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "1 Bagno privato open-air tropicale con doccia calda",
       "Zanzariere": "Presenti su tutti i letti",
       "Cucina": "Cucina privata e sala da pranzo",
-      "Prezzo Indicativo (THB)": 1800,
       "Punti di Forza": "Bungalow a cupola più spazioso del villaggio, frigorifero, giardino di fiori con avvistamento buceri e scoiattoli."
     },
     {
@@ -116,7 +110,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "1 Bagno privato open-air tropicale con doccia calda",
       "Zanzariere": "Presenti su tutti i letti",
       "Cucina": "Frigo-bar privato",
-      "Prezzo Indicativo (THB)": 1800,
       "Punti di Forza": "Bungalow a cupola in legno, tavolo esterno privato nel giardino fiorito, adiacente allo Yellow Bungalow."
     },
     {
@@ -130,7 +123,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "1 Bagno privato open-air tropicale con doccia calda",
       "Zanzariere": "Presenti su tutti i letti",
       "Cucina": "Frigo-bar privato",
-      "Prezzo Indicativo (THB)": 1800,
       "Punti di Forza": "Cupola in legno immersa nella natura tra alberi da frutto e piante tropicali, atmosfera autentica da eco-lodge."
     },
     {
@@ -144,7 +136,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "Bagno privato dedicato con doccia calda",
       "Zanzariere": "Zanzariera integrale sulla tenda e sul letto",
       "Cucina": "Nessuna (Ristorante e Bakery a 30 secondi a piedi)",
-      "Prezzo Indicativo (THB)": 1400,
       "Punti di Forza": "Tenda safari montata su piattaforma rialzata in legno protetta da tetto in foglie naturali, patio privato con amache."
     },
     {
@@ -158,7 +149,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "Bagno privato dedicato con doccia calda",
       "Zanzariere": "Zanzariera integrale sulla tenda e sul letto",
       "Cucina": "Nessuna",
-      "Prezzo Indicativo (THB)": 1400,
       "Punti di Forza": "Tenda premium su deck in legno sopraelevato, circondata da verde lussureggiante e suoni rilassanti della foresta."
     },
     {
@@ -172,7 +162,6 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Bagni": "Bagno privato en-suite con doccia calda",
       "Zanzariere": "Presenti",
       "Cucina": "Accesso alla cucina comune del co-living",
-      "Prezzo Indicativo (THB)": 800,
       "Punti di Forza": "Costruzione in muratura fresca e silenziosa, ideale per soggiorni lunghi economici o nomadi digitali."
     }
   ],
