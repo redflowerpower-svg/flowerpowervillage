@@ -190,6 +190,51 @@ async function getGoogleDriveCredentials() {
   return null;
 }
 
+// Cache dell'ID cartella dedicata video per questa esecuzione
+let cachedSocialVideosFolderId = null;
+
+// Risolve o crea automaticamente la cartella dedicata "Flower Power Social Videos"
+async function getOrCreateSocialVideosFolder(accessToken, parentFolderId = null) {
+  if (cachedSocialVideosFolderId) return cachedSocialVideosFolderId;
+  const folderName = "Flower Power Social Videos";
+  try {
+    let q = `mimeType = 'application/vnd.google-apps.folder' and name = '${folderName}' and trashed = false`;
+    if (parentFolderId) q += ` and '${parentFolderId}' in parents`;
+
+    const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const searchData = await searchRes.json();
+    if (searchData.files && searchData.files.length > 0) {
+      cachedSocialVideosFolderId = searchData.files[0].id;
+      return cachedSocialVideosFolderId;
+    }
+
+    // Crea cartella dedicata se non esistente
+    const createRes = await fetch('https://www.googleapis.com/drive/v3/files?fields=id,name', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: folderName,
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: parentFolderId ? [parentFolderId] : []
+      })
+    });
+    const createData = await createRes.json();
+    if (createData?.id) {
+      cachedSocialVideosFolderId = createData.id;
+      console.log(`📁 [Google Drive 5TB] Creata nuova cartella dedicata: "${folderName}" (ID: ${cachedSocialVideosFolderId})`);
+      return cachedSocialVideosFolderId;
+    }
+  } catch (err) {
+    console.warn('[scheduler-dispatch] Errore risoluzione cartella Google Drive:', err.message);
+  }
+  return parentFolderId;
+}
+
 // 📁 Upload permanente su Google Drive 5TB (Cassaforte infinita a zero costi)
 async function uploadToGoogleDrive({ name, buffer }) {
   if (dryRun) {
@@ -220,13 +265,14 @@ async function uploadToGoogleDrive({ name, buffer }) {
     }
 
     const accessToken = tokenData.access_token;
+    const targetFolderId = await getOrCreateSocialVideosFolder(accessToken, creds.folder_id || null);
     const boundary = "-------FP_DRIVE_BOUNDARY_" + Date.now();
     const delimiter = "\r\n--" + boundary + "\r\n";
     const closeDelim = "\r\n--" + boundary + "--";
 
     const metadata = {
       name: name,
-      parents: creds.folder_id ? [creds.folder_id] : []
+      parents: targetFolderId ? [targetFolderId] : []
     };
 
     const metadataPart = delimiter +
@@ -243,7 +289,7 @@ async function uploadToGoogleDrive({ name, buffer }) {
       Buffer.from(closeDelim, "utf8")
     ]);
 
-    console.log(`[scheduler-dispatch] 📁 Archiviazione permanente su Google Drive 5TB (Folder: ${creds.folder_id})...`);
+    console.log(`[scheduler-dispatch] 📁 Archiviazione permanente su Google Drive 5TB (Folder: ${targetFolderId})...`);
     const uploadRes = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink", {
       method: "POST",
       headers: {
