@@ -561,8 +561,8 @@ export default function AutoCutStudioPage() {
     setPublishResult(null);
 
     setPublishProgress(uiLang === 'EN'
-      ? '1/4: Connecting TikTok Sandbox v2 (Client Key sbawgsd4uzkwnlond4)...'
-      : '1/4: Connessione TikTok Sandbox v2 (Client Key sbawgsd4uzkwnlond4)...');
+      ? '1/4: Connecting TikTok Production v2 (Client Key awsghb9gm4smzsic)...'
+      : '1/4: Connessione TikTok Produzione v2 (Client Key awsghb9gm4smzsic)...');
     await new Promise(r => setTimeout(r, 900));
 
     setPublishProgress(uiLang === 'EN'
@@ -779,13 +779,13 @@ export default function AutoCutStudioPage() {
                 </h2>
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span>Sandbox Active</span>
+                  <span>Live Production Active</span>
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
                 {uiLang === 'EN' 
-                  ? 'Client Key: sbawgsd4uzkwnlond4 · Direct Post v2 · Generates certified publish_id for App Review' 
-                  : 'Client Key: sbawgsd4uzkwnlond4 · Direct Post v2 · Genera publish_id certificato per la revisione'}
+                  ? 'Client Key: awsghb9gm4smzsic · Direct Post v2 · Official Approved Content Posting API' 
+                  : 'Client Key: awsghb9gm4smzsic · Direct Post v2 · API Ufficiale Approvata Content Posting'}
               </p>
             </div>
           </div>
@@ -1007,7 +1007,7 @@ export default function AutoCutStudioPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400">{t.clientKeyLabel}</span>
-                  <span className="font-mono text-slate-200">sbawgsd4uzkwnlond4</span>
+                  <span className="font-mono text-slate-200">awsghb9gm4smzsic</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400">{t.redirectUriLabel}</span>
@@ -1051,7 +1051,7 @@ export default function AutoCutStudioPage() {
 
             <div className="flex flex-col gap-2 pt-2">
               <a
-                href={accountStatus?.tiktok?.authUrl || 'https://www.tiktok.com/v2/auth/authorize/?client_key=sbawgsd4uzkwnlond4&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=https%3A%2F%2Fflowerpowerpizza.com%2Fapi%2Fsocial-callback&state=fp_social_studio'}
+                href={accountStatus?.tiktok?.authUrl || 'https://www.tiktok.com/v2/auth/authorize/?client_key=awsghb9gm4smzsic&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=https%3A%2F%2Fflowerpowerpizza.com%2Fapi%2Fsocial-callback&state=fp_social_studio'}
                 className="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs text-center shadow-lg transition flex items-center justify-center gap-2"
               >
                 <Key className="w-3.5 h-3.5" />

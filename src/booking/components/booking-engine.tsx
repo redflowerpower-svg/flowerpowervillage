@@ -988,6 +988,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           slug: selectedRoom.slug,
           checkIn,
           checkOut,
+          nights: stayDays || 1,
           guests,
           guestName: checkoutData.name,
           guestEmail: checkoutData.email,
@@ -999,6 +1000,8 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           depositAmount: session.depositAmount || Math.round(checkoutPricing.finalTotal * 0.3),
           balanceDue: session.balanceDue || (checkoutPricing.finalTotal - Math.round(checkoutPricing.finalTotal * 0.3)),
           promoCode: appliedPromo?.code || null,
+          discountType: appliedPromo?.discountType || null,
+          discountValue: appliedPromo?.discountValue || null,
           discountAmount: checkoutPricing.promoDiscount || 0,
           gateway: (paymentMethod === 'ksher_promptpay' || paymentMethod === 'ksher_card' || paymentMethod === 'ksher') ? 'ksher' : paymentMethod
         }

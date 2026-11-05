@@ -21,6 +21,8 @@ export interface PendingBookingRecord {
   depositAmount: number;
   balanceDue: number;
   promoCode?: string | null;
+  discountType?: string | null;
+  discountValue?: string | number | null;
   discountAmount?: number;
   createdAt: number;
 }

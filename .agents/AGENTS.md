@@ -108,10 +108,13 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
       3. **Dai 460px in su (Xiaomi Mi Pad 4 e tutti i Tablet)**: Tassativamente **3 colonne di prodotti** e **menu statico su 2 righe fisse** (`category-tabs-desktop` con altezza $88\text{px}$, icona $28\text{px}$ `w-7 h-7` e font $9\text{px}$–$10\text{px}$).
     - **Integrità Totale Interfaccia Tablet**: Qualsiasi futuro sviluppo di modali, carrello, banner, schede o flussi d'ordine DEVE essere progettato e collaudato rispettando le proporzioni di questo standard device tablet in verticale.
 23. **Regola Immodificabile Protocollo di Comunicazione Umana & Diario di Bordo Live (Soluzione 1)**:
-    - **Banner di Testata Obbligatorio in Ogni Messaggio**: Ogni singolo messaggio e risposta dell'agente verso l'utente DEVE aprirsi TASSATIVAMENTE con un callout banner visivo sintetico e strutturato in 3 punti chiari:
-      1. 🔨 *Cosa è stato fatto*: sintesi immediata dell'azione eseguita.
-      2. 📱 *Cosa cambia nella realtà*: impatto visibile su tablet sala, cellulari clienti o cassa, spiegato in italiano semplice e comprensibile.
-      3. 🚀 *Prossimo passo*: cosa sta per essere fatto subito dopo.
+    - **Banner di Testata Obbligatorio in Ogni Messaggio (con Indicatore Branch Visibile in Giallo/Azzurro)**: Ogni singolo messaggio e risposta dell'agente verso l'utente DEVE aprirsi TASSATIVAMENTE con un callout banner visivo sintetico che mostra in modo ultra-visibile (in giallo oro brillante) il branch Git attivo:
+      - Intestazione Singola con Badge Giallo a destra di NOTE: `> [!NOTE] <span style="background: #facc15; color: #000; font-weight: 900; padding: 2px 9px; border-radius: 5px; font-size: 12px;">🌿 BRANCH: <nome_branch></span>`
+      - Badge Rosso Worktree (se applicabile, sotto al branch): `<span style="background: #ef4444; color: #fff; font-weight: 900; padding: 2px 9px; border-radius: 5px; font-size: 12px; display: inline-block;">📁 WORKTREE: <nome_worktree></span>`
+      - Strutturato nei 3 punti chiari:
+        1. 🔨 *Cosa è stato fatto*: sintesi immediata dell'azione eseguita.
+        2. 📱 *Cosa cambia nella realtà*: impatto visibile su tablet sala, cellulari clienti o cassa, spiegato in italiano semplice e comprensibile.
+        3. 🚀 *Prossimo passo*: cosa sta per essere fatto subito dopo.
     - **Diario di Bordo Live Permanente (`DIARIO_DI_BORDO.md`)**:
       1. Tutte le operazioni completate, le migliorie e le modifiche strutturali DEVONO essere registrate e accumulate cronologicamente sia nel file di workspace `DIARIO_DI_BORDO.md` sia nell'Artifact IDE dedicato.
       2. **DIVIETO ASSOLUTO DI CANCELLAZIONE**: È severamente vietato sovrascrivere o eliminare lo storico pregresso; ogni sessione accumula i propri traguardi formando una cronistoria indelebile a disposizione dell'utente e di tutti gli agenti.
@@ -165,6 +168,21 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
         * Le **farfalle multicolori** di tutti i tipi (*Butterflies* / ผีเสื้อ) che popolano il giardino;
         * La freschezza ombreggiata della vegetazione e delle fitte foreste che abbracciano il villaggio.
     - **Sanitizzazione Automatica**: Il sistema applica regex attive a monte e a valle che convertono qualsiasi eventuale residuo di "sound of waves" o "brezza marina" in "suoni rilassanti della natura" e "fresca brezza tropicale".
+
+28. **Regola Immodificabile Note Interne Prenotazioni (100% Solo Inglese, BALANCE DUE Primo, Simbolo ฿ Dopo la Cifra & Zero Barre Verticali |)**:
+    - **LINGUA 100% INGLESE**: Tutte le note interne (`privateNotes` / "Note Interne" nelle prenotazioni di Octorate, log di pagamento, voucher e riepiloghi PMS/Channel Manager) devono essere **TASSATIVAMENTE ED ESCLUSIVAMENTE REDATTE IN INGLESE** (`100% English`). Divieto categorico di parole o frasi in italiano.
+    - **ZERO BARRE VERTICALI INIZIALI (|)**: È **SEVERAMENTE VIETATO** inserire il carattere pipe (`|`) all'inizio delle righe. Il testo deve partire **direttamente a filo all'inizio del bordo sinistro** (flush left), eliminando l'illusione ottica della lettera "I" maiuscola in inglese.
+    - **SIMBOLO BAHT DOPO LA CIFRA**: Il simbolo Baht (`฿`) deve essere collocato **TASSATIVAMENTE DOPO LA CIFRA** con uno spazio (es. `703 ฿`, `2,207 ฿`, `1,504 ฿`), mai prima.
+    - **BALANCE DUE PER PRIMO & VALORI SECCHI (ZERO ASTERISCHI)**: Poiché il box di Octorate è un campo di testo grezzo (`plain text`) che non interpreta l'HTML né il Markdown, è vietato inserire asterischi (`**`). Riportare valori secchi senza percentuali ridondanti, mettendo il saldo in cima per la massima comodità della reception al check-in:
+      * 1ª riga: `BALANCE DUE         : X,XXX ฿`
+      * 2ª riga: `Total Amount        : X,XXX ฿`
+      * 3ª riga: `Deposit Paid        : X,XXX ฿`
+    - **ORDINE SERVIZI EXTRA**:
+      * 4ª riga: `Breakfast           : YES (...) / No`
+      * 5ª riga: `Air Conditioning    : YES (...) / No`
+    - **DETTAGLI SECONDARI A SEGUIRE**:
+      * `Stay`, `Discount Applied`, `Coupon Details` (se presente), `Gateway & Session`, ed eventuale `Administrative Note` sempre posizionati rigorosamente in fondo.
+
 
 # 🛡️ PROTOCOLLO DI AUTO-APPROVAZIONE SICURA (AUTONOMOUS EXECUTION & ZERO-DISRUPTION GUARDRAILS)
 Il sistema opera in modalità di **esecuzione completamente autonoma, rapida e continua** (predefinita su tutte le richieste, e tassativa con `/goal`, `AUTOPILOT`, `procedi` o `In autonomia:`):

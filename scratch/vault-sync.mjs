@@ -57,6 +57,7 @@ export function encryptVault() {
 
   fs.writeFileSync(ENC_PATH, JSON.stringify(payload, null, 2), 'utf8');
   console.log(`🔒 Vault cifrato con successo in: ${ENC_PATH}`);
+  syncEnvFromReport(plainText);
   return true;
 }
 
@@ -249,6 +250,11 @@ function syncEnvFromReport(reportText) {
   // DeepSeek AI API
   const deepseekApiKey = extract(/DEEPSEEK_API_KEY:\s*([^\s\n\r]+)/) || extract(/\*\*DeepSeek API Key:\*\*\s*`([^`]+)`/);
 
+  // TikTok Content Posting API v2
+  const tiktokClientKey = extract(/\*\*TikTok Client Key:\*\*\s*([^]+)/);
+  const tiktokClientSecret = extract(/\*\*TikTok Client Secret:\*\*\s*([^]+)/);
+  const tiktokRedirectUri = extract(/\*\*TikTok Redirect URI:\*\*\s*([^]+)/) || 'https://flowerpowerpizza.com/api/social-callback';
+
   const masterVaultKey = getMasterKey();
 
   const envLines = [
@@ -322,7 +328,13 @@ function syncEnvFromReport(reportText) {
     ``,
     `# Google Gemini Vision (Social Media Studio & Vision OCR)`,
     `GEMINI_API_KEY=${extract(/\*\*Gemini API Key:\*\*\s*`([^`]+)`/) || extract(/GEMINI_API_KEY:\s*([^\s\n\r]+)/) || ''}`,
-    `VITE_GEMINI_API_KEY=${extract(/\*\*Gemini API Key:\*\*\s*`([^`]+)`/) || extract(/GEMINI_API_KEY:\s*([^\s\n\r]+)/) || ''}`
+    `VITE_GEMINI_API_KEY=${extract(/\*\*Gemini API Key:\*\*\s*`([^`]+)`/) || extract(/GEMINI_API_KEY:\s*([^\s\n\r]+)/) || ''}`,
+    ``,
+    `# TikTok Content Posting API v2`,
+    `TIKTOK_CLIENT_KEY=${extract(/\*\*TikTok Client Key:\*\*\s*`([^`]+)`/) || ''}`,
+    `TIKTOK_CLIENT_SECRET=${extract(/\*\*TikTok Client Secret:\*\*\s*`([^`]+)`/) || ''}`,
+    `TIKTOK_REDIRECT_URI=${extract(/\*\*TikTok Redirect URI:\*\*\s*`([^`]+)`/) || 'https://flowerpowerpizza.com/api/social-callback'}`,
+    `VITE_TIKTOK_CLIENT_KEY=${extract(/\*\*TikTok Client Key:\*\*\s*`([^`]+)`/) || ''}`
   ].join('\n');
 
   fs.writeFileSync(ENV_PATH, envLines, 'utf8');

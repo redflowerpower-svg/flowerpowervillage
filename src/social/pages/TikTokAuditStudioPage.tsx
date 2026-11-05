@@ -665,8 +665,8 @@ export default function TikTokAuditStudioPage() {
     setPublishResult(null);
 
     setPublishProgress(uiLang === 'EN'
-      ? '1/4: Connecting TikTok Sandbox v2 (Client Key sbawgsd4uzkwnlond4)...'
-      : '1/4: Connessione TikTok Sandbox v2 (Client Key sbawgsd4uzkwnlond4)...');
+      ? '1/4: Connecting TikTok Production v2 (Client Key awsghb9gm4smzsic)...'
+      : '1/4: Connessione TikTok Produzione v2 (Client Key awsghb9gm4smzsic)...');
     await new Promise(r => setTimeout(r, 900));
 
     setPublishProgress(uiLang === 'EN'
@@ -1609,7 +1609,7 @@ export default function TikTokAuditStudioPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400">{t.clientKeyLabel}</span>
-                  <span className="font-mono text-slate-200">sbawgsd4uzkwnlond4</span>
+                  <span className="font-mono text-slate-200">awsghb9gm4smzsic</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400">{t.redirectUriLabel}</span>
@@ -1653,7 +1653,7 @@ export default function TikTokAuditStudioPage() {
 
             <div className="flex flex-col gap-2 pt-2">
               <a
-                href={accountStatus?.tiktok?.authUrl || 'https://www.tiktok.com/v2/auth/authorize/?client_key=sbawgsd4uzkwnlond4&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=https%3A%2F%2Fflowerpowerpizza.com%2Fapi%2Fsocial-callback&state=fp_social_studio'}
+                href={accountStatus?.tiktok?.authUrl || 'https://www.tiktok.com/v2/auth/authorize/?client_key=awsghb9gm4smzsic&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=https%3A%2F%2Fflowerpowerpizza.com%2Fapi%2Fsocial-callback&state=fp_social_studio'}
                 className="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs text-center shadow-lg transition flex items-center justify-center gap-2"
               >
                 <span>{t.startAuthBtn}</span>
@@ -1771,7 +1771,7 @@ export default function TikTokAuditStudioPage() {
                 </p>
                 <div className="pt-2 flex flex-col gap-2">
                   <a
-                    href={accountStatus?.tiktok?.authUrl || 'https://www.tiktok.com/v2/auth/authorize/?client_key=sbawgsd4uzkwnlond4&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=https%3A%2F%2Fflowerpowerpizza.com%2Fapi%2Fsocial-callback&state=fp_social_studio'}
+                    href={accountStatus?.tiktok?.authUrl || 'https://www.tiktok.com/v2/auth/authorize/?client_key=awsghb9gm4smzsic&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=https%3A%2F%2Fflowerpowerpizza.com%2Fapi%2Fsocial-callback&state=fp_social_studio'}
                     className="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs text-center shadow-lg transition flex items-center justify-center gap-2"
                   >
                     <span>{t.startAuthBtn}</span>

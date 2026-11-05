@@ -147,39 +147,51 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
     if (tokenData?.access_token) {
       try {
         const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
-        const octUrl = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${checkIn}&dateTo=${checkOut}&size=20`;
-        const octRes = await fetch(octUrl, {
-          headers: {
-            "Authorization": `Bearer ${tokenData.access_token}`,
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          }
-        });
+        let targetRoom: any = null;
+        let page = 1;
+        const maxPages = 10;
 
-        if (octRes.ok) {
+        while (page <= maxPages) {
+          const octUrl = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${checkIn}&dateTo=${checkOut}&page=${page}&size=50`;
+          const octRes = await fetch(octUrl, {
+            headers: {
+              "Authorization": `Bearer ${tokenData.access_token}`,
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            }
+          });
+
+          if (!octRes.ok) break;
+
           const octJson = await octRes.json();
           const items = Array.isArray(octJson) ? octJson : (octJson.data || []);
-          const targetRoom = items.find((item: any) => item.id === Number(accommodationId) || item.room === Number(accommodationId));
+          if (items.length === 0) break;
 
-          if (targetRoom && targetRoom.days && targetRoom.days.length > 0) {
-            // Verify Octorate minStay restriction
-            let maxMinStayRequired = 1;
-            targetRoom.days.forEach((d: any) => {
-              const ms = Number(d.minStay || d.minstay || 1);
-              if (ms > maxMinStayRequired) maxMinStayRequired = ms;
+          targetRoom = items.find((item: any) => item.id === Number(accommodationId) || item.room === Number(accommodationId));
+          if (targetRoom && targetRoom.days && targetRoom.days.length > 0) break;
+
+          if (items.length < 50) break;
+          page++;
+        }
+
+        if (targetRoom && targetRoom.days && targetRoom.days.length > 0) {
+          // Verify Octorate minStay restriction
+          let maxMinStayRequired = 1;
+          targetRoom.days.forEach((d: any) => {
+            const ms = Number(d.minStay || d.minstay || 1);
+            if (ms > maxMinStayRequired) maxMinStayRequired = ms;
+          });
+
+          if (nights < maxMinStayRequired) {
+            return res.status(400).json({
+              error: `Soggiorno minimo non rispettato. Questo alloggio richiede almeno ${maxMinStayRequired} notti.`
             });
+          }
 
-            if (nights < maxMinStayRequired) {
-              return res.status(400).json({
-                error: `Soggiorno minimo non rispettato. Questo alloggio richiede almeno ${maxMinStayRequired} notti.`
-              });
-            }
-
-            const totalPriceFromOct = targetRoom.days.reduce((acc: number, day: any) => acc + (day.price || 0), 0);
-            if (totalPriceFromOct > 0) {
-              baseRoomPricePerNight = Math.round(totalPriceFromOct / targetRoom.days.length);
-              solvedFromOctorate = true;
-            }
+          const totalPriceFromOct = targetRoom.days.reduce((acc: number, day: any) => acc + (day.price || 0), 0);
+          if (totalPriceFromOct > 0) {
+            baseRoomPricePerNight = Math.round(totalPriceFromOct / targetRoom.days.length);
+            solvedFromOctorate = true;
           }
         }
       } catch (octErr) {
@@ -318,6 +330,8 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
           depositAmount: payableDepositAmount,
           balanceDue,
           promoCode: promoCode || null,
+          discountType: discountType || null,
+          discountValue: discountValue || null,
           discountAmount: promoDiscountAmount || directDiscountAmount || 0,
           createdAt: Date.now()
         });

@@ -63,3 +63,5 @@ scratch/*.ts
 scratch/audit_report_bookings.md
 .vercel/
 
+
+*.traineddata

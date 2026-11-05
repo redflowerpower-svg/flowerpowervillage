@@ -3,6 +3,44 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [04/11/2026 - ORE 22:08] · CREAZIONE WORKTREE "Telegram Assistant Bot", ISOLAMENTO CHAT ANTIGRAVITY & POTENZIAMENTO TRASFERIMENTO GOOGLE DRIVE 5TB
+- **Cosa abbiamo fatto:**
+  1. 🌿 **Creazione Worktree Fisico Dedicato (`D:\WEB SITE Antigravity\Telegram Assistant Bot`)**:
+     - Creato il worktree parallelo collegato stabilmente al branch `feat/room-availability-calendar`.
+     - Contiene tutti i file dell'AI Booking Concierge (`booking-concierge.ts`, `ai-booking-concierge.ts`, `BookingConciergeStudio.tsx`).
+     - Isolamento totale al 100% rispetto al cantiere principale `flowerpowervillage` su `staging`.
+  2. 💬 **Migrazione Workspace della Chat `Telegram Booking Assistant Bot`**:
+     - Aggiornato `workspace_uris` in `conversation_summaries.db`: la chat è ora incardinata direttamente dentro `Telegram Assistant Bot`.
+     - Due agenti possono lavorare contemporaneamente senza mai disturbarsi a vicenda.
+  3. ☁️ **Potenziamento Automatico `MARKDOWN-TRANSFER` & `RIPRISTINA_TUTTO.bat`**:
+     - `scripts/project-transfer.mjs` rileva i Worktree attivi, salva le modifiche in sospeso con auto-commit e fa il push del branch su GitHub, archiviando `worktrees_info.json`.
+     - `scripts/gdrive-handoff.mjs` include i metadati del worktree nel pacchetto Google Drive 5TB.
+     - `scripts/gdrive-handoff-pull.mjs` (in `RIPRISTINA_TUTTO.bat`) ricrea o allinea in automatico il Worktree a Koh Phayam, sincronizzando anche il file `.env`.
+  4. 🏷️ **Standard Banner di Testata Bicolore**:
+     - Codificato in `GEMINI.md` e `AGENTS.md` il badge giallo del Branch affiancato dal badge rosso fuoco del Worktree.
+- **File aggiornati:** `scripts/project-transfer.mjs`, `scripts/gdrive-handoff.mjs`, `scripts/gdrive-handoff-pull.mjs`, `.agents/AGENTS.md`, `C:\Users\Red\.gemini\GEMINI.md`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 ATTIVO, COLLAUDATO E PRONTO ALL'USO.
+
+---
+
+### 🚀 [04/11/2026 - ORE 21:46] · RETTIFICA ESTETICA NOTE INTERNE: ELIMINAZIONE TOTALE BARRA VERTICALE (|), TESTO A FILO SINISTRO & REGOLA 28 CONSOLIDATA
+- **Cosa abbiamo fatto:**
+  1. 🚫 **Eliminazione Radicale della Barra Verticale Iniziale (`|`)**:
+     - Rimosso il carattere pipe (`|`) che su font plain-text causava l'illusione ottica della lettera "I" maiuscola in inglese.
+     - Tutte le righe partono ora direttamente attaccate all'inizio del bordo sinistro (flush left), garantendo pulizia visiva assoluta.
+  2. 📝 **Rettifica Immediata Eseguita su Octorate (Selig Andrea #130209086)**:
+     - Applicato il nuovo testo a filo sinistro con status `200 OK`:
+       `BALANCE DUE : 703 ฿` in prima riga, seguito da `Total Amount : 2,207 ฿` e `Deposit Paid : 1,504 ฿`.
+  3. 🛠️ **Allineamento Motore di Registrazione (`api/_handlers/verify.ts`)**:
+     - Il generatore serverless produce da ora in poi il layout a filo sinistro senza barre per tutte le nuove prenotazioni.
+  4. 🇬🇧 **Regola Immodificabile 28 Blindata (`.agents/AGENTS.md`)**:
+     - Consolidata la regola: 100% Inglese, BALANCE DUE primo, simbolo Baht dopo la cifra, zero asterischi e testo a filo sinistro senza pipe.
+- **File aggiornati:** `api/_handlers/verify.ts`, `.agents/AGENTS.md`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 ONLINE & CONFERMATO SU OCTORATE.
+
+---
+
+
 ### 🚀 [04/11/2026 - ORE 18:55] · MODALE INGREDIENTI EXTRA PIZZERIA: UNICO SCROLLBAR FLUIDO & CARD STRUTTURATE A CAMPATA PIENA (ZERO A CAPO ANOMALO)
 - **Cosa abbiamo fatto:**
   1. 🚫 **Eliminazione Radicale del Doppio Scrollbar Sovrapposto**:

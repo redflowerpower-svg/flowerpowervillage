@@ -104,9 +104,14 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
       const grandTotal = Number(clientData.grandTotal || clientData.totalPrice || cached?.grandTotal || 0);
       const depositAmount = Number(clientData.depositAmount || clientData.depositPaid || cached?.depositAmount || Math.round(grandTotal * 0.3));
       const balanceDue = Number(clientData.balanceDue || cached?.balanceDue || (grandTotal - depositAmount));
+      const computedNights = (checkIn && checkOut)
+        ? Math.max(1, Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)))
+        : 1;
       const promoCode = clientData.promoCode || cached?.promoCode || "";
+      const discountType = clientData.discountType || cached?.discountType || "";
+      const discountValue = clientData.discountValue || cached?.discountValue || "";
       const discountAmount = Number(clientData.discountAmount || cached?.discountAmount || 0);
-      const nights = Number(clientData.nights || cached?.nights || 1);
+      const nights = Number(clientData.nights || cached?.nights || computedNights);
 
       metadata = {
         accommodationId: String(accommodationId || ""),
@@ -126,6 +131,8 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
         depositPaid: String(depositAmount),
         balanceDue: String(balanceDue),
         promoCode,
+        discountType: String(discountType || ""),
+        discountValue: String(discountValue || ""),
         discountAmount: String(discountAmount),
         gateway: "ksher"
       };
@@ -253,7 +260,10 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
 
         const depositPaidAmt  = Number(depositPaid  || 0);
         const balanceDueAmt   = Number(balanceDue   || 0);
-        const stayNights      = Number(session.metadata?.nights || 0);
+        const computedDays    = (checkIn && checkOut)
+          ? Math.max(1, Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)))
+          : 1;
+        const stayNights      = Number(session.metadata?.nights || computedDays || 1);
         const discountPct     = Number(session.metadata?.discountPercent || 0);
         const hasAC           = extraAC === "true";
         const hasBreakfast    = extraBreakfast === "true";
@@ -270,14 +280,14 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
         let promoLine = "";
 
         if (promoCode) {
-          const formattedDisc = discountType === "percentage" ? `-${discountValue}%` : `-฿${discountValue}`;
-          discountLine = `| Discount Applied    : EXCLUSIVE PROMO COUPON (${promoCode})`;
-          promoLine    = `| Coupon Details      : ${promoCode} (${formattedDisc}, saved ฿${promoDiscountAmount.toLocaleString("en")}) — Standard stay discount bypassed`;
+          const formattedDisc = discountType === "percentage" ? `-${discountValue}%` : `-${discountValue} ฿`;
+          discountLine = `Discount Applied    : EXCLUSIVE PROMO COUPON (${promoCode})`;
+          promoLine    = `Coupon Details      : ${promoCode} (${formattedDisc}, saved ${promoDiscountAmount.toLocaleString("en")} ฿)`;
         } else if (directDiscountAmount > 0 || discountPct > 0) {
-          const savedStr = directDiscountAmount > 0 ? `saved ฿${directDiscountAmount.toLocaleString("en")}` : `-${discountPct}%`;
-          discountLine = `| Discount Applied    : Standard Direct Stay Discount (${savedStr})`;
+          const savedStr = directDiscountAmount > 0 ? `saved ${directDiscountAmount.toLocaleString("en")} ฿` : `-${discountPct}%`;
+          discountLine = `Discount Applied    : Standard Direct Stay Discount (${savedStr})`;
         } else {
-          discountLine = `| Discount Applied    : None`;
+          discountLine = `Discount Applied    : None`;
         }
 
         const formatDisplayDate = (dStr: string) => {
@@ -286,21 +296,29 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
           return p.length === 3 && p[0].length === 4 ? `${p[2]}/${p[1]}/${p[0]}` : dStr;
         };
 
+        const breakfastLine = hasBreakfast
+          ? `Breakfast           : YES — ${breakfastCount} breakfast${breakfastCount !== 1 ? "s" : ""} (${numGuests} guest${numGuests !== 1 ? "s" : ""} × ${stayNights} night${stayNights !== 1 ? "s" : ""})`
+          : `Breakfast           : No`;
+
+        const acLine = hasAC
+          ? `Air Conditioning    : YES — AC surcharge included (500 ฿)`
+          : `Air Conditioning    : No`;
+
         const notesLines = [
           `=== FLOWER POWER VILLAGE — BOOKING SUMMARY ===`,
-          `| Gateway & Session   : ${isKsher ? 'Ksher (PromptPay/Card)' : 'Stripe'} - ${session.id}`,
-          `| Total Amount        : ฿${Number(totalPrice || 0).toLocaleString("en")}`,
-          `| Deposit Paid (30%)  : ฿${depositPaidAmt.toLocaleString("en")} (charged via ${isKsher ? 'Ksher' : 'Stripe'})`,
-          `| Balance Due (70%)   : ฿${balanceDueAmt.toLocaleString("en")} (to be paid at check-in)`,
-          `| Stay                : ${stayNights} night${stayNights !== 1 ? "s" : ""} (${formatDisplayDate(checkIn)} → ${formatDisplayDate(checkOut)})`,
+          `BALANCE DUE         : ${balanceDueAmt.toLocaleString("en")} ฿`,
+          `Total Amount        : ${Number(totalPrice || 0).toLocaleString("en")} ฿`,
+          `Deposit Paid        : ${depositPaidAmt.toLocaleString("en")} ฿`,
+          breakfastLine,
+          acLine,
+          `Stay                : ${stayNights} night${stayNights !== 1 ? "s" : ""} (${formatDisplayDate(checkIn)} → ${formatDisplayDate(checkOut)})`,
           discountLine,
         ];
         if (promoLine) {
           notesLines.push(promoLine);
         }
         notesLines.push(
-          `| Air Conditioning    : ${hasAC ? "YES — AC surcharge included" : "No"}`,
-          `| Breakfast           : ${hasBreakfast ? `YES — ${breakfastCount} breakfast${breakfastCount !== 1 ? "s" : ""} (${numGuests} guest${numGuests !== 1 ? "s" : ""} × ${stayNights} night${stayNights !== 1 ? "s" : ""})` : "No"}`,
+          `Gateway & Session   : ${isKsher ? 'Ksher (PromptPay/Card)' : 'Stripe'} - ${session.id}`,
           `===============================================`
         );
 

@@ -373,3 +373,39 @@ $$\text{Finestra Totale} = \text{Stadio 1 (gg)} + \text{Stadio 2 (gg)} + \text{S
 2. **Banner Flottante Giallo-Rosso in Parità Perfetta**:
    - Stessa interfaccia grafica vivace con badge sconto percentuale / fisso pulsante, Z-Index blindato a `z-30`, auto-hide sui flussi di checkout e traduzione DeepSeek a 9 lingue simultanee.
 
+
+---
+
+## 16. Standard Definitivo Note Interne Prenotazioni Octorate (`privateNotes`) — 04/11/2026
+
+A partire dal 04/11/2026, tutte le prenotazioni registrate su Octorate dal booking engine (`api/_handlers/verify.ts`) adottano il nuovo standard universale vincolante:
+
+### A. Regole Fondamentali di Formattazione
+1. **Lingua 100% Inglese**: Divieto assoluto di italiano o terminologia mista. Note amministrative, riepiloghi ed extra sono redatti esclusivamente in lingua inglese per la massima operatività dello staff internazionale e locale.
+2. **Zero Barre Verticali Iniziali (`|`)**: Le righe partono **direttamente a filo all'inizio del bordo sinistro** (flush left), senza il carattere pipe (`|`) che nei font monospazio generava confusione visiva con la lettera "I" maiuscola.
+3. **Simbolo Baht (`฿`) Dopo la Cifra**: Tutti gli importi finanziari collocano il simbolo dopo il numero con spazio separatore (es. `703 ฿`, `2,207 ฿`, `1,504 ฿`), mai prima.
+4. **Valori Secchi e Zero Asterischi**: Il gestionale Octorate utilizza un campo plain-text grezzo (`<textarea>`) che non interpreta l'HTML o il Markdown. Gli asterischi (`**`) sono categoricamente banditi per evitare testi sporchi; le prime tre righe riportano solo i numeri netti senza percentuali o calcoli intermedi.
+
+### B. Ordine Gerarchico Rigido dei Campi
+1. `BALANCE DUE         : X,XXX ฿` (In primissima riga, per dare alla reception il colpo d'occhio immediato al check-in)
+2. `Total Amount        : X,XXX ฿`
+3. `Deposit Paid        : X,XXX ฿`
+4. `Breakfast           : YES (...) / No` (In 4ª riga)
+5. `Air Conditioning    : YES (500 ฿) / No` (In 5ª riga)
+6. Dettagli secondari a seguire in fondo: `Stay`, `Discount Applied`, `Coupon Details` (se applicato), `Gateway & Session` ed eventuale `Administrative Note`.
+
+### C. Modello Ufficiale Esecutivo
+```text
+=== FLOWER POWER VILLAGE — BOOKING SUMMARY ===
+BALANCE DUE         : 703 ฿
+Total Amount        : 2,207 ฿
+Deposit Paid        : 1,504 ฿
+Breakfast           : No
+Air Conditioning    : No
+Stay                : 2 nights (07/11/2026 → 09/11/2026)
+Discount Applied    : EXCLUSIVE PROMO COUPON (WELCOME2026)
+Coupon Details      : WELCOME2026 (-10%, saved 245 ฿)
+Gateway & Session   : Ksher (PromptPay/Card) - FPBK98542667
+Administrative Note : AC removed. Price updated to 2,207 ฿. Balance due at check-in is 703 ฿.
+===============================================
+```
