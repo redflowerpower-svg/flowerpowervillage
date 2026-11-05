@@ -1,15 +1,15 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { 
-  processBookingInquiry, 
-  refineReplyWithFeedback, 
-  getCustomSystemPrompt, 
-  saveCustomSystemPrompt 
+import {
+  processBookingInquiry,
+  refineReplyWithFeedback,
+  getCustomSystemPrompt,
+  saveCustomSystemPrompt
 } from "../_helpers/ai-booking-concierge.js";
-import { 
-  getAllMemoryItems, 
-  saveMemoryItem, 
-  toggleMemoryItem, 
-  deleteMemoryItem 
+import {
+  getAllMemoryItems,
+  saveMemoryItem,
+  toggleMemoryItem,
+  deleteMemoryItem
 } from "../_helpers/concierge-memory.js";
 import { getOrCreateMasterSpreadsheet } from "../_helpers/google-sheets-sync.js";
 
@@ -35,8 +35,8 @@ export async function handleBookingConcierge(req: VercelRequest, res: VercelResp
         } catch (sheetErr: any) {
           console.warn('[handleBookingConcierge] Sheet read warning:', sheetErr.message);
         }
-        return res.status(200).json({ 
-          success: true, 
+        return res.status(200).json({
+          success: true,
           customPrompt: customPrompt || '',
           masterSheet
         });
@@ -96,8 +96,8 @@ export async function handleBookingConcierge(req: VercelRequest, res: VercelResp
     if (action === 'get_prompt') {
       const customPrompt = await getCustomSystemPrompt();
       const masterSheet = await getOrCreateMasterSpreadsheet().catch(() => null);
-      return res.status(200).json({ 
-        success: true, 
+      return res.status(200).json({
+        success: true,
         customPrompt: customPrompt || '',
         masterSheet
       });

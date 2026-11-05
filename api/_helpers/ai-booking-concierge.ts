@@ -465,12 +465,12 @@ Return STRICTLY valid JSON with this exact schema:
 
   const livePmsSummary = (livePmsResult && livePmsResult.hasLivePmsData)
     ? {
-        checked: true,
-        availableCount: livePmsResult.availableRooms.length,
-        occupiedCount: livePmsResult.occupiedRooms.length,
-        availableNames: livePmsResult.availableRooms.map(r => r.name),
-        occupiedNames: livePmsResult.occupiedRooms.map(r => r.name)
-      }
+      checked: true,
+      availableCount: livePmsResult.availableRooms.length,
+      occupiedCount: livePmsResult.occupiedRooms.length,
+      availableNames: livePmsResult.availableRooms.map(r => r.name),
+      occupiedNames: livePmsResult.occupiedRooms.map(r => r.name)
+    }
     : null;
 
   return {

@@ -7,7 +7,7 @@ export interface KnowledgeTabInfo {
   rows: SheetRow[];
 }
 
-export type KnowledgeTabKey = 
+export type KnowledgeTabKey =
   | '01_Alloggi_e_Capienze'
   | '02_Trasporti_e_Arrivi'
   | '03_Ristorante_e_Bakery'

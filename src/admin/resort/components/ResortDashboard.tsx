@@ -135,6 +135,7 @@ export function ResortDashboard() {
     if (typeof window !== 'undefined') {
       const tabParam = new URLSearchParams(window.location.search).get('tab');
       if (tabParam === 'wines') return 'wines';
+      if (tabParam === 'telegram' || tabParam === 'booking_concierge') return 'booking_concierge';
     }
     return 'bookings';
   });
@@ -1157,26 +1158,15 @@ export function ResortDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('telegram')}
-              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 flex items-center gap-1.5 ${
-                activeTab === 'telegram'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 ring-1 ring-emerald-400/30'
-                  : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
-              }`}
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>BOT TELEGRAM</span>
-            </button>
-            <button
               onClick={() => setActiveTab('booking_concierge')}
               className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 flex items-center gap-1.5 ${
-                activeTab === 'booking_concierge'
-                  ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-950/40 ring-1 ring-amber-300 font-black'
+                activeTab === 'booking_concierge' || activeTab === 'telegram'
+                  ? 'bg-gradient-to-r from-amber-500 to-emerald-500 text-stone-950 shadow-md shadow-amber-950/40 ring-1 ring-amber-300 font-black'
                   : 'text-amber-400 hover:text-white hover:bg-stone-800/50'
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>AI CONCIERGE</span>
+              <span>BOT TELEGRAM & AI CONCIERGE</span>
             </button>
           </div>
         </div>
@@ -2509,16 +2499,9 @@ export function ResortDashboard() {
       )}
 
       
-      {/* Tab: AI Booking Concierge & Smart Calendar Offers */}
-      {activeTab === 'booking_concierge' && (
+      {/* Tab: AI Booking Concierge & Bot Telegram */}
+      {(activeTab === 'booking_concierge' || activeTab === 'telegram') && (
         <BookingConciergeStudio />
-      )}
-
-      {/* Tab: Telegram Bot Villaggio Indipendente */}
-      {activeTab === 'telegram' && (
-        <div className="max-w-4xl mx-auto space-y-6">
-          <TelegramVillageConfigSection />
-        </div>
       )}
 
       {/* Tab: Gestione Stagionale Tariffe */}

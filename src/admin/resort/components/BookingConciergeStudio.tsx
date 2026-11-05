@@ -34,6 +34,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
+import { TelegramVillageConfigSection } from './TelegramVillageConfigSection';
 
 interface BookingInquiryResult {
   detectedLanguage: string;
@@ -90,7 +91,7 @@ const PRESET_EXAMPLES = [
 ];
 
 export function BookingConciergeStudio() {
-  const [activeTab, setActiveTab] = useState<'studio' | 'memory' | 'prompt_sheet'>('studio');
+  const [activeTab, setActiveTab] = useState<'studio' | 'config' | 'memory' | 'prompt_sheet'>('studio');
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -467,7 +468,7 @@ export function BookingConciergeStudio() {
         </div>
 
         {/* Tab Selector */}
-        <div className="flex items-center gap-3 mt-6 pt-6 border-t border-stone-800/80">
+        <div className="flex flex-wrap items-center gap-2.5 mt-6 pt-6 border-t border-stone-800/80">
           <button
             onClick={() => setActiveTab('studio')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
@@ -477,7 +478,18 @@ export function BookingConciergeStudio() {
             }`}
           >
             <MessageSquare className="w-4 h-4" />
-            Chat Studio & Offerte
+            Studio Chat & Offerte Live
+          </button>
+          <button
+            onClick={() => setActiveTab('config')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
+              activeTab === 'config'
+                ? 'bg-emerald-500 text-stone-950 shadow-lg shadow-emerald-500/20'
+                : 'bg-stone-950/60 text-stone-400 hover:text-stone-200 hover:bg-stone-900 border border-stone-800'
+            }`}
+          >
+            <Bot className="w-4 h-4" />
+            Configurazione Bot & Webhook
           </button>
           <button
             onClick={() => setActiveTab('memory')}
@@ -488,7 +500,7 @@ export function BookingConciergeStudio() {
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            Knowledge Base & Regole Apprese ({rules.length})
+            Knowledge Base & Regole ({rules.length})
           </button>
           <button
             onClick={() => setActiveTab('prompt_sheet')}
@@ -789,6 +801,13 @@ export function BookingConciergeStudio() {
         </>
       )}
 
+      {/* TAB: CONFIGURAZIONE BOT TELEGRAM & WEBHOOK */}
+      {activeTab === 'config' && (
+        <div className="max-w-4xl mx-auto space-y-6">
+          <TelegramVillageConfigSection />
+        </div>
+      )}
+
       {/* TAB 2: KNOWLEDGE BASE & LEARNED RULES (CRM MEMORY) */}
       {activeTab === 'memory' && (
         <div className="space-y-8">
@@ -1013,25 +1032,32 @@ export function BookingConciergeStudio() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
-                {masterSheet?.url && (
-                  <a
-                    href={masterSheet.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-900/30"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Apri Google Sheet Ufficiale
-                  </a>
-                )}
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href={masterSheet?.url || "https://docs.google.com/spreadsheets/d/1PHjjmMKYRWFqrL8Wgh6fj34zIj3NtYg6c5zo-r-SEUE/edit"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-900/30"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Apri Google Sheet Master Ufficiale ↗
+                </a>
+                <a
+                  href="https://drive.google.com/drive/folders/1cf23Ag-cXEnbkSsSy7CLhYnonEAN9lRe"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold transition border border-stone-700"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Apri Cartella Drive ↗
+                </a>
                 <button
                   onClick={handleSyncMasterSheet}
                   disabled={syncingSheet}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-bold transition border border-stone-700 disabled:opacity-50"
                 >
                   <RefreshCw className={`w-4 h-4 ${syncingSheet ? 'animate-spin' : ''}`} />
-                  {syncingSheet ? 'Sincronizzazione in corso...' : 'Sincronizza / Verifica Foglio'}
+                  {syncingSheet ? 'Sincronizzazione...' : 'Sincronizza / Verifica'}
                 </button>
               </div>
             </div>
