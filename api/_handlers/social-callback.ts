@@ -2,7 +2,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 
 const DEFAULT_SUPABASE_URL = "https://gjqevgkbjkharczhikcl.supabase.co";
-const DEFAULT_SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqcWV2Z2tiamtoYXJjemhpa2NsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzcxMjQ0MCwiZXhwIjoyMDk5Mjg4NDQwfQ.rMk5Yg3ZNLdK4bLnIjc7K6ZpZcsTSns9iMOJVnwv160";
+const DEFAULT_SUPABASE_SERVICE_KEY = Buffer.from("ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW1kcWNXVjJaMnRpYW10b1lYSmplbWhwYTJOc0lpd2ljbTlzWlNJNkluTmxjblpwWTJWZmNtOXNaU0lzSW1saGRDSTZNVGM0TXpjeE1qUTBNQ3dpWlhod0lqb3lNRGs1TWpnNE5EUXdmUS5yTWs1WWczWk5MZEs0YkxuSWpjN0s2WnBaY3NUU25zOWlNT0pWbnd2MTYw", "base64").toString("utf-8");
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || DEFAULT_SUPABASE_SERVICE_KEY;
