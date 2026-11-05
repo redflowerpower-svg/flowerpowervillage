@@ -315,6 +315,10 @@ async function main() {
         console.log('\n🌿 Passo 5b: Ripristino e Sincronizzazione Worktrees...');
         const wtList = JSON.parse(fs.readFileSync(wtMetaPath, 'utf8'));
         const parentDir = path.dirname(process.cwd());
+        const dWorktreesDir = path.join(parentDir, 'WorkTrees');
+        if (!fs.existsSync(dWorktreesDir)) {
+          fs.mkdirSync(dWorktreesDir, { recursive: true });
+        }
         const agyWorktreesDir = path.join(userHome, '.gemini/antigravity/worktrees/flowerpowervillage');
         if (!fs.existsSync(agyWorktreesDir)) {
           fs.mkdirSync(agyWorktreesDir, { recursive: true });
@@ -323,7 +327,7 @@ async function main() {
         for (const wt of wtList) {
           const targetWtPath = wt.isAntigravityInternal
             ? path.join(agyWorktreesDir, wt.name)
-            : path.join(parentDir, wt.name);
+            : path.join(dWorktreesDir, wt.name);
           console.log(`  👉 Controllo Worktree [${wt.name}] sul branch [${wt.branch}]...`);
 
           try {
