@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { getGoogleDriveAccessToken, getGoogleDriveConfig } from "./google-drive.js";
 import { VILLAGE_MASTER_DATA, SheetRow } from "./village-site-data.js";
+import * as XLSX from "xlsx";
 
 export interface KnowledgeTabInfo {
   name: string;
@@ -160,21 +161,54 @@ export async function getOrCreateMasterSpreadsheet(): Promise<{
     }
   }
 
-  // 2. Crea un nuovo Google Sheet su Google Drive
+  // 2. Crea un nuovo Google Sheet a 5 schede su Google Drive
   const token = await getGoogleDriveAccessToken();
   const driveConfig = await getGoogleDriveConfig();
 
-  const createRes = await fetch("https://www.googleapis.com/drive/v3/files?supportsAllDrives=true", {
+  // Genera il workbook con le 5 schede ufficiali
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(VILLAGE_MASTER_DATA.alloggi), '01_Alloggi_e_Capienze');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(VILLAGE_MASTER_DATA.trasporti), '02_Trasporti_e_Arrivi');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(VILLAGE_MASTER_DATA.ristorante), '03_Ristorante_e_Bakery');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(VILLAGE_MASTER_DATA.policy), '04_Policy_e_Villaggio');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{
+    'Data': new Date().toISOString().slice(0, 10),
+    'Titolo Regola': 'Auto-Apprendimento Dinamico',
+    'Istruzione Memorizzata': 'Le direttive memorizzate da Marco via Telegram compaiono in questa scheda.',
+    'Contesto': 'Aggiornato automaticamente dal ciclo di feedback'
+  }]), '05_Regole_e_FAQ_Telegram');
+
+  const xlsxBuffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+  const metadata = {
+    name: defaultSheetName,
+    mimeType: "application/vnd.google-apps.spreadsheet",
+    parents: driveConfig.folderId ? [driveConfig.folderId] : undefined
+  };
+
+  const boundary = '-------314159265358979323846';
+  const delimiter = `\r\n--${boundary}\r\n`;
+  const closeDelimiter = `\r\n--${boundary}--`;
+
+  const multipartBody = Buffer.concat([
+    Buffer.from(
+      delimiter +
+      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+      JSON.stringify(metadata) +
+      delimiter +
+      'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n\r\n'
+    ),
+    xlsxBuffer,
+    Buffer.from(closeDelimiter)
+  ]);
+
+  const createRes = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
+      "Content-Type": `multipart/related; boundary=${boundary}`
     },
-    body: JSON.stringify({
-      name: defaultSheetName,
-      mimeType: "application/vnd.google-apps.spreadsheet",
-      parents: driveConfig.folderId ? [driveConfig.folderId] : undefined
-    })
+    body: multipartBody
   });
 
   if (!createRes.ok) {
@@ -184,6 +218,16 @@ export async function getOrCreateMasterSpreadsheet(): Promise<{
   const fileData = await createRes.json();
   const sheetId = fileData.id;
   const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/edit`;
+
+  // Permesso di scrittura per chiunque abbia il link
+  await fetch(`https://www.googleapis.com/drive/v3/files/${sheetId}/permissions`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ role: 'writer', type: 'anyone' })
+  }).catch(() => {});
 
   // Salva l'ID su Supabase
   if (sb) {

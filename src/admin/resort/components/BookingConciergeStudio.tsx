@@ -1034,7 +1034,7 @@ export function BookingConciergeStudio() {
 
               <div className="flex flex-wrap items-center gap-3">
                 <a
-                  href={masterSheet?.url || "https://docs.google.com/spreadsheets/d/1PHjjmMKYRWFqrL8Wgh6fj34zIj3NtYg6c5zo-r-SEUE/edit"}
+                  href={masterSheet?.url || "https://docs.google.com/spreadsheets/d/1nIcY5NiQmoDlM3LND_VCPWO2JC8UqHxhpe9LdmC6u9E/edit"}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-900/30"
