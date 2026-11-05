@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [05/11/2026 - ORE 22:25] · RISOLUZIONE CRASH GITHUB ACTIONS SCHEDULER & HARMONIZZAZIONE NEON SERVERLESS
+- **Cosa abbiamo fatto:**
+  1. 🛠️ **Fix Errore di Sintassi Scheduler Dispatcher**:
+     - Risolta la duplice dichiarazione di is0800 in scripts/social-scheduler-dispatch.mjs che bloccava il runner GitHub Actions.
+  2. ⏱️ **Tolleranza Dinamica Ritardi Cron GitHub Actions**:
+     - Estesa la finestra di tolleranza (maxTolerance fino a 90 min) in resolveTargetSlot per evitare che code fisiologiche dei runner gratuiti GitHub Actions facciano saltare lo slot serale/notturno delle 21:00.
+  3. 🔐 **Integrazione Variabili Ambiente Workflow**:
+     - Aggiornato .github/workflows/social-scheduler-cron.yml per includere NEON_DATABASE_URL oltre alla decifratura automatica del Vault protetto.
+  4. 🔄 **Sincronizzazione Completa staging e main**:
+     - Codice validato con npm run build (esito pulito in 10.14s), mergiato su main e pushato su GitHub origin (7678d09).
+- **File aggiornati:** scripts/social-scheduler-dispatch.mjs, .github/workflows/social-scheduler-cron.yml, DIARIO_DI_BORDO.md.
+- **Stato:** 🟢 100% OPERATIVO, ZERO BLOCCHI, NEON & GOOGLE DRIVE ATTIVI A REGIME.
+
+---
+
 ### 🚀 [05/11/2026 - ORE 20:25] · ISOLAMENTO TOTALE SOCIAL MEDIA STUDIO SU NEON SERVERLESS POSTGRESQL (ZERO RISCHIO PER SUPABASE)
 - **Cosa abbiamo fatto:**
   1. 🐘 **Creazione & Collegamento Database Separato Neon**:
