@@ -224,3 +224,84 @@ export function getWhatsAppLink(phone: string): string {
 export function getLineLink(phone: string): string {
   return `https://line.me/ti/p/~${normalizeThaiPhone(phone)}`;
 }
+
+export interface PaymentDetails {
+  type: 'card' | 'qr_online' | 'qr_slip' | 'cash' | 'table';
+  isPaidOnline: boolean;
+  statusBanner: string | null;
+  paymentLine: string;
+  riderNote: string | null;
+  badgeLabel: string;
+}
+
+/**
+ * Resolves precise payment details distinguishing Card, QR Code (Omise / Slip), and Cash on Delivery
+ */
+export function resolvePaymentDetails(order: {
+  payment_method?: string | null;
+  receipt_url?: string | null;
+  total?: number | string | null;
+}): PaymentDetails {
+  const method = String(order.payment_method || '').toLowerCase().trim();
+  const receipt = String(order.receipt_url || '').trim();
+
+  // 1. CREDIT / DEBIT CARD (Omise 3DS)
+  if (method.includes('card')) {
+    return {
+      type: 'card',
+      isPaidOnline: true,
+      statusBanner: `💰 <b>STATUS: PAID ONLINE (ชำระเงินเรียบร้อยแล้ว - ห้ามเก็บเงินสด)</b>`,
+      paymentLine: `<b>Payment / วิธีชำระเงิน:</b>\n✅ 💳 <b>PAID ONLINE: Credit Card (Omise) / จ่ายด้วยบัตรเครดิตแล้ว</b>`,
+      riderNote: `🛵 <b>Rider Note:</b> ⚠️ <b>Already paid online by Card • DO NOT COLLECT CASH / ห้ามเก็บเงินสด</b>`,
+      badgeLabel: 'Card Online (Omise)'
+    };
+  }
+
+  // 2. PROMPTPAY QR VIA OMISE (Auto-Confirmed)
+  if (method === 'omise_promptpay' || (method.includes('promptpay') && receipt.startsWith('chrg_'))) {
+    return {
+      type: 'qr_online',
+      isPaidOnline: true,
+      statusBanner: `💰 <b>STATUS: PAID ONLINE (ชำระเงินเรียบร้อยแล้ว - ห้ามเก็บเงินสด)</b>`,
+      paymentLine: `<b>Payment / วิธีชำระเงิน:</b>\n✅ 📱 <b>PAID ONLINE: PromptPay QR (Omise) / สแกนคิวอาร์โค้ดจ่ายแล้ว</b>`,
+      riderNote: `🛵 <b>Rider Note:</b> ⚠️ <b>Already paid online by QR • DO NOT COLLECT CASH / ห้ามเก็บเงินสด</b>`,
+      badgeLabel: 'PromptPay QR (Omise)'
+    };
+  }
+
+  // 3. TABLE / DINE-IN
+  if (method.includes('table') || method.includes('dine')) {
+    const isPP = method.includes('promptpay');
+    return {
+      type: 'table',
+      isPaidOnline: false,
+      statusBanner: null,
+      paymentLine: `<b>Payment / วิธีชำระเงิน:</b>\n🍽️ <b>Pay at Table / ชำระที่โต๊ะ (${isPP ? 'PromptPay QR' : 'Cash'})</b>`,
+      riderNote: null,
+      badgeLabel: 'Dine-in'
+    };
+  }
+
+  // 4. MANUAL PROMPTPAY (Slip Uploaded)
+  if (method === 'promptpay' && receipt.length > 0) {
+    return {
+      type: 'qr_slip',
+      isPaidOnline: false,
+      statusBanner: `📋 <b>STATUS: PROMPTPAY SLIP ATTACHED (แนบสลิปโอนเงิน)</b>`,
+      paymentLine: `<b>Payment / วิธีชำระเงิน:</b>\n✅ 📱 <b>PromptPay (QR Transfer Slip) / โอนผ่านคิวอาร์โค้ด (มีสลิปแนบ)</b>`,
+      riderNote: `🛵 <b>Rider Note:</b> <b>Verify transfer slip before delivery / ตรวจสอบสลิปก่อนส่ง</b>`,
+      badgeLabel: 'PromptPay (Slip)'
+    };
+  }
+
+  // 5. CASH ON DELIVERY (Default)
+  const totalVal = order.total ? `${order.total} THB` : '';
+  return {
+    type: 'cash',
+    isPaidOnline: false,
+    statusBanner: `⚠️ <b>PAYMENT: CASH ON DELIVERY / เก็บเงินสดปลายทาง (${totalVal})</b>`,
+    paymentLine: `<b>Payment / วิธีชำระเงิน:</b>\n❌ 💵 <b>Cash on Delivery / เก็บเงินสดปลายทาง (COD)</b>`,
+    riderNote: `🛵 <b>Rider Note:</b> ⚠️ <b>COLLECT FROM CUSTOMER: ${totalVal} / ต้องเก็บเงินสด</b>`,
+    badgeLabel: 'Cash on Delivery (COD)'
+  };
+}

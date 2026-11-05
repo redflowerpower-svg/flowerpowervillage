@@ -7,7 +7,8 @@ import {
   buildContactLines,
   getSupabaseClient,
   formatAllDatesToDMY,
-  PIZZA_TOPICS
+  PIZZA_TOPICS,
+  resolvePaymentDetails
 } from "../_helpers/telegram.js";
 import {
   sendPizzaOrderEmail,
@@ -110,11 +111,14 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
     const targetThreadId = isDining ? PIZZA_TOPICS.RESTAURANT : PIZZA_TOPICS.WEBSITE;
 
     const headerTitle = isDining
-      ? `🍽️ <b>NUOVA COMANDA TAVOLO / ออเดอร์ที่โต๊ะ</b>`
+      ? `🍽️ <b>NEW DINE-IN ORDER / ออเดอร์ที่โต๊ะ</b>`
       : `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`;
+
+    const payDetails = resolvePaymentDetails(order);
 
     const messageText = [
       headerTitle,
+      payDetails.statusBanner,
       discountLine,
       isHotelGuest ? `🏨 <b>LOCATION NOTE:</b> Guest at known hotel/resort / ลูกค้าพักที่โรงแรม/สถานที่ที่เคยส่ง` : null,
       ``,
@@ -128,8 +132,11 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
       itemsText,
       ``,
       `<b>Total / ยอดรวม:</b> ${order.total} THB` + (discountAmount > 0 ? ` <i>(Discount applied: -${discountAmount} THB)</i>` : ``),
-      `<b>Payment / วิธีชำระเงิน:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR) / สแกนจ่าย" : "Cash on Delivery / เก็บเงินสด"}`,
-      order.receipt_url ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>` : ``,
+      payDetails.paymentLine,
+      payDetails.riderNote,
+      order.receipt_url && !order.receipt_url.startsWith('chrg_')
+        ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>`
+        : (order.receipt_url?.startsWith('chrg_') ? `🔖 Charge ID: <code>${order.receipt_url}</code>` : ``),
       ``,
       order.latitude && order.longitude
         ? `📍 <a href="https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}">Open Google Maps / เปิด Google Maps</a>`
@@ -325,8 +332,11 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
     const customerEmail = meta.customerEmail;
     const deliveryNotes = meta.deliveryNotes;
 
+    const payDetails = resolvePaymentDetails(order);
+
     let messageText = [
       `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
+      payDetails.statusBanner,
       ``,
       `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
       ...buildContactLines(order.phone, order.has_whatsapp, order.has_line),
@@ -338,8 +348,11 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
       itemsText,
       ``,
       `<b>Total / ยอดรวม:</b> ${order.total} THB`,
-      `<b>Payment / วิธีชำระเงิน:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR) / สแกนจ่าย" : "Cash on Delivery / เก็บเงินสด"}`,
-      order.receipt_url ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>` : ``,
+      payDetails.paymentLine,
+      payDetails.riderNote,
+      order.receipt_url && !order.receipt_url.startsWith('chrg_')
+        ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>`
+        : (order.receipt_url?.startsWith('chrg_') ? `🔖 Charge ID: <code>${order.receipt_url}</code>` : ``),
       ``,
       order.latitude && order.longitude
         ? `📍 <a href="https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}">Open Google Maps / เปิด Google Maps</a>`
@@ -794,8 +807,11 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
       const customerEmail = meta.customerEmail;
       const deliveryNotes = meta.deliveryNotes;
 
+      const payDetails = resolvePaymentDetails(order);
+
       let messageText = [
         `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
+        payDetails.statusBanner,
         ``,
         `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
         ...buildContactLines(order.phone, order.has_whatsapp, order.has_line),
@@ -807,8 +823,11 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         itemsText,
         ``,
         `<b>Total / ยอดรวม:</b> ${order.total} THB`,
-        `<b>Payment / วิธีชำระเงิน:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR) / สแกนจ่าย" : "Cash on Delivery / เก็บเงินสด"}`,
-        order.receipt_url ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>` : ``,
+        payDetails.paymentLine,
+        payDetails.riderNote,
+        order.receipt_url && !order.receipt_url.startsWith('chrg_')
+          ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>`
+          : (order.receipt_url?.startsWith('chrg_') ? `🔖 Charge ID: <code>${order.receipt_url}</code>` : ``),
         ``,
         order.latitude && order.longitude
           ? `📍 <a href="https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}">Open Google Maps / เปิด Google Maps</a>`

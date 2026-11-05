@@ -164,7 +164,7 @@ export function PizzaOrderHistoryModal({ isOpen, onClose }: PizzaOrderHistoryMod
         const phoneNum = (order.phone || '').replace(/;/g, ' ');
         
         const cleanAddress = parseAddressAndCoords(order.address).address.replace(/;/g, ' ').replace(/\n/g, ' ');
-        const payMethod = order.payment_method === 'promptpay' ? 'PromptPay' : 'Contanti';
+        const payMethod = order.payment_method?.includes('card') ? 'Carta (Omise)' : (order.payment_method?.includes('promptpay') ? 'PromptPay (QR)' : 'Contanti');
         const totalAmount = order.total || 0;
         const statusStr = order.status;
         

@@ -3,6 +3,59 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [05/11/2026 - ORE 20:25] · ISOLAMENTO TOTALE SOCIAL MEDIA STUDIO SU NEON SERVERLESS POSTGRESQL (ZERO RISCHIO PER SUPABASE)
+- **Cosa abbiamo fatto:**
+  1. 🐘 **Creazione & Collegamento Database Separato Neon**:
+     - Attivato il database serverless `flower-power-social-studio` su Neon (Regione AWS Singapore `ap-southeast-1`), accessibile direttamente con 1 click Google.
+     - Connessione collaudata con successo in tempo reale su PostgreSQL 18.6 con `@neondatabase/serverless`.
+  2. 🛡️ **Migrazione Automatica Tabelle & Credenziali Social**:
+     - Create su Neon le tabelle dedicate `telegram_config`, `social_logs`, `social_scheduled_posts`.
+     - Migrate all'istante tutte le configurazioni e i token attivi (`google_drive`, `tiktok_pizza`, `tiktok_village`, `tiktok_app_config`, `social`).
+  3. ⚡ **Adapter Universale Multi-Cloud (`api/_handlers/socialDb.ts`)**:
+     - Implementate funzioni trasparenti `getSocialConfig`, `upsertSocialConfig`, `listSocialConfigsLike` che indirizzano tutte le letture e scritture dei robot esclusivamente su Neon.
+  4. 🔒 **Sicurezza Totale & Blindatura Chiavi**:
+     - Stringa di connessione salvata nel file `.env` (gitignored) e cifrata con AES-256 in `.secret_docs/api_credentials_report.md.enc`.
+     - Zero esposizione di credenziali in Git, nessun conflitto di login/logout tra schede del browser.
+- **File aggiornati:** `api/_handlers/socialDb.ts`, `.secret_docs/api_credentials_report.md.enc`, `scratch/vault-sync.mjs`, `package.json`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 ATTIVO, 100% COLLAUDATO, SOCIAL STUDIO FISICAMENTE ISOLATO DA SUPABASE.
+
+---
+
+### 🚀 [05/11/2026 - ORE 20:08] · PERFEZIONAMENTO FORMATO TELEGRAM (A CAPO + BAFFETTO VERDE / X ROSSA)
+- **Cosa abbiamo fatto:**
+  1. 🎨 **Formattazione Rigorosa Riga di Pagamento**:
+     - La riga Payment / วิธีชำระเงิน: ora va **tassativamente a capo**.
+     - Pagamento con **Carta** o **QR Code**: contrassegnato con **baffetto verde** (✅ 💳 PAID ONLINE... o ✅ 📱 PAID ONLINE...).
+     - Pagamento alla consegna (**Contanti**): contrassegnato con **x rossa** (❌ 💵 Cash on Delivery / เก็บเงินสดปลายทาง (COD)).
+  2. ⚡ **Aggiornamento Live su Telegram**: Il messaggio #243 di Mario Gansen è stato aggiornato in tempo reale con il nuovo layout.
+
+---
+
+### 🚀 [05/11/2026 - ORE 19:50] · RETTIFICA LIVE ORDINE #294 & FIX METODI PAGAMENTO TELEGRAM (CARTA, QR PROMPTPAY, CONTANTI)
+- **Cosa abbiamo fatto:**
+  1. ⚡ **Rettifica Istantanea Live su Telegram (Ordine #294 Mario Gansen)**:
+     - Eseguita chiamata diretta API Telegram `editMessageText` sul messaggio ID `241` (topic Cucina `order website` / Thread 5).
+     - Rimpiazzata l'errata dicitura "Cash on Delivery" con il banner `💰 STATUS: PAID ONLINE (ชำระเงินเรียบร้อยแล้ว - ห้ามเก็บเงินสด)`, metodo `💳 PAID ONLINE: Credit Card (MasterCard Omise)` e nota esplicita per il rider: `⚠️ Già saldato online con Carta • NON CHIEDERE CONTANTI AL CLIENTE`.
+  2. 🛠️ **Helper Universale Metodi Pagamento (`api/_helpers/telegram.ts`)**:
+     - Creata la funzione `resolvePaymentDetails(order)` che distingue con precisione e con testo bilingue (Inglese / Thai):
+       * `omise_card` / Carta: `💳 PAID ONLINE (Credit Card via Omise)` con banner e divieto di incassare contanti.
+       * `omise_promptpay` / QR Code Omise: `📱 PAID ONLINE (PromptPay QR via Omise)` con banner e divieto di incassare contanti.
+       * `promptpay` / Slip: `📱 PromptPay (QR Transfer Slip)` con verifica ricevuta.
+       * `cash` / Contanti: `💵 Cash on Delivery` con importo esatto da incassare dal cliente.
+       * `table` / Al Tavolo: `🍽️ Saldo al Tavolo`.
+  3. 🔄 **Aggiornamento Completo Handlers Telegram (`api/_handlers/telegram.ts`)**:
+     - Eliminati tutti i ternari rigidi (`handleTelegramNotify`, `handleTelegramUpdateStatus`, `handleTelegramWebhook`).
+     - Gli ID transazione Omise (`chrg_...`) vengono esposti come codice pulito `🔖 Charge ID` anziché causare link immagine rotti.
+  4. 💻 **Allineamento Store Cassa & Dashboard (`adminOrderStore.ts`, `PizzaOrderHistoryModal.tsx`, `Dashboard.tsx`)**:
+     - Rimosso il vecchio fallback che degradava forzatamente i pagamenti online in `cash`.
+     - Diciture aggiornate nei report e nell'export CSV con "Carta (Omise)" e "PromptPay (QR)".
+  5. 🧪 **Collaudo & Build di Produzione**:
+     - `npm run build` completato con successo in 11.45s (0 errori).
+- **File aggiornati:** `api/_helpers/telegram.ts`, `api/_handlers/telegram.ts`, `src/admin/store/adminOrderStore.ts`, `src/admin/pizza/components/PizzaOrderHistoryModal.tsx`, `src/admin/components/Dashboard.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 ATTIVO, 100% OPERATIVO, ZERO AMBIGUITÀ RIDER/CUCINA.
+
+---
+
 ### 🚀 [05/11/2026 - ORE 19:15] · CONFORMITÀ TIKTOK AUDIT & SEPARAZIONE ROTTE (/SOCIAL vs /SOCIAL-STUDIO)
 - **Cosa abbiamo fatto:**
   1. 🛡️ **Blindatura Rotta Pubblica di Conformità (`/social`)**:

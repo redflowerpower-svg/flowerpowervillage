@@ -70,7 +70,7 @@ export const sanitizeOrder = (rawOrder: any): PizzaOrder => {
     items: Array.isArray(rawOrder.items) ? rawOrder.items : [],
     total: typeof rawOrder.total === 'number' ? rawOrder.total : parseFloat(rawOrder.total) || 0,
     status: ['new', 'preparing', 'delivering', 'completed', 'rejected'].includes(rawOrder.status) ? rawOrder.status : 'new',
-    payment_method: ['promptpay', 'cash'].includes(rawOrder.payment_method) ? rawOrder.payment_method : 'cash',
+    payment_method: String(rawOrder.payment_method || 'cash'),
     receipt_url: rawOrder.receipt_url ? String(rawOrder.receipt_url) : null,
     telegram_notified: !!rawOrder.telegram_notified,
     has_whatsapp: !!rawOrder.has_whatsapp,
