@@ -100,6 +100,7 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           TELEGRAM_SOCIAL_BOT_TOKEN: ${{ secrets.TELEGRAM_SOCIAL_BOT_TOKEN }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         run: |
           SLOT_ARG=""
           if [ "${{ inputs.slot }}" != "" ] && [ "${{ inputs.slot }}" != "auto" ]; then

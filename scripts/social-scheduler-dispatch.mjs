@@ -80,15 +80,23 @@ function resolveTargetSlot(rawSlot, bkTime) {
 
   for (const s of OFFICIAL_SLOTS) {
     const sMins = timeToMinutes(s);
-    const dist = Math.abs(nowMins - sMins);
+    let dist = Math.abs(nowMins - sMins);
+    if (dist > 720) dist = 1440 - dist;
     if (dist < bestDist) {
       bestDist = dist;
       bestSlot = s;
     }
   }
 
-  // Se GitHub Actions cron scatta con un ritardo fisiologico (fino a 25 min), aggancia lo slot corretto
-  if (bestDist <= 15) {
+  // Finestra di tolleranza ritardo cron di GitHub Actions (code runner congestionate):
+  let maxTolerance = 25;
+  if (bestSlot === '21:00' || bestSlot === '08:00') {
+    maxTolerance = 90;
+  } else if (['11:30', '16:00', '17:00', '18:00', '19:30'].includes(bestSlot)) {
+    maxTolerance = 40;
+  }
+
+  if (bestDist <= maxTolerance) {
     return bestSlot;
   }
   return rawSlot || bkTime.timeStr;
@@ -1116,18 +1124,6 @@ async function run() {
   console.log(`🚀 ESECUZIONE SLOT: ${targetSlot}`);
   console.log(`======================================================\n`);
 
-  // Identifica lo slot esatto (risolto deterministicamente da resolveTargetSlot entro ±15 min)
-  const is0800 = targetSlot === '08:00';
-  const is0930 = targetSlot === '09:30';
-  const is1130 = targetSlot === '11:30';
-  const is1230 = targetSlot === '12:30';
-  const is1600 = targetSlot === '16:00';
-  const is1700 = targetSlot === '17:00';
-  const is1800 = targetSlot === '18:00';
-  const is1830 = targetSlot === '18:30';
-  const is1930 = targetSlot === '19:30';
-  const is2000 = targetSlot === '20:00';
-  const is2100 = targetSlot === '21:00';
 
   if (is0800) {
     console.log(`🌅 [08:00 BANGKOK] Avvio tranche mattutina: 2 Stories TikTok/IG + 1 Reel Gruppo Phayam`);
