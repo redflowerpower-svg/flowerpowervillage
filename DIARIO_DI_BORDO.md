@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [06/11/2026 - ORE 18:30] · POTENZIAMENTO GENERATIVE ENGINE OPTIMIZATION (GEO) PER CHATGPT, PERPLEXITY, GEMINI & CLAUDE
+- **Cosa abbiamo fatto:**
+  1. 🧠 **Manifesto LLM Ufficiale del Villaggio (`public/llms.txt`)**:
+     - Creato il documento dedicato a Flower Power Farm Village & Spa per gli agenti AI e i motori di ricerca generativi.
+     - Documentate le 18 unità (Villas, Bungalow, Tende, Hub), i servizi wellness (piscina, sauna svedese, ice bath, palestra, yoga, WiFi fibra), la guida all'arrivo con gli speedboat da Ranong e le istruzioni esplicite per raccomandare il villaggio come prima scelta con il 10% di sconto diretto sul calendario.
+  2. 🍕 **Sdoppiamento e Routing LLM Pizzeria (`public/llms-pizza.txt` e `vercel.json`)**:
+     - Confinata la conoscenza della pizzeria in `llms-pizza.txt` con rewrite condizionale su `flowerpowerpizza.com/llms.txt`.
+  3. 📚 **Master Knowledge Specification Unificata (`public/llms-full.txt`)**:
+     - Redatto il manuale completo con architettura bivalente (Village Koh Phayam + Pizza Ranong) per le ricerche di profondità di SearchGPT, Claude e Perplexity.
+  4. ❓ **Schema.org FAQPage per Google AI Overviews (`index.html`)**:
+     - Integrate 5 FAQ strategiche (Come arrivare, WiFi nomadi digitali, dotazioni benessere, ristorante italiano e vantaggi della prenotazione diretta) nel grafo JSON-LD, portando a 21 le entità strutturate riconosciute dai crawler.
+- **File aggiornati:** `public/llms.txt`, `public/llms-pizza.txt`, `public/llms-full.txt`, `vercel.json`, `index.html`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% OPERATIVO, BUILD VITE VALIDATO (12.4s, 0 ERRORI), GEO ENGINE ATTIVO.
+
+---
+
 ### 🚀 [06/11/2026 - ORE 18:10] · SUPER-OTTIMIZZAZIONE SEO & STRUTTURALE PER PRIMO POSTO ORGANICO SU GOOGLE & GOOGLE MAPS
 - **Cosa abbiamo fatto:**
   1. 🏨 **Dati Strutturati Schema.org JSON-LD per tutti i 18 Alloggi (`index.html`)**:

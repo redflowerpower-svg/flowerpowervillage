@@ -59,6 +59,16 @@
       "destination": "/sitemap-pizza.xml"
     },
     {
+      "source": "/llms.txt",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?:www\\.)?flowerpowerpizza\\.com"
+        }
+      ],
+      "destination": "/llms-pizza.txt"
+    },
+    {
       "source": "/api-octorate/:path*",
       "destination": "https://api.octorate.com/:path*"
     },
