@@ -70,12 +70,13 @@ jobs:
       - name: Installa dipendenze NPM
         run: npm ci || npm install --include=dev
 
+      - name: Sincronizza credenziali dal Vault protetto
+        env:
+          MASTER_VAULT_KEY: ${{ secrets.MASTER_VAULT_KEY }}
+        run: node scratch/vault-sync.mjs decrypt
+
       - name: Pre-Flight Check Slot Attivo & Idempotenza
         id: preflight
-        env:
-          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           SLOT_ARG=""
           if [ "${{ inputs.slot }}" != "" ] && [ "${{ inputs.slot }}" != "auto" ]; then
@@ -97,12 +98,6 @@ jobs:
       - name: Installa Chromium headless (Playwright)
         if: steps.preflight.outputs.should_run == 'true'
         run: npx playwright install --with-deps chromium
-
-      - name: Sincronizza credenziali dal Vault protetto
-        if: steps.preflight.outputs.should_run == 'true'
-        env:
-          MASTER_VAULT_KEY: ${{ secrets.MASTER_VAULT_KEY }}
-        run: node scratch/vault-sync.mjs decrypt
 
       - name: Avvia app Vite in locale sul runner
         if: steps.preflight.outputs.should_run == 'true'

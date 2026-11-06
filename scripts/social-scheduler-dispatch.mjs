@@ -114,7 +114,7 @@ console.log(`[scheduler-dispatch] Orario attuale Bangkok: ${currentBk.timeStr} Â
 
 const supabaseUrl = env.VITE_SUPABASE_URL || env.SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co';
 const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY;
-const sb = createClient(supabaseUrl, supabaseKey);
+const sb = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 const neonSql = env.NEON_DATABASE_URL ? neon(env.NEON_DATABASE_URL) : null;
 
 // ðŸ”’ IDEMPOTENCY GUARD SU NEON DATABASE (ZERO DUPLICATI NELLO STESSO GIORNO)
