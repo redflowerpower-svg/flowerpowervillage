@@ -481,9 +481,9 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             'Incolla qui qualsiasi richiesta ricevuta dai clienti via WhatsApp, Email o Social (in qualunque lingua).',
             '',
             '🤖 <b>Comandi e Funzioni:</b>',
-            '• <b>Incolla una richiesta cliente:</b> estrazione automatica date, calcolo notti, prezzi esatti e risposta tradotta con link al calendario live.',
-            '• <b>/input o /dati:</b> attiva la modalità acquisizione dati (invia il comando, aspetta la risposta e invia le tue informazioni da memorizzare).',
-            '• <b>/cancel:</b> annulla la modalità di acquisizione dati attiva.'
+            '• <b>/messaggio o /richiesta:</b> attiva la modalità elaborazione richiesta cliente (oppure incolla direttamente il testo!).',
+            '• <b>/input o /dati:</b> attiva la modalità acquisizione dati/nozioni (per aggiornare la Knowledge Base del resort).',
+            '• <b>/cancel:</b> annulla qualsiasi modalità attiva.'
           ].join('\n');
 
           await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
@@ -559,6 +559,48 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           return res.status(200).json({ status: 'awaiting_data_input' });
         }
 
+        // /messaggio o /richiesta - Modalità per inserire la richiesta di un cliente
+        const isMsgCmd = msgText === '/messaggio' || msgText.startsWith('/messaggio@') || msgText === '/richiesta' || msgText.startsWith('/richiesta@');
+        const hasInlineMsg = msgText.startsWith('/messaggio ') || msgText.startsWith('/richiesta ');
+
+        if (isMsgCmd && !hasInlineMsg) {
+          if (supabase) {
+            await supabase.from('telegram_config').upsert({
+              id: stateKey,
+              bot_token: 'awaiting_guest_message',
+              chat_id: String(incomingMsg.from?.id || ''),
+              updated_at: new Date().toISOString()
+            });
+          }
+
+          const promptText = [
+            '💬 <b>MODALITÀ RICHIESTA CLIENTE ATTIVA</b> 🌴',
+            '',
+            'Incolla pure adesso il messaggio ricevuto dall\'ospite (da WhatsApp, Email, Booking, ecc. in qualunque lingua).',
+            '',
+            '⚡ <b>Cosa farò per te:</b>',
+            '• Verificherò date, soggiorno minimo e disponibilità live su Octorate PMS.',
+            '• Calcolerò le tariffe e gli sconti sito web (-10%, -15%, -20%).',
+            '• Compilerò la risposta perfetta con tutte le info (A/C, pizza, come arrivare, link al calendario).',
+            '• Ti fornirò il <b>blocco WhatsApp formattato con emoji e spazi pronto da copiare con 1 tocco</b>!',
+            '',
+            '<i>(Invia /cancel se desideri annullare)</i>'
+          ].join('\n');
+
+          await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: promptText,
+              parse_mode: 'HTML',
+              ...(threadId ? { message_thread_id: threadId } : {}),
+              reply_to_message_id: messageId
+            })
+          });
+          return res.status(200).json({ status: 'awaiting_guest_message' });
+        }
+
         const replyTo = incomingMsg.reply_to_message;
         const isReplyFeedback = Boolean(replyTo && replyTo.text && replyTo.text.length > 5);
 
@@ -613,8 +655,9 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               '🌺 <b>AI CONCIERGE — RISPOSTA PERFEZIONATA</b>',
               `<i>✨ Modifiche applicate: ${escapeHtml(refined.summaryOfChanges)}</i>`,
               '',
-              '💬 <b>Nuova Risposta WhatsApp / Chat (Tocca per copiare):</b>',
-              `<code>${escapeHtml(refined.refinedWhatsApp)}</code>`,
+              '💬 <b>Nuova Risposta WhatsApp Pronta</b> <i>(Tocca il blocco qui sotto per copiare con 1 click)</i>:',
+              '',
+              `<pre><code class="language-whatsapp">${escapeHtml(refined.refinedWhatsApp)}</code></pre>`,
               '',
               '🧠 <b>Nuova Direttiva per la Knowledge Base:</b>',
               `• <b>${escapeHtml(refined.suggestedRuleTitle)}:</b>`,
@@ -698,7 +741,8 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
                 if (diffMinutes < 30) {
                   isAwaitingInput = true;
                 }
-                // Clean up state
+                await supabase.from('telegram_config').delete().eq('id', stateKey);
+              } else if (st?.bot_token === 'awaiting_guest_message') {
                 await supabase.from('telegram_config').delete().eq('id', stateKey);
               }
             } catch (e) {}
@@ -803,8 +847,9 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               `• 👥 <b>Ospiti:</b> ${guestsText}`,
               ...pmsBadgeLines,
               '',
-              '💬 <b>Risposta per WhatsApp / Chat (Tocca per copiare):</b>',
-              `<code>${escapeHtml(inquiryResult.politeReplyWhatsApp)}</code>`,
+              '💬 <b>Risposta WhatsApp Pronta</b> <i>(Tocca il blocco qui sotto per copiare con 1 click)</i>:',
+              '',
+              `<pre><code class="language-whatsapp">${escapeHtml(inquiryResult.politeReplyWhatsApp)}</code></pre>`,
               '',
               '🔗 <b>Link Calendario Live:</b>',
               `<a href="${inquiryResult.calendarUrl}">${inquiryResult.calendarUrl}</a>`,
