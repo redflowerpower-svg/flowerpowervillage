@@ -1,4 +1,4 @@
-# robots.txt for Flower Power Pizza & Flower Power Village
+# robots.txt for Flower Power Village (Koh Phayam) & Flower Power Pizza (Ranong)
 
 User-agent: *
 Disallow: /admin
@@ -8,10 +8,30 @@ Disallow: /kds
 Disallow: /read/
 Disallow: /api/
 Allow: /
+Allow: /calendar
+Allow: /village
+Allow: /52-jungle-villa
+Allow: /22-villa-penthouse
+Allow: /11-yellow-bungalow
+Allow: /12-red-bungalow
+Allow: /13-green-bungalow
+Allow: /23-camel-tent
+Allow: /21-lagoon-tent
+Allow: /wine-list
 Allow: /llms.txt
 Allow: /llms-full.txt
 
-# Explicit allowances for Generative AI Crawlers & Search Engines
+# Search Engine Crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Generative AI Crawlers (Search & Assistant Intelligence)
 User-agent: GPTBot
 Allow: /
 
@@ -36,5 +56,5 @@ Allow: /
 User-agent: Bytespider
 Allow: /
 
-Sitemap: https://www.flowerpowerpizza.com/sitemap.xml
 Sitemap: https://www.flowerpowervillage.com/sitemap.xml
+Sitemap: https://www.flowerpowerpizza.com/sitemap.xml

@@ -49,6 +49,16 @@
   ],
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?:www\\.)?flowerpowerpizza\\.com"
+        }
+      ],
+      "destination": "/sitemap-pizza.xml"
+    },
+    {
       "source": "/api-octorate/:path*",
       "destination": "https://api.octorate.com/:path*"
     },

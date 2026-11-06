@@ -2,66 +2,169 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
-  <!-- FLOWER POWER PIZZA RANONG (Official Pizza & Delivery Domain) -->
-  <url>
-    <loc>https://www.flowerpowerpizza.com/</loc>
-    <lastmod>2026-09-28</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowerpizza.com/" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowerpizza.com/?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowerpizza.com/?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowerpizza.com/?lang=de" />
-  </url>
+  <!-- ======================================================== -->
+  <!-- 🌿 FLOWER POWER FARM VILLAGE & SPA (KOH PHAYAM)          -->
+  <!-- ======================================================== -->
 
-  <url>
-    <loc>https://www.flowerpowerpizza.com/order</loc>
-    <lastmod>2026-09-28</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://www.flowerpowerpizza.com/about</loc>
-    <lastmod>2026-09-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.flowerpowerpizza.com/contact</loc>
-    <lastmod>2026-09-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.flowerpowerpizza.com/llms.txt</loc>
-    <lastmod>2026-09-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://www.flowerpowerpizza.com/llms-full.txt</loc>
-    <lastmod>2026-09-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- FLOWER POWER FARM VILLAGE & SPA (Official Resort Domain) -->
+  <!-- 1. Homepage & Core Hub -->
   <url>
     <loc>https://www.flowerpowervillage.com/</loc>
-    <lastmod>2026-09-28</lastmod>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/" />
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/?lang=it" />
+    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/?lang=th" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/?lang=de" />
+  </url>
+
+  <!-- 2. Live Calendar & Direct Booking Engine (Miglior Prezzo Garantito) -->
+  <url>
+    <loc>https://www.flowerpowervillage.com/calendar</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>always</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/village</loc>
-    <lastmod>2026-09-28</lastmod>
+    <lastmod>2026-11-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/wine-list</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 3. I 18 Alloggi Ufficiali (Landing Pages & Deep Links) -->
+  <url>
+    <loc>https://www.flowerpowervillage.com/52-jungle-villa</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/53-jungle-villa-left</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/54-jungle-villa-right</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/51-villa-peace-love</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/22-villa-penthouse</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/11-yellow-bungalow</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/12-red-bungalow</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/13-green-bungalow</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/23-camel-tent</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/21-lagoon-tent</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/31-room-1</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/32-room-2</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/33-room-3</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/34-room-4</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/35-room-5</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/36-lodge-1</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/36-lodge-2</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://www.flowerpowervillage.com/41-room-internal</loc>
+    <lastmod>2026-11-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
   </url>
 
 </urlset>

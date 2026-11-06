@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:ital,wght@0,300..900;1,300..900&family=Prompt:wght@500;600;700;800;900&family=Kanit:wght@600;700;800;900&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Noto+Sans+Myanmar:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="canonical" href="https://flowerpowervillage.com/" />
     <meta property="og:image" content="/FP_04_-_LOGO_OFFICIAL_HD.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- Local SEO Geo-Tags (Ranong Province, Thailand) -->
@@ -82,7 +83,7 @@
             "@type": "ReserveAction",
             "target": {
               "@type": "EntryPoint",
-              "urlTemplate": "https://flowerpowervillage.com/?utm_source=google_travel&action=book",
+              "urlTemplate": "https://flowerpowervillage.com/calendar?utm_source=google_travel&action=book",
               "inLanguage": ["en", "it", "de", "th"],
               "actionPlatform": [
                 "http://schema.org/DesktopWebPlatform",
@@ -97,11 +98,191 @@
           "offers": {
             "@type": "AggregateOffer",
             "priceCurrency": "THB",
-            "lowPrice": "350",
+            "lowPrice": "348",
             "highPrice": "4800",
             "offerCount": "18",
-            "description": "Best rate guaranteed on official direct booking with tiered long-stay discounts: -10% standard, -15% for 15-29 days, -20% for 30+ days."
+            "description": "Best rate guaranteed on official direct booking with tiered long-stay discounts: -10% standard, -15% for 15-29 days, -20% for 30+ days. No OTA commissions."
           }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-jungle-villa",
+          "name": "Jungle Villa",
+          "url": "https://flowerpowervillage.com/52-jungle-villa",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Two connected private suites in the tropical garden with 2 King Size beds, outdoor veranda, hammocks and direct garden access.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 6 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "2400", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/52-jungle-villa" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-jungle-villa-left",
+          "name": "Jungle Villa Left",
+          "url": "https://flowerpowervillage.com/53-jungle-villa-left",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Private suite in the Jungle Villa with King Size bed, private terrace and tropical garden view.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 3 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "1200", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/53-jungle-villa-left" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-jungle-villa-right",
+          "name": "Jungle Villa Right",
+          "url": "https://flowerpowervillage.com/54-jungle-villa-right",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Private suite in the Jungle Villa with King Size bed, private terrace and tropical garden view.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 3 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "1200", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/54-jungle-villa-right" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-peace-love-villa",
+          "name": "Peace & Love Villa",
+          "url": "https://flowerpowervillage.com/51-villa-peace-love",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Private standalone villa for families and groups with spacious living area and private garden.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 4 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "2200", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/51-villa-peace-love" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-villa-penthouse",
+          "name": "Villa Penthouse",
+          "url": "https://flowerpowervillage.com/22-villa-penthouse",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Luxury top-floor penthouse villa with panoramic views, private outdoor terrace, premium lounge and kitchen.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 4 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "2400", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/22-villa-penthouse" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-yellow-bungalow",
+          "name": "Yellow Bungalow",
+          "url": "https://flowerpowervillage.com/11-yellow-bungalow",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Charming standalone bungalow nestled in lush greenery with private veranda, hammock and Queen bed.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "790", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/11-yellow-bungalow" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-red-bungalow",
+          "name": "Red Bungalow",
+          "url": "https://flowerpowervillage.com/12-red-bungalow",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Charming standalone bungalow with private veranda, hammock, Queen bed, and private tropical bathroom.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "790", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/12-red-bungalow" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-green-bungalow",
+          "name": "Green Bungalow",
+          "url": "https://flowerpowervillage.com/13-green-bungalow",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Eco-bungalow surrounded by nature with Queen size bed, private veranda, hammock and outdoor seating.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "790", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/13-green-bungalow" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-camel-tent-bungalow",
+          "name": "Camel Tent Bungalow",
+          "url": "https://flowerpowervillage.com/23-camel-tent",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Glamping tent bungalow immersed in tropical nature with comfortable Queen bed, fan, and private wooden porch.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "348", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/23-camel-tent" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-lagoon-tent-bungalow",
+          "name": "Lagoon Tent Bungalow",
+          "url": "https://flowerpowervillage.com/21-lagoon-tent",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Glamping tent bungalow overlooking the lagoon garden with Queen bed, fan, and relaxing porch hammock.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "348", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/21-lagoon-tent" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-1",
+          "name": "The Hub Room 1",
+          "url": "https://flowerpowervillage.com/31-room-1",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Private room in The Hub guesthouse with Queen bed, air conditioning, private bathroom and coworking access.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "590", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/31-room-1" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-2",
+          "name": "The Hub Room 2",
+          "url": "https://flowerpowervillage.com/32-room-2",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Private room in The Hub guesthouse with Queen bed, air conditioning, private bathroom and coworking access.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "590", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/32-room-2" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-3",
+          "name": "The Hub Room 3",
+          "url": "https://flowerpowervillage.com/33-room-3",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Private room in The Hub guesthouse with Queen bed, air conditioning, private bathroom and coworking access.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "590", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/33-room-3" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-4",
+          "name": "The Hub Room 4",
+          "url": "https://flowerpowervillage.com/34-room-4",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Private room in The Hub guesthouse with Queen bed, air conditioning, private bathroom and coworking access.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "590", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/34-room-4" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-5",
+          "name": "The Hub Room 5",
+          "url": "https://flowerpowervillage.com/35-room-5",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Private room in The Hub guesthouse with Queen bed, air conditioning, private bathroom and coworking access.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "590", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/35-room-5" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-lodge-1",
+          "name": "The Hub Lodge 1",
+          "url": "https://flowerpowervillage.com/36-lodge-1",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Spacious family lodge in The Hub with King bed, single beds, air conditioning and private bathroom.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 4 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "1100", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/36-lodge-1" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-lodge-2",
+          "name": "The Hub Lodge 2",
+          "url": "https://flowerpowervillage.com/36-lodge-2",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Spacious family lodge in The Hub with King bed, single beds, air conditioning and private bathroom.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 4 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "1100", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/36-lodge-2" }
+        },
+        {
+          "@type": ["HotelRoom", "Product"],
+          "@id": "https://flowerpowervillage.com/#room-internal",
+          "name": "The Hub Internal Room",
+          "url": "https://flowerpowervillage.com/41-room-internal",
+          "containedInPlace": { "@id": "https://flowerpowervillage.com/#resort" },
+          "description": "Budget cozy room inside The Hub guesthouse with Queen bed, shared kitchen access and high-speed WiFi.",
+          "occupancy": { "@type": "QuantitativeValue", "value": 2 },
+          "offers": { "@type": "Offer", "priceCurrency": "THB", "price": "450", "availability": "https://schema.org/InStock", "url": "https://flowerpowervillage.com/41-room-internal" }
         },
         {
           "@type": ["Restaurant", "FoodEstablishment"],

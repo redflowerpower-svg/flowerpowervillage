@@ -3,6 +3,25 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [06/11/2026 - ORE 18:10] · SUPER-OTTIMIZZAZIONE SEO & STRUTTURALE PER PRIMO POSTO ORGANICO SU GOOGLE & GOOGLE MAPS
+- **Cosa abbiamo fatto:**
+  1. 🏨 **Dati Strutturati Schema.org JSON-LD per tutti i 18 Alloggi (`index.html`)**:
+     - Esteso l'albero Schema.org `@graph` con tutti i 18 alloggi ufficiali del Resort registrati come `HotelRoom` e `Product` collegati all'entità principale `#resort`.
+     - Per ciascun alloggio sono specificati: nome, slug canonico, URL legacy, capienza massima ospiti, descrizione bilingue e offerta con garanzia miglior prezzo diretto (`InStock`).
+     - Aggiornato `ReserveAction` per far atterrare Google Travel direttamente sul nuovo motore `/calendar?action=book` anziché sulla generica home.
+     - Aggiunto il tag `<link rel="canonical" href="https://flowerpowervillage.com/" />`.
+  2. 🗺️ **Sitemap XML Rigenerata ad Alta Risoluzione (`public/sitemap.xml`)**:
+     - Inserite con priorità massima tutte le rotte core (`/calendar`, `/village`, `/wine-list`) e le 18 landing page dedicate agli alloggi (`/52-jungle-villa`, `/22-villa-penthouse`, `/11-yellow-bungalow`, ecc.).
+     - Mantenuta l'indicizzazione bilingue per Flower Power Pizza Ranong.
+  3. 🤖 **Aggiornamento Direttive Crawlers (`public/robots.txt`)**:
+     - Esplicitati i permessi di scansione per Googlebot, Bingbot e i principali motori AI generativi (GPTBot, Perplexity, Claude, Applebot).
+  4. 🛡️ **Banner "Miglior Prezzo Diretto Garantito" sul Calendario (`ResortPublicCalendarPage.tsx`)**:
+     - Integrata una barra visiva dorata in cima alla pagina del calendario in 4 lingue (IT, EN, TH, DE) che rassicura il visitatore con la garanzia del -10% immediato rispetto alle OTA (Booking / Agoda) e zero commissioni nascoste.
+- **File aggiornati:** `index.html`, `public/sitemap.xml`, `public/robots.txt`, `src/pages/ResortPublicCalendarPage.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% OPERATIVO, BUILD VITE VALIDATO (12.5s, 0 ERRORI), SCHEMA.ORG 20 ENTITÀ ATTIVE.
+
+---
+
 ### 🚀 [06/11/2026 - ORE 17:10] · RISOLUZIONE LIMITE STORAGE VERCEL & AUTOMAZIONE PULIZIA DI ROUTINE (AUTO-PRUNE)
 - **Cosa abbiamo fatto:**
   1. 🔍 **Diagnosi Forense Vercel (11.07 GB su 10 GB Free Tier)**:

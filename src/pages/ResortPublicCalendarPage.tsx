@@ -1393,6 +1393,28 @@ export default function ResortPublicCalendarPage() {
       {/* MAIN CONTENT AREA */}
       <main className="max-w-7xl mx-auto w-full px-2 sm:px-6 py-2 sm:py-3 space-y-2 flex-grow">
 
+        {/* 🛡️ BEST PRICE DIRECT GUARANTEE STRIP */}
+        <div className="bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-emerald-500/15 border border-amber-400/30 rounded-xl px-3 py-2 text-xs flex flex-wrap items-center justify-between gap-2 shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="bg-amber-400 text-stone-950 font-black text-[10px] sm:text-xs px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-xs">
+              ★ {lang === 'IT' ? 'MIGLIOR PREZZO GARANTITO' : lang === 'TH' ? 'ราคาดีที่สุด รับประกัน' : lang === 'DE' ? 'BESTPREIS-GARANTIE' : 'BEST PRICE GUARANTEED'}
+            </span>
+            <span className="text-stone-200 text-[11px] sm:text-xs font-semibold">
+              {lang === 'IT'
+                ? 'Risparmia il 10% subito prenotando diretto qui: zero commissioni OTA (Booking / Agoda), nessun costo nascosto.'
+                : lang === 'TH'
+                ? 'จองตรงที่นี่ ประหยัดทันที 10% ไม่มีค่าธรรมเนียมแอบแฝง ถูกกว่า Agoda และ Booking.com แน่นอน'
+                : lang === 'DE'
+                ? 'Sparen Sie sofort 10% bei Direktbuchung hier: Keine OTA-Provisionen, keine versteckten Gebühren.'
+                : 'Save 10% instantly on direct booking here: zero OTA commissions, no hidden fees.'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-[10px] sm:text-xs text-amber-300 font-bold whitespace-nowrap">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{lang === 'IT' ? 'Sconto -10% calcolato al checkout' : lang === 'TH' ? 'ลด 10% อัตโนมัติ' : lang === 'DE' ? '-10% Rabatt an der Kasse' : '-10% auto-applied at checkout'}</span>
+          </div>
+        </div>
+
         {/* ULTRA-COMPACT INTEGRATED TOOLBAR: Month + Categories + View Mode in 1 Single Bar */}
         <div className="bg-[#24201d] border border-stone-800 rounded-xl p-1.5 sm:p-2 shadow-md flex flex-wrap items-center justify-between gap-1.5 sm:gap-2">
 
