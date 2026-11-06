@@ -480,10 +480,10 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             'Benvenuto nel topic <b>Concierge Bot</b>!',
             'Incolla qui qualsiasi richiesta ricevuta dai clienti via WhatsApp, Email o Social (in qualunque lingua).',
             '',
-            '🤖 <b>Cosa farò per te:</b>',
-            '• Estrarrò automaticamente date, alloggio, numero ospiti e lingua.',
-            '• Genererò una risposta calda ed educata pronta da inviare.',
-            '• Genererò il link diretto al <b>calendario live</b> posizionato sul mese corretto per far prenotare l\'ospite!'
+            '🤖 <b>Comandi e Funzioni:</b>',
+            '• <b>Incolla una richiesta cliente:</b> estrazione automatica date, calcolo notti, prezzi esatti e risposta tradotta con link al calendario live.',
+            '• <b>/input o /dati:</b> attiva la modalità acquisizione dati (invia il comando, aspetta la risposta e invia le tue informazioni da memorizzare).',
+            '• <b>/cancel:</b> annulla la modalità di acquisizione dati attiva.'
           ].join('\n');
 
           await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
@@ -498,6 +498,65 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             })
           });
           return res.status(200).json({ status: 'welcome_sent' });
+        }
+
+        // /cancel - Annulla modalità di input
+        const stateKey = `concierge_input_state_${chatId}_${threadId || '0'}`;
+        if (msgText === '/cancel' || msgText.startsWith('/cancel@')) {
+          if (supabase) {
+            await supabase.from('telegram_config').delete().eq('id', stateKey).catch(() => {});
+          }
+          await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: '❌ <i>Modalità acquisizione dati annullata.</i>',
+              parse_mode: 'HTML',
+              ...(threadId ? { message_thread_id: threadId } : {}),
+              reply_to_message_id: messageId
+            })
+          });
+          return res.status(200).json({ status: 'input_cancelled' });
+        }
+
+        // /input o /dati - Attiva la modalità conversazionale per assorbire informazioni
+        const isInputCmd = msgText === '/input' || msgText.startsWith('/input@') || msgText === '/dati' || msgText.startsWith('/dati@');
+        const hasInlineInput = msgText.startsWith('/input ') || msgText.startsWith('/dati ');
+
+        if (isInputCmd && !hasInlineInput) {
+          if (supabase) {
+            await supabase.from('telegram_config').upsert({
+              id: stateKey,
+              bot_token: 'awaiting_data_input',
+              chat_id: String(incomingMsg.from?.id || ''),
+              updated_at: new Date().toISOString()
+            });
+          }
+
+          const promptText = [
+            '📥 <b>MODALITÀ ACQUISIZIONE DATI ATTIVA</b> 🧠',
+            '',
+            'Sono pronto! ✍️',
+            'Invia pure adesso il messaggio con le informazioni o i dati da assorbire (testi, orari, prezzi, elenchi, descrizioni alloggi o servizi).',
+            '',
+            '<i>Non serve alcun prefisso: il tuo prossimo messaggio verrà trattato al 100% come informazione aziendale da memorizzare e inserire nella Knowledge Base!</i>',
+            '',
+            '<i>(Invia /cancel se desideri annullare)</i>'
+          ].join('\n');
+
+          await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: promptText,
+              parse_mode: 'HTML',
+              ...(threadId ? { message_thread_id: threadId } : {}),
+              reply_to_message_id: messageId
+            })
+          });
+          return res.status(200).json({ status: 'awaiting_data_input' });
         }
 
         const replyTo = incomingMsg.reply_to_message;
@@ -625,12 +684,42 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             })
           }).catch(() => {});
 
+          // Check if there is an active awaiting input state for this user/topic
+          let isAwaitingInput = false;
+          if (supabase) {
+            try {
+              const { data: st } = await supabase
+                .from('telegram_config')
+                .select('bot_token, updated_at')
+                .eq('id', stateKey)
+                .maybeSingle();
+              if (st?.bot_token === 'awaiting_data_input') {
+                const diffMinutes = (Date.now() - new Date(st.updated_at).getTime()) / (1000 * 60);
+                if (diffMinutes < 30) {
+                  isAwaitingInput = true;
+                }
+                // Clean up state
+                await supabase.from('telegram_config').delete().eq('id', stateKey);
+              }
+            } catch (e) {}
+          }
+
           // Auto-Intent Classification: Guest Inquiry vs Knowledge / Template Update
-          const intent = await classifyTelegramIntent(msgText);
+          let intent: ConciergeIntent = 'GUEST_INQUIRY';
+          let rawKnowledgeText = msgText;
+
+          if (hasInlineInput) {
+            intent = 'KNOWLEDGE_UPDATE';
+            rawKnowledgeText = msgText.replace(/^(\/input|\/dati)\s+/i, '');
+          } else if (isAwaitingInput) {
+            intent = 'KNOWLEDGE_UPDATE';
+          } else {
+            intent = await classifyTelegramIntent(msgText);
+          }
 
           if (intent === 'KNOWLEDGE_UPDATE') {
             try {
-              const kResult = await processKnowledgeUpdate(msgText);
+              const kResult = await processKnowledgeUpdate(rawKnowledgeText);
 
               const replyHtml = [
                 kResult.isTemplate 
