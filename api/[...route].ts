@@ -54,8 +54,13 @@ import { handleSocialPublisher } from "./_handlers/social-publisher.js";
 import { handleRanongFlights } from "./_handlers/ranong-flights.js";
 import { handleBookingConcierge } from "./_handlers/booking-concierge.js";
 import { handleSyncKnowledgeFromSheet } from "./_handlers/sync-sheet.js";
+import { handleMetaWebhook } from "./_handlers/meta-webhook.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.url?.includes('meta-webhook') || req.url?.includes('webhook/whatsapp')) {
+    return handleMetaWebhook(req, res);
+  }
+
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
     if (req.method === 'GET' || req.method === 'HEAD') {
       return res.status(200).json({ status: "Webhook Ready" });
@@ -85,6 +90,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Normalize path string (lowercase, remove leading 'api/' and trailing slashes)
   const queryRoute = Array.isArray(req.query?.route) ? req.query.route.join('/') : String(req.query?.route || '');
   const cleanPath = (pathname || queryRoute || '').replace(/^api\//i, '').replace(/\/$/, '').toLowerCase();
+
+  if (cleanPath.startsWith('meta-webhook') || cleanPath.startsWith('webhook/whatsapp') || cleanPath.startsWith('whatsapp-webhook') || cleanPath === 'webhook') {
+    return handleMetaWebhook(req, res);
+  }
 
   if (cleanPath.startsWith('social-callback') || cleanPath.startsWith('social/callback') || cleanPath.startsWith('tiktok-callback')) {
     return handleSocialCallback(req, res);

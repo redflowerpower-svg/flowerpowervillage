@@ -8,11 +8,109 @@ export interface RoomType {
   octorateId?: number;
 }
 
+export type AcType = 'traditional' | 'portable' | 'none';
+
+export interface AccommodationAcConfig {
+  available: boolean;
+  type: AcType;
+  units: number;
+  pricePerNightPerUnit: number;
+  pricePerNightTotal: number;
+  isPortable: boolean;
+  recommendPayAsYouGo: boolean;
+  hourlyEstimateThb: number; // ~20 THB/h
+  kwhRateThb: number;        // 40 THB/kWh
+}
+
 export const PRICE_CONFIG = {
   EXTRA_GUEST_PRICE: 200,  // THB per extra guest per night
   BREAKFAST_PRICE: 200,    // THB per guest per day
-  AC_SURCHARGE: 500,       // THB flat per stay
+  AC_PRICE_TRADITIONAL: 500, // THB per night
+  AC_PRICE_PORTABLE: 400,    // THB per unit per night
+  AC_PAY_AS_YOU_GO_RATE: 40, // THB per kWh
+  AC_PAY_AS_YOU_GO_HOURLY: 20, // THB approx per hour
+  AC_SURCHARGE: 500,       // Legacy fallback flat
 };
+
+export function getAccommodationAcConfig(identifier?: string | number | null): AccommodationAcConfig {
+  const noneConfig: AccommodationAcConfig = {
+    available: false,
+    type: 'none',
+    units: 0,
+    pricePerNightPerUnit: 0,
+    pricePerNightTotal: 0,
+    isPortable: false,
+    recommendPayAsYouGo: false,
+    hourlyEstimateThb: 20,
+    kwhRateThb: 40
+  };
+
+  if (!identifier) return noneConfig;
+
+  const raw = String(identifier).toLowerCase().trim();
+
+  // Glamping Tents & Internal Room -> No AC
+  if (
+    raw.includes('tent') ||
+    raw.includes('glamping') ||
+    raw.includes('camel') ||
+    raw.includes('lagoon') ||
+    raw.includes('internal') ||
+    raw === '449675' || raw === '449674' || raw === '449742' || raw === '293965' || raw === '293955' || raw === '293942'
+  ) {
+    return noneConfig;
+  }
+
+  // 2 Units Portable: Jungle Villa (intera) or Villa Penthouse -> 800 THB/night (400 + 400)
+  const isJungleFull = (raw.includes('jungle') && !raw.includes('left') && !raw.includes('right')) || raw === '529784' || raw === '529773';
+  const isPenthouse = raw.includes('penthouse') || raw === '449348' || raw === '421511';
+
+  if (isJungleFull || isPenthouse) {
+    return {
+      available: true,
+      type: 'portable',
+      units: 2,
+      pricePerNightPerUnit: 400,
+      pricePerNightTotal: 800,
+      isPortable: true,
+      recommendPayAsYouGo: true,
+      hourlyEstimateThb: 20,
+      kwhRateThb: 40
+    };
+  }
+
+  // 1 Unit Portable: Peace & Love, Jungle Villa Left, Jungle Villa Right -> 400 THB/night
+  const isPeaceLove = raw.includes('peace') || raw.includes('love') || raw === '495566' || raw === '494840';
+  const isJungleLeft = (raw.includes('jungle') && raw.includes('left')) || raw === '495807' || raw === '495795';
+  const isJungleRight = (raw.includes('jungle') && raw.includes('right')) || raw === '495980' || raw === '495796';
+
+  if (isPeaceLove || isJungleLeft || isJungleRight) {
+    return {
+      available: true,
+      type: 'portable',
+      units: 1,
+      pricePerNightPerUnit: 400,
+      pricePerNightTotal: 400,
+      isPortable: true,
+      recommendPayAsYouGo: true,
+      hourlyEstimateThb: 20,
+      kwhRateThb: 40
+    };
+  }
+
+  // Traditional Fixed AC: 3 Bungalows (Yellow, Red, Green), 5 Rooms (Room 1-5), 2 Lodges (Lodge 1-2) -> 500 THB/night
+  return {
+    available: true,
+    type: 'traditional',
+    units: 1,
+    pricePerNightPerUnit: 500,
+    pricePerNightTotal: 500,
+    isPortable: false,
+    recommendPayAsYouGo: false,
+    hourlyEstimateThb: 20,
+    kwhRateThb: 40
+  };
+}
 
 export const ACCOMMODATIONS: RoomType[] = [
   { category: 'VILLE', name: 'Jungle Villa', baseGuests: 8, maxExtraGuests: 0, beds: '2 King Size + 2 Sofa Bed Queen', pricePerNight: 4800, octorateId: 529784 },

@@ -62,8 +62,83 @@ const MOCK_ACCOMMODATIONS = [
 const PRICE_CONFIG = {
   EXTRA_GUEST_PRICE: 200,  // THB per extra guest per night
   BREAKFAST_PRICE: 200,    // THB per guest per day
-  AC_SURCHARGE: 500,       // THB flat per stay
+  AC_PRICE_TRADITIONAL: 500, // THB per night
+  AC_PRICE_PORTABLE: 400,    // THB per unit per night
+  AC_PAY_AS_YOU_GO_RATE: 40, // THB per kWh
+  AC_PAY_AS_YOU_GO_HOURLY: 20, // THB approx per hour
+  AC_SURCHARGE: 500,       // Legacy fallback flat
 };
+
+function getAccommodationAcConfig(identifier?: string | number | null) {
+  const noneConfig = {
+    available: false,
+    type: 'none',
+    units: 0,
+    pricePerNightPerUnit: 0,
+    pricePerNightTotal: 0,
+    isPortable: false,
+    recommendPayAsYouGo: false
+  };
+
+  if (!identifier) return noneConfig;
+  const raw = String(identifier).toLowerCase().trim();
+
+  // Glamping Tents & Internal Room -> No AC
+  if (
+    raw.includes('tent') ||
+    raw.includes('glamping') ||
+    raw.includes('camel') ||
+    raw.includes('lagoon') ||
+    raw.includes('internal') ||
+    raw === '449675' || raw === '449674' || raw === '449742' || raw === '293965' || raw === '293955' || raw === '293942'
+  ) {
+    return noneConfig;
+  }
+
+  // 2 Units Portable: Jungle Villa (intera) or Villa Penthouse -> 800 THB/night (400 + 400)
+  const isJungleFull = (raw.includes('jungle') && !raw.includes('left') && !raw.includes('right')) || raw === '529784' || raw === '529773';
+  const isPenthouse = raw.includes('penthouse') || raw === '449348' || raw === '421511';
+
+  if (isJungleFull || isPenthouse) {
+    return {
+      available: true,
+      type: 'portable',
+      units: 2,
+      pricePerNightPerUnit: 400,
+      pricePerNightTotal: 800,
+      isPortable: true,
+      recommendPayAsYouGo: true
+    };
+  }
+
+  // 1 Unit Portable: Peace & Love, Jungle Villa Left, Jungle Villa Right -> 400 THB/night
+  const isPeaceLove = raw.includes('peace') || raw.includes('love') || raw === '495566' || raw === '494840';
+  const isJungleLeft = (raw.includes('jungle') && raw.includes('left')) || raw === '495807' || raw === '495795';
+  const isJungleRight = (raw.includes('jungle') && raw.includes('right')) || raw === '495980' || raw === '495796';
+
+  if (isPeaceLove || isJungleLeft || isJungleRight) {
+    return {
+      available: true,
+      type: 'portable',
+      units: 1,
+      pricePerNightPerUnit: 400,
+      pricePerNightTotal: 400,
+      isPortable: true,
+      recommendPayAsYouGo: true
+    };
+  }
+
+  // Traditional Fixed AC: 3 Bungalows (Yellow, Red, Green), 5 Rooms (Room 1-5), 2 Lodges (Lodge 1-2) -> 500 THB/night
+  return {
+    available: true,
+    type: 'traditional',
+    units: 1,
+    pricePerNightPerUnit: 500,
+    pricePerNightTotal: 500,
+    isPortable: false,
+    recommendPayAsYouGo: false
+  };
+}
 
 export async function handleCreateCheckoutSession(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -234,8 +309,10 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
     // Extra Breakfast
     const totalBreakfastPrice = extraBreakfast ? (guests * PRICE_CONFIG.BREAKFAST_PRICE * nights) : 0;
 
-    // Extra AC
-    const totalACPrice = extraAC ? PRICE_CONFIG.AC_SURCHARGE : 0;
+    // Extra AC (Tariffa dinamica giornaliera per alloggio)
+    const acConfig = getAccommodationAcConfig(room.name || accommodationId);
+    const isAcRequested = extraAC === true || extraAC === "true";
+    const totalACPrice = (isAcRequested && acConfig.available) ? (acConfig.pricePerNightTotal * nights) : 0;
 
     // Total accommodation base price
     const grandTotal = discountedRoomAndGuestsTotal + totalBreakfastPrice + totalACPrice;
@@ -325,7 +402,10 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
           guestEmail,
           guestPhone,
           extraBreakfast: extraBreakfast === true || extraBreakfast === "true",
-          extraAC: extraAC === true || extraAC === "true",
+          extraAC: isAcRequested && acConfig.available,
+          acType: acConfig.type,
+          acPricePerNight: acConfig.pricePerNightTotal,
+          acTotal: totalACPrice,
           grandTotal,
           depositAmount: payableDepositAmount,
           balanceDue,

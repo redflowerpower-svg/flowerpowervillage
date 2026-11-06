@@ -21,6 +21,7 @@ import {
   Check
 } from 'lucide-react';
 import { Language } from '../../lib/translations';
+import { getAccommodationAcConfig } from '../config/accommodations';
 
 export interface RoomFeaturesGridProps {
   features?: any;
@@ -28,6 +29,7 @@ export interface RoomFeaturesGridProps {
   featuresArray?: string[];
   squareMeters?: number;
   lang?: Language | string;
+  roomName?: string;
 }
 
 interface CategoryConfig {
@@ -238,7 +240,8 @@ export const RoomFeaturesGrid: React.FC<RoomFeaturesGridProps> = ({
   details,
   featuresArray,
   squareMeters,
-  lang = 'IT'
+  lang = 'IT',
+  roomName
 }) => {
   const currentLang = String(lang || 'IT').toUpperCase();
   const validLang = ['IT', 'EN', 'DE', 'TH'].includes(currentLang) ? currentLang : 'IT';
@@ -299,22 +302,46 @@ export const RoomFeaturesGrid: React.FC<RoomFeaturesGridProps> = ({
   }
 
   // Air conditioning check for consumption banner
-  const hasAc = (feats && feats.air_conditioning === true) || 
-    (Array.isArray(featuresArray) && featuresArray.some(s => typeof s === 'string' && (s.toLowerCase().includes('ac') || s.toLowerCase().includes('aria') || s.toLowerCase().includes('air'))));
+  const roomIdent = roomName || details?.name || details?.slug || feats?.name || feats?.slug;
+  const acConfig = getAccommodationAcConfig(roomIdent);
+  const hasAc = acConfig.available && ((feats && feats.air_conditioning === true) || 
+    (Array.isArray(featuresArray) && featuresArray.some(s => typeof s === 'string' && (s.toLowerCase().includes('ac') || s.toLowerCase().includes('aria') || s.toLowerCase().includes('air')))) ||
+    acConfig.available);
 
-  // Extract AC Note
-  const acNoteObj = feats?.ac_consumption_note;
-  let acNoteText = defaultAcNotes[validLang] || defaultAcNotes['IT'];
-  if (acNoteObj) {
-    if (typeof acNoteObj === 'string') {
-      acNoteText = stripEmojis(acNoteObj);
-    } else if (typeof acNoteObj === 'object' && acNoteObj !== null) {
-      const rawVal = acNoteObj[validLang.toLowerCase()] || acNoteObj[validLang] || acNoteObj['it'] || acNoteText;
-      acNoteText = stripEmojis(rawVal);
+  // Differentiated AC Note based on system config
+  let acBannerTitle = '';
+  let acNoteText = '';
+
+  if (acConfig.isPortable) {
+    acBannerTitle = validLang === 'EN' ? 'High-Efficiency Portable A/C & Smart Tip' : validLang === 'DE' ? 'Mobile Klimaanlage & Spartipp' : validLang === 'TH' ? 'เครื่องปรับอากาศแบบเคลื่อนย้าย & คำแนะนำสุดคุ้ม' : 'Climatizzatore Portatile ad Alta Efficienza & Consiglio Risparmio';
+    acNoteText = validLang === 'EN'
+      ? `This accommodation is equipped with a high-efficiency portable air conditioner adapted to the island (${acConfig.units} ${acConfig.units === 1 ? 'unit' : 'units'}). For optimal savings, we strongly recommend using it on a pay-as-you-go basis at 40 THB per kWh (~20 THB per hour). Alternatively, an unlimited prepaid flat rate of ${acConfig.pricePerNightTotal} THB/night is available during booking.`
+      : validLang === 'DE'
+      ? `Diese Unterkunft ist mit einer mobilen hocheffizienten Klimaanlage (${acConfig.units} ${acConfig.units === 1 ? 'Einheit' : 'Einheiten'}) ausgestattet. Für maximale Ersparnis empfehlen wir die verbrauchsabhängige Nutzung für 40 THB pro kWh (~20 THB/Std.). Alternativ können Sie bei der Buchung die Pauschale von ${acConfig.pricePerNightTotal} THB/Nacht wählen.`
+      : validLang === 'TH'
+      ? `ที่พักนี้ติดตั้งเครื่องปรับอากาศแบบเคลื่อนย้ายประหยัดพลังงาน (${acConfig.units} เครื่อง) เพื่อความคุ้มค่าสูงสุด แนะนำให้ใช้งานแบบจ่ายตามจริง 40 บาทต่อ kWh (~20 บาทต่อชั่วโมง) หรือเลือกชำระแบบเหมาจ่าย ${acConfig.pricePerNightTotal} บาท/คืน ในขั้นตอนการจอง`
+      : `Questo alloggio è dotato di climatizzatore portatile ad alta efficienza per l'isola (${acConfig.units} ${acConfig.units === 1 ? 'unità' : 'unità'}). Per garantirti il massimo risparmio, ti consigliamo vivamente l'opzione a consumo al costo di 40 THB per kWh (~20 THB all'ora). In alternativa, in fase di prenotazione puoi selezionare la tariffa forfettaria illimitata a ${acConfig.pricePerNightTotal} THB a notte.`;
+  } else if (acConfig.type === 'traditional') {
+    acBannerTitle = validLang === 'EN' ? 'Traditional Fixed Air Conditioning' : validLang === 'DE' ? 'Traditionelle Feste Klimaanlage' : validLang === 'TH' ? 'เครื่องปรับอากาศแบบติดผนังดั้งเดิม' : 'Aria Condizionata Tradizionale Fissa';
+    acNoteText = validLang === 'EN'
+      ? 'Traditional fixed air conditioning available. Bookable at an all-inclusive flat rate of 500 THB per night or pay-as-you-go on site at 40 THB per kWh (~20 THB per hour). Please keep doors and windows closed while running.'
+      : validLang === 'DE'
+      ? 'Herkömmliche feste Klimaanlage verfügbar. Buchbar als Pauschale von 500 THB pro Nacht oder verbrauchsabhängig vor Ort für 40 THB pro kWh (~20 THB/Std.). Bitte halten Sie Türen und Fenster geschlossen.'
+      : validLang === 'TH'
+      ? 'มีเครื่องปรับอากาศแบบติดผนัง สามารถเลือกแบบเหมาจ่าย 500 บาทต่อคืน หรือจ่ายตามจริง 40 บาทต่อ kWh (~20 บาทต่อชั่วโมง) กรุณาปิดประตูและหน้าต่างขณะเปิดใช้งาน'
+      : 'Aria Condizionata fissa tradizionale disponibile. È prenotabile a tariffa forfettaria di 500 THB a notte oppure utilizzabile a consumo in loco al costo di 40 THB per kWh (pari a circa 20 THB all\'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.';
+  } else {
+    // Override with custom notes if explicitly provided
+    const acNoteObj = feats?.ac_consumption_note;
+    if (acNoteObj) {
+      if (typeof acNoteObj === 'string') {
+        acNoteText = stripEmojis(acNoteObj);
+      } else if (typeof acNoteObj === 'object' && acNoteObj !== null) {
+        const rawVal = acNoteObj[validLang.toLowerCase()] || acNoteObj[validLang] || acNoteObj['it'] || defaultAcNotes['IT'];
+        acNoteText = stripEmojis(rawVal);
+      }
     }
   }
-
-  const acBannerTitle = validLang === 'EN' ? 'Pay-As-You-Go Air Conditioning' : validLang === 'DE' ? 'Klimaanlage nach Verbrauch' : validLang === 'TH' ? 'ข้อมูลการใช้เครื่องปรับอากาศ' : 'Aria Condizionata a Consumo';
 
   const hasAnyActive = Object.keys(activeFeaturesMap).length > 0;
   if (!hasAnyActive && !hasAc) {

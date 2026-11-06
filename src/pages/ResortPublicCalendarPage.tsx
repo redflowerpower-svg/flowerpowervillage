@@ -20,7 +20,7 @@ import {
 import { fetchAccommodations, EnrichedAccommodation } from '../booking/data/accommodationsService';
 import { fetchOctorateMonthlyGrid, OctorateDayData } from '../booking/lib/octorate';
 import { translations, Language } from '../booking/lib/translations';
-import { findAccommodationIdentity, PRICE_CONFIG } from '../booking/resort/config/accommodations';
+import { findAccommodationIdentity, PRICE_CONFIG, getAccommodationAcConfig } from '../booking/resort/config/accommodations';
 import RoomFeaturesGrid from '../booking/resort/components/RoomFeaturesGrid';
 import VillageFooter from '../components/VillageFooter';
 
@@ -673,10 +673,11 @@ export default function ResortPublicCalendarPage() {
     if (!bookingSelectionSummary) return null;
     const { room, nights, grossTotal, directDiscount, netTotal } = bookingSelectionSummary;
     const isGlamping = room.category.toUpperCase() === 'TENDE GLAMPING';
+    const acConfig = getAccommodationAcConfig(room.name || room.slug);
+    const hasAc = acConfig.available && !isGlamping;
     const breakfastPrice = PRICE_CONFIG?.BREAKFAST_PRICE || 200;
-    const acPrice = PRICE_CONFIG?.AC_SURCHARGE || 500;
     const breakfastTotal = extraBreakfast ? breakfastPrice * 1 * nights : 0;
-    const acTotal = (!isGlamping && extraAC) ? acPrice : 0;
+    const acTotal = (hasAc && extraAC) ? (acConfig.pricePerNightTotal * nights) : 0;
     const grandTotal = netTotal + breakfastTotal + acTotal;
     const totalLordo = grossTotal + breakfastTotal + acTotal;
 
@@ -690,7 +691,9 @@ export default function ResortPublicCalendarPage() {
       acTotal,
       totalLordo,
       grandTotal,
-      isGlamping
+      isGlamping,
+      hasAc,
+      acConfig
     };
   }, [bookingSelectionSummary, extraBreakfast, extraAC]);
 
@@ -1849,8 +1852,8 @@ export default function ResortPublicCalendarPage() {
                         <span>{lang === 'TH' ? 'อาหารเช้า' : lang === 'DE' ? 'Frühstück' : lang === 'EN' ? 'Breakfast' : 'Colazione'}</span>
                       </button>
 
-                      {/* AC Toggle (Hidden for Glamping) */}
-                      {!configPricingSummary.isGlamping && (
+                      {/* AC Toggle (Hidden for Glamping and rooms without AC) */}
+                      {configPricingSummary.hasAc && (
                         <button
                           type="button"
                           onClick={() => setExtraAC(prev => !prev)}
@@ -1860,7 +1863,12 @@ export default function ResortPublicCalendarPage() {
                             }`}
                         >
                           <Wind className="w-3.5 h-3.5" />
-                          <span>{lang === 'TH' ? 'แอร์' : lang === 'DE' ? 'Klima' : lang === 'EN' ? 'A/C' : 'Aria Cond.'}</span>
+                          <span>
+                            {configPricingSummary.acConfig.isPortable
+                              ? (lang === 'TH' ? `แอร์เคลื่อนย้าย (+${configPricingSummary.acConfig.pricePerNightTotal}฿/คืน)` : lang === 'DE' ? `Mobile Klima (+${configPricingSummary.acConfig.pricePerNightTotal}฿/N)` : lang === 'EN' ? `Portable A/C (+${configPricingSummary.acConfig.pricePerNightTotal}฿/n)` : `A/C Portatile (+${configPricingSummary.acConfig.pricePerNightTotal}฿/n)`)
+                              : (lang === 'TH' ? `แอร์ (+${configPricingSummary.acConfig.pricePerNightTotal}฿/คืน)` : lang === 'DE' ? `Klimaanlage (+${configPricingSummary.acConfig.pricePerNightTotal}฿/N)` : lang === 'EN' ? `A/C (+${configPricingSummary.acConfig.pricePerNightTotal}฿/n)` : `Aria Cond. (+${configPricingSummary.acConfig.pricePerNightTotal}฿/n)`)
+                            }
+                          </span>
                         </button>
                       )}
                     </div>
@@ -1885,9 +1893,14 @@ export default function ResortPublicCalendarPage() {
                           </div>
                         )}
 
-                        {extraAC && !configPricingSummary.isGlamping && (
+                        {extraAC && configPricingSummary.hasAc && (
                           <div className="flex justify-between">
-                            <span>{lang === 'TH' ? 'เครื่องปรับอากาศ:' : lang === 'DE' ? 'Klimaanlage:' : lang === 'EN' ? 'Air Conditioning:' : 'Aria Condizionata:'}</span>
+                            <span>
+                              {configPricingSummary.acConfig.isPortable
+                                ? (lang === 'TH' ? `แอร์เคลื่อนย้าย (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} คืน):` : lang === 'DE' ? `Mobile Klima (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} N.):` : lang === 'EN' ? `Portable A/C (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} n.):` : `A/C Portatile (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} notti):`)
+                                : (lang === 'TH' ? `เครื่องปรับอากาศ (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} คืน):` : lang === 'DE' ? `Klimaanlage (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} N.):` : lang === 'EN' ? `Air Conditioning (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} n.):` : `Aria Condizionata (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} notti):`)
+                              }
+                            </span>
                             <span>+{formatPrice(configPricingSummary.acTotal)}</span>
                           </div>
                         )}

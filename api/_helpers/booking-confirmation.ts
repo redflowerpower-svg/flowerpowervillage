@@ -492,7 +492,11 @@ export async function generateConfirmationPDF(
       
       const extraItems = [];
       if (metadata.extraBreakfast === "true") extraItems.push("Breakfast included");
-      if (metadata.extraAC === "true") extraItems.push("Air Conditioning surcharge included");
+      if (metadata.extraAC === "true" || metadata.extraAC === true) {
+        const isPortable = metadata.acType === 'portable' || String(metadata.roomName || '').toLowerCase().includes('villa');
+        const acLabel = isPortable ? "Portable A/C prepaid flat included" : "Traditional Fixed A/C included";
+        extraItems.push(acLabel);
+      }
       if (metadata.promoCode) extraItems.push(`Coupon (${metadata.promoCode}) applied`);
       if (extraItems.length > 0) {
         doc.font("Helvetica").fontSize(8).fillColor("#047857").text(`Extras: ${extraItems.join(", ")}`, 310, rightY);

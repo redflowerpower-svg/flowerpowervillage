@@ -198,7 +198,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 4,
       "Configurazione Letti": "1 King Size Bed + 1 Sofa Bed King Size",
       "Dotazioni": "Mini appartamento con angolo cottura",
-      "Climatizzazione": "In allestimento",
+      "Climatizzazione": "Condizionatore tradizionale fisso",
       "Sconto": "In progress - Not yet bookable",
       "Link Dettagli": "In allestimento",
       "Punti di Forza": "Nuova ala in fase di completamento (non ancora prenotabile)."
@@ -309,7 +309,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
     {
       "Voce": "Aria Condizionata & Piani Energetici",
       "Valore Ufficiale": "Portatili: 400฿/unità (consigliato consumo 40฿/kWh) · Fissi: 500฿/giorno",
-      "Dettagli": "1) Alloggi con condizionatore PORTATILE: Peace & Love (1 unità: 400฿/giorno), Jungle Villa Left (1 unità: 400฿/giorno), Jungle Villa Right (1 unità: 400฿/giorno), Jungle Villa completa Left+Right (2 unità: 800฿/giorno), Villa Penthouse (2 unità: 800฿/giorno). PER GLI ALLOGGI CON A/C PORTATILE È VIVAMENTE CONSIGLIATO IL PAGAMENTO A CONSUMO (Pay-per-use) a 40฿ per kWh (~20฿ all'ora | ~0.50€) calcolato al checkout in base al contatore. 2) Alloggi con condizionatore FISSO TRADIZIONALE: Yellow Bungalow, Red Bungalow, Green Bungalow e Guesthouse Room 1, 2, 3, 4, 5 hanno un costo All-Inclusive di 500฿/giorno (oppure a consumo 40฿/kWh; non consigliamo una scelta specifica, l'ospite sceglie liberamente). 3) Tende Glamping (Lagoon e Camel) e Camera Interna: NESSUN condizionatore (ventilatori ad alta potenza immersi nella natura). L'elettricità a Koh Phayam è prodotta localmente ed è molto costosa."
+      "Dettagli": "1) Alloggi con condizionatore PORTATILE: Peace & Love (1 unità: 400฿/giorno), Jungle Villa Left (1 unità: 400฿/giorno), Jungle Villa Right (1 unità: 400฿/giorno), Jungle Villa completa Left+Right (2 unità: 800฿/giorno), Villa Penthouse (2 unità: 800฿/giorno). PER GLI ALLOGGI CON A/C PORTATILE È VIVAMENTE CONSIGLIATO IL PAGAMENTO A CONSUMO (Pay-per-use) a 40฿ per kWh (~20฿ all'ora | ~0.50€) calcolato al checkout in base al contatore. 2) Alloggi con condizionatore FISSO TRADIZIONALE: Yellow Bungalow, Red Bungalow, Green Bungalow, Guesthouse Room 1, 2, 3, 4, 5 e Guesthouse Lodge 1, 2 hanno un costo All-Inclusive di 500฿/giorno (oppure a consumo 40฿/kWh; non consigliamo una scelta specifica, l'ospite sceglie liberamente). 3) Tende Glamping (Lagoon e Camel) e Camera Interna: NESSUN condizionatore (ventilatori ad alta potenza immersi nella natura). L'elettricità a Koh Phayam è prodotta localmente ed è molto costosa."
     },
     {
       "Voce": "Soggiorno Minimo Stagionale & Regola Buchi",

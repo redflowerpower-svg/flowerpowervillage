@@ -4,7 +4,7 @@ import { Coffee, Wind, Image as ImageIcon, X, ChevronLeft, ChevronRight, Calenda
 import { fetchAccommodations, EnrichedAccommodation } from '../../data/accommodationsService';
 import { checkAvailability } from '../../lib/octorate';
 import { translations, Language } from '../../lib/translations';
-import { PRICE_CONFIG, findAccommodationIdentity, ACCOMMODATION_IDENTITIES } from '../config/accommodations';
+import { PRICE_CONFIG, findAccommodationIdentity, ACCOMMODATION_IDENTITIES, getAccommodationAcConfig } from '../config/accommodations';
 import { useResortAdminStore } from '../../../admin/resort/store/useResortAdminStore';
 import RoomFeaturesGrid from './RoomFeaturesGrid';
 
@@ -585,9 +585,10 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
           const extraGuestsPricePerNight = extraGuests * PRICE_CONFIG.EXTRA_GUEST_PRICE;
           const extraGuestsPrice = hasValidDates ? extraGuestsPricePerNight * stayDays : 0;
           
-          // Calculate extras pricing
+          // Calculate extras pricing (Dynamic per-night AC)
+          const acConfig = getAccommodationAcConfig(item.name || item.slug);
           const breakfastPrice = (hasValidDates && extras.breakfast) ? (PRICE_CONFIG.BREAKFAST_PRICE * guests * stayDays) : 0;
-          const acPrice = (hasValidDates && extras.ac) ? PRICE_CONFIG.AC_SURCHARGE : 0;
+          const acPrice = (hasValidDates && extras.ac && acConfig.available) ? (acConfig.pricePerNightTotal * stayDays) : 0;
           
           let directDiscountAmount = 0;
           let promoDiscountAmount = 0;
@@ -870,8 +871,8 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                             <span>{lang === 'TH' ? 'อาหารเช้า' : lang === 'DE' ? 'Frühstück' : lang === 'EN' ? 'Breakfast' : 'Colazione'}</span>
                           </button>
 
-                          {/* AC toggle — hidden for Tende Glamping (no AC available) */}
-                          {item.category.toUpperCase() !== 'TENDE GLAMPING' && (
+                          {/* AC toggle — hidden for rooms without AC */}
+                          {acConfig.available && item.category.toUpperCase() !== 'TENDE GLAMPING' && (
                             <button
                               type="button"
                               onClick={() => toggleExtra(item.id, 'ac')}
@@ -882,7 +883,12 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                               }`}
                             >
                               <Wind className="w-3.5 h-3.5" />
-                              <span>{lang === 'TH' ? 'แอร์' : lang === 'DE' ? 'Klima' : lang === 'EN' ? 'A/C' : 'Aria Cond.'}</span>
+                              <span>
+                                {acConfig.isPortable
+                                  ? (lang === 'TH' ? `แอร์เคลื่อนย้าย (+${acConfig.pricePerNightTotal}฿/คืน)` : lang === 'DE' ? `Mobile Klima (+${acConfig.pricePerNightTotal}฿/N)` : lang === 'EN' ? `Portable A/C (+${acConfig.pricePerNightTotal}฿/n)` : `A/C Portatile (+${acConfig.pricePerNightTotal}฿/n)`)
+                                  : (lang === 'TH' ? `แอร์ (+${acConfig.pricePerNightTotal}฿/คืน)` : lang === 'DE' ? `Klimaanlage (+${acConfig.pricePerNightTotal}฿/N)` : lang === 'EN' ? `A/C (+${acConfig.pricePerNightTotal}฿/n)` : `Aria Cond. (+${acConfig.pricePerNightTotal}฿/n)`)
+                                }
+                              </span>
                             </button>
                           )}
                         </div>
@@ -915,10 +921,15 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                                 </div>
                               )}
                               
-                              {extras.ac && (
+                              {extras.ac && acConfig.available && (
                                 <div className="flex justify-between">
-                                  <span>{lang === 'TH' ? 'เครื่องปรับอากาศ:' : lang === 'DE' ? 'Klimaanlage:' : lang === 'EN' ? 'Air Conditioning:' : 'Aria Condizionata:'}</span>
-                                  <span>{formatPrice(acPrice)}</span>
+                                  <span>
+                                    {acConfig.isPortable
+                                      ? (lang === 'TH' ? `แอร์เคลื่อนย้าย (${acConfig.pricePerNightTotal}฿ × ${stayDays} คืน):` : lang === 'DE' ? `Mobile Klima (${acConfig.pricePerNightTotal}฿ × ${stayDays} N.):` : lang === 'EN' ? `Portable A/C (${acConfig.pricePerNightTotal}฿ × ${stayDays} n.):` : `A/C Portatile (${acConfig.pricePerNightTotal}฿ × ${stayDays} notti):`)
+                                      : (lang === 'TH' ? `เครื่องปรับอากาศ (${acConfig.pricePerNightTotal}฿ × ${stayDays} คืน):` : lang === 'DE' ? `Klimaanlage (${acConfig.pricePerNightTotal}฿ × ${stayDays} N.):` : lang === 'EN' ? `Air Conditioning (${acConfig.pricePerNightTotal}฿ × ${stayDays} n.):` : `Aria Condizionata (${acConfig.pricePerNightTotal}฿ × ${stayDays} notti):`)
+                                    }
+                                  </span>
+                                  <span>+{formatPrice(acPrice)}</span>
                                 </div>
                               )}
 

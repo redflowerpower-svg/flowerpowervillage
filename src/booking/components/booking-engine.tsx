@@ -32,7 +32,7 @@ import {
 } from "lucide-react"
 import { getAuthorizationUrl, isAuthenticated, exchangeToken, clearTokens } from "../lib/octorate"
 import { RoomGrid } from "../resort/components/RoomGrid"
-import { ACCOMMODATIONS, PRICE_CONFIG, findAccommodationIdentity } from "../resort/config/accommodations"
+import { ACCOMMODATIONS, PRICE_CONFIG, findAccommodationIdentity, getAccommodationAcConfig } from "../resort/config/accommodations"
 import { fetchAccommodations } from "../data/accommodationsService"
 import { translations, Language } from "../lib/translations"
 import { getBaselineMinStay } from "../../admin/resort/lib/octorateAdmin"
@@ -876,7 +876,8 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   const checkoutPricing = useMemo(() => {
     if (!selectedRoom || !selectedPricing) return { original: 0, savings: 0, total: 0, breakfast: 0, ac: 0, directDiscount: 0, promoDiscount: 0, finalTotal: 0 };
     const breakfast = extraBreakfast ? (PRICE_CONFIG.BREAKFAST_PRICE * guests * stayDays) : 0;
-    const ac = extraAC ? PRICE_CONFIG.AC_SURCHARGE : 0;
+    const acConfig = getAccommodationAcConfig(selectedRoom.name);
+    const ac = (extraAC && acConfig.available) ? (acConfig.pricePerNightTotal * stayDays) : 0;
 
     // Mother Rate (Tariffa Madre): Priority 1 = Live Octorate price from selectedPricing.basePriceLordo (V28)
     const baseRoomPricePerNight = calculateBaseRoomCost(selectedPricing, selectedRoom, lowSeason);
@@ -1757,38 +1758,113 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                       </div>
                     </div>
 
-                    {/* AC Card */}
-                    <div
-                      onClick={() => setExtraAC(!extraAC)}
-                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer select-none ${extraAC
-                        ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
-                        : "bg-white border-stone-300 hover:bg-stone-100/40"
-                        }`}
-                    >
-                      <div className={`p-2.5 rounded-xl flex-shrink-0 ${extraAC ? "bg-emerald-800 text-white" : "bg-stone-200 text-primary"
-                        }`}>
-                        <Wind className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 text-xs">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-stone-850">
-                            {t('extraACTitle' as any)}
-                          </span>
-                          <input
-                            type="checkbox"
-                            checked={extraAC}
-                            onChange={() => { }}
-                            className="accent-emerald-750 cursor-pointer pointer-events-none"
-                          />
+                    {/* AC Card (Dynamic Traditional vs Portable with Smart Tip) */}
+                    {(() => {
+                      const roomAcConfig = getAccommodationAcConfig(selectedRoom.name);
+                      if (!roomAcConfig.available) return null;
+
+                      if (roomAcConfig.isPortable) {
+                        return (
+                          <div className="rounded-xl border border-amber-300/80 bg-gradient-to-br from-amber-500/5 via-stone-50 to-emerald-500/5 p-4 shadow-xs space-y-3">
+                            <div className="flex items-start gap-3">
+                              <div className="p-2.5 rounded-xl bg-amber-500/15 text-amber-800 flex-shrink-0">
+                                <Wind className="w-5 h-5 text-amber-700" />
+                              </div>
+                              <div className="flex-1 text-xs">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="font-extrabold text-stone-850">
+                                    {t('extraACPortableTitle' as any)}
+                                  </span>
+                                  <span className="text-[10px] font-bold text-amber-800 bg-amber-500/15 border border-amber-600/30 px-2 py-0.5 rounded-md">
+                                    {roomAcConfig.units} {roomAcConfig.units === 1 ? 'unità' : 'unità'} ({roomAcConfig.pricePerNightTotal} THB / {t('perNight' as any)})
+                                  </span>
+                                </div>
+                                <p className="text-stone-500 text-[10px] mt-1 leading-normal">
+                                  {t('extraACPortableDesc' as any)}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* SMART RECOMMENDATION BOX */}
+                            <div className="p-3 rounded-lg bg-emerald-700/10 border border-emerald-600/25 text-[11px] space-y-1.5">
+                              <div className="flex items-center gap-1.5 font-bold text-emerald-900">
+                                <span className="text-sm">💡</span>
+                                <span>{t('acPayAsYouGoTitle' as any)}</span>
+                                <span className="ml-auto text-[9px] uppercase tracking-wide bg-emerald-800 text-white font-extrabold px-1.5 py-0.5 rounded">
+                                  {t('acPayAsYouGoBadge' as any)}
+                                </span>
+                              </div>
+                              <p className="text-stone-600 text-[10.5px] leading-relaxed">
+                                {t('acPayAsYouGoDesc' as any)}
+                              </p>
+                            </div>
+
+                            {/* FLAT PREPAID OPTION TOGGLE */}
+                            <div
+                              onClick={() => setExtraAC(!extraAC)}
+                              className={`flex items-center justify-between p-2.5 rounded-lg border transition-all cursor-pointer select-none text-xs ${
+                                extraAC
+                                  ? "bg-emerald-800 text-white border-emerald-800 shadow-xs"
+                                  : "bg-white border-stone-300 text-stone-750 hover:bg-stone-100/50"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <input
+                                  type="checkbox"
+                                  checked={extraAC}
+                                  onChange={() => {}}
+                                  className="accent-emerald-600 cursor-pointer pointer-events-none"
+                                />
+                                <span className="font-semibold text-[11px]">
+                                  {t('acPrepaidFlatOption' as any)}
+                                </span>
+                              </div>
+                              <span className={`font-bold text-[11px] px-2 py-0.5 rounded ${
+                                extraAC ? "bg-white/20 text-white" : "text-emerald-800 bg-emerald-500/10"
+                              }`}>
+                                +{roomAcConfig.pricePerNightTotal} THB / {t('perNight' as any)}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div
+                          onClick={() => setExtraAC(!extraAC)}
+                          className={`flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer select-none ${
+                            extraAC
+                              ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
+                              : "bg-white border-stone-300 hover:bg-stone-100/40"
+                          }`}
+                        >
+                          <div className={`p-2.5 rounded-xl flex-shrink-0 ${
+                            extraAC ? "bg-emerald-800 text-white" : "bg-stone-200 text-primary"
+                          }`}>
+                            <Wind className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 text-xs">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-stone-850">
+                                {t('extraACTraditionalTitle' as any)}
+                              </span>
+                              <input
+                                type="checkbox"
+                                checked={extraAC}
+                                onChange={() => { }}
+                                className="accent-emerald-750 cursor-pointer pointer-events-none"
+                              />
+                            </div>
+                            <p className="text-stone-500 text-[10px] mt-1 leading-normal">
+                              {t('extraACTraditionalDesc' as any)}
+                            </p>
+                            <span className="inline-block mt-2 font-bold text-emerald-800 bg-emerald-500/10 px-2 py-0.5 rounded text-[10px]">
+                              +{roomAcConfig.pricePerNightTotal} THB / {t('perNight' as any)}
+                            </span>
+                          </div>
                         </div>
-                        <p className="text-stone-500 text-[10px] mt-1 leading-normal">
-                          {t('extraACDesc' as any)}
-                        </p>
-                        <span className="inline-block mt-2 font-bold text-emerald-800 bg-emerald-500/10 px-2 py-0.5 rounded text-[10px]">
-                          +500 THB / forfait
-                        </span>
-                      </div>
-                    </div>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -2123,14 +2199,21 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                   )}
 
                   {/* AC Extra */}
-                  {extraAC && (
-                    <div className="flex justify-between text-stone-700 font-medium border-t border-stone-300/30 pt-2.5">
-                      <span>{t('extraACTitle' as any)} (500 THB forfait)</span>
-                      <span className="font-bold text-stone-750">
-                        +{new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(checkoutPricing.ac)}
-                      </span>
-                    </div>
-                  )}
+                  {extraAC && (() => {
+                    const roomAcConfig = getAccommodationAcConfig(selectedRoom.name);
+                    if (!roomAcConfig.available) return null;
+                    return (
+                      <div className="flex justify-between text-stone-700 font-medium border-t border-stone-300/30 pt-2.5">
+                        <span>
+                          {roomAcConfig.isPortable ? t('extraACPortableTitle' as any) : t('extraACTraditionalTitle' as any)}{' '}
+                          ({roomAcConfig.pricePerNightTotal} THB × {stayDays} {t('perNight' as any)})
+                        </span>
+                        <span className="font-bold text-stone-750">
+                          +{new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(checkoutPricing.ac)}
+                        </span>
+                      </div>
+                    );
+                  })()}
 
                   <div className="flex justify-between border-t border-stone-300 pt-3 text-stone-500">
                     <span>{t('paymentTax' as any)}</span>
