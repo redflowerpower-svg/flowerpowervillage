@@ -274,6 +274,8 @@ export default function PizzaSlideshow() {
           <img
             src={slotA.url}
             alt={slotA.name}
+            loading="eager"
+            fetchPriority="high"
             className={`cinematic-img ${slotA.animClass}-v${slotA.animVer}`}
             style={{ transformOrigin: slotA.origin }}
           />
@@ -293,6 +295,7 @@ export default function PizzaSlideshow() {
           <img
             src={slotB.url}
             alt={slotB.name}
+            loading="lazy"
             className={`cinematic-img ${slotB.animClass}-v${slotB.animVer}`}
             style={{ transformOrigin: slotB.origin }}
           />

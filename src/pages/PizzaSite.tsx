@@ -148,6 +148,7 @@ function PizzaNav({
           <div className="flex items-center gap-3">
             <button
               onClick={() => rrNavigate('/')}
+              aria-label="Home Flower Power Village"
               className="flex items-center gap-1.5 text-stone-400 hover:text-white transition-colors duration-200 text-xs font-semibold uppercase tracking-wider cursor-pointer bg-transparent border-0"
               title="Home"
             >
@@ -229,6 +230,7 @@ function PizzaNav({
               <button
                 type="button"
                 onClick={() => setIsLangOpen(!isLangOpen)}
+                aria-label="Change language"
                 className="flex items-center gap-1.5 bg-black/45 hover:bg-black/65 px-3 py-1.5 rounded-xl border border-white/20 shadow-sm text-stone-100 hover:text-white transition-all cursor-pointer font-black text-xs uppercase"
                 title="Change language"
               >
@@ -305,6 +307,7 @@ function PizzaNav({
               <button
                 type="button"
                 onClick={() => setIsLangOpen(!isLangOpen)}
+                aria-label="Change language"
                 className="flex items-center gap-1.5 bg-black/50 hover:bg-black/70 px-3 py-1.5 rounded-xl border border-white/20 text-stone-100 text-xs font-black uppercase shadow-sm cursor-pointer"
                 title="Change language"
               >
@@ -364,6 +367,7 @@ function PizzaNav({
             {/* Cart Button with Counter */}
             <button
               onClick={openCart}
+              aria-label="Carrello pizza"
               className="relative p-2 text-white bg-[#8B1E1E] rounded-xl hover:bg-[#721818] transition-colors cursor-pointer"
               title="Carrello"
             >

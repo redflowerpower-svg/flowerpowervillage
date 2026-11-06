@@ -2181,6 +2181,8 @@ export default function DeliveryMenu() {
                 alt="Flower Power Pizza Logo"
                 width={88}
                 height={88}
+                loading="eager"
+                fetchPriority="high"
                 className="h-20 sm:h-24 w-auto drop-shadow-lg flex-shrink-0 object-contain -ml-0.5"
               />
 
@@ -2229,6 +2231,8 @@ export default function DeliveryMenu() {
                   alt="Flower Power Pizza Logo"
                   width={200}
                   height={200}
+                  loading="eager"
+                  fetchPriority="high"
                   className="h-40 w-auto drop-shadow-md mx-0 flex-shrink-0 object-contain my-auto"
                 />
                 <div className="flex flex-col justify-between items-start pl-4 my-auto space-y-2">

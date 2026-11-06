@@ -2719,6 +2719,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
         {!(step === 3 && !isDeliveringActive) && submitPhase === 'idle' && (
           <button
             onClick={onClose}
+            aria-label="Chiudi cassa"
             className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-850 hover:bg-stone-100 transition-all cursor-pointer z-20"
           >
             <X size={18} />

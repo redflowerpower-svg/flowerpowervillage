@@ -246,6 +246,8 @@ export default function VillageSlideshow() {
           <img
             src={slotA.url}
             alt={slotA.name}
+            loading="eager"
+            fetchPriority="high"
             className={`cinematic-img ${slotA.animClass}-v${slotA.animVer}`}
             style={{ transformOrigin: slotA.origin }}
           />
@@ -265,6 +267,7 @@ export default function VillageSlideshow() {
           <img
             src={slotB.url}
             alt={slotB.name}
+            loading="lazy"
             className={`cinematic-img ${slotB.animClass}-v${slotB.animVer}`}
             style={{ transformOrigin: slotB.origin }}
           />

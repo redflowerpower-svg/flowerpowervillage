@@ -98,6 +98,7 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
           <div className="flex items-center gap-3 flex-shrink-0">
             <button
               onClick={() => handleNavClick('accommodations')}
+              aria-label={lang === 'IT' ? 'Torna alla Home' : 'Back to Home'}
               className="flex items-center gap-1.5 text-stone-400 hover:text-white transition-colors duration-200 text-xs font-semibold uppercase tracking-wider cursor-pointer"
               title={lang === 'IT' ? 'Torna alla Home' : 'Back to Home'}
             >
@@ -140,6 +141,7 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
               <button
                 type="button"
                 onClick={() => setLangOpen(!langOpen)}
+                aria-label="Change language"
                 className="flex items-center gap-1.5 bg-black/45 hover:bg-black/65 px-3 py-1.5 rounded-xl border border-white/20 shadow-sm text-stone-100 hover:text-white transition-all cursor-pointer font-black text-xs uppercase"
                 title="Change language"
               >
@@ -203,6 +205,7 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
               <button
                 type="button"
                 onClick={() => setLangOpen(!langOpen)}
+                aria-label="Change language"
                 className="flex items-center gap-1.5 bg-black/50 hover:bg-black/70 px-3 py-1.5 rounded-xl border border-white/20 text-stone-100 text-xs font-black uppercase shadow-sm cursor-pointer"
                 title="Change language"
               >

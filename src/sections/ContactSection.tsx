@@ -260,6 +260,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                 href="https://www.tiktok.com/@flowerpowerphayam"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Flower Power Phayam on TikTok"
                 className="w-11 h-11 border border-stone-250 flex items-center justify-center rounded-xl hover:border-emerald-700 hover:text-emerald-700 transition-colors text-stone-500"
               >
                 <TiktokIcon size={16} />
@@ -268,6 +269,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                 href="https://www.instagram.com/flowerpowerphayam"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Flower Power Phayam on Instagram"
                 className="w-11 h-11 border border-stone-250 flex items-center justify-center rounded-xl hover:border-emerald-700 hover:text-emerald-700 transition-colors text-stone-500"
               >
                 <Instagram size={16} />
@@ -276,6 +278,7 @@ export default function ContactSection({ lang = 'IT' }: Props) {
                 href="https://www.facebook.com/flowerpowerphayam"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Flower Power Phayam on Facebook"
                 className="w-11 h-11 border border-stone-250 flex items-center justify-center rounded-xl hover:border-emerald-700 hover:text-emerald-700 transition-colors text-stone-500"
               >
                 <Facebook size={16} />

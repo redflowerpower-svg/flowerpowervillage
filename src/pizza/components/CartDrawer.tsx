@@ -1723,6 +1723,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
           </div>
           <button
             onClick={closeCart}
+            aria-label="Chiudi carrello"
             className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-800 hover:bg-stone-100 transition-all cursor-pointer"
           >
             <X size={18} />

@@ -193,6 +193,7 @@ export default function VillageFooter({ onNavigate, lang = 'IT' }: Props) {
               href="https://www.tiktok.com/@flowerpowerphayam"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Flower Power Phayam on TikTok"
               className="w-11 h-11 border border-stone-700 flex items-center justify-center hover:border-emerald-700 hover:text-emerald-500 transition-all duration-200 text-stone-400"
             >
               <TiktokIcon size={16} />
@@ -201,6 +202,7 @@ export default function VillageFooter({ onNavigate, lang = 'IT' }: Props) {
               href="https://www.instagram.com/flowerpowerphayam"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Flower Power Phayam on Instagram"
               className="w-11 h-11 border border-stone-700 flex items-center justify-center hover:border-emerald-700 hover:text-emerald-500 transition-all duration-200 text-stone-400"
             >
               <Instagram size={16} />
@@ -209,6 +211,7 @@ export default function VillageFooter({ onNavigate, lang = 'IT' }: Props) {
               href="https://www.facebook.com/flowerpowerphayam"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Flower Power Phayam on Facebook"
               className="w-11 h-11 border border-stone-700 flex items-center justify-center hover:border-emerald-700 hover:text-emerald-500 transition-all duration-200 text-stone-400"
             >
               <Facebook size={16} />
