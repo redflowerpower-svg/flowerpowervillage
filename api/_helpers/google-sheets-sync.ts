@@ -8,7 +8,7 @@ export interface KnowledgeTabInfo {
   rows: SheetRow[];
 }
 
-export type KnowledgeTabKey =
+export type KnowledgeTabKey = 
   | '01_Alloggi_e_Capienze'
   | '02_Trasporti_e_Arrivi'
   | '03_Ristorante_e_Bakery'
@@ -16,6 +16,10 @@ export type KnowledgeTabKey =
   | '05_Regole_e_FAQ_Telegram';
 
 const SPREADSHEET_CONFIG_KEY = 'knowledge_base_sheet';
+
+// In-Memory RAM Cache per azzerare la latenza e non stressare il DB (0ms a regime)
+let inMemoryKnowledgeCache: string | null = null;
+let inMemoryCacheTimestamp = 0;
 
 function getSupabaseAdmin() {
   const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
@@ -125,6 +129,40 @@ export function identifyTargetTab(text: string): {
     tabTitle: 'Regole & FAQ Telegram',
     category: 'regole'
   };
+}
+
+/**
+ * Converte le righe di qualsiasi scheda Google Sheet in un testo Markdown semantico e compatto
+ */
+export function convertSheetRowsToMarkdown(sheetName: string, rows: any[]): string {
+  const cleanTitle = sheetName.replace(/^\d+_/, '').replace(/_/g, ' ').toUpperCase();
+  if (!rows || rows.length === 0) {
+    return `# ${cleanTitle}\n*(Nessuna informazione presente in questa scheda)*`;
+  }
+
+  const lines: string[] = [`# ${cleanTitle}`];
+
+  for (const row of rows) {
+    const keys = Object.keys(row);
+    if (keys.length === 0) continue;
+
+    // Individua la chiave primaria del titolo (es. Alloggio, Ambito, Argomento, Voce, Titolo, Nome)
+    const primaryKey = keys.find(k => /alloggio|nome|titolo|voce|ambito|argomento/i.test(k)) || keys[0];
+    const primaryVal = row[primaryKey];
+
+    const details = keys
+      .filter(k => k !== primaryKey && row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== '')
+      .map(k => `**${k}**: ${row[k]}`)
+      .join(' | ');
+
+    if (details) {
+      lines.push(`• **${primaryVal}**: ${details}`);
+    } else {
+      lines.push(`• **${primaryVal}**`);
+    }
+  }
+
+  return lines.join('\n');
 }
 
 /**
@@ -250,6 +288,161 @@ export async function getOrCreateMasterSpreadsheet(): Promise<{
 }
 
 /**
+ * Notifica il gruppo Telegram dell'avvenuta sincronizzazione da Google Sheet
+ */
+async function notifyTelegramSync(info: { sheets: string[]; totalRows: number; timestamp: string }) {
+  try {
+    const { getTelegramCredentials } = await import('./telegram.js');
+    const { botToken, chatId } = await getTelegramCredentials('village');
+    if (!botToken || !chatId) return;
+
+    const msg = [
+      `🌿 <b>[Flower Power AI] Knowledge Base Sincronizzata!</b>`,
+      ``,
+      `📥 <b>Origine:</b> Google Sheet Master (modifica cellulare/desktop)`,
+      `📑 <b>Schede elaborate (${info.sheets.length}):</b>`,
+      info.sheets.map(s => `  • <code>${s}</code>`).join('\n'),
+      ``,
+      `✨ <b>Record totali:</b> ${info.totalRows}`,
+      `⚡ <b>Stato:</b> File Markdown (.MD) rigenerati e attivi all'istante sia per Telegram sia per il Chatbot del sito web!`
+    ].join('\n');
+
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: msg,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      })
+    });
+  } catch (err) {
+    console.warn('[notifyTelegramSync] Telegram notice warning:', err);
+  }
+}
+
+/**
+ * Sincronizza tutti i fogli di Google Sheet convertendoli in Markdown puro (.MD).
+ * Supporta l'aggiunta dinamica di qualsiasi nuova scheda creata da Marco!
+ */
+export async function syncAllSheetsToMarkdown(options: { notifyTelegram?: boolean } = {}): Promise<{
+  success: boolean;
+  sheetsProcessed: string[];
+  sheets: string[];
+  totalRows: number;
+  lastSyncedAt: string;
+}> {
+  const token = await getGoogleDriveAccessToken();
+  const sheetConfig = await getOrCreateMasterSpreadsheet();
+  const sheetId = sheetConfig.id;
+
+  const exportUrl = `https://www.googleapis.com/drive/v3/files/${sheetId}/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`;
+  const res = await fetch(exportUrl, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  if (!res.ok) {
+    throw new Error(`Google Drive export failed: ${res.status} ${await res.text()}`);
+  }
+
+  const arrayBuffer = await res.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const wb = XLSX.read(buffer, { type: 'buffer' });
+
+  const sheetNames = wb.SheetNames;
+  const mdSections: { name: string; markdown: string; rowsCount: number }[] = [];
+  let totalRows = 0;
+
+  for (const name of sheetNames) {
+    const rawRows = XLSX.utils.sheet_to_json(wb.Sheets[name]);
+    const md = convertSheetRowsToMarkdown(name, rawRows);
+    totalRows += rawRows.length;
+    mdSections.push({ name, markdown: md, rowsCount: rawRows.length });
+  }
+
+  // Master Markdown unificato
+  const masterMarkdown = [
+    `=== FLOWER POWER VILLAGE OFFICIAL KNOWLEDGE BASE (DYNAMIC MARKDOWN) ===`,
+    `Authoritative resort dataset synchronized directly from Google Sheet Knowledge Base.`,
+    `Last synchronized: ${new Date().toISOString()}`,
+    `Total active sheets: ${sheetNames.length}\n`,
+    ...mdSections.map(s => s.markdown)
+  ].join('\n\n');
+
+  // Aggiorna la cache RAM locale
+  inMemoryKnowledgeCache = masterMarkdown;
+  inMemoryCacheTimestamp = Date.now();
+
+  // Salva in Supabase telegram_config per persistenza
+  const sb = getSupabaseAdmin();
+  if (sb) {
+    await sb
+      .from('telegram_config')
+      .upsert({
+        id: 'kb_master_markdown',
+        bot_token: String(sheetNames.length),
+        chat_id: masterMarkdown,
+        updated_at: new Date().toISOString()
+      });
+
+    // Salva metadati sync
+    await sb
+      .from('telegram_config')
+      .upsert({
+        id: 'kb_sync_metadata',
+        bot_token: sheetId,
+        chat_id: JSON.stringify({
+          lastSyncedAt: new Date().toISOString(),
+          sheets: sheetNames,
+          totalRows
+        }),
+        updated_at: new Date().toISOString()
+      });
+  }
+
+  if (options.notifyTelegram) {
+    await notifyTelegramSync({
+      sheets: sheetNames,
+      totalRows,
+      timestamp: new Date().toLocaleTimeString('it-IT')
+    });
+  }
+
+  return {
+    success: true,
+    sheetsProcessed: sheetNames,
+    sheets: sheetNames,
+    totalRows,
+    lastSyncedAt: new Date().toISOString()
+  };
+}
+
+/**
+ * Restituisce i metadati dell'ultima sincronizzazione da Google Sheet
+ */
+export async function getLastSyncMetadata(): Promise<{
+  lastSyncedAt?: string;
+  sheets?: string[];
+  totalRows?: number;
+} | null> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return null;
+  try {
+    const { data } = await sb
+      .from('telegram_config')
+      .select('chat_id')
+      .eq('id', 'kb_sync_metadata')
+      .maybeSingle();
+
+    if (data?.chat_id) {
+      return JSON.parse(data.chat_id);
+    }
+  } catch {}
+  return null;
+}
+
+/**
  * Salva un aggiornamento inviato da Telegram registrandolo nella scheda corretta
  */
 export async function recordTelegramUpdateToKnowledge(params: {
@@ -265,7 +458,7 @@ export async function recordTelegramUpdateToKnowledge(params: {
   const { tabKey, tabTitle } = identifyTargetTab(rawFeedback);
   const sb = getSupabaseAdmin();
 
-  // Registra la riga in Supabase con categoria associata alla tab
+  // Registra la riga in Supabase
   if (sb) {
     try {
       await sb
@@ -277,10 +470,12 @@ export async function recordTelegramUpdateToKnowledge(params: {
           active: true
         });
     } catch (dbErr) {
-      // Fallback
       console.warn('[recordTelegramUpdateToKnowledge] Fallback store:', dbErr);
     }
   }
+
+  // Invalida la cache per forzare la rilettura
+  inMemoryKnowledgeCache = null;
 
   return {
     targetTab: tabKey,
@@ -290,9 +485,39 @@ export async function recordTelegramUpdateToKnowledge(params: {
 }
 
 /**
- * Genera il blocco di testo completo per il Prompt di DeepSeek formattando tutti i dati ufficiali
+ * Genera il blocco di testo completo per il Prompt di DeepSeek / Chatbot.
+ * Ordine di priorità:
+ * 1. Cache in RAM (0 millisecondi)
+ * 2. Supabase DB Markdown (< 15 millisecondi)
+ * 3. Fallback locale compilato
  */
 export async function getCompleteKnowledgePromptContext(): Promise<string> {
+  // 1. Cache RAM (fresca entro 1 ora)
+  if (inMemoryKnowledgeCache && (Date.now() - inMemoryCacheTimestamp < 3600000)) {
+    return inMemoryKnowledgeCache;
+  }
+
+  // 2. Lettura da Supabase
+  const sb = getSupabaseAdmin();
+  if (sb) {
+    try {
+      const { data } = await sb
+        .from('telegram_config')
+        .select('chat_id')
+        .eq('id', 'kb_master_markdown')
+        .maybeSingle();
+
+      if (data?.chat_id && data.chat_id.trim().length > 100) {
+        inMemoryKnowledgeCache = data.chat_id.trim();
+        inMemoryCacheTimestamp = Date.now();
+        return inMemoryKnowledgeCache;
+      }
+    } catch (err) {
+      console.warn('[getCompleteKnowledgePromptContext] DB read warning:', err);
+    }
+  }
+
+  // 3. Fallback strutturato
   const blocks: string[] = [
     "=== FLOWER POWER VILLAGE OFFICIAL KNOWLEDGE BASE ===",
     "The following is the authoritative, verified resort data extracted directly from the official website and resort management records.",

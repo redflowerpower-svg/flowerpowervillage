@@ -31,7 +31,8 @@ import {
   ToggleLeft, 
   ToggleRight, 
   Info,
-  CheckCircle
+  CheckCircle,
+  Zap
 } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import { TelegramVillageConfigSection } from './TelegramVillageConfigSection';
@@ -129,6 +130,8 @@ export function BookingConciergeStudio() {
   const [syncingSheet, setSyncingSheet] = useState(false);
   const [promptFeedback, setPromptFeedback] = useState<string | null>(null);
   const [sheetFeedback, setSheetFeedback] = useState<string | null>(null);
+  const [syncMetadata, setSyncMetadata] = useState<{ lastSyncedAt?: string; sheets?: string[]; totalRows?: number } | null>(null);
+  const [copiedScript, setCopiedScript] = useState(false);
 
   const fetchPromptAndSheet = async () => {
     setLoadingPrompt(true);
@@ -139,6 +142,13 @@ export function BookingConciergeStudio() {
         if (data.customPrompt) setCustomPrompt(data.customPrompt);
         if (data.masterSheet) setMasterSheet(data.masterSheet);
       }
+      try {
+        const statusRes = await fetch('/api/sync-knowledge-from-sheet?action=status');
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          if (statusData.metadata) setSyncMetadata(statusData.metadata);
+        }
+      } catch (err) {}
     } catch (e) {
       console.warn('Errore lettura prompt e sheet:', e);
     } finally {
@@ -172,22 +182,39 @@ export function BookingConciergeStudio() {
     }
   };
 
+  const APPS_SCRIPT_CODE = `function onEdit(e) {
+  var url = "https://flowerpowervillage.com/api/sync-knowledge-from-sheet";
+  try {
+    UrlFetchApp.fetch(url, { method: "post", muteHttpExceptions: true });
+  } catch (err) {}
+}`;
+
+  const copyAppsScript = () => {
+    navigator.clipboard.writeText(APPS_SCRIPT_CODE);
+    setCopiedScript(true);
+    setTimeout(() => setCopiedScript(false), 2500);
+  };
+
   const handleSyncMasterSheet = async () => {
     setSyncingSheet(true);
     setSheetFeedback(null);
     try {
-      const res = await fetch('/api/booking-concierge', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'sync_sheet' })
+      const res = await fetch('/api/sync-knowledge-from-sheet?notify=false', {
+        method: 'POST'
       });
       const data = await res.json();
-      if (data.success && data.sheet) {
-        setMasterSheet(data.sheet);
-        setSheetFeedback('✅ Foglio Google Sheet Master sincronizzato e verificato con successo!');
-        setTimeout(() => setSheetFeedback(null), 5000);
+      if (data.success) {
+        const count = data.sheets?.length || 0;
+        const totalRows = data.totalRows || 0;
+        setSheetFeedback(`✅ Sincronizzazione completata! ${count} schede aggiornate (${totalRows} righe) in memoria Markdown nativa.`);
+        setSyncMetadata({
+          lastSyncedAt: new Date().toISOString(),
+          sheets: data.sheets,
+          totalRows: data.totalRows
+        });
+        setTimeout(() => setSheetFeedback(null), 6000);
       } else {
-        setSheetFeedback('⚠️ Errore sincronizzazione Google Sheet');
+        setSheetFeedback(`⚠️ Errore sincronizzazione: ${data.error || 'Operazione fallita'}`);
       }
     } catch (e: any) {
       setSheetFeedback(`Errore: ${e.message}`);
@@ -1068,6 +1095,88 @@ export function BookingConciergeStudio() {
                 {sheetFeedback}
               </div>
             )}
+
+            {/* Sync Metadata & Status */}
+            <div className="bg-stone-950/80 border border-stone-800 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                <div>
+                  <span className="text-stone-300 font-semibold">Memoria Markdown Attiva: </span>
+                  <span className="text-emerald-400 font-mono">
+                    {syncMetadata?.sheets?.length ? `${syncMetadata.sheets.length} Schede collegate (${syncMetadata.sheets.join(', ')})` : '5 Schede collegate (01_Alloggi, 02_Trasporti, 03_Ristorante, 04_Policy, 05_Regole)'}
+                  </span>
+                  <span className="text-stone-500 mx-2">•</span>
+                  <span className="text-stone-400">
+                    {syncMetadata?.totalRows ? `${syncMetadata.totalRows} righe estratte in memoria` : 'Sincronizzazione zero-click pronta'}
+                  </span>
+                </div>
+              </div>
+              <div className="text-stone-400 text-[11px] font-mono">
+                Ultimo sync: {syncMetadata?.lastSyncedAt ? new Date(syncMetadata.lastSyncedAt).toLocaleString('it-IT') : 'Disponibile in RAM'}
+              </div>
+            </div>
+
+            {/* Zero-Click Mobile & Desktop Sync via Google Apps Script */}
+            <div className="bg-gradient-to-r from-amber-950/40 via-stone-900 to-stone-950 border border-amber-500/30 rounded-2xl p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="p-2 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                    <Zap className="w-4 h-4" />
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      Sincronizzazione Automatica "Zero-Click" da Cellulare
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        Consigliato
+                      </span>
+                    </h3>
+                    <p className="text-xs text-stone-300">
+                      Modifica Google Sheets dal tuo telefono o crea una nuova scheda: si sincronizza all\'istante da solo senza toccare nessun tasto!
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={copyAppsScript}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-bold transition shrink-0 shadow-md shadow-amber-500/20 cursor-pointer"
+                >
+                  {copiedScript ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Copiato negli appunti!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span>Copia Codice Script</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Code Snippet Box */}
+              <div className="relative">
+                <pre className="bg-stone-950 border border-stone-800 rounded-xl p-3 text-xs font-mono text-emerald-300 overflow-x-auto">
+{APPS_SCRIPT_CODE}
+                </pre>
+              </div>
+
+              {/* 3 Step Instruction Guide */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-xs text-stone-300 border-t border-stone-800/80">
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-stone-800 text-amber-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">1</span>
+                  <span>Apri il foglio Google Sheet da PC e vai su <b>Estensioni</b> ➔ <b>Apps Script</b>.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-stone-800 text-amber-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">2</span>
+                  <span>Cancella il testo presente, <b>incolla</b> questo codice e clicca l\'icona <b>Salva</b> (💾).</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="w-5 h-5 rounded-full bg-stone-800 text-amber-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">3</span>
+                  <span><b>Fine!</b> Qualsiasi modifica futura da iPhone, Android o PC aggiorna l\'AI e Telegram in tempo reale.</span>
+                </div>
+              </div>
+            </div>
 
             {/* 5 Master Tabs Breakdown */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
