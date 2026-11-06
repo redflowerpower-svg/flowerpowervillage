@@ -22,6 +22,12 @@ const subPathToPage: Record<string, Page> = {
   'gallery': 'gallery',
   'directions': 'directions',
   'how-to-get-here': 'directions',
+  'ferry': 'directions',
+  'ferries': 'directions',
+  'boat': 'directions',
+  'boats': 'directions',
+  'transport': 'directions',
+  'trasporti': 'directions',
   'contact': 'contact',
   'contacts': 'contact',
 };

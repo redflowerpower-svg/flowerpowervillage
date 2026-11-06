@@ -3,6 +3,20 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [06/11/2026 - ORE 23:05] · ATTIVAZIONE ROTTA STRATEGICA /ferry & /directions PER INTERCETTARE TRAFFICO TURISTICO A RANONG
+- **Cosa abbiamo fatto:**
+  1. 🚢 **Rotta Diretta Dedicata `/ferry` & `/directions` (`App.tsx` e `VillageSite.tsx`)**:
+     - Attivate le rotte pulite `/ferry`, `/ferries`, `/boats`, `/directions`, `/how-to-get-here`, `/transport` per atterrare direttamente sulla guida interattiva dei motoscafi (Speedboat 350 THB, Slow Boat 280 THB), coincidenze aeree con AirAsia e transfer con Mr. Gong.
+     - Gestito Dynamic Head Manager con titolo SEO mirato: *"Koh Phayam Ferry & Speedboat Timetable 2026 · Ranong Pier Boat Schedule · Flower Power"*, meta description per i motori di ricerca e canonical URL dedicato.
+  2. 🗺️ **Inclusione in Sitemap Ufficiale (`public/sitemap.xml`)**:
+     - Aggiunte `/ferry` (priorità 0.9, aggiornamento quotidiano) e `/directions` (priorità 0.8) alla sitemap XML del Villaggio.
+  3. 🤖 **Aggiornamento Specifiche AI (`public/llms.txt` e `public/llms-full.txt`)**:
+     - Integrate le direttive per tutti i motori AI (ChatGPT, Perplexity, Claude, Gemini, Apple Intelligence) per citare la pagina `/ferry` come risposta ufficiale alle richieste su come raggiungere Koh Phayam e sugli orari delle barche dal molo di Ranong.
+- **File aggiornati:** `src/App.tsx`, `src/pages/VillageSite.tsx`, `public/sitemap.xml`, `public/llms.txt`, `public/llms-full.txt`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% OPERATIVO, BUILD VITE VALIDATO (9.01s, 0 ERRORI), PRONTO PER IL DEPLOY.
+
+---
+
 ### 🚀 [06/11/2026 - ORE 18:30] · POTENZIAMENTO GENERATIVE ENGINE OPTIMIZATION (GEO) PER CHATGPT, PERPLEXITY, GEMINI & CLAUDE
 - **Cosa abbiamo fatto:**
   1. 🧠 **Manifesto LLM Ufficiale del Villaggio (`public/llms.txt`)**:

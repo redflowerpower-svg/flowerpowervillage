@@ -79,6 +79,7 @@ function DynamicHeadManager() {
     const isDining = pathname.startsWith('/dining') || pathname.startsWith('/dining-tablet') || pathname.startsWith('/tavoli') || pathname.startsWith('/table');
     const isKitchen = pathname.startsWith('/kitchen') || pathname.startsWith('/kds');
     const isPizza = host.includes('flowerpowerpizza.com') || pathname.startsWith('/pizza') || pathname === '/order' || pathname === '/about' || pathname === '/contact' || isKitchen || isDining;
+    const isFerry = pathname.startsWith('/ferry') || pathname.startsWith('/ferries') || pathname.startsWith('/boat') || pathname.startsWith('/boats') || pathname.startsWith('/directions') || pathname.startsWith('/how-to-get-here') || pathname.startsWith('/transport') || pathname.startsWith('/trasporti');
     const isCalendar = pathname.startsWith('/calendar') || pathname.startsWith('/village/calendar');
     const isWineList = pathname.startsWith('/wine-list') || pathname.startsWith('/village/wine-list');
     const isVillage = host.includes('flowerpowervillage.com') || pathname.startsWith('/village') || pathname.startsWith('/rooms');
@@ -105,6 +106,9 @@ function DynamicHeadManager() {
       if (host.includes('flowerpowerpizza.com') || pathname.startsWith('/pizza')) {
         const cleanPath = pathname === '/' || pathname === '/pizza' ? '/' : pathname;
         canonicalUrl = `https://www.flowerpowerpizza.com${cleanPath}`;
+      } else if (isFerry) {
+        canonicalUrl = 'https://www.flowerpowervillage.com/ferry';
+      
       } else if (isCalendar) {
         canonicalUrl = 'https://www.flowerpowervillage.com/calendar';
       } else if (isWineList) {
@@ -236,6 +240,20 @@ function App() {
           <Route path="/wine-list/*" element={<VillageWineListPage />} />
           <Route path="/village/wine-list" element={<VillageWineListPage />} />
           <Route path="/village/wine-list/*" element={<VillageWineListPage />} />
+          <Route path="/ferry" element={<VillageSite />} />
+          <Route path="/ferries" element={<Navigate to="/ferry" replace />} />
+          <Route path="/boat" element={<Navigate to="/ferry" replace />} />
+          <Route path="/boats" element={<Navigate to="/ferry" replace />} />
+          <Route path="/directions" element={<VillageSite />} />
+          <Route path="/how-to-get-here" element={<Navigate to="/directions" replace />} />
+          <Route path="/transport" element={<Navigate to="/directions" replace />} />
+          <Route path="/trasporti" element={<Navigate to="/directions" replace />} />
+          <Route path="/village/ferry" element={<Navigate to="/ferry" replace />} />
+          <Route path="/village/ferries" element={<Navigate to="/ferry" replace />} />
+          <Route path="/village/boat" element={<Navigate to="/ferry" replace />} />
+          <Route path="/village/boats" element={<Navigate to="/ferry" replace />} />
+          <Route path="/village/directions" element={<Navigate to="/directions" replace />} />
+          <Route path="/village/how-to-get-here" element={<Navigate to="/directions" replace />} />
           <Route path="/village/*" element={<VillageSite />} />
           <Route path="/pizza/*" element={<PizzaSite />} />
           <Route path="/order" element={<PizzaSite />} />
