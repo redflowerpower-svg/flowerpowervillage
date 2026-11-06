@@ -2179,6 +2179,99 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       const publishId = ttData?.data?.publish_id;
       const isSuccess = ttRes.ok && (!ttData.error || ttData.error.code === "ok" || ttData.error.code === 0);
 
+      // 📬 SMART FALLBACK: TIKTOK INBOX DRAFT (video.upload)
+      // Se l'app non ha ancora completato l'audit per la pubblicazione diretta pubblica (2-4 settimane),
+      // oppure se postMode === 'draft', carichiamo direttamente il video nei messaggi/bozze dell'app TikTok dell'utente.
+      // L'utente riceve una notifica push istantanea sull'app TikTok e con un solo tocco ("Pubblica") il video va online!
+      const isUnaudited = !isSuccess && (
+        ttData.error?.code === "unaudited_client_can_only_post_to_private_accounts" ||
+        (ttData.error?.message && (
+          ttData.error.message.toLowerCase().includes("unaudited") ||
+          ttData.error.message.toLowerCase().includes("private accounts")
+        ))
+      );
+
+      if (isUnaudited || body.postMode === "draft") {
+        console.log(`[SocialPublisher] Direct Post requires audit approval (${ttData.error?.code || 'draft_requested'}). Automatically routing to TikTok Inbox / Drafts (video.upload)...`);
+        try {
+          if (!videoBuffer && targetVideoUrl) {
+            try {
+              const vRes = await fetch(targetVideoUrl);
+              if (vRes.ok) {
+                const arr = await vRes.arrayBuffer();
+                videoBuffer = Buffer.from(arr);
+              }
+            } catch (dlEx) {
+              console.warn("[SocialPublisher] Could not fetch videoBuffer for inbox upload:", dlEx);
+            }
+          }
+
+          if (videoBuffer && videoBuffer.length > 0) {
+            const inboxRes = await fetch("https://open.tiktokapis.com/v2/post/publish/inbox/video/init/", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json; charset=UTF-8"
+              },
+              body: JSON.stringify({
+                source_info: {
+                  source: "FILE_UPLOAD",
+                  video_size: videoBuffer.length,
+                  chunk_size: videoBuffer.length,
+                  total_chunk_count: 1
+                }
+              })
+            });
+
+            const inboxData = await inboxRes.json();
+            console.log("[SocialPublisher] TikTok inbox/video/init response:", inboxData);
+
+            if (inboxRes.ok && inboxData?.data?.upload_url) {
+              const putInbox = await fetch(inboxData.data.upload_url, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "video/mp4",
+                  "Content-Range": `bytes 0-${videoBuffer.length - 1}/${videoBuffer.length}`,
+                  "Content-Length": String(videoBuffer.length)
+                },
+                body: videoBuffer
+              });
+
+              console.log(`[SocialPublisher] TikTok inbox chunk uploaded with HTTP ${putInbox.status}`);
+
+              const inboxPublishId = inboxData.data.publish_id;
+
+              if (supabase) {
+                try {
+                  await supabase.from("social_scheduled_posts").insert({
+                    brand,
+                    platform: "tiktok",
+                    title,
+                    caption: title,
+                    media_url: videoUrl,
+                    media_type: "video",
+                    status: "inbox_draft",
+                    publish_id: inboxPublishId || null,
+                    metadata: inboxData
+                  });
+                } catch {}
+              }
+
+              return res.status(200).json({
+                success: true,
+                mode: "inbox_draft",
+                publish_id: inboxPublishId,
+                account_name: targetBrand === "village" ? "flowerpowervillage" : "flowerpowerpizzaranong",
+                message: `Video inviato direttamente all'app TikTok (@${targetBrand === "village" ? "flowerpowervillage" : "flowerpowerpizzaranong"})! Riceverai una notifica push sul telefono: tocca per confermare la pubblicazione.`,
+                raw: inboxData
+              });
+            }
+          }
+        } catch (inboxErr: any) {
+          console.error("[SocialPublisher] TikTok inbox fallback exception:", inboxErr);
+        }
+      }
+
       // Log or store post
       if (supabase) {
         try {
@@ -2206,7 +2299,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
           userMessage.toLowerCase().includes("unaudited") ||
           userMessage.toLowerCase().includes("private accounts")
         ) {
-          userMessage = `L'app TikTok è in modalità Sandbox/App Tester: TikTok consente la pubblicazione solo su account impostati come 'Account Privato'. Per pubblicare, apri l'app TikTok sul telefono con ${targetBrand === 'village' ? '@flowerpowervillage' : '@flowerpowerpizzaranong'}, vai in Profilo > Menu in alto a destra > Impostazioni e Privacy > Privacy > attiva 'Account Privato' (oppure aggiungi l'account come App Tester nel portale TikTok for Developers).`;
+          userMessage = `L'app TikTok è in attesa di revisione da parte del team TikTok (2-4 settimane). Abbiamo tentato il caricamento in Inbox/Bozze ma il buffer video non era disponibile.`;
         } else if (
           errCode === "url_ownership_unverified" ||
           userMessage.toLowerCase().includes("ownership")
@@ -2224,6 +2317,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 
       return res.status(200).json({
         success: true,
+        mode: "direct_post",
         publish_id: publishId,
         raw: ttData
       });

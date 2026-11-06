@@ -430,6 +430,7 @@ export function AutoCutDistributionPanel({
 
       // 3. Invio REALE a TikTok (Feed Video)
       let publishedTikTokId: string | undefined = undefined;
+      let publishedTikTokMode: 'direct_post' | 'inbox_draft' = 'direct_post';
       if (activeChannel === 'tiktok' && formats.tiktok === 'feed') {
         if (environment === 'production') {
           setPublishProgressPct(95);
@@ -455,6 +456,7 @@ export function AutoCutDistributionPanel({
             throw new Error(ttData.error || 'Errore durante la pubblicazione su TikTok');
           }
           publishedTikTokId = ttData.publish_id;
+          publishedTikTokMode = ttData.mode === 'inbox_draft' ? 'inbox_draft' : 'direct_post';
           console.log('[AutoCutDistributionPanel] Pubblicazione TikTok completata con successo:', ttData);
         }
       }
@@ -553,7 +555,12 @@ export function AutoCutDistributionPanel({
               : []),
             ...(activeChannel === 'tiktok' && formats.tiktok === 'feed'
               ? [
-                  `Video pubblicato su TikTok (@${selectedBrand === 'pizza' ? 'flowerpowerpizzaranong' : 'flowerpowervillage'})!`,
+                  publishedTikTokMode === 'inbox_draft'
+                    ? `🟢 Video inviato direttamente all'app TikTok (@${selectedBrand === 'pizza' ? 'flowerpowerpizzaranong' : 'flowerpowervillage'})!`
+                    : `🟢 Video pubblicato su TikTok (@${selectedBrand === 'pizza' ? 'flowerpowerpizzaranong' : 'flowerpowervillage'})!`,
+                  publishedTikTokMode === 'inbox_draft'
+                    ? `📱 Riceverai una notifica push sull'app TikTok del telefono: aprila e tocca "Pubblica" con 1 solo tocco (senza usare Telegram)! Didascalia e hashtag pronti.`
+                    : `Pubblicazione diretta pubblica completata con successo!`,
                   publishedTikTokId ? `Publish ID: ${publishedTikTokId}` : ''
                 ].filter(Boolean)
               : []),
