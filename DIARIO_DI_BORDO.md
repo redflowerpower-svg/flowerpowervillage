@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [06/11/2026 - ORE 17:10] · RISOLUZIONE LIMITE STORAGE VERCEL & AUTOMAZIONE PULIZIA DI ROUTINE (AUTO-PRUNE)
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Diagnosi Forense Vercel (11.07 GB su 10 GB Free Tier)**:
+     - Identificato l'allarme storage Vercel: accumulo di oltre 181 vecchi deployment (di cui 177 obsoleti da preview e commit storici mai eliminati).
+     - Rilevato bloat in `vercel.json` dove `"includeFiles": "public/**"` zippava 28 MB di video e audio MP3/MP4 dentro ogni singola Lambda Function (`Functions Storage: 6.7 GB`).
+  2. 🪶 **Snellimento Radicale di vercel.json**:
+     - Confinato `includeFiles` unicamente all'asset strettamente necessario al backend (`public/FP_04_-_LOGO_OFFICIAL_HD.png`), riducendo la dimensione del pacchetto Lambda del 95% su ogni futuro deploy.
+  3. 🧹 **Script di Pruning Automatico & Pulizia Immediata (scripts/vercel-prune.mjs)**:
+     - Creato script dedicato con logica di sicurezza: mantiene sempre i 2 deployment di Produzione più recenti e i 2 di Preview attivi, rimuovendo tutti gli obsoleti tramite `vercel rm --safe --yes`.
+     - Eseguita la pulizia: **eliminati con successo 177 vecchi deployment**, liberando circa **10.6 GB** e riportando i deploy censiti da 181 a soli 6.
+  4. 🔄 **Integrazione della Routine in project-sync.mjs (MARKDOWN-PROJECT)**:
+     - Aggiunto il Passo 9 in `scripts/project-sync.mjs`: a ogni rilascio master in produzione, lo script esegue l'auto-pruning dei deployment orfani in background. Aggiunto anche il comando dedicato `npm run vercel:prune` in `package.json`.
+- **File aggiornati:** `vercel.json`, `package.json`, `scripts/project-sync.mjs`, `scripts/vercel-prune.mjs`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% OPERATIVO, STORAGE VERCEL LIBERATO, PULIZIA AUTOMATICA INTEGRATA PERMANENTE.
+
+---
+
 ### 🚀 [06/11/2026 - ORE 12:40] · CANALE DEDICATO TOPIC "CONCIERGE BOT" (FPV DASHBOARD) & AUTO-CAPTURE THREAD ID
 - **Cosa abbiamo fatto:**
   1. 🤖 **Configurazione Nuovo Topic "Concierge Bot"**:
