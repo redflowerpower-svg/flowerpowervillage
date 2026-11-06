@@ -307,9 +307,9 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
 
   policy: [
     {
-      "Voce": "Aria Condizionata & Dotazioni per Alloggio",
-      "Valore Ufficiale": "Fisso (Bungalow & Guesthouse Room 1-5) · Portatile (Ville) · Nessuno (Tende Glamping)",
-      "Dettagli": "1) Condizionatori tradizionali fissi: presenti nei 3 Bungalow (Yellow, Red, Green) e in tutte le camere della Guesthouse (Room 1, 2, 3, 4, 5); 2) Condizionatori portatili (dimensionati per l'energia dell'isola): presenti in tutte le Ville (Jungle Villa completa, Jungle Left, Jungle Right, Peace & Love con 1 unità, Villa Penthouse con 2 unità - 1 per ciascuna stanza); 3) Tende Glamping (Lagoon Tent e Camel Tent): NESSUN condizionatore (ventilatori ad alta potenza nella natura). Opzioni di pagamento energetico: a) Pay-per-use a consumo (Consigliata) a 40฿ per unità (~20฿/ora | ~0.50€) calcolato al checkout dal contatore; b) All-Inclusive prepagata: 400฿/giorno per Bungalows e Camere (~12€) e 800฿/giorno per le Ville (~24€). L'elettricità sull'isola è molto costosa."
+      "Voce": "Aria Condizionata & Piani Energetici",
+      "Valore Ufficiale": "Portatili: 400฿/unità (consigliato consumo 40฿/kWh) · Fissi: 500฿/giorno",
+      "Dettagli": "1) Alloggi con condizionatore PORTATILE: Peace & Love (1 unità: 400฿/giorno), Jungle Villa Left (1 unità: 400฿/giorno), Jungle Villa Right (1 unità: 400฿/giorno), Jungle Villa completa Left+Right (2 unità: 800฿/giorno), Villa Penthouse (2 unità: 800฿/giorno). PER GLI ALLOGGI CON A/C PORTATILE È VIVAMENTE CONSIGLIATO IL PAGAMENTO A CONSUMO (Pay-per-use) a 40฿ per kWh (~20฿ all'ora | ~0.50€) calcolato al checkout in base al contatore. 2) Alloggi con condizionatore FISSO TRADIZIONALE: Yellow Bungalow, Red Bungalow, Green Bungalow e Guesthouse Room 1, 2, 3, 4, 5 hanno un costo All-Inclusive di 500฿/giorno (oppure a consumo 40฿/kWh; non consigliamo una scelta specifica, l'ospite sceglie liberamente). 3) Tende Glamping (Lagoon e Camel) e Camera Interna: NESSUN condizionatore (ventilatori ad alta potenza immersi nella natura). L'elettricità a Koh Phayam è prodotta localmente ed è molto costosa."
     },
     {
       "Voce": "Soggiorno Minimo Stagionale & Regola Buchi",
