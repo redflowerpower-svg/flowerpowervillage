@@ -397,13 +397,16 @@ REPLY GENERATION RULES (FOLLOWING MARCO'S OFFICIAL GOLDEN TEMPLATE):
      • Lagoon Glamping Tent (2 pax, extra single bed): https://www.flowerpowervillage.com/21-lagoon-tent
      • Camel Glamping Tent (2 pax, extra single bed): https://www.flowerpowervillage.com/23-camel-tent
      • Internal Budget Room (2 pax, no hot water): https://www.flowerpowervillage.com/41-room-internal
-4. Air Conditioning & Energy Options:
-   - Always include the clear A/C options:
-     ❄️ Air Conditioning:
-     Rooms have portable units; bungalows and villas have fixed traditional AC.
+4. Air Conditioning Equipment & Energy Options:
+   - Specific Equipment by Accommodation Type:
+     • Bungalows (Yellow, Red, Green) and Guesthouse (Rooms 1, 2, 3, 4, 5): Equipped with traditional FIXED air conditioning units for enhanced cooling performance.
+     • Villas (Jungle Villa complete, Jungle Left, Jungle Right, Peace & Love with 1 portable unit, Penthouse Villa with 2 portable units - 1 per bedroom): Equipped with PORTABLE air conditioning units designed to match island energy capacity.
+     • Glamping Tents (Lagoon Tent & Camel Tent): NO air conditioning (powerful fans provided, natural tropical immersion).
+     • Internal Budget Room: Fan only (no A/C, no hot water).
+   - Energy Pricing Options:
      • Pay-per-use (Recommended): 40฿ per unit (~20฿/hour | ~0.5€), paid at checkout based on actual meter consumption.
-     • All-Inclusive (Prepaid): 400฿/day for Bungalows & Rooms | 800฿/day for Villas.
-     (Electricity on Koh Phayam is generated locally on the island).
+     • All-Inclusive (Prepaid): 400฿/day for Bungalows & Guesthouse Rooms (~12€) | 800฿/day for Villas (~24€).
+     (Electricity on Koh Phayam is generated locally on the island and is expensive).
 5. Important Reminders & Policies:
    - Deposit & Online Payment:
      * 30% deposit to secure the direct booking directly on our website via Credit Card or PayPal.

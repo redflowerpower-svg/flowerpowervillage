@@ -29,7 +29,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 8,
       "Configurazione Letti": "2 King Size + 2 Sofa Bed Queen",
       "Dotazioni": "2 camere, 2 bagni, 2 cucine e 2 salotti",
-      "Climatizzazione": "Aria Condizionata + Ventilatori",
+      "Climatizzazione": "Condizionatori portatili + Ventilatori",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/52-jungle-villa",
       "Punti di Forza": "La struttura più ampia del villaggio, ideale per 2 famiglie o grandi gruppi (4+4 persone)."
@@ -42,7 +42,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 4,
       "Configurazione Letti": "1 King Size + 1 Sofa Bed Queen",
       "Dotazioni": "1 camera, 1 bagno, cucina e salotto privato",
-      "Climatizzazione": "Aria Condizionata + Ventilatori",
+      "Climatizzazione": "Condizionatore portatile + Ventilatore",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/53-jungle-villa-left",
       "Punti di Forza": "Villa su 2 piani affacciata sulla piscina per 2+2 persone."
@@ -55,7 +55,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 4,
       "Configurazione Letti": "1 King Size + 1 Sofa Bed Queen",
       "Dotazioni": "1 camera, 1 bagno, cucina e salotto",
-      "Climatizzazione": "Aria Condizionata + Ventilatori",
+      "Climatizzazione": "Condizionatore portatile + Ventilatore",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/54-jungle-villa-right",
       "Punti di Forza": "Villa su 2 piani gemella di Jungle Left per 2+2 persone."
@@ -68,7 +68,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 4,
       "Configurazione Letti": "1 King Size + 1 Sofa Bed Queen",
       "Dotazioni": "1 camera, 1 bagno tropicale, cucina e salotto privato",
-      "Climatizzazione": "Aria Condizionata + Ventilatori",
+      "Climatizzazione": "Condizionatore portatile (1 unità) + Ventilatore",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/51-villa-peace-love",
       "Punti di Forza": "Affacciata direttamente sulla piscina con terrazza, amaca, TV 40 pollici per 2+2 persone."
@@ -81,7 +81,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 4,
       "Configurazione Letti": "1 King Size + 1 Sofa Bed King",
       "Dotazioni": "2 camere, 2 bagni completi, cucina e salotto",
-      "Climatizzazione": "Aria Condizionata + Ventilatori",
+      "Climatizzazione": "Condizionatori portatili (2 unità, 1 per stanza) + Ventilatori",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/22-villa-penthouse",
       "Punti di Forza": "La sistemazione più esclusiva del villaggio, giardino privato, 2 bagni, Android TV, per 4 persone."
@@ -133,7 +133,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 3,
       "Configurazione Letti": "1 King Size + Extra Single Bed disponibile",
       "Dotazioni": "Bagno privato dedicato con doccia calda, deck rialzato in legno",
-      "Climatizzazione": "Ventilatore ad alta potenza",
+      "Climatizzazione": "Ventilatore ad alta potenza (NO condizionatore)",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/21-lagoon-tent",
       "Punti di Forza": "Tenda safari premium su piattaforma rialzata, contatto autentico con la natura per 2 persone."
@@ -146,7 +146,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 3,
       "Configurazione Letti": "1 King Size + Extra Single Bed disponibile",
       "Dotazioni": "Bagno privato dedicato con doccia calda, patio privato con amache",
-      "Climatizzazione": "Ventilatore ad alta potenza",
+      "Climatizzazione": "Ventilatore ad alta potenza (NO condizionatore)",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/23-camel-tent",
       "Punti di Forza": "Tenda safari in legno e tessuto traspirante, amaca privata per 2 persone."
@@ -159,7 +159,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 2,
       "Configurazione Letti": "1 King Size",
       "Dotazioni": "Bagno privato en-suite (No acqua calda)",
-      "Climatizzazione": "Condizionatore portatile + Ventilatore",
+      "Climatizzazione": "Ventilatore ad alta potenza (NO condizionatore, no acqua calda)",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/41-room-internal",
       "Punti di Forza": "Camera in muratura silenziosa ed economica per 2 persone."
@@ -172,7 +172,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 3,
       "Configurazione Letti": "1 King Size Bed + 1 Single Size Extra bed",
       "Dotazioni": "Bagno privato con doccia, frigo",
-      "Climatizzazione": "Condizionatore portatile",
+      "Climatizzazione": "Condizionatore tradizionale fisso",
       "Sconto": "15% Pre-Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/calendar",
       "Punti di Forza": "Camera guesthouse per 2+1 persone con sconto 15% pre-booking."
@@ -185,7 +185,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 4,
       "Configurazione Letti": "1 King Size Bed + 1 Sofa Bed Queen Size",
       "Dotazioni": "Bagno privato, terrazzino",
-      "Climatizzazione": "Condizionatore portatile",
+      "Climatizzazione": "Condizionatore tradizionale fisso",
       "Sconto": "15% Pre-Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/calendar",
       "Punti di Forza": "Camere guesthouse per 2+2 persone con sconto 15% pre-booking."
@@ -307,9 +307,9 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
 
   policy: [
     {
-      "Voce": "Aria Condizionata & Opzioni Energetiche",
-      "Valore Ufficiale": "Pay-per-use 40฿/unità (~20฿/h) oppure All-Inclusive (400฿ o 800฿/giorno)",
-      "Dettagli": "Le camere dispongono di condizionatori portatili dimensionati per l'energia dell'isola; i bungalow e le ville dispongono di condizionatori fissi tradizionali. Due opzioni: 1) Pay-per-use a consumo (Consigliata) a 40฿ per unità (~20฿ per ora | ~0.50€) pagati al checkout in base al consumo effettivo del contatore; 2) All-Inclusive prepagata: 400฿/giorno per bungalow e camere (~12€) e 800฿/giorno per le ville (~24€). L'elettricità a Koh Phayam è generata localmente ed è molto costosa."
+      "Voce": "Aria Condizionata & Dotazioni per Alloggio",
+      "Valore Ufficiale": "Fisso (Bungalow & Guesthouse Room 1-5) · Portatile (Ville) · Nessuno (Tende Glamping)",
+      "Dettagli": "1) Condizionatori tradizionali fissi: presenti nei 3 Bungalow (Yellow, Red, Green) e in tutte le camere della Guesthouse (Room 1, 2, 3, 4, 5); 2) Condizionatori portatili (dimensionati per l'energia dell'isola): presenti in tutte le Ville (Jungle Villa completa, Jungle Left, Jungle Right, Peace & Love con 1 unità, Villa Penthouse con 2 unità - 1 per ciascuna stanza); 3) Tende Glamping (Lagoon Tent e Camel Tent): NESSUN condizionatore (ventilatori ad alta potenza nella natura). Opzioni di pagamento energetico: a) Pay-per-use a consumo (Consigliata) a 40฿ per unità (~20฿/ora | ~0.50€) calcolato al checkout dal contatore; b) All-Inclusive prepagata: 400฿/giorno per Bungalows e Camere (~12€) e 800฿/giorno per le Ville (~24€). L'elettricità sull'isola è molto costosa."
     },
     {
       "Voce": "Soggiorno Minimo Stagionale & Regola Buchi",
