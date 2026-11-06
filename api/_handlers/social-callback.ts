@@ -362,7 +362,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
           scope: payload.scope,
           expires_in: payload.expires_in,
           brand: targetBrand,
-          account_name: targetBrand === 'village' ? 'flowerpowervillage' : 'flowerpowerpizza_ranong',
+          account_name: targetBrand === 'village' ? 'flowerpowervillage' : 'flowerpowerpizzaranong',
           updated_at: new Date().toISOString()
         };
 
@@ -488,7 +488,7 @@ export async function handleSocialCallback(req: VercelRequest, res: VercelRespon
           scope,
           expires_in,
           brand: targetBrand,
-          account_name: targetBrand === 'village' ? 'flowerpowervillage' : 'flowerpowerpizza_ranong',
+          account_name: targetBrand === 'village' ? 'flowerpowervillage' : 'flowerpowerpizzaranong',
           updated_at: new Date().toISOString()
         };
 

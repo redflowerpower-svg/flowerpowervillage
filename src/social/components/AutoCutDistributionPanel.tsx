@@ -205,7 +205,7 @@ export function AutoCutDistributionPanel({
     if (environment === 'production' && activeChannel === 'tiktok' && formats.tiktok === 'feed' && accountStatus?.tiktok && !accountStatus.tiktok.connected) {
       setPublishStatus({
         type: 'error',
-        message: `Account TikTok non collegato per ${selectedBrand === 'pizza' ? 'Pizzeria Ranong (@flowerpowerpizza_ranong)' : 'il Villaggio Koh Phayam (@flowerpowervillage)'}.`,
+        message: `Account TikTok non collegato per ${selectedBrand === 'pizza' ? 'Pizzeria Ranong (@flowerpowerpizzaranong)' : 'il Villaggio Koh Phayam (@flowerpowervillage)'}.`,
         details: [
           'Prima di pubblicare in Produzione Live, autorizza l\'accesso cliccando sul pulsante rosso "Connetti TikTok" nel riquadro TikTok in alto.',
           'Una volta autorizzato, i tuoi video verranno inviati direttamente alla Content Posting API v2 di TikTok.'
@@ -553,7 +553,7 @@ export function AutoCutDistributionPanel({
               : []),
             ...(activeChannel === 'tiktok' && formats.tiktok === 'feed'
               ? [
-                  `Video pubblicato su TikTok (@${selectedBrand === 'pizza' ? 'flowerpowerpizza_ranong' : 'flowerpowervillage'})!`,
+                  `Video pubblicato su TikTok (@${selectedBrand === 'pizza' ? 'flowerpowerpizzaranong' : 'flowerpowervillage'})!`,
                   publishedTikTokId ? `Publish ID: ${publishedTikTokId}` : ''
                 ].filter(Boolean)
               : []),
@@ -681,7 +681,7 @@ export function AutoCutDistributionPanel({
             )}
           </div>
           <div className="text-[10px] text-cyan-300/80 font-mono pl-6 pt-0.5 flex flex-wrap items-center gap-1.5">
-            <span>Profilo: {selectedBrand === 'pizza' ? '@flowerpowerpizza_ranong' : '@flowerpowervillage'}</span>
+            <span>Profilo: {selectedBrand === 'pizza' ? '@flowerpowerpizzaranong' : '@flowerpowervillage'}</span>
             {accountStatus?.tiktok ? (
               accountStatus.tiktok.connected ? (
                 <span className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-700/60 px-1.5 py-0.2 rounded">

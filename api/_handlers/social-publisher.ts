@@ -420,7 +420,7 @@ async function getTikTokTokenForBrand(brand: string = 'pizza'): Promise<TikTokTo
   const openId = parsed.open_id || row.id.replace("tiktok_", "");
   const refreshToken = parsed.refresh_token;
   const scope = parsed.scope || "user.info.basic,video.publish,video.upload";
-  const accountName = parsed.account_name || (brand === "village" ? "flowerpowervillage" : "flowerpowerpizza_ranong");
+  const accountName = parsed.account_name || (brand === "village" ? "flowerpowervillage" : "flowerpowerpizzaranong");
 
   // Check token age / expiration (TikTok access tokens expire in 24 hours = 86400s)
   const updatedAtMs = row.updated_at ? new Date(row.updated_at).getTime() : 0;
@@ -2061,7 +2061,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     }
 
     if (!token) {
-      const brandLabel = targetBrand === "village" ? "il Villaggio Koh Phayam (@flowerpowervillage)" : "la Pizzeria Ranong (@flowerpowerpizza_ranong)";
+      const brandLabel = targetBrand === "village" ? "il Villaggio Koh Phayam (@flowerpowervillage)" : "la Pizzeria Ranong (@flowerpowerpizzaranong)";
       return res.status(400).json({
         success: false,
         error: `Nessun account TikTok reale collegato per ${brandLabel}. Clicca sul pulsante "Connetti TikTok" per autorizzare l'accesso OAuth.`
@@ -2205,7 +2205,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
             refresh_token: refreshed.refresh_token || tokenRecord.refreshToken,
             expires_in: refreshed.expires_in || 86400,
             brand: targetBrand,
-            account_name: targetBrand === 'village' ? 'flowerpowervillage' : 'flowerpowerpizza_ranong',
+            account_name: targetBrand === 'village' ? 'flowerpowervillage' : 'flowerpowerpizzaranong',
             updated_at: new Date().toISOString()
           });
 
@@ -2260,7 +2260,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
           userMessage.toLowerCase().includes("unaudited") ||
           userMessage.toLowerCase().includes("private accounts")
         ) {
-          userMessage = `L'app TikTok è in modalità Sandbox/App Tester: TikTok consente la pubblicazione solo su account impostati come 'Account Privato'. Per pubblicare, apri l'app TikTok sul telefono con ${targetBrand === 'village' ? '@flowerpowervillage' : '@flowerpowerpizza_ranong'}, vai in Profilo > Menu in alto a destra > Impostazioni e Privacy > Privacy > attiva 'Account Privato' (oppure aggiungi l'account come App Tester nel portale TikTok for Developers).`;
+          userMessage = `L'app TikTok è in modalità Sandbox/App Tester: TikTok consente la pubblicazione solo su account impostati come 'Account Privato'. Per pubblicare, apri l'app TikTok sul telefono con ${targetBrand === 'village' ? '@flowerpowervillage' : '@flowerpowerpizzaranong'}, vai in Profilo > Menu in alto a destra > Impostazioni e Privacy > Privacy > attiva 'Account Privato' (oppure aggiungi l'account come App Tester nel portale TikTok for Developers).`;
         } else if (
           errCode === "url_ownership_unverified" ||
           userMessage.toLowerCase().includes("ownership")
