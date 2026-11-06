@@ -362,9 +362,14 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Dettagli": "I cani e gli animali domestici sono i benvenuti previa comunicazione e accordo anticipato."
     },
     {
-      "Voce": "Termini di Cancellazione",
-      "Valore Ufficiale": "Cancellazione flessibile",
-      "Dettagli": "Cancellazione gratuita fino a 14 giorni prima dell'arrivo."
+      "Voce": "Deposito & Caparra Confirmatoria",
+      "Valore Ufficiale": "30% alla prenotazione · Saldo 70% al check-in",
+      "Dettagli": "Per confermare la prenotazione diretta è richiesto un deposito pari al 30% del totale del soggiorno (tramite carta di credito, bonifico istantaneo Wise/Revolut o PayPal). Il restante saldo del 70% si paga comodamente all'arrivo al check-in (in contanti THB, oppure Wise/Revolut a zero commissioni)."
+    },
+    {
+      "Voce": "Termini di Cancellazione e Rimborso 100%",
+      "Valore Ufficiale": "Rimborso totale 100% fino a 14 giorni prima del check-in",
+      "Dettagli": "Il deposito del 30% è completamente e al 100% rimborsabile per qualsiasi cancellazione comunicata fino a 14 giorni prima della data di arrivo. Per cancellazioni effettuate nei 14 giorni precedenti l'arrivo, l'importo della caparra viene trattenuto."
     }
   ]
 };
