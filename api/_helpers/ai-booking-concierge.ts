@@ -102,7 +102,7 @@ export function buildVillageCalendarUrl(params: {
   lang?: string | null;
   view?: 'timeline' | 'blocks' | string | null;
 }): string {
-  const baseUrl = 'https://flowerpowervillage.com/calendar';
+  const baseUrl = 'https://www.flowerpowervillage.com/calendar';
   const q = new URLSearchParams();
 
   // Vista panoramica a righe/in fila (timeline) per avere tutto il quadro completo
@@ -399,12 +399,17 @@ REPLY GENERATION RULES (FOLLOWING MARCO'S OFFICIAL GOLDEN TEMPLATE):
      • All-Inclusive (Prepaid): 400฿/day for Bungalows & Rooms | 800฿/day for Villas.
      (Electricity on Koh Phayam is generated locally on the island).
 5. Important Reminders & Policies:
-   - Deposit & Payment: 30% confirmatory deposit to secure the direct booking (credit card, Wise/Revolut, PayPal). The remaining 70% balance is paid directly upon arrival at check-in (Cash in THB, or Wise/Revolut with zero fee).
-   - Cancellation & 100% Refund: Free cancellation with 100% full deposit refund up to 14 days prior to check-in. Within 14 days of arrival, the deposit is non-refundable.
-   - Seasonal Minimum Stay:
-     * High Season (1 Dec – 31 Mar): 5 nights minimum consecutive stay.
-     * Low/Mid Season (1 Apr – 30 Nov): 2 nights minimum.
-     * Gap Nights ("Buchi"): Isolated open dates between existing bookings in the calendar can be booked individually for fewer nights!
+   - Deposit & Online Payment:
+     * 30% deposit to secure the direct booking directly on our website via Credit Card or PayPal.
+     * The remaining 70% balance can be paid directly online on our website or upon arrival at check-in (Credit Card, PayPal, or Cash in THB).
+     * DO NOT mention Wise or Revolut! All bookings and payments are handled autonomously by the guest directly on our website.
+     * Free cancellation with 100% full deposit refund up to 14 days prior to check-in. Within 14 days of arrival, the deposit is non-refundable.
+   - Seasonal Minimum Stay (CONTEXTUAL TO THE GUEST'S REQUESTED DATES!):
+     * If the guest specifies dates or a month, STATE ONLY the minimum stay for that specific period! DO NOT recite both seasons!
+     * For dates falling in High Season (1 Dec – 31 Mar, e.g. January): "Our minimum stay for your requested period in January is 5 consecutive nights."
+     * For dates falling in Low/Mid Season (1 Apr – 30 Nov): "Our minimum stay for your requested period is 2 consecutive nights."
+     * Gap Nights ("Buchi"): "However, isolated open dates ('gaps') between existing bookings in the calendar can be booked individually for fewer nights – the exact minimum is shown in each calendar box."
+     * If and ONLY IF the guest provided no dates or month at all, briefly mention the general seasonal rule.
    - Amenities & Village highlights:
      * Mosquito protection: Clean mosquito nets fully enclosing every bed in all accommodations.
      * Electricity: Continuous 24/7 power.
@@ -412,6 +417,9 @@ REPLY GENERATION RULES (FOLLOWING MARCO'S OFFICIAL GOLDEN TEMPLATE):
      * Breakfast & Bakery: On-site Italian bakery (fresh warm croissants, Italian espresso, pizza, healthy breakfast à la carte).
    - Strictly forbidden: lighting fires and camping with tents in the garden.
 6. Core Calendar Call to Action:
+   - MANDATORY: Always include the live interactive calendar link pointing directly to the guest's timeframe:
+     📅 Live Interactive Calendar: {{CALENDAR_URL}}
+   - Close with: "You can book directly through the link or directly with me here via chat! 🌴✨"
    - Invite the guest to view the live availability grid and dynamic rates directly:
      📅 Live Interactive Calendar: {{CALENDAR_URL}}
    - Close with: "You can book directly through the link or directly with me here via chat! 🌴✨"
@@ -490,14 +498,17 @@ Return STRICTLY valid JSON with this exact schema:
     lang: detectedLanguage
   });
 
-  // Sostituisci il placeholder {{CALENDAR_URL}} nei testi generati
-  const replyWhatsApp = (parsed.politeReplyWhatsApp || '')
-    .replace(/\{\{CALENDAR_URL\}\}/g, calendarUrl)
-    .trim();
+  // Sostituisci il placeholder {{CALENDAR_URL}} e QUALSIASI URL nudo del calendario con l'URL parametrizzato
+  const formatCalendarLinks = (text: string) => {
+    if (!text) return '';
+    return text
+      .replace(/\{\{CALENDAR_URL\}\}/g, calendarUrl)
+      .replace(/https?:\/\/(?:www\.)?flowerpowervillage\.com\/calendar(?!\?)[^\s<"'\)]*/g, calendarUrl)
+      .trim();
+  };
 
-  const replyEmail = (parsed.politeReplyEmail || '')
-    .replace(/\{\{CALENDAR_URL\}\}/g, calendarUrl)
-    .trim();
+  const replyWhatsApp = formatCalendarLinks(parsed.politeReplyWhatsApp || '');
+  const replyEmail = formatCalendarLinks(parsed.politeReplyEmail || '');
 
   const livePmsSummary = (livePmsResult && livePmsResult.hasLivePmsData)
     ? {
