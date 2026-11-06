@@ -296,6 +296,22 @@ async function notifyTelegramSync(info: { sheets: string[]; totalRows: number; t
     const { botToken, chatId } = await getTelegramCredentials('village');
     if (!botToken || !chatId) return;
 
+    // Check if there is an active thread_id for Concierge Bot
+    const sb = getSupabaseAdmin();
+    let threadId: number | undefined;
+    if (sb) {
+      try {
+        const { data } = await sb
+          .from('telegram_config')
+          .select('bot_token')
+          .eq('id', 'village_concierge_topic_id')
+          .maybeSingle();
+        if (data?.bot_token && !isNaN(Number(data.bot_token))) {
+          threadId = Number(data.bot_token);
+        }
+      } catch {}
+    }
+
     const msg = [
       `🌿 <b>[Flower Power AI] Knowledge Base Sincronizzata!</b>`,
       ``,
@@ -314,7 +330,8 @@ async function notifyTelegramSync(info: { sheets: string[]; totalRows: number; t
         chat_id: chatId,
         text: msg,
         parse_mode: 'HTML',
-        disable_web_page_preview: true
+        disable_web_page_preview: true,
+        ...(threadId ? { message_thread_id: threadId } : {})
       })
     });
   } catch (err) {

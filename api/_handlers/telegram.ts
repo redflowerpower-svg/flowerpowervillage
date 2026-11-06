@@ -418,12 +418,26 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         const threadId = incomingMsg.message_thread_id;
         const messageId = incomingMsg.message_id;
 
+        // Auto-persist active topic thread_id for Concierge Bot
+        if (threadId && supabase) {
+          supabase
+            .from('telegram_config')
+            .upsert({
+              id: 'village_concierge_topic_id',
+              bot_token: String(threadId),
+              chat_id: String(chatId),
+              updated_at: new Date().toISOString()
+            })
+            .then(() => {})
+            .catch(() => {});
+        }
+
         // /start or /help
         if (msgText === '/start' || msgText === '/help' || msgText.startsWith('/start@') || msgText.startsWith('/help@')) {
           const welcomeText = [
             '🌺 <b>Flower Power Village — AI Booking Concierge</b>',
             '',
-            'Benvenuto nel topic <b>Booking Offers</b>!',
+            'Benvenuto nel topic <b>Concierge Bot</b>!',
             'Incolla qui qualsiasi richiesta ricevuta dai clienti via WhatsApp, Email o Social (in qualunque lingua).',
             '',
             '🤖 <b>Cosa farò per te:</b>',

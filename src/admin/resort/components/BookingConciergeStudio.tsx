@@ -469,7 +469,7 @@ export function BookingConciergeStudio() {
               <div className="flex items-center justify-between">
                 <span>Topic Attivo:</span>
                 <span className="font-semibold text-amber-400 flex items-center gap-1">
-                  <Hash className="w-3 h-3" /> Booking Offers
+                  <Hash className="w-3 h-3" /> Concierge Bot
                 </span>
               </div>
               <div className="flex items-center justify-between">
