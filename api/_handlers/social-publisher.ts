@@ -357,17 +357,12 @@ interface TikTokTokenRecord {
  * automatically filtering out sandbox mocks and auto-refreshing expired tokens.
  */
 async function getTikTokTokenForBrand(brand: string = 'pizza'): Promise<TikTokTokenRecord | null> {
-  if (!supabase) return null;
   let clientKey = process.env.TIKTOK_CLIENT_KEY;
   let clientSecret = process.env.TIKTOK_CLIENT_SECRET;
 
-  if ((!clientKey || !clientSecret || clientKey.startsWith("sb")) && supabase) {
+  if (!clientKey || !clientSecret || clientKey.startsWith("sb")) {
     try {
-      const { data: appConfig } = await supabase
-        .from("telegram_config")
-        .select("chat_id")
-        .eq("id", "tiktok_app_config")
-        .maybeSingle();
+      const appConfig = await getSocialConfig("tiktok_app_config");
       if (appConfig?.chat_id) {
         const p = JSON.parse(appConfig.chat_id);
         if (p.client_key) clientKey = p.client_key;
@@ -376,31 +371,21 @@ async function getTikTokTokenForBrand(brand: string = 'pizza'): Promise<TikTokTo
     } catch {}
   }
 
-  // 1. Check dedicated brand row in telegram_config: tiktok_village or tiktok_pizza
-  let { data: row } = await supabase
-    .from("telegram_config")
-    .select("*")
-    .eq("id", `tiktok_${brand}`)
-    .maybeSingle();
+  // 1. Check dedicated brand row in telegram_config via Neon (with Supabase fallback)
+  let row = await getSocialConfig(`tiktok_${brand}`);
 
   // 2. If not found, check any active non-sandbox tiktok_%
   if (!row) {
-    const { data: rows } = await supabase
-      .from("telegram_config")
-      .select("*")
-      .like("id", "tiktok_%")
-      .neq("id", "tiktok_sb_user_flowerpower_review")
-      .neq("id", "tiktok_app_config")
-      .order("updated_at", { ascending: false });
-
-    if (rows && rows.length > 0) {
-      const brandMatch = rows.find(r => {
+    const rows = await listSocialConfigsLike("tiktok_");
+    const activeRows = (rows || []).filter(r => r.id !== "tiktok_sb_user_flowerpower_review" && r.id !== "tiktok_app_config");
+    if (activeRows.length > 0) {
+      const brandMatch = activeRows.find(r => {
         try {
           const p = JSON.parse(r.chat_id || "{}");
           return p.brand === brand;
         } catch { return false; }
       });
-      row = brandMatch || rows[0];
+      row = brandMatch || activeRows[0];
     }
   }
 
@@ -444,19 +429,8 @@ async function getTikTokTokenForBrand(brand: string = 'pizza'): Promise<TikTokTo
         updated_at: new Date().toISOString()
       });
 
-      await supabase.from("telegram_config").upsert({
-        id: row.id,
-        bot_token: refreshed.access_token,
-        chat_id: updatedChatId,
-        updated_at: new Date().toISOString()
-      }).catch(() => {});
-
-      await supabase.from("telegram_config").upsert({
-        id: `tiktok_${brand}`,
-        bot_token: refreshed.access_token,
-        chat_id: updatedChatId,
-        updated_at: new Date().toISOString()
-      }).catch(() => {});
+      await upsertSocialConfig(row.id, updatedChatId, refreshed.access_token).catch(() => {});
+      await upsertSocialConfig(`tiktok_${brand}`, updatedChatId, refreshed.access_token).catch(() => {});
 
       return {
         token: refreshed.access_token,
@@ -626,9 +600,9 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
       const dryRun = (req.query.dry_run === "true" || body?.dry_run === true || body?.dry_run === "true") ? "true" : "false";
 
       let ghToken = process.env.GITHUB_DISPATCH_TOKEN || process.env.GH_TOKEN || process.env.GITHUB_TOKEN || "";
-      if (!ghToken && supabase) {
+      if (!ghToken) {
         try {
-          const { data: ghRow } = await supabase.from("telegram_config").select("bot_token").eq("id", "github_dispatch").single();
+          const ghRow = await getSocialConfig("github_dispatch");
           if (ghRow?.bot_token) ghToken = ghRow.bot_token;
         } catch {}
       }
@@ -1050,14 +1024,10 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
 
       let botToken = process.env.TELEGRAM_SOCIAL_BOT_TOKEN;
 
-      if (!botToken && supabase) {
-        const { data } = await supabase
-          .from("telegram_config")
-          .select("bot_token")
-          .eq("id", "social")
-          .maybeSingle();
-        if (data?.bot_token) {
-          botToken = data.bot_token;
+      if (!botToken) {
+        const sRow = await getSocialConfig("social");
+        if (sRow?.bot_token) {
+          botToken = sRow.bot_token;
         }
       }
 
@@ -1304,13 +1274,9 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
       const isTopic4 = messageThreadId === 4;
 
       let botToken = process.env.TELEGRAM_SOCIAL_BOT_TOKEN;
-      if (!botToken && supabase) {
-        const { data } = await supabase
-          .from("telegram_config")
-          .select("bot_token")
-          .eq("id", "social")
-          .maybeSingle();
-        if (data?.bot_token) botToken = data.bot_token;
+      if (!botToken) {
+        const sRow = await getSocialConfig("social");
+        if (sRow?.bot_token) botToken = sRow.bot_token;
       }
 
       if (!botToken) {
@@ -1893,30 +1859,23 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       let googleLocations: any[] = [];
       let isGoogleConnected = false;
 
-      if (supabase) {
-        try {
-          const { data: gData } = await supabase
-            .from("telegram_config")
-            .select("*")
-            .eq("id", "google_business_token")
-            .maybeSingle();
-
-          if (gData && gData.bot_token) {
-            try {
-              const parsed = JSON.parse(gData.chat_id || "{}");
-              isGoogleConnected = true;
-              googleLocations = parsed.locations || [];
-              googleAccount = {
-                accountName: parsed.primary_account || "Flower Power",
-                locations: googleLocations,
-                scope: parsed.scope,
-                expiresAt: parsed.expires_at,
-                updatedAt: gData.updated_at
-              };
-            } catch {}
-          }
-        } catch {}
-      }
+      try {
+        const gData = await getSocialConfig("google_business_token");
+        if (gData && gData.bot_token) {
+          try {
+            const parsed = JSON.parse(gData.chat_id || "{}");
+            isGoogleConnected = true;
+            googleLocations = parsed.locations || [];
+            googleAccount = {
+              accountName: parsed.primary_account || "Flower Power",
+              locations: googleLocations,
+              scope: parsed.scope,
+              expiresAt: parsed.expires_at,
+              updatedAt: gData.updated_at
+            };
+          } catch {}
+        }
+      } catch {}
 
       // Default smart locations for Flower Power brands if not yet retrieved from live API
       if (googleLocations.length === 0) {
@@ -1939,13 +1898,9 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       }
 
       let clientKey = process.env.TIKTOK_CLIENT_KEY || "";
-      if ((!clientKey || clientKey.startsWith("sb")) && supabase) {
+      if (!clientKey || clientKey.startsWith("sb")) {
         try {
-          const { data: appConfig } = await supabase
-            .from("telegram_config")
-            .select("chat_id")
-            .eq("id", "tiktok_app_config")
-            .maybeSingle();
+          const appConfig = await getSocialConfig("tiktok_app_config");
           if (appConfig?.chat_id) {
             const p = JSON.parse(appConfig.chat_id);
             if (p.client_key) clientKey = p.client_key;
@@ -1966,13 +1921,9 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 
       // Google OAuth URL (Dedicated Google Business Profile Client)
       let googleClientId = process.env.GOOGLE_BUSINESS_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || "";
-      if (!googleClientId && supabase) {
+      if (!googleClientId) {
         try {
-          const { data: bData } = await supabase
-            .from("telegram_config")
-            .select("chat_id")
-            .eq("id", "google_business_config")
-            .maybeSingle();
+          const bData = await getSocialConfig("google_business_config");
           if (bData?.chat_id) {
             const parsed = JSON.parse(bData.chat_id);
             if (parsed.client_id) googleClientId = parsed.client_id;
@@ -2209,12 +2160,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
             updated_at: new Date().toISOString()
           });
 
-          await supabase.from("telegram_config").upsert({
-            id: `tiktok_${targetBrand}`,
-            bot_token: token,
-            chat_id: updatedChatId,
-            updated_at: new Date().toISOString()
-          }).catch(() => {});
+          await upsertSocialConfig(`tiktok_${targetBrand}`, updatedChatId, token).catch(() => {});
 
           console.log("[SocialPublisher] Retrying TikTok video publish with refreshed token...");
           ttRes = await fetch("https://open.tiktokapis.com/v2/post/publish/video/init/", {
@@ -3071,11 +3017,7 @@ MANDATORY RULES:
 
     if (supabase) {
       try {
-        const { data: gData } = await supabase
-          .from("telegram_config")
-          .select("*")
-          .eq("id", "google_business_token")
-          .maybeSingle();
+        const gData = await getSocialConfig("google_business_token");
 
         if (gData) {
           googleToken = gData.bot_token || "";
@@ -3091,11 +3033,7 @@ MANDATORY RULES:
 
         // Recupero credenziali OAuth dedicate Google Business da riga google_business_config se non presenti in env
         if (!clientId || !clientSecret) {
-          const { data: busData } = await supabase
-            .from("telegram_config")
-            .select("chat_id")
-            .eq("id", "google_business_config")
-            .maybeSingle();
+          const busData = await getSocialConfig("google_business_config");
           if (busData?.chat_id) {
             try {
               const bParsed = JSON.parse(busData.chat_id);
@@ -3131,20 +3069,14 @@ MANDATORY RULES:
           expiresAt = Date.now() + (Number(rData.expires_in || 3600) * 1000);
           console.log("[SocialPublisher:Google] Access token Google rinnovato con successo.");
 
-          if (supabase) {
-            try {
-              await supabase.from("telegram_config").update({
-                bot_token: googleToken,
-                chat_id: JSON.stringify({
-                  refresh_token: refreshToken,
-                  expires_at: expiresAt,
-                  locations: storedLocations,
-                  updated_at: new Date().toISOString()
-                }),
-                updated_at: new Date().toISOString()
-              }).eq("id", "google_business_token");
-            } catch {}
-          }
+          try {
+            await upsertSocialConfig("google_business_token", JSON.stringify({
+              refresh_token: refreshToken,
+              expires_at: expiresAt,
+              locations: storedLocations,
+              updated_at: new Date().toISOString()
+            }), googleToken);
+          } catch {}
         } else {
           console.warn("[SocialPublisher:Google] Refresh token Google fallito:", rData);
         }

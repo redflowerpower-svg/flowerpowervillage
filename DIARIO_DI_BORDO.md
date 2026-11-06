@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [06/11/2026 - ORE 12:15] · CONSOLIDAMENTO TOTALE SOCIAL STUDIO SU NEON (100% ZERO-SUPABASE & SYNC 14 CHIAVI)
+- **Cosa abbiamo fatto:**
+  1. 🔑 **Sincronizzazione Completa 14 Chiavi Social su Neon (telegram_config)**:
+     - Accertato che dopo la migrazione a Neon mancavano le righe github_dispatch, deepseek_api_key, google_business_config, google_business_token e cronjob_org_api_key.
+     - Eseguita la copia e armonizzazione completa su Neon, rendendo il Social Media Studio al 100% autonomo ed autosufficiente.
+  2. 🔄 **Migrazione Integrale di social-publisher.ts a socialDb.ts**:
+     - Sostituite tutte le 15 query dirette residue verso supabase.from('telegram_config') (TikTok token, Google Business OAuth, Bot Telegram, trigger GitHub Actions).
+     - Tutte le operazioni di lettura e aggiornamento token transitano ora prioritariamente su Neon Serverless PostgreSQL (getSocialConfig, upsertSocialConfig, listSocialConfigsLike) con fallback protetto.
+  3. 📦 **Verifica & Build**:
+     - Eseguito npm run build: completato con successo in 7.83s senza alcun errore TypeScript.
+- **File aggiornati:** api/_handlers/social-publisher.ts, DIARIO_DI_BORDO.md.
+- **Stato:** 🟢 100% OPERATIVO, NEON COMPLETAMENTE ARMONIZZATO, SOCIAL STUDIO AUTOSUFFICIENTE.
+
+---
+
 ### 🚀 [06/11/2026 - ORE 12:05] · BLINDATURA CANALE ALLARMI TELEGRAM TOPIC 301 & FIX RUNNER CI (FFMPEG & PARSE_MODE)
 - **Cosa abbiamo fatto:**
   1. 🔍 **Diagnosi Fallimenti Silenziosi e Mancati Allarmi su Topic 301**:
