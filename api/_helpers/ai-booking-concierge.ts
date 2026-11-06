@@ -318,11 +318,10 @@ Per il neonato, il bimbo può dormire comodamente nel lettone con i genitori; su
   }
 
   // 5. Aria Condizionata Sintetica
-  const acText = `❄️ Aria Condizionata & Opzioni Energetiche:
-Tutte le nostre sistemazioni (eccetto le tende glamping che hanno ventilatori ad alta potenza) sono provviste di aria condizionata.
-• Opzione All-Inclusive forfettaria: 500฿ al giorno per Bungalow e Camere Guesthouse (400฿ al giorno per unità per le Ville: 400฿ Peace & Love, Jungle Left, Jungle Right | 800฿ Penthouse e Jungle Villa Completa con 2 unità).
-• A consumo (Pay-per-use, vivamente consigliata per le Ville): 40฿ per kWh (~20฿ all'ora), misurati dal contatore e saldati al checkout.
-(L'elettricità a Koh Phayam è generata localmente ed è costosa).`;
+  const acText = `❄️ Aria Condizionata:
+Tutte le nostre sistemazioni (eccetto le tende glamping dotate di ventilatore) sono provviste di aria condizionata. Puoi scegliere liberamente tra:
+• All-Inclusive 24 ore su 24 (forfettario giornaliero: 500฿/giorno per Bungalow e Camere | 400฿/giorno a unità per le Ville: 400฿ Peace & Love, Jungle Left, Jungle Right | 800฿ Penthouse e Jungle Villa Completa con 2 unità).
+• A consumo a fine vacanza (Pay-per-use): 40฿ per kWh (~20฿ all'ora), misurati dal contatore e saldati al checkout in base all'effettivo utilizzo.`;
 
   // 6. Sconti Esclusivi per Prenotazione Diretta sul Sito Web
   const discountsText = `💰 Tariffe e Sconti Esclusivi (Solo Prenotazione Diretta sul Nostro Sito Web):
@@ -339,6 +338,8 @@ Questo garantisce sempre la tariffa migliore in assoluto rispetto a qualsiasi po
 • Zanzariere integrate su tutte le finestre (non sopra i letti, poiché ogni stanza è dotata di ventilatori).
 • Elettricità continua 24/7.
 • Ristorante & Pizzeria Italiana in loco: la nostra vera Pizza Italiana artigianale (il pezzo forte del resort!), preparata rigorosamente con ingredienti di importazione italiana, accompagnata da pasta fresca e colazione bakery con espresso, cappuccino e cornetti caldi.
+  Puoi consultare il menù completo direttamente sul nostro sito web:
+  https://www.flowerpowervillage.com/village/restaurant-pizzeria
 • Posizione ideale: immerso in un rilassante giardino tropicale con abbondante ombra naturale, a soli 150 metri (1–2 minuti a piedi pianeggianti) dalla spiaggia di Buffalo Bay (Ao Khao Kwai).
 • Come Raggiungerci (How to Get Here): sul nostro sito web trovi tutte le indicazioni semplici e dettagliate per raggiungerci da Bangkok, Phuket, Khao Lak o Surat Thani:
   https://www.flowerpowervillage.com/village/how-to-get-here
@@ -416,6 +417,7 @@ Koh Phayam, Thailand`;
     '',
     '🍕 *La Nostra Pizza & Servizi:*',
     '• Vera Pizza Italiana artigianale con ingredienti 100% importati dall\'Italia, pasta fresca e bakery per la colazione',
+    '• Menù sfogliabile online: https://www.flowerpowervillage.com/village/restaurant-pizzeria',
     '• Bagno privato con acqua calda (eccetto Camera Interna)',
     '• Zanzariere integrate su tutte le finestre',
     '• Buffalo Bay a soli 150m (1-2 min a piedi)',
