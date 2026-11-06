@@ -171,24 +171,63 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Base": 2,
       "Capacità Max": 3,
       "Configurazione Letti": "1 King Size Bed + 1 Single Size Extra bed",
-      "Dotazioni": "Bagno privato con doccia, frigo",
-      "Climatizzazione": "Condizionatore tradizionale fisso",
+      "Dotazioni": "Bagno privato con doccia, frigo, spazioso terrazzo privato con tavolo e sedie",
+      "Climatizzazione": "Aria condizionata tradizionale fissa (opzionale: 500฿/giorno o a consumo) + Ventilatore",
       "Sconto": "15% Pre-Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/calendar",
-      "Punti di Forza": "Camera guesthouse per 2+1 persone con sconto 15% pre-booking."
+      "Punti di Forza": "Ampio terrazzo privato con tavolo e sedie affacciato sul verde tropicale per 2+1 persone."
     },
     {
-      "Alloggio": "Guesthouse Room 2, 3, 4, 5",
-      "Slug": "guesthouse-rooms-2-3-4-5",
+      "Alloggio": "Guesthouse Room 2",
+      "Slug": "guesthouse-room-2",
       "Categoria": "GUESTHOUSE",
       "Capacità Base": 2,
-      "Capacità Max": 4,
-      "Configurazione Letti": "1 King Size Bed + 1 Sofa Bed Queen Size",
-      "Dotazioni": "Bagno privato, terrazzino",
-      "Climatizzazione": "Condizionatore tradizionale fisso",
+      "Capacità Max": 2,
+      "Configurazione Letti": "1 King Size Bed",
+      "Dotazioni": "Bagno privato, frigo, terrazzino piccolo privato",
+      "Climatizzazione": "Aria condizionata tradizionale fissa (opzionale: 500฿/giorno o a consumo) + Ventilatore",
       "Sconto": "15% Pre-Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/calendar",
-      "Punti di Forza": "Camere guesthouse per 2+2 persone con sconto 15% pre-booking."
+      "Punti di Forza": "Camera guesthouse per 2 persone con terrazzino piccolo privato."
+    },
+    {
+      "Alloggio": "Guesthouse Room 3",
+      "Slug": "guesthouse-room-3",
+      "Categoria": "GUESTHOUSE",
+      "Capacità Base": 2,
+      "Capacità Max": 2,
+      "Configurazione Letti": "1 King Size Bed",
+      "Dotazioni": "Bagno privato, frigo, spazioso terrazzo privato con tavolo e sedie",
+      "Climatizzazione": "Aria condizionata tradizionale fissa (opzionale: 500฿/giorno o a consumo) + Ventilatore",
+      "Sconto": "15% Pre-Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/calendar",
+      "Punti di Forza": "Camera guesthouse per 2 persone con terrazzo privato attrezzato con tavolo e sedie per rilassarsi all'aperto."
+    },
+    {
+      "Alloggio": "Guesthouse Room 4",
+      "Slug": "guesthouse-room-4",
+      "Categoria": "GUESTHOUSE",
+      "Capacità Base": 2,
+      "Capacità Max": 2,
+      "Configurazione Letti": "1 King Size Bed",
+      "Dotazioni": "Bagno privato, frigo, spazioso terrazzo privato con tavolo e sedie",
+      "Climatizzazione": "Aria condizionata tradizionale fissa (opzionale: 500฿/giorno o a consumo) + Ventilatore",
+      "Sconto": "15% Pre-Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/calendar",
+      "Punti di Forza": "Camera guesthouse per 2 persone con terrazzo privato attrezzato con tavolo e sedie affacciato sul giardino."
+    },
+    {
+      "Alloggio": "Guesthouse Room 5",
+      "Slug": "guesthouse-room-5",
+      "Categoria": "GUESTHOUSE",
+      "Capacità Base": 2,
+      "Capacità Max": 2,
+      "Configurazione Letti": "1 King Size Bed",
+      "Dotazioni": "Bagno privato, frigo (SENZA terrazzo / balcone)",
+      "Climatizzazione": "Aria condizionata tradizionale fissa (opzionale: 500฿/giorno o a consumo) + Ventilatore",
+      "Sconto": "15% Pre-Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/calendar",
+      "Punti di Forza": "Camera guesthouse per 2 persone confortevole ed economica, senza terrazzo/balcone esterno."
     },
     {
       "Alloggio": "Lodge 1 & Lodge 2 (Mini Apartment)",
@@ -201,7 +240,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Climatizzazione": "In allestimento",
       "Sconto": "In progress - Not yet bookable",
       "Link Dettagli": "In allestimento",
-      "Punti di Forza": "Nuova ala in fase di completamento (non ancora prenotabile)."
+      "Punti di Forza": "Attualmente NON disponibili per prenotazioni perché ancora in fase di costruzione."
     }
   ],
 
@@ -307,9 +346,14 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
 
   policy: [
     {
-      "Voce": "Aria Condizionata: All-Inclusive 24h vs A Consumo a Fine Vacanza",
-      "Valore Ufficiale": "Scelta libera: All-Inclusive 24h oppure A Consumo (40฿/kWh ~20฿/h)",
-      "Dettagli": "Tutte le nostre sistemazioni (eccetto le tende glamping dotate di ventilatore) sono provviste di aria condizionata. L'ospite può scegliere liberamente tra: 1) All-Inclusive 24 ore su 24 (forfettario giornaliero: 500฿/giorno per Bungalow e Camere | 400฿/giorno a unità per le Ville: 400฿ Peace & Love, Jungle Left, Jungle Right | 800฿ Penthouse e Jungle Villa Completa con 2 unità). 2) Pagare a consumo a fine vacanza (Pay-per-use): 40฿ per kWh (~20฿ all'ora), misurati dal contatore e saldati al checkout in base all'effettivo utilizzo."
+      "Voce": "Aria Condizionata: Opzionale Non Inclusa nel Prezzo Base",
+      "Valore Ufficiale": "A/C non inclusa nel prezzo base stanza (ventilatore sempre presente)",
+      "Dettagli": "Tutti gli alloggi (eccetto le tende glamping dotate di ventilatore) sono dotati di aria condizionata ma NON è inclusa nella tariffa base della camera. Al momento della prenotazione l'ospite può scegliere liberamente se aggiungerla: 1) All-Inclusive 24 ore su 24 (forfettario giornaliero: 500฿/giorno per Bungalow e Camere | 400฿/giorno a unità per le Ville: 400฿ Peace & Love, Jungle Left, Jungle Right | 800฿ Penthouse e Jungle Villa Completa con 2 unità). 2) Pagare a consumo a fine vacanza (Pay-per-use): 40฿ per kWh (~20฿ all'ora), misurati dal contatore e saldati al checkout in base all'effettivo utilizzo."
+    },
+    {
+      "Voce": "Colazione: Servita alla Carta Non Inclusa nel Prezzo Base",
+      "Valore Ufficiale": "Colazione non inclusa nel prezzo base (servita alla carta alla bakery)",
+      "Dettagli": "La colazione NON è inclusa nella tariffa base dell'alloggio. Viene servita alla carta ogni mattina presso la nostra Bakery (caffè espresso, cappuccino cremoso italiano, cornetti caldi/brioche appena sfornati, frutta fresca, uova). Costo tipico ~150-250 THB a persona. È anche possibile aggiungerla come extra durante la prenotazione sul sito web."
     },
     {
       "Voce": "Soggiorno Minimo Stagionale & Regola Buchi",

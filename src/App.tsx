@@ -1,18 +1,30 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import VillageSite from './pages/VillageSite';
-import PizzaSite from './pages/PizzaSite';
-import AdminMain from './admin/AdminMain';
+import React, { useEffect, Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+// ⚡ Domain-Specific Lazy Loading: Pizza visitors never download Village booking engine, Village visitors never download Pizza cart!
+const VillageSite = lazy(() => import('./pages/VillageSite'));
+const PizzaSite = lazy(() => import('./pages/PizzaSite'));
 import AccommodationDetailPage from './pages/AccommodationDetailPage';
-import DocumentReaderPage from './pages/DocumentReaderPage';
-import { KitchenTabletKDS } from './admin/pizza/components/KitchenTabletKDS';
-import DiningTabletSite from './pizza/pages/DiningTabletSite';
-import LegalPage from './pages/LegalPage';
-import SocialStudioPage from './social/pages/SocialStudioPage';
-import AutoCutStudioPage from './social/pages/AutoCutStudioPage';
 import VillageWineListPage from './pages/VillageWineListPage';
 import ResortPublicCalendarPage from './pages/ResortPublicCalendarPage';
 import { ACCOMMODATION_IDENTITIES } from './booking/resort/config/accommodations';
+
+// ⚡ Lazy-loaded Staff, Backoffice and Isolated Heavy Studios (Preserves Public Mobile Web Speed)
+const AdminMain = lazy(() => import('./admin/AdminMain'));
+const DocumentReaderPage = lazy(() => import('./pages/DocumentReaderPage'));
+const KitchenTabletKDS = lazy(() => import('./admin/pizza/components/KitchenTabletKDS').then((m) => ({ default: m.KitchenTabletKDS })));
+const DiningTabletSite = lazy(() => import('./pizza/pages/DiningTabletSite'));
+const SocialStudioPage = lazy(() => import('./social/pages/SocialStudioPage'));
+const AutoCutStudioPage = lazy(() => import('./social/pages/AutoCutStudioPage'));
+const LegalPage = lazy(() => import('./pages/LegalPage'));
+
+const RouteLoadingFallback = () => (
+  <div className="min-h-screen bg-stone-950 flex items-center justify-center text-stone-400">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+      <span className="text-xs font-semibold tracking-wider uppercase text-stone-400">Caricamento...</span>
+    </div>
+  </div>
+);
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -58,14 +70,17 @@ class ErrorBoundary extends React.Component<
 }
 
 function DynamicHeadManager() {
+  const location = useLocation();
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const host = window.location.hostname.toLowerCase();
-    const pathname = window.location.pathname.toLowerCase();
+    const pathname = location.pathname.toLowerCase();
     const isDining = pathname.startsWith('/dining') || pathname.startsWith('/dining-tablet') || pathname.startsWith('/tavoli') || pathname.startsWith('/table');
     const isKitchen = pathname.startsWith('/kitchen') || pathname.startsWith('/kds');
-    const isPizza = host.includes('flowerpowerpizza.com') || pathname.startsWith('/pizza') || isKitchen || isDining;
+    const isPizza = host.includes('flowerpowerpizza.com') || pathname.startsWith('/pizza') || pathname === '/order' || pathname === '/about' || pathname === '/contact' || isKitchen || isDining;
     const isCalendar = pathname.startsWith('/calendar') || pathname.startsWith('/village/calendar');
+    const isWineList = pathname.startsWith('/wine-list') || pathname.startsWith('/village/wine-list');
     const isVillage = host.includes('flowerpowervillage.com') || pathname.startsWith('/village') || pathname.startsWith('/rooms');
 
     try {
@@ -76,7 +91,48 @@ function DynamicHeadManager() {
       const themeColor = document.querySelector<HTMLMetaElement>("meta[name='theme-color']");
       const isLegal = pathname.startsWith('/terms') || pathname.startsWith('/privacy') || pathname.startsWith('/legal') || pathname.startsWith('/policy');
       const isAdmin = pathname.startsWith('/admin');
-      const isSocial = pathname.startsWith('/social');
+      const isSocial = pathname.startsWith('/social') || pathname.startsWith('/autocut') || pathname.startsWith('/social-studio');
+
+      // 🌐 Dynamic Canonical Tag & OpenGraph URL Management
+      let canonicalLink = document.querySelector<HTMLLinkElement>("link[rel='canonical']");
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+
+      let canonicalUrl = 'https://www.flowerpowervillage.com/';
+      if (host.includes('flowerpowerpizza.com') || pathname.startsWith('/pizza')) {
+        const cleanPath = pathname === '/' || pathname === '/pizza' ? '/' : pathname;
+        canonicalUrl = `https://www.flowerpowerpizza.com${cleanPath}`;
+      } else if (isCalendar) {
+        canonicalUrl = 'https://www.flowerpowervillage.com/calendar';
+      } else if (isWineList) {
+        canonicalUrl = 'https://www.flowerpowervillage.com/wine-list';
+      } else if (pathname.startsWith('/village')) {
+        canonicalUrl = 'https://www.flowerpowervillage.com/village';
+      } else if (pathname.startsWith('/rooms/')) {
+        canonicalUrl = `https://www.flowerpowervillage.com${pathname}`;
+      } else if (pathname.startsWith('/terms')) {
+        canonicalUrl = 'https://www.flowerpowervillage.com/terms';
+      } else if (pathname.startsWith('/privacy')) {
+        canonicalUrl = 'https://www.flowerpowervillage.com/privacy';
+      } else if (pathname.startsWith('/legal')) {
+        canonicalUrl = 'https://www.flowerpowervillage.com/legal';
+      } else {
+        const cleanPath = pathname === '/' ? '/' : pathname;
+        canonicalUrl = `https://www.flowerpowervillage.com${cleanPath}`;
+      }
+
+      canonicalLink.setAttribute('href', canonicalUrl);
+
+      let ogUrl = document.querySelector<HTMLMetaElement>("meta[property='og:url']");
+      if (!ogUrl) {
+        ogUrl = document.createElement('meta');
+        ogUrl.setAttribute('property', 'og:url');
+        document.head.appendChild(ogUrl);
+      }
+      ogUrl.setAttribute('content', canonicalUrl);
 
       if (isCalendar) {
         document.title = 'Flower Power Village · Calendario Disponibilità Live & Tariffe';
@@ -142,11 +198,10 @@ function DynamicHeadManager() {
     } catch (e) {
       console.warn('DynamicHeadManager safe catch:', e);
     }
-  }, []);
+  }, [location.pathname, location.search]);
 
   return null;
 }
-
 
 function RedirectToExternal({ url }: { url: string }) {
   useEffect(() => {
@@ -170,7 +225,8 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <DynamicHeadManager />
-        <Routes>
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <Routes>
           <Route path="/" element={<RootRouter />} />
           <Route path="/calendar" element={<ResortPublicCalendarPage />} />
           <Route path="/calendar/*" element={<ResortPublicCalendarPage />} />
@@ -182,6 +238,9 @@ function App() {
           <Route path="/village/wine-list/*" element={<VillageWineListPage />} />
           <Route path="/village/*" element={<VillageSite />} />
           <Route path="/pizza/*" element={<PizzaSite />} />
+          <Route path="/order" element={<PizzaSite />} />
+          <Route path="/about" element={<PizzaSite />} />
+          <Route path="/contact" element={<PizzaSite />} />
           <Route path="/admin" element={<AdminMain />} />
           <Route path="/dining" element={<DiningTabletSite />} />
           <Route path="/dining-tablet" element={<DiningTabletSite />} />
@@ -222,6 +281,7 @@ function App() {
           {/* Legacy hash-based admin redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </ErrorBoundary>
   );
