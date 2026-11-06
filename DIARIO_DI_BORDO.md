@@ -22,6 +22,21 @@
 
 ---
 
+### 🚀 [06/11/2026 - ORE 11:15] · ZERO-EGRESS SHIELD PERFEZIONATO (CACHE-CONTROL 31 GIORNI & SMART POLLING)
+- **Cosa abbiamo fatto:**
+  1. 🛡️ **Cache Edge 31 Giorni su Cloudflare (wsrv.nl)**:
+     - Aggiunto il parametro maxage=31d in src/pizza/utils/cacheBust.ts e in src/lib/mediaConfig.ts.
+     - I clienti che consultano pizze, bevande o alloggi memorizzano le immagini sul telefono e sui nodi edge Cloudflare per un mese, abbattendo le richieste ripetute verso Supabase Storage.
+  2. ⚡ **Smart Visibility Polling in Dashboard (Dashboard.tsx)**:
+     - Ottimizzato il polling degli ordini: se la scheda del browser o del tablet è minimizzata/in background, il polling si sospende evitando query continue a vuoto.
+     - Al ritorno sulla scheda (visibilitychange), gli ordini vengono aggiornati all'istante, mantenendo inalterato l'ascolto in tempo reale (Supabase Realtime).
+  3. 📦 **Verifica & Build**:
+     - Build completato con successo in 8.04s con 0 errori.
+- **File aggiornati:** src/pizza/utils/cacheBust.ts, src/lib/mediaConfig.ts, src/admin/components/Dashboard.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** 🟢 ATTIVO, PRESTAZIONI SITO ACCELERATE, ZERO RISCHIO PER I FLUSSI OPERATIVI.
+
+---
+
 ### 🚀 [05/11/2026 - ORE 22:25] · RISOLUZIONE CRASH GITHUB ACTIONS SCHEDULER & HARMONIZZAZIONE NEON SERVERLESS
 - **Cosa abbiamo fatto:**
   1. 🛠️ **Fix Errore di Sintassi Scheduler Dispatcher**:

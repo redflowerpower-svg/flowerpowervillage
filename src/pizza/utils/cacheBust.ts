@@ -12,5 +12,5 @@ export function withCacheBust(url: string | undefined | null): string {
   if (!cleanUrl.includes('supabase.co')) return cleanUrl;
 
   // Proxy Cloudflare globale gratuito con compressione WebP e cache permanente
-  return `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&output=webp&q=80`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&output=webp&q=80&maxage=31d`;
 }

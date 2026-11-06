@@ -645,8 +645,8 @@ async function sendOfficialTelegramPost({ topicId, title, format, brand, priceBa
   const brandName = brand === 'pizza'
     ? '🍕 Flower Power Pizza (Ranong)'
     : format === 'R1'
-    ? '🍽️ Flower Power Restaurant & Village (Koh Phayam)'
-    : '🌺 Flower Power Village (Koh Phayam)';
+      ? '🍽️ Flower Power Restaurant & Village (Koh Phayam)'
+      : '🌺 Flower Power Village (Koh Phayam)';
 
   // 1. Canale Stories (Topic 3): INVIO PULITO DIRETTO DEL SOLO VIDEO CON TASTI RAPIDI (Zero testo ridondante)
   if (isStories) {
@@ -953,7 +953,7 @@ async function publishToInstagram({ videoUrl, videoBuffer, caption = '', brand =
         igId = pageInfo.instagram_business_account.id;
       }
     }
-  } catch {}
+  } catch { }
 
   let creationId = null;
 

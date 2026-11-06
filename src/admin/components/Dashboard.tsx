@@ -378,7 +378,20 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
   // Poll orders every 10 seconds (fallback) and listen to Supabase Realtime changes
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 10000);
+
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
+      fetchOrders();
+    }, 25000);
+
+    const handleVisibilityChange = () => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        fetchOrders();
+      }
+    };
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
 
     const channel = supabase
       .channel('pizza_orders_realtime_changes')
@@ -393,6 +406,9 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
 
     return () => {
       clearInterval(interval);
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      }
       supabase.removeChannel(channel);
     };
   }, [fetchOrders]);

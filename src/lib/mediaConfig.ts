@@ -60,6 +60,7 @@ export function getOptimizedMediaUrl(
     output: format,
     q: quality.toString(),
     fit: fit,
+    maxage: '31d',
   });
 
   return `${WSRV_BASE_URL}?${params.toString()}`;
