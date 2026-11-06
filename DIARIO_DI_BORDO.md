@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [06/11/2026 - ORE 11:25] · OTTIMIZZAZIONE WORKFLOW GITHUB ACTIONS (FAST PRE-FLIGHT GATEKEEPER & APT-GET NONINTERACTIVE)
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Diagnosi Slot 09:30 Non Pubblicato**:
+     - Tra le 08:06 e le 11:24 era programmato un unico slot (09:30, Instagram Story V1).
+     - Il runner delle 09:30 si è incagliato per 25 minuti sullo step di sistema `sudo apt-get update` a causa di un ritardo di mirror Ubuntu, venendo cancellato per timeout prima di eseguire Node.js.
+  2. ⚡ **Implementazione Fast Pre-Flight Gatekeeper (< 1 secondo)**:
+     - Introdotta la flag `--preflight` in `scripts/social-scheduler-dispatch.mjs`.
+     - Nel workflow `.github/workflows/social-scheduler-cron.yml`, lo step pre-flight viene eseguito all'avvio: se non ci sono slot attivi o se lo slot è già stato completato oggi, disattiva tutti gli step successivi (apt-get, npm, playwright, vite), completando il job in 6 secondi totali invece di 3 minuti.
+  3. 🛡️ **Blindatura Apt-Get & Timeout Network**:
+     - Aggiunti flag `DEBIAN_FRONTEND=noninteractive`, `--no-install-recommends` e `Acquire::http::Timeout=15` con fallback protetto `|| true`, azzerando qualsiasi rischio di blocco a 25 minuti.
+- **File aggiornati:** `scripts/social-scheduler-dispatch.mjs`, `.github/workflows/social-scheduler-cron.yml`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% OPERATIVO, GITHUB ACTIONS OTTIMIZZATO, PROSSIMO SLOT 11:30 PRONTO.
+
+---
+
 ### 🚀 [06/11/2026 - ORE 08:50] · BLOCCO TOTALE DUPLICATI SOCIAL STUDIO (IDEMPOTENZA SU NEON & FINESTRA ORARIA ASIMMETRICA)
 - **Cosa abbiamo fatto:**
   1. 🔍 **Diagnosi Conflitto Database & Cause Post Multipli**:

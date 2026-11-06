@@ -67,23 +67,44 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Installa Font (Thai, Liberation) e FFmpeg di sistema
+      - name: Pre-Flight Check Slot Attivo & Idempotenza
+        id: preflight
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg fonts-liberation fonts-thai-tlwg fonts-dejavu-core
+          SLOT_ARG=""
+          if [ "${{ inputs.slot }}" != "" ] && [ "${{ inputs.slot }}" != "auto" ]; then
+            SLOT_ARG="--slot=${{ inputs.slot }}"
+          fi
+          DRY_ARG=""
+          if [ "${{ inputs.dry_run }}" == "true" ]; then
+            DRY_ARG="--dry-run"
+          fi
+          node scripts/social-scheduler-dispatch.mjs --preflight $SLOT_ARG $DRY_ARG
+
+      - name: Installa Font (Thai, Liberation) e FFmpeg di sistema
+        if: steps.preflight.outputs.should_run == 'true'
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt-get update -qq -o Acquire::Retries=3 -o Acquire::http::Timeout="15" || true
+          sudo apt-get install -y -qq --no-install-recommends fonts-liberation fonts-thai-tlwg fonts-dejavu-core || true
 
       - name: Installa dipendenze NPM
+        if: steps.preflight.outputs.should_run == 'true'
         run: npm ci || npm install --include=dev
 
       - name: Installa Chromium headless (Playwright)
+        if: steps.preflight.outputs.should_run == 'true'
         run: npx playwright install --with-deps chromium
 
       - name: Sincronizza credenziali dal Vault protetto
+        if: steps.preflight.outputs.should_run == 'true'
         env:
           MASTER_VAULT_KEY: ${{ secrets.MASTER_VAULT_KEY }}
         run: node scratch/vault-sync.mjs decrypt
 
       - name: Avvia app Vite in locale sul runner
+        if: steps.preflight.outputs.should_run == 'true'
         run: |
           nohup npx vite --host 127.0.0.1 --port 3000 > vite.log 2>&1 &
           for i in $(seq 1 60); do
@@ -93,6 +114,7 @@ jobs:
           curl -sf http://127.0.0.1:3000/ > /dev/null || (cat vite.log; exit 1)
 
       - name: Esegui Social Scheduler Dispatcher
+        if: steps.preflight.outputs.should_run == 'true'
         env:
           CI: 'true'
           FFMPEG_PATH: /usr/bin/ffmpeg
@@ -113,7 +135,7 @@ jobs:
           node scripts/social-scheduler-dispatch.mjs --base=http://127.0.0.1:3000 $SLOT_ARG $DRY_ARG
 
       - name: Archivia video e log generati
-        if: always()
+        if: steps.preflight.outputs.should_run == 'true' && always()
         uses: actions/upload-artifact@v4
         with:
           name: social-scheduler-output

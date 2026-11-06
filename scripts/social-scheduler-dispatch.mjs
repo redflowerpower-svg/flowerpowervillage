@@ -46,6 +46,7 @@ const getArg = (k, d = '') => {
 
 const dryRun = process.argv.slice(2).includes('--dry-run');
 const forceRun = process.argv.slice(2).includes('--force');
+const isPreflight = process.argv.slice(2).includes('--preflight');
 const base = getArg('base', 'http://localhost:3000').replace(/\/$/, '');
 const outDir = path.resolve(getArg('out', 'scratch/scheduler'));
 fs.mkdirSync(outDir, { recursive: true });
@@ -163,6 +164,43 @@ async function recordSlotCompleted(slot, summary = {}) {
       console.warn('[scheduler-dispatch] Avviso registrazione lock Neon:', err.message);
     }
   }
+}
+
+// ⚡ PRE-FLIGHT GATEKEEPER PER GITHUB ACTIONS (Decisione in < 1 secondo)
+if (isPreflight) {
+  (async () => {
+    const ghOutput = process.env.GITHUB_OUTPUT;
+    const setGhOutput = (k, v) => {
+      if (ghOutput && fs.existsSync(ghOutput)) {
+        fs.appendFileSync(ghOutput, `${k}=${v}\n`);
+      }
+    };
+
+    if (!targetSlot) {
+      console.log(`[preflight] ℹ️ Nessuno slot attivo da eseguire per l'orario ${currentBk.timeStr} a Bangkok.`);
+      setGhOutput('should_run', 'false');
+      process.exit(0);
+    }
+
+    const alreadyDone = await isSlotCompletedToday(targetSlot);
+    if (alreadyDone) {
+      console.log(`[preflight] 🛑 Slot ${targetSlot} già completato oggi a Bangkok (${currentBk.date.toISOString().slice(0, 10)}). Skip runner.`);
+      setGhOutput('should_run', 'false');
+      process.exit(0);
+    }
+
+    console.log(`[preflight] 🚀 Slot ${targetSlot} idoneo all'esecuzione! Avvio pipeline completa.`);
+    setGhOutput('should_run', 'true');
+    setGhOutput('target_slot', targetSlot);
+    process.exit(0);
+  })().catch(err => {
+    console.error('[preflight] Errore verifica:', err.message);
+    const ghOutput = process.env.GITHUB_OUTPUT;
+    if (ghOutput && fs.existsSync(ghOutput)) {
+      fs.appendFileSync(ghOutput, `should_run=true\n`);
+    }
+    process.exit(0);
+  });
 }
 
 // Carica configurazione Telegram
@@ -1653,8 +1691,10 @@ async function run() {
   console.log(`\n🎉 Esecuzione completata con successo!`);
 }
 
-run().catch(async (err) => {
-  console.error('[scheduler-dispatch] ERRORE FATALE:', err);
-  await sendFailedAlert(err, `Esecuzione Slot ${targetSlot}`);
-  process.exit(1);
-});
+if (!isPreflight) {
+  run().catch(async (err) => {
+    console.error('[scheduler-dispatch] ERRORE FATALE:', err);
+    await sendFailedAlert(err, `Esecuzione Slot ${targetSlot}`);
+    process.exit(1);
+  });
+}
