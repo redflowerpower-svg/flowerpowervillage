@@ -287,43 +287,45 @@ export function compileDeterministicConciergeReply(params: DeterministicTemplate
     availabilityNarrative = `Per quanto riguarda la disponibilità per un soggiorno continuativo ${numNights ? `di ${numNights} notti` : ''} ${isHighSeason ? `${currentMonthLabel} (Alta Stagione)` : ''}, desideriamo essere completamente trasparenti: al momento non abbiamo disponibilità consecutiva per l'intero periodo per due alloggi affiancati. Tuttavia, abbiamo diverse date singole e intervalli liberi ('buchi' nel calendario) tra le altre prenotazioni esistenti.`;
   }
 
-  // 4. Selezione Alloggi Idonei & Regole Climatizzazione Determistiche
+  // 4. Selezione Alloggi Idonei (con link A CAPO)
   let accommText = '';
-  let acText = '';
   const reqLower = (requestedAccommodation || '').toLowerCase();
   const isVilla = reqLower.includes('villa');
 
   if (isVilla || (numGuests && numGuests >= 6)) {
     accommText = `Alloggi consigliati:
-• Jungle Villa (4+4 pax, 2 camere, 2 bagni, 2 cucine e 2 salotti): https://www.flowerpowervillage.com/52-jungle-villa
-• Jungle Villa Left (2+2 pax, 1 King + 1 Divano Letto Queen): https://www.flowerpowervillage.com/53-jungle-villa-left
-• Jungle Villa Right (2+2 pax, 1 King + 1 Divano Letto Queen): https://www.flowerpowervillage.com/54-jungle-villa-right
-• Peace & Love Villa (2+2 pax, 1 King + 1 Divano Letto Queen): https://www.flowerpowervillage.com/51-villa-peace-love
-• Villa Penthouse (4 pax, 2 camere, 2 bagni, 1 King + 1 Divano Letto King): https://www.flowerpowervillage.com/22-villa-penthouse`;
-
-    acText = `❄️ Aria Condizionata (Ville):
-Le nostre ville dispongono di condizionatori portatili dimensionati per l'energia dell'isola (Penthouse e Jungle Villa completa dispongono di 2 unità, 1 per stanza; Peace & Love dispone di 1 unità).
-• Opzione All-Inclusive forfettaria: 400฿ al giorno per unità (800฿ per Penthouse e Jungle Villa completa con 2 unità).
-👉 Per i condizionatori portatili consigliamo vivamente l'opzione a consumo (Pay-per-use): 40฿ per kWh (~20฿ all'ora | ~0.50€), misurata dal contatore e saldata al checkout in base al consumo effettivo.
-(L'elettricità a Koh Phayam è generata localmente ed è costosa).`;
+• Jungle Villa (4+4 pax, 2 camere, 2 bagni, 2 cucine e 2 salotti)
+  https://www.flowerpowervillage.com/52-jungle-villa
+• Jungle Villa Left (2+2 pax, 1 King + 1 Divano Letto Queen)
+  https://www.flowerpowervillage.com/53-jungle-villa-left
+• Jungle Villa Right (2+2 pax, 1 King + 1 Divano Letto Queen)
+  https://www.flowerpowervillage.com/54-jungle-villa-right
+• Peace & Love Villa (2+2 pax, 1 King + 1 Divano Letto Queen)
+  https://www.flowerpowervillage.com/51-villa-peace-love
+• Villa Penthouse (4 pax, 2 camere, 2 bagni, 1 King + 1 Divano Letto King)
+  https://www.flowerpowervillage.com/22-villa-penthouse`;
   } else {
     // Bungalows default
     accommText = `Alloggi consigliati per le famiglie (ciascuno ideale per 2 adulti + 1 bambino, 1 letto King Size + letto singolo extra disponibile):
-• Yellow Bungalow (cucina privata e lounge tropicale): https://www.flowerpowervillage.com/11-yellow-bungalow
-• Red Bungalow (bagno tropicale all'aperto con doccia calda): https://www.flowerpowervillage.com/12-red-bungalow
-• Green Bungalow (immerso tra piante e alberi da frutto): https://www.flowerpowervillage.com/13-green-bungalow
+• Yellow Bungalow (cucina privata e lounge tropicale)
+  https://www.flowerpowervillage.com/11-yellow-bungalow
+• Red Bungalow
+  https://www.flowerpowervillage.com/12-red-bungalow
+• Green Bungalow
+  https://www.flowerpowervillage.com/13-green-bungalow
 
 Per il neonato, il bimbo può dormire comodamente nel lettone con i genitori; su richiesta è disponibile anche una culla (100–200 THB/notte).`;
-
-    acText = `❄️ Aria Condizionata (Bungalow):
-I nostri bungalow sono dotati di aria condizionata tradizionale fissa:
-• 500฿ al giorno All-Inclusive, oppure
-• A consumo (Pay-per-use) a 40฿ per kWh (~20฿ all'ora), misurati dal contatore al checkout.
-(L'elettricità a Koh Phayam è generata localmente ed è costosa).`;
   }
 
-  // 5. Sconti Esclusivi per Prenotazione Diretta sul Sito Web
-  const discountsText = `💰 Tariffe e Sconti Esclusivi (Solo Prenotazione Diretta sul Sito Web):
+  // 5. Aria Condizionata Sintetica
+  const acText = `❄️ Aria Condizionata & Opzioni Energetiche:
+Tutte le nostre sistemazioni (eccetto le tende glamping che hanno ventilatori ad alta potenza) sono provviste di aria condizionata.
+• Opzione All-Inclusive forfettaria: 500฿ al giorno per Bungalow e Camere Guesthouse (400฿ al giorno per unità per le Ville: 400฿ Peace & Love, Jungle Left, Jungle Right | 800฿ Penthouse e Jungle Villa Completa con 2 unità).
+• A consumo (Pay-per-use, vivamente consigliata per le Ville): 40฿ per kWh (~20฿ all'ora), misurati dal contatore e saldati al checkout.
+(L'elettricità a Koh Phayam è generata localmente ed è costosa).`;
+
+  // 6. Sconti Esclusivi per Prenotazione Diretta sul Sito Web
+  const discountsText = `💰 Tariffe e Sconti Esclusivi (Solo Prenotazione Diretta sul Nostro Sito Web):
 I prezzi visualizzati nelle caselle del calendario online sono le nostre tariffe ufficiali standard di listino.
 Prenotando direttamente tramite il nostro sito web (https://www.flowerpowervillage.com), al momento del checkout vengono applicati automaticamente i seguenti sconti progressivi esclusivi (senza bisogno di coupon):
 • 10% di Sconto Diretto Garantito su tutte le prenotazioni dirette
@@ -331,22 +333,24 @@ Prenotando direttamente tramite il nostro sito web (https://www.flowerpowervilla
 • 20% di Sconto Tariffa Mensile per soggiorni di oltre 30 giorni (30+ notti)
 Questo garantisce sempre la tariffa migliore in assoluto rispetto a qualsiasi portale esterno.`;
 
-  // 6. Dotazioni e Comfort del Villaggio
+  // 7. Dotazioni, Comfort e Come Raggiungerci (Ristorante con Pizza pezzo forte, zanzariere alle finestre, bagni con acqua calda)
   const amenitiesText = `Dotazioni e Comfort Inclusi:
-• Zanzariere pulite a chiusura totale su ogni letto
-• Bagno privato in ogni alloggio (Red e Green con suggestivo bagno tropicale all'aperto con acqua calda)
-• Elettricità continua 24/7
-• Rigoglioso giardino tropicale con abbondante ombra naturale, a soli 150 metri (1–2 minuti a piedi pianeggianti) dalla spiaggia di Buffalo Bay (Ao Khao Kwai)
-• Ristorante e Bakery italiana in loco: espresso, cappuccino, cornetti caldi artigianali, pizza a lievitazione naturale e pasta fresca ogni giorno
+• Bagno privato con acqua calda in tutti gli alloggi (eccetto la Camera Interna che non dispone di acqua calda).
+• Zanzariere integrate su tutte le finestre (non sopra i letti, poiché ogni stanza è dotata di ventilatori).
+• Elettricità continua 24/7.
+• Ristorante & Pizzeria Italiana in loco: la nostra vera Pizza Italiana artigianale (il pezzo forte del resort!), preparata rigorosamente con ingredienti di importazione italiana, accompagnata da pasta fresca e colazione bakery con espresso, cappuccino e cornetti caldi.
+• Posizione ideale: immerso in un rilassante giardino tropicale con abbondante ombra naturale, a soli 150 metri (1–2 minuti a piedi pianeggianti) dalla spiaggia di Buffalo Bay (Ao Khao Kwai).
+• Come Raggiungerci (How to Get Here): sul nostro sito web trovi tutte le indicazioni semplici e dettagliate per raggiungerci da Bangkok, Phuket, Khao Lak o Surat Thani:
+  https://www.flowerpowervillage.com/village/how-to-get-here
 ⚠️ Nota di sicurezza: nel giardino è severamente vietato accendere fuochi e campeggiare con tende.`;
 
-  // 7. Termini di Pagamento & Cancellazione (Autonomia sul Website)
+  // 8. Termini di Pagamento & Cancellazione (Acconto 30% online Carta/PayPal, Saldo 70% in CONTANTI all'arrivo)
   const paymentText = `Termini di Pagamento e Cancellazione:
-• Acconto del 30% per confermare la prenotazione, pagabile direttamente sul nostro sito web con Carta di Credito o PayPal.
-• Saldo residuo del 70% pagabile online o comodamente all'arrivo al check-in (Carta di Credito, PayPal o contanti THB).
+• Acconto del 30% per confermare la prenotazione, pagabile direttamente online sul nostro sito web con Carta di Credito o PayPal.
+• Il rimanente saldo del 70% dovrà essere pagato in contanti (THB) all'arrivo al check-in.
 • Cancellazione gratuita con rimborso totale al 100% dell'acconto fino a 14 giorni prima del check-in (entro i 14 giorni la caparra viene trattenuta).`;
 
-  // 8. Chiusura e CTA Calendario
+  // 9. Chiusura e CTA Calendario
   const cta = `📅 Calendario Live Interattivo: ${calendarUrl}
 
 Puoi visualizzare la griglia in tempo reale e prenotare direttamente dal link del sito oppure direttamente con me qui in chat! 🌴✨
@@ -373,9 +377,9 @@ Koh Phayam, Thailand`;
     '',
     discountsText,
     '',
-    amenitiesText,
-    '',
     acText,
+    '',
+    amenitiesText,
     '',
     paymentText,
     '',
@@ -405,12 +409,17 @@ Koh Phayam, Thailand`;
     '',
     acText,
     '',
-    '💳 *Caparra & Cancellazione:*',
-    '• 30% acconto sul sito con Carta o PayPal',
-    '• Saldo 70% online o all\'arrivo',
-    '• Rimborso 100% fino a 14 giorni prima del check-in',
+    '💳 *Caparra & Pagamento:*',
+    '• Acconto del 30% online sul sito con Carta o PayPal',
+    '• Saldo del 70% da pagare in contanti (THB) all\'arrivo',
+    '• Rimborso 100% per cancellazioni fino a 14 giorni prima del check-in',
     '',
-    '🌊 Buffalo Bay a soli 150m (1-2 min a piedi) e la nostra Bakery italiana artigianale vi aspettano!',
+    '🍕 *La Nostra Pizza & Servizi:*',
+    '• Vera Pizza Italiana artigianale con ingredienti 100% importati dall\'Italia, pasta fresca e bakery per la colazione',
+    '• Bagno privato con acqua calda (eccetto Camera Interna)',
+    '• Zanzariere integrate su tutte le finestre',
+    '• Buffalo Bay a soli 150m (1-2 min a piedi)',
+    '• Come arrivare: https://www.flowerpowervillage.com/village/how-to-get-here',
     '',
     'Puoi prenotare direttamente dal sito o qui in chat con me! 🌴✨'
   ].join('\n');
@@ -429,13 +438,6 @@ Koh Phayam, Thailand`;
   };
 }
 
-/**
- * =========================================================================
- * TRADUZIONE MULTILINGUA CON DEEPSEEK (CONFINAMENTO ALLA SOLA TRADUZIONE)
- * =========================================================================
- * DeepSeek NON inventa prezzi o regole: riceve SOLO il testo compilato a codice
- * e lo traduce fedelmente nella lingua dell'ospite mantenendo inalterati i prezzi numerici e i link URL.
- */
 export async function translateConciergeReply(params: {
   text: string;
   targetLang: string;

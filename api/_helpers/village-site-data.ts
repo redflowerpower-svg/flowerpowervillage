@@ -348,8 +348,8 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
     },
     {
       "Voce": "Protezione Zanzare",
-      "Valore Ufficiale": "Zanzariera su OGNI letto",
-      "Dettagli": "Tutti gli alloggi (ville, bungalow, tende glamping e camere) sono dotati di zanzariere pulite e completamente chiuse su tutti i letti."
+      "Valore Ufficiale": "Zanzariere su tutte le finestre",
+      "Dettagli": "Tutte le finestre sono dotate di zanzariere a maglia fitta. Non sono posizionate sui letti perché ogni stanza è dotata di ventilatori."
     },
     {
       "Voce": "Bambini & Culle",
@@ -363,8 +363,13 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
     },
     {
       "Voce": "Deposito & Modalità di Pagamento",
-      "Valore Ufficiale": "30% alla prenotazione · Carta di Credito o PayPal sul nostro sito web",
-      "Dettagli": "Per confermare la prenotazione diretta è richiesto un deposito pari al 30% del totale del soggiorno pagabile direttamente sul nostro sito web tramite Carta di Credito o PayPal. Il saldo del 70% può essere pagato comodamente online sul sito web o all'arrivo al check-in (Carta di Credito, PayPal o contanti THB). Il cliente può gestire l'intera prenotazione e pagamento in totale autonomia online."
+      "Valore Ufficiale": "30% acconto online (Carta o PayPal) · Saldo 70% in contanti all'arrivo",
+      "Dettagli": "Per confermare la prenotazione diretta è richiesto un deposito pari al 30% del totale pagabile online sul sito web con Carta di Credito o PayPal. Il rimanente saldo del 70% dovrà essere pagato in contanti (THB) all'arrivo al check-in."
+    },
+    {
+      "Voce": "Come Raggiungerci (How to Get Here)",
+      "Valore Ufficiale": "Guida completa transfer sul sito web",
+      "Dettagli": "Indicazioni dettagliate e semplici per raggiungere comodamente Flower Power Village da Bangkok, Phuket, Khao Lak o Surat Thani, con orari motoscafi e contatti: https://www.flowerpowervillage.com/village/how-to-get-here"
     },
     {
       "Voce": "Termini di Cancellazione e Rimborso 100%",
