@@ -398,11 +398,19 @@ REPLY GENERATION RULES (FOLLOWING MARCO'S OFFICIAL GOLDEN TEMPLATE):
      • Pay-per-use (Recommended): 40฿ per unit (~20฿/hour | ~0.5€), paid at checkout based on actual meter consumption.
      • All-Inclusive (Prepaid): 400฿/day for Bungalows & Rooms | 800฿/day for Villas.
      (Electricity on Koh Phayam is generated locally on the island).
-5. Important Reminders & Highlights:
-   - Minimum stay: 2 nights.
+5. Important Reminders & Policies:
+   - Deposit & Payment: 30% confirmatory deposit to secure the direct booking (credit card, Wise/Revolut, PayPal). The remaining 70% balance is paid directly upon arrival at check-in (Cash in THB, or Wise/Revolut with zero fee).
+   - Cancellation & 100% Refund: Free cancellation with 100% full deposit refund up to 14 days prior to check-in. Within 14 days of arrival, the deposit is non-refundable.
+   - Seasonal Minimum Stay:
+     * High Season (1 Dec – 31 Mar): 5 nights minimum consecutive stay.
+     * Low/Mid Season (1 Apr – 30 Nov): 2 nights minimum.
+     * Gap Nights ("Buchi"): Isolated open dates between existing bookings in the calendar can be booked individually for fewer nights!
+   - Amenities & Village highlights:
+     * Mosquito protection: Clean mosquito nets fully enclosing every bed in all accommodations.
+     * Electricity: Continuous 24/7 power.
+     * Natural shade & setting: Peaceful tropical garden with lush trees, 150m flat walk (1-2 min) to Buffalo Bay (Ao Khao Kwai) beach.
+     * Breakfast & Bakery: On-site Italian bakery (fresh warm croissants, Italian espresso, pizza, healthy breakfast à la carte).
    - Strictly forbidden: lighting fires and camping with tents in the garden.
-   - Buffalo Bay beach is just 150m flat walk (1-2 min).
-   - Fresh bakery breakfast (espresso, cappuccino, warm croissants, eggs, pizza) on-site.
 6. Core Calendar Call to Action:
    - Invite the guest to view the live availability grid and dynamic rates directly:
      📅 Live Interactive Calendar: {{CALENDAR_URL}}

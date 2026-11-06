@@ -1102,6 +1102,74 @@ async function publishToInstagram({ videoUrl, videoBuffer, caption = '', brand =
   return { ok: true, id: pData.id };
 }
 
+// 🎵 Helper TikTok Token (Pizzeria Ranong & Villaggio Koh Phayam)
+async function getTikTokToken(brand = 'pizza') {
+  try {
+    if (neonSql) {
+      const rows = await neonSql`SELECT bot_token FROM telegram_config WHERE id = ${`tiktok_${brand}`} LIMIT 1;`;
+      if (rows?.[0]?.bot_token) return rows[0].bot_token;
+    }
+  } catch {}
+  try {
+    const sb = getSupabase();
+    if (sb) {
+      const { data } = await sb.from('telegram_config').select('bot_token').eq('id', `tiktok_${brand}`).maybeSingle();
+      if (data?.bot_token) return data.bot_token;
+    }
+  } catch {}
+  return null;
+}
+
+// 🎵 Invia Video direttamente a TikTok come Bozza (Inbox) con Notifica Push su Smartphone
+async function publishToTikTokDraft({ videoBuffer, brand = 'pizza' }) {
+  if (dryRun) {
+    console.log(`[DRY-RUN] Pubblicazione Bozza TikTok (${brand}) buffer: ${videoBuffer?.length || 0} bytes`);
+    return { ok: true, dryRun: true, publish_id: 'mock_tiktok_draft_id' };
+  }
+  const token = await getTikTokToken(brand);
+  if (!token) {
+    throw new Error(`Token TikTok non trovato per brand ${brand}`);
+  }
+
+  const initRes = await fetch('https://open.tiktokapis.com/v2/post/publish/inbox/video/init/', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json; charset=UTF-8'
+    },
+    body: JSON.stringify({
+      source_info: {
+        source: 'FILE_UPLOAD',
+        video_size: videoBuffer.length,
+        chunk_size: videoBuffer.length,
+        total_chunk_count: 1
+      }
+    })
+  });
+
+  const initData = await initRes.json();
+  if (!initRes.ok || !initData?.data?.upload_url) {
+    throw new Error(`TikTok inbox init fallito: ${initData?.error?.message || JSON.stringify(initData)}`);
+  }
+
+  const putRes = await fetch(initData.data.upload_url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'video/mp4',
+      'Content-Range': `bytes 0-${videoBuffer.length - 1}/${videoBuffer.length}`,
+      'Content-Length': String(videoBuffer.length)
+    },
+    body: videoBuffer
+  });
+
+  if (!putRes.ok && putRes.status !== 201 && putRes.status !== 200) {
+    throw new Error(`Upload buffer a TikTok fallito con HTTP ${putRes.status}`);
+  }
+
+  console.log(`🎉 [scheduler-dispatch] Video inviato con successo alle Bozze di TikTok (${brand})! (Publish ID: ${initData.data.publish_id})`);
+  return { ok: true, publish_id: initData.data.publish_id, brand };
+}
+
 // Invia messaggio di testo/foto a Telegram Topic (per post gruppi)
 async function sendMessageToTelegram({ topicId, text, photoUrl }) {
   if (dryRun) {
@@ -1546,13 +1614,51 @@ async function run() {
       details: 'Instagram Story V3'
     };
   } else if (is1830) {
-    console.log(`🎵 [18:30 BANGKOK] Slot TikTok Feed API (Post Feed 9:16)`);
-    console.log(`ℹ️ Canale TikTok Feed API attualmente disattivato in attesa dell'approvazione v2 da TikTok for Developers. Slot saltato correttamente.`);
-    executedSummary = {
-      brand: 'tiktok',
-      title: 'TikTok Feed API Slot',
-      details: 'Disattivato in attesa approvazione v2'
-    };
+    console.log(`🎵 [18:30 BANGKOK] Slot TikTok Feed (Post Feed 9:16) — Invio Automatico Bozza con Notifica Push`);
+    const p1Res = await renderVideoMode('P1');
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(p1Res.filePath);
+
+    try {
+      const ttRes = await publishToTikTokDraft({
+        videoBuffer: buffer,
+        brand: 'pizza'
+      });
+      await sendPublishedLog({
+        brand: 'pizza',
+        channel: '🎵 TikTok (@flowerpowerpizzaranong)',
+        format: 'P1',
+        title: 'Video Serale Pizza 48h inviato alle Bozze TikTok',
+        mediaId: ttRes.publish_id,
+        details: 'Video MP4 HD caricato direttamente nelle bozze TikTok di @flowerpowerpizzaranong. Notifica push inviata allo smartphone: tocca per pubblicare con 1 tocco!'
+      });
+      executedSummary = {
+        brand: 'pizza',
+        title: 'Bozza TikTok Inviata (@flowerpowerpizzaranong)',
+        details: `Publish ID: ${ttRes.publish_id}`
+      };
+    } catch (ttErr) {
+      console.warn('[scheduler-dispatch] Invio Bozza TikTok non riuscito, fallback su Telegram Topic 3:', ttErr.message);
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_TIKTOK_STORIES,
+        title: 'P1 Video Serale Ranong — TikTok Stories',
+        format: 'P1',
+        brand: 'pizza',
+        filePath: p1Res.filePath
+      });
+      await sendFailedAlert({
+        brand: 'pizza',
+        channel: '🎵 TikTok',
+        format: 'P1',
+        title: 'Invio Bozza TikTok Pizzeria',
+        error: ttErr,
+        fallbackAction: 'Video inviato a Telegram Topic 3 per pubblicazione manuale.'
+      });
+      executedSummary = {
+        brand: 'pizza',
+        title: 'P1 Fallback Telegram Stories',
+        details: ttErr.message
+      };
+    }
   } else if (is1930) {
     console.log(`🍕 [19:30 BANGKOK] Slot Cena Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
     const p1Res = await renderVideoMode('P1');

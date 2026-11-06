@@ -2069,6 +2069,22 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
         }
       }
 
+      // Se non ancora in memoria o su storage, scarica direttamente dall'URL video sorgente
+      if (!videoBuffer && videoUrl && String(videoUrl).startsWith("http")) {
+        try {
+          console.log(`[SocialPublisher] Fetching videoBuffer directly from videoUrl: ${videoUrl}`);
+          const vRes = await fetch(videoUrl);
+          if (vRes.ok) {
+            const arr = await vRes.arrayBuffer();
+            videoBuffer = Buffer.from(arr);
+            if (targetFileName) cacheVideoBuffer(targetFileName, videoBuffer);
+            console.log(`[SocialPublisher] Downloaded videoBuffer directly (${videoBuffer.length} bytes)`);
+          }
+        } catch (fErr) {
+          console.warn("[SocialPublisher] Direct fetch from videoUrl failed:", fErr);
+        }
+      }
+
       let payload: any;
       const isDirectFileUpload = !!(videoBuffer && videoBuffer.length > 0);
 
@@ -2185,9 +2201,11 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       // L'utente riceve una notifica push istantanea sull'app TikTok e con un solo tocco ("Pubblica") il video va online!
       const isUnaudited = !isSuccess && (
         ttData.error?.code === "unaudited_client_can_only_post_to_private_accounts" ||
+        ttData.error?.code === "url_ownership_unverified" ||
         (ttData.error?.message && (
           ttData.error.message.toLowerCase().includes("unaudited") ||
-          ttData.error.message.toLowerCase().includes("private accounts")
+          ttData.error.message.toLowerCase().includes("private accounts") ||
+          ttData.error.message.toLowerCase().includes("ownership")
         ))
       );
 
