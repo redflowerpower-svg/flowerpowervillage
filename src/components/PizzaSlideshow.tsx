@@ -83,6 +83,37 @@ export default function PizzaSlideshow() {
     url: '', name: '', animClass: '', origin: '50% 50%', visible: false, animVer: 1
   });
   const [activeSlot, setActiveSlot] = useState<'A' | 'B'>('A');
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  // Smart LCP Protection: Start continuous slide rotation only after user interaction or idle timeout (25s)
+  useEffect(() => {
+    const startCycle = () => {
+      setHasInteracted(true);
+      window.removeEventListener('scroll', startCycle);
+      window.removeEventListener('touchstart', startCycle);
+      window.removeEventListener('mousemove', startCycle);
+      window.removeEventListener('click', startCycle);
+      window.removeEventListener('keydown', startCycle);
+    };
+
+    window.addEventListener('scroll', startCycle, { passive: true });
+    window.addEventListener('touchstart', startCycle, { passive: true });
+    window.addEventListener('mousemove', startCycle, { passive: true });
+    window.addEventListener('click', startCycle, { passive: true });
+    window.addEventListener('keydown', startCycle, { passive: true });
+
+    // Fallback: auto-start after 25s for human visitors that don't interact immediately
+    const fallbackTimer = setTimeout(startCycle, 25000);
+
+    return () => {
+      window.removeEventListener('scroll', startCycle);
+      window.removeEventListener('touchstart', startCycle);
+      window.removeEventListener('mousemove', startCycle);
+      window.removeEventListener('click', startCycle);
+      window.removeEventListener('keydown', startCycle);
+      clearTimeout(fallbackTimer);
+    };
+  }, []);
 
   // References for category play queue
   const categoryQueue = useRef<string[]>([]);
@@ -141,8 +172,9 @@ export default function PizzaSlideshow() {
     img.src = url;
   };
 
-  // Proactive preloading of the next category items
+  // Proactive preloading of the next category items (starts on interaction)
   useEffect(() => {
+    if (!hasInteracted) return;
     if (categoryQueue.current.length === 0) {
       refillCategoryQueue(lastCategory.current);
     }
@@ -151,7 +183,7 @@ export default function PizzaSlideshow() {
       const items = FOOD_CATEGORIES[cat];
       items.forEach(item => preloadImage(getSlideUrl(item)));
     });
-  }, [activeSlot]);
+  }, [hasInteracted, activeSlot]);
 
   // Initial setup: force first slide to be a Pizza (pizzeClassiche)
   useEffect(() => {
@@ -174,8 +206,10 @@ export default function PizzaSlideshow() {
     setActiveSlot('A');
   }, []);
 
-  // Timer loop for alternating buffers
+  // Timer loop for alternating buffers (starts on interaction or idle fallback)
   useEffect(() => {
+    if (!hasInteracted) return;
+
     const interval = setInterval(() => {
       const { item } = getNextFoodItem();
       const randomAnim = ANIMATION_CLASSES[Math.floor(Math.random() * ANIMATION_CLASSES.length)];
@@ -207,7 +241,7 @@ export default function PizzaSlideshow() {
     }, SLIDE_DURATION);
 
     return () => clearInterval(interval);
-  }, [activeSlot]);
+  }, [hasInteracted, activeSlot]);
 
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-stone-950 z-0 select-none pointer-events-none">
