@@ -24,11 +24,7 @@ if (fs.existsSync('.env')) {
 const supabaseUrl = env.VITE_SUPABASE_URL || env.SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co';
 const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY;
 const managementToken = env.SUPABASE_MANAGEMENT_TOKEN || process.env.SUPABASE_MANAGEMENT_TOKEN || '';
-if (!supabaseUrl || !supabaseKey) {
-  console.error('[sentinel] Credenziali Supabase mancanti in .env');
-  process.exit(1);
-}
-const sb = createClient(supabaseUrl, supabaseKey);
+const sb = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
 // 🛡️ Verifica telemetria ufficiale stato infrastruttura via Supabase Management API
 async function checkManagementHealth() {
@@ -111,6 +107,10 @@ async function scanBucket(bucketName, prefix = '') {
 }
 
 export async function runSupabaseQuotaSentinel({ autoFix = true, notifyTelegram = true, isDailyReport = false } = {}) {
+  if (!sb) {
+    console.log('[sentinel] Credenziali Supabase non configurate in questo step, sentinel a riposo.');
+    return { ok: true, skipped: true };
+  }
   console.log('🛡️ [sentinel] Avvio scansione sanitaria quote Supabase Storage & Egress Guard...');
 
   const { data: buckets, error: bErr } = await sb.storage.listBuckets();

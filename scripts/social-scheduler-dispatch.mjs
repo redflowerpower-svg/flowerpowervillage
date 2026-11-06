@@ -29,7 +29,6 @@ import path from 'path';
 import { spawnSync, execFileSync } from 'child_process';
 import { createClient } from '@supabase/supabase-js';
 import { neon } from '@neondatabase/serverless';
-import { runSupabaseQuotaSentinel } from './supabase-sentinel.mjs';
 
 const env = { ...process.env };
 if (fs.existsSync('.env')) {
@@ -1225,6 +1224,7 @@ async function run() {
   // 🛡️ Monitoraggio Sanitario & Egress Guard Supabase Storage (Auto-Healing attivo)
   // Alle 08:00 invia automaticamente il report quotidiano di telemetria su Topic 301
   try {
+    const { runSupabaseQuotaSentinel } = await import('./supabase-sentinel.mjs');
     await runSupabaseQuotaSentinel({ autoFix: true, notifyTelegram: true, isDailyReport: is0800 });
   } catch (sentinelErr) {
     console.warn('[scheduler-dispatch] Watchdog sentinel warning:', sentinelErr.message);
