@@ -589,3 +589,219 @@ ${userFeedback}
     summaryOfChanges: parsed.summaryOfChanges || 'Risposta corretta in base al feedback'
   };
 }
+
+
+export type ConciergeIntent = 'GUEST_INQUIRY' | 'KNOWLEDGE_UPDATE';
+
+/**
+ * Classifica in automatico l'intento del messaggio Telegram senza prefissi obbligatori.
+ * Distingue se si tratta di una richiesta ospite/prenotazione o di un aggiornamento del database/template.
+ */
+export async function classifyTelegramIntent(text: string): Promise<ConciergeIntent> {
+  const clean = text.trim().toLowerCase();
+
+  // 1. Prefissi espliciti (fast-path)
+  const updatePrefixes = [
+    'template:', 'modello:', 'regola:', 'regole:', 'info:', 'direttiva:', 
+    'aggiorna:', 'nozione:', 'database:', 'nota:', 'memorizza:', 'salva regola:'
+  ];
+  if (updatePrefixes.some(p => clean.startsWith(p))) {
+    return 'KNOWLEDGE_UPDATE';
+  }
+
+  // 2. Pattern forti per richiesta ospite (booking inquiry)
+  const hasGreeting = /^(hi|hello|ciao|salve|buongiorno|buonasera|dear|bonjour|hola|hallo)\b/i.test(clean);
+  const hasStayWords = /(night|notte|notti|stay|soggiorn|check-in|checkout|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|genn|febbr|marz|magg|giugn|lugl|agost|sett|ott|nov|dic)/i.test(clean);
+  const hasPaxWords = /\b(\d+)\s*(adult|child|kid|pers|pax|ospit|people|guests)/i.test(clean);
+  const hasInquiryKeywords = /(how much|quanto costa|prezzo|price|available|disponibil|is there|do you have|avete una|vorrei prenotare|booking|bungalow|villa|tenda|tent)/i.test(clean);
+
+  if ((hasGreeting && (hasStayWords || hasPaxWords || hasInquiryKeywords)) || (hasStayWords && hasPaxWords)) {
+    return 'GUEST_INQUIRY';
+  }
+
+  // 3. Pattern forti per nozione / regola operativa (knowledge update)
+  const knowledgeMarkers = [
+    'da oggi', 'da domani', 'da dicembre', 'da gennaio', 'da febbraio', 'dal 1',
+    'ricordati che', 'tieni presente che', 'nota bene', 'nuova regola', 'nuovo orario',
+    'abbiamo introdotto', 'i prezzi del noleggio', 'i massaggi costano', 'il taxi costa',
+    'il motoscafo costa', 'la cucina chiude', 'la bakery apre', 'accettiamo carte',
+    'la colazione costa', 'la spiaggia dista', 'la commissione è', 'la commissione e'
+  ];
+  if (knowledgeMarkers.some(m => clean.includes(m))) {
+    return 'KNOWLEDGE_UPDATE';
+  }
+
+  // 4. Se ambiguo, consultiamo DeepSeek in modalità ultra-rapida (temperatura 0.0)
+  try {
+    const apiKey = await getDeepSeekApiKey();
+    if (!apiKey) return 'GUEST_INQUIRY';
+
+    const res = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        temperature: 0.0,
+        messages: [
+          {
+            role: 'system',
+            content: `You are an intent classifier for a hotel messaging bot (Flower Power Village, Thailand).
+Classify whether the text is:
+- "GUEST_INQUIRY": A message from a traveler or potential guest inquiring about room availability, prices, booking, dates, or amenities.
+- "KNOWLEDGE_UPDATE": A message from the hotel owner/manager providing a response template, an operational directive, an updated policy, transport prices, restaurant hours, or hotel information to store in the knowledge base.
+
+Respond STRICTLY in JSON: {"intent": "GUEST_INQUIRY" | "KNOWLEDGE_UPDATE"}`
+          },
+          { role: 'user', content: text }
+        ],
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content || '{}';
+      const parsed = JSON.parse(content);
+      if (parsed.intent === 'KNOWLEDGE_UPDATE' || parsed.intent === 'GUEST_INQUIRY') {
+        return parsed.intent;
+      }
+    }
+  } catch (err) {
+    console.warn('[classifyTelegramIntent] DeepSeek classifier error:', err);
+  }
+
+  return 'GUEST_INQUIRY';
+}
+
+export interface KnowledgeUpdateResult {
+  title: string;
+  content: string;
+  category: '01_Alloggi_e_Capienze' | '02_Trasporti_e_Arrivi' | '03_Ristorante_e_Bakery' | '04_Policy_e_Villaggio' | '05_Regole_e_FAQ_Telegram';
+  categoryTitle: string;
+  isTemplate: boolean;
+  savedToDb: boolean;
+  savedToSheet: boolean;
+  summary: string;
+}
+
+/**
+ * Elabora una nozione o un template inviato dal manager su Telegram,
+ * estrae titolo e contenuto, individua la scheda corretta e aggiorna DB, RAM e Google Sheets.
+ */
+export async function processKnowledgeUpdate(text: string): Promise<KnowledgeUpdateResult> {
+  const apiKey = await getDeepSeekApiKey();
+  if (!apiKey) {
+    throw new Error('DEEPSEEK_API_KEY non configurata nel server');
+  }
+
+  const systemPrompt = `You are the knowledge base architect for Flower Power Village (Koh Phayam, Thailand).
+The hotel manager (Marco) sent an operational update, a response template, or a new piece of information for the resort database.
+
+YOUR TASK:
+1. Extract a concise, elegant TITLE in Italian (max 5-7 words, e.g. "Serata Barbecue di Pesce Fresco", "Nuovo Van 9 Posti Mr. Gong", "Template Risposta Standard Famiglie").
+2. Extract the CONTENT: Clean, well-formulated Italian text with essential details, prices in THB, hours, and conditions.
+3. Categorize into EXACTLY one of these 5 sheets:
+   - "01_Alloggi_e_Capienze" (Room amenities, capacity, bungalows, beds, AC, mosquito nets)
+   - "02_Trasporti_e_Arrivi" (Speedboats, ferries, Mr. Gong driver, taxi, flights, scooters, bus)
+   - "03_Ristorante_e_Bakery" (Breakfast, bakery hours, pizza, dinner, special dishes, prices)
+   - "04_Policy_e_Villaggio" (Buffalo Bay 150m, Wi-Fi fiber, cribs, pets, card payments, cancellations)
+   - "05_Regole_e_FAQ_Telegram" (Response templates, tone of voice, discount rules, recurring guest questions)
+4. Determine if it is a template (isTemplate: true if it is a pre-written draft message for guests).
+5. Provide a 1-sentence summary of what was learned.
+
+Return STRICTLY valid JSON:
+{
+  "title": "...",
+  "content": "...",
+  "category": "01_Alloggi_e_Capienze" | "02_Trasporti_e_Arrivi" | "03_Ristorante_e_Bakery" | "04_Policy_e_Villaggio" | "05_Regole_e_FAQ_Telegram",
+  "isTemplate": false,
+  "summary": "..."
+}`;
+
+  const res = await fetch('https://api.deepseek.com/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      temperature: 0.2,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: text }
+      ],
+      response_format: { type: 'json_object' }
+    })
+  });
+
+  if (!res.ok) {
+    throw new Error(`Errore DeepSeek API (${res.status}): ${await res.text()}`);
+  }
+
+  const aiData = await res.json();
+  const rawContent = aiData.choices?.[0]?.message?.content || '{}';
+  const cleanJson = rawContent.trim().replace(/^\`\`\`json/i, '').replace(/\`\`\`$/i, '').trim();
+  const parsed = JSON.parse(cleanJson);
+
+  const title = (parsed.title || 'Nuova Regola / Direttiva').trim();
+  const content = (parsed.content || text).trim();
+  const category = parsed.category || '05_Regole_e_FAQ_Telegram';
+  const isTemplate = Boolean(parsed.isTemplate);
+  const summary = parsed.summary || 'Informazione acquisita e memorizzata.';
+
+  // Salvataggio su Supabase concierge_memory
+  const client = getSupabaseClient();
+  let savedToDb = false;
+  if (client) {
+    try {
+      const { error } = await client
+        .from('concierge_memory')
+        .insert({
+          category,
+          title,
+          content,
+          active: true
+        });
+      savedToDb = !error;
+    } catch (dbErr) {
+      console.warn('[processKnowledgeUpdate] Supabase insert warning:', dbErr);
+    }
+  }
+
+  // Registrazione e invalidazione cache in google-sheets-sync
+  let savedToSheet = false;
+  try {
+    const { recordTelegramUpdateToKnowledge } = await import('./google-sheets-sync.js');
+    await recordTelegramUpdateToKnowledge({
+      rawFeedback: text,
+      extractedTitle: title,
+      extractedContent: content
+    });
+    savedToSheet = true;
+  } catch (sheetErr) {
+    console.warn('[processKnowledgeUpdate] Google Sheet sync warning:', sheetErr);
+  }
+
+  const CATEGORY_TITLES: Record<string, string> = {
+    '01_Alloggi_e_Capienze': '01. Alloggi & Capienze',
+    '02_Trasporti_e_Arrivi': '02. Trasporti & Arrivi',
+    '03_Ristorante_e_Bakery': '03. Ristorante & Bakery',
+    '04_Policy_e_Villaggio': '04. Policy & Villaggio',
+    '05_Regole_e_FAQ_Telegram': '05. Regole & FAQ Telegram'
+  };
+
+  return {
+    title,
+    content,
+    category,
+    categoryTitle: CATEGORY_TITLES[category] || category,
+    isTemplate,
+    savedToDb,
+    savedToSheet,
+    summary
+  };
+}

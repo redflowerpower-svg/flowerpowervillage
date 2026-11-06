@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { processBookingInquiry, refineReplyWithFeedback } from "../_helpers/ai-booking-concierge.js";
+import { processBookingInquiry, refineReplyWithFeedback, classifyTelegramIntent, processKnowledgeUpdate } from "../_helpers/ai-booking-concierge.js";
 import { saveMemoryItem } from "../_helpers/concierge-memory.js";
 import { identifyTargetTab, recordTelegramUpdateToKnowledge } from "../_helpers/google-sheets-sync.js";
 import {
@@ -584,6 +584,60 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               ...(threadId ? { message_thread_id: threadId } : {})
             })
           }).catch(() => {});
+
+          // Auto-Intent Classification: Guest Inquiry vs Knowledge / Template Update
+          const intent = await classifyTelegramIntent(msgText);
+
+          if (intent === 'KNOWLEDGE_UPDATE') {
+            try {
+              const kResult = await processKnowledgeUpdate(msgText);
+
+              const replyHtml = [
+                kResult.isTemplate 
+                  ? '📋 <b>AI CONCIERGE — NUOVO TEMPLATE ACQUISITO!</b>'
+                  : '🌿 <b>AI CONCIERGE — NUOVA NOZIONE ACQUISITA!</b>',
+                '',
+                `📌 <b>Titolo:</b> <code>${escapeHtml(kResult.title)}</code>`,
+                `📂 <b>Scheda Google Sheet:</b> <code>${escapeHtml(kResult.categoryTitle)}</code>`,
+                '',
+                '📝 <b>Contenuto Memorizzato:</b>',
+                `<i>"${escapeHtml(kResult.content)}"</i>`,
+                '',
+                `✨ <i>${escapeHtml(kResult.summary)}</i>`,
+                '',
+                '⚡ <b>Stato:</b> Attivo istantaneamente per le risposte del bot Telegram e per il Chatbot del sito web!'
+              ].join('\n');
+
+              const sendRes = await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  chat_id: chatId,
+                  text: replyHtml,
+                  parse_mode: 'HTML',
+                  disable_web_page_preview: true,
+                  ...(threadId ? { message_thread_id: threadId } : {}),
+                  reply_to_message_id: messageId
+                })
+              });
+              const sendJson = await sendRes.json();
+              return res.status(200).json({ status: 'concierge_knowledge_saved', ok: sendJson.ok, result: kResult });
+            } catch (kErr: any) {
+              console.error('[processKnowledgeUpdate Error]:', kErr);
+              await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  chat_id: chatId,
+                  text: `⚠️ <b>Errore memorizzazione nozione:</b> ${escapeHtml(kErr.message)}`,
+                  parse_mode: 'HTML',
+                  ...(threadId ? { message_thread_id: threadId } : {}),
+                  reply_to_message_id: messageId
+                })
+              }).catch(() => {});
+              return res.status(200).json({ status: 'knowledge_error', error: kErr.message });
+            }
+          }
 
           try {
             const inquiryResult = await processBookingInquiry({
