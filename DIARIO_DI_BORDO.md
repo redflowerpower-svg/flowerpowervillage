@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [06/11/2026 - ORE 12:28] · AGGANCIO CANALE DEDICATO TOPIC "CONCIERGE BOT" (FPV DASHBOARD)
+- **Cosa abbiamo fatto:**
+  1. 🤖 **Configurazione Nuovo Topic "Concierge Bot"**:
+     - Aggiornato l'handler del webhook del Villaggio (api/_handlers/telegram.ts) per il nuovo topic Concierge Bot nel Supergruppo FPV Dashboard (-1004329392611).
+     - Introdotta la registrazione e memorizzazione dinamica automatica del threadId in telegram_config (village_topic_concierge).
+  2. 💬 **Personalizzazione Messaggio di Benvenuto & Mappatura**:
+     - Aggiornato il messaggio /start e /help con intestazione ufficiale per il topic Concierge Bot.
+     - Aggiunta la costante CONCIERGE_BOT in VILLAGE_TOPICS all'interno di api/_helpers/telegram.ts.
+  3. 📦 **Verifica & Build**:
+     - Eseguito npm run build: completato con successo in 7.60s.
+- **File aggiornati:** api/_handlers/telegram.ts, api/_helpers/telegram.ts, DIARIO_DI_BORDO.md.
+- **Stato:** 🟢 100% OPERATIVO, CONCIERGE BOT PRONTO SUL NUOVO TOPIC.
+
+---
+
 ### 🚀 [06/11/2026 - ORE 12:15] · CONSOLIDAMENTO TOTALE SOCIAL STUDIO SU NEON (100% ZERO-SUPABASE & SYNC 14 CHIAVI)
 - **Cosa abbiamo fatto:**
   1. 🔑 **Sincronizzazione Completa 14 Chiavi Social su Neon (telegram_config)**:
