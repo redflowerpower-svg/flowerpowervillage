@@ -312,9 +312,14 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Dettagli": "Le camere dispongono di condizionatori portatili dimensionati per l'energia dell'isola; i bungalow e le ville dispongono di condizionatori fissi tradizionali. Due opzioni: 1) Pay-per-use a consumo (Consigliata) a 40฿ per unità (~20฿ per ora | ~0.50€) pagati al checkout in base al consumo effettivo del contatore; 2) All-Inclusive prepagata: 400฿/giorno per bungalow e camere (~12€) e 800฿/giorno per le ville (~24€). L'elettricità a Koh Phayam è generata localmente ed è molto costosa."
     },
     {
-      "Voce": "Soggiorno Minimo",
-      "Valore Ufficiale": "Minimo 2 notti",
-      "Dettagli": "Tutti i soggiorni al Flower Power Village richiedono un soggiorno minimo obbligatorio di 2 notti consecutive."
+      "Voce": "Soggiorno Minimo Stagionale & Regola Buchi",
+      "Valore Ufficiale": "2 notti (1 apr – 30 nov) · 5 notti (1 dic – 31 mar) · Buchi intermedi prenotabili",
+      "Dettagli": "In alta stagione (dal 1° Dicembre al 31 Marzo) il soggiorno minimo è di 5 notti consecutive. In bassa/media stagione (dal 1° Aprile al 30 Novembre) il soggiorno minimo è di 2 notti consecutive. ECCEZIONE BUCHI: Gli intervalli di notti rimaste isolate/libere tra due prenotazioni nel calendario possono essere prenotati anche per durate inferiori (il numero esatto di notti minime ammesse per ciascun buco è indicato direttamente all'interno delle caselle del calendario)."
+    },
+    {
+      "Voce": "Trasparenza Assoluta sulle Disponibilità Consecutive",
+      "Valore Ufficiale": "Non illudere il cliente se non ci sono notti consecutive libere per l'intero soggiorno",
+      "Dettagli": "Se un ospite richiede soggiorni da 7 o 14 notti e non ci sono alloggi disponibili per l'intera durata continua, l'AI deve dichiarare con onestà ed educazione che al momento non abbiamo disponibilità consecutiva per l'intero periodo di 7–14 notti. Deve spiegare che ci sono date singole e buchi intermedi liberi e invitare a consultare la griglia interattiva del calendario live."
     },
     {
       "Voce": "Divieti nel Giardino",

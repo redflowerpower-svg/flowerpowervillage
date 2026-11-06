@@ -312,10 +312,24 @@ ${availList}
 🔴 CAMERE OCCUPATE O IN STOP-SELL (NON PROPORRE!):
 ${occList}
 
-CRITICAL PMS DIRECTIVE:
-1. ONLY recommend and quote rooms that are listed as 🟢 CAMERE REALMENTE LIBERE!
-2. NEVER offer or suggest any room listed under 🔴 CAMERE OCCUPATE as available.
-3. If the guest specifically asked for an occupied room (e.g. "${extractedRoom || 'un alloggio specifico'}"), politely and gently explain that it is already booked for their requested dates, and enthusiastically suggest the best available alternative from the 🟢 free list that accommodates their group size!
+CRITICAL PMS DIRECTIVE & AVAILABILITY TRUTH:
+1. STRICT AVAILABILITY TRUTH (NEVER GIVE FALSE HOPES): If there are NO rooms listed as 🟢 CAMERE REALMENTE LIBERE for the full requested stay (e.g. 7 or 14 nights, or multiple adjacent units), YOU MUST STATE TRANSPARENTLY that we do NOT have consecutive availability for the entire duration!
+2. Explain that we DO have scattered open dates and gap nights between other bookings (i "buchi" nel calendario).
+3. Invite them to check our live interactive calendar ({{CALENDAR_URL}}) where they can inspect the exact open days.
+4. Explain the seasonal minimum stay rule: 5 nights in high season (1 Dec - 31 Mar), 2 nights in low season (1 Apr - 30 Nov), and that gap nights ("buchi") can be booked for fewer nights!
+5. ONLY recommend and quote rooms as fully available if they are verified in 🟢 CAMERE REALMENTE LIBERE for all nights requested!
+======================================================================
+`;
+      } else {
+        livePmsContext = `
+=== LIVE OCTORATE PMS STATUS FOR (${extractedCheckIn} to ${extractedCheckOut}) ===
+⚠️ ATTENZIONE: I dati live di Octorate mostrano che NON ci sono camere libere in modo consecutivo per tutte le notti richieste (${extractedNights || 7} notti consecutive per 2 alloggi).
+DIRETTIVA TASSATIVA SULLE DISPONIBILITÀ:
+1. NON dichiarare che le camere sono disponibili per l'intero soggiorno (es. 7 o 14 notti)!
+2. Dichiara con trasparenza ed educazione che purtroppo al momento non abbiamo disponibilità consecutiva per l'intero periodo richiesto per due alloggi.
+3. Spiega che ci sono però date singole o intervalli liberi (i "buchi" nel calendario tra le altre prenotazioni).
+4. Invita l'ospite a consultare la nostra griglia interattiva live ({{CALENDAR_URL}}) dove potrà verificare le singole notti disponibili.
+5. Ricorda la regola del soggiorno minimo stagionale: in alta stagione (1 Dicembre – 31 Marzo) il minimo è di 5 notti consecutive, MA i buchi rimasti liberi nel calendario possono essere prenotati anche per meno notti (il minimo notti specifico è visibile all'interno di ciascuna casella del calendario). In bassa/media stagione (1 Aprile – 30 Novembre) il minimo è di 2 notti.
 ======================================================================
 `;
       }
