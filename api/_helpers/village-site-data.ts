@@ -1,11 +1,11 @@
 /**
  * Village Master Site Data - Flower Power Village (Koh Phayam)
  * 
- * Estrazione centralizzata e strutturata dei dati ufficiali del sito:
- * - 01_Alloggi_e_Capienze (da accommodationsService.ts e ROOM_METADATA)
- * - 02_Trasporti_e_Arrivi (da DirectionsSection.tsx: Mr. Gong, voli, speedboat, taxi, bus)
- * - 03_Ristorante_e_Bakery (da RestaurantSection.tsx: orari, bakery, colazioni, pizza, Thai)
- * - 04_Policy_e_Villaggio (distanza 150m, Wi-Fi, elettricità 24h, culle, cancellazioni)
+ * Estrazione centralizzata e strutturata dei dati ufficiali del resort:
+ * - 01_Alloggi_e_Capienze (caratteristiche reali, configurazione letti, sconti 10%/15%, link diretti)
+ * - 02_Trasporti_e_Arrivi (Mr. Gong, voli AirAsia, speedboat, taxi, bus da Bangkok e minivan)
+ * - 03_Ristorante_e_Bakery (orari continuati, colazioni à la carte, pizza forno su pietra, pasta fresca, specialità Thai)
+ * - 04_Policy_e_Villaggio (A/C a consumo vs all-inclusive, soggiorno min 2 notti, divieto fuochi/tende giardino, spiaggia 150m, Wi-Fi fibra)
  */
 
 export interface SheetRow {
@@ -22,147 +22,186 @@ export interface VillageMasterDataset {
 export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
   alloggi: [
     {
-      "Alloggio": "Villa Penthouse",
-      "Slug": "villa-penthouse",
-      "Categoria": "VILLE",
-      "Capacità Base": 4,
-      "Capacità Max": 4,
-      "Configurazione Letti": "1 King Size + 1 Sofa Bed King",
-      "Climatizzazione": "Aria Condizionata + Ventilatori",
-      "Bagni": "2 Bagni privati con acqua calda (1 padronale + 1 salotto)",
-      "Zanzariere": "Presenti su tutti i letti",
-      "Cucina": "Cucina outdoor privata attrezzata",
-      "Punti di Forza": "La sistemazione più esclusiva del villaggio, giardino privato, 2 bagni completi, Android TV 40 pollici, massima privacy."
-    },
-    {
-      "Alloggio": "Peace & Love Villa",
-      "Slug": "peace-love-villa",
-      "Categoria": "VILLE",
-      "Capacità Base": 4,
-      "Capacità Max": 4,
-      "Configurazione Letti": "1 King Size + 1 Sofa Bed Queen",
-      "Climatizzazione": "Aria Condizionata + Ventilatori",
-      "Bagni": "1 Bagno privato con doccia calda e design tropicale",
-      "Zanzariere": "Presenti su tutti i letti",
-      "Cucina": "Cucina interna attrezzata",
-      "Punti di Forza": "Affacciata direttamente sulla piscina, ampia terrazza privata con amaca, Android TV 40 pollici, ideale per famiglie o coppie."
-    },
-    {
       "Alloggio": "Jungle Villa",
-      "Slug": "jungle-villa",
-      "Categoria": "VILLE",
-      "Capacità Base": 8,
+      "Slug": "52-jungle-villa",
+      "Categoria": "VILLAS",
+      "Capacità Base": 4,
       "Capacità Max": 8,
       "Configurazione Letti": "2 King Size + 2 Sofa Bed Queen",
+      "Dotazioni": "2 camere, 2 bagni, 2 cucine e 2 salotti",
       "Climatizzazione": "Aria Condizionata + Ventilatori",
-      "Bagni": "2 Bagni privati",
-      "Zanzariere": "Presenti su tutti i letti",
-      "Cucina": "Doppia cucina privata attrezzata",
-      "Punti di Forza": "La struttura più ampia del villaggio, doppi salotti outdoor, piscina di fronte, perfetta per 2 famiglie o grandi gruppi."
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/52-jungle-villa",
+      "Punti di Forza": "La struttura più ampia del villaggio, ideale per 2 famiglie o grandi gruppi (4+4 persone)."
     },
     {
       "Alloggio": "Jungle Villa Left",
-      "Slug": "jungle-villa-left",
-      "Categoria": "VILLE",
-      "Capacità Base": 4,
+      "Slug": "53-jungle-villa-left",
+      "Categoria": "VILLAS",
+      "Capacità Base": 2,
       "Capacità Max": 4,
       "Configurazione Letti": "1 King Size + 1 Sofa Bed Queen",
+      "Dotazioni": "1 camera, 1 bagno, cucina e salotto privato",
       "Climatizzazione": "Aria Condizionata + Ventilatori",
-      "Bagni": "1 Bagno privato al piano terra",
-      "Zanzariere": "Presenti su tutti i letti",
-      "Cucina": "Cucina privata e zona pranzo al piano terra",
-      "Punti di Forza": "Villa su 2 piani, salotto outdoor al secondo piano affacciato sulla piscina, ottima privacy e comfort."
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/53-jungle-villa-left",
+      "Punti di Forza": "Villa su 2 piani affacciata sulla piscina per 2+2 persone."
     },
     {
       "Alloggio": "Jungle Villa Right",
-      "Slug": "jungle-villa-right",
-      "Categoria": "VILLE",
-      "Capacità Base": 4,
+      "Slug": "54-jungle-villa-right",
+      "Categoria": "VILLAS",
+      "Capacità Base": 2,
       "Capacità Max": 4,
       "Configurazione Letti": "1 King Size + 1 Sofa Bed Queen",
+      "Dotazioni": "1 camera, 1 bagno, cucina e salotto",
       "Climatizzazione": "Aria Condizionata + Ventilatori",
-      "Bagni": "1 Bagno privato al piano terra",
-      "Zanzariere": "Presenti su tutti i letti",
-      "Cucina": "Cucina privata e zona pranzo al piano terra",
-      "Punti di Forza": "Villa su 2 piani affiancata a Jungle Left, ideale per coppie di amici o famiglie che viaggiano insieme."
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/54-jungle-villa-right",
+      "Punti di Forza": "Villa su 2 piani gemella di Jungle Left per 2+2 persone."
+    },
+    {
+      "Alloggio": "Peace & Love Villa",
+      "Slug": "51-villa-peace-love",
+      "Categoria": "VILLAS",
+      "Capacità Base": 2,
+      "Capacità Max": 4,
+      "Configurazione Letti": "1 King Size + 1 Sofa Bed Queen",
+      "Dotazioni": "1 camera, 1 bagno tropicale, cucina e salotto privato",
+      "Climatizzazione": "Aria Condizionata + Ventilatori",
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/51-villa-peace-love",
+      "Punti di Forza": "Affacciata direttamente sulla piscina con terrazza, amaca, TV 40 pollici per 2+2 persone."
+    },
+    {
+      "Alloggio": "Villa Penthouse",
+      "Slug": "22-villa-penthouse",
+      "Categoria": "VILLAS",
+      "Capacità Base": 4,
+      "Capacità Max": 4,
+      "Configurazione Letti": "1 King Size + 1 Sofa Bed King",
+      "Dotazioni": "2 camere, 2 bagni completi, cucina e salotto",
+      "Climatizzazione": "Aria Condizionata + Ventilatori",
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/22-villa-penthouse",
+      "Punti di Forza": "La sistemazione più esclusiva del villaggio, giardino privato, 2 bagni, Android TV, per 4 persone."
     },
     {
       "Alloggio": "Yellow Bungalow",
-      "Slug": "yellow-bungalow",
-      "Categoria": "BUNGALOW",
+      "Slug": "11-yellow-bungalow",
+      "Categoria": "BUNGALOWS",
       "Capacità Base": 2,
       "Capacità Max": 3,
-      "Configurazione Letti": "1 King Size + 1 Letto Singolo extra",
-      "Climatizzazione": "Ventilatore a soffitto ad alta potenza",
-      "Bagni": "1 Bagno privato open-air tropicale con doccia calda",
-      "Zanzariere": "Presenti su tutti i letti",
-      "Cucina": "Cucina privata e sala da pranzo",
-      "Punti di Forza": "Bungalow a cupola più spazioso del villaggio, frigorifero, giardino di fiori con avvistamento buceri e scoiattoli."
+      "Configurazione Letti": "1 King Size + Extra Single Bed disponibile",
+      "Dotazioni": "Cucina privata e salotto tropicale",
+      "Climatizzazione": "Aria condizionata fissa tradizionale + Ventilatore",
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/11-yellow-bungalow",
+      "Punti di Forza": "Bungalow a cupola spazioso, cucina, giardino con fiori e scoiattoli per 2+1 persone."
     },
     {
       "Alloggio": "Red Bungalow",
-      "Slug": "red-bungalow",
-      "Categoria": "BUNGALOW",
+      "Slug": "12-red-bungalow",
+      "Categoria": "BUNGALOWS",
       "Capacità Base": 2,
       "Capacità Max": 3,
-      "Configurazione Letti": "1 King Size + 1 Letto Singolo extra",
-      "Climatizzazione": "Ventilatore a soffitto ad alta potenza",
-      "Bagni": "1 Bagno privato open-air tropicale con doccia calda",
-      "Zanzariere": "Presenti su tutti i letti",
-      "Cucina": "Frigo-bar privato",
-      "Punti di Forza": "Bungalow a cupola in legno, tavolo esterno privato nel giardino fiorito, adiacente allo Yellow Bungalow."
+      "Configurazione Letti": "1 King Size + Extra Single Bed disponibile",
+      "Dotazioni": "Bagno tropicale open-air con doccia calda, frigo",
+      "Climatizzazione": "Aria condizionata fissa tradizionale + Ventilatore",
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/12-red-bungalow",
+      "Punti di Forza": "Cupola in legno, tavolo privato nel giardino tropicale per 2+1 persone."
     },
     {
       "Alloggio": "Green Bungalow",
-      "Slug": "green-bungalow",
-      "Categoria": "BUNGALOW",
+      "Slug": "13-green-bungalow",
+      "Categoria": "BUNGALOWS",
       "Capacità Base": 2,
       "Capacità Max": 3,
-      "Configurazione Letti": "1 King Size + 1 Letto Singolo extra",
-      "Climatizzazione": "Ventilatore a soffitto ad alta potenza",
-      "Bagni": "1 Bagno privato open-air tropicale con doccia calda",
-      "Zanzariere": "Presenti su tutti i letti",
-      "Cucina": "Frigo-bar privato",
-      "Punti di Forza": "Cupola in legno immersa nella natura tra alberi da frutto e piante tropicali, atmosfera autentica da eco-lodge."
-    },
-    {
-      "Alloggio": "Camel Glamping Tent",
-      "Slug": "camel-tent-bungalow",
-      "Categoria": "TENDE GLAMPING",
-      "Capacità Base": 2,
-      "Capacità Max": 2,
-      "Configurazione Letti": "1 Letto King Size",
-      "Climatizzazione": "Ventilatore ad alta potenza",
-      "Bagni": "Bagno privato dedicato con doccia calda",
-      "Zanzariere": "Zanzariera integrale sulla tenda e sul letto",
-      "Cucina": "Nessuna (Ristorante e Bakery a 30 secondi a piedi)",
-      "Punti di Forza": "Tenda safari montata su piattaforma rialzata in legno protetta da tetto in foglie naturali, patio privato con amache."
+      "Configurazione Letti": "1 King Size + Extra Single Bed disponibile",
+      "Dotazioni": "Bagno tropicale open-air con doccia calda, frigo",
+      "Climatizzazione": "Aria condizionata fissa tradizionale + Ventilatore",
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/13-green-bungalow",
+      "Punti di Forza": "Cupola in legno immersa tra alberi da frutto e piante tropicali per 2+1 persone."
     },
     {
       "Alloggio": "Lagoon Glamping Tent",
-      "Slug": "lagoon-tent-bungalow",
-      "Categoria": "TENDE GLAMPING",
+      "Slug": "21-lagoon-tent",
+      "Categoria": "GLAMPING TENTS",
       "Capacità Base": 2,
-      "Capacità Max": 2,
-      "Configurazione Letti": "1 Letto King Size",
+      "Capacità Max": 3,
+      "Configurazione Letti": "1 King Size + Extra Single Bed disponibile",
+      "Dotazioni": "Bagno privato dedicato con doccia calda, deck rialzato in legno",
       "Climatizzazione": "Ventilatore ad alta potenza",
-      "Bagni": "Bagno privato dedicato con doccia calda",
-      "Zanzariere": "Zanzariera integrale sulla tenda e sul letto",
-      "Cucina": "Nessuna",
-      "Punti di Forza": "Tenda premium su deck in legno sopraelevato, circondata da verde lussureggiante e suoni rilassanti della foresta."
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/21-lagoon-tent",
+      "Punti di Forza": "Tenda safari premium su piattaforma rialzata, contatto autentico con la natura per 2 persone."
     },
     {
-      "Alloggio": "Camera Interna (The Hub)",
-      "Slug": "internal-room",
-      "Categoria": "GUESTHOUSE",
+      "Alloggio": "Camel Glamping Tent",
+      "Slug": "23-camel-tent",
+      "Categoria": "GLAMPING TENTS",
+      "Capacità Base": 2,
+      "Capacità Max": 3,
+      "Configurazione Letti": "1 King Size + Extra Single Bed disponibile",
+      "Dotazioni": "Bagno privato dedicato con doccia calda, patio privato con amache",
+      "Climatizzazione": "Ventilatore ad alta potenza",
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/23-camel-tent",
+      "Punti di Forza": "Tenda safari in legno e tessuto traspirante, amaca privata per 2 persone."
+    },
+    {
+      "Alloggio": "Camera Interna (Budget Room)",
+      "Slug": "41-room-internal",
+      "Categoria": "BUDGET ROOM",
       "Capacità Base": 2,
       "Capacità Max": 2,
-      "Configurazione Letti": "1 Letto King Size",
-      "Climatizzazione": "Ventilatore",
-      "Bagni": "Bagno privato en-suite con doccia calda",
-      "Zanzariere": "Presenti",
-      "Cucina": "Accesso alla cucina comune del co-living",
-      "Punti di Forza": "Costruzione in muratura fresca e silenziosa, ideale per soggiorni lunghi economici o nomadi digitali."
+      "Configurazione Letti": "1 King Size",
+      "Dotazioni": "Bagno privato en-suite (No acqua calda)",
+      "Climatizzazione": "Condizionatore portatile + Ventilatore",
+      "Sconto": "10% Direct Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/41-room-internal",
+      "Punti di Forza": "Camera in muratura silenziosa ed economica per 2 persone."
+    },
+    {
+      "Alloggio": "Guesthouse Room 1",
+      "Slug": "guesthouse-room-1",
+      "Categoria": "GUESTHOUSE",
+      "Capacità Base": 2,
+      "Capacità Max": 3,
+      "Configurazione Letti": "1 King Size Bed + 1 Single Size Extra bed",
+      "Dotazioni": "Bagno privato con doccia, frigo",
+      "Climatizzazione": "Condizionatore portatile",
+      "Sconto": "15% Pre-Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/calendar",
+      "Punti di Forza": "Camera guesthouse per 2+1 persone con sconto 15% pre-booking."
+    },
+    {
+      "Alloggio": "Guesthouse Room 2, 3, 4, 5",
+      "Slug": "guesthouse-rooms-2-3-4-5",
+      "Categoria": "GUESTHOUSE",
+      "Capacità Base": 2,
+      "Capacità Max": 4,
+      "Configurazione Letti": "1 King Size Bed + 1 Sofa Bed Queen Size",
+      "Dotazioni": "Bagno privato, terrazzino",
+      "Climatizzazione": "Condizionatore portatile",
+      "Sconto": "15% Pre-Booking Discount",
+      "Link Dettagli": "https://www.flowerpowervillage.com/calendar",
+      "Punti di Forza": "Camere guesthouse per 2+2 persone con sconto 15% pre-booking."
+    },
+    {
+      "Alloggio": "Lodge 1 & Lodge 2 (Mini Apartment)",
+      "Slug": "lodge-mini-apartments",
+      "Categoria": "GUESTHOUSE",
+      "Capacità Base": 2,
+      "Capacità Max": 4,
+      "Configurazione Letti": "1 King Size Bed + 1 Sofa Bed King Size",
+      "Dotazioni": "Mini appartamento con angolo cottura",
+      "Climatizzazione": "In allestimento",
+      "Sconto": "In progress - Not yet bookable",
+      "Link Dettagli": "In allestimento",
+      "Punti di Forza": "Nuova ala in fase di completamento (non ancora prenotabile)."
     }
   ],
 
@@ -268,19 +307,39 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
 
   policy: [
     {
+      "Voce": "Aria Condizionata & Opzioni Energetiche",
+      "Valore Ufficiale": "Pay-per-use 40฿/unità (~20฿/h) oppure All-Inclusive (400฿ o 800฿/giorno)",
+      "Dettagli": "Le camere dispongono di condizionatori portatili dimensionati per l'energia dell'isola; i bungalow e le ville dispongono di condizionatori fissi tradizionali. Due opzioni: 1) Pay-per-use a consumo (Consigliata) a 40฿ per unità (~20฿ per ora | ~0.50€) pagati al checkout in base al consumo effettivo del contatore; 2) All-Inclusive prepagata: 400฿/giorno per bungalow e camere (~12€) e 800฿/giorno per le ville (~24€). L'elettricità a Koh Phayam è generata localmente ed è molto costosa."
+    },
+    {
+      "Voce": "Soggiorno Minimo",
+      "Valore Ufficiale": "Minimo 2 notti",
+      "Dettagli": "Tutti i soggiorni al Flower Power Village richiedono un soggiorno minimo obbligatorio di 2 notti consecutive."
+    },
+    {
+      "Voce": "Divieti nel Giardino",
+      "Valore Ufficiale": "Severamente vietato accendere fuochi e campeggiare con tende nel giardino",
+      "Dettagli": "Norma assoluta per la prevenzione antincendio nel villaggio immerso nella foresta e per la salvaguardia della tranquillità degli ospiti."
+    },
+    {
+      "Voce": "Sconti Prenotazione Diretta",
+      "Valore Ufficiale": "10% Sconto Diretto Ville/Bungalow/Tende/Camere · 15% Pre-Booking Guesthouse",
+      "Dettagli": "Sconto del 10% già applicato per le prenotazioni dirette dal sito web o direttamente in chat con Marco. Sconto del 15% per pre-booking sulle camere guesthouse."
+    },
+    {
       "Voce": "Distanza dalla Spiaggia",
       "Valore Ufficiale": "150 metri",
       "Dettagli": "Buffalo Bay (Ao Khao Kwai) dista solo 150 metri, circa 1 o 2 minuti a piedi lungo una tranquilla stradina pianeggiante nel verde. Acque calme perfette per nuotare, tramonti mozzafiato, kayak e beach bar rilassanti."
     },
     {
       "Voce": "Connessione Internet Wi-Fi",
-      "Valore Ufficiale": "Wi-Fi ad alta velocità",
+      "Valore Ufficiale": "Wi-Fi fibra ottica ad alta velocità",
       "Dettagli": "Copertura Wi-Fi stabile e veloce in tutti gli alloggi e nelle aree comuni del ristorante/bakery, adatta anche per lavoro da remoto e videochiamate."
     },
     {
       "Voce": "Elettricità",
       "Valore Ufficiale": "Continua 24 ore su 24",
-      "Dettagli": "Energia elettrica disponibile 24/7 (a differenza di capanne spartane dell'isola che spengono i generatori durante le ore diurne)."
+      "Dettagli": "Energia elettrica disponibile 24/7 continua."
     },
     {
       "Voce": "Protezione Zanzare",
@@ -289,8 +348,8 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
     },
     {
       "Voce": "Bambini & Culle",
-      "Valore Ufficiale": "Bambini benvenuti · Culla 200 THB/notte",
-      "Dettagli": "Villaggio sicuro e adatto a famiglie. Culla neonato disponibile su richiesta a 200 THB/notte. Letti extra disponibili nelle ville (300-500 THB/notte)."
+      "Valore Ufficiale": "Bambini benvenuti · Culla 100-200 THB/notte",
+      "Dettagli": "Villaggio sicuro e adatto a famiglie. Culla neonato disponibile su richiesta."
     },
     {
       "Voce": "Animali Domestici",
@@ -299,19 +358,8 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
     },
     {
       "Voce": "Termini di Cancellazione",
-      "Valore Ufficiale": "Cancellazione gratuita fino a 14 giorni prima del check-in",
-      "Dettagli": "Cancellazione flessibile con rimborso integrale fino a 14 giorni prima dell'arrivo."
-    },
-    {
-      "Voce": "Pagamenti Accettati",
-      "Valore Ufficiale": "Carte di credito/debito, PromptPay QR e Bonifico bancario",
-      "Dettagli": "Pagamenti online sicuri su Stripe, Ksher o PromptPay con conferma immediata via calendario interattivo."
-    },
-    {
-      "Voce": "Sconti per Soggiorni Lunghi",
-      "Valore Ufficiale": "10% per 14+ notti · 15% per 28+ notti",
-      "Dettagli": "Sconto applicato automaticamente sulle prenotazioni dirette di lunga durata."
+      "Valore Ufficiale": "Cancellazione flessibile",
+      "Dettagli": "Cancellazione gratuita fino a 14 giorni prima dell'arrivo."
     }
   ]
 };
-
