@@ -1,6 +1,8 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { processBookingInquiry } from "../_helpers/ai-booking-concierge.js";
+import { processBookingInquiry, refineReplyWithFeedback, classifyTelegramIntent, processKnowledgeUpdate } from "../_helpers/ai-booking-concierge.js";
+import { saveMemoryItem } from "../_helpers/concierge-memory.js";
+import { identifyTargetTab, recordTelegramUpdateToKnowledge } from "../_helpers/google-sheets-sync.js";
 import {
   getTelegramCredentials,
   updateTelegramCredentials,
@@ -456,12 +458,26 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         const threadId = incomingMsg.message_thread_id;
         const messageId = incomingMsg.message_id;
 
+        // Auto-persist active topic thread_id for Concierge Bot
+        if (threadId && supabase) {
+          supabase
+            .from('telegram_config')
+            .upsert({
+              id: 'village_concierge_topic_id',
+              bot_token: String(threadId),
+              chat_id: String(chatId),
+              updated_at: new Date().toISOString()
+            })
+            .then(() => {})
+            .catch(() => {});
+        }
+
         // /start or /help
         if (msgText === '/start' || msgText === '/help' || msgText.startsWith('/start@') || msgText.startsWith('/help@')) {
           const welcomeText = [
             '🌺 <b>Flower Power Village — AI Booking Concierge</b>',
             '',
-            'Benvenuto nel topic <b>Booking Offers</b>!',
+            'Benvenuto nel topic <b>Concierge Bot</b>!',
             'Incolla qui qualsiasi richiesta ricevuta dai clienti via WhatsApp, Email o Social (in qualunque lingua).',
             '',
             '🤖 <b>Cosa farò per te:</b>',
@@ -484,6 +500,118 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           return res.status(200).json({ status: 'welcome_sent' });
         }
 
+        const replyTo = incomingMsg.reply_to_message;
+        const isReplyFeedback = Boolean(replyTo && replyTo.text && replyTo.text.length > 5);
+
+        // 3c. Human-in-the-Loop Feedback: Marco replies to a bot offer with corrections/instructions
+        if (isReplyFeedback && msgText.length >= 2 && !msgText.startsWith('/')) {
+          // Send typing indicator
+          fetch(`https://api.telegram.org/bot${vBotToken}/sendChatAction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              action: 'typing',
+              ...(threadId ? { message_thread_id: threadId } : {})
+            })
+          }).catch(() => {});
+
+          try {
+            const previousText = replyTo.text || '';
+            const urlMatch = previousText.match(/https:\/\/flowerpowervillage\.com\/calendar[^\s<"]*/i);
+            const calendarUrl = urlMatch ? urlMatch[0] : 'https://flowerpowervillage.com/calendar';
+
+            const refined = await refineReplyWithFeedback({
+              originalInquiry: previousText,
+              currentReply: previousText,
+              userFeedback: msgText,
+              calendarUrl
+            });
+
+            const targetTabInfo = identifyTargetTab(msgText);
+
+            // Salva la regola pendente in telegram_config per il pulsante callback
+            const pendingKey = `pending_rule_${messageId}`;
+            if (supabase) {
+              await supabase
+                .from('telegram_config')
+                .upsert({
+                  id: pendingKey,
+                  bot_token: 'pending_rule',
+                  chat_id: JSON.stringify({
+                    title: refined.suggestedRuleTitle,
+                    content: refined.suggestedRuleContent,
+                    category: targetTabInfo.tabKey,
+                    tabTitle: targetTabInfo.tabTitle,
+                    rawFeedback: msgText,
+                    timestamp: Date.now()
+                  }),
+                  updated_at: new Date().toISOString()
+                });
+            }
+
+            const replyHtml = [
+              '🌺 <b>AI CONCIERGE — RISPOSTA PERFEZIONATA</b>',
+              `<i>✨ Modifiche applicate: ${escapeHtml(refined.summaryOfChanges)}</i>`,
+              '',
+              '💬 <b>Nuova Risposta WhatsApp / Chat (Tocca per copiare):</b>',
+              `<code>${escapeHtml(refined.refinedWhatsApp)}</code>`,
+              '',
+              '🧠 <b>Nuova Direttiva per la Knowledge Base:</b>',
+              `• <b>${escapeHtml(refined.suggestedRuleTitle)}:</b>`,
+              `  <i>"${escapeHtml(refined.suggestedRuleContent)}"</i>`,
+              `📂 <b>Scheda Google Sheet:</b> <code>${escapeHtml(targetTabInfo.tabTitle)}</code> (${escapeHtml(targetTabInfo.tabKey)})`,
+              '',
+              '👉 <i>Vuoi memorizzare questa istruzione per tutte le future risposte del bot?</i>',
+              '',
+              '🔗 <b>Link Calendario:</b>',
+              `<a href="${calendarUrl}">${calendarUrl}</a>`
+            ].join('\n');
+
+            const inlineKeyboard = {
+              inline_keyboard: [
+                [
+                  { text: '💾 Memorizza Regola Permanente', callback_data: `save_rule_${messageId}` }
+                ],
+                [
+                  { text: '🌐 Apri Calendario Live', url: calendarUrl }
+                ]
+              ]
+            };
+
+            const sendRes = await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: replyHtml,
+                parse_mode: 'HTML',
+                disable_web_page_preview: false,
+                reply_markup: inlineKeyboard,
+                ...(threadId ? { message_thread_id: threadId } : {}),
+                reply_to_message_id: messageId
+              })
+            });
+
+            const sendJson = await sendRes.json();
+            return res.status(200).json({ status: 'concierge_refined', ok: sendJson.ok });
+          } catch (refineErr) {
+            console.error('[AI Concierge Feedback Refine Error]:', refineErr);
+            await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: `⚠️ <b>AI Concierge:</b> Errore durante l'applicazione del feedback: ${escapeHtml(refineErr.message)}`,
+                parse_mode: 'HTML',
+                ...(threadId ? { message_thread_id: threadId } : {}),
+                reply_to_message_id: messageId
+              })
+            }).catch(() => {});
+            return res.status(200).json({ status: 'concierge_refine_error', error: refineErr.message });
+          }
+        }
+
         // Only process inquiries of at least 4 characters that are not isolated slash commands
         if (msgText.length >= 4 && (!msgText.startsWith('/') || msgText.includes(' '))) {
           // Send typing indicator
@@ -496,6 +624,60 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               ...(threadId ? { message_thread_id: threadId } : {})
             })
           }).catch(() => {});
+
+          // Auto-Intent Classification: Guest Inquiry vs Knowledge / Template Update
+          const intent = await classifyTelegramIntent(msgText);
+
+          if (intent === 'KNOWLEDGE_UPDATE') {
+            try {
+              const kResult = await processKnowledgeUpdate(msgText);
+
+              const replyHtml = [
+                kResult.isTemplate 
+                  ? '📋 <b>AI CONCIERGE — NUOVO TEMPLATE ACQUISITO!</b>'
+                  : '🌿 <b>AI CONCIERGE — NUOVA NOZIONE ACQUISITA!</b>',
+                '',
+                `📌 <b>Titolo:</b> <code>${escapeHtml(kResult.title)}</code>`,
+                `📂 <b>Scheda Google Sheet:</b> <code>${escapeHtml(kResult.categoryTitle)}</code>`,
+                '',
+                '📝 <b>Contenuto Memorizzato:</b>',
+                `<i>"${escapeHtml(kResult.content)}"</i>`,
+                '',
+                `✨ <i>${escapeHtml(kResult.summary)}</i>`,
+                '',
+                '⚡ <b>Stato:</b> Attivo istantaneamente per le risposte del bot Telegram e per il Chatbot del sito web!'
+              ].join('\n');
+
+              const sendRes = await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  chat_id: chatId,
+                  text: replyHtml,
+                  parse_mode: 'HTML',
+                  disable_web_page_preview: true,
+                  ...(threadId ? { message_thread_id: threadId } : {}),
+                  reply_to_message_id: messageId
+                })
+              });
+              const sendJson = await sendRes.json();
+              return res.status(200).json({ status: 'concierge_knowledge_saved', ok: sendJson.ok, result: kResult });
+            } catch (kErr: any) {
+              console.error('[processKnowledgeUpdate Error]:', kErr);
+              await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  chat_id: chatId,
+                  text: `⚠️ <b>Errore memorizzazione nozione:</b> ${escapeHtml(kErr.message)}`,
+                  parse_mode: 'HTML',
+                  ...(threadId ? { message_thread_id: threadId } : {}),
+                  reply_to_message_id: messageId
+                })
+              }).catch(() => {});
+              return res.status(200).json({ status: 'knowledge_error', error: kErr.message });
+            }
+          }
 
           try {
             const inquiryResult = await processBookingInquiry({
@@ -512,6 +694,15 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             const guestsText = inquiryResult.numGuests ? `${inquiryResult.numGuests} persone` : 'Non specificato';
             const guestName = inquiryResult.guestName ? inquiryResult.guestName : 'Ospite';
 
+            const pmsBadgeLines = inquiryResult.livePms?.checked
+              ? [
+                  '',
+                  '⚡ <b>Disponibilità Octorate PMS Live:</b>',
+                  `• 🟢 Libere: <b>${inquiryResult.livePms.availableNames.join(', ') || 'Nessuna'}</b>`,
+                  ...(inquiryResult.livePms.occupiedCount > 0 ? [`• 🔴 Occupate: <i>${inquiryResult.livePms.occupiedNames.join(', ')}</i>`] : [])
+                ]
+              : [];
+
             const replyHtml = [
               '🌺 <b>AI CONCIERGE — OFFERTA PRONTA</b>',
               '',
@@ -521,12 +712,15 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               `• 📅 <b>Periodo:</b> ${datesText}`,
               `• 🏠 <b>Alloggio:</b> ${escapeHtml(roomText)}`,
               `• 👥 <b>Ospiti:</b> ${guestsText}`,
+              ...pmsBadgeLines,
               '',
               '💬 <b>Risposta per WhatsApp / Chat (Tocca per copiare):</b>',
               `<code>${escapeHtml(inquiryResult.politeReplyWhatsApp)}</code>`,
               '',
               '🔗 <b>Link Calendario Live:</b>',
-              `<a href="${inquiryResult.calendarUrl}">${inquiryResult.calendarUrl}</a>`
+              `<a href="${inquiryResult.calendarUrl}">${inquiryResult.calendarUrl}</a>`,
+              '',
+              '💡 <i>Per correggere o personalizzare, rispondi direttamente a questo messaggio (Reply)!</i>'
             ].join('\n');
 
             const inlineKeyboard = {
@@ -590,6 +784,100 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
   const messageChatId = message.chat.id;
   const messageId = message.message_id;
   const callbackData = callbackQuery.data;
+
+  // ── Village Bot AI Concierge Actions (e.g. Save Rule) ──
+  if (callbackData && callbackData.startsWith('save_rule_')) {
+    const { botToken: vBotToken } = await getTelegramCredentials('village');
+    const targetToken = vBotToken || (await getTelegramCredentials('pizza')).botToken;
+    const ruleKey = `pending_rule_${callbackData.replace('save_rule_', '')}`;
+    
+    let ruleTitle = 'Direttiva Gestione';
+    let ruleContent = '';
+    let ruleCategory = 'rule';
+    let tabTitle = 'Regole & FAQ';
+    let rawFeedback = '';
+
+    if (supabase) {
+      const { data: pData } = await supabase
+        .from('telegram_config')
+        .select('chat_id')
+        .eq('id', ruleKey)
+        .maybeSingle();
+
+      if (pData?.chat_id) {
+        try {
+          const parsed = JSON.parse(pData.chat_id);
+          ruleTitle = parsed.title || ruleTitle;
+          ruleContent = parsed.content || '';
+          ruleCategory = parsed.category || 'rule';
+          tabTitle = parsed.tabTitle || 'Regole & FAQ';
+          rawFeedback = parsed.rawFeedback || ruleContent;
+        } catch {}
+      }
+    }
+
+    if (ruleContent) {
+      // 1. Memorizza nel database delle regole
+      await saveMemoryItem({
+        title: ruleTitle,
+        content: ruleContent,
+        category: (ruleCategory as any) || 'rule'
+      });
+
+      // 2. Registra l'aggiornamento nella scheda Google Sheet
+      await recordTelegramUpdateToKnowledge({
+        rawFeedback: rawFeedback || ruleContent,
+        extractedTitle: ruleTitle,
+        extractedContent: ruleContent
+      });
+    }
+
+    await fetch(`https://api.telegram.org/bot${targetToken}/answerCallbackQuery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        callback_query_id: callbackQueryId,
+        text: `✅ Regola memorizzata per sempre! Registrata nella scheda [${tabTitle}] di Google Sheet.`,
+        show_alert: true
+      })
+    }).catch(() => {});
+
+    const updatedKeyboard = {
+      inline_keyboard: [
+        [
+          { text: '✅ Regola Memorizzata & Attiva', callback_data: 'noop_rule' }
+        ],
+        ...(message.reply_markup?.inline_keyboard?.slice(1) || [])
+      ]
+    };
+
+    await fetch(`https://api.telegram.org/bot${targetToken}/editMessageReplyMarkup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: messageChatId,
+        message_id: messageId,
+        reply_markup: updatedKeyboard
+      })
+    }).catch(() => {});
+
+    return res.status(200).json({ status: 'rule_saved', title: ruleTitle });
+  }
+
+  if (callbackData === 'noop_rule') {
+    const { botToken: vBotToken } = await getTelegramCredentials('village');
+    const targetToken = vBotToken || (await getTelegramCredentials('pizza')).botToken;
+    await fetch(`https://api.telegram.org/bot${targetToken}/answerCallbackQuery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        callback_query_id: callbackQueryId,
+        text: 'Questa direttiva è già memorizzata ed è attiva in produzione!',
+        show_alert: false
+      })
+    }).catch(() => {});
+    return res.status(200).json({ status: 'already_saved' });
+  }
 
   if (configuredChatId && String(messageChatId) !== String(configuredChatId)) {
     console.warn(`[Telegram Webhook] Rejecting query from unauthorized chat ID: ${messageChatId}`);
