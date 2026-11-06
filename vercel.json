@@ -12,6 +12,28 @@
   ],
   "redirects": [
     {
+      "source": "/llms.txt",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?:www\\.)?flowerpowerpizza\\.com"
+        }
+      ],
+      "destination": "/llms-pizza.txt",
+      "permanent": false
+    },
+    {
+      "source": "/sitemap.xml",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?:www\\.)?flowerpowerpizza\\.com"
+        }
+      ],
+      "destination": "/sitemap-pizza.xml",
+      "permanent": false
+    },
+    {
       "source": "/flowerpowerpizzaranong",
       "destination": "https://www.flowerpowerpizza.com",
       "permanent": true

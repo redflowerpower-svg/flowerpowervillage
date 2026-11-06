@@ -58,3 +58,4 @@ Allow: /
 
 Sitemap: https://www.flowerpowervillage.com/sitemap.xml
 Sitemap: https://www.flowerpowerpizza.com/sitemap.xml
+Sitemap: https://www.flowerpowerpizza.com/sitemap-pizza.xml
