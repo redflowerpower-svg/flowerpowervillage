@@ -22,7 +22,8 @@
     "history:clean": "node scripts/history-clean.mjs",
     "worktree:list": "node scripts/worktree-manage.mjs list",
     "worktree:clean": "node scripts/worktree-manage.mjs clean",
-    "worktree:prune": "node scripts/worktree-manage.mjs prune"
+    "worktree:prune": "node scripts/worktree-manage.mjs prune",
+    "vercel:prune": "node scripts/vercel-prune.mjs"
   },
   "dependencies": {
     "@imgly/background-removal": "^1.7.0",

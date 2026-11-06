@@ -105,6 +105,14 @@ try {
   console.log('\n↩️ Passo 8: Ritorno al branch di lavoro [staging]...');
   run('git checkout staging');
 
+  // 10. Pulizia automatica storage Vercel (Auto-Prune)
+  console.log('\n🧹 Passo 9: Pulizia automatica storage Vercel (Auto-Prune)...');
+  try {
+    run('node scripts/vercel-prune.mjs');
+  } catch (pruneErr) {
+    console.warn('⚠️ Avviso: Pulizia Vercel non completata:', pruneErr.message);
+  }
+
   console.log('\n===========================================================');
   console.log('🎉 DEPLOY E SINCRONIZZAZIONE COMPLETATI CON SUCCESSO!');
   console.log('===========================================================');
