@@ -67,6 +67,9 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      - name: Installa dipendenze NPM
+        run: npm ci || npm install --include=dev
+
       - name: Pre-Flight Check Slot Attivo & Idempotenza
         id: preflight
         env:
@@ -88,10 +91,6 @@ jobs:
           export DEBIAN_FRONTEND=noninteractive
           sudo apt-get update -qq -o Acquire::Retries=3 -o Acquire::http::Timeout="15" || true
           sudo apt-get install -y -qq --no-install-recommends fonts-liberation fonts-thai-tlwg fonts-dejavu-core || true
-
-      - name: Installa dipendenze NPM
-        if: steps.preflight.outputs.should_run == 'true'
-        run: npm ci || npm install --include=dev
 
       - name: Installa Chromium headless (Playwright)
         if: steps.preflight.outputs.should_run == 'true'
