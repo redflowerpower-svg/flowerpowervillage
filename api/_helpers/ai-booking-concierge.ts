@@ -808,8 +808,9 @@ export async function classifyTelegramIntent(text: string): Promise<ConciergeInt
 
   // 1. Prefissi espliciti (fast-path)
   const updatePrefixes = [
-    'template:', 'modello:', 'regola:', 'regole:', 'info:', 'direttiva:', 
-    'aggiorna:', 'nozione:', 'database:', 'nota:', 'memorizza:', 'salva regola:'
+    'dati:', 'nuovi dati:', 'info:', 'aggiorna:', 'memorizza:', 'memorizza dati:',
+    'regola:', 'regole:', 'nozione:', 'scheda:', 'database:', 'direttiva:', 
+    'template:', 'modello:', 'nota:', 'salva regola:'
   ];
   if (updatePrefixes.some(p => clean.startsWith(p))) {
     return 'KNOWLEDGE_UPDATE';
