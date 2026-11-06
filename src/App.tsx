@@ -3,9 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 // ⚡ Domain-Specific Lazy Loading: Pizza visitors never download Village booking engine, Village visitors never download Pizza cart!
 const VillageSite = lazy(() => import('./pages/VillageSite'));
 const PizzaSite = lazy(() => import('./pages/PizzaSite'));
-import AccommodationDetailPage from './pages/AccommodationDetailPage';
-import VillageWineListPage from './pages/VillageWineListPage';
-import ResortPublicCalendarPage from './pages/ResortPublicCalendarPage';
+const AccommodationDetailPage = lazy(() => import('./pages/AccommodationDetailPage'));
+const VillageWineListPage = lazy(() => import('./pages/VillageWineListPage'));
+const ResortPublicCalendarPage = lazy(() => import('./pages/ResortPublicCalendarPage'));
 import { ACCOMMODATION_IDENTITIES } from './booking/resort/config/accommodations';
 
 // ⚡ Lazy-loaded Staff, Backoffice and Isolated Heavy Studios (Preserves Public Mobile Web Speed)
