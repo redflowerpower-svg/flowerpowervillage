@@ -133,7 +133,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 3,
       "Configurazione Letti": "1 King Size + Extra Single Bed disponibile",
       "Dotazioni": "Bagno privato dedicato con doccia calda, deck rialzato in legno",
-      "Climatizzazione": "Ventilatore ad alta potenza (NO condizionatore)",
+      "Climatizzazione": "Ventilatore (NO condizionatore)",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/21-lagoon-tent",
       "Punti di Forza": "Tenda safari premium su piattaforma rialzata, contatto autentico con la natura per 2 persone."
@@ -146,7 +146,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 3,
       "Configurazione Letti": "1 King Size + Extra Single Bed disponibile",
       "Dotazioni": "Bagno privato dedicato con doccia calda, patio privato con amache",
-      "Climatizzazione": "Ventilatore ad alta potenza (NO condizionatore)",
+      "Climatizzazione": "Ventilatore (NO condizionatore)",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/23-camel-tent",
       "Punti di Forza": "Tenda safari in legno e tessuto traspirante, amaca privata per 2 persone."
@@ -159,7 +159,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 2,
       "Configurazione Letti": "1 King Size",
       "Dotazioni": "Bagno privato en-suite (No acqua calda)",
-      "Climatizzazione": "Ventilatore ad alta potenza (NO condizionatore, no acqua calda)",
+      "Climatizzazione": "Ventilatore (NO condizionatore, no acqua calda)",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/41-room-internal",
       "Punti di Forza": "Camera in muratura silenziosa ed economica per 2 persone."
@@ -198,7 +198,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Capacità Max": 4,
       "Configurazione Letti": "1 King Size Bed + 1 Sofa Bed King Size",
       "Dotazioni": "Mini appartamento con angolo cottura",
-      "Climatizzazione": "Condizionatore tradizionale fisso",
+      "Climatizzazione": "In allestimento",
       "Sconto": "In progress - Not yet bookable",
       "Link Dettagli": "In allestimento",
       "Punti di Forza": "Nuova ala in fase di completamento (non ancora prenotabile)."
@@ -284,9 +284,9 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Dettaglio": "La colazione è servita alla carta presso la bakery (costo tipico ~150-250 THB a persona). Non inclusa nella tariffa base delle stanze, ma disponibile ogni mattina."
     },
     {
-      "Argomento": "Pizza Tradizionale Italiana",
-      "Descrizione / Valore": "Autentica pizza cotta su pietra con ingredienti italiani",
-      "Dettaglio": "Farine selezionate, lievitazione naturale e mozzarella di qualità, considerata tra le migliori pizze delle isole thailandesi."
+      "Argomento": "Pizza Tradizionale Italiana & Menù Digitale",
+      "Descrizione / Valore": "Autentica pizza cotta su pietra con ingredienti italiani importati",
+      "Dettaglio": "Farine selezionate, lievitazione naturale e mozzarella di qualità, il pezzo forte del villaggio. Puoi consultare il menù completo sfogliabile online con foto e prezzi qui: https://www.flowerpowervillage.com/village/restaurant-pizzeria"
     },
     {
       "Argomento": "Pasta Fresca & Cucina Italiana",
@@ -307,9 +307,9 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
 
   policy: [
     {
-      "Voce": "Aria Condizionata & Piani Energetici",
-      "Valore Ufficiale": "Portatili: 400฿/unità (consigliato consumo 40฿/kWh) · Fissi: 500฿/giorno",
-      "Dettagli": "1) Alloggi con condizionatore PORTATILE: Peace & Love (1 unità: 400฿/giorno), Jungle Villa Left (1 unità: 400฿/giorno), Jungle Villa Right (1 unità: 400฿/giorno), Jungle Villa completa Left+Right (2 unità: 800฿/giorno), Villa Penthouse (2 unità: 800฿/giorno). PER GLI ALLOGGI CON A/C PORTATILE È VIVAMENTE CONSIGLIATO IL PAGAMENTO A CONSUMO (Pay-per-use) a 40฿ per kWh (~20฿ all'ora | ~0.50€) calcolato al checkout in base al contatore. 2) Alloggi con condizionatore FISSO TRADIZIONALE: Yellow Bungalow, Red Bungalow, Green Bungalow, Guesthouse Room 1, 2, 3, 4, 5 e Guesthouse Lodge 1, 2 hanno un costo All-Inclusive di 500฿/giorno (oppure a consumo 40฿/kWh; non consigliamo una scelta specifica, l'ospite sceglie liberamente). 3) Tende Glamping (Lagoon e Camel) e Camera Interna: NESSUN condizionatore (ventilatori ad alta potenza immersi nella natura). L'elettricità a Koh Phayam è prodotta localmente ed è molto costosa."
+      "Voce": "Aria Condizionata: All-Inclusive 24h vs A Consumo a Fine Vacanza",
+      "Valore Ufficiale": "Scelta libera: All-Inclusive 24h oppure A Consumo (40฿/kWh ~20฿/h)",
+      "Dettagli": "Tutte le nostre sistemazioni (eccetto le tende glamping dotate di ventilatore) sono provviste di aria condizionata. L'ospite può scegliere liberamente tra: 1) All-Inclusive 24 ore su 24 (forfettario giornaliero: 500฿/giorno per Bungalow e Camere | 400฿/giorno a unità per le Ville: 400฿ Peace & Love, Jungle Left, Jungle Right | 800฿ Penthouse e Jungle Villa Completa con 2 unità). 2) Pagare a consumo a fine vacanza (Pay-per-use): 40฿ per kWh (~20฿ all'ora), misurati dal contatore e saldati al checkout in base all'effettivo utilizzo."
     },
     {
       "Voce": "Soggiorno Minimo Stagionale & Regola Buchi",
