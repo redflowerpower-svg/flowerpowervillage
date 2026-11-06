@@ -2159,8 +2159,8 @@ export default function DeliveryMenu() {
   }) : [];
 
   return (
-    <div className="min-h-screen bg-[#e7e5e4] pb-12 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-      <div className="max-w-6xl mx-auto px-4 mt-24 md:mt-28">
+    <div className="min-h-screen bg-[#e7e5e4] pt-24 md:pt-28 pb-12 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+      <div className="max-w-6xl mx-auto px-4">
 
         {/* Italian Chef Header Card */}
         <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 rounded-2xl shadow-lg mb-6 z-30 overflow-visible" style={{ backgroundColor: '#3b3530' }}>

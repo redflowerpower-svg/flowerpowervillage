@@ -1105,8 +1105,8 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   }
 
   return (
-    <div className="booking-engine-root min-h-screen text-foreground font-sans antialiased selection:bg-accent" style={{ backgroundColor: '#e7e5e4', minHeight: hasSearched ? '2500px' : 'auto' }}>
-      <div className="max-w-6xl mx-auto px-4 mt-20 md:mt-24">
+    <div className="booking-engine-root min-h-screen pt-20 md:pt-24 text-foreground font-sans antialiased selection:bg-accent" style={{ backgroundColor: '#e7e5e4', minHeight: hasSearched ? '2500px' : 'auto' }}>
+      <div className="max-w-6xl mx-auto px-4">
         <header className="relative text-stone-100 py-3 lg:py-8 px-3 sm:px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg mb-4 md:mb-6" style={{ backgroundColor: '#3b3530' }}>
           <div className="absolute inset-0 opacity-45 pointer-events-none">
             <VillageSlideshow />
@@ -1122,6 +1122,8 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                 alt="Flower Power Village Logo"
                 width={88}
                 height={88}
+                loading="eager"
+                fetchPriority="high"
                 className="h-20 sm:h-24 w-auto drop-shadow-lg flex-shrink-0 object-contain -ml-0.5"
               />
               <div className="min-w-0 space-y-1">
