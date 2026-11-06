@@ -327,9 +327,9 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Dettagli": "Norma assoluta per la prevenzione antincendio nel villaggio immerso nella foresta e per la salvaguardia della tranquillità degli ospiti."
     },
     {
-      "Voce": "Sconti Prenotazione Diretta",
-      "Valore Ufficiale": "Ulteriore sconto 10% applicato al checkout sul sito (15% Guesthouse)",
-      "Dettagli": "I prezzi visualizzati nelle caselle del calendario online sono le tariffe ufficiali standard (il 10% non è ancora visibile nel calendario). Effettuando la prenotazione direttamente tramite il nostro sito web o in chat, al momento del checkout verrà applicato un ulteriore sconto esclusivo del 10% per prenotazione diretta (o 15% di pre-booking per le camere guesthouse)."
+      "Voce": "Sconti Prenotazione Diretta & Long Stay (Website)",
+      "Valore Ufficiale": "-10% Diretto Website · -15% oltre 14 notti (15+d) · -20% oltre 30 notti (30+d)",
+      "Dettagli": "I prezzi visualizzati nelle caselle del calendario online sono le tariffe ufficiali standard (gli sconti non sono ancora visibili nel calendario). Prenotando direttamente tramite il nostro sito web (flowerpowervillage.com), al checkout vengono applicati automaticamente sconti progressivi esclusivi: 1) -10% Sconto Diretto Garantito per tutte le prenotazioni sul sito (15% pre-booking per Guesthouse); 2) -15% Sconto Long Stay per soggiorni oltre 14 giorni (15+ notti); 3) -20% Tariffa Long Stay per soggiorni oltre 30 giorni (30+ notti). Il nostro booking engine calcola automaticamente lo sconto massimo al checkout senza bisogno di coupon."
     },
     {
       "Voce": "Distanza dalla Spiaggia",
