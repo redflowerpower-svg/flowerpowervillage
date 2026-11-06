@@ -87,13 +87,13 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[90] transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-[90] h-14 flex items-center transition-all duration-300 ${
           scrolled
-            ? 'bg-[#3b3530]/95 backdrop-blur-md shadow-md border-b border-stone-700/50 py-3'
-            : 'bg-[#3b3530] border-b border-stone-800 py-4'
+            ? 'bg-[#3b3530]/95 backdrop-blur-md shadow-md border-b border-stone-700/50'
+            : 'bg-[#3b3530] border-b border-stone-800'
         }`}
       >
-        <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
+        <div className="w-full max-w-6xl mx-auto px-4 flex items-center justify-between">
           {/* Logo / Brand Name & Back to Home */}
           <div className="flex items-center gap-3 flex-shrink-0">
             <button

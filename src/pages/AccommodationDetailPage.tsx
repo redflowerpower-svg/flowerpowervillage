@@ -1,7 +1,9 @@
+import { formatAccommodationBeds } from '../booking/resort/config/accommodations';
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Check, Users, BedDouble, Bath, ArrowLeft, Home, Loader2, Globe, ChevronDown, Calendar as CalendarIcon } from 'lucide-react';
 import { fetchAccommodationBySlug, type Accommodation, typeLabels } from '../data/accommodationsData';
+import { getAccommodationAcConfig } from '../booking/resort/config/accommodations';
 import { Language } from '../booking/lib/translations';
 
 const typeTagColor: Record<string, string> = {
@@ -335,6 +337,25 @@ export default function AccommodationDetailPage() {
             <p className="text-stone-600 leading-relaxed text-base" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}>
               {accommodation.description}
             </p>
+            {(() => {
+              const acConfig = getAccommodationAcConfig(accommodation.name || accommodation.slug);
+              if (!acConfig.isPortable) return null;
+              return (
+                <div className="mt-3 text-xs text-stone-700 bg-stone-100 border border-stone-300 rounded-xl p-3 flex items-start gap-2 shadow-xs">
+                  <span className="text-sm">ℹ️</span>
+                  <span className="leading-snug">
+                    <strong className="text-stone-900">{lang === 'TH' ? 'แอร์:' : lang === 'DE' ? 'Klima:' : lang === 'EN' ? 'A/C:' : 'A/C:'}</strong>{' '}
+                    {lang === 'TH'
+                      ? 'เครื่องปรับอากาศแบบเคลื่อนย้ายเปิดใช้งานได้เสมอ คิดตามจริง 40 บาท/kWh (~20 บาท/ชม.)'
+                      : lang === 'DE'
+                      ? 'Mobiles Klimagerät jederzeit vor Ort nach Verbrauch nutzbar: 40 THB/kWh (~20 THB/Std.).'
+                      : lang === 'EN'
+                      ? 'Portable A/C always available pay-as-you-go at 40 THB/kWh (~20 THB/hour).'
+                      : 'Climatizzatore portatile sempre disponibile a consumo a 40 THB/kWh (~20 THB/ora).'}
+                  </span>
+                </div>
+              );
+            })()}
 
             {/* Quick stats */}
             <div className="grid grid-cols-3 gap-4">
@@ -357,7 +378,7 @@ export default function AccommodationDetailPage() {
                 {t.bedConfig}
               </p>
               <p className="text-stone-800 text-sm font-semibold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}>
-                {accommodation.beds}
+                {formatAccommodationBeds(accommodation.beds, lang)}
               </p>
             </div>
 

@@ -344,3 +344,153 @@ export function findAccommodationIdentity(rawSlugOrName?: string | null): Accomm
   );
 }
 
+
+export const BED_TRANSLATIONS: Record<string, Record<string, string>> = {
+  '2 King Size + 2 Sofa Bed Queen': {
+    IT: '2 Matrimoniali King Size + 2 Divani Letto Queen',
+    EN: '2 King Size Beds + 2 Queen Sofa Beds',
+    TH: '2 เตียงคิงไซส์ + 2 โซฟาเบดควีนไซส์',
+    DE: '2 Kingsize-Betten + 2 Queen-Schlafsofas'
+  },
+  '1 King Size + 1 Sofa Bed Queen': {
+    IT: '1 Matrimoniale King Size + 1 Divano Letto Queen',
+    EN: '1 King Size Bed + 1 Queen Sofa Bed',
+    TH: '1 เตียงคิงไซส์ + 1 โซฟาเบดควีนไซส์',
+    DE: '1 Kingsize-Bett + 1 Queen-Schlafsofa'
+  },
+  '1 King Size + 1 Sofa Bed King': {
+    IT: '1 Matrimoniale King Size + 1 Divano Letto King',
+    EN: '1 King Size Bed + 1 King Sofa Bed',
+    TH: '1 เตียงคิงไซส์ + 1 โซฟาเบดคิงไซส์',
+    DE: '1 Kingsize-Bett + 1 King-Schlafsofa'
+  },
+  '1 King Size + 1 Extra Single': {
+    IT: '1 Matrimoniale King Size + 1 Letto Singolo Extra',
+    EN: '1 King Size Bed + 1 Extra Single Bed',
+    TH: '1 เตียงคิงไซส์ + 1 เตียงเดี่ยวเสริม',
+    DE: '1 Kingsize-Bett + 1 Extra-Einzelbett'
+  },
+  '1 King Size': {
+    IT: '1 Matrimoniale King Size',
+    EN: '1 King Size Bed',
+    TH: '1 เตียงคิงไซส์',
+    DE: '1 Kingsize-Bett'
+  },
+  '1 Queen Size': {
+    IT: '1 Matrimoniale Queen Size',
+    EN: '1 Queen Size Bed',
+    TH: '1 เตียงควีนไซส์',
+    DE: '1 Queensize-Bett'
+  }
+};
+
+export const CATEGORY_TRANSLATIONS: Record<string, Record<string, string>> = {
+  VILLE: {
+    IT: 'VILLE',
+    EN: 'VILLAS',
+    TH: 'วิลล่า',
+    DE: 'VILLEN'
+  },
+  BUNGALOW: {
+    IT: 'BUNGALOW',
+    EN: 'BUNGALOWS',
+    TH: 'บังกะโล',
+    DE: 'BUNGALOWS'
+  },
+  'TENDE GLAMPING': {
+    IT: 'TENDE GLAMPING',
+    EN: 'GLAMPING TENTS',
+    TH: 'เต็นท์แกลมปิ้ง',
+    DE: 'GLAMPING-ZELTE'
+  },
+  GLAMPING: {
+    IT: 'GLAMPING',
+    EN: 'GLAMPING',
+    TH: 'แกลมปิ้ง',
+    DE: 'GLAMPING'
+  },
+  'THE HUB GUESTHOUSE': {
+    IT: 'GUESTHOUSE',
+    EN: 'GUESTHOUSE',
+    TH: 'เกสต์เฮาส์',
+    DE: 'GUESTHOUSE'
+  },
+  GUESTHOUSE: {
+    IT: 'GUESTHOUSE',
+    EN: 'GUESTHOUSE',
+    TH: 'เกสต์เฮาส์',
+    DE: 'GUESTHOUSE'
+  }
+};
+
+export function formatAccommodationCategory(category?: string | null, lang: string = 'IT'): string {
+  if (!category) return '';
+  const key = category.trim().toUpperCase();
+  const normalizedLang = (lang || 'IT').toUpperCase();
+  if (CATEGORY_TRANSLATIONS[key]?.[normalizedLang]) {
+    return CATEGORY_TRANSLATIONS[key][normalizedLang];
+  }
+  if (key.includes('VILL')) return normalizedLang === 'TH' ? 'วิลล่า' : normalizedLang === 'DE' ? 'VILLEN' : normalizedLang === 'EN' ? 'VILLAS' : 'VILLE';
+  if (key.includes('BUNGALOW')) return normalizedLang === 'TH' ? 'บังกะโล' : normalizedLang === 'DE' || normalizedLang === 'EN' ? 'BUNGALOWS' : 'BUNGALOW';
+  if (key.includes('GLAMP') || key.includes('TEND')) return normalizedLang === 'TH' ? 'เต็นท์แกลมปิ้ง' : normalizedLang === 'DE' ? 'GLAMPING-ZELTE' : normalizedLang === 'EN' ? 'GLAMPING TENTS' : 'TENDE GLAMPING';
+  if (key.includes('GUESTHOUSE') || key.includes('HUB')) return normalizedLang === 'TH' ? 'เกสต์เฮาส์' : 'GUESTHOUSE';
+  return category;
+}
+
+export function formatAccommodationBeds(beds?: string | null, lang: string = 'IT'): string {
+  if (!beds) return '';
+  const trimmed = beds.trim();
+  const normalizedLang = (lang || 'IT').toUpperCase();
+  
+  if (BED_TRANSLATIONS[trimmed]?.[normalizedLang]) {
+    return BED_TRANSLATIONS[trimmed][normalizedLang];
+  }
+
+  // Fallback: component-based replacement
+  const parts = trimmed.split('+').map(p => p.trim());
+  const translatedParts = parts.map(part => {
+    if (BED_TRANSLATIONS[part]?.[normalizedLang]) {
+      return BED_TRANSLATIONS[part][normalizedLang];
+    }
+    
+    const match = part.match(/^(\d+)\s+(.+)$/);
+    if (!match) return part;
+    const qty = parseInt(match[1], 10);
+    const type = match[2].trim();
+
+    if (/sofa bed queen/i.test(type)) {
+      if (normalizedLang === 'TH') return `${qty} โซฟาเบดควีนไซส์`;
+      if (normalizedLang === 'DE') return `${qty} ${qty > 1 ? 'Queen-Schlafsofas' : 'Queen-Schlafsofa'}`;
+      if (normalizedLang === 'EN') return `${qty} ${qty > 1 ? 'Queen Sofa Beds' : 'Queen Sofa Bed'}`;
+      return `${qty} ${qty > 1 ? 'Divani Letto Queen' : 'Divano Letto Queen'}`;
+    }
+    if (/sofa bed king/i.test(type)) {
+      if (normalizedLang === 'TH') return `${qty} โซฟาเบดคิงไซส์`;
+      if (normalizedLang === 'DE') return `${qty} ${qty > 1 ? 'King-Schlafsofas' : 'King-Schlafsofa'}`;
+      if (normalizedLang === 'EN') return `${qty} ${qty > 1 ? 'King Sofa Beds' : 'King Sofa Bed'}`;
+      return `${qty} ${qty > 1 ? 'Divani Letto King' : 'Divano Letto King'}`;
+    }
+    if (/extra single/i.test(type)) {
+      if (normalizedLang === 'TH') return `${qty} เตียงเดี่ยวเสริม`;
+      if (normalizedLang === 'DE') return `${qty} ${qty > 1 ? 'Extra-Einzelbetten' : 'Extra-Einzelbett'}`;
+      if (normalizedLang === 'EN') return `${qty} ${qty > 1 ? 'Extra Single Beds' : 'Extra Single Bed'}`;
+      return `${qty} ${qty > 1 ? 'Letti Singoli Extra' : 'Letto Singolo Extra'}`;
+    }
+    if (/king size/i.test(type)) {
+      if (normalizedLang === 'TH') return `${qty} เตียงคิงไซส์`;
+      if (normalizedLang === 'DE') return `${qty} ${qty > 1 ? 'Kingsize-Betten' : 'Kingsize-Bett'}`;
+      if (normalizedLang === 'EN') return `${qty} ${qty > 1 ? 'King Size Beds' : 'King Size Bed'}`;
+      return `${qty} ${qty > 1 ? 'Matrimoniali King Size' : 'Matrimoniale King Size'}`;
+    }
+    if (/queen size/i.test(type)) {
+      if (normalizedLang === 'TH') return `${qty} เตียงควีนไซส์`;
+      if (normalizedLang === 'DE') return `${qty} ${qty > 1 ? 'Queensize-Betten' : 'Queensize-Bett'}`;
+      if (normalizedLang === 'EN') return `${qty} ${qty > 1 ? 'Queen Size Beds' : 'Queen Size Bed'}`;
+      return `${qty} ${qty > 1 ? 'Matrimoniali Queen Size' : 'Matrimoniale Queen Size'}`;
+    }
+
+    return part;
+  });
+
+  return translatedParts.join(' + ');
+}

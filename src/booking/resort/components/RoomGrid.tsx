@@ -4,7 +4,7 @@ import { Coffee, Wind, Image as ImageIcon, X, ChevronLeft, ChevronRight, Calenda
 import { fetchAccommodations, EnrichedAccommodation } from '../../data/accommodationsService';
 import { checkAvailability } from '../../lib/octorate';
 import { translations, Language } from '../../lib/translations';
-import { PRICE_CONFIG, findAccommodationIdentity, ACCOMMODATION_IDENTITIES, getAccommodationAcConfig } from '../config/accommodations';
+import { PRICE_CONFIG, findAccommodationIdentity, ACCOMMODATION_IDENTITIES, getAccommodationAcConfig, formatAccommodationCategory, formatAccommodationBeds } from '../config/accommodations';
 import { useResortAdminStore } from '../../../admin/resort/store/useResortAdminStore';
 import RoomFeaturesGrid from './RoomFeaturesGrid';
 
@@ -18,6 +18,7 @@ interface RoomGridProps {
   onSelectRoom?: (room: any, pricing: any, extras: { breakfast: boolean; ac: boolean }) => void;
   onExtendStay?: (nightsNeeded: number) => void;
   oauthConnected?: boolean;
+  onLoadingAvailabilityChange?: (isLoading: boolean) => void;
 }
 
 function calculateStayDays(checkIn: string, checkOut: string): number {
@@ -86,6 +87,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
   onSelectRoom,
   onExtendStay,
   oauthConnected,
+  onLoadingAvailabilityChange,
 }) => {
   const { promoCodes, fetchCloudPromoCodes } = useResortAdminStore();
   const [rooms, setRooms] = useState<EnrichedAccommodation[]>([]);
@@ -104,6 +106,10 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
   const [availabilityResults, setAvailabilityResults] = useState<any[]>([]);
   const [isOctorateOffline, setIsOctorateOffline] = useState<boolean>(false);
   const [loadingAvailability, setLoadingAvailability] = useState<boolean>(false);
+  useEffect(() => {
+    onLoadingAvailabilityChange?.(loadingAvailability);
+  }, [loadingAvailability, onLoadingAvailabilityChange]);
+
   const [availabilityChecked, setAvailabilityChecked] = useState<boolean>(false);
 
   // Gallery Modal State
@@ -759,8 +765,8 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                     </span>
                   </div>
                 )}
-                <span className={`absolute top-4 left-4 bg-emerald-800/95 border border-emerald-650/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md ${item.category.toUpperCase() !== "THE HUB GUESTHOUSE" ? "uppercase" : ""}`}>
-                  {item.category.toUpperCase() === "THE HUB GUESTHOUSE" ? "GUESTHOUSE" : item.category}
+                <span className="absolute top-4 left-4 bg-emerald-800/95 border border-emerald-650/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md uppercase">
+                  {formatAccommodationCategory(item.category, lang)}
                 </span>
 
                 {/* Capacity badge — bottom right of image */}
@@ -794,12 +800,13 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                     {getRoomTitle(item)}
                   </h3>
                 </div>
-                <p className="text-stone-800 text-sm font-normal leading-relaxed mb-4 flex-grow">
+                <p className="text-stone-800 text-sm font-normal leading-relaxed mb-2 flex-grow">
                   {getRoomDesc(item)}
                 </p>
+                
 
                 <p className="text-stone-900 text-sm font-bold mb-3">
-                  {t('beds')}: {item.beds}
+                  {t('beds')}: {formatAccommodationBeds(item.beds, lang)}
                 </p>
 
 
@@ -885,13 +892,22 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                               <Wind className="w-3.5 h-3.5" />
                               <span>
                                 {acConfig.isPortable
-                                  ? (lang === 'TH' ? `แอร์เคลื่อนย้าย (+${acConfig.pricePerNightTotal}฿/คืน)` : lang === 'DE' ? `Mobile Klima (+${acConfig.pricePerNightTotal}฿/N)` : lang === 'EN' ? `Portable A/C (+${acConfig.pricePerNightTotal}฿/n)` : `A/C Portatile (+${acConfig.pricePerNightTotal}฿/n)`)
+                                  ? (lang === 'TH' ? `แอร์ 24ชม. All-Inclusive (+${acConfig.pricePerNightTotal}฿/คืน)` : lang === 'DE' ? `24h All-Inclusive Klima (+${acConfig.pricePerNightTotal}฿/N)` : lang === 'EN' ? `24h All-Inclusive A/C (+${acConfig.pricePerNightTotal}฿/n)` : `A/C 24h All-Inclusive (+${acConfig.pricePerNightTotal}฿/n)`)
                                   : (lang === 'TH' ? `แอร์ (+${acConfig.pricePerNightTotal}฿/คืน)` : lang === 'DE' ? `Klimaanlage (+${acConfig.pricePerNightTotal}฿/N)` : lang === 'EN' ? `A/C (+${acConfig.pricePerNightTotal}฿/n)` : `Aria Cond. (+${acConfig.pricePerNightTotal}฿/n)`)
                                 }
                               </span>
                             </button>
                           )}
                         </div>
+
+                        {acConfig.isPortable && (
+                          <div className="text-[11px] text-stone-600 bg-emerald-50/60 border border-emerald-200/80 rounded-xl px-3 py-2 flex items-center gap-2">
+                            <span className="text-xs">ℹ️</span>
+                            <span className="leading-snug">
+                              {t('acPortableAlwaysAvailable' as any) || 'Climatizzatore portatile sempre disponibile a consumo a 40 THB/kWh (~20 THB/ora).'}
+                            </span>
+                          </div>
+                        )}
 
                         {/* DETAILED PRICE BREAKDOWN INSIDE THE DRAWER (V30 Safe Guard) */}
                         {hasValidDates && pricingWithExtras ? (
@@ -925,7 +941,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                                 <div className="flex justify-between">
                                   <span>
                                     {acConfig.isPortable
-                                      ? (lang === 'TH' ? `แอร์เคลื่อนย้าย (${acConfig.pricePerNightTotal}฿ × ${stayDays} คืน):` : lang === 'DE' ? `Mobile Klima (${acConfig.pricePerNightTotal}฿ × ${stayDays} N.):` : lang === 'EN' ? `Portable A/C (${acConfig.pricePerNightTotal}฿ × ${stayDays} n.):` : `A/C Portatile (${acConfig.pricePerNightTotal}฿ × ${stayDays} notti):`)
+                                      ? (lang === 'TH' ? `แอร์ 24ชม. All-Inclusive (${acConfig.pricePerNightTotal}฿ × ${stayDays} คืน):` : lang === 'DE' ? `24h All-Inclusive Klima (${acConfig.pricePerNightTotal}฿ × ${stayDays} N.):` : lang === 'EN' ? `24h All-Inclusive A/C (${acConfig.pricePerNightTotal}฿ × ${stayDays} n.):` : `A/C 24h All-Inclusive (${acConfig.pricePerNightTotal}฿ × ${stayDays} notti):`)
                                       : (lang === 'TH' ? `เครื่องปรับอากาศ (${acConfig.pricePerNightTotal}฿ × ${stayDays} คืน):` : lang === 'DE' ? `Klimaanlage (${acConfig.pricePerNightTotal}฿ × ${stayDays} N.):` : lang === 'EN' ? `Air Conditioning (${acConfig.pricePerNightTotal}฿ × ${stayDays} n.):` : `Aria Condizionata (${acConfig.pricePerNightTotal}฿ × ${stayDays} notti):`)
                                     }
                                   </span>
@@ -1015,17 +1031,23 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                               )}
                             </div>
                             {!isExpanded && (
-                              <p className="text-primary font-black text-sm sm:text-base">
-                                {lang === 'IT' && <>Totale: <span className="text-emerald-700 font-extrabold">{formatPrice(pricingWithExtras.total)}</span> ({stayDays} notti)</>}
-                                {lang === 'EN' && <>Total: <span className="text-emerald-700 font-extrabold">{formatPrice(pricingWithExtras.total)}</span> ({stayDays} nights)</>}
-                                {lang === 'TH' && <>รวม: <span className="text-emerald-700 font-extrabold">{formatPrice(pricingWithExtras.total)}</span> ({stayDays} คืน)</>}
-                                {lang === 'DE' && <>Gesamt: <span className="text-emerald-700 font-extrabold">{formatPrice(pricingWithExtras.total)}</span> ({stayDays} Nächte)</>}
-                                {pricing.savings > 0 && (
-                                  <span className="text-emerald-600 ml-1.5 font-extrabold">
-                                    -{pricing.savings}%
-                                  </span>
-                                )}
-                              </p>
+                              <div className="flex flex-col mt-0.5 leading-tight">
+                                <span className="text-primary font-black text-sm sm:text-base whitespace-nowrap">
+                                  {lang === 'TH' ? 'รวม' : lang === 'DE' ? 'Gesamt' : lang === 'EN' ? 'Total' : 'Totale'}:{' '}
+                                  <span className="text-emerald-700 font-extrabold">{formatPrice(pricingWithExtras.total)}</span>
+                                </span>
+                                <span className="text-xs sm:text-sm font-bold text-emerald-700 whitespace-nowrap mt-0.5">
+                                  {lang === 'TH' && `${stayDays} คืน`}
+                                  {lang === 'EN' && `${stayDays} ${stayDays === 1 ? 'night' : 'nights'}`}
+                                  {lang === 'DE' && `${stayDays} ${stayDays === 1 ? 'Nacht' : 'Nächte'}`}
+                                  {lang === 'IT' && `${stayDays} ${stayDays === 1 ? 'notte' : 'notti'}`}
+                                  {pricing.savings > 0 && (
+                                    <span className="text-emerald-600 ml-1 font-extrabold">
+                                      -{pricing.savings}%
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
                             )}
                           </div>
                         ) : pricing.minStayBlocked ? (
@@ -1190,7 +1212,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
             <div className="space-y-3 pr-8">
               {activeGalleryRoom?.category && (
                 <span className="inline-block px-3 py-1 bg-stone-800/80 border border-stone-700 text-emerald-400 font-extrabold text-[10px] rounded-lg uppercase tracking-widest">
-                  {activeGalleryRoom.category}
+                  {formatAccommodationCategory(activeGalleryRoom.category, lang)}
                 </span>
               )}
               <h3 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-black text-white tracking-tight leading-tight">
@@ -1199,6 +1221,25 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
               <p className="text-stone-300 text-sm md:text-base font-normal leading-relaxed">
                 {activeGalleryRoom ? getRoomDesc(activeGalleryRoom) : ''}
               </p>
+
+              {activeGalleryRoom && (() => {
+                const modalAcConfig = getAccommodationAcConfig(activeGalleryRoom.name || activeGalleryRoom.slug);
+                if (!modalAcConfig.isPortable) return null;
+                return (
+                  <div className="mt-3 text-xs text-stone-200 bg-stone-900/90 border border-emerald-500/40 rounded-xl p-3 flex items-start gap-2.5 shadow-md">
+                    <span className="text-base flex-shrink-0">ℹ️</span>
+                    <div className="leading-snug">
+                      <strong className="text-emerald-400 font-extrabold uppercase text-[11px] block mb-0.5">
+                        {lang === 'TH' ? 'เครื่องปรับอากาศ (แอร์)' : lang === 'DE' ? 'Klimaanlage' : lang === 'EN' ? 'Air Conditioning' : 'Aria Condizionata'}
+                      </strong>
+                      <span className="text-stone-300 font-medium">
+                        {t('acPortableAlwaysAvailable' as any) || 'Climatizzatore portatile sempre disponibile a consumo a 40 THB/kWh (~20 THB/ora).'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
+              
               {roomImages.length > 0 && (
                 <div className="pt-1">
                   <span className="inline-block px-3 py-1 rounded-full bg-stone-950/80 text-[10px] md:text-xs text-stone-400 border border-stone-800/80 uppercase font-extrabold tracking-widest">
@@ -1219,6 +1260,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
               <RoomFeaturesGrid
                 features={activeGalleryRoom?.features || activeGalleryRoom?.details?.features}
                 details={activeGalleryRoom?.details}
+                roomName={activeGalleryRoom?.name || activeGalleryRoom?.slug}
                 lang={lang}
               />
             </div>

@@ -28,7 +28,8 @@ import {
   CreditCard,
   Wallet,
   Banknote,
-  Search
+  Search,
+  Loader2
 } from "lucide-react"
 import { getAuthorizationUrl, isAuthenticated, exchangeToken, clearTokens } from "../lib/octorate"
 import { RoomGrid } from "../resort/components/RoomGrid"
@@ -158,6 +159,18 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   const [selectedPricing, setSelectedPricing] = useState<any | null>(null)
   const [checkoutData, setCheckoutData] = useState({ name: "", email: "", phone: "", requests: "" })
   const [bookingLoading, setBookingLoading] = useState(false)
+  const [isVerifyingAvailability, setIsVerifyingAvailability] = useState(false);
+
+  const handleLoadingAvailabilityChange = (isLoading: boolean) => {
+    if (isLoading) {
+      setIsVerifyingAvailability(true);
+    } else {
+      setTimeout(() => {
+        setIsVerifyingAvailability(false);
+      }, 400);
+    }
+  };
+
   const [paymentMethod, setPaymentMethod] = useState<'ksher' | 'paypal' | 'bank_transfer'>('ksher')
   const [isBooked, setIsBooked] = useState(false)
   const [bookingId, setBookingId] = useState("")
@@ -1078,6 +1091,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     }
 
     setHasSearched(true)
+    setIsVerifyingAvailability(true)
 
     // Smooth scroll viewport down to the rooms grid immediately
     const grid = document.getElementById("rooms-grid")
@@ -1085,7 +1099,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     if (grid) {
       const stickySection = searchForm ? searchForm.closest("section") : null;
       const stickyHeight = stickySection ? stickySection.offsetHeight : 120;
-      grid.style.scrollMarginTop = `${stickyHeight}px`;
+      grid.style.scrollMarginTop = `${stickyHeight + 70}px`;
       grid.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
@@ -1172,7 +1186,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
         </header>
       </div>
 
-      <section className="sticky top-0 z-50 bg-stone-300/95 backdrop-blur-md shadow-md border-b border-stone-400 py-3 md:py-3.5 transition-all">
+      <section className="sticky top-14 z-40 bg-stone-300/95 backdrop-blur-md shadow-md border-b border-stone-400 py-3 md:py-3.5 transition-all">
         <div className="max-w-6xl mx-auto px-3 sm:px-4">
           <form
             id="booking-search-form"
@@ -1256,29 +1270,24 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
             </div>
 
             {/* Guests */}
-            <div className="col-span-1 lg:flex-1 flex items-center justify-between gap-1.5 px-2.5 sm:px-4 py-2 sm:py-2.5 bg-stone-50 rounded-xl border-2 border-stone-300 focus-within:border-emerald-700 focus-within:ring-2 focus-within:ring-emerald-600/20 transition-all shadow-xs">
+            <div className="col-span-1 lg:flex-1 flex items-center justify-between gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-stone-50 rounded-xl border-2 border-stone-300 focus-within:border-emerald-700 focus-within:ring-2 focus-within:ring-emerald-600/20 transition-all shadow-xs">
               <div className="p-1.5 sm:p-2.5 bg-emerald-100 text-emerald-800 rounded-xl flex-shrink-0 shadow-xs flex items-center justify-center">
                 <Users className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div className="flex-1 flex flex-col justify-center items-start min-w-0 pl-1.5 sm:pl-2">
+              <div className="flex-1 flex flex-col justify-center items-start min-w-0 pl-[3px] sm:pl-2">
                 <label className="block text-[11px] sm:text-xs uppercase tracking-wider text-stone-600 font-black leading-tight mb-0.5 whitespace-nowrap">
                   {t('guests')}
                 </label>
-                <div className="flex items-baseline gap-1 whitespace-nowrap leading-snug">
-                  <span className="text-sm sm:text-base font-black text-stone-900">
-                    {guests}
-                  </span>
-                  <span className="text-xs sm:text-sm text-stone-700 font-bold">
-                    {guests === 1 ? t('guestSingular') : t('guestPlural')}
-                  </span>
-                </div>
+                <span className="text-sm sm:text-base font-black text-stone-900 block whitespace-nowrap leading-snug">
+                  {guests} {guests === 1 ? t('guestSingular') : t('guestPlural')}
+                </span>
               </div>
-              {/* Stepper Verticale Compatto (In fondo a destra) */}
+              {/* Stepper Verticale Compatto e Comodo */}
               <div className="flex flex-col justify-center items-center gap-0.5 bg-stone-200/70 p-0.5 rounded-lg border border-stone-300 flex-shrink-0">
                 <button
                   type="button"
                   onClick={() => setGuests(Math.min(8, guests + 1))}
-                  className="w-6 sm:w-7 h-5 sm:h-5.5 flex items-center justify-center rounded bg-white hover:bg-stone-100 active:bg-stone-200 text-stone-900 text-xs sm:text-sm font-black shadow-xs transition-all cursor-pointer active:scale-95"
+                  className="w-6 sm:w-7 h-5 sm:h-5.5 flex items-center justify-center rounded bg-white hover:bg-stone-100 active:bg-stone-200 text-stone-900 text-xs sm:text-sm font-black shadow-xs transition-all cursor-pointer active:scale-95 leading-none"
                   aria-label="Aumenta ospiti"
                 >
                   +
@@ -1286,7 +1295,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                 <button
                   type="button"
                   onClick={() => setGuests(Math.max(1, guests - 1))}
-                  className="w-6 sm:w-7 h-5 sm:h-5.5 flex items-center justify-center rounded bg-white hover:bg-stone-100 active:bg-stone-200 text-stone-900 text-xs sm:text-sm font-black shadow-xs transition-all cursor-pointer active:scale-95"
+                  className="w-6 sm:w-7 h-5 sm:h-5.5 flex items-center justify-center rounded bg-white hover:bg-stone-100 active:bg-stone-200 text-stone-900 text-xs sm:text-sm font-black shadow-xs transition-all cursor-pointer active:scale-95 leading-none"
                   aria-label="Diminuisci ospiti"
                 >
                   -
@@ -1297,10 +1306,20 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
             {/* Submit Button */}
             <button
               type="submit"
-              className="col-span-1 lg:w-auto bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white font-black text-sm sm:text-base py-3.5 px-4 sm:px-8 rounded-xl shadow-md transition-all duration-200 transform active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+              disabled={isVerifyingAvailability}
+              className="col-span-1 lg:w-auto bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 disabled:bg-emerald-900/80 disabled:cursor-wait text-white font-black text-sm sm:text-base py-3.5 px-4 sm:px-8 rounded-xl shadow-md transition-all duration-200 transform active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-300" />
-              <span>{t('searchBtn')}</span>
+              {isVerifyingAvailability ? (
+                <>
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin text-emerald-300" />
+                  <span>{lang === 'TH' ? 'กำลังตรวจสอบ...' : lang === 'DE' ? 'Wird geprüft...' : lang === 'EN' ? 'Checking...' : 'Verifica in corso...'}</span>
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-300" />
+                  <span>{t('searchBtn')}</span>
+                </>
+              )}
             </button>
           </form>
         </div>
@@ -1765,63 +1784,35 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
                       if (roomAcConfig.isPortable) {
                         return (
-                          <div className="rounded-xl border border-amber-300/80 bg-gradient-to-br from-amber-500/5 via-stone-50 to-emerald-500/5 p-4 shadow-xs space-y-3">
-                            <div className="flex items-start gap-3">
-                              <div className="p-2.5 rounded-xl bg-amber-500/15 text-amber-800 flex-shrink-0">
-                                <Wind className="w-5 h-5 text-amber-700" />
-                              </div>
-                              <div className="flex-1 text-xs">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="font-extrabold text-stone-850">
-                                    {t('extraACPortableTitle' as any)}
-                                  </span>
-                                  <span className="text-[10px] font-bold text-amber-800 bg-amber-500/15 border border-amber-600/30 px-2 py-0.5 rounded-md">
-                                    {roomAcConfig.units} {roomAcConfig.units === 1 ? 'unità' : 'unità'} ({roomAcConfig.pricePerNightTotal} THB / {t('perNight' as any)})
-                                  </span>
-                                </div>
-                                <p className="text-stone-500 text-[10px] mt-1 leading-normal">
-                                  {t('extraACPortableDesc' as any)}
-                                </p>
-                              </div>
+                          <div
+                            onClick={() => setExtraAC(!extraAC)}
+                            className={`flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer select-none ${
+                              extraAC
+                                ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
+                                : "bg-white border-stone-300 hover:bg-stone-100/40"
+                            }`}
+                          >
+                            <div className={`p-2.5 rounded-xl flex-shrink-0 ${
+                              extraAC ? "bg-emerald-800 text-white" : "bg-stone-200 text-primary"
+                            }`}>
+                              <Wind className="w-5 h-5" />
                             </div>
-
-                            {/* SMART RECOMMENDATION BOX */}
-                            <div className="p-3 rounded-lg bg-emerald-700/10 border border-emerald-600/25 text-[11px] space-y-1.5">
-                              <div className="flex items-center gap-1.5 font-bold text-emerald-900">
-                                <span className="text-sm">💡</span>
-                                <span>{t('acPayAsYouGoTitle' as any)}</span>
-                                <span className="ml-auto text-[9px] uppercase tracking-wide bg-emerald-800 text-white font-extrabold px-1.5 py-0.5 rounded">
-                                  {t('acPayAsYouGoBadge' as any)}
+                            <div className="flex-1 text-xs">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-stone-850">
+                                  A/C 24h All-Inclusive ({roomAcConfig.units} {roomAcConfig.units === 1 ? 'unità' : 'unità'})
                                 </span>
-                              </div>
-                              <p className="text-stone-600 text-[10.5px] leading-relaxed">
-                                {t('acPayAsYouGoDesc' as any)}
-                              </p>
-                            </div>
-
-                            {/* FLAT PREPAID OPTION TOGGLE */}
-                            <div
-                              onClick={() => setExtraAC(!extraAC)}
-                              className={`flex items-center justify-between p-2.5 rounded-lg border transition-all cursor-pointer select-none text-xs ${
-                                extraAC
-                                  ? "bg-emerald-800 text-white border-emerald-800 shadow-xs"
-                                  : "bg-white border-stone-300 text-stone-750 hover:bg-stone-100/50"
-                              }`}
-                            >
-                              <div className="flex items-center gap-2.5">
                                 <input
                                   type="checkbox"
                                   checked={extraAC}
-                                  onChange={() => {}}
-                                  className="accent-emerald-600 cursor-pointer pointer-events-none"
+                                  onChange={() => { }}
+                                  className="accent-emerald-750 cursor-pointer pointer-events-none"
                                 />
-                                <span className="font-semibold text-[11px]">
-                                  {t('acPrepaidFlatOption' as any)}
-                                </span>
                               </div>
-                              <span className={`font-bold text-[11px] px-2 py-0.5 rounded ${
-                                extraAC ? "bg-white/20 text-white" : "text-emerald-800 bg-emerald-500/10"
-                              }`}>
+                              <p className="text-stone-500 text-[10.5px] mt-1 leading-normal">
+                                {t('acPortableAlwaysAvailable' as any) || 'Climatizzatore portatile sempre disponibile a consumo a 40 THB/kWh (~20 THB/ora).'}
+                              </p>
+                              <span className="inline-block mt-2 font-bold text-emerald-800 bg-emerald-500/10 px-2 py-0.5 rounded text-[10px]">
                                 +{roomAcConfig.pricePerNightTotal} THB / {t('perNight' as any)}
                               </span>
                             </div>
@@ -2205,7 +2196,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     return (
                       <div className="flex justify-between text-stone-700 font-medium border-t border-stone-300/30 pt-2.5">
                         <span>
-                          {roomAcConfig.isPortable ? t('extraACPortableTitle' as any) : t('extraACTraditionalTitle' as any)}{' '}
+                          {roomAcConfig.isPortable ? 'A/C 24h All-Inclusive' : t('extraACTraditionalTitle' as any)}{' '}
                           ({roomAcConfig.pricePerNightTotal} THB × {stayDays} {t('perNight' as any)})
                         </span>
                         <span className="font-bold text-stone-750">
@@ -2432,6 +2423,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
             {!loading && !error && (
               <RoomGrid
+                onLoadingAvailabilityChange={handleLoadingAvailabilityChange}
                 lang={lang}
                 activeCategory={selectedCategory}
                 guests={guests}
@@ -2516,6 +2508,57 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           </div>
         );
       })()}
+    
+      {/* OVERLAY IN SOVRAIMPRESSIONE CON SFONDO SBIADITO */}
+      {isVerifyingAvailability && (
+        <div
+          className="fixed inset-0 z-[9999] bg-stone-950/70 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300 animate-fadeIn"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="bg-[#3b3530] border border-stone-600/80 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-[0_25px_60px_rgba(0,0,0,0.8)] text-center space-y-4 animate-scaleUpModal">
+            {/* Animated Brand Pulse / Spinner */}
+            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-4 border-emerald-500/20 animate-ping opacity-75" />
+              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-emerald-400 border-r-emerald-400 animate-spin" />
+              <div className="w-14 h-14 rounded-full bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center shadow-inner">
+                <Calendar className="w-7 h-7 text-emerald-400 animate-pulse" />
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className="space-y-1.5">
+              <h3 className="font-sans font-black text-xl sm:text-2xl text-white tracking-tight">
+                {lang === 'TH' ? 'กำลังตรวจสอบห้องว่าง...' : lang === 'DE' ? 'Verfügbarkeit wird geprüft...' : lang === 'EN' ? 'Checking Availability...' : 'Verifica disponibilità in corso...'}
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium">
+                {lang === 'TH'
+                  ? 'กำลังเชื่อมต่อปฏิทินเกาะพยามแบบเรียลไทม์ เพื่อคำนวณราคาและข้อเสนอที่ดีที่สุด'
+                  : lang === 'DE'
+                  ? 'Echtzeit-Abfrage des Belegungskalenders für Koh Phayam läuft. Beste Preise werden berechnet.'
+                  : lang === 'EN'
+                  ? 'Connecting to Koh Phayam live calendar to find available accommodations and best rates.'
+                  : 'Stiamo interrogando il calendario di Koh Phayam in tempo reale per verificare gli alloggi liberi e le migliori tariffe.'}
+              </p>
+            </div>
+
+            {/* Animated Indeterminate Progress Bar */}
+            <div className="w-full bg-stone-800 rounded-full h-1.5 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-emerald-500 via-teal-300 to-emerald-400 rounded-full animate-indeterminateBar" />
+            </div>
+
+            {/* Stay details badge */}
+            {checkIn && checkOut && (
+              <div className="inline-flex items-center gap-2 bg-stone-900/80 border border-stone-700/70 px-3.5 py-1.5 rounded-full text-[11px] text-stone-300 font-semibold">
+                <span>📅 {formatDateForDisplay(checkIn)} ➔ {formatDateForDisplay(checkOut)}</span>
+                <span className="text-emerald-400">•</span>
+                <span>👥 {guests} {guests === 1 ? t('guestSingular') : t('guestPlural')}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

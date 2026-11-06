@@ -1,3 +1,4 @@
+import { formatAccommodationCategory, formatAccommodationBeds } from '../booking/resort/config/accommodations';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import {
@@ -1657,7 +1658,7 @@ export default function ResortPublicCalendarPage() {
               <div className="space-y-2 pr-8">
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 bg-stone-800 border border-stone-700 text-amber-400 font-extrabold text-[10px] rounded-md uppercase tracking-wider">
-                    {previewModalRoom?.category}
+                    {formatAccommodationCategory(previewModalRoom?.category, lang)}
                   </span>
                   <span className="text-[10px] text-stone-400">
                     Fino a {previewModalRoom?.capacity} ospiti · {previewModalRoom?.beds}
@@ -1794,9 +1795,9 @@ export default function ResortPublicCalendarPage() {
                   <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/35 pointer-events-none" />
 
                   {/* Category badge - top left */}
-                  <span className={`absolute top-4 left-4 bg-emerald-800/95 border border-emerald-600/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md ${room.category.toUpperCase() !== "THE HUB GUESTHOUSE" ? "uppercase" : ""}`}>
-                    {room.category.toUpperCase() === "THE HUB GUESTHOUSE" ? "GUESTHOUSE" : room.category}
-                  </span>
+                  <span className="absolute top-4 left-4 bg-emerald-800/95 border border-emerald-600/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md uppercase">
+                  {formatAccommodationCategory(room.category, lang)}
+                </span>
 
                   {/* Direct booking discount badge - top right */}
                   <span className="absolute top-4 right-4 bg-emerald-800 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-sm uppercase">
@@ -1828,8 +1829,19 @@ export default function ResortPublicCalendarPage() {
                   {/* Beds */}
                   {room.beds && (
                     <p className="text-stone-900 text-xs sm:text-sm font-bold mb-4">
-                      {lang === 'TH' ? `เตียง: ${room.beds}` : lang === 'DE' ? `Betten: ${room.beds}` : lang === 'EN' ? `Beds: ${room.beds}` : `Letti: ${room.beds}`}
+                      {lang === 'TH' ? `เตียง: ${formatAccommodationBeds(room.beds, lang)}` : lang === 'DE' ? `Betten: ${formatAccommodationBeds(room.beds, lang)}` : lang === 'EN' ? `Beds: ${formatAccommodationBeds(room.beds, lang)}` : `Letti: ${formatAccommodationBeds(room.beds, lang)}`}
                     </p>
+                  )}
+
+                  {/* Note A/C Portable */}
+                  {configPricingSummary.acConfig.isPortable && (
+                    <div className="mb-4 text-[11px] text-stone-600 bg-stone-100/90 border border-stone-250 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+                      <span className="text-xs">ℹ️</span>
+                      <span className="leading-snug">
+                        <strong>{lang === 'TH' ? 'แอร์:' : lang === 'DE' ? 'Klima:' : lang === 'EN' ? 'A/C:' : 'A/C:'}</strong>{' '}
+                        {translations[lang]?.acPortableAlwaysAvailable || 'Climatizzatore portatile sempre disponibile a consumo a 40 THB/kWh (~20 THB/ora).'}
+                      </span>
+                    </div>
                   )}
 
                   {/* SECTION 2: SERVIZI AGGIUNTIVI (OPZIONALI) */}
@@ -1865,7 +1877,7 @@ export default function ResortPublicCalendarPage() {
                           <Wind className="w-3.5 h-3.5" />
                           <span>
                             {configPricingSummary.acConfig.isPortable
-                              ? (lang === 'TH' ? `แอร์เคลื่อนย้าย (+${configPricingSummary.acConfig.pricePerNightTotal}฿/คืน)` : lang === 'DE' ? `Mobile Klima (+${configPricingSummary.acConfig.pricePerNightTotal}฿/N)` : lang === 'EN' ? `Portable A/C (+${configPricingSummary.acConfig.pricePerNightTotal}฿/n)` : `A/C Portatile (+${configPricingSummary.acConfig.pricePerNightTotal}฿/n)`)
+                              ? (lang === 'TH' ? `แอร์ 24ชม. All-Inclusive (+${configPricingSummary.acConfig.pricePerNightTotal}฿/คืน)` : lang === 'DE' ? `24h All-Inclusive Klima (+${configPricingSummary.acConfig.pricePerNightTotal}฿/N)` : lang === 'EN' ? `24h All-Inclusive A/C (+${configPricingSummary.acConfig.pricePerNightTotal}฿/n)` : `A/C 24h All-Inclusive (+${configPricingSummary.acConfig.pricePerNightTotal}฿/n)`)
                               : (lang === 'TH' ? `แอร์ (+${configPricingSummary.acConfig.pricePerNightTotal}฿/คืน)` : lang === 'DE' ? `Klimaanlage (+${configPricingSummary.acConfig.pricePerNightTotal}฿/N)` : lang === 'EN' ? `A/C (+${configPricingSummary.acConfig.pricePerNightTotal}฿/n)` : `Aria Cond. (+${configPricingSummary.acConfig.pricePerNightTotal}฿/n)`)
                             }
                           </span>
@@ -1897,7 +1909,7 @@ export default function ResortPublicCalendarPage() {
                           <div className="flex justify-between">
                             <span>
                               {configPricingSummary.acConfig.isPortable
-                                ? (lang === 'TH' ? `แอร์เคลื่อนย้าย (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} คืน):` : lang === 'DE' ? `Mobile Klima (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} N.):` : lang === 'EN' ? `Portable A/C (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} n.):` : `A/C Portatile (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} notti):`)
+                                ? (lang === 'TH' ? `แอร์ 24ชม. All-Inclusive (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} คืน):` : lang === 'DE' ? `24h All-Inclusive Klima (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} N.):` : lang === 'EN' ? `24h All-Inclusive A/C (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} n.):` : `A/C 24h All-Inclusive (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} notti):`)
                                 : (lang === 'TH' ? `เครื่องปรับอากาศ (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} คืน):` : lang === 'DE' ? `Klimaanlage (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} N.):` : lang === 'EN' ? `Air Conditioning (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} n.):` : `Aria Condizionata (${configPricingSummary.acConfig.pricePerNightTotal}฿ × ${configPricingSummary.nights} notti):`)
                               }
                             </span>

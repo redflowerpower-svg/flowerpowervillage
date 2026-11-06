@@ -313,14 +313,14 @@ export const RoomFeaturesGrid: React.FC<RoomFeaturesGridProps> = ({
   let acNoteText = '';
 
   if (acConfig.isPortable) {
-    acBannerTitle = validLang === 'EN' ? 'High-Efficiency Portable A/C & Smart Tip' : validLang === 'DE' ? 'Mobile Klimaanlage & Spartipp' : validLang === 'TH' ? 'เครื่องปรับอากาศแบบเคลื่อนย้าย & คำแนะนำสุดคุ้ม' : 'Climatizzatore Portatile ad Alta Efficienza & Consiglio Risparmio';
+    acBannerTitle = validLang === 'EN' ? 'Portable A/C (Pay-As-You-Go)' : validLang === 'DE' ? 'Mobiles Klimagerät (Verbrauch)' : validLang === 'TH' ? 'แอร์เคลื่อนย้าย (จ่ายตามจริง)' : 'Climatizzatore Portatile (A Consumo)';
     acNoteText = validLang === 'EN'
-      ? `This accommodation is equipped with a high-efficiency portable air conditioner adapted to the island (${acConfig.units} ${acConfig.units === 1 ? 'unit' : 'units'}). For optimal savings, we strongly recommend using it on a pay-as-you-go basis at 40 THB per kWh (~20 THB per hour). Alternatively, an unlimited prepaid flat rate of ${acConfig.pricePerNightTotal} THB/night is available during booking.`
+      ? `Equipped with a portable air conditioner (${acConfig.units} ${acConfig.units === 1 ? 'unit' : 'units'}). Always available pay-as-you-go at 40 THB per kWh (~20 THB per hour), or bookable as a 24h All-Inclusive rate of ${acConfig.pricePerNightTotal} THB/night.`
       : validLang === 'DE'
-      ? `Diese Unterkunft ist mit einer mobilen hocheffizienten Klimaanlage (${acConfig.units} ${acConfig.units === 1 ? 'Einheit' : 'Einheiten'}) ausgestattet. Für maximale Ersparnis empfehlen wir die verbrauchsabhängige Nutzung für 40 THB pro kWh (~20 THB/Std.). Alternativ können Sie bei der Buchung die Pauschale von ${acConfig.pricePerNightTotal} THB/Nacht wählen.`
+      ? `Ausgestattet mit mobiler Klimaanlage (${acConfig.units} ${acConfig.units === 1 ? 'Einheit' : 'Einheiten'}). Jederzeit vor Ort nach Verbrauch nutzbar für 40 THB pro kWh (~20 THB/Std.) oder als 24h All-Inclusive Pauschale von ${acConfig.pricePerNightTotal} THB/Nacht buchbar.`
       : validLang === 'TH'
-      ? `ที่พักนี้ติดตั้งเครื่องปรับอากาศแบบเคลื่อนย้ายประหยัดพลังงาน (${acConfig.units} เครื่อง) เพื่อความคุ้มค่าสูงสุด แนะนำให้ใช้งานแบบจ่ายตามจริง 40 บาทต่อ kWh (~20 บาทต่อชั่วโมง) หรือเลือกชำระแบบเหมาจ่าย ${acConfig.pricePerNightTotal} บาท/คืน ในขั้นตอนการจอง`
-      : `Questo alloggio è dotato di climatizzatore portatile ad alta efficienza per l'isola (${acConfig.units} ${acConfig.units === 1 ? 'unità' : 'unità'}). Per garantirti il massimo risparmio, ti consigliamo vivamente l'opzione a consumo al costo di 40 THB per kWh (~20 THB all'ora). In alternativa, in fase di prenotazione puoi selezionare la tariffa forfettaria illimitata a ${acConfig.pricePerNightTotal} THB a notte.`;
+      ? `ติดตั้งเครื่องปรับอากาศแบบเคลื่อนย้าย (${acConfig.units} เครื่อง) เปิดใช้งานแบบจ่ายตามจริงได้เสมอ 40 บาทต่อ kWh (~20 บาท/ชม.) หรือเลือกจองแบบ 24ชม. All-Inclusive ในราคา ${acConfig.pricePerNightTotal} บาท/คืน`
+      : `Dotato di climatizzatore portatile (${acConfig.units} ${acConfig.units === 1 ? 'unità' : 'unità'}). Sempre disponibile in loco a consumo a 40 THB per kWh (~20 THB all'ora), oppure prenotabile con tariffa 24h All-Inclusive a ${acConfig.pricePerNightTotal} THB a notte.`;
   } else if (acConfig.type === 'traditional') {
     acBannerTitle = validLang === 'EN' ? 'Traditional Fixed Air Conditioning' : validLang === 'DE' ? 'Traditionelle Feste Klimaanlage' : validLang === 'TH' ? 'เครื่องปรับอากาศแบบติดผนังดั้งเดิม' : 'Aria Condizionata Tradizionale Fissa';
     acNoteText = validLang === 'EN'
