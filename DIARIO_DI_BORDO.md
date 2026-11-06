@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [06/11/2026 - ORE 12:40] · CANALE DEDICATO TOPIC "CONCIERGE BOT" (FPV DASHBOARD) & AUTO-CAPTURE THREAD ID
+- **Cosa abbiamo fatto:**
+  1. 🤖 **Configurazione Nuovo Topic "Concierge Bot"**:
+     - Aggiornato l'handler Telegram (api/_handlers/telegram.ts) per accogliere il nuovo topic Concierge Bot nel Supergruppo FPV Dashboard (-1004329392611).
+     - Introdotta la registrazione e memorizzazione dinamica automatica del threadId in telegram_config (village_concierge_topic_id).
+     - Instradate le notifiche di sincronizzazione automatica Google Sheets direttamente dentro il topic Concierge Bot.
+  2. 💬 **Aggiornamento Dashboard Resort**:
+     - Nella Dashboard Amministrativa (sezione BOT TELEGRAM & AI CONCIERGE), aggiornata l'indicazione del topic attivo a "Concierge Bot".
+  3. 📦 **Verifica & Build**:
+     - TypeScript npx tsc --noEmit completato con 0 errori.
+- **File aggiornati:** api/_handlers/telegram.ts, api/_helpers/google-sheets-sync.ts, src/admin/resort/components/BookingConciergeStudio.tsx, DIARIO_DI_BORDO.md.
+- **Stato:** 🟢 100% OPERATIVO, TOPIC CONCIERGE BOT PRONTO SUL SUPERGRUPPO.
+
+---
+
 ### 🚀 [04/11/2026 - ORE 18:55] · MODALE INGREDIENTI EXTRA PIZZERIA: UNICO SCROLLBAR FLUIDO & CARD STRUTTURATE A CAMPATA PIENA (ZERO A CAPO ANOMALO)
 - **Cosa abbiamo fatto:**
   1. 🚫 **Eliminazione Radicale del Doppio Scrollbar Sovrapposto**:
