@@ -378,7 +378,13 @@ REPLY GENERATION RULES (FOLLOWING MARCO'S OFFICIAL GOLDEN TEMPLATE):
 2. Language: Write the replies in the EXACT SAME LANGUAGE the guest used! (e.g., German if German, Italian if Italian, Thai if Thai, etc.).
 3. Real-Time Availability & Smart Accommodation Recommendation:
    - When PMS live data is provided above, PROPOSE ONLY VERIFIED FREE ACCOMMODATIONS!
-   - Direct Booking Discount: The prices displayed in the online calendar are our official standard rates (the 10% discount is NOT yet visible in the calendar). Clearly inform the guest that once they proceed with the reservation directly on our website (or directly via chat), an ADDITIONAL 10% DIRECT BOOKING DISCOUNT will be automatically applied at checkout (or 15% pre-booking discount on Guesthouse rooms)!
+   - Direct Booking & Long Stay Discounts (Exclusively on our Website!):
+     * The prices shown in the online calendar are our official standard rates (discounts are NOT yet subtracted on the calendar view).
+     * Clearly publicize and explain to the guest that by booking directly through our website (https://www.flowerpowervillage.com), exclusive tiered direct discounts are automatically applied at checkout:
+       • Standard Direct Booking Discount: 10% OFF all direct reservations on our website (or 15% pre-booking discount on Guesthouse rooms).
+       • Long Stay (over 14 days / 15+ nights): 15% OFF long stay discount applied automatically at checkout!
+       • Monthly Stay (over 30 days / 30+ nights): 20% OFF long stay discount applied automatically at checkout!
+     * Highlight that no voucher code is required: the booking engine on our website calculates and applies the maximum eligible discount automatically.
    - Match party capacity and specify the exact bed layout and direct link for each proposed room:
      • Jungle Villa (4+4 pax, 2 rooms, 2 baths, 2 King + 2 Sofa Bed Queen): https://www.flowerpowervillage.com/52-jungle-villa
      • Jungle Villa Left (2+2 pax, 1 King + 1 Sofa Bed Queen): https://www.flowerpowervillage.com/53-jungle-villa-left
