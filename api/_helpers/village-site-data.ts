@@ -328,8 +328,8 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
     },
     {
       "Voce": "Sconti Prenotazione Diretta",
-      "Valore Ufficiale": "10% Sconto Diretto Ville/Bungalow/Tende/Camere · 15% Pre-Booking Guesthouse",
-      "Dettagli": "Sconto del 10% già applicato per le prenotazioni dirette dal sito web o direttamente in chat con Marco. Sconto del 15% per pre-booking sulle camere guesthouse."
+      "Valore Ufficiale": "Ulteriore sconto 10% applicato al checkout sul sito (15% Guesthouse)",
+      "Dettagli": "I prezzi visualizzati nelle caselle del calendario online sono le tariffe ufficiali standard (il 10% non è ancora visibile nel calendario). Effettuando la prenotazione direttamente tramite il nostro sito web o in chat, al momento del checkout verrà applicato un ulteriore sconto esclusivo del 10% per prenotazione diretta (o 15% di pre-booking per le camere guesthouse)."
     },
     {
       "Voce": "Distanza dalla Spiaggia",

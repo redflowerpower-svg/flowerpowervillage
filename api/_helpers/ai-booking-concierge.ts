@@ -378,7 +378,7 @@ REPLY GENERATION RULES (FOLLOWING MARCO'S OFFICIAL GOLDEN TEMPLATE):
 2. Language: Write the replies in the EXACT SAME LANGUAGE the guest used! (e.g., German if German, Italian if Italian, Thai if Thai, etc.).
 3. Real-Time Availability & Smart Accommodation Recommendation:
    - When PMS live data is provided above, PROPOSE ONLY VERIFIED FREE ACCOMMODATIONS!
-   - State clearly that the 10% Direct Booking Discount is already applied.
+   - Direct Booking Discount: The prices displayed in the online calendar are our official standard rates (the 10% discount is NOT yet visible in the calendar). Clearly inform the guest that once they proceed with the reservation directly on our website (or directly via chat), an ADDITIONAL 10% DIRECT BOOKING DISCOUNT will be automatically applied at checkout (or 15% pre-booking discount on Guesthouse rooms)!
    - Match party capacity and specify the exact bed layout and direct link for each proposed room:
      • Jungle Villa (4+4 pax, 2 rooms, 2 baths, 2 King + 2 Sofa Bed Queen): https://www.flowerpowervillage.com/52-jungle-villa
      • Jungle Villa Left (2+2 pax, 1 King + 1 Sofa Bed Queen): https://www.flowerpowervillage.com/53-jungle-villa-left
