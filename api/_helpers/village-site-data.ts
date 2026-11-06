@@ -362,14 +362,19 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Dettagli": "I cani e gli animali domestici sono i benvenuti previa comunicazione e accordo anticipato."
     },
     {
-      "Voce": "Deposito & Caparra Confirmatoria",
-      "Valore Ufficiale": "30% alla prenotazione · Saldo 70% al check-in",
-      "Dettagli": "Per confermare la prenotazione diretta è richiesto un deposito pari al 30% del totale del soggiorno (tramite carta di credito, bonifico istantaneo Wise/Revolut o PayPal). Il restante saldo del 70% si paga comodamente all'arrivo al check-in (in contanti THB, oppure Wise/Revolut a zero commissioni)."
+      "Voce": "Deposito & Modalità di Pagamento",
+      "Valore Ufficiale": "30% alla prenotazione · Carta di Credito o PayPal sul nostro sito web",
+      "Dettagli": "Per confermare la prenotazione diretta è richiesto un deposito pari al 30% del totale del soggiorno pagabile direttamente sul nostro sito web tramite Carta di Credito o PayPal. Il saldo del 70% può essere pagato comodamente online sul sito web o all'arrivo al check-in (Carta di Credito, PayPal o contanti THB). Il cliente può gestire l'intera prenotazione e pagamento in totale autonomia online."
     },
     {
       "Voce": "Termini di Cancellazione e Rimborso 100%",
       "Valore Ufficiale": "Rimborso totale 100% fino a 14 giorni prima del check-in",
       "Dettagli": "Il deposito del 30% è completamente e al 100% rimborsabile per qualsiasi cancellazione comunicata fino a 14 giorni prima della data di arrivo. Per cancellazioni effettuate nei 14 giorni precedenti l'arrivo, l'importo della caparra viene trattenuto."
+    },
+    {
+      "Voce": "Soggiorno Minimo Contestuale",
+      "Valore Ufficiale": "Comunicare solo il soggiorno minimo del periodo richiesto",
+      "Dettagli": "Quando un cliente indica date o mesi precisi, comunicare SOLO il soggiorno minimo relativo a quel periodo specifico: 5 notti per l'Alta Stagione (1 Dic – 31 Mar, es. Gennaio) oppure 2 notti per la Bassa/Media Stagione (1 Apr – 30 Nov). Non recitare entrambi i periodi. Segnalare sempre l'eccezione delle notti isolate ('buchi') prenotabili singolarmente."
     }
   ]
 };
