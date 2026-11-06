@@ -41,7 +41,12 @@ const testRunFile = getArg('testRunFile');
 const compare = getArg('compare');
 const channel = getArg('channel');
 const apiBase = (getArg('api') || 'https://www.flowerpowerpizza.com').replace(/\/$/, '');
-const ffmpeg = env.FFMPEG_PATH || process.env.FFMPEG_PATH || ffmpegStatic || 'ffmpeg';
+let ffmpegCandidate = env.FFMPEG_PATH || process.env.FFMPEG_PATH;
+if (ffmpegCandidate && !fs.existsSync(ffmpegCandidate)) {
+  console.warn(`[parity] FFMPEG_PATH specificato non esistente (${ffmpegCandidate}), fallback automatico su ffmpeg-static.`);
+  ffmpegCandidate = null;
+}
+const ffmpeg = ffmpegCandidate || ffmpegStatic || 'ffmpeg';
 const tag = getArg('tag', env.PARITY_TAG || (env.CI ? 'cloud' : 'local'));
 fs.mkdirSync(outDir, { recursive: true });
 

@@ -279,11 +279,13 @@ async function getTelegramToken() {
       console.warn('[scheduler-dispatch] Avviso lettura Neon telegram_token:', neonErr.message);
     }
   }
-  try {
-    const { data } = await sb.from('telegram_config').select('bot_token').eq('id', 'social').maybeSingle();
-    telegramToken = data?.bot_token;
-  } catch (err) {
-    console.warn('[scheduler-dispatch] Errore lettura telegram_config:', err.message);
+  if (sb) {
+    try {
+      const { data } = await sb.from('telegram_config').select('bot_token').eq('id', 'social').maybeSingle();
+      telegramToken = data?.bot_token;
+    } catch (err) {
+      console.warn('[scheduler-dispatch] Errore lettura telegram_config:', err.message);
+    }
   }
   return telegramToken;
 }
@@ -1129,10 +1131,15 @@ async function sendMessageToTelegram({ topicId, text, photoUrl }) {
       body: JSON.stringify({
         chat_id: chatId,
         message_thread_id: topicId,
-        text: text
+        text: text,
+        parse_mode: 'HTML'
       })
     });
-    return res.json();
+    const data = await res.json();
+    if (!data.ok) {
+      console.warn(`[scheduler-dispatch] Telegram API warn su Topic ${topicId}:`, data.description);
+    }
+    return data;
   }
 }
 
@@ -1692,9 +1699,15 @@ async function run() {
 }
 
 if (!isPreflight) {
-  run().catch(async (err) => {
+  try {
+    await run();
+  } catch (err) {
     console.error('[scheduler-dispatch] ERRORE FATALE:', err);
-    await sendFailedAlert(err, `Esecuzione Slot ${targetSlot}`);
+    try {
+      await sendFailedAlert(err, `Esecuzione Slot ${targetSlot || 'Sconosciuto'}`);
+    } catch (alertErr) {
+      console.error('[scheduler-dispatch] Impossibile recapitare allarme failed:', alertErr.message);
+    }
     process.exit(1);
-  });
+  }
 }

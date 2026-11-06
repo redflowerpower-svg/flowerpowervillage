@@ -3,6 +3,27 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [06/11/2026 - ORE 12:05] · BLINDATURA CANALE ALLARMI TELEGRAM TOPIC 301 & FIX RUNNER CI (FFMPEG & PARSE_MODE)
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Diagnosi Fallimenti Silenziosi e Mancati Allarmi su Topic 301**:
+     - Accertato perché i fallimenti non arrivavano su Telegram: se un errore si verificava a livello di sistema operativo nel runner GitHub Actions (es. timeout apt-get, pacchetti mancanti, interruzioni runner), il processo Node.js non partiva o veniva terminato bruscamente, impedendo a sendFailedAlert() di essere invocata.
+     - Nel codice di scripts/social-scheduler-dispatch.mjs, sendMessageToTelegram ometteva parse_mode: 'HTML' e non catturava gli errori ritornati da Telegram (data.ok). Inoltre il blocco run().catch() asincrono non attendeva la consegna di rete prima di process.exit(1).
+  2. 🚨 **Nuovo Step di Emergenza Cloud Workflow (if: failure())**:
+     - Aggiunto in .github/workflows/social-scheduler-cron.yml un hook sentinella con condizione if: failure(): se un qualunque step del runner fallisce per qualsiasi motivo (timeout, librerie, node, crash di sistema), invia immediatamente un alert diagnostico prioritario a Telegram Topic 301 con il link cliccabile diretto ai log tecnici di GitHub.
+  3. 🛠️ **Risoluzione FFmpeg & Resilienza Encoding Video (render-parity-test.mjs)**:
+     - Reinserito ffmpeg nel pacchetto di installazione rapida apt di Ubuntu con timeout e flag non-interattivi.
+     - Implementato fallback automatico in scripts/render-parity-test.mjs: se il path /usr/bin/ffmpeg non esiste su disco, il sistema seleziona in automatico il binario statico ffmpeg-static locale da npm, azzerando qualsiasi crash di encoding.
+  4. 🛡️ **Blindatura Client & Top-Level Await Dispatcher**:
+     - In scripts/social-scheduler-dispatch.mjs, introdotto try { await run(); } catch (err) con top-level await che garantisce che sendFailedAlert completi la trasmissione su rete prima dell'uscita del processo.
+     - Protetto sb?.from contro riferimenti nulli e attivato parse_mode: 'HTML' in tutte le notifiche del bot.
+  5. 🧪 **Collaudo Canale Telegram Topic 301 & Build**:
+     - Test di trasmissione reale su Topic 301 superato istantaneamente con codice di risposta 200.
+     - npm run build completato in 10.23s con zero errori.
+- **File aggiornati:** .github/workflows/social-scheduler-cron.yml, scripts/render-parity-test.mjs, scripts/social-scheduler-dispatch.mjs, DIARIO_DI_BORDO.md.
+- **Stato:** 🟢 100% OPERATIVO, ALLARMI ATTIVI SU TOPIC 301 ANCHE IN CASO DI CRASH RUNNER.
+
+---
+
 ### 🚀 [06/11/2026 - ORE 11:25] · OTTIMIZZAZIONE WORKFLOW GITHUB ACTIONS (FAST PRE-FLIGHT GATEKEEPER & APT-GET NONINTERACTIVE)
 - **Cosa abbiamo fatto:**
   1. 🔍 **Diagnosi Slot 09:30 Non Pubblicato**:

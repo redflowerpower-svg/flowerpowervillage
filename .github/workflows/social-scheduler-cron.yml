@@ -93,7 +93,7 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           sudo apt-get update -qq -o Acquire::Retries=3 -o Acquire::http::Timeout="15" || true
-          sudo apt-get install -y -qq --no-install-recommends fonts-liberation fonts-thai-tlwg fonts-dejavu-core || true
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg fonts-liberation fonts-thai-tlwg fonts-dejavu-core || true
 
       - name: Installa Chromium headless (Playwright)
         if: steps.preflight.outputs.should_run == 'true'
@@ -139,3 +139,40 @@ jobs:
             scratch/scheduler/
             vite.log
           retention-days: 7
+
+      - name: Allarme Emergenza Runner Cloud su Telegram Topic 301
+        if: failure()
+        env:
+          TELEGRAM_SOCIAL_BOT_TOKEN: ${{ secrets.TELEGRAM_SOCIAL_BOT_TOKEN }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            let token = process.env.TELEGRAM_SOCIAL_BOT_TOKEN;
+            if (!token && fs.existsSync('.env')) {
+              for (const l of fs.readFileSync('.env', 'utf8').split('\n')) {
+                const m = l.match(/^\s*TELEGRAM_SOCIAL_BOT_TOKEN\s*=\s*(.*?)\s*$/);
+                if (m) token = m[1].replace(/^[\"']|[\"']$/g, '');
+              }
+            }
+            if (token) {
+              const runUrl = 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+              const text = '🚨 <b>[FP SOCIAL STUDIO · ALLARME RUNNER CLOUD]</b>\n\n' +
+                '❌ <b>Il Workflow GitHub Actions è fallito nel Cloud!</b>\n' +
+                '📋 <b>Workflow:</b> <code>${{ github.workflow }}</code>\n' +
+                '🆔 <b>Run ID:</b> <a href="' + runUrl + '">${{ github.run_id }}</a>\n\n' +
+                '⚠️ <i>Uno o più step del runner sono falliti prima o durante il dispatching. Cliccare sul link per visualizzare i dettagli tecnici del log.</i>';
+              
+              fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  chat_id: '-1004492692624',
+                  message_thread_id: 301,
+                  text: text,
+                  parse_mode: 'HTML'
+                })
+              }).then(r => r.json()).then(d => console.log('Telegram emergency alert result:', d));
+            } else {
+              console.warn('TELEGRAM_SOCIAL_BOT_TOKEN non reperibile per notifica di emergenza.');
+            }
+          "
