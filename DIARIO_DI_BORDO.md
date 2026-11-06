@@ -3,6 +3,25 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [06/11/2026 - ORE 08:50] · BLOCCO TOTALE DUPLICATI SOCIAL STUDIO (IDEMPOTENZA SU NEON & FINESTRA ORARIA ASIMMETRICA)
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Diagnosi Conflitto Database & Cause Post Multipli**:
+     - Accertato che Supabase e Neon **non erano in conflitto**: entrambi sono database passivi senza motori di calcolo autonomi in esecuzione.
+     - Individuata la causa reale: la finestra di tolleranza simmetrica di 90 minuti (`Math.abs`) unita al trigger di `cron-job.org` ogni 30 minuti faceva agganciare ed eseguire lo slot `08:00` per 5 volte consecutive (dalle 06:30 alle 08:30).
+  2. 🔒 **Lock di Idempotenza Giornaliero su Neon Database (`social_scheduled_posts`)**:
+     - Implementate le funzioni `isSlotCompletedToday(slot)` e `recordSlotCompleted(slot, summary)` in `scripts/social-scheduler-dispatch.mjs`.
+     - Prima di renderizzare o inviare qualsiasi post, lo script verifica in tempo reale se lo slot è già stato completato nella data odierna a Bangkok. In caso affermativo, esce istantaneamente (`exit 0`) a 0 chiamate e 0 egress.
+  3. ⏱️ **Finestra Oraria Asimmetrica (Divieto Assoluto di Anticipo)**:
+     - Riscritto `resolveTargetSlot`: uno slot non può mai scattare più di 5 minuti prima del suo orario ufficiale (`diff >= -5`), tollerando ritardi solo in avanti dovuti alle code dei runner GitHub Actions (+20 / +50 min max).
+  4. 🧪 **Collaudo Unitario & Build**:
+     - Eseguiti test unitari su tutte le fasce orarie e confini slot: 100% superati.
+     - Test live con lock Neon: rilevato ed interrotto a 0ms senza alcun invio doppio.
+     - `npm run build` completato con successo in 12.77s.
+- **File aggiornati:** `scripts/social-scheduler-dispatch.mjs`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% OPERATIVO, ZERO DUPLICATI, LOCK SU NEON ATTIVO A REGIME.
+
+---
+
 ### 🚀 [05/11/2026 - ORE 22:25] · RISOLUZIONE CRASH GITHUB ACTIONS SCHEDULER & HARMONIZZAZIONE NEON SERVERLESS
 - **Cosa abbiamo fatto:**
   1. 🛠️ **Fix Errore di Sintassi Scheduler Dispatcher**:

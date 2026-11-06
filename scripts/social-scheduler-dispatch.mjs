@@ -45,6 +45,7 @@ const getArg = (k, d = '') => {
 };
 
 const dryRun = process.argv.slice(2).includes('--dry-run');
+const forceRun = process.argv.slice(2).includes('--force');
 const base = getArg('base', 'http://localhost:3000').replace(/\/$/, '');
 const outDir = path.resolve(getArg('out', 'scratch/scheduler'));
 fs.mkdirSync(outDir, { recursive: true });
@@ -71,47 +72,98 @@ function timeToMinutes(str) {
 }
 
 function resolveTargetSlot(rawSlot, bkTime) {
-  if (rawSlot && rawSlot !== 'auto' && OFFICIAL_SLOTS.includes(rawSlot)) {
-    return rawSlot;
+  if (rawSlot && rawSlot !== 'auto') {
+    if (OFFICIAL_SLOTS.includes(rawSlot)) {
+      return rawSlot;
+    }
+    return null;
   }
   const nowMins = bkTime.hour * 60 + bkTime.min;
-  let bestSlot = null;
-  let bestDist = Infinity;
 
+  // Cerca se l'orario attuale rientra nella finestra di esecuzione valida di uno slot ufficiale
   for (const s of OFFICIAL_SLOTS) {
     const sMins = timeToMinutes(s);
-    let dist = Math.abs(nowMins - sMins);
-    if (dist > 720) dist = 1440 - dist;
-    if (dist < bestDist) {
-      bestDist = dist;
-      bestSlot = s;
+    let diff = nowMins - sMins;
+    if (diff < -720) diff += 1440;
+
+    // Tolleranza asimmetrica: MAI più di 5 minuti prima dell'orario stabilito!
+    // E tolleriamo ritardo dovuto a code dei runner gratuiti GitHub Actions:
+    let maxDelay = 25;
+    if (s === '21:00' || s === '08:00') {
+      maxDelay = 50; // Massimo 50 minuti di ritardo dopo le 08:00 o le 21:00
+    } else if (['11:30', '16:00', '17:00'].includes(s)) {
+      maxDelay = 35;
+    } else if (['18:00', '19:30'].includes(s)) {
+      maxDelay = 20; // Slot ravvicinati (18:30 e 20:00 seguono a breve)
+    }
+
+    // Ammesso solo da -5 minuti prima fino a +maxDelay dopo lo slot
+    if (diff >= -5 && diff <= maxDelay) {
+      return s;
     }
   }
 
-  // Finestra di tolleranza ritardo cron di GitHub Actions (code runner congestionate):
-  let maxTolerance = 25;
-  if (bestSlot === '21:00' || bestSlot === '08:00') {
-    maxTolerance = 90;
-  } else if (['11:30', '16:00', '17:00', '18:00', '19:30'].includes(bestSlot)) {
-    maxTolerance = 40;
-  }
-
-  if (bestDist <= maxTolerance) {
-    return bestSlot;
-  }
-  return rawSlot || bkTime.timeStr;
+  return null;
 }
 
 const currentBk = getBangkokTime();
 const rawSlotArg = getArg('slot', '');
 const targetSlot = resolveTargetSlot(rawSlotArg, currentBk);
 
-console.log(`[scheduler-dispatch] Orario attuale Bangkok: ${currentBk.timeStr} · Slot identificato: ${targetSlot} (Arg: "${rawSlotArg}", Dry Run: ${dryRun})`);
+console.log(`[scheduler-dispatch] Orario attuale Bangkok: ${currentBk.timeStr} · Slot identificato: ${targetSlot || 'NESSUNO (Scheduler a riposo)'} (Arg: "${rawSlotArg}", Dry Run: ${dryRun})`);
 
 const supabaseUrl = env.VITE_SUPABASE_URL || env.SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co';
 const supabaseKey = env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY;
 const sb = createClient(supabaseUrl, supabaseKey);
 const neonSql = env.NEON_DATABASE_URL ? neon(env.NEON_DATABASE_URL) : null;
+
+// 🔒 IDEMPOTENCY GUARD SU NEON DATABASE (ZERO DUPLICATI NELLO STESSO GIORNO)
+async function isSlotCompletedToday(slot) {
+  if (dryRun || forceRun || !slot) return false;
+  if (!neonSql) return false;
+  try {
+    const rows = await neonSql`
+      SELECT id, status, created_at 
+      FROM social_scheduled_posts 
+      WHERE slot = ${slot} 
+        AND status = 'completed'
+        AND (created_at AT TIME ZONE 'Asia/Bangkok')::date = (NOW() AT TIME ZONE 'Asia/Bangkok')::date
+      LIMIT 1;
+    `;
+    return rows && rows.length > 0;
+  } catch (err) {
+    console.warn('[scheduler-dispatch] Avviso verifica lock Neon:', err.message);
+    return false;
+  }
+}
+
+async function recordSlotCompleted(slot, summary = {}) {
+  if (dryRun || !slot) {
+    console.log(`[scheduler-dispatch] (Dry Run) Slot ${slot} completato (skip scrittura lock Neon).`);
+    return;
+  }
+  if (neonSql) {
+    try {
+      await neonSql`
+        INSERT INTO social_scheduled_posts (
+          platform, brand, slot, title, copy_text, status, created_at, updated_at
+        ) VALUES (
+          ${summary.platform || 'telegram_meta'},
+          ${summary.brand || 'flowerpower'},
+          ${slot},
+          ${summary.title || `Slot ${slot}`},
+          ${summary.details || ''},
+          'completed',
+          NOW(),
+          NOW()
+        );
+      `;
+      console.log(`[scheduler-dispatch] 🔒 Lock completato registrato su Neon per slot ${slot} (${currentBk.timeStr})`);
+    } catch (err) {
+      console.warn('[scheduler-dispatch] Avviso registrazione lock Neon:', err.message);
+    }
+  }
+}
 
 // Carica configurazione Telegram
 let telegramToken = env.TELEGRAM_SOCIAL_BOT_TOKEN;
@@ -1100,6 +1152,25 @@ async function renderVideoMode(mode) {
 }
 
 async function run() {
+  if (!targetSlot) {
+    console.log(`\n======================================================`);
+    console.log(`ℹ️ [SCHEDULER A RIPOSO] Nessuno slot pianificato all'orario attuale (${currentBk.timeStr} Bangkok).`);
+    console.log(`Gli slot ufficiali attivi sono: ${OFFICIAL_SLOTS.join(', ')}.`);
+    console.log(`Uscita sicura a 0 elaborazioni e 0 egress.`);
+    console.log(`======================================================\n`);
+    return;
+  }
+
+  // 🔒 IDEMPOTENCY GUARD: Se lo slot odierno è già stato completato, esci subito!
+  const alreadyDone = await isSlotCompletedToday(targetSlot);
+  if (alreadyDone) {
+    console.log(`\n======================================================`);
+    console.log(`🛑 [IDEMPOTENCY LOCK] Slot ${targetSlot} già completato con successo oggi a Bangkok (${currentBk.date.toISOString().slice(0, 10)})!`);
+    console.log(`Prevenzione automatica duplicati: zero chiamate esterne, zero messaggi Telegram doppi.`);
+    console.log(`======================================================\n`);
+    return;
+  }
+
   const is0800 = targetSlot === '08:00';
   const is0930 = targetSlot === '09:30';
   const is1130 = targetSlot === '11:30';
@@ -1111,6 +1182,7 @@ async function run() {
   const is1930 = targetSlot === '19:30';
   const is2000 = targetSlot === '20:00';
   const is2100 = targetSlot === '21:00';
+  let executedSummary = null;
 
   // 🛡️ Monitoraggio Sanitario & Egress Guard Supabase Storage (Auto-Healing attivo)
   // Alle 08:00 invia automaticamente il report quotidiano di telemetria su Topic 301
@@ -1169,6 +1241,11 @@ async function run() {
       title: 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
       details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Post Alloggi LM1 su Topic 2 con testo bilingue 🇬🇧+🇹🇭 e tasti interattivi'
     });
+    executedSummary = {
+      brand: 'flowerpower',
+      title: 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
+      details: 'Consegnate 2 Stories su Topic 3 e 1 Post Alloggi LM1 su Topic 2'
+    };
   } else if (is0930) {
     console.log(`🌿 [09:30 BANGKOK] Slot Story Mattino — PUBBLICAZIONE INSTAGRAM STORIES V1`);
     const storyRes = await renderVideoMode('V1');
@@ -1200,6 +1277,11 @@ async function run() {
         fallbackAction: 'Video master recapitato su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
       });
     }
+    executedSummary = {
+      brand: 'village',
+      title: 'Risveglio Tropicale a Phayam',
+      details: 'Instagram Story V1'
+    };
   } else if (is1130) {
     console.log(`🍝 [11:30 BANGKOK] Slot Pranzo Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
     const p2Res = await renderVideoMode('P2');
@@ -1242,6 +1324,11 @@ async function run() {
         fallbackAction: 'Video master e testo bilingue recapitati su Telegram Topic 2 con link diretto per pubblicazione staff.'
       });
     }
+    executedSummary = {
+      brand: 'pizza',
+      title: 'Pranzo Pasta Fresca Ranong',
+      details: 'Facebook Reel Pranzo P2'
+    };
   } else if (is1230) {
     console.log(`🍕 [12:30 BANGKOK] Slot Story Pranzo — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK STORIES`);
     const p1StoryRes = await renderVideoMode('P1');
@@ -1279,6 +1366,11 @@ async function run() {
         fallbackAction: 'Video master recapitato su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
       });
     }
+    executedSummary = {
+      brand: 'pizza',
+      title: 'Pranzo Pizzeria Ranong 48h',
+      details: 'Facebook Story Pranzo P1'
+    };
   } else if (is1600) {
     console.log(`🌿 [16:00 BANGKOK] Slot Pomeriggio Relax — PUBBLICAZIONE INSTAGRAM REEL V2`);
     const v2Res = await renderVideoMode('V2');
@@ -1319,6 +1411,11 @@ async function run() {
         fallbackAction: 'Video master Full HD archiviato su Google Drive 5TB e consegnato su Telegram Topic 3 con tasti per pubblicazione immediata con 1 tocco dello staff.'
       });
     }
+    executedSummary = {
+      brand: 'village',
+      title: 'Pomeriggio Relax & Suite Tour a Phayam',
+      details: 'Instagram Reel V2'
+    };
   } else if (is1700) {
     console.log(`🌅 [17:00 BANGKOK] Avvio tranche serale: 2 Stories TikTok/IG + 1 Reel R1 Ristorante Gruppo Phayam`);
 
@@ -1362,6 +1459,11 @@ async function run() {
       title: 'Stories Serali Ranong & Phayam + Post Ristorante R1',
       details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V3 Villaggio) e 1 Reel R1 Ristorante su Topic 2 con testo bilingue 🇬🇧+🇹🇭 e tasti interattivi'
     });
+    executedSummary = {
+      brand: 'village',
+      title: 'Stories Serali Ranong & Phayam + Post Ristorante R1',
+      details: 'Consegnate 2 Stories su Topic 3 e 1 Reel R1 su Topic 2'
+    };
   } else if (is1800) {
     console.log(`🌿 [18:00 BANGKOK] Slot Story Serale — PUBBLICAZIONE INSTAGRAM STORIES V3`);
     const sunsetRes = await renderVideoMode('V3');
@@ -1393,9 +1495,19 @@ async function run() {
         fallbackAction: 'Video master recapitato su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
       });
     }
+    executedSummary = {
+      brand: 'village',
+      title: 'Atmosfera Tropicale Serale a Koh Phayam',
+      details: 'Instagram Story V3'
+    };
   } else if (is1830) {
     console.log(`🎵 [18:30 BANGKOK] Slot TikTok Feed API (Post Feed 9:16)`);
     console.log(`ℹ️ Canale TikTok Feed API attualmente disattivato in attesa dell'approvazione v2 da TikTok for Developers. Slot saltato correttamente.`);
+    executedSummary = {
+      brand: 'tiktok',
+      title: 'TikTok Feed API Slot',
+      details: 'Disattivato in attesa approvazione v2'
+    };
   } else if (is1930) {
     console.log(`🍕 [19:30 BANGKOK] Slot Cena Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
     const p1Res = await renderVideoMode('P1');
@@ -1438,6 +1550,11 @@ async function run() {
         fallbackAction: 'Video master e testo bilingue recapitati su Telegram Topic 2 con link diretto per pubblicazione staff.'
       });
     }
+    executedSummary = {
+      brand: 'pizza',
+      title: 'Cena Pizza Tradizionale Ranong 48h',
+      details: 'Facebook Reel Cena P1'
+    };
   } else if (is2000) {
     console.log(`☕ [20:00 BANGKOK] Slot Story Serale — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK STORIES`);
     const p3Res = await renderVideoMode('P3');
@@ -1475,6 +1592,11 @@ async function run() {
         fallbackAction: 'Video master recapitato su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
       });
     }
+    executedSummary = {
+      brand: 'pizza',
+      title: 'Dessert Artigianali & Serata Ranong',
+      details: 'Facebook Story Serale P3'
+    };
   } else if (is2100) {
     console.log(`🌙 [21:00 BANGKOK] Slot Notte — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM REEL`);
     const v3Res = await renderVideoMode('V3');
@@ -1515,8 +1637,17 @@ async function run() {
         fallbackAction: 'Video master Full HD archiviato su Google Drive 5TB e consegnato su Telegram Topic 3 con tasti per pubblicazione immediata con 1 tocco dello staff.'
       });
     }
+    executedSummary = {
+      brand: 'village',
+      title: 'Notte Tropical Escape Phayam',
+      details: 'Instagram Reel V3'
+    };
   } else {
     console.log(`ℹ️ Nessun evento programmato per lo slot ${targetSlot}. Scheduler a riposo.`);
+  }
+
+  if (executedSummary) {
+    await recordSlotCompleted(targetSlot, executedSummary);
   }
 
   console.log(`\n🎉 Esecuzione completata con successo!`);
