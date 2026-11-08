@@ -450,8 +450,8 @@ async function uploadToGoogleDrive({ name, buffer }) {
         },
         body: JSON.stringify({ role: "reader", type: "anyone" })
       });
-      uploadData.directStreamUrl = `https://lh3.googleusercontent.com/d/${uploadData.id}`;
-      console.log(`⚡ [Google Drive 5TB] Stream URL pubblico attivo (Zero Supabase Egress): ${uploadData.directStreamUrl}`);
+      uploadData.directStreamUrl = `https://drive.usercontent.google.com/download?id=${uploadData.id}&export=download`;
+      console.log(`⚡ [Google Drive 5TB] Stream URL pubblico attivo (Zero Supabase Egress, MP4 Diretto): ${uploadData.directStreamUrl}`);
     } catch (permErr) {
       console.warn('[scheduler-dispatch] Permessi pubblici Google Drive warning:', permErr.message);
     }
@@ -876,7 +876,9 @@ async function publishToFacebook({ videoUrl, videoBuffer, title = '', caption = 
       headers: {
         'Authorization': `OAuth ${pageToken}`,
         'offset': '0',
-        'file_size': String(vBuf.length)
+        'file_size': String(vBuf.length),
+        'Content-Type': 'application/octet-stream',
+        'Content-Length': String(vBuf.length)
       },
       body: vBuf
     });
@@ -919,7 +921,9 @@ async function publishToFacebook({ videoUrl, videoBuffer, title = '', caption = 
           headers: {
             'Authorization': `OAuth ${pageToken}`,
             'offset': '0',
-            'file_size': String(vBuf.length)
+            'file_size': String(vBuf.length),
+            'Content-Type': 'application/octet-stream',
+            'Content-Length': String(vBuf.length)
           },
           body: vBuf
         });
@@ -1028,7 +1032,9 @@ async function publishToInstagram({ videoUrl, videoBuffer, caption = '', brand =
           headers: {
             'Authorization': `OAuth ${pageToken}`,
             'offset': '0',
-            'file_size': String(videoBuffer.length)
+            'file_size': String(videoBuffer.length),
+            'Content-Type': 'application/octet-stream',
+            'Content-Length': String(videoBuffer.length)
           },
           body: videoBuffer
         });

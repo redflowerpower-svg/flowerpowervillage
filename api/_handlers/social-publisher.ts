@@ -2414,7 +2414,9 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
           headers: {
             "Authorization": `OAuth ${pageToken}`,
             "offset": "0",
-            "file_size": String(vBuf.length)
+            "file_size": String(vBuf.length),
+            "Content-Type": "application/octet-stream",
+            "Content-Length": String(vBuf.length)
           },
           body: vBuf
         });
@@ -2489,7 +2491,9 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
             headers: {
               "Authorization": `OAuth ${pageToken}`,
               "offset": "0",
-              "file_size": String(vBuf.length)
+              "file_size": String(vBuf.length),
+              "Content-Type": "application/octet-stream",
+              "Content-Length": String(vBuf.length)
             },
             body: vBuf
           });
