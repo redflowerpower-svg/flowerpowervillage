@@ -131,7 +131,8 @@ async function main() {
       'package.json': 'package.json',
       'api_credentials_report.md.enc': '.secret_docs/api_credentials_report.md.enc',
       'RIPRISTINA_TUTTO.bat': 'RIPRISTINA_TUTTO.bat',
-      'gdrive-handoff-pull.mjs': 'scripts/gdrive-handoff-pull.mjs'
+      'gdrive-handoff-pull.mjs': 'scripts/gdrive-handoff-pull.mjs',
+      'worktrees_info.json': 'scratch/worktrees_info.json'
     };
 
     let chatsZipFile = null;
@@ -154,7 +155,7 @@ async function main() {
     // 7. Ripristino e Fusione Bidirezionale Chat Antigravity, Brain e Pin
     if (chatsZipFile) {
           // 5b. Ripristino e allineamento automatico dei Worktrees (Priorità Assoluta)
-    const wtMetaPath = path.join(tempDir, 'worktrees_info.json');
+    const wtMetaPath = fs.existsSync(path.join(tempDir, 'worktrees_info.json')) ? path.join(tempDir, 'worktrees_info.json') : path.resolve(process.cwd(), 'scratch/worktrees_info.json');
     if (fs.existsSync(wtMetaPath)) {
       try {
         console.log('\n🌿 Passo 3b: Ripristino e Sincronizzazione Worktrees...');
