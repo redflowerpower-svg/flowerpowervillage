@@ -22,17 +22,17 @@ export interface VillageMasterDataset {
 export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
   alloggi: [
     {
-      "Alloggio": "Jungle Villa",
+      "Alloggio": "Jungle Villa (Intera: Left + Right)",
       "Slug": "52-jungle-villa",
       "Categoria": "VILLAS",
       "Capacità Base": 4,
       "Capacità Max": 8,
       "Configurazione Letti": "2 King Size + 2 Sofa Bed Queen",
-      "Dotazioni": "2 camere, 2 bagni, 2 cucine e 2 salotti",
+      "Dotazioni": "Intera villa composta da 2 ali gemelle indipendenti (Left + Right): 2 ingressi, 2 camere su 2 piani, 2 bagni, 2 cucine e 2 salotti",
       "Climatizzazione": "Condizionatori portatili + Ventilatori",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/52-jungle-villa",
-      "Punti di Forza": "La struttura più ampia del villaggio, ideale per 2 famiglie o grandi gruppi (4+4 persone)."
+      "Punti di Forza": "La struttura più ampia del villaggio, perfetta per 2 famiglie o gruppi (4+4 persone): è formata dall'unione delle due ali Jungle Left e Jungle Right. Ogni famiglia gode della propria totale privacy (proprio bagno, cucina e salotto) pur condividendo la stessa grande villa affacciata sulla piscina. MAI proporre Jungle Left e Right come alloggi alternativi alla Jungle Villa, perché sono le sue due metà!"
     },
     {
       "Alloggio": "Jungle Villa Left",
@@ -45,7 +45,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Climatizzazione": "Condizionatore portatile + Ventilatore",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/53-jungle-villa-left",
-      "Punti di Forza": "Villa su 2 piani affacciata sulla piscina per 2+2 persone."
+      "Punti di Forza": "Ala sinistra della Jungle Villa su 2 piani affacciata sulla piscina per 2+2 persone. Prenotabile singolarmente per piccoli gruppi/famiglie."
     },
     {
       "Alloggio": "Jungle Villa Right",
@@ -58,7 +58,7 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
       "Climatizzazione": "Condizionatore portatile + Ventilatore",
       "Sconto": "10% Direct Booking Discount",
       "Link Dettagli": "https://www.flowerpowervillage.com/54-jungle-villa-right",
-      "Punti di Forza": "Villa su 2 piani gemella di Jungle Left per 2+2 persone."
+      "Punti di Forza": "Ala destra della Jungle Villa gemella di Jungle Left per 2+2 persone. Prenotabile singolarmente per piccoli gruppi/famiglie."
     },
     {
       "Alloggio": "Peace & Love Villa",
@@ -245,69 +245,128 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
   ],
 
   trasporti: [
+    // =========================================================================
+    // FASE 1: ARRIVO A RANONG (DA BANGKOK, PHUKET, KHAO LAK, ISOLE DEL GOLFO, TRENO, AUTO)
+    // =========================================================================
     {
+      "Fase": "Fase 1: Arrivo a Ranong",
       "Ambito": "Voli Bangkok ↔ Ranong",
       "Dettaglio / Tratta": "Bangkok Don Mueang (DMK) ➔ Ranong Airport (UNX)",
-      "Compagnia / Mezzo": "Thai AirAsia",
+      "Compagnia / Mezzo": "Thai AirAsia (Volo diretto 1h 15m)",
       "Durata": "1h 15m di volo",
-      "Costi Indicativi": "Circa 1.200 - 2.500 THB a tratta in base ad anticipo",
-      "Note Operative": "Voli giornalieri. L'aeroporto di Ranong dista circa 40-45 minuti d'auto dal molo degli imbarchi."
+      "Costi Indicativi": "Circa 1.200 - 2.500 THB a tratta in base all'anticipo",
+      "Note Operative": "Voli giornalieri diretti sincronizzati con l'aeroporto di Ranong (UNX). Se si atterra a Bangkok Suvarnabhumi (BKK), è disponibile una navetta gratuita inter-aeroportuale o taxi per DMK (~50 min). L'aeroporto di Ranong dista circa 45 minuti d'auto dal molo d'imbarco."
     },
     {
-      "Ambito": "Transfer Aeroporto ➔ Molo",
-      "Dettaglio / Tratta": "Aeroporto di Ranong ➔ Molo Speedboat (Tai Kak / Saphan Pla)",
-      "Compagnia / Mezzo": "Taxi convenzionato con autista dedicato Mr. Gong",
-      "Durata": "35-40 minuti",
-      "Costi Indicativi": "200 THB a persona (per 2 o più persone) · 300 THB per chi viaggia solo",
-      "Note Operative": "Accoglienza personalizzata con cartello con il tuo nome all'uscita del gate. Mr. Gong emette anche i biglietti della barca in anticipo ed è in contatto telefonico diretto con i capitani della speedboat per coordinare le partenze in caso di lievi ritardi del volo."
-    },
-    {
-      "Ambito": "Speedboat Terraferma ↔ Isola",
-      "Dettaglio / Tratta": "Molo di Ranong (Saphan Pla / Tai Kak) ➔ Molo di Koh Phayam",
-      "Compagnia / Mezzo": "Motoscafo veloce (Speedboat)",
-      "Durata": "35-40 minuti di traversata",
-      "Costi Indicativi": "350 THB a persona a tratta",
-      "Note Operative": "Corse frequenti ogni ora / ora e mezza dalle 08:00 alle 17:00 / 17:30 (da Ranong) e dalle 07:30 alle 16:30 (da Koh Phayam). Orari confermati giornalmente in base alle maree."
-    },
-    {
-      "Ambito": "Arrivo al Molo di Koh Phayam",
-      "Dettaglio / Tratta": "Molo di Koh Phayam ➔ Flower Power Village (Buffalo Bay)",
-      "Compagnia / Mezzo": "Tuk-tuk locali o Moto-Taxi",
-      "Durata": "10 minuti",
-      "Costi Indicativi": "200–250 THB per veicolo",
-      "Note Operative": "Troverai decine di tuk-tuk e taxi pronti all'uscita della passerella del molo. I resort non possono fare transfer con mezzi propri su strada pubblica per normative dell'isola."
-    },
-    {
-      "Ambito": "Noleggio Scooter sull'Isola",
-      "Dettaglio / Tratta": "Direttamente al Molo di Koh Phayam o tramite il resort",
-      "Compagnia / Mezzo": "Scooter 110cc / 125cc",
-      "Durata": "Noleggio giornaliero",
-      "Costi Indicativi": "150–250 THB al giorno in base al modello e stagione",
-      "Note Operative": "Sull'isola non ci sono automobili (solo scooter, biciclette e sentieri immersi nella natura). Lo scooter è il mezzo più comodo e divertente per esplorare le baie."
-    },
-    {
-      "Ambito": "Bus da Bangkok",
+      "Fase": "Fase 1: Arrivo a Ranong",
+      "Ambito": "Bus da Bangkok (Choke Anan Tour)",
       "Dettaglio / Tratta": "Bangkok Southern Bus Terminal (Sai Tai Mai) ➔ Stazione Bus Ranong",
       "Compagnia / Mezzo": "Autobus notturno o diurno Choke Anan Tour",
       "Durata": "8-9 ore",
       "Costi Indicativi": "Circa 600 - 900 THB per sedile VIP",
-      "Note Operative": "I bus notturni arrivano la mattina presto a Ranong, perfetti per salire sul primo motoscafo delle 08:00 / 09:00."
+      "Note Operative": "CONSIGLIO RISPARMIO BIGLIETTO: Prenotare direttamente sul sito ufficiale di Choke Anan Tour per pagare la tariffa base senza commissioni di agenzia. I bus notturni arrivano la mattina presto (05:30-06:30) alla stazione di Ranong, perfetti per salire sul primo motoscafo delle 08:00."
     },
     {
-      "Ambito": "Minivan da Phuket & Khao Lak",
-      "Dettaglio / Tratta": "Phuket Bus Terminal 2 ➔ Khao Lak ➔ Ranong Bus Station",
-      "Compagnia / Mezzo": "Bus di linea Rungkit Tour o minivan",
-      "Durata": "4h30 - 5h da Phuket, circa 3h da Khao Lak",
-      "Costi Indicativi": "Circa 300 - 450 THB",
-      "Note Operative": "Partenze quotidiane regolari lungo la costa delle Andamane."
+      "Fase": "Fase 1: Arrivo a Ranong",
+      "Ambito": "Treno con Cuccetta da Bangkok",
+      "Dettaglio / Tratta": "Bangkok Krung Thep Aphiwat ➔ Chumphon ➔ Minivan per Ranong",
+      "Compagnia / Mezzo": "State Railway of Thailand (Treno notturno cuccetta) + Minivan coincidenza",
+      "Durata": "7-8h treno fino a Chumphon + 2h minivan per Ranong",
+      "Costi Indicativi": "Treno cuccetta ~800-1.200 THB + Minivan Chumphon-Ranong ~150-200 THB",
+      "Note Operative": "Dalla stazione ferroviaria di Chumphon partono frequenti minivan diretti per la stazione bus di Ranong (2h di tragitto, prenotabili anche su 12Go.asia o direttamente all'arrivo)."
     },
     {
+      "Fase": "Fase 1: Arrivo a Ranong",
+      "Ambito": "Da Phuket, Takua Pa & Khao Lak",
+      "Dettaglio / Tratta": "Phuket Bus Terminal 2 ➔ Khao Lak ➔ Takua Pa ➔ Ranong Bus Station",
+      "Compagnia / Mezzo": "Bus di linea Rungkit Tour o minivan turistici",
+      "Durata": "4h30 - 5h da Phuket · ~3h da Khao Lak · ~2h da Takua Pa",
+      "Costi Indicativi": "Circa 300 - 450 THB a persona",
+      "Note Operative": "Partenze regolari giornaliere lungo la costa delle Andamane. Consigliata la partenza al mattino presto per raggiungere comodamente le barche pomeridiane a Ranong."
+    },
+    {
+      "Fase": "Fase 1: Arrivo a Ranong",
+      "Ambito": "Dalle Isole del Golfo (Koh Samui, Koh Phangan, Koh Tao)",
+      "Dettaglio / Tratta": "Isole del Golfo (Traghetto Lomprayah/Seatran) ➔ Surat Thani / Chumphon Pier ➔ Minivan per Ranong",
+      "Compagnia / Mezzo": "Traghetto veloce + Minivan in coincidenza (itinerario coast-to-coast)",
+      "Durata": "Traghetto + 3h30-4h minivan da Surat Thani (o 2h minivan da Chumphon)",
+      "Costi Indicativi": "Biglietto combinato ~800-1.200 THB a persona",
+      "Note Operative": "Dalle isole del Golfo si prende il traghetto mattutino per la terraferma e poi il minivan diretto alla stazione bus di Ranong, arrivando nel primo pomeriggio."
+    },
+    {
+      "Fase": "Fase 1: Arrivo a Ranong",
       "Ambito": "In Auto Propria / a Noleggio",
       "Dettaglio / Tratta": "Fino al Molo di Ranong (Saphan Pla Pier)",
       "Compagnia / Mezzo": "Auto",
-      "Durata": "In base alla partenza",
+      "Durata": "In base al punto di partenza",
+      "Costi Indicativi": "Parcheggio custodito ~100 THB/giorno al molo",
+      "Note Operative": "Impostare il navigatore per il Molo di Ranong (Saphan Pla Pier). Presso il molo è presente un comodo parcheggio custodito e sicuro a pagamento dove lasciare l'auto: https://maps.app.goo.gl/ef3wv84NXeNE3GvSA"
+    },
+    {
+      "Fase": "Fase 1: Arrivo a Ranong",
+      "Ambito": "Come Raggiungerci da Fuori Ranong (Politica Ufficiale)",
+      "Dettaglio / Tratta": "Da qualsiasi località esterna (Bangkok, Phuket, Krabi, Koh Lanta, Khao Lak, Surat Thani, ecc.)",
+      "Compagnia / Mezzo": "Agenzie viaggi locali sul posto / Bus / Minivan / Voli",
+      "Durata": "Variabile in base alla partenza",
+      "Costi Indicativi": "Consultare la pagina web",
+      "Note Operative": "REGOLA FERREA TRASFERIMENTI ESTERNI: Non organizziamo trasferimenti da località esterne a Ranong, poiché orari, tratte e prezzi di terzi sono sempre soggetti a variazioni repentine. Invitare sempre con gentilezza a consultare la nostra pagina dedicata 'How to get here' (https://www.flowerpowervillage.com/village/how-to-get-here) dove abbiamo raccolto tutte le informazioni, consigli e contatti utili per aiutare i clienti a viaggiare nel miglior modo possibile. Il nostro supporto logistico diretto si attiva una volta arrivati a Ranong."
+    },
+
+    // =========================================================================
+    // FASE 2: TRASFERIMENTO AL MOLO DI RANONG (SAPHAN PLA PIER)
+    // =========================================================================
+    {
+      "Fase": "Fase 2: Trasferimento al Molo di Ranong",
+      "Ambito": "Dalla Stazione Bus di Ranong al Molo",
+      "Dettaglio / Tratta": "Ranong Bus Station ➔ Molo di Ranong (Saphan Pla Pier)",
+      "Compagnia / Mezzo": "Songthaew rossi locali, taxi o moto-taxi",
+      "Durata": "15-20 minuti",
+      "Costi Indicativi": "Songthaew rosso ~20-30 THB · Moto-taxi ~50-70 THB · Taxi ~150-200 THB",
+      "Note Operative": "All'arrivo dell'autobus troverai sempre mezzi di trasporto locali (songthaew rossi, taxi e moto-taxi) pronti sul piazzale ad accoglierti e portarti direttamente al molo senza alcuna attesa."
+    },
+    {
+      "Fase": "Fase 2: Trasferimento al Molo di Ranong",
+      "Ambito": "Dall'Aeroporto di Ranong (UNX) con Mr. Gong",
+      "Dettaglio / Tratta": "Aeroporto di Ranong (UNX) ➔ Molo Speedboat (Saphan Pla Pier)",
+      "Compagnia / Mezzo": "Taxi convenzionato con autista dedicato Mr. Gong",
+      "Durata": "35-45 minuti",
+      "Costi Indicativi": "200 THB a persona (in 2 o più persone) · 300 THB per chi viaggia solo · Biglietto Speedboat: 350 THB a persona",
+      "Note Operative": "VIP AIRPORT HERO: L'aeroporto dista 45 minuti d'auto dal molo. Mr. Gong ti attende all'uscita del gate con cartello nominativo, emette in anticipo i biglietti della speedboat (senza code) ed è in contatto telefonico diretto con i capitani per coordinare o posticipare la partenza dell'ultima barca in caso di ritardo del volo. FINESTRA DI PRENOTAZIONE: Si accettano richieste esclusivamente da 7 a 3 giorni prima dell'arrivo. SERVIZIO DI PURA CORTESIA (ZERO COMMISSIONI): Pagamento diretto in contanti a Mr. Gong. Dati richiesti: 1) Nome e Cognome, 2) Numero persone, 3) Numero volo e orario arrivo."
+    },
+    {
+      "Fase": "Fase 2: Trasferimento al Molo di Ranong",
+      "Ambito": "In Auto al Molo di Ranong (Navigatore GPS)",
+      "Dettaglio / Tratta": "Molo di Ranong (Saphan Pla Pier)",
+      "Compagnia / Mezzo": "Navigatore GPS per il molo e parcheggio custodito",
+      "Durata": "Immediata",
       "Costi Indicativi": "Parcheggio custodito ~100 THB/giorno",
-      "Note Operative": "Presso il molo è presente un parcheggio custodito e sicuro a pagamento dove lasciare l'auto durante il soggiorno a Koh Phayam."
+      "Note Operative": "Link GPS Google Maps ufficiale per il Molo di Ranong: https://maps.app.goo.gl/ef3wv84NXeNE3GvSA"
+    },
+
+    // =========================================================================
+    // FASE 3: LA BARCA PER KOH PHAYAM (SPEEDBOAT)
+    // =========================================================================
+    {
+      "Fase": "Fase 3: La Barca per Koh Phayam",
+      "Ambito": "Speedboat Ranong ↔ Koh Phayam",
+      "Dettaglio / Tratta": "Molo di Ranong (Saphan Pla Pier) ➔ Molo di Koh Phayam",
+      "Compagnia / Mezzo": "Motoscafo veloce (Speedboat)",
+      "Durata": "35-40 minuti di traversata",
+      "Costi Indicativi": "350 THB a persona a tratta",
+      "Note Operative": "Corse frequenti ogni ora / ora e mezza dalle 08:00 alle 17:00 / 17:30 (andata da Ranong) e dalle 07:30 alle 16:30 (ritorno da Koh Phayam). Orari confermati giornalmente al molo in base al calendario delle maree e meteo. L'autista convenzionato è in contatto telefonico con la biglietteria del molo per garantire il primo imbarco disponibile."
+    },
+
+    // =========================================================================
+    // FASE 4: DAL MOLO AL RESORT (FLOWER POWER VILLAGE - BUFFALO BAY)
+    // =========================================================================
+    {
+      "Fase": "Fase 4: Dal Molo al Resort",
+      "Ambito": "Arrivo al Molo di Koh Phayam ➔ Flower Power Village",
+      "Dettaglio / Tratta": "Molo di Koh Phayam ➔ Flower Power Village (Buffalo Bay / Ao Khao Kwai)",
+      "Compagnia / Mezzo": "Tuk-tuk locali, Moto-Taxi, Scooter a noleggio o a piedi",
+      "Durata": "10 minuti con mezzo · ~50-60 minuti a piedi",
+      "Costi Indicativi": "200–250 THB a veicolo per tuk-tuk · ~80 THB per moto-taxi · 150-250 THB/giorno scooter",
+      "Note Operative": "DISCLAIMER TRASPORTI ISOLA: In conformità con le normative locali sui trasporti dell'isola e per motivi assicurativi, i resort privati non sono autorizzati ad effettuare transfer con mezzi propri su strada pubblica, né è possibile prenotare i tuk-tuk in anticipo. Appena scendi dalla passerella del molo troverai sempre decine di tuk-tuk (200-250 THB, 10 min), moto-taxi (~80 THB) o noleggio scooter (150-250 THB/giorno). Per chi viaggia leggero e desidera camminare a piedi nella natura sono circa 50-60 minuti pianeggianti (Link GPS Google Maps Resort: https://maps.app.goo.gl/mugY88Wpuzjeebf56)."
     }
   ],
 

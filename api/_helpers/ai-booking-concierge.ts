@@ -228,12 +228,11 @@ export async function saveCustomSystemPrompt(promptText: string): Promise<boolea
 
 /**
  * =========================================================================
- * COMPILATORE DETERMINISTICO DI RISPOSTE CONCIERGE (0 TOKEN - 100% CODICE)
+ * COMPILATORE DETERMINISTICO DI RISPOSTE CONCIERGE (0 TOKEN - ZERO NOISE)
  * =========================================================================
- * Compila il messaggio ufficiale del resort in italiano con accuratezza matematica,
+ * Compila il messaggio ufficiale del resort con accuratezza matematica,
  * integrando disponibilità PMS live, soggiorno minimo contestuale, alloggi idonei,
- * regole A/C specifiche, sconti progressivi per prenotazione diretta sul sito,
- * dotazioni del villaggio e termini di pagamento.
+ * regole A/C ed extra opzionali, senza inserire rumore non richiesto (culle, sconti 30gg, menù pizze).
  */
 export function compileDeterministicConciergeReply(params: DeterministicTemplateParams): {
   emailText: string;
@@ -248,10 +247,17 @@ export function compileDeterministicConciergeReply(params: DeterministicTemplate
     targetMonth,
     numNights,
     numGuests,
+    numChildren,
     requestedAccommodation,
     calendarUrl,
-    livePms
+    livePms,
+    userInquiryText
   } = params;
+
+  const inquiryLower = (userInquiryText || '').toLowerCase();
+  const hasBaby = inquiryLower.includes('neonat') || inquiryLower.includes('bambin') || inquiryLower.includes('cull') || inquiryLower.includes('baby') || inquiryLower.includes('infant') || inquiryLower.includes('crib') || inquiryLower.includes('cot') || (numChildren && numChildren > 0);
+  const wantsFood = inquiryLower.includes('pizza') || inquiryLower.includes('ristorant') || inquiryLower.includes('cibo') || inquiryLower.includes('mangiar') || inquiryLower.includes('restaurant') || inquiryLower.includes('food') || inquiryLower.includes('dinner') || inquiryLower.includes('lunch') || inquiryLower.includes('cena') || inquiryLower.includes('pranzo');
+  const wantsBalcony = inquiryLower.includes('balcon') || inquiryLower.includes('terrazz') || inquiryLower.includes('guesthouse') || inquiryLower.includes('camera') || inquiryLower.includes('room');
 
   // 1. Verifica Soggiorno Minimo Stagionale Contestuale
   const monthStr = (checkInDate ? checkInDate.slice(5, 7) : (targetMonth ? targetMonth.slice(5, 7) : ''));
@@ -266,9 +272,9 @@ export function compileDeterministicConciergeReply(params: DeterministicTemplate
 
   let minStayText = '';
   if (isHighSeason) {
-    minStayText = `Il nostro soggiorno minimo ${currentMonthLabel} (Alta Stagione) è di 5 notti consecutive. Tuttavia, le singole date o buchi rimasti liberi tra prenotazioni esistenti possono essere prenotati anche per durate inferiori (il minimo notti esatto è indicato all'interno di ciascuna casella del calendario).`;
+    minStayText = `Il nostro soggiorno minimo ${currentMonthLabel} (Alta Stagione) è di 5 notti consecutive (date singole/buchi tra prenotazioni prenotabili liberamente).`;
   } else if (monthStr) {
-    minStayText = `Il nostro soggiorno minimo ${currentMonthLabel} (Bassa/Media Stagione) è di 2 notti consecutive (con possibilità di prenotare singolarmente i buchi intermedi tra prenotazioni esistenti).`;
+    minStayText = `Il nostro soggiorno minimo ${currentMonthLabel} (Bassa/Media Stagione) è di 2 notti consecutive (date singole/buchi tra prenotazioni prenotabili liberamente).`;
   } else {
     minStayText = `Il nostro soggiorno minimo è di 5 notti consecutive in Alta Stagione (1 Dic – 31 Mar) e di 2 notti in Bassa/Media Stagione (1 Apr – 30 Nov), con eccezione per i buchi isolati prenotabili singolarmente.`;
   }
@@ -278,83 +284,88 @@ export function compileDeterministicConciergeReply(params: DeterministicTemplate
 
   // 3. Narrazione Disponibilità da PMS Live Octorate (Verità Assoluta)
   let availabilityNarrative = '';
-  const isMultiUnitOrLongStay = (numNights && numNights >= 7) || (numGuests && numGuests >= 4);
-
-  if (livePms && livePms.hasLivePmsData && livePms.availableRooms.length > 0 && !isMultiUnitOrLongStay) {
+  if (livePms && livePms.hasLivePmsData && livePms.availableRooms.length > 0) {
     const names = livePms.availableRooms.map(r => r.name).join(', ');
-    availabilityNarrative = `Verificando in tempo reale la nostra disponibilità su Octorate PMS, abbiamo alloggi liberi per il tuo soggiorno: ${names}.`;
+    availabilityNarrative = `Verificando in tempo reale la nostra disponibilità su Octorate PMS, abbiamo alloggi liberi per le date richieste: ${names}.`;
+  } else if (checkInDate && checkOutDate) {
+    availabilityNarrative = `Per un soggiorno continuativo di ${numNights || ''} notti (${checkInDate} ➔ ${checkOutDate}), desideriamo essere trasparenti: al momento non abbiamo disponibilità consecutiva per l'intero periodo nella stessa unità. Tuttavia ci sono diverse date e buchi liberi tra le prenotazioni esistenti.`;
   } else {
-    availabilityNarrative = `Per quanto riguarda la disponibilità per un soggiorno continuativo ${numNights ? `di ${numNights} notti` : ''} ${isHighSeason ? `${currentMonthLabel} (Alta Stagione)` : ''}, desideriamo essere completamente trasparenti: al momento non abbiamo disponibilità consecutiva per l'intero periodo per due alloggi affiancati. Tuttavia, abbiamo diverse date singole e intervalli liberi ('buchi' nel calendario) tra le altre prenotazioni esistenti.`;
+    availabilityNarrative = `Siamo a disposizione per verificare la disponibilità: puoi consultare il calendario interattivo in tempo reale con tutte le caselle aggiornate.`;
   }
 
-  // 4. Selezione Alloggi Idonei (con link A CAPO)
+  // 4. Selezione Alloggi Idonei (Senza rumore!)
   let accommText = '';
   const reqLower = (requestedAccommodation || '').toLowerCase();
   const isVilla = reqLower.includes('villa');
 
-  if (isVilla || (numGuests && numGuests >= 6)) {
-    accommText = `Alloggi consigliati:
-• Jungle Villa (4+4 pax, 2 camere, 2 bagni, 2 cucine e 2 salotti)
-  https://www.flowerpowervillage.com/52-jungle-villa
-• Jungle Villa Left (2+2 pax, 1 King + 1 Divano Letto Queen)
+  if (wantsBalcony || reqLower.includes('guesthouse') || reqLower.includes('camera') || reqLower.includes('room')) {
+    accommText = `Alloggi consigliati (Camere Guesthouse con spazio esterno):
+• Guesthouse Room 1: Letto King Size (+ eventuale letto singolo extra), spazioso terrazzo privato con tavolo e sedie.
+• Guesthouse Room 2: Letto King Size, terrazzino piccolo privato.
+• Guesthouse Room 3: Letto King Size, spazioso terrazzo privato con tavolo e sedie.
+• Guesthouse Room 4: Letto King Size, spazioso terrazzo privato con tavolo e sedie affacciato sul giardino.
+(Nota informativa: Guesthouse Room 5 non dispone di terrazzo. I mini appartamenti Lodge 1 e Lodge 2 sono attualmente in allestimento/costruzione e non disponibili).`;
+  } else if (numGuests && numGuests >= 5) {
+    // Grandi gruppi o 2 famiglie (5-8 pax): Jungle Villa Intera (Left + Right)
+    accommText = `Alloggio ideale per 2 famiglie / grandi gruppi (fino a 8 persone):
+• Jungle Villa Intera (4+4 pax, composta dall'unione delle 2 ali gemelle Jungle Left + Jungle Right con 2 ingressi, 2 camere su 2 piani, 2 bagni, 2 cucine e 2 salotti)
+  https://www.flowerpowervillage.com/52-jungle-villa`;
+  } else if (isVilla || (numGuests && numGuests >= 4)) {
+    accommText = `Alloggi consigliati per famiglie (fino a 4 persone):
+• Villa Penthouse (4 pax, 2 camere, 2 bagni completi, giardino privato)
+  https://www.flowerpowervillage.com/22-villa-penthouse
+• Jungle Villa Left (2+2 pax, 1 King + 1 Divano Letto Queen, cucina e salotto)
   https://www.flowerpowervillage.com/53-jungle-villa-left
-• Jungle Villa Right (2+2 pax, 1 King + 1 Divano Letto Queen)
+• Jungle Villa Right (2+2 pax, 1 King + 1 Divano Letto Queen, cucina e salotto)
   https://www.flowerpowervillage.com/54-jungle-villa-right
-• Peace & Love Villa (2+2 pax, 1 King + 1 Divano Letto Queen)
-  https://www.flowerpowervillage.com/51-villa-peace-love
-• Villa Penthouse (4 pax, 2 camere, 2 bagni, 1 King + 1 Divano Letto King)
-  https://www.flowerpowervillage.com/22-villa-penthouse`;
+• Peace & Love Villa (2+2 pax, terrazza sulla piscina con amaca)
+  https://www.flowerpowervillage.com/51-villa-peace-love`;
   } else {
-    // Bungalows default
-    accommText = `Alloggi consigliati per le famiglie (ciascuno ideale per 2 adulti + 1 bambino, 1 letto King Size + letto singolo extra disponibile):
+    accommText = `Alloggi consigliati:
 • Yellow Bungalow (cucina privata e lounge tropicale)
   https://www.flowerpowervillage.com/11-yellow-bungalow
 • Red Bungalow
   https://www.flowerpowervillage.com/12-red-bungalow
 • Green Bungalow
-  https://www.flowerpowervillage.com/13-green-bungalow
-
-Per il neonato, il bimbo può dormire comodamente nel lettone con i genitori; su richiesta è disponibile anche una culla (100–200 THB/notte).`;
+  https://www.flowerpowervillage.com/13-green-bungalow`;
   }
 
-  // 5. Aria Condizionata Sintetica
-  const acText = `❄️ Aria Condizionata:
-Tutte le nostre sistemazioni (eccetto le tende glamping dotate di ventilatore) sono provviste di aria condizionata. Puoi scegliere liberamente tra:
-• All-Inclusive 24 ore su 24 (forfettario giornaliero: 500฿/giorno per Bungalow e Camere | 400฿/giorno a unità per le Ville: 400฿ Peace & Love, Jungle Left, Jungle Right | 800฿ Penthouse e Jungle Villa Completa con 2 unità).
-• A consumo a fine vacanza (Pay-per-use): 40฿ per kWh (~20฿ all'ora), misurati dal contatore e saldati al checkout in base all'effettivo utilizzo.`;
+  // Culla inclusa SOLO se richiesta o con neonati
+  const babyText = hasBaby
+    ? '\n👶 Per i più piccoli, su richiesta è disponibile una culla per neonati (100–200 THB/notte) oppure possono dormire nel lettone con i genitori.'
+    : '';
 
-  // 6. Sconti Esclusivi per Prenotazione Diretta sul Sito Web
-  const discountsText = `💰 Tariffe e Sconti Esclusivi (Solo Prenotazione Diretta sul Nostro Sito Web):
-I prezzi visualizzati nelle caselle del calendario online sono le nostre tariffe ufficiali standard di listino.
-Prenotando direttamente tramite il nostro sito web (https://www.flowerpowervillage.com), al momento del checkout vengono applicati automaticamente i seguenti sconti progressivi esclusivi (senza bisogno di coupon):
-• 10% di Sconto Diretto Garantito su tutte le prenotazioni dirette
-• 15% di Sconto Long Stay per soggiorni di oltre 14 giorni (15+ notti)
-• 20% di Sconto Tariffa Mensile per soggiorni di oltre 30 giorni (30+ notti)
-Questo garantisce sempre la tariffa migliore in assoluto rispetto a qualsiasi portale esterno.`;
+  // 5. Aria Condizionata & Colazione (Inclusi SOLO se chiesti esplicitamente dal cliente!)
+  const wantsAc = inquiryLower.includes('aria') || inquiryLower.includes('condizionat') || inquiryLower.includes('a/c') || inquiryLower.includes('ac ') || inquiryLower.includes('climatizz');
+  const wantsBreakfast = inquiryLower.includes('colazion') || inquiryLower.includes('breakfast') || inquiryLower.includes('bakery') || inquiryLower.includes('caffè') || inquiryLower.includes('caffe');
 
-  // 7. Dotazioni, Comfort e Come Raggiungerci (Ristorante con Pizza pezzo forte, zanzariere alle finestre, bagni con acqua calda)
-  const amenitiesText = `Dotazioni e Comfort Inclusi:
-• Bagno privato con acqua calda in tutti gli alloggi (eccetto la Camera Interna che non dispone di acqua calda).
-• Zanzariere integrate su tutte le finestre (non sopra i letti, poiché ogni stanza è dotata di ventilatori).
-• Elettricità continua 24/7.
-• Ristorante & Pizzeria Italiana in loco: la nostra vera Pizza Italiana artigianale (il pezzo forte del resort!), preparata rigorosamente con ingredienti di importazione italiana, accompagnata da pasta fresca e colazione bakery con espresso, cappuccino e cornetti caldi.
-  Puoi consultare il menù completo direttamente sul nostro sito web:
-  https://www.flowerpowervillage.com/village/restaurant-pizzeria
-• Posizione ideale: immerso in un rilassante giardino tropicale con abbondante ombra naturale, a soli 150 metri (1–2 minuti a piedi pianeggianti) dalla spiaggia di Buffalo Bay (Ao Khao Kwai).
-• Come Raggiungerci (How to Get Here): sul nostro sito web trovi tutte le indicazioni semplici e dettagliate per raggiungerci da Bangkok, Phuket, Khao Lak o Surat Thani:
-  https://www.flowerpowervillage.com/village/how-to-get-here
-⚠️ Nota di sicurezza: nel giardino è severamente vietato accendere fuochi e campeggiare con tende.`;
+  const acText = wantsAc
+    ? `\n❄️ Aria Condizionata:\nPresente in tutte le sistemazioni. Al momento della prenotazione sul sito web potrai scegliere liberamente l'opzione preferita (inclusa forfettaria o a consumo con contatore).\n`
+    : '';
 
-  // 8. Termini di Pagamento & Cancellazione (Acconto 30% online Carta/PayPal, Saldo 70% in CONTANTI all'arrivo)
-  const paymentText = `Termini di Pagamento e Cancellazione:
-• Acconto del 30% per confermare la prenotazione, pagabile direttamente online sul nostro sito web con Carta di Credito o PayPal.
-• Il rimanente saldo del 70% dovrà essere pagato in contanti (THB) all'arrivo al check-in.
-• Cancellazione gratuita con rimborso totale al 100% dell'acconto fino a 14 giorni prima del check-in (entro i 14 giorni la caparra viene trattenuta).`;
+  const breakfastText = wantsBreakfast
+    ? `\n☕ Colazione & Bakery:\nServita alla carta ogni mattina presso la nostra Bakery (caffè espresso, cappuccino e cornetti caldi). Sul sito potrai anche selezionarla come extra durante la prenotazione.\n`
+    : '';
 
-  // 9. Chiusura e CTA Calendario
+  // 6. Sconti Prenotazione Diretta (Zero Noise: niente sconti 30gg per soggiorni brevi!)
+  let discountsText = `💰 Tariffe & Sconto Diretto Garantito:
+Prenotando direttamente tramite il nostro sito web si applica automaticamente lo sconto esclusivo del 10% (15% pre-booking per la Guesthouse) senza bisogno di coupon.`;
+  if (numNights && numNights >= 30) {
+    discountsText += '\n• Sconto Long Stay applicato oltre 30 notti: -20% al checkout.';
+  } else if (numNights && numNights >= 14) {
+    discountsText += '\n• Sconto Long Stay applicato oltre 14 notti: -15% al checkout.';
+  }
+
+  // 7. Ristorante / Cibo (Incluso SOLO se richiesto)
+  const foodSection = wantsFood
+    ? `\n🍕 Ristorante & Pizzeria Italiana in loco:
+La nostra autentica Pizza cotta su pietra con ingredienti 100% italiani, pasta fresca fatta in casa e piatti Thai. Menù consultabile qui: https://www.flowerpowervillage.com/village/restaurant-pizzeria\n`
+    : '';
+
+  // 8. Chiusura e CTA Calendario
   const cta = `📅 Calendario Live Interattivo: ${calendarUrl}
 
-Puoi visualizzare la griglia in tempo reale e prenotare direttamente dal link del sito oppure direttamente con me qui in chat! 🌴✨
+Puoi verificare le date in tempo reale e prenotare direttamente dal link sul sito web o confermare direttamente qui in chat con noi! 🌴✨
 
 Un caloroso saluto,
 Flower Power Village Team 🌸
@@ -364,73 +375,56 @@ Koh Phayam, Thailand`;
   const fullEmail = [
     greeting,
     '',
-    'Grazie per averci contattato e per aver pensato a Flower Power Village per la vostra vacanza a Koh Phayam! 🌸🌴',
+    'Grazie per averci contattato e per aver pensato a Flower Power Village per il vostro soggiorno a Koh Phayam! 🌸🌴',
     '',
     '1) Disponibilità e Date',
     availabilityNarrative,
     '',
     minStayText,
     '',
-    '📅 Per verificare esattamente quali date sono aperte, ti invitiamo a consultare la nostra griglia interattiva live:',
+    '📅 Per verificare la disponibilità in tempo reale ti invitiamo a consultare la nostra griglia interattiva live:',
     calendarUrl,
     '',
     `2) ${accommText}`,
+    babyText,
     '',
     discountsText,
+    acText ? acText.trim() : null,
+    breakfastText ? breakfastText.trim() : null,
+    foodSection ? foodSection.trim() : null,
     '',
-    acText,
+    '3) Posizione & Comfort:',
+    '• A soli 150 metri (1–2 minuti a piedi pianeggianti) dalla spiaggia di Buffalo Bay (Ao Khao Kwai).',
+    '• Bagno privato con acqua calda (tranne Camera Interna), Wi-Fi fibra ottica e zanzariere a tutte le finestre.',
     '',
-    amenitiesText,
-    '',
-    paymentText,
+    '4) Termini di Prenotazione:',
+    '• Acconto del 30% per confermare (Carta o PayPal sul sito web) e saldo 70% in contanti all\'arrivo.',
+    '• Cancellazione gratuita con rimborso 100% dell\'acconto fino a 14 giorni prima del check-in.',
     '',
     cta
-  ].join('\n');
+  ].filter(line => line !== null && line !== undefined && line !== '').join('\n');
 
-  // Assemblaggio Versione WhatsApp (compatta con emoji)
-  const fullWhatsApp = [
+  // Assemblaggio Versione WhatsApp (chirurgica, zero rumore, solo quello che è stato chiesto)
+  const whatsAppLines = [
     `Ciao ${guestName || ''}! 🌸🌴 Grazie per aver contattato Flower Power Village!`,
     '',
-    '📅 *Disponibilità:*',
-    availabilityNarrative,
-    '',
-    `*Soggiorno Minimo:* ${minStayText}`,
-    '',
-    '🔗 *Calendario Live Interattivo:*',
-    calendarUrl,
-    '',
-    '🏡 *Alloggi Consigliati:*',
     accommText,
     '',
-    '💰 *Sconto Esclusivo Sito Web:*',
-    'I prezzi nel calendario sono tariffe standard. Sul nostro sito web si applicano automaticamente al checkout:',
-    '• -10% Sconto Diretto Garantito',
-    '• -15% Sconto oltre 14 notti (15+ notti)',
-    '• -20% Sconto oltre 30 notti (30+ notti)',
+    `📅 *Soggiorno Minimo:* ${minStayText}`,
     '',
-    acText,
+    '🔗 *Verifica Disponibilità e Prenota:*',
+    calendarUrl,
     '',
-    '💳 *Caparra & Pagamento:*',
-    '• Acconto del 30% online sul sito con Carta o PayPal',
-    '• Saldo del 70% da pagare in contanti (THB) all\'arrivo',
-    '• Rimborso 100% per cancellazioni fino a 14 giorni prima del check-in',
-    '',
-    '🍕 *La Nostra Pizza & Servizi:*',
-    '• Vera Pizza Italiana artigianale con ingredienti 100% importati dall\'Italia, pasta fresca e bakery per la colazione',
-    '• Menù sfogliabile online: https://www.flowerpowervillage.com/village/restaurant-pizzeria',
-    '• Bagno privato con acqua calda (eccetto Camera Interna)',
-    '• Zanzariere integrate su tutte le finestre',
-    '• Buffalo Bay a soli 150m (1-2 min a piedi)',
-    '• Come arrivare: https://www.flowerpowervillage.com/village/how-to-get-here',
-    '',
-    'Puoi prenotare direttamente dal sito o qui in chat con me! 🌴✨'
-  ].join('\n');
+    'Quante notti avevate in programma? Se mi indicate le date esatte vi controllo subito la disponibilità! 🌴✨'
+  ].filter(line => line !== null && line !== '');
+
+  const fullWhatsApp = whatsAppLines.join('\n');
 
   const subject = guestName 
-    ? `Your Family Stay at Flower Power Village – Availability & Direct Booking Details for ${guestName}`
+    ? `Your Stay at Flower Power Village – Availability & Direct Booking Details for ${guestName}`
     : 'Your Stay at Flower Power Village – Availability & Direct Booking Details';
 
-  const summary = `Richiesta rilevata: ${checkInDate || targetMonth || 'Date flessibili'}, ${numGuests || '?'} ospiti, alloggio: ${requestedAccommodation || 'bungalow/villa'}`;
+  const summary = `Richiesta: ${checkInDate || targetMonth || 'Date flessibili'}, ${numGuests || '?'} ospiti, alloggio: ${requestedAccommodation || 'guesthouse/bungalow'}`;
 
   return {
     emailText: fullEmail,
@@ -438,6 +432,205 @@ Koh Phayam, Thailand`;
     subject,
     summary
   };
+}
+
+export interface DynamicConciergeReplyParams {
+  guestInquiryText: string;
+  guestName: string | null;
+  detectedLanguage: string;
+  checkInDate: string | null;
+  checkOutDate: string | null;
+  targetMonth: string;
+  numNights: number | null;
+  numGuests: number | null;
+  numAdults: number | null;
+  numChildren: number | null;
+  requestedAccommodation: string | null;
+  accommodationSlug: string | null;
+  calendarUrl: string;
+  livePms?: LiveAvailabilityResult | null;
+  apiKey: string;
+}
+
+export interface DynamicConciergeReplyResult {
+  whatsAppText: string;
+  emailText: string;
+  emailSubject: string;
+  summary: string;
+}
+
+/**
+ * =========================================================================
+ * GENERATORE DINAMICO "ZERO NOISE" CON DEEPSEEK V3 (PASSAGGIO SINGOLO)
+ * =========================================================================
+ * Genera risposte sartoriali pulite, calde e prive di rumore (niente culle non richieste,
+ * sconti 30gg per soggiorni brevi o spam menù pizze), rispettando le caratteristiche
+ * delle stanze (terrazzi, Lodge 1-2 in costruzione, AC e colazione a pagamento).
+ */
+export async function generateDynamicConciergeReply(
+  params: DynamicConciergeReplyParams
+): Promise<DynamicConciergeReplyResult | null> {
+  const {
+    guestInquiryText,
+    guestName,
+    detectedLanguage,
+    checkInDate,
+    checkOutDate,
+    targetMonth,
+    numNights,
+    numGuests,
+    numChildren,
+    requestedAccommodation,
+    calendarUrl,
+    livePms,
+    apiKey
+  } = params;
+
+  if (!apiKey) return null;
+
+  // Carica regole attive apprese dalla tabella Supabase concierge_memory
+  let activeRulesPrompt = '';
+  try {
+    activeRulesPrompt = await getActiveRulesPromptContext();
+  } catch (memErr) {
+    console.warn('[generateDynamicConciergeReply] Warning loading memory rules:', memErr);
+  }
+
+  // Costruzione contesto PMS live
+  let pmsContext = 'Nessuna data di check-in/out specificata: invitare a consultare il calendario interattivo.';
+  if (livePms && livePms.hasLivePmsData) {
+    const availList = livePms.availableRooms.map(r => `• ${r.name} (${r.pricePerNight ? `${r.pricePerNight} THB/notte` : 'disponibile'})`).join('\n');
+    const occList = livePms.occupiedRooms.map(r => r.name).join(', ');
+    pmsContext = `DISPONIBILITÀ PMS LIVE OCTORATE PER LE DATE ${checkInDate} ➔ ${checkOutDate} (${numNights || '?'} notti):
+Camere effettivamente libere:
+${availList || 'Nessun alloggio libero per l\'intero soggiorno consecutivo'}
+Alloggi occupati: ${occList || 'Nessuno'}`;
+  }
+
+  const langMap: Record<string, string> = {
+    'IT': 'Italian',
+    'EN': 'English',
+    'DE': 'German',
+    'FR': 'French',
+    'TH': 'Thai',
+    'ES': 'Spanish',
+    'RU': 'Russian',
+    'NL': 'Dutch'
+  };
+  const targetLanguageName = langMap[detectedLanguage.toUpperCase()] || detectedLanguage;
+
+  const systemPrompt = `You are the elite AI Hospitality Concierge for Flower Power Village (Koh Phayam, Thailand).
+Your task is to generate a polite, welcoming, warm, and zero-noise reply for a guest inquiry (both WhatsApp ready-to-send and Email versions).
+
+GROUND TRUTH HOTEL KNOWLEDGE:
+1. GUESTHOUSE ROOMS (TERRACE / BALCONY DETAILS):
+   • Guesthouse Room 1: King bed (+ 1 single extra bed), spacious private terrace with table & chairs.
+   • Guesthouse Room 2: King bed, small private balcony/terrace.
+   • Guesthouse Room 3: King bed, spacious private terrace with table & chairs.
+   • Guesthouse Room 4: King bed, spacious private terrace with table & chairs facing garden.
+   • Guesthouse Room 5: King bed, WITHOUT balcony or terrace.
+   • Lodge 1 & Lodge 2: Currently under construction, strictly NOT available.
+2. BUNGALOWS & VILLAS:
+   • Jungle Villa (Entire): The largest property for 2 families or groups (up to 8 pax: 4 adults + 4 children). It is physically formed by the union of the two twin wings: Jungle Villa Left + Jungle Villa Right (2 entrances, 2 floors, 2 private bathrooms, 2 kitchens, 2 living rooms). NEVER present Jungle Left & Right as alternative accommodations to Jungle Villa, because they are its two halves! For 5-8 pax, propose Jungle Villa Entire.
+   • Jungle Villa Left & Jungle Villa Right: Individual twin wings (each 2+2 pax) for smaller families (2-4 pax).
+   • Bungalows (Red, Yellow, Green): for 2 adults (+ 1 child), private garden, AC + fan.
+   • Villa Penthouse: for 4 adults (2 bedrooms, 2 bathrooms, private garden).
+   • Peace & Love Villa: for 2+2 pax facing the pool with private hammock and terrace.
+   • Glamping Tents (Camel, Lagoon): safari tents with fan, no AC.
+3. AIR CONDITIONING & BREAKFAST:
+   • On the website booking engine, guests can freely choose whether to add air conditioning (included daily or pay-per-use) and breakfast during checkout.
+   • ZERO NOISE RULE: Do NOT explain, list rates for, or dump lengthy paragraphs about A/C or breakfast unless the guest explicitly asks about them! Keep the response focused strictly on what the guest requested.
+4. MINIMUM STAY RULES:
+   • Low/Mid Season (1 Apr – 30 Nov): 2 consecutive nights.
+   • High Season (1 Dec – 31 Mar): 5 consecutive nights.
+   • Single gap nights ("buchi") between bookings are bookable individually.
+   • State ONLY the minimum stay rule for the season of the requested dates.
+5. BEACH & LOCATION:
+   • Buffalo Bay (Ao Khao Kwai) is 150m away (1-2 minutes flat walk).
+6. DIRECT BOOKING LINK:
+   • Always include the direct calendar link: ${calendarUrl}
+
+ZERO NOISE FILTER (STRICT):
+- SURGICAL CONCISENESS DIRECTIVE: Answer ONLY and EXCLUSIVELY what was asked! Keep the WhatsApp reply short, crisp, and direct.
+- DO NOT add unprompted details like distance from the beach, Wi-Fi, electricity, payment terms, deposit policies, air conditioning, breakfast, baby cribs, or restaurant menus unless explicitly asked!
+- If the guest only asks about accommodation for certain dates/people:
+  1) Recommend the exact accommodation that fits them.
+  2) State the minimum stay for that specific period.
+  3) Provide the direct calendar link (${calendarUrl}).
+  4) Ask for the exact number of nights / check-in check-out dates to confirm. That's it!
+- Match the accommodation strictly: if 2 families or 6-8 pax, suggest Jungle Villa (Entire) with its link. If terrace asked, Rooms 1, 2, 3, 4.
+- If there are follow-up questions later, we will answer them then!
+
+${activeRulesPrompt ? `\n${activeRulesPrompt}\n` : ''}
+
+REPLY GUIDELINES:
+- Respond directly in ${targetLanguageName} (${detectedLanguage}).
+- WhatsApp version: Warm, friendly, well-structured with paragraph spacing, tasteful emojis, ready to copy and send.
+- Email version: Courteous and complete.
+- JSON output schema:
+{
+  "whatsAppText": "Full formatted WhatsApp reply...",
+  "emailSubject": "Clear polite email subject...",
+  "emailText": "Full formatted Email reply...",
+  "summary": "1-sentence summary in Italian for Marco"
+}`;
+
+  const userPrompt = `GUEST INQUIRY TEXT:
+"""
+${guestInquiryText}
+"""
+
+EXTRACTED PARAMETERS:
+• Guest Name: ${guestName || 'Guest'}
+• Language: ${detectedLanguage} (${targetLanguageName})
+• Dates: ${checkInDate || targetMonth || 'Flexible'} ➔ ${checkOutDate || ''} (${numNights || '?'} nights)
+• Guests: ${numGuests || 'Not specified'} (Children: ${numChildren || 0})
+• Requested Accommodation: ${requestedAccommodation || 'Room / General'}
+
+PMS LIVE DATA:
+${pmsContext}`;
+
+  try {
+    const res = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        temperature: 0.2,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (!res.ok) {
+      console.warn(`[generateDynamicConciergeReply] DeepSeek error (${res.status}): ${await res.text()}`);
+      return null;
+    }
+
+    const data = await res.json();
+    const rawContent = data.choices?.[0]?.message?.content || '{}';
+    const cleanJson = rawContent.trim().replace(/^```json/i, '').replace(/```$/i, '').trim();
+    const parsed = JSON.parse(cleanJson);
+
+    if (parsed.whatsAppText && parsed.whatsAppText.trim()) {
+      return {
+        whatsAppText: parsed.whatsAppText.trim(),
+        emailText: parsed.emailText ? parsed.emailText.trim() : parsed.whatsAppText.trim(),
+        emailSubject: parsed.emailSubject ? parsed.emailSubject.trim() : 'Your Stay at Flower Power Village',
+        summary: parsed.summary ? parsed.summary.trim() : 'Risposta dinamica generata con successo.'
+      };
+    }
+  } catch (err) {
+    console.warn('[generateDynamicConciergeReply] Exception calling DeepSeek:', err);
+  }
+
+  return null;
 }
 
 export async function translateConciergeReply(params: {
@@ -638,9 +831,10 @@ STRICT JSON ONLY:
     : null;
 
   // -------------------------------------------------------------
-  // STEP 4: Compilazione Deterministica del Modello Base (0 TOKEN)
+  // STEP 4: Generazione Dinamica "Zero Noise" con DeepSeek V3
   // -------------------------------------------------------------
-  const compiled = compileDeterministicConciergeReply({
+  let dynamicReply = await generateDynamicConciergeReply({
+    guestInquiryText: text,
     guestName: extractedName,
     detectedLanguage,
     checkInDate: extractedCheckIn,
@@ -654,24 +848,51 @@ STRICT JSON ONLY:
     accommodationSlug,
     calendarUrl,
     livePms: livePmsResult,
-    userInquiryText: text
+    apiKey
   });
 
-  // -------------------------------------------------------------
-  // STEP 5: Traduzione Multilingua con DeepSeek (Solo Traduzione!)
-  // -------------------------------------------------------------
-  let finalEmail = compiled.emailText;
-  let finalWhatsApp = compiled.whatsAppText;
-  let finalSubject = compiled.subject;
+  let finalWhatsApp = '';
+  let finalEmail = '';
+  let finalSubject = '';
+  let shortSummary = '';
 
-  if (detectedLanguage !== 'IT') {
-    // Eseguiamo la traduzione pulita solo se la lingua dell'ospite non è italiano
-    const [transEmail, transWhatsApp] = await Promise.all([
-      translateConciergeReply({ text: compiled.emailText, targetLang: detectedLanguage, apiKey }),
-      translateConciergeReply({ text: compiled.whatsAppText, targetLang: detectedLanguage, apiKey })
-    ]);
-    finalEmail = transEmail;
-    finalWhatsApp = transWhatsApp;
+  if (dynamicReply && dynamicReply.whatsAppText) {
+    finalWhatsApp = dynamicReply.whatsAppText;
+    finalEmail = dynamicReply.emailText || dynamicReply.whatsAppText;
+    finalSubject = dynamicReply.emailSubject || `Your Stay at Flower Power Village`;
+    shortSummary = dynamicReply.summary || `Richiesta: ${extractedCheckIn || targetMonth || 'date flessibili'}, alloggio: ${extractedRoom || 'guesthouse/bungalow'}`;
+  } else {
+    // Fallback Deterministico Pulito (Zero Noise) se DeepSeek non risponde
+    const compiled = compileDeterministicConciergeReply({
+      guestName: extractedName,
+      detectedLanguage,
+      checkInDate: extractedCheckIn,
+      checkOutDate: extractedCheckOut,
+      targetMonth,
+      numNights,
+      numGuests: extractedGuests,
+      numAdults: extractedAdults,
+      numChildren: extractedChildren,
+      requestedAccommodation: extractedRoom,
+      accommodationSlug,
+      calendarUrl,
+      livePms: livePmsResult,
+      userInquiryText: text
+    });
+
+    finalEmail = compiled.emailText;
+    finalWhatsApp = compiled.whatsAppText;
+    finalSubject = compiled.subject;
+    shortSummary = compiled.summary;
+
+    if (detectedLanguage !== 'IT') {
+      const [transEmail, transWhatsApp] = await Promise.all([
+        translateConciergeReply({ text: compiled.emailText, targetLang: detectedLanguage, apiKey }),
+        translateConciergeReply({ text: compiled.whatsAppText, targetLang: detectedLanguage, apiKey })
+      ]);
+      finalEmail = transEmail;
+      finalWhatsApp = transWhatsApp;
+    }
   }
 
   const livePmsSummary = (livePmsResult && livePmsResult.hasLivePmsData)
@@ -696,7 +917,7 @@ STRICT JSON ONLY:
     numChildren: extractedChildren,
     requestedAccommodation: extractedRoom,
     accommodationSlug,
-    shortSummary: compiled.summary,
+    shortSummary,
     emailSubject: finalSubject,
     politeReplyWhatsApp: finalWhatsApp,
     politeReplyEmail: finalEmail,
@@ -725,11 +946,21 @@ export async function refineReplyWithFeedback(options: RefineReplyOptions): Prom
   const systemPrompt = `You are the AI Hospitality Concierge for Flower Power Village (Koh Phayam, Thailand).
 The resort general manager (Marco) is reviewing a proposed response to a guest and has given specific criticism, corrections, or instructions.
 
+GROUND TRUTH HOTEL FACTS:
+- Guesthouse:
+  • Room 1, 3, 4: Spacious private terrace with table & chairs.
+  • Room 2: Small private balcony/terrace.
+  • Room 5: WITHOUT balcony or terrace.
+  • Lodge 1 & Lodge 2: Currently under construction, strictly NOT available.
+- Air Conditioning: NOT included in base room rate (ventilatore sempre presente). Extra: 500฿/day all-inclusive or 40฿/kWh (~20฿/hour) pay-per-use on meter.
+- Breakfast: NOT included in base room rate. Served à la carte at Bakery (~150-250฿/person: espresso, cappuccino, hot croissants).
+- Zero Noise: Never dump cribs, 30-day discounts or pizza menus unless explicitly asked by guest or manager.
+
 YOUR TASK:
 1. Re-write the proposed response for the guest (both WhatsApp and Email) exactly following Marco's critique and instructions while keeping the tone warm, welcoming, and hospitable.
 2. Ensure the link to the live calendar (${calendarUrl}) remains present.
 3. Formulate an abstract, general MANAGEMENT RULE that captures Marco's directive so that ALL future inquiries handled by the bot will follow this rule automatically without needing to be corrected again!
-4. Provide a 1-sentence summary of what changed.
+4. Provide a 1-sentence summary of what changed in Italian.
 
 Return STRICTLY valid JSON with this schema:
 {

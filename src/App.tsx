@@ -244,16 +244,16 @@ function App() {
           <Route path="/ferries" element={<Navigate to="/ferry" replace />} />
           <Route path="/boat" element={<Navigate to="/ferry" replace />} />
           <Route path="/boats" element={<Navigate to="/ferry" replace />} />
-          <Route path="/directions" element={<VillageSite />} />
-          <Route path="/how-to-get-here" element={<Navigate to="/directions" replace />} />
-          <Route path="/transport" element={<Navigate to="/directions" replace />} />
-          <Route path="/trasporti" element={<Navigate to="/directions" replace />} />
+          <Route path="/directions" element={<Navigate to="/village/how-to-get-here" replace />} />
+          <Route path="/how-to-get-here" element={<Navigate to="/village/how-to-get-here" replace />} />
+          <Route path="/transport" element={<Navigate to="/village/how-to-get-here" replace />} />
+          <Route path="/trasporti" element={<Navigate to="/village/how-to-get-here" replace />} />
           <Route path="/village/ferry" element={<Navigate to="/ferry" replace />} />
           <Route path="/village/ferries" element={<Navigate to="/ferry" replace />} />
           <Route path="/village/boat" element={<Navigate to="/ferry" replace />} />
           <Route path="/village/boats" element={<Navigate to="/ferry" replace />} />
-          <Route path="/village/directions" element={<Navigate to="/directions" replace />} />
-          <Route path="/village/how-to-get-here" element={<Navigate to="/directions" replace />} />
+          <Route path="/village/directions" element={<Navigate to="/village/how-to-get-here" replace />} />
+          <Route path="/village/how-to-get-here" element={<VillageSite />} />
           <Route path="/village/*" element={<VillageSite />} />
           <Route path="/pizza/*" element={<PizzaSite />} />
           <Route path="/order" element={<PizzaSite />} />

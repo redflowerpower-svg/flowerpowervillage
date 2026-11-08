@@ -15,7 +15,7 @@ const hubData = {
     "general": {
       "tag": "Come Raggiungerci & Ripartenza",
       "title": "Il Tuo Viaggio verso Koh Phayam",
-      "desc": "Raggiungere il Flower Power Farm Village a Buffalo Bay (Ao Khao Kwai) e pianificare il tuo rientro è semplice. Segui le 3 fasi o apri la guida interattiva completa ai trasporti per Bangkok, Phuket e le Isole.",
+      "desc": "Raggiungere il Flower Power Farm Village a Buffalo Bay (Ao Khao Kwai) e pianificare il tuo rientro è semplice. Segui le 4 fasi (Arrivo a Ranong ➔ Trasferimento al Molo ➔ Barca per Koh Phayam ➔ Al Resort) o apri la guida completa ai trasporti per Bangkok, Phuket e le Isole.",
       "phaseBtn": "Fase",
       "openModalBtn": "Guida Completa Trasporti & Partenze da Ranong",
       "modalBadge": "Hub Trasporti & Collegamenti Thailandia",
@@ -33,6 +33,16 @@ const hubData = {
         "gulf": "Da / Verso Golfo (Samui, Phangan, Tao)",
         "car": "In Auto & Parcheggio"
       },
+      "transferToPierBadge": "Come Raggiungere il Molo di Ranong",
+      "transferToPierTitle": "Dalla Stazione Bus, Aeroporto o in Auto al Molo d'Imbarco",
+      "transferToPierDesc": "Per imbarcarti verso Koh Phayam devi raggiungere il Molo di Ranong (Saphan Pla Pier). Ecco come fare in base a come arrivi:",
+      "busTransferLabel": "Dalla Bus Station di Ranong",
+      "busTransferTip": "All'arrivo dell'autobus troverai sempre mezzi di trasporto locali (songthaew rossi, taxi e moto-taxi) pronti sul piazzale ad accoglierti e portarti direttamente al molo in 15-20 minuti senza alcuna attesa.",
+      "flightTransferLabel": "Dall'Aeroporto di Ranong (UNX)",
+      "flightTransferTip": "Dista circa 45 minuti d'auto dal molo. Il modo migliore e più sicuro in assoluto è prenotare l'intero trasferimento con il nostro agente convenzionato Mr. Gong: ti accoglie al gate con cartello, emette in anticipo i biglietti della speedboat ed è in contatto coi capitani per coordinare la partenza in caso di ritardi del volo.",
+      "carTransferLabel": "In Auto o Mezzo Proprio",
+      "carTransferTip": "Imposta il navigatore GPS direttamente per il Molo di Ranong (Saphan Pla Pier). Presso il molo è presente un comodo parcheggio custodito e sicuro a pagamento dove lasciare l'auto durante il soggiorno a Koh Phayam.",
+      "openPierGpsBtn": "Navigatore GPS Molo Ranong",
       "chokeTipTitle": "Consiglio Risparmio Biglietto Bus",
       "chokeTipDesc": "Se viaggi in autobus da o verso Bangkok, prenota direttamente sul sito ufficiale di Choke Anan Tour per pagare la tariffa base ufficiale senza commissioni di agenzia!",
       "chokeBtn": "Sito Ufficiale Choke Anan",
@@ -128,7 +138,7 @@ const hubData = {
     "general": {
       "tag": "How to Reach Us & Departure",
       "title": "Your Journey to Koh Phayam",
-      "desc": "Reaching Flower Power Farm Village at Buffalo Bay (Ao Khao Kwai) and planning your return is easy. Follow the 3 steps or open the complete interactive transport guide for Bangkok, Phuket, and the Islands.",
+      "desc": "Reaching Flower Power Farm Village at Buffalo Bay (Ao Khao Kwai) and planning your return is easy. Follow the 4 steps (Arriving in Ranong ➔ Transfer to Pier ➔ Boat to Koh Phayam ➔ To the Resort) or open the complete interactive transport guide for Bangkok, Phuket, and the Islands.",
       "phaseBtn": "Step",
       "openModalBtn": "Complete Transport & Departure Guide from Ranong",
       "modalBadge": "Thailand Transport & Connections Hub",
@@ -146,6 +156,16 @@ const hubData = {
         "gulf": "To / From Gulf (Samui, Phangan, Tao)",
         "car": "By Car & Parking"
       },
+      "transferToPierBadge": "Getting to Ranong Pier",
+      "transferToPierTitle": "From Bus Station, Airport or by Car to Ranong Pier",
+      "transferToPierDesc": "To catch your boat to Koh Phayam, head to Ranong Pier (Saphan Pla Pier). Here is how to get there depending on your arrival method:",
+      "busTransferLabel": "From Ranong Bus Station",
+      "busTransferTip": "Upon arrival by bus, you will always find local transport ready right at the station (red songthaews, taxis, and motorbike taxis) waiting to take you directly to Ranong Pier in 15-20 minutes without waiting.",
+      "flightTransferLabel": "From Ranong Airport (UNX)",
+      "flightTransferTip": "The airport is 45 minutes by car from the pier. The best and safest way is to book the complete transfer with our trusted agent Mr. Gong: personalized gate greeting, boat tickets in hand, and direct phone contact with boat captains so you never risk missing the boat.",
+      "carTransferLabel": "By Car or Rental Vehicle",
+      "carTransferTip": "Drive directly to Ranong Pier (Saphan Pla Pier) using GPS navigation. A secure and guarded paid parking lot is available right at the pier to leave your car during your stay in Koh Phayam.",
+      "openPierGpsBtn": "Ranong Pier GPS Directions",
       "chokeTipTitle": "Bus Ticket Savings Tip",
       "chokeTipDesc": "If traveling by bus to or from Bangkok, book directly on the official Choke Anan Tour website to pay the official base fare without agency commissions!",
       "chokeBtn": "Choke Anan Official Website",
@@ -241,7 +261,7 @@ const hubData = {
     "general": {
       "tag": "การเดินทางมาถึงและกลับ",
       "title": "การเดินทางของคุณสู่เกาะพยาม",
-      "desc": "การเดินทางมาถึง Flower Power Farm Village ที่อ่าวเขาควาย (Buffalo Bay) และการวางแผนเดินทางกลับนั้นง่ายดาย เพียงทำตาม 3 ขั้นตอนหรือเปิดคู่มือการเดินทางแบบอินเทอร์แอกทีฟฉบับสมบูรณ์สำหรับกรุงเทพฯ ภูเก็ต และหมู่เกาะ",
+      "desc": "การเดินทางมาถึง Flower Power Farm Village ที่อ่าวเขาควาย (Buffalo Bay) และการวางแผนเดินทางกลับนั้นง่ายดาย เพียงทำตาม 4 ขั้นตอน (มาถึงระนอง ➔ เดินทางสู่ท่าเรือ ➔ ข้ามเรือสู่เกาะพยาม ➔ เดินทางถึงรีสอร์ท) หรือเปิดคู่มือการเดินทางฉบับสมบูรณ์",
       "phaseBtn": "ขั้นตอน",
       "openModalBtn": "คู่มือการเดินทางและออกเดินทางจากระนองฉบับสมบูรณ์",
       "modalBadge": "ศูนย์กลางการเดินทางและการเชื่อมต่อในประเทศไทย",
@@ -259,6 +279,16 @@ const hubData = {
         "gulf": "จาก / ไป อ่าวไทย (สมุย พะงัน เต่า)",
         "car": "เดินทางด้วยรถยนต์ส่วนตัวและที่จอดรถ"
       },
+      "transferToPierBadge": "การเดินทางสู่ท่าเรือระนอง",
+      "transferToPierTitle": "จากสถานีขนส่ง สนามบิน หรือรถยนต์ส่วนตัวสู่ท่าเรือขึ้นเรือ",
+      "transferToPierDesc": "เพื่อข้ามไปยังเกาะพยาม คุณต้องเดินทางมาที่ท่าเรือระนอง (สะพานปลา) โดยมีรายละเอียดดังนี้:",
+      "busTransferLabel": "จากสถานีขนส่งระนอง (Bus Station)",
+      "busTransferTip": "เมื่อลงจากรถบัส คุณจะพบรถสองแถวสีแดง แท็กซี่ และมอเตอร์ไซค์รับจ้างพร้อมให้บริการอยู่ตลอดเวลาที่หน้าสถานี เพื่อพาคุณตรงไปยังท่าเรือระนองในเวลาเพียง 15-20 นาทีอย่างสะดวกสบาย",
+      "flightTransferLabel": "จากสนามบินระนอง (UNX)",
+      "flightTransferTip": "สนามบินอยู่ห่างจากท่าเรือประมาณ 45 นาที วิธีที่ดีที่สุดและปลอดภัยที่สุดคือการจองรถรับส่งครบวงจรกับ Mr. Gong ตัวแทนที่เราวางใจ: รอรับที่ประตูพร้อมป้ายชื่อ ตั๋วเรือเตรียมไว้ล่วงหน้า และมีสายตรงถึงกัปตันเรือเพื่อป้องกันการตกรถตกเรือ",
+      "carTransferLabel": "เดินทางด้วยรถยนต์ส่วนตัวหรือรถเช่า",
+      "carTransferTip": "ขับตรงไปยังท่าเรือระนอง (ท่าเรือสะพานปลา) โดยใช้ GPS นำทาง ที่ท่าเรือมีลานจอดรถที่ปลอดภัยมีผู้ดูแลและมีค่าบริการสำหรับฝากรถระหว่างที่คุณพักผ่อนที่เกาะพยาม",
+      "openPierGpsBtn": "เปิด GPS นำทางสู่ท่าเรือระนอง",
       "chokeTipTitle": "เคล็ดลับประหยัดตั๋วรถบัส",
       "chokeTipDesc": "หากคุณเดินทางโดยรถบัสจากหรือไปกรุงเทพฯ จองโดยตรงบนเว็บไซต์ทางการของ Choke Anan Tour เพื่อจ่ายราคาตั๋วพื้นฐานอย่างเป็นทางการโดยไม่มีค่าคอมมิชชั่นจากตัวแทน!",
       "chokeBtn": "เว็บไซต์ทางการ Choke Anan",
@@ -354,7 +384,7 @@ const hubData = {
     "general": {
       "tag": "Anreise & Abreise",
       "title": "Ihre Reise nach Koh Phayam",
-      "desc": "Das Flower Power Farm Village in der Buffalo Bay (Ao Khao Kwai) zu erreichen und Ihre Rückreise zu planen, ist ganz einfach. Folgen Sie den 3 Schritten oder öffnen Sie den vollständigen interaktiven Transportführer für Bangkok, Phuket und die Inseln.",
+      "desc": "Das Flower Power Farm Village in der Buffalo Bay (Ao Khao Kwai) zu erreichen und Ihre Rückreise zu planen, ist ganz einfach. Folgen Sie den 4 Schritten (Anreise nach Ranong ➔ Transfer zum Pier ➔ Fähre nach Koh Phayam ➔ Zum Resort) oder öffnen Sie den vollständigen Transportführer.",
       "phaseBtn": "Schritt",
       "openModalBtn": "Vollständiger Transportführer & Abfahrten ab Ranong",
       "modalBadge": "Transport-Hub & Verbindungen in Thailand",
@@ -372,6 +402,16 @@ const hubData = {
         "gulf": "Von / Nach Golf (Samui, Phangan, Tao)",
         "car": "Mit dem Auto & Parken"
       },
+      "transferToPierBadge": "Anreise zum Ranong Pier",
+      "transferToPierTitle": "Vom Busbahnhof, Flughafen oder per Auto zum Fährhafen",
+      "transferToPierDesc": "Um das Boot nach Koh Phayam zu nehmen, begeben Sie sich zum Ranong Pier (Saphan Pla Pier):",
+      "busTransferLabel": "Vom Busbahnhof Ranong (Bus Station)",
+      "busTransferTip": "Sobald Sie aus dem Bus steigen, stehen direkt vor Ort stets lokale Verkehrsmittel (rote Songthaews, Taxis und Motorradtaxis) bereit, die Sie in nur 15-20 Minuten ohne Wartezeit direkt zum Hafen bringen.",
+      "flightTransferLabel": "Vom Flughafen Ranong (UNX)",
+      "flightTransferTip": "Der Flughafen ist ca. 45 Autominuten vom Hafen entfernt. Der beste und sicherste Weg ist die Buchung des Kompletttransfers über unseren Partner Mr. Gong: Abholung am Gate mit Namensschild, vorab ausgestellte Bootstickets und direkter Kontakt zu den Bootskapitänen.",
+      "carTransferLabel": "Mit dem eigenen Auto oder Mietwagen",
+      "carTransferTip": "Fahren Sie bequem mit GPS-Navigation direkt zum Hafen von Ranong (Saphan Pla Pier). Am Pier gibt es einen sicheren, bewachten und kostenpflichtigen Parkplatz für Ihr Fahrzeug während des Aufenthalts auf Koh Phayam.",
+      "openPierGpsBtn": "GPS-Navigation zum Hafen Ranong",
       "chokeTipTitle": "Spartipp für Bustickets",
       "chokeTipDesc": "Wenn Sie mit dem Bus von oder nach Bangkok reisen, buchen Sie direkt auf der offiziellen Website von Choke Anan Tour, um den offiziellen Grundtarif ohne Agenturgebühren zu zahlen!",
       "chokeBtn": "Offizielle Website Choke Anan",
@@ -806,6 +846,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
           </div>
         </div>
 
+        
         {/* Action Button to Open Full Hub Modal */}
         <div className="text-center mb-12">
           <button
@@ -822,7 +863,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
         {/* MOBILE VIEW: Segmented Switcher + Single Card */}
         <div className="block md:hidden mb-10">
           <div className="flex bg-stone-200/60 p-1.5 rounded-2xl mb-6 border border-stone-300/40">
-            {[1, 2, 3].map((stepNum, idx) => {
+            {[1, 2, 3, 4].map((stepNum, idx) => {
               const isActive = activeStep === idx;
               return (
                 <button
@@ -894,7 +935,61 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
               </div>
             )}
 
+            {/* Fase 2: Da Ranong al Molo d'Imbarco */}
             {activeStep === 1 && (
+              <div>
+                <div className="flex items-center gap-4 mb-5">
+                  <div className="w-11 h-11 bg-emerald-50 flex items-center justify-center rounded-xl shrink-0">
+                    <Compass className="text-emerald-700" size={24} />
+                  </div>
+                  <div>
+                    <span className="text-xs sm:text-sm text-emerald-700 font-black uppercase tracking-wider block">
+                      {lang === 'IT' ? 'Fase 2' : lang === 'EN' ? 'Step 2' : lang === 'TH' ? 'ขั้นตอนที่ 2' : 'Schritt 2'}
+                    </span>
+                    <h3 className="text-stone-850 font-bold text-lg">
+                      {t.transferToPierBadge}
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-stone-700 text-sm sm:text-base leading-relaxed mb-4 font-normal">
+                  {t.transferToPierDesc}
+                </p>
+                <ul className="space-y-3.5 mb-4 text-sm sm:text-base text-stone-700 font-normal">
+                  <li className="flex items-start gap-2.5">
+                    <Bus size={16} className="text-emerald-600 mt-0.5 shrink-0" />
+                    <div>
+                      <strong className="text-stone-850 font-semibold">{t.busTransferLabel}:</strong> {t.busTransferTip}
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <UserCheck size={16} className="text-amber-600 mt-0.5 shrink-0" />
+                    <div>
+                      <strong className="text-stone-850 font-semibold">{t.flightTransferLabel}:</strong> {t.flightTransferTip}
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <Car size={16} className="text-blue-600 mt-0.5 shrink-0" />
+                    <div>
+                      <strong className="text-stone-850 font-semibold">{t.carTransferLabel}:</strong> {t.carTransferTip}
+                    </div>
+                  </li>
+                </ul>
+
+                <a
+                  href="https://maps.app.goo.gl/ef3wv84NXeNE3GvSA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                >
+                  <Compass size={14} />
+                  <span>{t.openPierGpsBtn}</span>
+                  <ExternalLink size={12} className="opacity-80" />
+                </a>
+              </div>
+            )}
+
+            {/* Fase 3: La Barca per Koh Phayam */}
+            {activeStep === 2 && (
               <div>
                 <div className="flex items-center gap-4 mb-5">
                   <div className="w-11 h-11 bg-emerald-50 flex items-center justify-center rounded-xl shrink-0">
@@ -902,7 +997,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                   </div>
                   <div>
                     <span className="text-xs sm:text-sm text-emerald-700 font-black uppercase tracking-wider block">
-                      {lang === 'IT' ? 'Fase 2' : lang === 'EN' ? 'Step 2' : lang === 'TH' ? 'ขั้นตอนที่ 2' : 'Schritt 2'}
+                      {lang === 'IT' ? 'Fase 3' : lang === 'EN' ? 'Step 3' : lang === 'TH' ? 'ขั้นตอนที่ 3' : 'Schritt 3'}
                     </span>
                     <h3 className="text-stone-850 font-bold text-lg">
                       {lang === 'IT' ? 'La Barca per Koh Phayam' : lang === 'EN' ? 'Boat to Koh Phayam' : lang === 'TH' ? 'ต่อเรือไปเกาะพยาม' : 'Fähre nach Koh Phayam'}
@@ -933,7 +1028,8 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
               </div>
             )}
 
-            {activeStep === 2 && (
+            {/* Fase 4: Dal Molo di Phayam al Resort */}
+            {activeStep === 3 && (
               <div>
                 <div className="flex items-center gap-4 mb-5">
                   <div className="w-11 h-11 bg-emerald-50 flex items-center justify-center rounded-xl shrink-0">
@@ -941,7 +1037,7 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
                   </div>
                   <div>
                     <span className="text-xs sm:text-sm text-emerald-700 font-black uppercase tracking-wider block">
-                      {lang === 'IT' ? 'Fase 3' : lang === 'EN' ? 'Step 3' : lang === 'TH' ? 'ขั้นตอนที่ 3' : 'Schritt 3'}
+                      {lang === 'IT' ? 'Fase 4' : lang === 'EN' ? 'Step 4' : lang === 'TH' ? 'ขั้นตอนที่ 4' : 'Schritt 4'}
                     </span>
                     <h3 className="text-stone-850 font-bold text-lg">
                       {lang === 'IT' ? 'Dal Molo di Phayam al Resort' : lang === 'EN' ? 'From Phayam Pier to Resort' : lang === 'TH' ? 'จากท่าเรือเกาะพยามถึงรีสอร์ท' : 'Vom Pier zum Resort'}
@@ -976,11 +1072,11 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
           </div>
         </div>
 
-        {/* DESKTOP VIEW: Sleek 3-Column Grid */}
-        <div className="hidden md:grid grid-cols-3 gap-8 mb-16 items-stretch">
+        {/* DESKTOP VIEW: Sleek 4-Column Grid */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-16 items-stretch">
           
           {/* Card 1 */}
-          <div className="bg-white p-8 border border-stone-200 rounded-3xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="bg-white p-7 border border-stone-200 rounded-3xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div>
               <div className="flex items-center justify-between mb-6">
                 <div className="w-12 h-12 bg-emerald-50 flex items-center justify-center rounded-xl">
@@ -1041,14 +1137,65 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
             </div>
           </div>
 
-          {/* Card 2 */}
-          <div className="bg-white p-8 border border-stone-200 rounded-3xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          {/* Card 2: Da Ranong al Molo d'Imbarco */}
+          <div className="bg-white p-7 border border-stone-200 rounded-3xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+              <div className="w-12 h-12 bg-emerald-50 flex items-center justify-center mb-6 rounded-xl">
+                <Compass className="text-emerald-700" size={24} />
+              </div>
+              <span className="text-xs text-emerald-700 font-semibold tracking-widest uppercase block mb-2">
+                {lang === 'IT' ? 'Fase 2' : lang === 'EN' ? 'Step 2' : lang === 'TH' ? 'ขั้นตอนที่ 2' : 'Schritt 2'}
+              </span>
+              <h3 className="text-stone-855 mb-4 font-semibold text-xl">
+                {t.transferToPierBadge}
+              </h3>
+              <p className="text-stone-550 text-sm leading-relaxed mb-4 font-light">
+                {t.transferToPierDesc}
+              </p>
+              <ul className="space-y-3.5 text-stone-600 text-sm mb-5 font-light">
+                <li className="flex items-start gap-2.5">
+                  <Bus size={16} className="text-emerald-600 mt-1 shrink-0" />
+                  <div>
+                    <strong className="text-stone-850 font-semibold">{t.busTransferLabel}:</strong> {t.busTransferTip}
+                  </div>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <UserCheck size={16} className="text-amber-600 mt-1 shrink-0" />
+                  <div>
+                    <strong className="text-stone-850 font-semibold">{t.flightTransferLabel}:</strong> {t.flightTransferTip}
+                  </div>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Car size={16} className="text-blue-600 mt-1 shrink-0" />
+                  <div>
+                    <strong className="text-stone-850 font-semibold">{t.carTransferLabel}:</strong> {t.carTransferTip}
+                  </div>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="pt-4 border-t border-stone-100">
+              <a
+                href="https://maps.app.goo.gl/ef3wv84NXeNE3GvSA"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+              >
+                <Compass size={13} />
+                <span>{t.openPierGpsBtn}</span>
+                <ExternalLink size={11} className="opacity-80" />
+              </a>
+            </div>
+          </div>
+
+          {/* Card 3: La Barca per Koh Phayam */}
+          <div className="bg-white p-7 border border-stone-200 rounded-3xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div>
               <div className="w-12 h-12 bg-emerald-50 flex items-center justify-center mb-6 rounded-xl">
                 <Ship className="text-emerald-700" size={24} />
               </div>
               <span className="text-xs text-emerald-700 font-semibold tracking-widest uppercase block mb-2">
-                {lang === 'IT' ? 'Fase 2' : lang === 'EN' ? 'Step 2' : lang === 'TH' ? 'ขั้นตอนที่ 2' : 'Schritt 2'}
+                {lang === 'IT' ? 'Fase 3' : lang === 'EN' ? 'Step 3' : lang === 'TH' ? 'ขั้นตอนที่ 3' : 'Schritt 3'}
               </span>
               <h3 className="text-stone-855 mb-4 font-semibold text-xl">
                 {lang === 'IT' ? 'La Barca per Koh Phayam' : lang === 'EN' ? 'Boat to Koh Phayam' : lang === 'TH' ? 'ต่อเรือไปเกาะพยาม' : 'Fähre nach Koh Phayam'}
@@ -1087,14 +1234,14 @@ export default function DirectionsSection({ lang = 'IT' }: Props) {
             </div>
           </div>
 
-          {/* Card 3 */}
-          <div className="bg-white p-8 border border-stone-200 rounded-3xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          {/* Card 4: Dal Molo al Resort */}
+          <div className="bg-white p-7 border border-stone-200 rounded-3xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div>
               <div className="w-12 h-12 bg-emerald-50 flex items-center justify-center mb-6 rounded-xl">
                 <MapPin className="text-emerald-700" size={24} />
               </div>
               <span className="text-xs text-emerald-700 font-semibold tracking-widest uppercase block mb-2">
-                {lang === 'IT' ? 'Fase 3' : lang === 'EN' ? 'Step 3' : lang === 'TH' ? 'ขั้นตอนที่ 3' : 'Schritt 3'}
+                {lang === 'IT' ? 'Fase 4' : lang === 'EN' ? 'Step 4' : lang === 'TH' ? 'ขั้นตอนที่ 4' : 'Schritt 4'}
               </span>
               <h3 className="text-stone-855 mb-4 font-semibold text-xl">
                 {lang === 'IT' ? 'Dal Molo al Resort' : lang === 'EN' ? 'Pier to Resort' : lang === 'TH' ? 'จากท่าเรือถึงรีสอร์ท' : 'Vom Pier zum Resort'}
