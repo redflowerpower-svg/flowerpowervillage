@@ -149,28 +149,28 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
 
     const inlineKeyboard = isDining
       ? {
-          inline_keyboard: [
-            [
-              { text: "🟢 Confirm / ยืนยัน", callback_data: `prepare_${order.id}` },
-              { text: "✖ Reject / ยกเลิก", callback_data: `reject_${order.id}` }
-            ],
-            [
-              { text: "🍽️ Served at Table / เสิร์ฟที่โต๊ะแล้ว", callback_data: `complete_${order.id}` }
-            ]
+        inline_keyboard: [
+          [
+            { text: "🟢 Confirm / ยืนยัน", callback_data: `prepare_${order.id}` },
+            { text: "✖ Reject / ยกเลิก", callback_data: `reject_${order.id}` }
+          ],
+          [
+            { text: "🍽️ Served at Table / เสิร์ฟที่โต๊ะแล้ว", callback_data: `complete_${order.id}` }
           ]
-        }
+        ]
+      }
       : {
-          inline_keyboard: [
-            [
-              { text: "🟢 Confirm / ยืนยัน", callback_data: `prepare_${order.id}` },
-              { text: "✖ Reject / ยกเลิก", callback_data: `reject_${order.id}` }
-            ],
-            [
-              { text: "🛵 Rider Departed / ไรเดอร์ออกแล้ว", callback_data: `start_track_${order.id}` },
-              { text: "🏁 Delivered / ถึงแล้ว", callback_data: `stop_track_${order.id}` }
-            ]
+        inline_keyboard: [
+          [
+            { text: "🟢 Confirm / ยืนยัน", callback_data: `prepare_${order.id}` },
+            { text: "✖ Reject / ยกเลิก", callback_data: `reject_${order.id}` }
+          ],
+          [
+            { text: "🛵 Rider Departed / ไรเดอร์ออกแล้ว", callback_data: `start_track_${order.id}` },
+            { text: "🏁 Delivered / ถึงแล้ว", callback_data: `stop_track_${order.id}` }
           ]
-        };
+        ]
+      };
 
     const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
     const response = await fetch(telegramUrl, {
@@ -195,7 +195,7 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
 
     await supabase
       .from("pizza_orders")
-      .update({ 
+      .update({
         telegram_notified: true,
         telegram_message_id: result.result?.message_id
       })
@@ -272,7 +272,7 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
             updatePayload.address = existing.address + " [CANCELLED:true]";
           }
         }
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const { data: order, error: updateError } = await supabase
@@ -429,7 +429,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
   if (locMessage && locMessage.location) {
     const { latitude, longitude } = locMessage.location;
     console.log(`[Telegram Webhook] Received location update: lat=${latitude}, lng=${longitude}`);
-    
+
     const { error: locError } = await supabase
       .from("pizza_orders")
       .update({
@@ -441,7 +441,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
     if (locError) {
       console.error("[Telegram Webhook] Error updating driver location:", locError);
     }
-    
+
     return res.status(200).json({ status: "location_updated", latitude, longitude });
   }
   // 3b. AI Booking Concierge message handling (Village Supergroup / Topic 'Booking Offers')
@@ -468,8 +468,8 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               chat_id: String(chatId),
               updated_at: new Date().toISOString()
             })
-            .then(() => {})
-            .catch(() => {});
+            .then(() => { })
+            .catch(() => { });
         }
 
         // /start or /help
@@ -507,7 +507,9 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         const lastReplyKey = `concierge_last_reply_${chatId}_${threadId || '0'}`;
         if (msgText === '/cancel' || msgText.startsWith('/cancel@')) {
           if (supabase) {
-            await supabase.from('telegram_config').delete().in('id', [stateKey, `${stateKey}_context`]).catch(() => {});
+            try {
+              await supabase.from('telegram_config').delete().in('id', [stateKey, `${stateKey}_context`]);
+            } catch (e) { }
           }
           await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
             method: 'POST',
@@ -708,14 +710,18 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               if (diffMinutes < 30) {
                 isAwaitingModification = true;
               }
-              await supabase.from('telegram_config').delete().eq('id', stateKey).catch(() => {});
+              try {
+                await supabase.from('telegram_config').delete().eq('id', stateKey);
+              } catch (delErr) { }
             } else if (modState?.bot_token === 'awaiting_modification_onetime') {
               const diffMinutes = (Date.now() - new Date(modState.updated_at).getTime()) / (1000 * 60);
               if (diffMinutes < 30) {
                 isAwaitingModification = true;
                 isOneTimeMod = true;
               }
-              await supabase.from('telegram_config').delete().eq('id', stateKey).catch(() => {});
+              try {
+                await supabase.from('telegram_config').delete().eq('id', stateKey);
+              } catch (delErr2) { }
             }
 
             // Recupera l'ultimo messaggio/proposta per questa chat/topic
@@ -729,9 +735,9 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
                 const parsedCtx = JSON.parse(lastCtx.chat_id);
                 pendingContextText = parsedCtx.text || '';
                 pendingContextUrl = parsedCtx.calendarUrl || pendingContextUrl;
-              } catch {}
+              } catch { }
             }
-          } catch (e) {}
+          } catch (e) { }
         }
 
         const isExplicitModTrigger = hasInlineMod || hasInlineMod2 || isAwaitingModification;
@@ -749,7 +755,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               action: 'typing',
               ...(threadId ? { message_thread_id: threadId } : {})
             })
-          }).catch(() => {});
+          }).catch(() => { });
 
           try {
             let feedbackText = msgText.trim();
@@ -776,33 +782,41 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             const pendingKey = `pending_rule_${messageId}`;
             if (supabase) {
               if (!isOneTime && !hasInlineMod2) {
-                await supabase
-                  .from('telegram_config')
-                  .upsert({
-                    id: pendingKey,
-                    bot_token: 'pending_rule',
-                    chat_id: JSON.stringify({
-                      title: refined.suggestedRuleTitle,
-                      content: refined.suggestedRuleContent,
-                      category: targetTabInfo.tabKey,
-                      tabTitle: targetTabInfo.tabTitle,
-                      rawFeedback: feedbackText,
-                      timestamp: Date.now()
-                    }),
-                    updated_at: new Date().toISOString()
-                  });
+                try {
+                  await supabase
+                    .from('telegram_config')
+                    .upsert({
+                      id: pendingKey,
+                      bot_token: 'pending_rule',
+                      chat_id: JSON.stringify({
+                        title: refined.suggestedRuleTitle,
+                        content: refined.suggestedRuleContent,
+                        category: targetTabInfo.tabKey,
+                        tabTitle: targetTabInfo.tabTitle,
+                        rawFeedback: feedbackText,
+                        timestamp: Date.now()
+                      }),
+                      updated_at: new Date().toISOString()
+                    });
+                } catch (saveRuleErr) {
+                  console.warn('[pending_rule upsert warning]:', saveRuleErr);
+                }
               }
 
               // Aggiorna anche lastReplyKey con la risposta appena raffinata
-              await supabase.from('telegram_config').upsert({
-                id: lastReplyKey,
-                bot_token: 'last_proposal',
-                chat_id: JSON.stringify({
-                  text: refined.refinedWhatsApp,
-                  calendarUrl
-                }),
-                updated_at: new Date().toISOString()
-              }).catch(() => {});
+              try {
+                await supabase.from('telegram_config').upsert({
+                  id: lastReplyKey,
+                  bot_token: 'last_proposal',
+                  chat_id: JSON.stringify({
+                    text: refined.refinedWhatsApp,
+                    calendarUrl
+                  }),
+                  updated_at: new Date().toISOString()
+                });
+              } catch (saveLastErr) {
+                console.warn('[last_proposal upsert warning]:', saveLastErr);
+              }
             }
 
             const headerTitle = (isOneTime || hasInlineMod2)
@@ -811,16 +825,16 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
             const ruleSectionLines = (isOneTime || hasInlineMod2)
               ? [
-                  '🛡️ <i>Modifica applicata esclusivamente a questa risposta (nessuna regola registrata).</i>'
-                ]
+                '🛡️ <i>Modifica applicata esclusivamente a questa risposta (nessuna regola registrata).</i>'
+              ]
               : [
-                  '🧠 <b>Nuova Direttiva per la Knowledge Base:</b>',
-                  `• <b>${escapeHtml(refined.suggestedRuleTitle)}:</b>`,
-                  `  <i>"${escapeHtml(refined.suggestedRuleContent)}"</i>`,
-                  `📂 <b>Scheda Google Sheet:</b> <code>${escapeHtml(targetTabInfo.tabTitle)}</code> (${escapeHtml(targetTabInfo.tabKey)})`,
-                  '',
-                  '👉 <i>Vuoi memorizzare questa istruzione per tutte le future risposte del bot?</i>'
-                ];
+                '🧠 <b>Nuova Direttiva per la Knowledge Base:</b>',
+                `• <b>${escapeHtml(refined.suggestedRuleTitle)}:</b>`,
+                `  <i>"${escapeHtml(refined.suggestedRuleContent)}"</i>`,
+                `📂 <b>Scheda Google Sheet:</b> <code>${escapeHtml(targetTabInfo.tabTitle)}</code> (${escapeHtml(targetTabInfo.tabKey)})`,
+                '',
+                '👉 <i>Vuoi memorizzare questa istruzione per tutte le future risposte del bot?</i>'
+              ];
 
             const replyHtml = [
               headerTitle,
@@ -878,7 +892,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
                 ...(threadId ? { message_thread_id: threadId } : {}),
                 reply_to_message_id: messageId
               })
-            }).catch(() => {});
+            }).catch(() => { });
             return res.status(200).json({ status: 'concierge_refine_error', error: refineErr.message });
           }
         }
@@ -894,7 +908,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               action: 'typing',
               ...(threadId ? { message_thread_id: threadId } : {})
             })
-          }).catch(() => {});
+          }).catch(() => { });
 
           // Check if there is an active awaiting input state for this user/topic
           let isAwaitingInput = false;
@@ -914,7 +928,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               } else if (st?.bot_token === 'awaiting_guest_message') {
                 await supabase.from('telegram_config').delete().eq('id', stateKey);
               }
-            } catch (e) {}
+            } catch (e) { }
           }
 
           // Auto-Intent Classification: Guest Inquiry vs Knowledge / Template Update
@@ -935,7 +949,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               const kResult = await processKnowledgeUpdate(rawKnowledgeText);
 
               const replyHtml = [
-                kResult.isTemplate 
+                kResult.isTemplate
                   ? '📋 <b>AI CONCIERGE — NUOVO TEMPLATE ACQUISITO!</b>'
                   : '🌿 <b>AI CONCIERGE — NUOVA NOZIONE ACQUISITA!</b>',
                 '',
@@ -976,7 +990,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
                   ...(threadId ? { message_thread_id: threadId } : {}),
                   reply_to_message_id: messageId
                 })
-              }).catch(() => {});
+              }).catch(() => { });
               return res.status(200).json({ status: 'knowledge_error', error: kErr.message });
             }
           }
@@ -998,11 +1012,11 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
             const pmsBadgeLines = inquiryResult.livePms?.checked
               ? [
-                  '',
-                  '⚡ <b>Disponibilità Octorate PMS Live:</b>',
-                  `• 🟢 Libere: <b>${inquiryResult.livePms.availableNames.join(', ') || 'Nessuna'}</b>`,
-                  ...(inquiryResult.livePms.occupiedCount > 0 ? [`• 🔴 Occupate: <i>${inquiryResult.livePms.occupiedNames.join(', ')}</i>`] : [])
-                ]
+                '',
+                '⚡ <b>Disponibilità Octorate PMS Live:</b>',
+                `• 🟢 Libere: <b>${inquiryResult.livePms.availableNames.join(', ') || 'Nessuna'}</b>`,
+                ...(inquiryResult.livePms.occupiedCount > 0 ? [`• 🔴 Occupate: <i>${inquiryResult.livePms.occupiedNames.join(', ')}</i>`] : [])
+              ]
               : [];
 
             const replyHtml = [
@@ -1028,17 +1042,21 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
             // Salva l'ultima proposta generata per consentire il perfezionamento tramite /mod o pulsante
             if (supabase) {
-              await supabase.from('telegram_config').upsert({
-                id: lastReplyKey,
-                bot_token: 'last_proposal',
-                chat_id: JSON.stringify({
-                  text: inquiryResult.politeReplyWhatsApp,
-                  calendarUrl: inquiryResult.calendarUrl,
-                  guestName,
-                  datesText
-                }),
-                updated_at: new Date().toISOString()
-              }).catch(() => {});
+              try {
+                await supabase.from('telegram_config').upsert({
+                  id: lastReplyKey,
+                  bot_token: 'last_proposal',
+                  chat_id: JSON.stringify({
+                    text: inquiryResult.politeReplyWhatsApp,
+                    calendarUrl: inquiryResult.calendarUrl,
+                    guestName,
+                    datesText
+                  }),
+                  updated_at: new Date().toISOString()
+                });
+              } catch (saveLastInqErr) {
+                console.warn('[last_proposal inq upsert warning]:', saveLastInqErr);
+              }
             }
 
             const inlineKeyboard = {
@@ -1078,7 +1096,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
                 ...(threadId ? { message_thread_id: threadId } : {}),
                 reply_to_message_id: messageId
               })
-            }).catch(() => {});
+            }).catch(() => { });
             return res.status(200).json({ status: 'concierge_error', error: inqErr.message });
           }
         }
@@ -1109,7 +1127,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
     const { botToken: vBotToken } = await getTelegramCredentials('village');
     const targetToken = vBotToken || (await getTelegramCredentials('pizza')).botToken;
     const ruleKey = `pending_rule_${callbackData.replace('save_rule_', '')}`;
-    
+
     let ruleTitle = 'Direttiva Gestione';
     let ruleContent = '';
     let ruleCategory = 'rule';
@@ -1131,7 +1149,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           ruleCategory = parsed.category || 'rule';
           tabTitle = parsed.tabTitle || 'Regole & FAQ';
           rawFeedback = parsed.rawFeedback || ruleContent;
-        } catch {}
+        } catch { }
       }
     }
 
@@ -1159,7 +1177,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         text: `✅ Regola memorizzata per sempre! Registrata nella scheda [${tabTitle}] di Google Sheet.`,
         show_alert: true
       })
-    }).catch(() => {});
+    }).catch(() => { });
 
     const updatedKeyboard = {
       inline_keyboard: [
@@ -1178,7 +1196,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         message_id: messageId,
         reply_markup: updatedKeyboard
       })
-    }).catch(() => {});
+    }).catch(() => { });
 
     return res.status(200).json({ status: 'rule_saved', title: ruleTitle });
   }
@@ -1194,7 +1212,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         text: 'Questa direttiva è già memorizzata ed è attiva in produzione!',
         show_alert: false
       })
-    }).catch(() => {});
+    }).catch(() => { });
     return res.status(200).json({ status: 'already_saved' });
   }
 
@@ -1207,24 +1225,28 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
     const lastReplyKey = `concierge_last_reply_${messageChatId}_${threadId || '0'}`;
 
     if (supabase) {
-      await supabase.from('telegram_config').upsert({
-        id: stateKey,
-        bot_token: 'awaiting_modification',
-        chat_id: String(callbackQuery.from?.id || ''),
-        updated_at: new Date().toISOString()
-      }).catch(() => {});
-
-      // Se il messaggio originale conteneva testo, salvalo come contesto
-      if (message.text) {
+      try {
         await supabase.from('telegram_config').upsert({
-          id: lastReplyKey,
-          bot_token: 'last_proposal',
-          chat_id: JSON.stringify({
-            text: message.text,
-            calendarUrl: 'https://flowerpowervillage.com/calendar'
-          }),
+          id: stateKey,
+          bot_token: 'awaiting_modification',
+          chat_id: String(callbackQuery.from?.id || ''),
           updated_at: new Date().toISOString()
-        }).catch(() => {});
+        });
+
+        // Se il messaggio originale conteneva testo, salvalo come contesto
+        if (message.text) {
+          await supabase.from('telegram_config').upsert({
+            id: lastReplyKey,
+            bot_token: 'last_proposal',
+            chat_id: JSON.stringify({
+              text: message.text,
+              calendarUrl: 'https://flowerpowervillage.com/calendar'
+            }),
+            updated_at: new Date().toISOString()
+          });
+        }
+      } catch (upsertModErr) {
+        console.warn('[mod_reply upsert warning]:', upsertModErr);
       }
     }
 
@@ -1236,7 +1258,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         text: '✏️ Modalità modifica attivata! Scrivi ora le correzioni.',
         show_alert: false
       })
-    }).catch(() => {});
+    }).catch(() => { });
 
     const promptText = [
       '✏️ <b>MODALITÀ MODIFICA ATTIVA</b> 🧠',
@@ -1258,7 +1280,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         ...(threadId ? { message_thread_id: threadId } : {}),
         reply_to_message_id: messageId
       })
-    }).catch(() => {});
+    }).catch(() => { });
 
     return res.status(200).json({ status: 'modification_mode_activated' });
   }
@@ -1284,8 +1306,8 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
     // ── Table Reservation Actions ──
     if (action === "approve_table" || action === "reject_table") {
       const isApproved = action === "approve_table";
-      const answerText = isApproved 
-        ? "Prenotazione tavolo confermata! 🟢 / ยืนยันการจองโต๊ะแล้ว" 
+      const answerText = isApproved
+        ? "Prenotazione tavolo confermata! 🟢 / ยืนยันการจองโต๊ะแล้ว"
         : "Prenotazione tavolo annullata ✖ / ยกเลิกการจองโต๊ะแล้ว";
 
       const { data: existingRes } = await supabase
@@ -1303,7 +1325,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
       await supabase
         .from("pizza_orders")
-        .update({ 
+        .update({
           status: 'completed',
           address: updatedAddr
         })
@@ -1329,7 +1351,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
       if (resOrder && resOrder.telegram_message_id) {
         const resData = parseTableReservationFromOrder(resOrder);
         const seatingLabel = AREA_LABELS[resData.seating_area] || resData.seating_area;
-        
+
         let text = `🍽️ <b>PRENOTAZIONE TAVOLO / CAPANNA</b>\n`;
         text += `━━━━━━━━━━━━━━━━━━━━━━\n`;
         text += `📌 <b>ID Prenotazione</b>: <code>#${resData.id}</code>\n`;
@@ -1622,8 +1644,8 @@ export async function handleSyncTelegramWebhook(req: VercelRequest, res: VercelR
     const meRes = await fetch(`https://api.telegram.org/bot${botToken.trim()}/getMe`);
     const meJson = await meRes.json();
     if (!meJson.ok) {
-      return res.status(400).json({ 
-        error: `Token Bot non valido su Telegram: ${meJson.description || 'Errore autenticazione'}` 
+      return res.status(400).json({
+        error: `Token Bot non valido su Telegram: ${meJson.description || 'Errore autenticazione'}`
       });
     }
     botInfo = meJson.result;
@@ -1633,9 +1655,9 @@ export async function handleSyncTelegramWebhook(req: VercelRequest, res: VercelR
 
   const targetDept = department === 'village' ? 'village' : 'pizza';
   const saveSuccess = await updateTelegramCredentials(
-    botToken.trim(), 
-    chatId?.trim() || "", 
-    targetDept, 
+    botToken.trim(),
+    chatId?.trim() || "",
+    targetDept,
     req.headers.authorization
   );
   if (!saveSuccess) {
@@ -1650,15 +1672,15 @@ export async function handleSyncTelegramWebhook(req: VercelRequest, res: VercelR
     try {
       const testMsgText = targetDept === 'village'
         ? `🌿 <b>[Flower Power Village · Koh Phayam]</b>\n` +
-          `✅ <b>Bot Telegram collegato con successo!</b>\n\n` +
-          `Questo gruppo riceverà tutte le notifiche del <b>Villaggio</b>:\n` +
-          `• Nuove prenotazioni alloggi\n` +
-          `• Protezione Auto-Shielding Overbooking\n` +
-          `• Sincronizzazione tariffe Octorate PMS\n\n` +
-          `🛡️ <i>Reparto Stagno 100% indipendente dalla Pizzeria di Ranong.</i>`
+        `✅ <b>Bot Telegram collegato con successo!</b>\n\n` +
+        `Questo gruppo riceverà tutte le notifiche del <b>Villaggio</b>:\n` +
+        `• Nuove prenotazioni alloggi\n` +
+        `• Protezione Auto-Shielding Overbooking\n` +
+        `• Sincronizzazione tariffe Octorate PMS\n\n` +
+        `🛡️ <i>Reparto Stagno 100% indipendente dalla Pizzeria di Ranong.</i>`
         : `🍕 <b>[Flower Power Pizza · Ranong]</b>\n` +
-          `✅ <b>Bot Telegram collegato con successo!</b>\n` +
-          `Canale dedicato alle ordinazioni della Pizzeria e gestione consegne.`;
+        `✅ <b>Bot Telegram collegato con successo!</b>\n` +
+        `Canale dedicato alle ordinazioni della Pizzeria e gestione consegne.`;
 
       const testRes = await fetch(`https://api.telegram.org/bot${botToken.trim()}/sendMessage`, {
         method: 'POST',
