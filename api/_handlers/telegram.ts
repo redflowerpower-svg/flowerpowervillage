@@ -693,6 +693,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
         // Controlla se l'utente si trova in stato di attesa modifica (attivato da /mod o dal pulsante inline)
         let isAwaitingModification = false;
+        let isAwaitingOneTimeMod = false;
         let pendingContextText = '';
         let pendingContextUrl = 'https://flowerpowervillage.com/calendar';
 
@@ -704,7 +705,6 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               .eq('id', stateKey)
               .maybeSingle();
 
-            let isOneTimeMod = false;
             if (modState?.bot_token === 'awaiting_modification') {
               const diffMinutes = (Date.now() - new Date(modState.updated_at).getTime()) / (1000 * 60);
               if (diffMinutes < 30) {
@@ -717,7 +717,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               const diffMinutes = (Date.now() - new Date(modState.updated_at).getTime()) / (1000 * 60);
               if (diffMinutes < 30) {
                 isAwaitingModification = true;
-                isOneTimeMod = true;
+                isAwaitingOneTimeMod = true;
               }
               try {
                 await supabase.from('telegram_config').delete().eq('id', stateKey);
@@ -742,7 +742,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
         const isExplicitModTrigger = hasInlineMod || hasInlineMod2 || isAwaitingModification;
         const isFeedbackAction = (isReplyFeedback && msgText.length >= 2 && !msgText.startsWith('/')) || isExplicitModTrigger;
-        const isOneTime = hasInlineMod2 || (isAwaitingModification && msgText.startsWith('/mod2 ')) || Boolean((incomingMsg as any)._isOneTime);
+        const isOneTime = hasInlineMod2 || isAwaitingOneTimeMod || msgText.toLowerCase().includes('/mod2') || msgText.toLowerCase().includes('bot 2') || msgText.toLowerCase().includes('mod 2');
 
         // 3c. Human-in-the-Loop Feedback & Modifiche: Marco invia correzioni (/mod, /mod2, reply o bottone)
         if (isFeedbackAction) {
