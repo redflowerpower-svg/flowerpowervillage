@@ -353,6 +353,13 @@ async function main() {
                     AND workspace_uris NOT LIKE '%WorkTrees%'
                 `);
 
+                // Normalizza titolo e percorsi per la chat Telegram Assistant Bot se presente
+                db.exec(`
+                  UPDATE conversation_summaries
+                  SET title = 'Telegram Assistant Bot'
+                  WHERE conversation_id = '80b0147d-6b6f-4643-af72-7032bb5041c4'
+                `);
+
                 try {
                   db.exec("INSERT INTO conversations_fts(conversations_fts) VALUES('rebuild')");
                 } catch (_) {}
@@ -371,6 +378,27 @@ async function main() {
                 }
               }
             }
+          }
+        }
+
+        // F2. Sincronizzazione file agyhub_summaries_proto.pb (Titoli e metadati globali Antigravity)
+        const incomingProto = path.join(incomingStagingDir, 'agyhub_summaries_proto.pb');
+        const localProto = path.join(antigravityDir, 'agyhub_summaries_proto.pb');
+        if (fs.existsSync(incomingProto)) {
+          try {
+            if (!fs.existsSync(localProto)) {
+              fs.copyFileSync(incomingProto, localProto);
+              console.log('  ✅ File agyhub_summaries_proto.pb copiato da pacchetto cloud.');
+            } else {
+              // Sostituisce il file locale se quello in arrivo contiene la chat del bot
+              const incBuf = fs.readFileSync(incomingProto);
+              if (incBuf.toString('latin1').includes('80b0147d-6b6f-4643-af72-7032bb5041c4')) {
+                fs.copyFileSync(incomingProto, localProto);
+                console.log('  ✅ File agyhub_summaries_proto.pb allineato con successo!');
+              }
+            }
+          } catch (protoErr) {
+            console.warn('⚠️ Avviso allineamento agyhub proto:', protoErr.message);
           }
         }
 

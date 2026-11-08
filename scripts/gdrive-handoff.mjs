@@ -219,10 +219,14 @@ async function main() {
     fs.mkdirSync(chatsTempDir, { recursive: true });
 
     if (fs.existsSync(antigravityDir)) {
-      // A. Copia conversation_summaries.db
+      // A. Copia conversation_summaries.db e agyhub_summaries_proto.pb
       const dbPath = path.join(antigravityDir, 'conversation_summaries.db');
       if (fs.existsSync(dbPath)) {
         fs.copyFileSync(dbPath, path.join(chatsTempDir, 'conversation_summaries.db'));
+      }
+      const protoPath = path.join(antigravityDir, 'agyhub_summaries_proto.pb');
+      if (fs.existsSync(protoPath)) {
+        fs.copyFileSync(protoPath, path.join(chatsTempDir, 'agyhub_summaries_proto.pb'));
       }
 
       // B. Copia tutte le annotations (titoli, view time, pin)
