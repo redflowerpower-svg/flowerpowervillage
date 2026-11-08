@@ -858,8 +858,11 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
                   ]
                 ] : []),
                 [
-                  { text: '✏️ Modifica Risposta', callback_data: `mod_reply_${messageId}` },
                   { text: '🌐 Apri Calendario Live', url: calendarUrl }
+                ],
+                [
+                  { text: '💾 Modifica Definitiva', callback_data: `mod_def_${messageId}` },
+                  { text: '⚡ Modifica Temporanea', callback_data: `mod_temp_${messageId}` }
                 ]
               ]
             };
@@ -1062,8 +1065,11 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             const inlineKeyboard = {
               inline_keyboard: [
                 [
-                  { text: '✏️ Modifica Risposta', callback_data: `mod_reply_${messageId}` },
                   { text: '🌐 Apri Calendario Live', url: inquiryResult.calendarUrl }
+                ],
+                [
+                  { text: '💾 Modifica Definitiva', callback_data: `mod_def_${messageId}` },
+                  { text: '⚡ Modifica Temporanea', callback_data: `mod_temp_${messageId}` }
                 ]
               ]
             };
@@ -1216,19 +1222,24 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
     return res.status(200).json({ status: 'already_saved' });
   }
 
-  // ── Village Bot AI Concierge Modification Callback (mod_reply_*) ──
-  if (callbackData && callbackData.startsWith('mod_reply_')) {
+  // ── Village Bot AI Concierge Modification Callbacks (mod_def_*, mod_temp_*, mod_reply_*) ──
+  const isModDef = callbackData && callbackData.startsWith('mod_def_');
+  const isModTemp = callbackData && callbackData.startsWith('mod_temp_');
+  const isLegacyModReply = callbackData && callbackData.startsWith('mod_reply_');
+
+  if (isModDef || isModTemp || isLegacyModReply) {
     const { botToken: vBotToken } = await getTelegramCredentials('village');
     const targetToken = vBotToken || (await getTelegramCredentials('pizza')).botToken;
     const threadId = (message as any).message_thread_id;
     const stateKey = `concierge_input_state_${messageChatId}_${threadId || '0'}`;
     const lastReplyKey = `concierge_last_reply_${messageChatId}_${threadId || '0'}`;
+    const targetMode = isModTemp ? 'awaiting_modification_onetime' : 'awaiting_modification';
 
     if (supabase) {
       try {
         await supabase.from('telegram_config').upsert({
           id: stateKey,
-          bot_token: 'awaiting_modification',
+          bot_token: targetMode,
           chat_id: String(callbackQuery.from?.id || ''),
           updated_at: new Date().toISOString()
         });
@@ -1246,29 +1257,43 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           });
         }
       } catch (upsertModErr) {
-        console.warn('[mod_reply upsert warning]:', upsertModErr);
+        console.warn('[mod callback upsert warning]:', upsertModErr);
       }
     }
+
+    const toastText = isModTemp
+      ? '⚡ Modalità modifica temporanea (una-tantum) attiva!'
+      : '💾 Modalità modifica definitiva (con memorizzazione) attiva!';
 
     await fetch(`https://api.telegram.org/bot${targetToken}/answerCallbackQuery`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         callback_query_id: callbackQueryId,
-        text: '✏️ Modalità modifica attivata! Scrivi ora le correzioni.',
+        text: toastText,
         show_alert: false
       })
     }).catch(() => { });
 
-    const promptText = [
-      '✏️ <b>MODALITÀ MODIFICA ATTIVA</b> 🧠',
-      '',
-      'Scrivimi pure qui sotto cosa vuoi modificare in questa risposta!',
-      '',
-      '<i>Esempio: "Togli il traghetto e scrivi che abbiamo motorini a 250 thb al giorno", oppure "Riduci a 3 notti", oppure "Rispondi in francese".</i>',
-      '',
-      '<i>(Scrivi /cancel per annullare)</i>'
-    ].join('\n');
+    const promptText = isModTemp
+      ? [
+          '⚡ <b>MODALITÀ MODIFICA TEMPORANEA ATTIVA</b> 📝',
+          '',
+          'Scrivimi le modifiche da applicare <b>esclusivamente a questo cliente</b>.',
+          '',
+          '🛡️ <i>Nessuna regola verrà memorizzata per il futuro.</i>',
+          '',
+          '<i>(Invia /cancel per annullare)</i>'
+        ].join('\n')
+      : [
+          '💾 <b>MODALITÀ MODIFICA DEFINITIVA ATTIVA</b> 🧠',
+          '',
+          'Scrivimi le correzioni da applicare a questa risposta.',
+          '',
+          '✨ <i>Rigenererò il testo e ti proporrò il pulsante per memorizzare la regola permanente nella Knowledge Base!</i>',
+          '',
+          '<i>(Invia /cancel per annullare)</i>'
+        ].join('\n');
 
     await fetch(`https://api.telegram.org/bot${targetToken}/sendMessage`, {
       method: 'POST',
@@ -1282,7 +1307,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
       })
     }).catch(() => { });
 
-    return res.status(200).json({ status: 'modification_mode_activated' });
+    return res.status(200).json({ status: 'modification_mode_activated', mode: targetMode });
   }
 
   if (configuredChatId && String(messageChatId) !== String(configuredChatId)) {
