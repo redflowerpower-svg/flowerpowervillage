@@ -88,8 +88,10 @@ export function decryptVault() {
   // Generate / update .env & .env.local
   syncEnvFromReport(decrypted);
 
-  // Allineamento automatico pacchetti npm
-  syncDependencies();
+  // Allineamento automatico pacchetti npm (solo in locale se non in CI o con flag --no-deps)
+  if (!process.env.CI && !process.argv.includes('--no-deps')) {
+    syncDependencies();
+  }
   return true;
 }
 
@@ -287,6 +289,7 @@ function syncEnvFromReport(reportText) {
     ``,
     `# Telegram Bot - Pizza (Ranong)`,
     `TELEGRAM_BOT_TOKEN=${telegramBotToken}`,
+    `TELEGRAM_SOCIAL_BOT_TOKEN=${telegramBotToken}`,
     `TELEGRAM_CHAT_ID=${telegramChatId}`,
     ``,
     `# Telegram Bot - Village (Koh Phayam)`,

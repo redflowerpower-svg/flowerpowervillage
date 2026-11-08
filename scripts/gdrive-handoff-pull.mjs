@@ -354,9 +354,11 @@ async function main() {
                 `);
 
                 // Normalizza titolo e percorsi per la chat Telegram Assistant Bot se presente
+                const wtUri = 'file:///' + path.resolve(process.cwd(), '../WorkTrees/Telegram Assistant Bot').replace(/\\/g, '/').replace(/:/g, '%3A');
                 db.exec(`
                   UPDATE conversation_summaries
-                  SET title = 'Telegram Assistant Bot'
+                  SET title = '🤖 Telegram Assistant Bot (WorkTree)',
+                      workspace_uris = '["${wtUri}","${currentWsUri}"]'
                   WHERE conversation_id = '80b0147d-6b6f-4643-af72-7032bb5041c4'
                 `);
 

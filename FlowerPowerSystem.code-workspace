@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "name": "🌐 Flower Power Village (staging)",
+      "path": "."
+    },
+    {
+      "name": "🤖 Telegram Assistant Bot (worktree)",
+      "path": "../WorkTrees/Telegram Assistant Bot"
+    }
+  ],
+  "settings": {
+    "git.autorefresh": true,
+    "typescript.tsdk": "node_modules/typescript/lib"
+  }
+}
+
