@@ -146,6 +146,8 @@ export const sanitizePizzaOrder = (rawOrder: any): PizzaOrder => {
         ? item.selectedExtras.map((e: any) => ({
             id: String(e?.id || ''),
             name: extractString(e?.name || e),
+            nameTh: extractString(e?.nameTh || e?.name_th || ''),
+            nameIt: extractString(e?.nameIt || e?.name_it || ''),
             price: typeof e?.price === 'number' ? e.price : 0
           }))
         : [],
@@ -156,6 +158,22 @@ export const sanitizePizzaOrder = (rawOrder: any): PizzaOrder => {
   const validStatuses: PizzaOrder['status'][] = ['new', 'preparing', 'delivering', 'completed', 'cancelled'];
   const status = validStatuses.includes(rawOrder.status) ? rawOrder.status : 'new';
 
+  const rawTotalParsed = typeof rawOrder.total === 'number' ? rawOrder.total : (parseFloat(rawOrder.total) || 0);
+
+  // Calcolo di verifica e integrità: somma dei piatti con le loro varianti ed extra
+  const computedItemsSum = sanitizedItems.reduce((acc, it) => {
+    const qty = it.quantity || 1;
+    const baseP = it.price || 0;
+    const extrasSum = (it.selectedExtras || []).reduce((es: number, ex: any) => es + (Number(ex.price) || 0), 0);
+    return acc + ((baseP + extrasSum) * qty);
+  }, 0);
+
+  // Se rawTotalParsed è 0 oppure inferiore alla somma dei piatti e non ci sono sconti espliciti nell'indirizzo
+  const hasExplicitDiscount = /\[DISCOUNT:\s*[0-9.]+\]/i.test(String(rawOrder.address || ''));
+  const safeTotal = (!hasExplicitDiscount && computedItemsSum > rawTotalParsed) 
+    ? computedItemsSum 
+    : rawTotalParsed;
+
   return {
     id: String(rawOrder.id || `ord-${Math.random().toString(36).substring(2, 9)}`),
     created_at: rawOrder.created_at || new Date().toISOString(),
@@ -164,7 +182,7 @@ export const sanitizePizzaOrder = (rawOrder: any): PizzaOrder => {
     address: String(rawOrder.address || 'Indirizzo non specificato'),
     notes: rawOrder.notes ? String(rawOrder.notes) : undefined,
     items: sanitizedItems,
-    total: typeof rawOrder.total === 'number' ? rawOrder.total : 0,
+    total: safeTotal,
     status: status,
     payment_method: String(rawOrder.payment_method || 'cash'),
     receipt_url: rawOrder.receipt_url ? String(rawOrder.receipt_url) : null,

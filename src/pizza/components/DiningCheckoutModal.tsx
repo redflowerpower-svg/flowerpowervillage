@@ -479,30 +479,44 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 
       const canonicalCurrentTable = getCanonicalTableKey(activeTable);
 
-      const formattedItems = items.map(i => ({
-        cartId: i.cartId,
-        productId: i.productId,
-        name: i.name,
-        nameIt: i.nameIt,
-        nameTh: i.nameTh,
-        nameDe: i.nameDe,
-        nameMm: (i as any).nameMm || (i as any).name_mm,
-        name_mm: (i as any).nameMm || (i as any).name_mm,
-        nameEs: (i as any).nameEs,
-        nameFr: (i as any).nameFr,
-        nameRu: (i as any).nameRu,
-        nameZh: (i as any).nameZh,
-        image: i.image || '',
-        quantity: i.quantity,
-        basePrice: i.basePrice,
-        selectedVariant: i.selectedVariant || null,
-        selectedExtras: i.selectedExtras || [],
-        variant: i.selectedVariant?.name || null, // legacy backward compat
-        extras: (i.selectedExtras || []).map(e => e.name), // legacy backward compat
-        isHalalChicken: (i as any).isHalalChicken || false,
-        lasagnaDate: (i as any).lasagnaDate || null,
-        total: calcItemTotal(i)
-      }));
+      const formattedItems = items.map(i => {
+        const itemLineTotal = calcItemTotal(i);
+        return {
+          cartId: i.cartId,
+          productId: i.productId,
+          name: i.name,
+          nameIt: i.nameIt,
+          nameTh: i.nameTh,
+          nameDe: i.nameDe,
+          nameMm: (i as any).nameMm || (i as any).name_mm,
+          name_mm: (i as any).nameMm || (i as any).name_mm,
+          nameEs: (i as any).nameEs,
+          nameFr: (i as any).nameFr,
+          nameRu: (i as any).nameRu,
+          nameZh: (i as any).nameZh,
+          image: i.image || '',
+          quantity: i.quantity,
+          basePrice: i.basePrice,
+          price: i.basePrice,
+          selectedVariant: i.selectedVariant || null,
+          selectedExtras: (i.selectedExtras || []).map((e: any) => ({
+            id: String(e.id || ''),
+            name: String(e.name || ''),
+            nameTh: e.nameTh || e.name_th || '',
+            nameIt: e.nameIt || e.name_it || '',
+            price: Number(e.price ?? 0)
+          })),
+          variant: i.selectedVariant?.name || null, // legacy backward compat
+          extras: (i.selectedExtras || []).map(e => e.name), // legacy backward compat
+          isHalalChicken: (i as any).isHalalChicken || false,
+          lasagnaDate: (i as any).lasagnaDate || null,
+          total: itemLineTotal
+        };
+      });
+
+      // Calcolo atomico del totale comanda basato sulla somma esatta delle righe
+      const computedItemsSum = formattedItems.reduce((acc, it) => acc + (Number(it.total) || 0), 0);
+      const computedFinalTotal = computedItemsSum > 0 ? computedItemsSum : finalTotal;
 
       // 1. Check if an active order exists for this table to label additions & update existing record
       let isTableIntegration = Boolean(existingOrderId);
@@ -555,7 +569,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         phone: finalCustomerPhone,
         address: finalAddress,
         items: formattedItems,
-        total: finalTotal,
+        total: computedFinalTotal,
         payment_method: paymentLabel,
         status: 'new',
         has_whatsapp: true,
