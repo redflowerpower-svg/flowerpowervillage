@@ -307,48 +307,125 @@ async function main() {
             fs.copyFileSync(incomingDb, localDb);
             console.log('  ✅ Database indice creato da pacchetto cloud.');
           } else {
-            try {
-              const db = new DatabaseSync(localDb);
-              const normalizedIncomingDb = incomingDb.replace(/\\/g, '/');
-              db.exec(`ATTACH DATABASE '${normalizedIncomingDb}' AS incoming`);
-
-              // Upsert atomico non distruttivo
-              db.exec(`
-                INSERT INTO conversation_summaries (
-                  conversation_id, title, preview, step_count, last_modified_time,
-                  workspace_uris, status, source, project_id, agent_name,
-                  parent_conversation_id, nesting_depth, battle_id, winning_conversation_id,
-                  not_fully_idle, killed, last_user_input_time, last_user_input_step_index,
-                  app_data_dir, raw_summary, group_id
-                )
-                SELECT
-                  conversation_id, title, preview, step_count, last_modified_time,
-                  workspace_uris, status, source, project_id, agent_name,
-                  parent_conversation_id, nesting_depth, battle_id, winning_conversation_id,
-                  not_fully_idle, killed, last_user_input_time, last_user_input_step_index,
-                  app_data_dir, raw_summary, group_id
-                FROM incoming.conversation_summaries
-                WHERE true
-                ON CONFLICT(conversation_id) DO UPDATE SET
-                  title = CASE WHEN excluded.last_modified_time > conversation_summaries.last_modified_time THEN excluded.title ELSE conversation_summaries.title END,
-                  preview = CASE WHEN excluded.last_modified_time > conversation_summaries.last_modified_time THEN excluded.preview ELSE conversation_summaries.preview END,
-                  step_count = MAX(conversation_summaries.step_count, excluded.step_count),
-                  last_modified_time = MAX(conversation_summaries.last_modified_time, excluded.last_modified_time),
-                  status = CASE WHEN excluded.last_modified_time > conversation_summaries.last_modified_time THEN excluded.status ELSE conversation_summaries.status END,
-                  last_user_input_time = MAX(conversation_summaries.last_user_input_time, excluded.last_user_input_time),
-                  last_user_input_step_index = MAX(conversation_summaries.last_user_input_step_index, excluded.last_user_input_step_index),
-                  group_id = CASE WHEN excluded.group_id != '' THEN excluded.group_id ELSE conversation_summaries.group_id END
-              `);
-
+            let mergedOk = false;
+            for (let attempt = 1; attempt <= 5; attempt++) {
               try {
-                db.exec("INSERT INTO conversations_fts(conversations_fts) VALUES('rebuild')");
-              } catch (_) {}
+                const db = new DatabaseSync(localDb);
+                const normalizedIncomingDb = incomingDb.replace(/\\/g, '/');
+                db.exec(`ATTACH DATABASE '${normalizedIncomingDb}' AS incoming`);
 
-              db.close();
-              console.log('  ✅ Database indice SQLite fuso con successo: chat locali + cloud integrate al 100%!');
-            } catch (mergeErr) {
-              console.warn('⚠️ Avviso durante fusione SQLite conversation_summaries:', mergeErr.message);
+                // Upsert atomico non distruttivo
+                db.exec(`
+                  INSERT INTO conversation_summaries (
+                    conversation_id, title, preview, step_count, last_modified_time,
+                    workspace_uris, status, source, project_id, agent_name,
+                    parent_conversation_id, nesting_depth, battle_id, winning_conversation_id,
+                    not_fully_idle, killed, last_user_input_time, last_user_input_step_index,
+                    app_data_dir, raw_summary, group_id
+                  )
+                  SELECT
+                    conversation_id, title, preview, step_count, last_modified_time,
+                    workspace_uris, status, source, project_id, agent_name,
+                    parent_conversation_id, nesting_depth, battle_id, winning_conversation_id,
+                    not_fully_idle, killed, last_user_input_time, last_user_input_step_index,
+                    app_data_dir, raw_summary, group_id
+                  FROM incoming.conversation_summaries
+                  WHERE true
+                  ON CONFLICT(conversation_id) DO UPDATE SET
+                    title = CASE WHEN excluded.last_modified_time > conversation_summaries.last_modified_time THEN excluded.title ELSE conversation_summaries.title END,
+                    preview = CASE WHEN excluded.last_modified_time > conversation_summaries.last_modified_time THEN excluded.preview ELSE conversation_summaries.preview END,
+                    step_count = MAX(conversation_summaries.step_count, excluded.step_count),
+                    last_modified_time = MAX(conversation_summaries.last_modified_time, excluded.last_modified_time),
+                    status = CASE WHEN excluded.last_modified_time > conversation_summaries.last_modified_time THEN excluded.status ELSE conversation_summaries.status END,
+                    last_user_input_time = MAX(conversation_summaries.last_user_input_time, excluded.last_user_input_time),
+                    last_user_input_step_index = MAX(conversation_summaries.last_user_input_step_index, excluded.last_user_input_step_index),
+                    group_id = CASE WHEN excluded.group_id != '' THEN excluded.group_id ELSE conversation_summaries.group_id END
+                `);
+
+                // Normalizzazione automatica dei percorsi workspace per la postazione corrente
+                const currentWsUri = 'file:///' + process.cwd().replace(/\\/g, '/').replace(/:/g, '%3A');
+                // Allinea le chat del workspace principale che arrivano con il path dell'altra postazione
+                db.exec(`
+                  UPDATE conversation_summaries
+                  SET workspace_uris = '["${currentWsUri}"]'
+                  WHERE workspace_uris LIKE '%flowerpowervillage%'
+                    AND workspace_uris NOT LIKE '%worktrees%'
+                    AND workspace_uris NOT LIKE '%WorkTrees%'
+                `);
+
+                try {
+                  db.exec("INSERT INTO conversations_fts(conversations_fts) VALUES('rebuild')");
+                } catch (_) {}
+
+                db.close();
+                console.log('  ✅ Database indice SQLite fuso con successo: chat locali + cloud integrate al 100%!');
+                mergedOk = true;
+                break;
+              } catch (mergeErr) {
+                if (mergeErr.message.includes('locked') && attempt < 5) {
+                  console.log(`  ⏳ Database bloccato da Antigravity, ritento tra 1s (${attempt}/5)...`);
+                  execSync('powershell -Command "Start-Sleep -Milliseconds 1000"');
+                } else {
+                  console.warn('⚠️ Avviso durante fusione SQLite conversation_summaries:', mergeErr.message);
+                  break;
+                }
+              }
             }
+          }
+        }
+
+        // G. Ripristino e Fusione Stato UI Antigravity IDE (Pinned Order & Layouts)
+        const ideStateIncoming = path.join(incomingStagingDir, 'antigravity_ide_state.json');
+        if (fs.existsSync(ideStateIncoming)) {
+          try {
+            console.log('\n📌 Passo 4b: Fusione Ordine PIN e Layouts Antigravity IDE...');
+            const incomingState = JSON.parse(fs.readFileSync(ideStateIncoming, 'utf8'));
+            const ideStateVscdb = path.join(process.env.APPDATA, 'Antigravity IDE/User/globalStorage/state.vscdb');
+
+            if (fs.existsSync(ideStateVscdb)) {
+              for (let attempt = 1; attempt <= 5; attempt++) {
+                try {
+                  const ideDb = new DatabaseSync(ideStateVscdb);
+                  const agRow = ideDb.prepare("SELECT value FROM ItemTable WHERE key = 'google.google-antigravity'").get();
+                  if (agRow && agRow.value) {
+                    const parsed = JSON.parse(agRow.value);
+                    const st = parsed['antigravity-storage'] || {};
+
+                    // 1. Fusione pinned_conversations_order senza duplicati
+                    let currentPinned = [];
+                    try { currentPinned = JSON.parse(st.pinned_conversations_order || '[]'); } catch (_) {}
+                    let incomingPinned = [];
+                    try { incomingPinned = JSON.parse(incomingState.pinned_conversations_order || '[]'); } catch (_) {}
+
+                    const mergedPinned = Array.from(new Set([...incomingPinned, ...currentPinned]));
+                    st.pinned_conversations_order = JSON.stringify(mergedPinned);
+
+                    // 2. Fusione layouts finestre chat
+                    if (incomingState.layouts) {
+                      for (const [lk, lv] of Object.entries(incomingState.layouts)) {
+                        st[lk] = lv;
+                      }
+                    }
+
+                    parsed['antigravity-storage'] = st;
+                    ideDb.prepare("UPDATE ItemTable SET value = ? WHERE key = 'google.google-antigravity'").run(JSON.stringify(parsed));
+                    console.log(`  ✅ Ordine PIN ripristinato: ${mergedPinned.length} chat pinnate registrate nella UI!`);
+                  }
+                  ideDb.close();
+                  break;
+                } catch (ideErr) {
+                  if (ideErr.message.includes('locked') && attempt < 5) {
+                    console.log(`  ⏳ state.vscdb bloccato, ritento tra 1s (${attempt}/5)...`);
+                    execSync('powershell -Command "Start-Sleep -Milliseconds 1000"');
+                  } else {
+                    console.warn('⚠️ Avviso durante aggiornamento state.vscdb:', ideErr.message);
+                    break;
+                  }
+                }
+              }
+            }
+          } catch (stErr) {
+            console.warn('⚠️ Avviso ripristino stato UI IDE:', stErr.message);
           }
         }
 

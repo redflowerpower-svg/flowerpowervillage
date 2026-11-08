@@ -222,6 +222,34 @@ async function main() {
         fs.cpSync(annSrc, annDest, { recursive: true });
       }
 
+      // B2. Esportazione stato UI Antigravity IDE (Pinned Order, Layouts, Sessione)
+      try {
+        const ideStateVscdb = path.join(process.env.APPDATA, 'Antigravity IDE/User/globalStorage/state.vscdb');
+        if (fs.existsSync(ideStateVscdb)) {
+          const ideDb = new DatabaseSync(ideStateVscdb);
+          const agRow = ideDb.prepare("SELECT value FROM ItemTable WHERE key = 'google.google-antigravity'").get();
+          if (agRow && agRow.value) {
+            const parsed = JSON.parse(agRow.value);
+            const st = parsed['antigravity-storage'] || {};
+            const exportedIdeState = {
+              pinned_conversations_order: st.pinned_conversations_order,
+              comments: st.comments,
+              layouts: {}
+            };
+            for (const k of Object.keys(st)) {
+              if (k.startsWith('antigravity-multi-conversation-layout-v3-') || k.startsWith('running-items-panel-expanded-')) {
+                exportedIdeState.layouts[k] = st[k];
+              }
+            }
+            fs.writeFileSync(path.join(chatsTempDir, 'antigravity_ide_state.json'), JSON.stringify(exportedIdeState, null, 2), 'utf8');
+            console.log('  🎨 Stato UI IDE esportato (pinned_conversations_order & layouts salvati).');
+          }
+          ideDb.close();
+        }
+      } catch (ideErr) {
+        console.warn('⚠️ Avviso esportazione stato UI IDE:', ideErr.message);
+      }
+
       // C. Filtro Esclusivo: SOLO LE CHAT PINNATE (pinned: true)
       const activeIds = new Set();
       if (fs.existsSync(annSrc)) {
