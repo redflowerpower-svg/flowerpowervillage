@@ -68,3 +68,4 @@ main().catch(err => {
   console.error('[emergency-alert] Errore imprevisto:', err);
   process.exit(1);
 });
+
