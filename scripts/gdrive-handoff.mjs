@@ -153,6 +153,29 @@ async function main() {
     }
 
     console.log('\n📦 Passo 3: Preparazione file di sistema e codice...');
+    // Genera file di istruzioni testuale 1-click copia/incolla
+    const txtContent = [
+      '===========================================================',
+      '  ISTRUZIONI DI RIPRISTINO POSTAZIONE (KOH PHAYAM <-> RANONG)',
+      '===========================================================',
+      '',
+      'Per ripristinare la postazione:',
+      '1. Apri Antigravity (o PowerShell nella cartella del progetto).',
+      '2. Copia e incolla questo unico comando:',
+      '',
+      '   git pull origin staging ; node scripts/gdrive-handoff-pull.mjs',
+      '',
+      '3. Premi Invio.',
+      '',
+      'COSA FA AUTOMATICAMENTE:',
+      '- Aggiorna il codice da GitHub.',
+      '- Sincronizza e monta il Worktree attivo (Telegram Assistant Bot).',
+      '- Ripristina le sole chat pinnate in alto e i relativi PIN.',
+      '- Decifra e allinea il file .env delle credenziali.',
+      '==========================================================='
+    ].join('\r\n');
+    fs.writeFileSync(path.join(tempDir, 'COME_RIPRISTINARE.txt'), txtContent, 'utf8');
+
     // Copia file essenziali
     const copyList = [
       { src: '.agents/AGENTS.md', dest: 'AGENTS.md' },
