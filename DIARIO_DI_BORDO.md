@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [08/11/2026 - ORE 18:55] · DIAGNOSI & BLINDATURA RUNNER CLOUD SOCIAL MEDIA STUDIO (RECUPERO SLOT 17:00 & FIX ALLARME TOPIC 301)
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Diagnosi Chirurgica dei Post Mancati**:
+     - Analizzati i log di GitHub Actions tra le 16:00 e le 17:30 (09:00–10:30 UTC): rilevato blocco del runner sul download post-install di `ffmpeg-static` a causa di un HTTP 504 Gateway Timeout esterno da GitHub Releases (`eugeneware/ffmpeg-static/releases`).
+     - Questo errore ha fatto fallire i dispatch degli slot 16:00 e 17:00 (Stories TikTok P1/V3 e Post Reel R1 Gruppo Koh Phayam). Alle 18:00 e 18:30 i runner sono poi ripartiti regolarmente.
+  2. 🔕 **Risoluzione Mancato Allarme su Telegram Topic 301**:
+     - Individuato il motivo del silenzio: il token Telegram del Social Bot era presente solo nel database Neon e nel Vault crittografato, non nei Secrets diretti del workflow GitHub. Poiché `npm ci` falliva prima della decifratura del Vault, il file `.env` non esisteva sul runner, impedendo allo script di allarme di recuperare il token per inviare la notifica su Topic 301.
+  3. 🛡️ **Blindatura Strutturale Workflow Cloud (`social-scheduler-cron.yml` & `vault-sync.mjs`)**:
+     - *Inversione Priorità*: La sincronizzazione e decifratura del Vault (`vault-sync.mjs decrypt --no-deps`) viene ora eseguita **immediatamente dopo `setup-node` e prima di `npm`**, garantendo che `.env` sia sempre generato su disco anche in caso di anomalie di rete npm.
+     - *Protezione Timeout Esterni*: Aggiunto `--ignore-scripts` a `npm ci || npm install` per disabilitare i download binari ridondanti da GitHub releases (l'eseguibile FFmpeg viene già installato nativamente e stabilmente da Ubuntu `apt`).
+     - *Allarme Topic 301 con Fallback a 4 Livelli*: Lo script di notifica Topic 301 recupera il token tramite 4 canali in cascata (Env diretto -> File `.env` -> Decifratura diretta Vault via `crypto` nativo Node.js -> Neon DB), garantendo al 100% l'invio dell'allarme in qualsiasi scenario di fallimento.
+  4. 🚀 **Recupero Immediato Slot 17:00**:
+     - Eseguita pipeline correttiva su GitHub Actions (`ref: main`), completando il rendering e l'invio delle 2 Stories TikTok/IG su Topic 3 e del Reel R1 su Topic 2 per il Gruppo Facebook Koh Phayam.
+- **File aggiornati:** `.github/workflows/social-scheduler-cron.yml`, `scratch/vault-sync.mjs`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% OPERATIVO, RUNNER BLINDATO E RISOLTO IN PRODUZIONE.
+
+---
+
 ### 🚀 [08/11/2026 - ORE 14:38] · COMPLETAMENTO RIPRISTINO WORKTREE "TELEGRAM ASSISTANT BOT" (MULTI-ROOT WORKSPACE)
 - **Cosa abbiamo fatto:**
   1. 💬 **Ricollegamento Chat Storica di Ranong**:

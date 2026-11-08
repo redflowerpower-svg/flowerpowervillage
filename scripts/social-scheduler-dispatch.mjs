@@ -265,29 +265,38 @@ async function sendFailedAlert(errOrPayload, context = '') {
   }
 }
 
+let cachedTelegramToken = null;
+
 async function getTelegramToken() {
-  if (telegramToken) return telegramToken;
+  if (cachedTelegramToken) return cachedTelegramToken;
   if (neonSql) {
     try {
       const rows = await neonSql`SELECT bot_token FROM telegram_config WHERE id = 'social' LIMIT 1;`;
       if (rows?.[0]?.bot_token) {
-        telegramToken = rows[0].bot_token;
+        cachedTelegramToken = rows[0].bot_token;
         console.log('[scheduler-dispatch] 🐘 Token Telegram caricato da Neon Database (Zero Supabase)');
-        return telegramToken;
+        return cachedTelegramToken;
       }
     } catch (neonErr) {
       console.warn('[scheduler-dispatch] Avviso lettura Neon telegram_token:', neonErr.message);
     }
   }
+  if (env.TELEGRAM_SOCIAL_BOT_TOKEN) {
+    cachedTelegramToken = env.TELEGRAM_SOCIAL_BOT_TOKEN;
+    return cachedTelegramToken;
+  }
   if (sb) {
     try {
       const { data } = await sb.from('telegram_config').select('bot_token').eq('id', 'social').maybeSingle();
-      telegramToken = data?.bot_token;
+      if (data?.bot_token) {
+        cachedTelegramToken = data.bot_token;
+        return cachedTelegramToken;
+      }
     } catch (err) {
       console.warn('[scheduler-dispatch] Errore lettura telegram_config:', err.message);
     }
   }
-  return telegramToken;
+  return cachedTelegramToken;
 }
 
 // Carica configurazione Google Drive 5TB da Neon (Zero Supabase)

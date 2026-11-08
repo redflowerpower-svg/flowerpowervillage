@@ -289,7 +289,6 @@ function syncEnvFromReport(reportText) {
     ``,
     `# Telegram Bot - Pizza (Ranong)`,
     `TELEGRAM_BOT_TOKEN=${telegramBotToken}`,
-    `TELEGRAM_SOCIAL_BOT_TOKEN=${telegramBotToken}`,
     `TELEGRAM_CHAT_ID=${telegramChatId}`,
     ``,
     `# Telegram Bot - Village (Koh Phayam)`,
