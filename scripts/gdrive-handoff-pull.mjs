@@ -99,7 +99,7 @@ async function main() {
     // 5. Creazione cartella scratch locale per il download
     const tempDir = path.resolve(process.cwd(), 'scratch/handoff_download');
     if (fs.existsSync(tempDir)) {
-      fs.rmSync(tempDir, { recursive: true, force: true });
+      try { fs.rmSync(tempDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 500 }); } catch (_) {}
     }
     fs.mkdirSync(tempDir, { recursive: true });
 
@@ -177,7 +177,9 @@ async function main() {
         // B. Estrazione temporanea del pacchetto in arrivo dal cloud
         const incomingStagingDir = path.join(tempDir, 'incoming_antigravity');
         if (fs.existsSync(incomingStagingDir)) {
-          fs.rmSync(incomingStagingDir, { recursive: true, force: true });
+          try {
+          fs.rmSync(incomingStagingDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 500 });
+        } catch (_) {}
         }
         fs.mkdirSync(incomingStagingDir, { recursive: true });
         console.log('📂 Estrazione pacchetto cloud in area temporanea...');
