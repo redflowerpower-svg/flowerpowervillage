@@ -898,11 +898,20 @@ export default function ResortPublicCalendarPage() {
                   const isToday = dateStr === todayStr;
                   const isRequestedDate = checkIn && ((checkOut && dateStr >= checkIn && dateStr <= checkOut) || dateStr === checkIn);
 
+                  const isRangeStart = checkIn && dateStr === checkIn;
+                  const isRangeEnd = checkOut && dateStr === checkOut;
+
+                  let thPerimeter = '';
+                  if (isRequestedDate) {
+                    if (isRangeStart) thPerimeter += ' border-l-2 border-l-amber-400 ';
+                    if (isRangeEnd) thPerimeter += ' border-r-2 border-r-amber-400 ';
+                  }
+
                   return (
                     <th
                       key={`th-${dayNum}`}
                       scope="col"
-                      className={`border-b-2 border-r border-stone-800 text-center py-1.5 px-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] transition-colors ${isRequestedDate
+                      className={`border-b-2 border-r border-stone-800 text-center py-1.5 px-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] transition-colors ${thPerimeter} ${isRequestedDate
                           ? 'bg-amber-400 text-stone-950 border-b-amber-300 font-extrabold shadow-sm'
                           : isToday
                             ? 'bg-amber-400/20 text-amber-300 border-b-amber-400'
@@ -1011,15 +1020,40 @@ export default function ResortPublicCalendarPage() {
                       const isHeroCell = isHero && !isSelectedCheckIn && !isSelectedCheckOut && !isInSelectedRange && !isPast && isPhysicallyAvailable;
                       const isRequestedRangeCol = checkIn && ((checkOut && dateStr >= checkIn && dateStr <= checkOut) || dateStr === checkIn);
 
+                      const isFirstRoom = roomIdx === 0;
+                      const isLastRoom = roomIdx === sortedRoomsList.length - 1;
+                      const isRangeStart = checkIn && dateStr === checkIn;
+                      const isRangeEnd = checkOut && dateStr === checkOut;
+
+                      // Stili del perimetro evidenziato che avvolge l'intero intervallo di date richieste su tutti gli alloggi
+                      let perimeterClasses = '';
+                      if (isRequestedRangeCol) {
+                        perimeterClasses += ' relative ';
+                        if (isFirstRoom) {
+                          perimeterClasses += ' border-t-2 border-t-amber-400 ';
+                        }
+                        if (isLastRoom) {
+                          perimeterClasses += ' border-b-2 border-b-amber-400 ';
+                        }
+                        if (isRangeStart) {
+                          perimeterClasses += ' border-l-2 border-l-amber-400 ';
+                        }
+                        if (isRangeEnd) {
+                          perimeterClasses += ' border-r-2 border-r-amber-400 ';
+                        }
+                      }
+
                       let cellBg = isHeroCell
                         ? 'bg-amber-950/35 text-amber-300 border border-amber-600/50 hover:bg-amber-900/40 hover:border-amber-400 cursor-pointer shadow-2xs'
                         : isRequestedRangeCol && !isPast && isPhysicallyAvailable
-                          ? 'bg-amber-950/20 text-emerald-300 border-x border-amber-500/50 hover:bg-amber-900/40 cursor-pointer'
+                          ? 'bg-amber-500/15 text-emerald-200 hover:bg-amber-500/25 cursor-pointer'
                           : 'bg-emerald-950/25 text-emerald-300 border border-emerald-800/40 hover:bg-emerald-900/40 hover:border-emerald-500 cursor-pointer shadow-2xs';
                       if (isPast) {
                         cellBg = 'bg-[#151210] text-stone-700 opacity-40 cursor-not-allowed border border-stone-900/60';
                       } else if (!isPhysicallyAvailable) {
-                        cellBg = 'bg-stone-900/70 text-stone-500 border border-stone-800/70 cursor-not-allowed opacity-60';
+                        cellBg = isRequestedRangeCol
+                          ? 'bg-stone-900/90 text-stone-500 cursor-not-allowed opacity-75'
+                          : 'bg-stone-900/70 text-stone-500 border border-stone-800/70 cursor-not-allowed opacity-60';
                       } else if (isSelectedCheckIn || isSelectedCheckOut) {
                         cellBg = 'bg-emerald-600 text-white font-black shadow-lg scale-95 z-10 border border-emerald-400';
                       } else if (isInSelectedRange) {
@@ -1030,7 +1064,7 @@ export default function ResortPublicCalendarPage() {
                         <td
                           key={`td-${room.id}-${dayNum}`}
                           onClick={() => !isPast && isPhysicallyAvailable && handleDayClick(room, dateStr)}
-                          className={`border-r border-stone-800 text-center p-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] h-11 sm:h-12 transition-all duration-150 select-none ${cellBg}`}
+                          className={`border-r border-stone-800 text-center p-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] h-11 sm:h-12 transition-all duration-150 select-none ${perimeterClasses} ${cellBg}`}
                           title={
                             isPast ? t('legendPast')
                               : !isPhysicallyAvailable ? t('legendOccupied')
