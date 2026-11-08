@@ -116,6 +116,42 @@ async function main() {
     }
     fs.mkdirSync(tempDir, { recursive: true });
 
+        // Scansione Worktrees attivi in tempo reale
+    const activeWorktrees = [];
+    try {
+      const wtRaw = execSync('git worktree list --porcelain', { encoding: 'utf8', cwd: process.cwd() });
+      const blocks = wtRaw.trim().split('\n\n');
+      const mainDir = process.cwd().replace(/\\/g, '/').toLowerCase();
+
+      for (const block of blocks) {
+        const lines = block.split('\n');
+        const wtLine = lines.find(l => l.startsWith('worktree '));
+        const branchLine = lines.find(l => l.startsWith('branch '));
+
+        if (wtLine && branchLine) {
+          const wtPath = wtLine.replace('worktree ', '').trim();
+          const branchName = branchLine.replace('branch refs/heads/', '').trim();
+          const normPath = wtPath.replace(/\\/g, '/');
+
+          if (normPath.toLowerCase() !== mainDir) {
+            const folderName = path.basename(normPath);
+            const isAntigravityInternal = normPath.toLowerCase().includes('.gemini/antigravity/worktrees');
+            activeWorktrees.push({
+              name: folderName,
+              branch: branchName,
+              isAntigravityInternal,
+              originalPath: wtPath
+            });
+          }
+        }
+      }
+      fs.mkdirSync('scratch', { recursive: true });
+      fs.writeFileSync('scratch/worktrees_info.json', JSON.stringify(activeWorktrees, null, 2), 'utf8');
+      console.log(`  🌿 Rilevati e registrati ${activeWorktrees.length} Worktree attivi.`);
+    } catch (wtErr) {
+      console.warn('⚠️ Avviso scansione worktrees:', wtErr.message);
+    }
+
     console.log('\n📦 Passo 3: Preparazione file di sistema e codice...');
     // Copia file essenziali
     const copyList = [
@@ -163,29 +199,22 @@ async function main() {
         fs.cpSync(annSrc, annDest, { recursive: true });
       }
 
-      // C. Filtro Intelligente Conversazioni Recenti (ultimi 7 giorni o ultime 10)
+      // C. Filtro Esclusivo: SOLO LE CHAT PINNATE (pinned: true)
       const activeIds = new Set();
-      if (fs.existsSync(dbPath)) {
-        try {
-          const db = new DatabaseSync(dbPath);
-          const rows = db.prepare('SELECT conversation_id, last_modified_time FROM conversation_summaries ORDER BY last_modified_time DESC').all();
-          const nowMs = Date.now();
-          const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-
-          rows.forEach((r, idx) => {
-            const raw = r.last_modified_time ? r.last_modified_time.replace(' ', 'T') : null;
-            const t = raw ? new Date(raw).getTime() : 0;
-            // Includi se modificata negli ultimi 7 giorni OPPURE se è una delle prime 10
-            if ((nowMs - t <= sevenDaysMs) || idx < 10) {
-              activeIds.add(r.conversation_id);
+      if (fs.existsSync(annSrc)) {
+        const annFiles = fs.readdirSync(annSrc);
+        for (const af of annFiles) {
+          if (af.endsWith('.pbtxt')) {
+            const annContent = fs.readFileSync(path.join(annSrc, af), 'utf8');
+            if (annContent.includes('pinned:true') || annContent.includes('pinned: true')) {
+              const convId = af.replace('.pbtxt', '');
+              activeIds.add(convId);
             }
-          });
-        } catch (dbErr) {
-          console.warn('⚠️ Avviso lettura SQLite summaries:', dbErr.message);
+          }
         }
       }
 
-      console.log(`  🎯 Selezionate ${activeIds.size} sessioni attive/recenti per il trasferimento.`);
+      console.log(`  🎯 Selezionate ESCLUSIVAMENTE le ${activeIds.size} chat con PIN fissato in alto.`);
 
       // D. Copia selettiva di conversations/*.db
       const convSrc = path.join(antigravityDir, 'conversations');
