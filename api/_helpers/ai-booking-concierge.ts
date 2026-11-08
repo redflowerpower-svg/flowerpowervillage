@@ -259,9 +259,13 @@ export function compileDeterministicConciergeReply(params: DeterministicTemplate
   const wantsFood = inquiryLower.includes('pizza') || inquiryLower.includes('ristorant') || inquiryLower.includes('cibo') || inquiryLower.includes('mangiar') || inquiryLower.includes('restaurant') || inquiryLower.includes('food') || inquiryLower.includes('dinner') || inquiryLower.includes('lunch') || inquiryLower.includes('cena') || inquiryLower.includes('pranzo');
   const wantsBalcony = inquiryLower.includes('balcon') || inquiryLower.includes('terrazz') || inquiryLower.includes('guesthouse') || inquiryLower.includes('camera') || inquiryLower.includes('room');
 
-  // 1. Verifica Soggiorno Minimo Stagionale Contestuale
-  const monthStr = (checkInDate ? checkInDate.slice(5, 7) : (targetMonth ? targetMonth.slice(5, 7) : ''));
-  const isHighSeason = ['12', '01', '02', '03'].includes(monthStr);
+  // 1. Verifica Soggiorno Minimo Stagionale Contestuale (Alta Stagione: 15 Dic - 31 Mar | Bassa/Media: 1 Apr - 14 Dic)
+  const isHighSeason = (() => {
+    if (!checkInDate && !targetMonth) return false;
+    const dateStr = checkInDate || `${targetMonth}-01`;
+    const md = dateStr.slice(5, 10); // 'MM-DD'
+    return (md >= '12-15' && md <= '12-31') || (md >= '01-01' && md <= '03-31');
+  })();
 
   const monthNamesIt: Record<string, string> = {
     '01': 'gennaio', '02': 'febbraio', '03': 'marzo', '04': 'aprile',
@@ -272,11 +276,11 @@ export function compileDeterministicConciergeReply(params: DeterministicTemplate
 
   let minStayText = '';
   if (isHighSeason) {
-    minStayText = `Il nostro soggiorno minimo ${currentMonthLabel} (Alta Stagione) è di 5 notti consecutive (date singole/buchi tra prenotazioni prenotabili liberamente).`;
-  } else if (monthStr) {
-    minStayText = `Il nostro soggiorno minimo ${currentMonthLabel} (Bassa/Media Stagione) è di 2 notti consecutive (date singole/buchi tra prenotazioni prenotabili liberamente).`;
+    minStayText = `Il nostro soggiorno minimo in Alta Stagione (15 Dic – 31 Mar) è di 5 notti consecutive (date singole/buchi tra prenotazioni prenotabili liberamente).`;
+  } else if (checkInDate || targetMonth) {
+    minStayText = `Il nostro soggiorno minimo in Bassa/Media Stagione (1 Apr – 14 Dic) è di 2 notti consecutive (date singole/buchi tra prenotazioni prenotabili liberamente).`;
   } else {
-    minStayText = `Il nostro soggiorno minimo è di 5 notti consecutive in Alta Stagione (1 Dic – 31 Mar) e di 2 notti in Bassa/Media Stagione (1 Apr – 30 Nov), con eccezione per i buchi isolati prenotabili singolarmente.`;
+    minStayText = `Il nostro soggiorno minimo è di 5 notti consecutive in Alta Stagione (15 Dic – 31 Mar) e di 2 notti in Bassa/Media Stagione (1 Apr – 14 Dic), con eccezione per i buchi isolati prenotabili singolarmente.`;
   }
 
   // 2. Saluto
@@ -404,7 +408,7 @@ Koh Phayam, Thailand`;
     cta
   ].filter(line => line !== null && line !== undefined && line !== '').join('\n');
 
-  // Assemblaggio Versione WhatsApp (chirurgica, zero rumore, solo quello che è stato chiesto)
+  // Assemblaggio Versione WhatsApp (chirurgica, zero rumore, con sconto 10% sito web obbligatorio)
   const whatsAppLines = [
     `Ciao ${guestName || ''}! 🌸🌴 Grazie per aver contattato Flower Power Village!`,
     '',
@@ -412,10 +416,13 @@ Koh Phayam, Thailand`;
     '',
     `📅 *Soggiorno Minimo:* ${minStayText}`,
     '',
+    '💰 *Sconto Esclusivo Sito Web:*',
+    'Prenotando direttamente dal nostro sito web otterrai automaticamente il **10% di sconto diretto** applicato al checkout!',
+    '',
     '🔗 *Verifica Disponibilità e Prenota:*',
     calendarUrl,
     '',
-    'Quante notti avevate in programma? Se mi indicate le date esatte vi controllo subito la disponibilità! 🌴✨'
+    'Quante notti avevi in programma? Se mi indichi le date esatte ti controllo subito la disponibilità! 🌴✨'
   ].filter(line => line !== null && line !== '');
 
   const fullWhatsApp = whatsAppLines.join('\n');
@@ -541,8 +548,8 @@ GROUND TRUTH HOTEL KNOWLEDGE:
    • On the website booking engine, guests can freely choose whether to add air conditioning (included daily or pay-per-use) and breakfast during checkout.
    • ZERO NOISE RULE: Do NOT explain, list rates for, or dump lengthy paragraphs about A/C or breakfast unless the guest explicitly asks about them! Keep the response focused strictly on what the guest requested.
 4. MINIMUM STAY RULES:
-   • Low/Mid Season (1 Apr – 30 Nov): 2 consecutive nights.
-   • High Season (1 Dec – 31 Mar): 5 consecutive nights.
+   • Low/Mid Season (1 Apr – 14 Dec, includes all of November): 2 consecutive nights.
+   • High Season (15 Dec – 31 Mar, includes Christmas, New Year, January, February, March): 5 consecutive nights.
    • Single gap nights ("buchi") between bookings are bookable individually.
    • State ONLY the minimum stay rule for the season of the requested dates.
 5. BEACH & LOCATION:
@@ -556,8 +563,9 @@ ZERO NOISE FILTER (STRICT):
 - If the guest only asks about accommodation for certain dates/people:
   1) Recommend the exact accommodation that fits them.
   2) State the minimum stay for that specific period.
-  3) Provide the direct calendar link (${calendarUrl}).
-  4) Ask for the exact number of nights / check-in check-out dates to confirm. That's it!
+  3) MANDATORY WEBSITE DISCOUNT NOTE: ALWAYS explicitly mention that booking directly on our website gives an automatic 10% direct booking discount (no coupon code needed, applied automatically at checkout)!
+  4) Provide the direct calendar link (${calendarUrl}).
+  5) Ask for the exact number of nights / check-in check-out dates to confirm. That's it!
 - Match the accommodation strictly: if 2 families or 6-8 pax, suggest Jungle Villa (Entire) with its link. If terrace asked, Rooms 1, 2, 3, 4.
 - If there are follow-up questions later, we will answer them then!
 

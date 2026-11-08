@@ -416,8 +416,8 @@ export const VILLAGE_MASTER_DATA: VillageMasterDataset = {
     },
     {
       "Voce": "Soggiorno Minimo Stagionale & Regola Buchi",
-      "Valore Ufficiale": "2 notti (1 apr – 30 nov) · 5 notti (1 dic – 31 mar) · Buchi intermedi prenotabili",
-      "Dettagli": "In alta stagione (dal 1° Dicembre al 31 Marzo) il soggiorno minimo è di 5 notti consecutive. In bassa/media stagione (dal 1° Aprile al 30 Novembre) il soggiorno minimo è di 2 notti consecutive. ECCEZIONE BUCHI: Gli intervalli di notti rimaste isolate/libere tra due prenotazioni nel calendario possono essere prenotati anche per durate inferiori (il numero esatto di notti minime ammesse per ciascun buco è indicato direttamente all'interno delle caselle del calendario)."
+      "Valore Ufficiale": "2 notti (1 apr – 14 dic) · 5 notti (15 dic – 31 mar) · Buchi intermedi prenotabili",
+      "Dettagli": "In alta stagione (dal 15 Dicembre al 31 Marzo, inclusi Natale, Capodanno, Gennaio, Febbraio e Marzo) il soggiorno minimo è di 5 notti consecutive. In bassa/media stagione (dal 1° Aprile al 14 Dicembre, inclusi tutti i mesi estivi, autunnali e l'intero mese di Novembre) il soggiorno minimo è di 2 notti consecutive. ECCEZIONE BUCHI: Gli intervalli di notti rimaste isolate/libere tra due prenotazioni nel calendario possono essere prenotati anche per durate inferiori (il numero esatto di notti minime ammesse per ciascun buco è indicato direttamente all'interno delle caselle del calendario)."
     },
     {
       "Voce": "Trasparenza Assoluta sulle Disponibilità Consecutive",

@@ -481,8 +481,10 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             'Incolla qui qualsiasi richiesta ricevuta dai clienti via WhatsApp, Email o Social (in qualunque lingua).',
             '',
             '🤖 <b>Comandi e Funzioni:</b>',
-            '• <b>/messaggio o /richiesta:</b> attiva la modalità elaborazione richiesta cliente (oppure incolla direttamente il testo!).',
-            '• <b>/input o /dati:</b> attiva la modalità acquisizione dati/nozioni (per aggiornare la Knowledge Base del resort).',
+            '• <b>/messaggio o /richiesta:</b> elabora la richiesta cliente (oppure incolla direttamente il testo!).',
+            '• <b>/mod:</b> modifica la risposta e propone di <b>memorizzare la regola permanente</b> per il futuro.',
+            '• <b>/mod2:</b> modifica estemporanea <b>solo per questa risposta</b> (senza apprendere alcuna regola).',
+            '• <b>/input o /dati:</b> inserisce direttamente informazioni e nozioni nella Knowledge Base.',
             '• <b>/cancel:</b> annulla qualsiasi modalità attiva.'
           ].join('\n');
 
@@ -500,24 +502,107 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           return res.status(200).json({ status: 'welcome_sent' });
         }
 
-        // /cancel - Annulla modalità di input
+        // /cancel - Annulla modalità di input o modifica
         const stateKey = `concierge_input_state_${chatId}_${threadId || '0'}`;
+        const lastReplyKey = `concierge_last_reply_${chatId}_${threadId || '0'}`;
         if (msgText === '/cancel' || msgText.startsWith('/cancel@')) {
           if (supabase) {
-            await supabase.from('telegram_config').delete().eq('id', stateKey).catch(() => {});
+            await supabase.from('telegram_config').delete().in('id', [stateKey, `${stateKey}_context`]).catch(() => {});
           }
           await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               chat_id: chatId,
-              text: '❌ <i>Modalità acquisizione dati annullata.</i>',
+              text: '❌ <i>Operazione annullata.</i>',
               parse_mode: 'HTML',
               ...(threadId ? { message_thread_id: threadId } : {}),
               reply_to_message_id: messageId
             })
           });
           return res.status(200).json({ status: 'input_cancelled' });
+        }
+
+        // /mod o /modifica - Modalità esplicita per correggere o perfezionare l'ultima risposta del bot (con proposta di memorizzazione regola)
+        const isModCmd = msgText === '/mod' || msgText.startsWith('/mod@') || msgText === '/modifica' || msgText.startsWith('/modifica@');
+        const hasInlineMod = msgText.startsWith('/mod ') || msgText.startsWith('/modifica ');
+
+        // /mod2 - Modifica una-tantum (senza memorizzazione di regole per il futuro)
+        const isMod2Cmd = msgText === '/mod2' || msgText.startsWith('/mod2@');
+        const hasInlineMod2 = msgText.startsWith('/mod2 ');
+
+        if (isMod2Cmd && !hasInlineMod2) {
+          if (supabase) {
+            await supabase.from('telegram_config').upsert({
+              id: stateKey,
+              bot_token: 'awaiting_modification_onetime',
+              chat_id: String(incomingMsg.from?.id || ''),
+              updated_at: new Date().toISOString()
+            });
+          }
+
+          const promptText = [
+            '⚡ <b>MODALITÀ MODIFICA VOLANTE (/mod2) ATTIVA</b> 📝',
+            '',
+            'Dimmi cosa desideri modificare solo per questo cliente!',
+            '',
+            '🛡️ <i>Nota: Questa modifica verrà applicata solo adesso e <b>NON verrà memorizzata</b> per il futuro.</i>',
+            '',
+            '<i>(Invia /cancel per annullare)</i>'
+          ].join('\n');
+
+          await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: promptText,
+              parse_mode: 'HTML',
+              ...(threadId ? { message_thread_id: threadId } : {}),
+              reply_to: messageId
+            })
+          });
+          return res.status(200).json({ status: 'awaiting_modification_onetime' });
+        }
+
+        if (isModCmd && !hasInlineMod) {
+          if (supabase) {
+            await supabase.from('telegram_config').upsert({
+              id: stateKey,
+              bot_token: 'awaiting_modification',
+              chat_id: String(incomingMsg.from?.id || ''),
+              updated_at: new Date().toISOString()
+            });
+          }
+
+          const promptText = [
+            '✏️ <b>MODALITÀ MODIFICA RISPOSTA ATTIVA</b> 🧠',
+            '',
+            'Dimmi cosa desideri correggere o modificare nella risposta!',
+            '',
+            '⚡ <b>Esempi di modifiche che puoi scrivermi:</b>',
+            '• <i>"Aggiungi che abbiamo anche scooter a noleggio a 250 THB/giorno"</i>',
+            '• <i>"Togli la parte sul traghetto, vuole solo sapere la camera"</i>',
+            '• <i>"Offrigli la Villa A e fai un preventivo di 4 notti invece di 5"</i>',
+            '• <i>"Rispondi in tedesco/francese/italiano"</i>',
+            '',
+            '<i>Rigenererò subito il testo WhatsApp perfezionato e ti mostrerò il pulsante per memorizzare la regola!</i>',
+            '',
+            '<i>(Invia /cancel per annullare)</i>'
+          ].join('\n');
+
+          await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: promptText,
+              parse_mode: 'HTML',
+              ...(threadId ? { message_thread_id: threadId } : {}),
+              reply_to_message_id: messageId
+            })
+          });
+          return res.status(200).json({ status: 'awaiting_modification' });
         }
 
         // /input o /dati - Attiva la modalità conversazionale per assorbire informazioni
@@ -604,8 +689,57 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         const replyTo = incomingMsg.reply_to_message;
         const isReplyFeedback = Boolean(replyTo && replyTo.text && replyTo.text.length > 5);
 
-        // 3c. Human-in-the-Loop Feedback: Marco replies to a bot offer with corrections/instructions
-        if (isReplyFeedback && msgText.length >= 2 && !msgText.startsWith('/')) {
+        // Controlla se l'utente si trova in stato di attesa modifica (attivato da /mod o dal pulsante inline)
+        let isAwaitingModification = false;
+        let pendingContextText = '';
+        let pendingContextUrl = 'https://flowerpowervillage.com/calendar';
+
+        if (supabase) {
+          try {
+            const { data: modState } = await supabase
+              .from('telegram_config')
+              .select('bot_token, updated_at')
+              .eq('id', stateKey)
+              .maybeSingle();
+
+            let isOneTimeMod = false;
+            if (modState?.bot_token === 'awaiting_modification') {
+              const diffMinutes = (Date.now() - new Date(modState.updated_at).getTime()) / (1000 * 60);
+              if (diffMinutes < 30) {
+                isAwaitingModification = true;
+              }
+              await supabase.from('telegram_config').delete().eq('id', stateKey).catch(() => {});
+            } else if (modState?.bot_token === 'awaiting_modification_onetime') {
+              const diffMinutes = (Date.now() - new Date(modState.updated_at).getTime()) / (1000 * 60);
+              if (diffMinutes < 30) {
+                isAwaitingModification = true;
+                isOneTimeMod = true;
+              }
+              await supabase.from('telegram_config').delete().eq('id', stateKey).catch(() => {});
+            }
+
+            // Recupera l'ultimo messaggio/proposta per questa chat/topic
+            const { data: lastCtx } = await supabase
+              .from('telegram_config')
+              .select('chat_id')
+              .eq('id', lastReplyKey)
+              .maybeSingle();
+            if (lastCtx?.chat_id) {
+              try {
+                const parsedCtx = JSON.parse(lastCtx.chat_id);
+                pendingContextText = parsedCtx.text || '';
+                pendingContextUrl = parsedCtx.calendarUrl || pendingContextUrl;
+              } catch {}
+            }
+          } catch (e) {}
+        }
+
+        const isExplicitModTrigger = hasInlineMod || hasInlineMod2 || isAwaitingModification;
+        const isFeedbackAction = (isReplyFeedback && msgText.length >= 2 && !msgText.startsWith('/')) || isExplicitModTrigger;
+        const isOneTime = hasInlineMod2 || (isAwaitingModification && msgText.startsWith('/mod2 ')) || Boolean((incomingMsg as any)._isOneTime);
+
+        // 3c. Human-in-the-Loop Feedback & Modifiche: Marco invia correzioni (/mod, /mod2, reply o bottone)
+        if (isFeedbackAction) {
           // Send typing indicator
           fetch(`https://api.telegram.org/bot${vBotToken}/sendChatAction`, {
             method: 'POST',
@@ -618,53 +752,85 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           }).catch(() => {});
 
           try {
-            const previousText = replyTo.text || '';
-            const urlMatch = previousText.match(/https:\/\/flowerpowervillage\.com\/calendar[^\s<"]*/i);
-            const calendarUrl = urlMatch ? urlMatch[0] : 'https://flowerpowervillage.com/calendar';
+            let feedbackText = msgText.trim();
+            if (hasInlineMod2) {
+              feedbackText = msgText.replace(/^\/mod2\s+/i, '').trim();
+            } else if (hasInlineMod) {
+              feedbackText = msgText.replace(/^(\/mod|\/modifica)\s+/i, '').trim();
+            }
+
+            const contextText = replyTo?.text || pendingContextText || '';
+            const urlMatch = contextText.match(/https:\/\/flowerpowervillage\.com\/calendar[^\s<"]*/i);
+            const calendarUrl = urlMatch ? urlMatch[0] : pendingContextUrl;
 
             const refined = await refineReplyWithFeedback({
-              originalInquiry: previousText,
-              currentReply: previousText,
-              userFeedback: msgText,
+              originalInquiry: contextText,
+              currentReply: contextText,
+              userFeedback: feedbackText,
               calendarUrl
             });
 
-            const targetTabInfo = identifyTargetTab(msgText);
+            const targetTabInfo = identifyTargetTab(feedbackText);
 
-            // Salva la regola pendente in telegram_config per il pulsante callback
+            // Se NON è una modifica una-tantum (/mod2), salva la regola pendente per il pulsante
             const pendingKey = `pending_rule_${messageId}`;
             if (supabase) {
-              await supabase
-                .from('telegram_config')
-                .upsert({
-                  id: pendingKey,
-                  bot_token: 'pending_rule',
-                  chat_id: JSON.stringify({
-                    title: refined.suggestedRuleTitle,
-                    content: refined.suggestedRuleContent,
-                    category: targetTabInfo.tabKey,
-                    tabTitle: targetTabInfo.tabTitle,
-                    rawFeedback: msgText,
-                    timestamp: Date.now()
-                  }),
-                  updated_at: new Date().toISOString()
-                });
+              if (!isOneTime && !hasInlineMod2) {
+                await supabase
+                  .from('telegram_config')
+                  .upsert({
+                    id: pendingKey,
+                    bot_token: 'pending_rule',
+                    chat_id: JSON.stringify({
+                      title: refined.suggestedRuleTitle,
+                      content: refined.suggestedRuleContent,
+                      category: targetTabInfo.tabKey,
+                      tabTitle: targetTabInfo.tabTitle,
+                      rawFeedback: feedbackText,
+                      timestamp: Date.now()
+                    }),
+                    updated_at: new Date().toISOString()
+                  });
+              }
+
+              // Aggiorna anche lastReplyKey con la risposta appena raffinata
+              await supabase.from('telegram_config').upsert({
+                id: lastReplyKey,
+                bot_token: 'last_proposal',
+                chat_id: JSON.stringify({
+                  text: refined.refinedWhatsApp,
+                  calendarUrl
+                }),
+                updated_at: new Date().toISOString()
+              }).catch(() => {});
             }
 
+            const headerTitle = (isOneTime || hasInlineMod2)
+              ? '⚡ <b>AI CONCIERGE — RISPOSTA PERSONALIZZATA (MODIFICA VOLANTE)</b>'
+              : '🌺 <b>AI CONCIERGE — RISPOSTA PERFEZIONATA</b>';
+
+            const ruleSectionLines = (isOneTime || hasInlineMod2)
+              ? [
+                  '🛡️ <i>Modifica applicata esclusivamente a questa risposta (nessuna regola registrata).</i>'
+                ]
+              : [
+                  '🧠 <b>Nuova Direttiva per la Knowledge Base:</b>',
+                  `• <b>${escapeHtml(refined.suggestedRuleTitle)}:</b>`,
+                  `  <i>"${escapeHtml(refined.suggestedRuleContent)}"</i>`,
+                  `📂 <b>Scheda Google Sheet:</b> <code>${escapeHtml(targetTabInfo.tabTitle)}</code> (${escapeHtml(targetTabInfo.tabKey)})`,
+                  '',
+                  '👉 <i>Vuoi memorizzare questa istruzione per tutte le future risposte del bot?</i>'
+                ];
+
             const replyHtml = [
-              '🌺 <b>AI CONCIERGE — RISPOSTA PERFEZIONATA</b>',
+              headerTitle,
               `<i>✨ Modifiche applicate: ${escapeHtml(refined.summaryOfChanges)}</i>`,
               '',
               '💬 <b>Nuova Risposta WhatsApp Pronta</b> <i>(Tocca il blocco qui sotto per copiare con 1 click)</i>:',
               '',
               `<pre><code class="language-whatsapp">${escapeHtml(refined.refinedWhatsApp)}</code></pre>`,
               '',
-              '🧠 <b>Nuova Direttiva per la Knowledge Base:</b>',
-              `• <b>${escapeHtml(refined.suggestedRuleTitle)}:</b>`,
-              `  <i>"${escapeHtml(refined.suggestedRuleContent)}"</i>`,
-              `📂 <b>Scheda Google Sheet:</b> <code>${escapeHtml(targetTabInfo.tabTitle)}</code> (${escapeHtml(targetTabInfo.tabKey)})`,
-              '',
-              '👉 <i>Vuoi memorizzare questa istruzione per tutte le future risposte del bot?</i>',
+              ...ruleSectionLines,
               '',
               '🔗 <b>Link Calendario:</b>',
               `<a href="${calendarUrl}">${calendarUrl}</a>`
@@ -672,10 +838,13 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
             const inlineKeyboard = {
               inline_keyboard: [
+                ...((!isOneTime && !hasInlineMod2) ? [
+                  [
+                    { text: '💾 Memorizza Regola Permanente', callback_data: `save_rule_${messageId}` }
+                  ]
+                ] : []),
                 [
-                  { text: '💾 Memorizza Regola Permanente', callback_data: `save_rule_${messageId}` }
-                ],
-                [
+                  { text: '✏️ Modifica Risposta', callback_data: `mod_reply_${messageId}` },
                   { text: '🌐 Apri Calendario Live', url: calendarUrl }
                 ]
               ]
@@ -857,9 +1026,25 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               '💡 <i>Per correggere o personalizzare, rispondi direttamente a questo messaggio (Reply)!</i>'
             ].join('\n');
 
+            // Salva l'ultima proposta generata per consentire il perfezionamento tramite /mod o pulsante
+            if (supabase) {
+              await supabase.from('telegram_config').upsert({
+                id: lastReplyKey,
+                bot_token: 'last_proposal',
+                chat_id: JSON.stringify({
+                  text: inquiryResult.politeReplyWhatsApp,
+                  calendarUrl: inquiryResult.calendarUrl,
+                  guestName,
+                  datesText
+                }),
+                updated_at: new Date().toISOString()
+              }).catch(() => {});
+            }
+
             const inlineKeyboard = {
               inline_keyboard: [
                 [
+                  { text: '✏️ Modifica Risposta', callback_data: `mod_reply_${messageId}` },
                   { text: '🌐 Apri Calendario Live', url: inquiryResult.calendarUrl }
                 ]
               ]
@@ -1011,6 +1196,71 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
       })
     }).catch(() => {});
     return res.status(200).json({ status: 'already_saved' });
+  }
+
+  // ── Village Bot AI Concierge Modification Callback (mod_reply_*) ──
+  if (callbackData && callbackData.startsWith('mod_reply_')) {
+    const { botToken: vBotToken } = await getTelegramCredentials('village');
+    const targetToken = vBotToken || (await getTelegramCredentials('pizza')).botToken;
+    const threadId = (message as any).message_thread_id;
+    const stateKey = `concierge_input_state_${messageChatId}_${threadId || '0'}`;
+    const lastReplyKey = `concierge_last_reply_${messageChatId}_${threadId || '0'}`;
+
+    if (supabase) {
+      await supabase.from('telegram_config').upsert({
+        id: stateKey,
+        bot_token: 'awaiting_modification',
+        chat_id: String(callbackQuery.from?.id || ''),
+        updated_at: new Date().toISOString()
+      }).catch(() => {});
+
+      // Se il messaggio originale conteneva testo, salvalo come contesto
+      if (message.text) {
+        await supabase.from('telegram_config').upsert({
+          id: lastReplyKey,
+          bot_token: 'last_proposal',
+          chat_id: JSON.stringify({
+            text: message.text,
+            calendarUrl: 'https://flowerpowervillage.com/calendar'
+          }),
+          updated_at: new Date().toISOString()
+        }).catch(() => {});
+      }
+    }
+
+    await fetch(`https://api.telegram.org/bot${targetToken}/answerCallbackQuery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        callback_query_id: callbackQueryId,
+        text: '✏️ Modalità modifica attivata! Scrivi ora le correzioni.',
+        show_alert: false
+      })
+    }).catch(() => {});
+
+    const promptText = [
+      '✏️ <b>MODALITÀ MODIFICA ATTIVA</b> 🧠',
+      '',
+      'Scrivimi pure qui sotto cosa vuoi modificare in questa risposta!',
+      '',
+      '<i>Esempio: "Togli il traghetto e scrivi che abbiamo motorini a 250 thb al giorno", oppure "Riduci a 3 notti", oppure "Rispondi in francese".</i>',
+      '',
+      '<i>(Scrivi /cancel per annullare)</i>'
+    ].join('\n');
+
+    await fetch(`https://api.telegram.org/bot${targetToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: messageChatId,
+        text: promptText,
+        parse_mode: 'HTML',
+        ...(threadId ? { message_thread_id: threadId } : {}),
+        reply_to_message_id: messageId
+      })
+    }).catch(() => {});
+
+    return res.status(200).json({ status: 'modification_mode_activated' });
   }
 
   if (configuredChatId && String(messageChatId) !== String(configuredChatId)) {
