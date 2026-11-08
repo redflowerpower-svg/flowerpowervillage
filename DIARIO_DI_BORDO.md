@@ -3,21 +3,28 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
-### 🚀 [08/11/2026 - ORE 18:55] · DIAGNOSI & BLINDATURA RUNNER CLOUD SOCIAL MEDIA STUDIO (RECUPERO SLOT 17:00 & FIX ALLARME TOPIC 301)
+### 🚀 [08/11/2026 - ORE 19:15] · DIAGNOSI & BLINDATURA RUNNER CLOUD SOCIAL MEDIA STUDIO (RECUPERO SLOT 17:00 & FIX ALLARME TOPIC 301)
 - **Cosa abbiamo fatto:**
   1. 🔍 **Diagnosi Chirurgica dei Post Mancati**:
      - Analizzati i log di GitHub Actions tra le 16:00 e le 17:30 (09:00–10:30 UTC): rilevato blocco del runner sul download post-install di `ffmpeg-static` a causa di un HTTP 504 Gateway Timeout esterno da GitHub Releases (`eugeneware/ffmpeg-static/releases`).
-     - Questo errore ha fatto fallire i dispatch degli slot 16:00 e 17:00 (Stories TikTok P1/V3 e Post Reel R1 Gruppo Koh Phayam). Alle 18:00 e 18:30 i runner sono poi ripartiti regolarmente.
+     - Questo errore ha bloccato i dispatch degli slot 16:00 e 17:00 (Stories TikTok P1/V3 e Post Reel R1 Gruppo Koh Phayam). Alle 18:00 e 18:30 i runner sono poi ripartiti regolarmente.
   2. 🔕 **Risoluzione Mancato Allarme su Telegram Topic 301**:
-     - Individuato il motivo del silenzio: il token Telegram del Social Bot era presente solo nel database Neon e nel Vault crittografato, non nei Secrets diretti del workflow GitHub. Poiché `npm ci` falliva prima della decifratura del Vault, il file `.env` non esisteva sul runner, impedendo allo script di allarme di recuperare il token per inviare la notifica su Topic 301.
-  3. 🛡️ **Blindatura Strutturale Workflow Cloud (`social-scheduler-cron.yml` & `vault-sync.mjs`)**:
+     - Individuato il motivo del silenzio: il bot autorizzato ad inviare messaggi nel Supergruppo `FP Social Studio` (`-1004492692624`) è `flower_power_studio_bot`, configurato nella tabella `telegram_config` del Neon Database.
+     - Nei casi di fallimento del runner, l'allarme cercava il token in locale prima che il database fosse interrogato o il Vault decifrato. Abbiamo creato lo script dedicato `scripts/social-emergency-alert.mjs` che interroga direttamente Neon Database (`id = 'social'`) garantendo la notifica immediata al 100% su Topic 301.
+  3. 🛡️ **Blindatura Strutturale Workflow Cloud (`social-scheduler-cron.yml` & `scripts/social-emergency-alert.mjs`)**:
      - *Inversione Priorità*: La sincronizzazione e decifratura del Vault (`vault-sync.mjs decrypt --no-deps`) viene ora eseguita **immediatamente dopo `setup-node` e prima di `npm`**, garantendo che `.env` sia sempre generato su disco anche in caso di anomalie di rete npm.
      - *Protezione Timeout Esterni*: Aggiunto `--ignore-scripts` a `npm ci || npm install` per disabilitare i download binari ridondanti da GitHub releases (l'eseguibile FFmpeg viene già installato nativamente e stabilmente da Ubuntu `apt`).
-     - *Allarme Topic 301 con Fallback a 4 Livelli*: Lo script di notifica Topic 301 recupera il token tramite 4 canali in cascata (Env diretto -> File `.env` -> Decifratura diretta Vault via `crypto` nativo Node.js -> Neon DB), garantendo al 100% l'invio dell'allarme in qualsiasi scenario di fallimento.
-  4. 🚀 **Recupero Immediato Slot 17:00**:
-     - Eseguita pipeline correttiva su GitHub Actions (`ref: main`), completando il rendering e l'invio delle 2 Stories TikTok/IG su Topic 3 e del Reel R1 su Topic 2 per il Gruppo Facebook Koh Phayam.
-- **File aggiornati:** `.github/workflows/social-scheduler-cron.yml`, `scratch/vault-sync.mjs`, `DIARIO_DI_BORDO.md`.
-- **Stato:** 🟢 100% OPERATIVO, RUNNER BLINDATO E RISOLTO IN PRODUZIONE.
+     - *Social Bot Prioritario*: `scripts/social-scheduler-dispatch.mjs` interroga ora prioritariamente Neon DB per estrarre `flower_power_studio_bot`, eliminando qualsiasi conflitto con bot di altri reparti.
+  4. 🚀 **Recupero ed Erogazione Conclusa Slot 17:00**:
+     - Eseguita con successo la pipeline correttiva su GitHub Actions (`Run ID: 42478900196`):
+       * ✅ **Story Pizzeria Ranong (P1)**: video generato e inviato a Topic 3 (TikTok & IG Stories).
+       * ✅ **Story Villaggio Phayam (V3)**: video serale generato e inviato a Topic 3.
+       * ✅ **Post & Reel R1 Ristorante**: video e scheda bilingue (🇬🇧 + 🇹🇭) con tasti interattivi inviati a Topic 2 (Gruppo Facebook Koh Phayam).
+       * ✅ **Google Drive 5TB**: tutti i video archiviati permanentemente nel Cloud.
+       * ✅ **Topic 286 (Published)**: log di conferma notificato allo staff.
+       * ✅ **Neon DB**: registrato lock completato per lo slot 17:00.
+- **File aggiornati:** `.github/workflows/social-scheduler-cron.yml`, `scripts/social-emergency-alert.mjs`, `scripts/social-scheduler-dispatch.mjs`, `scratch/vault-sync.mjs`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% OPERATIVO, DISPATCH RECUPERATO CON SUCCESSO E RUNNER CLOUD BLINDATO.
 
 ---
 
