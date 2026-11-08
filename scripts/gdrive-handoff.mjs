@@ -238,91 +238,117 @@ async function main() {
     // 7. Upload dei file su Google Drive con supporto Resumable per grandi archivi
     console.log('\n🚀 Passo 5: Caricamento su Google Drive 5TB...');
 
-    async function uploadFile(filePath, fileName, mimeType = 'application/octet-stream') {
+    async function uploadFile(filePath, fileName, mimeType = "application/octet-stream") {
       const fileBuffer = fs.readFileSync(filePath);
       const fileSize = fileBuffer.length;
       const sizeMb = (fileSize / (1024 * 1024)).toFixed(2);
 
-      // Per file piccoli (<= 5MB), usiamo il multipart rapido
+      // 1. File <= 5MB -> Multipart con retry automatico
       if (fileSize <= 5 * 1024 * 1024) {
-        const boundary = "-------FP_HANDOFF_" + Date.now();
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const closeDelim = "\r\n--" + boundary + "--";
-
-        const metadata = {
-          name: fileName,
-          parents: [folderId]
-        };
-
-        const metadataPart = delimiter +
-          "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
-          JSON.stringify(metadata) + "\r\n";
-
-        const fileHeader = "--" + boundary + "\r\n" +
-          `Content-Type: ${mimeType}\r\n\r\n`;
-
-        const bodyBuffer = Buffer.concat([
-          Buffer.from(metadataPart, "utf8"),
-          Buffer.from(fileHeader, "utf8"),
-          fileBuffer,
-          Buffer.from(closeDelim, "utf8")
-        ]);
-
-        const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,size", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": `multipart/related; boundary=${boundary}`,
-            "Content-Length": bodyBuffer.length.toString()
-          },
-          body: bodyBuffer
-        });
-
-        const resData = await res.json();
-        if (!res.ok) {
-          throw new Error(`Upload fallito per ${fileName}: ${JSON.stringify(resData)}`);
+        let resData;
+        let attempt = 0;
+        const maxAttempts = 5;
+        while (attempt < maxAttempts) {
+          attempt++;
+          try {
+            const boundary = "-------FP_HANDOFF_" + Date.now();
+            const delimiter = "\r\n--" + boundary + "\r\n";
+            const closeDelim = "\r\n--" + boundary + "--";
+            const metadata = { name: fileName, parents: [folderId] };
+            const metadataPart = delimiter + "Content-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(metadata) + "\r\n";
+            const fileHeader = "--" + boundary + "\r\nContent-Type: " + mimeType + "\r\n\r\n";
+            const bodyBuffer = Buffer.concat([
+              Buffer.from(metadataPart, "utf8"),
+              Buffer.from(fileHeader, "utf8"),
+              fileBuffer,
+              Buffer.from(closeDelim, "utf8")
+            ]);
+            const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,size", {
+              method: "POST",
+              headers: {
+                Authorization: "Bearer " + accessToken,
+                "Content-Type": "multipart/related; boundary=" + boundary,
+                "Content-Length": bodyBuffer.length.toString()
+              },
+              body: bodyBuffer
+            });
+            resData = await res.json();
+            if (!res.ok) {
+              throw new Error("HTTP " + res.status + ": " + JSON.stringify(resData));
+            }
+            break;
+          } catch (netErr) {
+            console.warn("  ⚠️ Tentativo " + attempt + "/" + maxAttempts + " multipart per " + fileName + ": " + netErr.message);
+            if (attempt >= maxAttempts) throw netErr;
+            await new Promise(r => setTimeout(r, 2500));
+          }
         }
-        console.log(`  ⬆️ Caricato: ${fileName} (${sizeMb} MB)`);
+        console.log("  ⬆️ Caricato: " + fileName + " (" + sizeMb + " MB)");
         return resData;
       }
 
-      // Per file grandi (> 5MB), usiamo il protocollo ufficiale Resumable Upload di Google Drive
-      console.log(`  ⏳ Avvio upload resumable per file: ${fileName} (${sizeMb} MB)...`);
+      // 2. File > 5MB -> Resumable upload a chunk da 5MB con retry
+      console.log("  ⏳ Avvio upload resumable per file: " + fileName + " (" + sizeMb + " MB)...");
       const initRes = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: "Bearer " + accessToken,
           "Content-Type": "application/json; charset=UTF-8",
           "X-Upload-Content-Type": mimeType,
           "X-Upload-Content-Length": fileSize.toString()
         },
         body: JSON.stringify({ name: fileName, parents: [folderId] })
       });
-
       if (!initRes.ok) {
         const initErr = await initRes.text();
-        throw new Error(`Inizializzazione resumable upload fallita per ${fileName}: ${initErr}`);
+        throw new Error("Inizializzazione resumable fallita per " + fileName + ": " + initErr);
       }
-
       const uploadUrl = initRes.headers.get("location");
       if (!uploadUrl) {
-        throw new Error(`Location header mancante per upload resumable di ${fileName}`);
+        throw new Error("Location header mancante per upload resumable di " + fileName);
       }
 
-      const uploadRes = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": mimeType,
-          "Content-Length": fileSize.toString()
-        },
-        body: fileBuffer
-      });
-
-      const resData = await uploadRes.json();
-      if (!uploadRes.ok) {
-        throw new Error(`Upload resumable fallito per ${fileName}: ${JSON.stringify(resData)}`);
+      const CHUNK_SIZE = 5 * 1024 * 1024;
+      let start = 0;
+      let lastRes;
+      while (start < fileSize) {
+        const end = Math.min(start + CHUNK_SIZE, fileSize);
+        const chunk = fileBuffer.subarray(start, end);
+        const rangeHeader = "bytes " + start + "-" + (end - 1) + "/" + fileSize;
+        const pct = Math.round((end / fileSize) * 100);
+        let sent = false;
+        let retries = 0;
+        while (!sent && retries < 5) {
+          try {
+            retries++;
+            const chunkRes = await fetch(uploadUrl, {
+              method: "PUT",
+              headers: {
+                "Content-Range": rangeHeader,
+                "Content-Length": chunk.length.toString()
+              },
+              body: chunk
+            });
+            if (chunkRes.status === 308 || chunkRes.ok) {
+              lastRes = chunkRes;
+              sent = true;
+              console.log("    Progresso " + fileName + ": " + pct + "% (" + (end / (1024 * 1024)).toFixed(1) + " / " + sizeMb + " MB)");
+            } else {
+              const errBody = await chunkRes.text();
+              console.warn("    ⚠️ Chunk status " + chunkRes.status + ": " + errBody);
+              await new Promise(r => setTimeout(r, 2000));
+            }
+          } catch (netErr) {
+            console.warn("    ⚠️ Rete chunk (tentativo " + retries + "/5): " + netErr.message);
+            if (retries >= 5) throw netErr;
+            await new Promise(r => setTimeout(r, 3000));
+          }
+        }
+        start = end;
       }
-      console.log(`  ⬆️ Caricato con successo (resumable): ${fileName} (${sizeMb} MB)`);
+      let resData = {};
+      try { resData = await lastRes.json(); } catch (_) {}
+      console.log("  ⬆️ Caricato con successo: " + fileName + " (" + sizeMb + " MB)");
       return resData;
     }
 
@@ -335,6 +361,7 @@ async function main() {
       const isMd = f.endsWith('.md');
       const isBat = f.endsWith('.bat');
       const mime = isZip ? 'application/zip' : (isJson ? 'application/json' : (isMd ? 'text/markdown' : (isBat ? 'text/plain' : 'application/octet-stream')));
+      console.log('  🚀 Inizio upload:', f);
       await uploadFile(fullPath, f, mime);
     }
 
@@ -356,7 +383,7 @@ async function main() {
     console.log('   per riavere allineati codice, password, chat e PIN in alto!');
     console.log('===========================================================\n');
   } catch (err) {
-    console.error('\n❌ ERRORE DURANTE L\'UPLOAD DELL\'HANDOFF:', err.message);
+    console.error('\n❌ ERRORE DURANTE L\'UPLOAD DELL\'HANDOFF:', err.stack || err);
     process.exit(1);
   }
 }
