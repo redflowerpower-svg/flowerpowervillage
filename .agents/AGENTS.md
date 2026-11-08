@@ -494,7 +494,8 @@ Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi
 2. **Fase 2 - Deploy Quotidiano Rapido (`npm run project:sync` / `MARKDOWN-PROJECT`):**
    - Esegue in 10s: audit anti-secret, cifratura vault, pulizia locale storico chat (>30gg), commit/push staging e merge/push main (Vercel Produzione). Zero Google Drive.
 
-3. **Fase 3 - Preparazione Cambio Postazione (`npm run project:transfer` / `MARKDOWN-TRANSFER`):**
+3. **Fase 3 - Preparazione Cambio Postazione (`npm run project:transfer` / `MARKDOWN-TRANSFER` / `markdown transfer`):**
+   - **Riconoscimento Vocale & Varianti Chat**: L'agente riconosce come trigger del cambio postazione tutte le varianti vocali o informali ("MARKDOWN-TRANSFER", "markdown transfer", "Marc down transfer", "transfer postazione", "cambio postazione") ed esegue immediatamente `node scripts/gdrive-handoff.mjs` per Google Drive 5TB con protocollo a chunk da 5MB e retry automatici, senza limitarsi al solo sync git standard.
    - Esegue il deploy completo e genera il pacchetto leggero di Handoff (codice, credenziali e chat attive recenti < 7gg) caricandolo su Google Drive 5TB per Koh Phayam.
    - **Blocco di Sicurezza Feature Branch**: Se lanciato mentre ci si trova su un feature branch (es. `feat/*`), il comando si blocca per sicurezza per non effettuare merge prematuri verso la produzione. L'utente deve usare `MARKDOWN-BRANCH` per salvare il branch isolato, oppure `MERGE-BRANCH` se la funzione è completata, oppure spostarsi su `staging`.
    - Commit delle modifiche sul branch `staging`.
