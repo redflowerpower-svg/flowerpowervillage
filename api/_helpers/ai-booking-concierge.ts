@@ -958,6 +958,7 @@ CRITICAL INSTRUCTION FOR MODIFICATIONS:
 - You must carefully read Marco's instructions.
 - If Marco says "elimina X", "togli X", "rimuovi X" (e.g. "elimina la guest house", "togli bungalow"), you must REMOVE ONLY X from the proposed options, and PRESERVE all other accommodations and options intact! Do NOT invert the command! Do NOT remove everything else while keeping X!
 - If Marco says "lascia solo X", then you keep only X. But "elimina X" means drop X and keep the rest.
+- MANDATORY EXACT CALENDAR URL: You must include the EXACT live calendar link: ${calendarUrl} . DO NOT truncate or shorten this link! Do NOT replace it with a bare URL if it contains query parameters like ?from=...&to=... Keep the full query string intact!
 - Maintain the exact WhatsApp formatting, friendly warm tone, mandatory 10% direct website discount note, and live calendar link (${calendarUrl}).
 
 GROUND TRUTH RESORT STRUCTURE & FACTS:
@@ -1034,9 +1035,30 @@ ${userFeedback}
     throw new Error(`Impossibile decodificare il JSON da DeepSeek durante il feedback: ${err.message}`);
   }
 
+  let finalWhatsApp = (parsed.refinedWhatsApp || '').trim();
+  let finalEmail = (parsed.refinedEmail || '').trim();
+
+  // Assicura categoricamente che l'URL esatto del calendario (con parametri date) sia presente
+  if (calendarUrl && !finalWhatsApp.includes(calendarUrl)) {
+    // Sostituisce eventuali link generici o lo appende
+    if (finalWhatsApp.includes('https://flowerpowervillage.com/calendar')) {
+      finalWhatsApp = finalWhatsApp.replace(/https:\/\/flowerpowervillage\.com\/calendar[^\s<"]*/gi, calendarUrl);
+    } else if (finalWhatsApp.includes('https://www.flowerpowervillage.com/calendar')) {
+      finalWhatsApp = finalWhatsApp.replace(/https:\/\/www\.flowerpowervillage\.com\/calendar[^\s<"]*/gi, calendarUrl);
+    }
+  }
+
+  if (calendarUrl && !finalEmail.includes(calendarUrl)) {
+    if (finalEmail.includes('https://flowerpowervillage.com/calendar')) {
+      finalEmail = finalEmail.replace(/https:\/\/flowerpowervillage\.com\/calendar[^\s<"]*/gi, calendarUrl);
+    } else if (finalEmail.includes('https://www.flowerpowervillage.com/calendar')) {
+      finalEmail = finalEmail.replace(/https:\/\/www\.flowerpowervillage\.com\/calendar[^\s<"]*/gi, calendarUrl);
+    }
+  }
+
   return {
-    refinedWhatsApp: (parsed.refinedWhatsApp || '').trim(),
-    refinedEmail: (parsed.refinedEmail || '').trim(),
+    refinedWhatsApp: finalWhatsApp,
+    refinedEmail: finalEmail,
     suggestedRuleTitle: parsed.suggestedRuleTitle || 'Direttiva Gestione',
     suggestedRuleContent: parsed.suggestedRuleContent || userFeedback,
     summaryOfChanges: parsed.summaryOfChanges || 'Risposta corretta in base al feedback'

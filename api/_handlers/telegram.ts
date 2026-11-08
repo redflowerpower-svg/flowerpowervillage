@@ -766,8 +766,14 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             }
 
             const contextText = replyTo?.text || pendingContextText || '';
-            const urlMatch = contextText.match(/https:\/\/flowerpowervillage\.com\/calendar[^\s<"]*/i);
-            const calendarUrl = urlMatch ? urlMatch[0] : pendingContextUrl;
+            const urlMatch = contextText.match(/https:\/\/(www\.)?flowerpowervillage\.com\/calendar[^\s<"]*/i);
+            const calendarUrl = (urlMatch && urlMatch[0].length > pendingContextUrl.length)
+              ? urlMatch[0]
+              : (pendingContextUrl && pendingContextUrl.includes('?'))
+                ? pendingContextUrl
+                : urlMatch
+                  ? urlMatch[0]
+                  : 'https://flowerpowervillage.com/calendar';
 
             const refined = await refineReplyWithFeedback({
               originalInquiry: contextText,
@@ -1246,12 +1252,15 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
         // Se il messaggio originale conteneva testo, salvalo come contesto
         if (message.text) {
+          const calendarMatch = message.text.match(/https:\/\/flowerpowervillage\.com\/calendar[^\s<"]*/i);
+          const preservedCalendarUrl = calendarMatch ? calendarMatch[0] : 'https://flowerpowervillage.com/calendar';
+
           await supabase.from('telegram_config').upsert({
             id: lastReplyKey,
             bot_token: 'last_proposal',
             chat_id: JSON.stringify({
               text: message.text,
-              calendarUrl: 'https://flowerpowervillage.com/calendar'
+              calendarUrl: preservedCalendarUrl
             }),
             updated_at: new Date().toISOString()
           });
