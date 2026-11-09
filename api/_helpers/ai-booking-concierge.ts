@@ -347,7 +347,7 @@ export function compileDeterministicConciergeReply(params: DeterministicTemplate
       '🛺 *4) Dal Molo di Koh Phayam al Resort (Buffalo Bay):*',
       '• Al molo dell\'isola troverai sempre tuk-tuk locali (200–250 THB a veicolo, 10 min) o noleggio scooter (150–250 THB/giorno).',
       '',
-      '📖 *Tutti i dettagli, consigli e mappe GPS sulla nostra guida completa:*',
+      '📖 *Abbiamo raccolto tutte le informazioni necessarie e sempre aggiornate (orari, consigli e mappe GPS) sulla nostra guida dedicata per viaggiare nel miglior modo possibile:*',
       travelGuideUrl,
       '',
       'Facci sapere quando atterri a Ranong o per qualsiasi altra domanda sul viaggio! 🌴✨'
@@ -703,7 +703,7 @@ ZERO NOISE FILTER (STRICT):
 - PURE TRAVEL / TRANSPORT INQUIRY DIRECTIVE:
   If the inquiry is about travel, how to get here, ferry, speedboat, airport taxi, or bus (and no room dates were asked):
   1) Provide accurate, warm travel details using the 4 phases (Mr. Gong taxi 200/300 THB, Speedboat 350 THB, Tuk-tuk 200-250 THB).
-  2) Include the official travel guide link: https://www.flowerpowervillage.com/village/how-to-get-here .
+  2) Include the official travel guide link (https://www.flowerpowervillage.com/village/how-to-get-here) by warmly explaining: "we have gathered all the necessary, up-to-date travel info, tips, and GPS maps on our dedicated page if you'd like more details to travel in the best way possible".
   3) STRICTLY FORBIDDEN: DO NOT dump room options (Yellow Bungalow, Guesthouse, etc.)! DO NOT mention room minimum stays (5/2 nights)! DO NOT mention room 10% discounts! DO NOT force the room calendar link unless the guest explicitly asked about room availability and dates!
 - If the guest only asks about accommodation for certain dates/people:
   1) Recommend the exact accommodation that fits them.
