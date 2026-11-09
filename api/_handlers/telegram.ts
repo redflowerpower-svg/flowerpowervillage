@@ -6,7 +6,8 @@ import {
   classifyTelegramIntent,
   processKnowledgeUpdate,
   isTransportOrTravelInquiry,
-  isAccommodationInquiry
+  isAccommodationInquiry,
+  isAlreadyBookedOrArriving
 } from "../_helpers/ai-booking-concierge.js";
 import { saveMemoryItem } from "../_helpers/concierge-memory.js";
 import { identifyTargetTab, recordTelegramUpdateToKnowledge } from "../_helpers/google-sheets-sync.js";
@@ -849,10 +850,19 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
                 '👉 <i>Vuoi memorizzare questa istruzione per tutte le future risposte del bot?</i>'
               ];
 
-            const isPureTravel = Boolean(refined.isTravelLogistics) || (isTransportOrTravelInquiry(feedbackText) && !isAccommodationInquiry(contextText));
-            const hasRoomContext = isAccommodationInquiry(contextText) || (contextText.includes('calendar') && (contextText.includes('from=') || contextText.includes('notte') || contextText.includes('night') || contextText.includes('bungalow') || contextText.includes('guesthouse') || contextText.includes('villa')));
+            const feedbackLower = (feedbackText || '').toLowerCase();
+            const feedbackWantsTravel = isTransportOrTravelInquiry(feedbackText) ||
+              feedbackLower.includes('viaggi') || feedbackLower.includes('arriv') || feedbackLower.includes('orari') ||
+              feedbackLower.includes('motoscafo') || feedbackLower.includes('barc') || feedbackLower.includes('taxi') ||
+              feedbackLower.includes('gong') || feedbackLower.includes('traghetto') || feedbackLower.includes('ferry') ||
+              feedbackLower.includes('non parlare di allogg') || feedbackLower.includes('non parlare di camer') ||
+              feedbackLower.includes('togli allogg') || feedbackLower.includes('togli camer') ||
+              feedbackLower.includes('elimina allogg') || feedbackLower.includes('elimina camer');
 
-            const linkFooterLines = (isPureTravel && !hasRoomContext)
+            const isPureTravel = Boolean(refined.isTravelLogistics) || feedbackWantsTravel;
+            const hasRoomContext = !feedbackWantsTravel && Boolean(contextText.match(/\d{4}-\d{2}-\d{2}/));
+
+            const linkFooterLines = isPureTravel
               ? [
                 '🧭 <b>Guida Ufficiale Come Arrivare:</b>',
                 '<a href="https://www.flowerpowervillage.com/village/how-to-get-here">https://www.flowerpowervillage.com/village/how-to-get-here</a>'
@@ -863,10 +873,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               ];
 
             const mainButtons: any[] = [];
-            if (isPureTravel && !hasRoomContext) {
-              mainButtons.push([{ text: '🧭 Guida Come Arrivare', url: 'https://www.flowerpowervillage.com/village/how-to-get-here' }]);
-            } else if (isPureTravel && hasRoomContext) {
-              mainButtons.push([{ text: '🌐 Apri Calendario Live', url: calendarUrl }]);
+            if (isPureTravel) {
               mainButtons.push([{ text: '🧭 Guida Come Arrivare', url: 'https://www.flowerpowervillage.com/village/how-to-get-here' }]);
             } else {
               mainButtons.push([{ text: '🌐 Apri Calendario Live', url: calendarUrl }]);
@@ -1056,7 +1063,8 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               : [];
 
             const isPureTravel = Boolean(inquiryResult.isTravelLogistics) ||
-              (isTransportOrTravelInquiry(msgText) && !isAccommodationInquiry(msgText) && !inquiryResult.checkInDate);
+              isAlreadyBookedOrArriving(msgText) ||
+              (isTransportOrTravelInquiry(msgText) && !isAccommodationInquiry(msgText));
 
             const headerTitle = isPureTravel
               ? '🧭 <b>AI CONCIERGE — INFO VIAGGIO & TRASPORTI</b>'

@@ -128,25 +128,56 @@ export function isTransportOrTravelInquiry(text?: string | null): boolean {
     'mr gong', 'mr. gong', 'gong', 'taxi', 'transfer', 'transfert', 'navetta',
     'aeroporto', 'airport', 'ranong', 'unx', 'dmk', 'don mueang', 'airasia',
     'bus', 'choke anan', 'minivan', 'stazione bus', 'bus station',
-    'molo', 'pier', 'saphan pla', 'tuk tuk', 'tuk-tuk', 'scooter', 'motorino',
+    'molo', 'pier', 'saphan pla', 'pak nam', 'tambon', 'tumbol', 'grab', 'driver',
+    'khao lak', 'khoa lak', 'phuket',
+    'tuk tuk', 'tuk-tuk', 'scooter', 'motorino',
     'orari barche', 'orario barca', 'boat schedule', 'ferry schedule', 'last boat', 'ultima barca'
   ];
   return transportKeywords.some(kw => s.includes(kw));
 }
 
 /**
- * Rileva se il testo richiede o cita esplicitamente alloggi, camere, bungalow o notti
+ * Rileva se il testo richiede o cita esplicitamente la ricerca di alloggi, camere, bungalow o notti
  */
 export function isAccommodationInquiry(text?: string | null): boolean {
   if (!text) return false;
   const s = text.toLowerCase();
   const accommKeywords = [
-    'notte', 'notti', 'night', 'nights', 'stay', 'soggiorn', 'camera', 'camere',
+    'notte', 'notti', 'night', 'nights', 'soggiorn', 'camera', 'camere',
     'room', 'rooms', 'bungalow', 'villa', 'tenda', 'tent', 'guesthouse', 'guest house',
-    'dormire', 'prenotare', 'booking', 'check-in', 'checkout', 'disponibil', 'available',
+    'dormire', 'prenotare', 'booking room', 'disponibil', 'available',
     'posto per dormire', 'alloggio', 'alloggi', 'prezzo a notte', 'price per night', 'penthouse'
   ];
   return accommKeywords.some(kw => s.includes(kw));
+}
+
+/**
+ * Rileva se il cliente ha già prenotato o sta per effettuare il check-in (ospite confermato in arrivo)
+ */
+export function isAlreadyBookedOrArriving(text?: string | null): boolean {
+  if (!text) return false;
+  const s = text.toLowerCase();
+  return (
+    s.includes('checking in with you') ||
+    s.includes('checking in tomorrow') ||
+    s.includes('checking in today') ||
+    s.includes('check in with you') ||
+    s.includes('check-in with you') ||
+    s.includes('already booked') ||
+    s.includes('have a booking') ||
+    s.includes('have a reservation') ||
+    s.includes('already have a reservation') ||
+    s.includes('booked with you') ||
+    s.includes('arriving tomorrow') ||
+    s.includes('arriving today') ||
+    s.includes('arriviamo domani') ||
+    s.includes('arriveremo domani') ||
+    s.includes('abbiamo prenotato') ||
+    s.includes('nostra prenotazione') ||
+    s.includes('il nostro soggiorno') ||
+    s.includes('staying with you') ||
+    s.includes('coming tomorrow')
+  );
 }
 
 /**
@@ -658,8 +689,8 @@ GROUND TRUTH HOTEL KNOWLEDGE:
    • State ONLY the minimum stay rule for the season of the requested dates.
 5. BEACH & LOCATION:
    • Buffalo Bay (Ao Khao Kwai) is 150m away (1-2 minutes flat walk).
-6. DIRECT BOOKING LINK:
-   • Always include the direct calendar link: ${calendarUrl}
+6. DIRECT BOOKING LINK (FOR ACCOMMODATIONS ONLY):
+   • Include the direct calendar link (${calendarUrl}) ONLY when quoting or discussing room bookings. For pure travel or transport questions, NEVER include the calendar link: include instead the official travel guide link: https://www.flowerpowervillage.com/village/how-to-get-here .
 7. TRANSPORT & TRAVEL CANONICAL KNOWLEDGE (4 PHASES):
    • Phase 1 (Arriving in Ranong): Flights with Thai AirAsia (DMK ➔ UNX 1h15m), overnight bus Choke Anan from Bangkok Sai Tai Mai (8-9h, ~600-900 THB). We do NOT organize transfers from outside Ranong; direct guests to the official guide: https://www.flowerpowervillage.com/village/how-to-get-here .
    • Phase 2 (Ranong Airport/Bus to Pier): From Ranong Airport (UNX), Mr. Gong dedicated taxi (200 THB/pax for 2+, 300 THB solo traveler; Mr. Gong meets guests at gate with name sign and pre-issues speedboat tickets without queues; book 3-7 days in advance). From bus station: red songthaew (20-30 THB) or taxi (150-200 THB). Saphan Pla Pier GPS: https://maps.app.goo.gl/ef3wv84NXeNE3GvSA .
@@ -700,7 +731,43 @@ REPLY GUIDELINES:
   "summary": "1-sentence summary in Italian for Marco"
 }`;
 
-  const userPrompt = `GUEST INQUIRY TEXT:
+  const isConfirmedGuestArriving = isAlreadyBookedOrArriving(guestInquiryText);
+  const isPureTravelInquiry = (isTransportOrTravelInquiry(guestInquiryText) && !isAccommodationInquiry(guestInquiryText)) ||
+                              isConfirmedGuestArriving;
+
+  const userPrompt = isConfirmedGuestArriving
+    ? `GUEST INQUIRY TEXT (CONFIRMED GUEST CHECKING IN / TRAVEL & ARRIVAL LOGISTICS):
+"""
+${guestInquiryText}
+"""
+
+EXTRACTED PARAMETERS:
+• Guest Name: ${guestName || 'Guest'}
+• Language: ${detectedLanguage} (${targetLanguageName})
+• Status: CONFIRMED GUEST CHECKING IN TOMORROW / ALREADY BOOKED
+• Inquiry: ARRIVAL LOGISTICS & TRANSPORT
+• CRITICAL INSTRUCTIONS:
+  1) Warmly greet the guests (e.g. Amanda and Ian) and tell them we look forward to welcoming them!
+  2) Direct Answers to Guest Questions:
+     - Taxi / Grab from Khao Lak: ~3,200 THB is fair and standard for a 3-hour private ride for 3 passengers.
+     - Pier Name: Saphan Pla Pier (located in Tambon Pak Nam, Ranong). Google Maps: https://maps.app.goo.gl/ef3wv84NXeNE3GvSA .
+     - Speedboat to Koh Phayam: 350 THB/passenger, ~35-40 min, departures frequently from 08:00 to 17:00 / 17:30. Tickets can be bought at the pier upon arrival.
+     - From Koh Phayam Pier to Flower Power: Local open-air tuk-tuks are right at the pier (200-250 THB total for 3 pax, 10 min to Buffalo Bay / Ao Khao Kwai).
+     - Guide link: https://www.flowerpowervillage.com/village/how-to-get-here
+  3) STRICTLY FORBIDDEN: DO NOT dump room availability, room rates, room minimum stay (5/2 nights), 10% direct website booking discounts, or calendar links! They have ALREADY booked!`
+    : isPureTravelInquiry
+    ? `GUEST INQUIRY TEXT (TRAVEL & HOW TO GET HERE ONLY):
+"""
+${guestInquiryText}
+"""
+
+EXTRACTED PARAMETERS:
+• Guest Name: ${guestName || 'Guest'}
+• Language: ${detectedLanguage} (${targetLanguageName})
+• Inquiry Category: PURE TRAVEL / HOW TO GET HERE
+• Requested Accommodation: NONE (Guest did NOT ask about rooms or dates)
+• CRITICAL DIRECTIVE: Answer ONLY the travel and arrival question using the 4 canonical phases. DO NOT mention room options, bungalows, minimum stays (5/2 nights), 10% room discounts, or room calendar links! Use link https://www.flowerpowervillage.com/village/how-to-get-here .`
+    : `GUEST INQUIRY TEXT:
 """
 ${guestInquiryText}
 """
@@ -744,15 +811,12 @@ ${pmsContext}`;
     const parsed = JSON.parse(cleanJson);
 
     if (parsed.whatsAppText && parsed.whatsAppText.trim()) {
-      const isPureTravel = isTransportOrTravelInquiry(guestInquiryText) &&
-                           !isAccommodationInquiry(guestInquiryText) &&
-                           !checkInDate && !checkOutDate;
       return {
         whatsAppText: parsed.whatsAppText.trim(),
         emailText: parsed.emailText ? parsed.emailText.trim() : parsed.whatsAppText.trim(),
         emailSubject: parsed.emailSubject ? parsed.emailSubject.trim() : 'Your Stay at Flower Power Village',
         summary: parsed.summary ? parsed.summary.trim() : 'Risposta dinamica generata con successo.',
-        isTravelLogistics: isPureTravel
+        isTravelLogistics: isPureTravelInquiry
       };
     }
   } catch (err) {
@@ -924,6 +988,17 @@ STRICT JSON ONLY:
     console.warn('[processBookingInquiry] Fast extraction pass warning:', err);
   }
 
+  const isExistingGuestArrival = isAlreadyBookedOrArriving(text);
+  const isTransportTopic = isTransportOrTravelInquiry(text);
+
+  if (isExistingGuestArrival || (isTransportTopic && !isAccommodationInquiry(text))) {
+    // Se l'ospite ha già prenotato o chiede info di trasporto senza richiedere prenotazione alloggi,
+    // azzeriamo le date per la disponibilità PMS: non si tratta di un preventivo camera!
+    extractedCheckIn = null;
+    extractedCheckOut = null;
+    extractedRoom = null;
+  }
+
   // -------------------------------------------------------------
   // STEP 2: Controllo Disponibilità Live su Octorate PMS
   // -------------------------------------------------------------
@@ -1035,7 +1110,8 @@ STRICT JSON ONLY:
     : null;
 
   const isPureTravel = Boolean(dynamicReply?.isTravelLogistics) ||
-                       (isTransportOrTravelInquiry(text) && !isAccommodationInquiry(text) && !extractedCheckIn);
+                       isAlreadyBookedOrArriving(text) ||
+                       (isTransportOrTravelInquiry(text) && !isAccommodationInquiry(text));
 
   return {
     detectedLanguage,
@@ -1086,10 +1162,19 @@ export async function refineReplyWithFeedback(options: RefineReplyOptions): Prom
 
   const fullText = `${originalInquiry} ${currentReply} ${userFeedback}`;
   const isTravelTopic = isTransportOrTravelInquiry(fullText);
-  const hasRoomBookingContext = isAccommodationInquiry(originalInquiry) ||
-    isAccommodationInquiry(currentReply) ||
-    (currentReply.includes('calendar') && (currentReply.includes('from=') || currentReply.includes('notte') || currentReply.includes('night') || currentReply.includes('bungalow') || currentReply.includes('guesthouse') || currentReply.includes('villa')));
-  const isPureTravel = isTravelTopic && !hasRoomBookingContext;
+  const feedbackLower = (userFeedback || '').toLowerCase();
+  const feedbackWantsTravel = isTransportOrTravelInquiry(userFeedback) ||
+    feedbackLower.includes('viaggi') || feedbackLower.includes('arriv') || feedbackLower.includes('orari') ||
+    feedbackLower.includes('motoscafo') || feedbackLower.includes('barc') || feedbackLower.includes('taxi') ||
+    feedbackLower.includes('gong') || feedbackLower.includes('traghetto') || feedbackLower.includes('ferry') ||
+    feedbackLower.includes('non parlare di allogg') || feedbackLower.includes('non parlare di camer') ||
+    feedbackLower.includes('togli allogg') || feedbackLower.includes('togli camer') ||
+    feedbackLower.includes('elimina allogg') || feedbackLower.includes('elimina camer');
+
+  // Determina se l'intento finale è puramente di viaggio
+  // IMPORTANTE: non controlliamo currentReply perché currentReply potrebbe essere la risposta errata che Marco sta correggendo!
+  const hasExplicitRoomRequest = (isAccommodationInquiry(originalInquiry) || Boolean(originalInquiry.match(/\d{4}-\d{2}-\d{2}/))) && !feedbackWantsTravel;
+  const isPureTravel = (isTravelTopic || feedbackWantsTravel) && !hasExplicitRoomRequest;
 
   const calendarDirective = isPureTravel
     ? `- PURE TRAVEL / LOGISTICS DIRECTIVE:
@@ -1139,7 +1224,12 @@ Return STRICTLY valid JSON with this schema:
   "suggestedRuleTitle": "Concise title for the rule (e.g. 'Esclusione Guesthouse per soggiorni brevi', 'Tariffe Taxi Mr. Gong', ecc.)",
   "suggestedRuleContent": "Clear directive instruction for future AI prompts",
   "summaryOfChanges": "Breve sintesi in italiano delle modifiche applicate"
-}`;
+}
+
+${isPureTravel ? `CRITICAL REFINEMENT INSTRUCTION:
+This response is EXCLUSIVELY about travel, transport, and arrival logistics (Mr. Gong, speedboats, tuk-tuks, schedules).
+DO NOT mention accommodation rooms, bungalows, minimum stays (5/2 nights), 10% room discounts, or room calendar links.
+Include the official travel guide link: https://www.flowerpowervillage.com/village/how-to-get-here .` : ''}`;
 
   const userPrompt = `ORIGINAL GUEST INQUIRY:
 """
@@ -1154,7 +1244,11 @@ ${currentReply}
 MARCO'S FEEDBACK & INSTRUCTIONS:
 """
 ${userFeedback}
-"""`;
+"""
+
+${isPureTravel ? `SPECIAL DIRECTIVE FOR THIS MODIFICATION:
+Marco explicitly wants this message to focus on TRAVEL / HOW TO GET HERE (ferries, speedboats, taxi, Mr. Gong, directions).
+DO NOT dump accommodation options (bungalows, rooms), DO NOT mention seasonal minimum stays, DO NOT mention room 10% direct discounts, and DO NOT force calendar links. Use the official travel guide link: https://www.flowerpowervillage.com/village/how-to-get-here .` : ''}`;
 
   const deepSeekRes = await fetch('https://api.deepseek.com/chat/completions', {
     method: 'POST',
