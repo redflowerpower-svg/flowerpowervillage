@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { getActiveRulesPromptContext } from "./concierge-memory.js";
 import { checkOctorateLiveAvailability, LiveAvailabilityResult } from "./octorate-live-checker.js";
+import { VILLAGE_MASTER_DATA } from "./village-site-data.js";
 
 /**
  * AI Booking Concierge & Smart Calendar Assistant for Flower Power Village (Koh Phayam)
@@ -35,6 +36,7 @@ export interface BookingInquiryResult {
   emailSubject: string; // Oggetto suggerito per email
   shortSummary: string; // Sintesi in italiano per il gestore
   calendarUrl: string; // Link diretto generato con tutti i parametri
+  isTravelLogistics?: boolean;
   livePms?: {
     checked: boolean;
     availableCount: number;
@@ -65,6 +67,7 @@ export interface RefinedReplyResult {
   suggestedRuleTitle: string;
   suggestedRuleContent: string;
   summaryOfChanges: string;
+  isTravelLogistics?: boolean;
 }
 
 export interface DeterministicTemplateParams {
@@ -110,6 +113,40 @@ function normalizeAccommodationSlug(nameOrType?: string | null): string | null {
   if (s.includes('internal')) return 'internal-room';
   if (s.includes('fake')) return 'fake-bungalow';
   return null;
+}
+
+/**
+ * Rileva se il testo verte principalmente o parzialmente su trasporti, motoscafi, barche, taxi o logistica di viaggio
+ */
+export function isTransportOrTravelInquiry(text?: string | null): boolean {
+  if (!text) return false;
+  const s = text.toLowerCase();
+  const transportKeywords = [
+    'come arriv', 'how to get', 'how do i get', 'how to reach', 'how can we reach',
+    'traghetto', 'traghetti', 'ferry', 'ferries', 'boat', 'barca', 'barche',
+    'motoscafo', 'motoscafi', 'speedboat', 'speedboats',
+    'mr gong', 'mr. gong', 'gong', 'taxi', 'transfer', 'transfert', 'navetta',
+    'aeroporto', 'airport', 'ranong', 'unx', 'dmk', 'don mueang', 'airasia',
+    'bus', 'choke anan', 'minivan', 'stazione bus', 'bus station',
+    'molo', 'pier', 'saphan pla', 'tuk tuk', 'tuk-tuk', 'scooter', 'motorino',
+    'orari barche', 'orario barca', 'boat schedule', 'ferry schedule', 'last boat', 'ultima barca'
+  ];
+  return transportKeywords.some(kw => s.includes(kw));
+}
+
+/**
+ * Rileva se il testo richiede o cita esplicitamente alloggi, camere, bungalow o notti
+ */
+export function isAccommodationInquiry(text?: string | null): boolean {
+  if (!text) return false;
+  const s = text.toLowerCase();
+  const accommKeywords = [
+    'notte', 'notti', 'night', 'nights', 'stay', 'soggiorn', 'camera', 'camere',
+    'room', 'rooms', 'bungalow', 'villa', 'tenda', 'tent', 'guesthouse', 'guest house',
+    'dormire', 'prenotare', 'booking', 'check-in', 'checkout', 'disponibil', 'available',
+    'posto per dormire', 'alloggio', 'alloggi', 'prezzo a notte', 'price per night', 'penthouse'
+  ];
+  return accommKeywords.some(kw => s.includes(kw));
 }
 
 /**
@@ -255,6 +292,71 @@ export function compileDeterministicConciergeReply(params: DeterministicTemplate
   } = params;
 
   const inquiryLower = (userInquiryText || '').toLowerCase();
+
+  // Se la richiesta è esclusivamente incentrata sui trasporti / come arrivare (senza richiesta camere)
+  if (isTransportOrTravelInquiry(inquiryLower) && !isAccommodationInquiry(inquiryLower) && !checkInDate) {
+    const travelGuideUrl = 'https://www.flowerpowervillage.com/village/how-to-get-here';
+    const whatsAppText = [
+      `Ciao ${guestName || ''}! 🌸🌴 Grazie per aver contattato Flower Power Village!`,
+      '',
+      '🧭 *Come Raggiungerci a Koh Phayam — Info Trasporti Ufficiali:*',
+      '',
+      '✈️ *1) Voli & Bus per Ranong:*',
+      '• Voli diretti Thai AirAsia da Bangkok Don Mueang (DMK) a Ranong Airport (UNX) (~1h 15m).',
+      '• Bus notturni Choke Anan Tour da Bangkok Sai Tai Mai a Ranong (~8-9h, 600–900 THB).',
+      '',
+      '🚖 *2) Trasferimento al Molo di Ranong (Saphan Pla Pier):*',
+      '• *Dall\'Aeroporto di Ranong:* servizio taxi convenzionato con il nostro autista di fiducia **Mr. Gong** (200 THB/persona se in 2 o più, 300 THB per viaggiatori singoli). Ti attende all\'uscita con cartello nominativo ed emette i biglietti del motoscafo senza fare code.',
+      '• *Dalla Stazione Bus:* songthaew rossi locali (20–30 THB) o taxi (150–200 THB) sempre disponibili sul piazzale.',
+      '',
+      '🚤 *3) Motoscafo Veloce (Speedboat) Ranong ➔ Koh Phayam:*',
+      '• Traversata di circa 35–40 minuti, costo 350 THB a persona a tratta.',
+      '• Corse frequenti dalle 08:00 alle 17:00 / 17:30 da Ranong.',
+      '',
+      '🛺 *4) Dal Molo di Koh Phayam al Resort (Buffalo Bay):*',
+      '• Al molo dell\'isola troverai sempre tuk-tuk locali (200–250 THB a veicolo, 10 min) o noleggio scooter (150–250 THB/giorno).',
+      '',
+      '📖 *Tutti i dettagli, consigli e mappe GPS sulla nostra guida completa:*',
+      travelGuideUrl,
+      '',
+      'Facci sapere quando atterri a Ranong o per qualsiasi altra domanda sul viaggio! 🌴✨'
+    ].join('\n');
+
+    const emailText = [
+      guestName ? `Gentile ${guestName},` : 'Gentile Ospite,',
+      '',
+      'Grazie per averci contattato! Di seguito trovi tutte le informazioni ufficiali per raggiungere Flower Power Village a Koh Phayam in totale tranquillità 🌸🌴',
+      '',
+      '1) Arrivo a Ranong (Voli e Bus):',
+      '• Voli diretti giornalieri Thai AirAsia da Bangkok Don Mueang (DMK) all\'aeroporto di Ranong (UNX) (circa 1h 15m).',
+      '• Bus di linea e notturni Choke Anan Tour da Bangkok Southern Bus Terminal (Sai Tai Mai) alla stazione di Ranong (8-9h).',
+      '',
+      '2) Trasferimento al Molo di Ranong (Saphan Pla Pier):',
+      '• Dall\'Aeroporto di Ranong (UNX): convenzione con il nostro fidato autista Mr. Gong (200 THB a persona se 2 o più, 300 THB per viaggiatori singoli). Mr. Gong ti attenderà all\'uscita del gate con un cartello nominativo ed emetterà in anticipo i biglietti della speedboat.',
+      '• Dalla Stazione Bus: songthaew rossi (20-30 THB) o taxi (150-200 THB) pronti sul piazzale.',
+      '',
+      '3) Motoscafo Veloce (Speedboat Ranong ➔ Koh Phayam):',
+      '• Traversata di circa 35-40 minuti. Costo fisso 350 THB a persona a tratta.',
+      '• Partenze frequenti ogni ora/ora e mezza dalle 08:00 alle 17:00 / 17:30 da Ranong.',
+      '',
+      '4) Dal Molo di Koh Phayam al Resort (Buffalo Bay):',
+      '• Al molo troverai sempre tuk-tuk locali (200-250 THB per veicolo, 10 minuti di tragitto) o noleggio scooter (150-250 THB/giorno).',
+      '',
+      'Tutti i contatti utili, consigli e mappe GPS sono consultabili sulla nostra pagina dedicata:',
+      travelGuideUrl,
+      '',
+      'Restiamo a tua completa disposizione,',
+      'Flower Power Village Team 🌸'
+    ].join('\n');
+
+    return {
+      emailText,
+      whatsAppText,
+      subject: `How to reach Flower Power Village – Travel & Ferry Guide${guestName ? ` for ${guestName}` : ''}`,
+      summary: `Informazioni ufficiali di viaggio, motoscafi e taxi Mr. Gong per ${guestName || 'ospite'}`
+    };
+  }
+
   const hasBaby = inquiryLower.includes('neonat') || inquiryLower.includes('bambin') || inquiryLower.includes('cull') || inquiryLower.includes('baby') || inquiryLower.includes('infant') || inquiryLower.includes('crib') || inquiryLower.includes('cot') || (numChildren && numChildren > 0);
   const wantsFood = inquiryLower.includes('pizza') || inquiryLower.includes('ristorant') || inquiryLower.includes('cibo') || inquiryLower.includes('mangiar') || inquiryLower.includes('restaurant') || inquiryLower.includes('food') || inquiryLower.includes('dinner') || inquiryLower.includes('lunch') || inquiryLower.includes('cena') || inquiryLower.includes('pranzo');
   const wantsBalcony = inquiryLower.includes('balcon') || inquiryLower.includes('terrazz') || inquiryLower.includes('guesthouse') || inquiryLower.includes('camera') || inquiryLower.includes('room');
@@ -272,6 +374,7 @@ export function compileDeterministicConciergeReply(params: DeterministicTemplate
     '05': 'maggio', '06': 'giugno', '07': 'luglio', '08': 'agosto',
     '09': 'settembre', '10': 'ottobre', '11': 'novembre', '12': 'dicembre'
   };
+  const monthStr = targetMonth ? targetMonth.slice(5, 7) : (checkInDate ? checkInDate.slice(5, 7) : '');
   const currentMonthLabel = monthNamesIt[monthStr] ? `nel mese di ${monthNamesIt[monthStr]}` : 'per il periodo indicato';
 
   let minStayText = '';
@@ -464,6 +567,7 @@ export interface DynamicConciergeReplyResult {
   emailText: string;
   emailSubject: string;
   summary: string;
+  isTravelLogistics?: boolean;
 }
 
 /**
@@ -556,15 +660,28 @@ GROUND TRUTH HOTEL KNOWLEDGE:
    • Buffalo Bay (Ao Khao Kwai) is 150m away (1-2 minutes flat walk).
 6. DIRECT BOOKING LINK:
    • Always include the direct calendar link: ${calendarUrl}
+7. TRANSPORT & TRAVEL CANONICAL KNOWLEDGE (4 PHASES):
+   • Phase 1 (Arriving in Ranong): Flights with Thai AirAsia (DMK ➔ UNX 1h15m), overnight bus Choke Anan from Bangkok Sai Tai Mai (8-9h, ~600-900 THB). We do NOT organize transfers from outside Ranong; direct guests to the official guide: https://www.flowerpowervillage.com/village/how-to-get-here .
+   • Phase 2 (Ranong Airport/Bus to Pier): From Ranong Airport (UNX), Mr. Gong dedicated taxi (200 THB/pax for 2+, 300 THB solo traveler; Mr. Gong meets guests at gate with name sign and pre-issues speedboat tickets without queues; book 3-7 days in advance). From bus station: red songthaew (20-30 THB) or taxi (150-200 THB). Saphan Pla Pier GPS: https://maps.app.goo.gl/ef3wv84NXeNE3GvSA .
+   • Phase 3 (Speedboat to Koh Phayam): Saphan Pla Pier ➔ Koh Phayam pier (~35-40 min, 350 THB/pax, departures from 08:00 to 17:00 / 17:30).
+   • Phase 4 (Koh Phayam Pier to Resort): Tuk-tuk (200-250 THB per vehicle, 10 min), motorbike taxi (~80 THB), scooter rental (150-250 THB/day), or 50-60 min walk. Resort GPS: https://maps.app.goo.gl/mugY88Wpuzjeebf56 .
 
 ZERO NOISE FILTER (STRICT):
 - SURGICAL CONCISENESS DIRECTIVE: Answer ONLY and EXCLUSIVELY what was asked! Keep the WhatsApp reply short, crisp, and direct.
 - DO NOT add unprompted details like distance from the beach, Wi-Fi, electricity, payment terms, deposit policies, air conditioning, breakfast, baby cribs, or restaurant menus unless explicitly asked!
+- PURE TRAVEL / TRANSPORT INQUIRY DIRECTIVE:
+  If the inquiry is about travel, how to get here, ferry, speedboat, airport taxi, or bus (and no room dates were asked):
+  1) Provide accurate, warm travel details using the 4 phases (Mr. Gong taxi 200/300 THB, Speedboat 350 THB, Tuk-tuk 200-250 THB).
+  2) Include the official travel guide link: https://www.flowerpowervillage.com/village/how-to-get-here .
+  3) STRICTLY FORBIDDEN: DO NOT dump room options (Yellow Bungalow, Guesthouse, etc.)! DO NOT mention room minimum stays (5/2 nights)! DO NOT mention room 10% discounts! DO NOT force the room calendar link unless the guest explicitly asked about room availability and dates!
 - If the guest only asks about accommodation for certain dates/people:
   1) Recommend the exact accommodation that fits them.
   2) State the minimum stay for that specific period.
   3) MANDATORY WEBSITE DISCOUNT NOTE: ALWAYS explicitly mention that booking directly on our website gives an automatic 10% direct booking discount (no coupon code needed, applied automatically at checkout)!
   4) Provide the direct calendar link (${calendarUrl}).
+  5) Ask for the exact number of nights / check-in check-out dates to confirm. That's it!
+- MIXED INQUIRY (ACCOMMODATION + TRAVEL):
+  Answer the room inquiry concisely with the calendar link (${calendarUrl}) AND provide the requested travel information without noise.
   5) Ask for the exact number of nights / check-in check-out dates to confirm. That's it!
 - Match the accommodation strictly: if 2 families or 6-8 pax, suggest Jungle Villa (Entire) with its link. If terrace asked, Rooms 1, 2, 3, 4.
 - If there are follow-up questions later, we will answer them then!
@@ -627,11 +744,15 @@ ${pmsContext}`;
     const parsed = JSON.parse(cleanJson);
 
     if (parsed.whatsAppText && parsed.whatsAppText.trim()) {
+      const isPureTravel = isTransportOrTravelInquiry(guestInquiryText) &&
+                           !isAccommodationInquiry(guestInquiryText) &&
+                           !checkInDate && !checkOutDate;
       return {
         whatsAppText: parsed.whatsAppText.trim(),
         emailText: parsed.emailText ? parsed.emailText.trim() : parsed.whatsAppText.trim(),
         emailSubject: parsed.emailSubject ? parsed.emailSubject.trim() : 'Your Stay at Flower Power Village',
-        summary: parsed.summary ? parsed.summary.trim() : 'Risposta dinamica generata con successo.'
+        summary: parsed.summary ? parsed.summary.trim() : 'Risposta dinamica generata con successo.',
+        isTravelLogistics: isPureTravel
       };
     }
   } catch (err) {
@@ -913,6 +1034,9 @@ STRICT JSON ONLY:
     }
     : null;
 
+  const isPureTravel = Boolean(dynamicReply?.isTravelLogistics) ||
+                       (isTransportOrTravelInquiry(text) && !isAccommodationInquiry(text) && !extractedCheckIn);
+
   return {
     detectedLanguage,
     guestName: extractedName,
@@ -930,6 +1054,7 @@ STRICT JSON ONLY:
     politeReplyWhatsApp: finalWhatsApp,
     politeReplyEmail: finalEmail,
     calendarUrl,
+    isTravelLogistics: isPureTravel,
     livePms: livePmsSummary
   };
 }
@@ -951,6 +1076,29 @@ export async function refineReplyWithFeedback(options: RefineReplyOptions): Prom
     throw new Error('DEEPSEEK_API_KEY non configurata nel server');
   }
 
+  // Carica regole attive apprese dalla tabella Supabase concierge_memory
+  let activeRulesPrompt = '';
+  try {
+    activeRulesPrompt = await getActiveRulesPromptContext();
+  } catch (memErr) {
+    console.warn('[refineReplyWithFeedback] Warning loading memory rules:', memErr);
+  }
+
+  const fullText = `${originalInquiry} ${currentReply} ${userFeedback}`;
+  const isTravelTopic = isTransportOrTravelInquiry(fullText);
+  const hasRoomBookingContext = isAccommodationInquiry(originalInquiry) ||
+    isAccommodationInquiry(currentReply) ||
+    (currentReply.includes('calendar') && (currentReply.includes('from=') || currentReply.includes('notte') || currentReply.includes('night') || currentReply.includes('bungalow') || currentReply.includes('guesthouse') || currentReply.includes('villa')));
+  const isPureTravel = isTravelTopic && !hasRoomBookingContext;
+
+  const calendarDirective = isPureTravel
+    ? `- PURE TRAVEL / LOGISTICS DIRECTIVE:
+- This inquiry/feedback is about travel, transport, ferries, speedboats, or how to get here.
+- DO NOT force the calendar URL (${calendarUrl}). Instead, include the official travel guide link: https://www.flowerpowervillage.com/village/how-to-get-here (or specific details requested by Marco).
+- STRICTLY FORBIDDEN: DO NOT dump room options (Yellow Bungalow, Guesthouse, etc.)! DO NOT mention room minimum stays (5/2 nights)! DO NOT mention room 10% discounts!`
+    : `- MANDATORY EXACT CALENDAR URL: You must include the EXACT live calendar link: ${calendarUrl} . DO NOT truncate or shorten this link! Do NOT replace it with a bare URL if it contains query parameters like ?from=...&to=... Keep the full query string intact!
+- Maintain the exact WhatsApp formatting, friendly warm tone, mandatory 10% direct website discount note, and live calendar link (${calendarUrl}).`;
+
   const systemPrompt = `You are the AI Hospitality Concierge for Flower Power Village (Koh Phayam, Thailand).
 The resort general manager (Marco) is reviewing a proposed response to a guest and has given specific criticism, corrections, or instructions.
 
@@ -958,8 +1106,7 @@ CRITICAL INSTRUCTION FOR MODIFICATIONS:
 - You must carefully read Marco's instructions.
 - If Marco says "elimina X", "togli X", "rimuovi X" (e.g. "elimina la guest house", "togli bungalow"), you must REMOVE ONLY X from the proposed options, and PRESERVE all other accommodations and options intact! Do NOT invert the command! Do NOT remove everything else while keeping X!
 - If Marco says "lascia solo X", then you keep only X. But "elimina X" means drop X and keep the rest.
-- MANDATORY EXACT CALENDAR URL: You must include the EXACT live calendar link: ${calendarUrl} . DO NOT truncate or shorten this link! Do NOT replace it with a bare URL if it contains query parameters like ?from=...&to=... Keep the full query string intact!
-- Maintain the exact WhatsApp formatting, friendly warm tone, mandatory 10% direct website discount note, and live calendar link (${calendarUrl}).
+${calendarDirective}
 
 GROUND TRUTH RESORT STRUCTURE & FACTS:
 - ACCOMMODATIONS:
@@ -969,12 +1116,19 @@ GROUND TRUTH RESORT STRUCTURE & FACTS:
 - MINIMUM STAY:
   • High Season (15 Dec – 31 Mar): strictly 5 nights minimum.
   • Low/Mid Season (1 Apr – 14 Dec, including November): 2 nights minimum.
-- 10% DIRECT DISCOUNT: Always mention that booking on https://www.flowerpowervillage.com/calendar grants an automatic 10% discount at checkout.
+- 10% DIRECT DISCOUNT: Mention that booking on https://www.flowerpowervillage.com/calendar grants an automatic 10% discount at checkout (ONLY for accommodation quotes, NEVER for pure transport/ferry queries).
+- CANONICAL TRANSPORT & TRAVEL (4 PHASES):
+  • Phase 1 (Arriving in Ranong): Flights with Thai AirAsia (DMK ➔ UNX 1h15m), overnight bus Choke Anan from Bangkok Sai Tai Mai (8-9h, ~600-900 THB). We do NOT organize transfers from outside Ranong; direct guests to the official guide: https://www.flowerpowervillage.com/village/how-to-get-here .
+  • Phase 2 (Ranong Airport/Bus to Pier): From Ranong Airport (UNX), Mr. Gong dedicated taxi (200 THB/pax for 2+, 300 THB solo traveler; Mr. Gong meets guests at gate with name sign and pre-issues speedboat tickets without queues; book 3-7 days in advance). From bus station: red songthaew (20-30 THB) or taxi (150-200 THB). Saphan Pla Pier GPS: https://maps.app.goo.gl/ef3wv84NXeNE3GvSA .
+  • Phase 3 (Speedboat to Koh Phayam): Saphan Pla Pier ➔ Koh Phayam pier (~35-40 min, 350 THB/pax, departures from 08:00 to 17:00 / 17:30).
+  • Phase 4 (Koh Phayam Pier to Resort): Tuk-tuk (200-250 THB per vehicle, 10 min), motorbike taxi (~80 THB), scooter rental (150-250 THB/day), or 50-60 min walk. Resort GPS: https://maps.app.goo.gl/mugY88Wpuzjeebf56 .
 - ZERO NOISE: Never mention baby cribs, A/C costs, breakfast costs, or pizza menus unless explicitly asked by the guest or manager.
+
+${activeRulesPrompt ? `\n${activeRulesPrompt}\n` : ''}
 
 YOUR TASK:
 1. Re-write the proposed response for the guest (both WhatsApp and Email) applying Marco's corrections faithfully and accurately.
-2. Ensure the link to the live calendar (${calendarUrl}) remains present.
+2. ${isPureTravel ? 'Ensure official travel directions/links are accurate and crisp.' : `Ensure the link to the live calendar (${calendarUrl}) remains present.`}
 3. Formulate an abstract, general MANAGEMENT RULE that captures Marco's directive so that ALL future inquiries handled by the bot will follow this rule automatically without needing to be corrected again!
 4. Provide a 1-sentence summary of what changed in Italian.
 
@@ -982,7 +1136,7 @@ Return STRICTLY valid JSON with this schema:
 {
   "refinedWhatsApp": "Full refined WhatsApp message text...",
   "refinedEmail": "Full refined Email message text...",
-  "suggestedRuleTitle": "Concise title for the rule (e.g. 'Esclusione Guesthouse per soggiorni brevi', 'Tariffe Taxi', ecc.)",
+  "suggestedRuleTitle": "Concise title for the rule (e.g. 'Esclusione Guesthouse per soggiorni brevi', 'Tariffe Taxi Mr. Gong', ecc.)",
   "suggestedRuleContent": "Clear directive instruction for future AI prompts",
   "summaryOfChanges": "Breve sintesi in italiano delle modifiche applicate"
 }`;
@@ -1038,8 +1192,8 @@ ${userFeedback}
   let finalWhatsApp = (parsed.refinedWhatsApp || '').trim();
   let finalEmail = (parsed.refinedEmail || '').trim();
 
-  // Assicura categoricamente che l'URL esatto del calendario (con parametri date) sia presente
-  if (calendarUrl && !finalWhatsApp.includes(calendarUrl)) {
+  // Assicura l'URL esatto del calendario SOLO se non è una richiesta puramente di trasporti/viaggio
+  if (!isPureTravel && calendarUrl && !finalWhatsApp.includes(calendarUrl)) {
     // Sostituisce eventuali link generici o lo appende
     if (finalWhatsApp.includes('https://flowerpowervillage.com/calendar')) {
       finalWhatsApp = finalWhatsApp.replace(/https:\/\/flowerpowervillage\.com\/calendar[^\s<"]*/gi, calendarUrl);
@@ -1048,7 +1202,7 @@ ${userFeedback}
     }
   }
 
-  if (calendarUrl && !finalEmail.includes(calendarUrl)) {
+  if (!isPureTravel && calendarUrl && !finalEmail.includes(calendarUrl)) {
     if (finalEmail.includes('https://flowerpowervillage.com/calendar')) {
       finalEmail = finalEmail.replace(/https:\/\/flowerpowervillage\.com\/calendar[^\s<"]*/gi, calendarUrl);
     } else if (finalEmail.includes('https://www.flowerpowervillage.com/calendar')) {
@@ -1059,9 +1213,10 @@ ${userFeedback}
   return {
     refinedWhatsApp: finalWhatsApp,
     refinedEmail: finalEmail,
-    suggestedRuleTitle: parsed.suggestedRuleTitle || 'Direttiva Gestione',
+    suggestedRuleTitle: parsed.suggestedRuleTitle || (isPureTravel ? 'Direttiva Trasporti & Viaggi' : 'Direttiva Gestione'),
     suggestedRuleContent: parsed.suggestedRuleContent || userFeedback,
-    summaryOfChanges: parsed.summaryOfChanges || 'Risposta corretta in base al feedback'
+    summaryOfChanges: parsed.summaryOfChanges || 'Risposta corretta in base al feedback',
+    isTravelLogistics: isPureTravel
   };
 }
 

@@ -1,6 +1,13 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { processBookingInquiry, refineReplyWithFeedback, classifyTelegramIntent, processKnowledgeUpdate } from "../_helpers/ai-booking-concierge.js";
+import {
+  processBookingInquiry,
+  refineReplyWithFeedback,
+  classifyTelegramIntent,
+  processKnowledgeUpdate,
+  isTransportOrTravelInquiry,
+  isAccommodationInquiry
+} from "../_helpers/ai-booking-concierge.js";
 import { saveMemoryItem } from "../_helpers/concierge-memory.js";
 import { identifyTargetTab, recordTelegramUpdateToKnowledge } from "../_helpers/google-sheets-sync.js";
 import {
@@ -842,6 +849,29 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
                 '👉 <i>Vuoi memorizzare questa istruzione per tutte le future risposte del bot?</i>'
               ];
 
+            const isPureTravel = Boolean(refined.isTravelLogistics) || (isTransportOrTravelInquiry(feedbackText) && !isAccommodationInquiry(contextText));
+            const hasRoomContext = isAccommodationInquiry(contextText) || (contextText.includes('calendar') && (contextText.includes('from=') || contextText.includes('notte') || contextText.includes('night') || contextText.includes('bungalow') || contextText.includes('guesthouse') || contextText.includes('villa')));
+
+            const linkFooterLines = (isPureTravel && !hasRoomContext)
+              ? [
+                '🧭 <b>Guida Ufficiale Come Arrivare:</b>',
+                '<a href="https://www.flowerpowervillage.com/village/how-to-get-here">https://www.flowerpowervillage.com/village/how-to-get-here</a>'
+              ]
+              : [
+                '🔗 <b>Link Calendario:</b>',
+                `<a href="${calendarUrl}">${calendarUrl}</a>`
+              ];
+
+            const mainButtons: any[] = [];
+            if (isPureTravel && !hasRoomContext) {
+              mainButtons.push([{ text: '🧭 Guida Come Arrivare', url: 'https://www.flowerpowervillage.com/village/how-to-get-here' }]);
+            } else if (isPureTravel && hasRoomContext) {
+              mainButtons.push([{ text: '🌐 Apri Calendario Live', url: calendarUrl }]);
+              mainButtons.push([{ text: '🧭 Guida Come Arrivare', url: 'https://www.flowerpowervillage.com/village/how-to-get-here' }]);
+            } else {
+              mainButtons.push([{ text: '🌐 Apri Calendario Live', url: calendarUrl }]);
+            }
+
             const replyHtml = [
               headerTitle,
               `<i>✨ Modifiche applicate: ${escapeHtml(refined.summaryOfChanges)}</i>`,
@@ -852,8 +882,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               '',
               ...ruleSectionLines,
               '',
-              '🔗 <b>Link Calendario:</b>',
-              `<a href="${calendarUrl}">${calendarUrl}</a>`
+              ...linkFooterLines
             ].join('\n');
 
             const inlineKeyboard = {
@@ -863,9 +892,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
                     { text: '💾 Memorizza Regola Permanente', callback_data: `save_rule_${messageId}` }
                   ]
                 ] : []),
-                [
-                  { text: '🌐 Apri Calendario Live', url: calendarUrl }
-                ],
+                ...mainButtons,
                 [
                   { text: '💾 Modifica Definitiva', callback_data: `mod_def_${messageId}` },
                   { text: '⚡ Modifica Temporanea', callback_data: `mod_temp_${messageId}` }
@@ -1028,14 +1055,41 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               ]
               : [];
 
+            const isPureTravel = Boolean(inquiryResult.isTravelLogistics) ||
+              (isTransportOrTravelInquiry(msgText) && !isAccommodationInquiry(msgText) && !inquiryResult.checkInDate);
+
+            const headerTitle = isPureTravel
+              ? '🧭 <b>AI CONCIERGE — INFO VIAGGIO & TRASPORTI</b>'
+              : '🌺 <b>AI CONCIERGE — OFFERTA PRONTA</b>';
+
+            const periodDisplay = isPureTravel ? 'Informazioni di Viaggio / Logistica' : datesText;
+            const roomDisplay = isPureTravel ? 'Motoscafi, Taxi & Transfer' : escapeHtml(roomText);
+
+            const linkFooterLines = isPureTravel
+              ? [
+                '🧭 <b>Guida Ufficiale Come Arrivare:</b>',
+                '<a href="https://www.flowerpowervillage.com/village/how-to-get-here">https://www.flowerpowervillage.com/village/how-to-get-here</a>'
+              ]
+              : [
+                '🔗 <b>Link Calendario Live:</b>',
+                `<a href="${inquiryResult.calendarUrl}">${inquiryResult.calendarUrl}</a>`
+              ];
+
+            const mainButtons: any[] = [];
+            if (isPureTravel) {
+              mainButtons.push([{ text: '🧭 Guida Come Arrivare', url: 'https://www.flowerpowervillage.com/village/how-to-get-here' }]);
+            } else {
+              mainButtons.push([{ text: '🌐 Apri Calendario Live', url: inquiryResult.calendarUrl }]);
+            }
+
             const replyHtml = [
-              '🌺 <b>AI CONCIERGE — OFFERTA PRONTA</b>',
+              headerTitle,
               '',
               '📌 <b>Dati Rilevati:</b>',
               `• 🌍 <b>Lingua:</b> ${langBadge}`,
               `• 👤 <b>Cliente:</b> ${escapeHtml(guestName)}`,
-              `• 📅 <b>Periodo:</b> ${datesText}`,
-              `• 🏠 <b>Alloggio:</b> ${escapeHtml(roomText)}`,
+              `• 📅 <b>Periodo:</b> ${periodDisplay}`,
+              `• 🏠 <b>Alloggio:</b> ${roomDisplay}`,
               `• 👥 <b>Ospiti:</b> ${guestsText}`,
               ...pmsBadgeLines,
               '',
@@ -1043,8 +1097,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               '',
               `<pre><code class="language-whatsapp">${escapeHtml(inquiryResult.politeReplyWhatsApp)}</code></pre>`,
               '',
-              '🔗 <b>Link Calendario Live:</b>',
-              `<a href="${inquiryResult.calendarUrl}">${inquiryResult.calendarUrl}</a>`,
+              ...linkFooterLines,
               '',
               '💡 <i>Per correggere o personalizzare, rispondi direttamente a questo messaggio (Reply)!</i>'
             ].join('\n');
@@ -1057,9 +1110,10 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
                   bot_token: 'last_proposal',
                   chat_id: JSON.stringify({
                     text: inquiryResult.politeReplyWhatsApp,
-                    calendarUrl: inquiryResult.calendarUrl,
+                    calendarUrl: isPureTravel ? 'https://www.flowerpowervillage.com/village/how-to-get-here' : inquiryResult.calendarUrl,
                     guestName,
-                    datesText
+                    datesText,
+                    isTravelLogistics: isPureTravel
                   }),
                   updated_at: new Date().toISOString()
                 });
@@ -1070,9 +1124,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
             const inlineKeyboard = {
               inline_keyboard: [
-                [
-                  { text: '🌐 Apri Calendario Live', url: inquiryResult.calendarUrl }
-                ],
+                ...mainButtons,
                 [
                   { text: '💾 Modifica Definitiva', callback_data: `mod_def_${messageId}` },
                   { text: '⚡ Modifica Temporanea', callback_data: `mod_temp_${messageId}` }
@@ -1252,15 +1304,17 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
         // Se il messaggio originale conteneva testo, salvalo come contesto
         if (message.text) {
-          const calendarMatch = message.text.match(/https:\/\/flowerpowervillage\.com\/calendar[^\s<"]*/i);
+          const calendarMatch = message.text.match(/https:\/\/(www\.)?flowerpowervillage\.com\/calendar[^\s<"]*/i);
           const preservedCalendarUrl = calendarMatch ? calendarMatch[0] : 'https://flowerpowervillage.com/calendar';
+          const isTravelMsg = isTransportOrTravelInquiry(message.text);
 
           await supabase.from('telegram_config').upsert({
             id: lastReplyKey,
             bot_token: 'last_proposal',
             chat_id: JSON.stringify({
               text: message.text,
-              calendarUrl: preservedCalendarUrl
+              calendarUrl: preservedCalendarUrl,
+              isTravelLogistics: isTravelMsg
             }),
             updated_at: new Date().toISOString()
           });
