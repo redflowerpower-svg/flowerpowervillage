@@ -2618,6 +2618,9 @@ export function AutoCutLabPlayer({
     if (typeof window !== 'undefined') {
       (window as any).__autoCutCurrentMode = mode;
       (window as any).__lastAutoCutTestRun = testRun;
+      (window as any).__lastGeneratedOutroStartTime = outroStartTime;
+      (window as any).__lastGeneratedTotalDuration = totalVideoDuration;
+      (window as any).__lastGeneratedAudioTrack = audioTrack?.src;
 
       (window as any).__autoCutGetCanvas = () => {
         const c = canvasRef.current;
@@ -2941,6 +2944,9 @@ export function AutoCutLabPlayer({
             const videoBlob = new Blob([muxer.target.buffer], { type: 'video/mp4' });
             (window as any).__lastGeneratedVideoBuffer = muxer.target.buffer;
             (window as any).__lastGeneratedVideoBlob = videoBlob;
+            (window as any).__lastGeneratedOutroStartTime = outroStartTime;
+            (window as any).__lastGeneratedTotalDuration = totalVideoDuration;
+            (window as any).__lastGeneratedAudioTrack = audioTrack?.src;
 
             // 🛡️ ZERO-EGRESS SHIELD PER I ROBOT CI / PLAYWRIGHT
             if ((window as any).__skipSupabaseUpload || window.navigator.webdriver) {

@@ -311,8 +311,11 @@ async function main() {
     const url = await window.__autoCutGetVideo((pct, _i, label) => {
       window.__parityProgress = `${Math.round(pct)}% ${label || ''}`;
     });
-    if (!url) return { error: 'nessun video restituito' };
-    if (!url.startsWith('blob:')) return { remoteUrl: url };
+    const outroStartTime = window.__lastGeneratedOutroStartTime || null;
+    const totalDuration = window.__lastGeneratedTotalDuration || null;
+    const audioTrack = window.__lastGeneratedAudioTrack || null;
+    if (!url) return { error: 'nessun video restituito', outroStartTime, totalDuration, audioTrack };
+    if (!url.startsWith('blob:')) return { remoteUrl: url, outroStartTime, totalDuration, audioTrack };
     const blob = await (await fetch(url)).blob();
     const b64 = await new Promise((res, rej) => {
       const fr = new FileReader();
@@ -320,7 +323,7 @@ async function main() {
       fr.onerror = rej;
       fr.readAsDataURL(blob);
     });
-    return { type: blob.type, size: blob.size, b64 };
+    return { type: blob.type, size: blob.size, b64, outroStartTime, totalDuration, audioTrack };
   });
   if (result.error) throw new Error(result.error);
   if (result.remoteUrl) {
@@ -355,7 +358,18 @@ async function main() {
     // Muxing audio locale diretto 100% offline (Zero Supabase Egress)
     const isVillage = mode.startsWith('V') || mode === 'LM1';
     let bgPath = path.resolve('./public/audio/02-flower-power-so-good.mp3');
-    if (isVillage) {
+
+    // Se il player ci ha passato la traccia audio esatta usata nel montaggio, usala con priorità
+    if (result.audioTrack) {
+      let cleanTrack = result.audioTrack.replace(/^https?:\/\/[^/]+/, '').replace(/^\/+/, '');
+      try { cleanTrack = decodeURIComponent(cleanTrack); } catch {}
+      const candidateTrack = path.resolve('./public', cleanTrack);
+      if (fs.existsSync(candidateTrack)) {
+        bgPath = candidateTrack;
+      }
+    }
+
+    if (!fs.existsSync(bgPath) && isVillage) {
       const villageDir = path.resolve('./public/audio/village');
       const villageFiles = fs.existsSync(villageDir) ? fs.readdirSync(villageDir).filter(f => f.endsWith('.mp3')) : [];
       if (villageFiles.length > 0) {
@@ -363,7 +377,34 @@ async function main() {
       }
     }
     const sfxPath = path.resolve('./public/audio', isVillage ? 'sfx-outro-village.wav' : 'sfx-outro-pizza.wav');
-    const delay = 8850;
+
+    // Calcolo dinamico e rigoroso del delay SFX Outro
+    let delay = 8850;
+    if (typeof result.outroStartTime === 'number' && result.outroStartTime > 0) {
+      delay = Math.round(result.outroStartTime * 1000);
+      log(`[Zero-Egress Shield] Ritardo SFX Outro sincronizzato dal player: ${delay}ms (${result.outroStartTime}s)`);
+    } else if (currentTest) {
+      try {
+        const parsedTest = JSON.parse(currentTest);
+        const tDur = parsedTest.totalDuration || 13;
+        const sDur = parsedTest.sceneDuration || 8.85;
+        const isSingle = mode === 'P1' || mode === 'DS';
+        const outroDur = isSingle ? Math.max(3.5, tDur - sDur) : 3.8;
+        const totVid = isSingle ? tDur : (tDur >= 14 ? tDur : tDur + 3.8);
+        const calculatedOutroStart = Math.max(4.0, totVid - outroDur);
+        delay = Math.round(calculatedOutroStart * 1000);
+        log(`[Zero-Egress Shield] Ritardo SFX Outro calcolato da currentTest (${mode}): ${delay}ms (${calculatedOutroStart}s)`);
+      } catch (errCalc) {
+        log(`[Zero-Egress Shield] Avviso calcolo delay da testrun:`, errCalc.message);
+      }
+    } else if (isVillage) {
+      // Fallback protetto Villaggio (outro dura 3.8s)
+      const rawInfo = spawnSync(ffmpeg, ['-i', rawPath], { encoding: 'utf8' }).stderr || '';
+      const mDur = /Duration:\s*(\d+):(\d+):([\d.]+)/.exec(rawInfo);
+      const rawSecs = mDur ? (+mDur[1]) * 3600 + (+mDur[2]) * 60 + parseFloat(mDur[3]) : 25;
+      delay = Math.round(Math.max(4.0, rawSecs - 3.8) * 1000);
+      log(`[Zero-Egress Shield] Ritardo SFX Outro fallback Villaggio da durata video grezzo (${rawSecs.toFixed(1)}s): ${delay}ms`);
+    }
 
     const ffArgs = [
       '-y', '-i', rawPath, '-i', bgPath, '-i', sfxPath,
