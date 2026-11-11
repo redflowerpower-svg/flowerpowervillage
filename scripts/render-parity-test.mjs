@@ -356,7 +356,7 @@ async function main() {
     log(`[Zero-Egress Shield] Video grezzo WebCodecs salvato: ${rawPath} (${(fs.statSync(rawPath).size / 1e6).toFixed(1)} MB). Avvio muxing audio locale FFmpeg...`);
     
     // Muxing audio locale diretto 100% offline (Zero Supabase Egress)
-    const isVillage = mode.startsWith('V') || mode === 'LM1';
+    const isVillage = mode.startsWith('V') || mode === 'LM1' || mode === 'R1';
     let bgPath = path.resolve('./public/audio/02-flower-power-so-good.mp3');
 
     // Se il player ci ha passato la traccia audio esatta usata nel montaggio, usala con priorità

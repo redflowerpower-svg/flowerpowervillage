@@ -3,6 +3,20 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [11/11/2026 - ORE 15:55] · VERIFICA & BLINDATURA COLONNA SONORA FORMATO R1 (KOH PHAYAM COMMUNITY)
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Diagnosi Retrospettiva Post 8 Novembre ore 19:14**:
+     - Accertato il motivo per cui il reel R1 del dispatch recuperato delle 17:00 (inviato alle 19:14 sul Gruppo Telegram Koh Phayam per Facebook) presentava la colonna sonora della pizzeria: nel renderer offline [render-parity-test.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/render-parity-test.mjs), la logica di fallback brand era definita con `const isVillage = mode.startsWith('V') || mode === 'LM1'`, escludendo il formato `R1` (che iniziava con `'R'`) e ricadendo su `02-flower-power-so-good.mp3` e `sfx-outro-pizza.wav`.
+  2. 🎶 **Stato Post Successivi (9–11 Novembre)**:
+     - Nei post successivi il problema non si è più manifestato grazie al commit `f50c9ad` (9 novembre 13:48), che ha introdotto il passaggio diretto di `window.__lastGeneratedAudioTrack` dal player, dove per `R1` viene sempre assegnata una traccia autentica da `audio/village/`.
+  3. 🛡️ **Blindatura Strutturale & Sigillo Matematico**:
+     - Aggiornato [render-parity-test.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/render-parity-test.mjs) estendendo la condizione a `const isVillage = mode.startsWith('V') || mode === 'LM1' || mode === 'R1';`.
+     - Garantito che anche in caso di fallback o mancato passaggio della variabile audio, `R1` impieghi sempre tracce musicali Village da `public/audio/village/`, utilizzi `sfx-outro-village.wav` e applichi il timing corretto dell'outro a 3.8s.
+- **File aggiornati:** `scripts/render-parity-test.mjs`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% BLINDATO, VERIFICATO E RISOLTO DEFINITIVAMENTE.
+
+---
+
 ### 🚀 [08/11/2026 - ORE 19:15] · DIAGNOSI & BLINDATURA RUNNER CLOUD SOCIAL MEDIA STUDIO (RECUPERO SLOT 17:00 & FIX ALLARME TOPIC 301)
 - **Cosa abbiamo fatto:**
   1. 🔍 **Diagnosi Chirurgica dei Post Mancati**:
