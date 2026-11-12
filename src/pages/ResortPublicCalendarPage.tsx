@@ -917,12 +917,12 @@ export default function ResortPublicCalendarPage() {
                       key={`th-${dayNum}`}
                       scope="col"
                       className={`border-b-2 border-r border-stone-800 text-center py-1.5 px-0.5 w-9.5 sm:w-11 min-w-[38px] sm:min-w-[44px] transition-colors ${thPerimeter} ${isRequestedDate
-                          ? 'bg-amber-400 text-stone-950 border-b-amber-300 font-extrabold shadow-sm'
-                          : isToday
-                            ? 'bg-amber-400/20 text-amber-300 border-b-amber-400'
-                            : isWeekend
-                              ? 'bg-[#221e1c] text-amber-400'
-                              : 'bg-[#2a2522] text-stone-300'
+                        ? 'bg-amber-400 text-stone-950 border-b-amber-300 font-extrabold shadow-sm'
+                        : isToday
+                          ? 'bg-amber-400/20 text-amber-300 border-b-amber-400'
+                          : isWeekend
+                            ? 'bg-[#221e1c] text-amber-400'
+                            : 'bg-[#2a2522] text-stone-300'
                         }`}
                     >
                       <div className="flex flex-col items-center leading-none">
@@ -952,20 +952,20 @@ export default function ResortPublicCalendarPage() {
                     key={room.id}
                     id={`timeline-row-${cleanSlug(room.slug)}`}
                     className={`transition-all border-b ${isHero
-                        ? 'bg-gradient-to-r from-amber-950/70 via-amber-950/40 to-amber-950/20 border-y-2 border-y-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.3)] relative z-10'
-                        : isBookingSelected
-                          ? 'bg-emerald-950/25 border-stone-800/80'
-                          : roomIdx % 2 === 0
-                            ? 'bg-[#201c1a] border-stone-800/80'
-                            : 'bg-[#1b1816] border-stone-800/80'
+                      ? 'bg-gradient-to-r from-amber-950/70 via-amber-950/40 to-amber-950/20 border-y-2 border-y-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.3)] relative z-10'
+                      : isBookingSelected
+                        ? 'bg-emerald-950/25 border-stone-800/80'
+                        : roomIdx % 2 === 0
+                          ? 'bg-[#201c1a] border-stone-800/80'
+                          : 'bg-[#1b1816] border-stone-800/80'
                       } hover:bg-[#282320]`}
                   >
 
                     {/* ULTRA-SLIM STICKY LEFT COLUMN: Con Evidenza Oro e Badge Stanza Selezionata */}
                     <td
                       className={`sticky left-0 z-20 p-1.5 sm:p-2 border-r border-stone-800 w-22 sm:w-28 min-w-[88px] sm:min-w-[110px] shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-all ${isHero
-                          ? 'bg-[#2f2720] border-l-[6px] border-l-amber-400 shadow-[inset_0_0_20px_rgba(251,191,36,0.2),4px_0_12px_rgba(0,0,0,0.5)]'
-                          : 'bg-[#24201d]'
+                        ? 'bg-[#2f2720] border-l-[6px] border-l-amber-400 shadow-[inset_0_0_20px_rgba(251,191,36,0.2),4px_0_12px_rgba(0,0,0,0.5)]'
+                        : 'bg-[#24201d]'
                         }`}
                     >
                       <button
@@ -1203,12 +1203,12 @@ export default function ResortPublicCalendarPage() {
                 {/* RIGA 1: NUMERO DEL GIORNO DEDICATO E CENTRATO (ZERO TAGLI) */}
                 <div className="w-full flex justify-center items-center">
                   <span className={`text-[11px] sm:text-xs font-black leading-none ${isToday
-                      ? 'text-amber-300 bg-amber-400/20 px-1 py-0.5 rounded underline font-extrabold'
-                      : isWeekend
-                        ? 'text-amber-400'
-                        : isPast
-                          ? 'text-stone-600'
-                          : 'text-white'
+                    ? 'text-amber-300 bg-amber-400/20 px-1 py-0.5 rounded underline font-extrabold'
+                    : isWeekend
+                      ? 'text-amber-400'
+                      : isPast
+                        ? 'text-stone-600'
+                        : 'text-white'
                     }`}>
                     {dayNum}
                   </span>
@@ -1291,10 +1291,10 @@ export default function ResortPublicCalendarPage() {
               key={room.id}
               id={`room-calendar-card-${cleanSlug(room.slug)}`}
               className={`rounded-2xl border transition-all duration-300 p-3.5 sm:p-5 flex flex-col gap-4 ${isHero
-                  ? 'bg-[#24201d] border-2 border-amber-400 ring-2 ring-amber-400/25 shadow-2xl'
-                  : isSelected
-                    ? 'bg-[#201c1a] border-2 border-emerald-500 ring-2 ring-emerald-500/20 shadow-xl'
-                    : 'bg-[#201c1a] border border-stone-800 hover:border-stone-700 shadow-xl'
+                ? 'bg-[#24201d] border-2 border-amber-400 ring-2 ring-amber-400/25 shadow-2xl'
+                : isSelected
+                  ? 'bg-[#201c1a] border-2 border-emerald-500 ring-2 ring-emerald-500/20 shadow-xl'
+                  : 'bg-[#201c1a] border border-stone-800 hover:border-stone-700 shadow-xl'
                 }`}
             >
               {/* BANNER ORO ESSENZIALE PER ALLOGGIO SELEZIONATO (SOLO STELLA, ZERO EMOJI EXTRA, ZERO PRIMA IN ALTO) */}
@@ -1442,10 +1442,10 @@ export default function ResortPublicCalendarPage() {
               {lang === 'IT'
                 ? 'Risparmia il 10% subito prenotando diretto qui: zero commissioni OTA (Booking / Agoda), nessun costo nascosto.'
                 : lang === 'TH'
-                ? 'จองตรงที่นี่ ประหยัดทันที 10% ไม่มีค่าธรรมเนียมแอบแฝง ถูกกว่า Agoda และ Booking.com แน่นอน'
-                : lang === 'DE'
-                ? 'Sparen Sie sofort 10% bei Direktbuchung hier: Keine OTA-Provisionen, keine versteckten Gebühren.'
-                : 'Save 10% instantly on direct booking here: zero OTA commissions, no hidden fees.'}
+                  ? 'จองตรงที่นี่ ประหยัดทันที 10% ไม่มีค่าธรรมเนียมแอบแฝง ถูกกว่า Agoda และ Booking.com แน่นอน'
+                  : lang === 'DE'
+                    ? 'Sparen Sie sofort 10% bei Direktbuchung hier: Keine OTA-Provisionen, keine versteckten Gebühren.'
+                    : 'Save 10% instantly on direct booking here: zero OTA commissions, no hidden fees.'}
             </span>
           </div>
           <div className="flex items-center gap-2 text-[10px] sm:text-xs text-amber-300 font-bold whitespace-nowrap">
@@ -1501,8 +1501,8 @@ export default function ResortPublicCalendarPage() {
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
                 className={`text-[9px] sm:text-[10px] font-black uppercase px-1.5 sm:px-2.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap ${selectedCategory === cat
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'bg-[#2d2825] text-stone-300 hover:text-white border border-stone-700/60'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'bg-[#2d2825] text-stone-300 hover:text-white border border-stone-700/60'
                   }`}
               >
                 {CATEGORY_LABELS[lang]?.[cat] || cat}
@@ -1518,8 +1518,8 @@ export default function ResortPublicCalendarPage() {
                 type="button"
                 onClick={() => setViewMode('blocks')}
                 className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black transition-all flex items-center gap-1 cursor-pointer ${viewMode === 'blocks'
-                    ? 'bg-amber-400 text-stone-950 shadow-xs'
-                    : 'text-stone-400 hover:text-white'
+                  ? 'bg-amber-400 text-stone-950 shadow-xs'
+                  : 'text-stone-400 hover:text-white'
                   }`}
                 title={TOOLBAR_I18N[lang]?.blocksViewTitle || 'Vista a blocchi mensili'}
               >
@@ -1530,8 +1530,8 @@ export default function ResortPublicCalendarPage() {
                 type="button"
                 onClick={() => setViewMode('timeline')}
                 className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black transition-all flex items-center gap-1 cursor-pointer ${viewMode === 'timeline'
-                    ? 'bg-amber-400 text-stone-950 shadow-xs'
-                    : 'text-stone-400 hover:text-white'
+                  ? 'bg-amber-400 text-stone-950 shadow-xs'
+                  : 'text-stone-400 hover:text-white'
                   }`}
                 title={TOOLBAR_I18N[lang]?.rowsViewTitle || 'Panoramica a righe'}
               >
@@ -1609,8 +1609,8 @@ export default function ResortPublicCalendarPage() {
                 disabled={!checkOut || !bookingSelectionSummary}
                 onClick={handleProceedToBooking}
                 className={`flex-1 sm:flex-initial text-xs sm:text-sm font-black px-5 py-2.5 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center gap-1.5 ${checkOut && bookingSelectionSummary
-                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer active:scale-95 shadow-emerald-700/40'
-                    : 'bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700'
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer active:scale-95 shadow-emerald-700/40'
+                  : 'bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700'
                   }`}
               >
                 <span>{lang === 'IT' ? 'Configura e Prenota' : lang === 'TH' ? 'ปรับแต่งและจอง' : lang === 'DE' ? 'Anpassen & Buchen' : 'Configure & Book'}</span>
@@ -1704,8 +1704,8 @@ export default function ResortPublicCalendarPage() {
                       key={i}
                       onClick={() => setActiveImageIndex(i)}
                       className={`relative w-14 h-10 sm:w-16 sm:h-12 flex-shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${i === activeImageIndex
-                          ? "border-amber-400 scale-105 opacity-100 shadow-md"
-                          : "border-stone-800 opacity-40 hover:opacity-100"
+                        ? "border-amber-400 scale-105 opacity-100 shadow-md"
+                        : "border-stone-800 opacity-40 hover:opacity-100"
                         }`}
                     >
                       <img src={src} alt="" className="w-full h-full object-cover" />
@@ -1859,8 +1859,8 @@ export default function ResortPublicCalendarPage() {
 
                   {/* Category badge - top left */}
                   <span className="absolute top-4 left-4 bg-emerald-800/95 border border-emerald-600/60 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-md backdrop-blur-md uppercase">
-                  {formatAccommodationCategory(room.category, lang)}
-                </span>
+                    {formatAccommodationCategory(room.category, lang)}
+                  </span>
 
                   {/* Direct booking discount badge - top right */}
                   <span className="absolute top-4 right-4 bg-emerald-800 text-white text-[11px] font-black tracking-wider px-3.5 py-1.5 rounded-xl shadow-sm uppercase">
@@ -1919,8 +1919,8 @@ export default function ResortPublicCalendarPage() {
                         type="button"
                         onClick={() => setExtraBreakfast(prev => !prev)}
                         className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-[10px] font-bold transition-all duration-200 cursor-pointer shadow-sm ${extraBreakfast
-                            ? "bg-emerald-800 border-emerald-800 text-white"
-                            : "bg-white border-stone-300 text-stone-600 hover:bg-stone-100/50"
+                          ? "bg-emerald-800 border-emerald-800 text-white"
+                          : "bg-white border-stone-300 text-stone-600 hover:bg-stone-100/50"
                           }`}
                       >
                         <Coffee className="w-3.5 h-3.5" />
@@ -1933,8 +1933,8 @@ export default function ResortPublicCalendarPage() {
                           type="button"
                           onClick={() => setExtraAC(prev => !prev)}
                           className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-[10px] font-bold transition-all duration-200 cursor-pointer shadow-sm ${extraAC
-                              ? "bg-emerald-800 border-emerald-800 text-white"
-                              : "bg-white border-stone-300 text-stone-600 hover:bg-stone-100/50"
+                            ? "bg-emerald-800 border-emerald-800 text-white"
+                            : "bg-white border-stone-300 text-stone-600 hover:bg-stone-100/50"
                             }`}
                         >
                           <Wind className="w-3.5 h-3.5" />
