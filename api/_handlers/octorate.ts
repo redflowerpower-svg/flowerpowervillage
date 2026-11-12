@@ -621,7 +621,7 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       grid: allFetchedItems,
       beGrid: filteredBEItems,
       totalFetched: allFetchedItems.length,
-      pagesCount: page + 1
+      structuresQueried: targetStructures.length
     };
 
     gridCache.set(cacheKey, { timestamp: Date.now(), payload: responsePayload });
