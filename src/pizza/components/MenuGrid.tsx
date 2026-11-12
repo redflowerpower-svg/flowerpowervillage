@@ -1029,7 +1029,6 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
   const [quantity, setQuantity] = useState(1);
   const [zoomedItem, setZoomedItem] = useState<MenuItem | null>(null);
   const [lasagnaDate, setLasagnaDate] = useState<string>('');
-  const [selectedBeerVariants, setSelectedBeerVariants] = useState<Record<string, Variant>>({});
 
   useEffect(() => {
     if (zoomedItem || customizingItem) {
@@ -1355,6 +1354,9 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       });
     } else {
       const isChicken = hasPorkMeat(item) && isHalalChicken;
+      const isSmallBeer = (item.category === 'beers' || item.id.includes('beer')) &&
+        (selectedVariant?.id === '10074' || selectedVariant?.id === '10075' || selectedVariant?.id === '10076' || selectedVariant?.name?.toLowerCase() === 'small' || selectedVariant?.nameIt?.toLowerCase() === 'piccola');
+      const itemImage = isSmallBeer ? item.image.replace('big', 'small') : item.image;
       const variantMod = selectedVariant ? (selectedVariant.priceModifier ?? 0) : 0;
       const isSingleDefaultVariant = selectedVariant && (
         item.variants?.length === 1 ||
@@ -1375,18 +1377,31 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
         price: finalItemBasePrice
       } : null;
 
+      const baseItemName = isChicken ? `${item.name} (100% Chicken 🐔)` : item.name;
+      const baseItemNameTh = isChicken ? `${item.nameTh || item.name} (เนื้อไก่ 100% 🐔)` : item.nameTh;
+      const baseItemNameIt = isChicken ? `${item.nameIt || item.name} (100% Pollo 🐔)` : item.nameIt;
+      const baseItemNameDe = isChicken ? `${item.nameDe || item.name} (100% Geflügel 🐔)` : item.nameDe;
+      const baseItemNameMm = isChicken ? `${(item as any).nameMm || item.name} (၁၀၀% ကြက်သား 🐔)` : (item as any).nameMm;
+
+      // Se l'articolo ha varianti (es. birra Grande / Piccola), appendi la variante al nome nel carrello per chiarezza immediata
+      const finalName = syncedVariant && (item.category === 'beers' || item.id.includes('beer')) ? `${baseItemName} (${syncedVariant.name})` : baseItemName;
+      const finalNameTh = syncedVariant && (item.category === 'beers' || item.id.includes('beer')) ? `${baseItemNameTh || baseItemName} (${syncedVariant.nameTh || syncedVariant.name})` : baseItemNameTh;
+      const finalNameIt = syncedVariant && (item.category === 'beers' || item.id.includes('beer')) ? `${baseItemNameIt || baseItemName} (${syncedVariant.nameIt || (syncedVariant as any).name_it || syncedVariant.name})` : baseItemNameIt;
+      const finalNameDe = syncedVariant && (item.category === 'beers' || item.id.includes('beer')) ? `${baseItemNameDe || baseItemName} (${syncedVariant.nameDe || (syncedVariant as any).name_de || syncedVariant.name})` : baseItemNameDe;
+      const finalNameMm = syncedVariant && (item.category === 'beers' || item.id.includes('beer')) ? `${baseItemNameMm || baseItemName} (${(syncedVariant as any).nameMm || (syncedVariant as any).name_mm || syncedVariant.name})` : baseItemNameMm;
+
       addItem({
-        productId: isChicken ? `${item.id}-chicken` : item.id,
-        name: isChicken ? `${item.name} (100% Chicken 🐔)` : item.name,
-        nameTh: isChicken ? `${item.nameTh || item.name} (เนื้อไก่ 100% 🐔)` : item.nameTh,
-        nameIt: isChicken ? `${item.nameIt || item.name} (100% Pollo 🐔)` : item.nameIt,
-        nameDe: isChicken ? `${item.nameDe || item.name} (100% Geflügel 🐔)` : item.nameDe,
-        nameMm: isChicken ? `${(item as any).nameMm || item.name} (၁၀၀% ကြက်သား 🐔)` : (item as any).nameMm,
+        productId: syncedVariant ? `${item.id}-${syncedVariant.id}${isChicken ? '-chicken' : ''}` : (isChicken ? `${item.id}-chicken` : item.id),
+        name: finalName,
+        nameTh: finalNameTh,
+        nameIt: finalNameIt,
+        nameDe: finalNameDe,
+        nameMm: finalNameMm,
         quantity,
         basePrice: finalItemBasePrice,
         selectedVariant: syncedVariant,
         selectedExtras,
-        image: item.image,
+        image: itemImage,
         lasagnaDate: isLasagna(item) ? lasagnaDate : undefined,
         isHalalChicken: isChicken,
       });
@@ -1451,35 +1466,6 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
     return item.description || item.descriptionIt || item.description_it || '';
   };
 
-  const handleAddBeer = (beerItem: MenuItem, variant?: Variant | null) => {
-    const activeVariant = variant || (beerItem.variants && beerItem.variants.length > 0 ? beerItem.variants[0] : null);
-    const finalPrice = activeVariant ? beerItem.price + (activeVariant.priceModifier || 0) : beerItem.price;
-
-    addItem({
-      productId: activeVariant ? `${beerItem.id}-${activeVariant.id}` : beerItem.id,
-      name: activeVariant ? `${beerItem.name} (${activeVariant.name})` : beerItem.name,
-      nameTh: activeVariant ? `${beerItem.nameTh || beerItem.name} (${activeVariant.nameTh || activeVariant.name})` : beerItem.nameTh,
-      nameIt: activeVariant ? `${beerItem.nameIt || beerItem.name} (${activeVariant.nameIt || activeVariant.name_it || activeVariant.name})` : beerItem.nameIt,
-      nameDe: activeVariant ? `${beerItem.nameDe || beerItem.name} (${activeVariant.nameDe || activeVariant.name_de || activeVariant.name})` : beerItem.nameDe,
-      nameMm: activeVariant ? `${(beerItem as any).nameMm || beerItem.name} (${(activeVariant as any).nameMm || (activeVariant as any).name_mm || activeVariant.name})` : (beerItem as any).nameMm,
-      quantity: 1,
-      basePrice: finalPrice,
-      image: activeVariant?.id === '10074' || activeVariant?.name?.toLowerCase() === 'small' ? (beerItem.image.replace('big', 'small')) : beerItem.image,
-      selectedVariant: activeVariant ? {
-        id: activeVariant.id,
-        name: activeVariant.name,
-        nameTh: activeVariant.nameTh,
-        nameIt: activeVariant.nameIt || activeVariant.name_it,
-        nameDe: activeVariant.nameDe || activeVariant.name_de,
-        price: finalPrice,
-        priceModifier: activeVariant.priceModifier || 0,
-        sku: activeVariant.sku || '',
-      } : null,
-      selectedExtras: [],
-    });
-    openCart();
-  };
-
   const handleAddWine = (wineItem: MenuItem) => {
     addItem({
       productId: wineItem.id,
@@ -1520,156 +1506,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
         className="grid gap-2 sm:gap-3 md:gap-4.5 lg:gap-6 product-menu-grid"
       >
         {items.map((item) => {
-          const isBeer = (item as any).category === 'beers' || item.id === 'chang-beer' || item.id === 'leo-beer' || item.id === 'singha-beer' || item.id.includes('beer');
-          const isWine = !isBeer && (item.category === 'wines' || item.category === 'beers-and-wines' || (item as any).bottleScale !== undefined || !!(item as any).flag);
-
-          if (isBeer) {
-            const currentBeerVariant = selectedBeerVariants[item.id] || (item.variants && item.variants.length > 0 ? item.variants[0] : null);
-            const currentBeerPrice = currentBeerVariant ? (item.price + (currentBeerVariant.priceModifier || 0)) : item.price;
-            const isSmall = currentBeerVariant?.id === '10074' || currentBeerVariant?.name?.toLowerCase() === 'small';
-            const bottleImg = isSmall ? item.image.replace('big', 'small') : item.image;
-
-            return (
-              <article
-                key={item.id}
-                className="group bg-white border border-stone-300 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden relative select-none min-h-[380px] sm:min-h-[410px]"
-              >
-                <div 
-                  onClick={() => setZoomedItem(item)}
-                  className="flex flex-row flex-grow cursor-pointer relative min-h-[380px] sm:min-h-[410px]"
-                >
-                  {/* Left (36%): Vertical Beer Bottle Portion */}
-                  <div className="w-[36%] bg-stone-50 border-r border-stone-200 p-3 flex items-center justify-center relative overflow-hidden flex-shrink-0 min-h-[380px] sm:min-h-[410px]">
-                    <div className="w-full h-full flex items-center justify-center transition-transform duration-300">
-                      <img
-                        src={withCacheBust(bottleImg)}
-                        alt={getTranslatedName(item)}
-                        loading="lazy"
-                        decoding="async"
-                        className="max-h-[310px] sm:max-h-[340px] max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500 ease-out"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Right (64%): Beer Info, Size Toggle & Add to Cart */}
-                  <div className="w-[64%] p-4 sm:p-5 flex flex-col justify-between flex-grow">
-                    <div>
-                      {/* Beer Name */}
-                      <h3
-                        className="font-sans font-bold text-stone-900 leading-tight tracking-tight text-base sm:text-lg"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                      >
-                        {formatProductName(getTranslatedName(item))}
-                      </h3>
-
-                      {/* Clean Beer Badge */}
-                      <div className="mt-2 flex items-center gap-1.5">
-                        <span className="text-[9.5px] sm:text-[10px] font-black uppercase tracking-wider text-amber-900 bg-amber-100/90 border border-amber-300/60 px-2 py-0.5 rounded-md">
-                          🍺 {lang === 'TH' ? 'เบียร์ขวดเย็น' : lang === 'IT' ? 'Birra Fresca in Bottiglia' : lang === 'DE' ? 'Kühles Flaschenbier' : 'Chilled Bottled Beer'}
-                        </span>
-                      </div>
-
-                      {/* Description */}
-                      <p
-                        className="text-stone-500 text-xs font-light leading-relaxed mt-2.5"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                      >
-                        {getTranslatedDesc(item)}
-                      </p>
-
-                      {/* Size / Variant Selector (Big / Small) */}
-                      {item.variants && item.variants.length > 0 && (
-                        <div className="mt-3.5 pt-3 border-t border-stone-100" onClick={(e) => e.stopPropagation()}>
-                          <span className="text-[9px] uppercase tracking-wider text-stone-400 font-extrabold block mb-1.5">
-                            {lang === 'TH' ? 'เลือกขนาดขวด' : lang === 'IT' ? 'Formato Bottiglia' : lang === 'DE' ? 'Flaschengröße' : 'Bottle Size'}
-                          </span>
-                          <div className="grid grid-cols-2 gap-1.5">
-                            {item.variants.map((variant) => {
-                              const isVarSelected = (currentBeerVariant?.id || item.variants![0].id) === variant.id;
-                              const varPrice = item.price + (variant.priceModifier || 0);
-                              const varDisplayPrice = varPrice;
-
-                              return (
-                                <button
-                                  key={variant.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedBeerVariants(prev => ({ ...prev, [item.id]: variant }));
-                                  }}
-                                  className={`px-2 py-1.5 rounded-xl text-center transition-all border cursor-pointer ${
-                                    isVarSelected
-                                      ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm ring-1 ring-[#8B1E1E]/20'
-                                      : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-100'
-                                  }`}
-                                >
-                                  <div className="text-[10px] sm:text-[10.5px] font-black uppercase leading-none">
-                                    {lang === 'MM' ? ((variant as any).nameMm || (variant as any).name_mm || variant.name) : lang === 'TH' ? (variant.nameTh || variant.name) : lang === 'IT' ? (variant.nameIt || variant.name_it || variant.name) : lang === 'DE' ? (variant.nameDe || variant.name_de || variant.name) : variant.name}
-                                  </div>
-                                  <div className={`text-[10px] font-bold mt-0.5 ${isVarSelected ? 'text-amber-200' : 'text-stone-500'}`}>
-                                    {varDisplayPrice}฿
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Bottom Action Bar: Price + Add Button / Delivery Compliance */}
-                    {isDiningMode ? (
-                      <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                            {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
-                          </span>
-                          <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
-                            <span className="text-base sm:text-lg font-black text-[#8B1E1E]">
-                              {currentBeerPrice}฿
-                            </span>
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => handleAddBeer(item, currentBeerVariant)}
-                          className="px-3.5 sm:px-4 py-2 text-white text-xs font-bold rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0 bg-[#8B1E1E] hover:bg-[#721818] flex items-center gap-1.5"
-                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                        >
-                          <Plus size={13} className="stroke-[3]" />
-                          <span>{(WINE_CARD_LABELS.addBtn as any)[lang] || WINE_CARD_LABELS.addBtn.IT}</span>
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="mt-3 pt-2.5 border-t border-stone-100 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[8.5px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                            {lang === 'TH' ? 'ราคาที่ร้าน' : lang === 'DE' ? 'Preis im Restaurant' : lang === 'EN' ? 'Restaurant Price' : 'Prezzo al Ristorante'}
-                          </span>
-                          <div className="flex items-baseline gap-1 leading-tight">
-                            <span className="text-base sm:text-lg font-black text-stone-900">
-                              {currentBeerPrice}
-                            </span>
-                            <span className="text-xs font-black text-stone-900 select-none">฿</span>
-                          </div>
-                        </div>
-
-                        <div className="w-full py-1.5 px-2 bg-stone-100/90 text-stone-600 border border-stone-200/90 rounded-xl text-center text-[10.5px] sm:text-[11px] font-bold flex items-center justify-center gap-1.5">
-                          <span>🍺</span>
-                          <span>
-                            {lang === 'TH' ? 'เฉพาะที่ร้าน • ไม่จัดส่งออนไลน์' :
-                             lang === 'IT' ? 'Solo al Ristorante • Non ordinabile online' :
-                             lang === 'DE' ? 'Nur vor Ort • Nicht online lieferbar' :
-                             'Dine-in Only • Not available for delivery'}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </article>
-            );
-          }
+          const isWine = item.category === 'wines' || item.category === 'beers-and-wines' || (item as any).bottleScale !== undefined || !!(item as any).flag;
 
           if (isWine) {
             return (
@@ -1944,10 +1781,15 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                           {hasOptions ? t.startingAt : (lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo')}
                         </span>
                       </div>
-                      {renderFormattedPrice(item.price, {
-                        numClass: "text-lg sm:text-xl font-extrabold text-stone-900",
-                        symbolClass: "text-xs sm:text-sm font-black text-stone-900 select-none"
-                      })}
+                      {(() => {
+                        const minVariantPrice = (item.variants && item.variants.length > 0)
+                          ? Math.min(...item.variants.map(v => item.price + (v.priceModifier || 0)))
+                          : item.price;
+                        return renderFormattedPrice(minVariantPrice, {
+                          numClass: "text-lg sm:text-xl font-extrabold text-stone-900",
+                          symbolClass: "text-xs sm:text-sm font-black text-stone-900 select-none"
+                        });
+                      })()}
                     </div>
 
                     <button
@@ -1986,11 +1828,18 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
           >
             {/* MODAL HEADER WITH IMAGE */}
             <div className="relative h-40 sm:h-48 bg-stone-100 flex-shrink-0 overflow-hidden">
-              <img
-                src={withCacheBust(customizingItem.image)}
-                alt={getTranslatedName(customizingItem)}
-                className="w-full h-full object-cover select-none"
-              />
+              {(() => {
+                const isBeerSmall = (customizingItem.category === 'beers' || customizingItem.id.includes('beer')) &&
+                  (selectedVariant?.id === '10074' || selectedVariant?.id === '10075' || selectedVariant?.id === '10076' || selectedVariant?.name?.toLowerCase() === 'small' || selectedVariant?.nameIt?.toLowerCase() === 'piccola');
+                const modalImg = isBeerSmall ? customizingItem.image.replace('big', 'small') : customizingItem.image;
+                return (
+                  <img
+                    src={withCacheBust(modalImg)}
+                    alt={getTranslatedName(customizingItem)}
+                    className="w-full h-full object-cover select-none"
+                  />
+                );
+              })()}
               <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/35 to-transparent" />
 
               {/* Dietary watermark */}
