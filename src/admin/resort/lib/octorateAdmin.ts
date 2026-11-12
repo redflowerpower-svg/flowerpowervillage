@@ -43,7 +43,8 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'jungle villa left': {
     motherId: 495795,
     name: 'Jungle Villa Left',
-    ids: ['495795', '495807', '495803', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
+    // Rimuoviamo eventuali ID non esistenti su Octorate (es. 495804)
+    ids: ['495795', '495807', '495803', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
     keywords: [["jungle", "jv"], ["left", "jvl"]],
     linkedKeys: ['jungle villa']
   },
