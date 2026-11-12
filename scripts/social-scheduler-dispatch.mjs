@@ -1117,16 +1117,103 @@ async function publishToInstagram({ videoUrl, videoBuffer, caption = '', brand =
   return { ok: true, id: pData.id };
 }
 
-// 🎵 Helper TikTok Token (Pizzeria Ranong & Villaggio Koh Phayam)
-async function getTikTokToken(brand = 'pizza') {
+// 🎵 Helper TikTok Token con Auto-Refresh trasparente (Pizzeria Ranong & Villaggio Koh Phayam)
+async function refreshTikTokTokenDirect(refreshToken, clientKey, clientSecret) {
   try {
-    if (neonSql) {
-      const rows = await neonSql`SELECT bot_token FROM telegram_config WHERE id = ${`tiktok_${brand}`} LIMIT 1;`;
-      if (rows?.[0]?.bot_token) return rows[0].bot_token;
+    const refreshParams = new URLSearchParams();
+    refreshParams.append('client_key', clientKey);
+    refreshParams.append('client_secret', clientSecret);
+    refreshParams.append('grant_type', 'refresh_token');
+    refreshParams.append('refresh_token', refreshToken);
+
+    const rRes = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cache-Control': 'no-cache',
+      },
+      body: refreshParams.toString(),
+    });
+    const rData = await rRes.json();
+    if (rRes.ok && (rData.data || !rData.error || rData.error.code === 'ok' || rData.error.code === 0)) {
+      return rData.data || rData;
     }
-  } catch {}
+    console.warn('[scheduler-dispatch] TikTok refresh token API call failed:', JSON.stringify(rData));
+  } catch (err) {
+    console.warn('[scheduler-dispatch] TikTok refresh exception:', err.message);
+  }
+  return null;
+}
+
+async function getTikTokToken(brand = 'pizza', forceRefresh = false) {
   try {
-    const sb = getSupabase();
+    let clientKey = env.TIKTOK_CLIENT_KEY;
+    let clientSecret = env.TIKTOK_CLIENT_SECRET;
+
+    if (!clientKey || !clientSecret || clientKey.startsWith('sb')) {
+      if (neonSql) {
+        try {
+          const appRows = await neonSql`SELECT chat_id FROM telegram_config WHERE id = 'tiktok_app_config' LIMIT 1;`;
+          if (appRows?.[0]?.chat_id) {
+            const p = JSON.parse(appRows[0].chat_id);
+            if (p.client_key) clientKey = p.client_key;
+            if (p.client_secret) clientSecret = p.client_secret;
+          }
+        } catch {}
+      }
+    }
+
+    if (neonSql) {
+      const rows = await neonSql`SELECT id, chat_id, bot_token, updated_at FROM telegram_config WHERE id = ${`tiktok_${brand}`} LIMIT 1;`;
+      if (rows?.[0]?.bot_token) {
+        const row = rows[0];
+        let parsed = {};
+        try { parsed = JSON.parse(row.chat_id || '{}'); } catch {}
+
+        const refreshToken = parsed.refresh_token;
+        const updatedAtMs = row.updated_at ? new Date(row.updated_at).getTime() : 0;
+        const ageSeconds = (Date.now() - updatedAtMs) / 1000;
+        const expiresIn = Number(parsed.expires_in) || 86400;
+        const isNearExpiry = ageSeconds > (expiresIn - 14400); // refresh se più vecchio di 20 ore
+
+        if ((forceRefresh || isNearExpiry) && refreshToken && clientKey && clientSecret) {
+          console.log(`[scheduler-dispatch] 🔄 Token TikTok ${brand} in scadenza o refresh richiesto (${Math.round(ageSeconds / 3600)}h). Auto-refresh in corso...`);
+          const refreshed = await refreshTikTokTokenDirect(refreshToken, clientKey, clientSecret);
+          if (refreshed?.access_token) {
+            const updatedChatId = JSON.stringify({
+              ...parsed,
+              open_id: refreshed.open_id || parsed.open_id,
+              refresh_token: refreshed.refresh_token || refreshToken,
+              expires_in: refreshed.expires_in || 86400,
+              brand,
+              account_name: parsed.account_name || (brand === 'village' ? 'flowerpowervillage' : 'flowerpowerpizzaranong'),
+              updated_at: new Date().toISOString()
+            });
+
+            try {
+              await neonSql`
+                UPDATE telegram_config 
+                SET chat_id = ${updatedChatId}, bot_token = ${refreshed.access_token}, updated_at = NOW()
+                WHERE id = ${`tiktok_${brand}`};
+              `;
+              console.log(`✅ [scheduler-dispatch] Nuovo Token TikTok salvato su Neon con successo per ${brand}!`);
+            } catch (saveErr) {
+              console.warn('[scheduler-dispatch] Avviso salvataggio token Neon:', saveErr.message);
+            }
+
+            return refreshed.access_token;
+          }
+        }
+
+        return row.bot_token;
+      }
+    }
+  } catch (err) {
+    console.warn('[scheduler-dispatch] Errore getTikTokToken:', err.message);
+  }
+
+  try {
+    const sb = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
     if (sb) {
       const { data } = await sb.from('telegram_config').select('bot_token').eq('id', `tiktok_${brand}`).maybeSingle();
       if (data?.bot_token) return data.bot_token;
@@ -1141,12 +1228,12 @@ async function publishToTikTokDraft({ videoBuffer, brand = 'pizza' }) {
     console.log(`[DRY-RUN] Pubblicazione Bozza TikTok (${brand}) buffer: ${videoBuffer?.length || 0} bytes`);
     return { ok: true, dryRun: true, publish_id: 'mock_tiktok_draft_id' };
   }
-  const token = await getTikTokToken(brand);
+  let token = await getTikTokToken(brand);
   if (!token) {
     throw new Error(`Token TikTok non trovato per brand ${brand}`);
   }
 
-  const initRes = await fetch('https://open.tiktokapis.com/v2/post/publish/inbox/video/init/', {
+  let initRes = await fetch('https://open.tiktokapis.com/v2/post/publish/inbox/video/init/', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -1162,7 +1249,33 @@ async function publishToTikTokDraft({ videoBuffer, brand = 'pizza' }) {
     })
   });
 
-  const initData = await initRes.json();
+  let initData = await initRes.json();
+
+  // 🛡️ Retry con Force Refresh se il token risulta non valido o scaduto durante la chiamata
+  if (!initRes.ok && (initData?.error?.code === 'access_token_invalid' || initData?.error?.message?.toLowerCase().includes('token'))) {
+    console.warn(`[scheduler-dispatch] ⚠️ TikTok init fallito con token attuale (${initData?.error?.message}). Tentativo force-refresh immediato...`);
+    const refreshedToken = await getTikTokToken(brand, true);
+    if (refreshedToken && refreshedToken !== token) {
+      token = refreshedToken;
+      initRes = await fetch('https://open.tiktokapis.com/v2/post/publish/inbox/video/init/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        body: JSON.stringify({
+          source_info: {
+            source: 'FILE_UPLOAD',
+            video_size: videoBuffer.length,
+            chunk_size: videoBuffer.length,
+            total_chunk_count: 1
+          }
+        })
+      });
+      initData = await initRes.json();
+    }
+  }
+
   if (!initRes.ok || !initData?.data?.upload_url) {
     throw new Error(`TikTok inbox init fallito: ${initData?.error?.message || JSON.stringify(initData)}`);
   }

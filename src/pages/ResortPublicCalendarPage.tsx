@@ -98,6 +98,7 @@ const TOOLBAR_I18N: Record<Language, {
     copyLinkTitle: 'Copia link',
     accommodationsHeader: 'Alloggi',
     chooseCheckOut: '(Scegli Check-Out)',
+    selectRoomFirst: '(Seleziona un alloggio)',
     reset: 'Reset'
   },
   EN: {
@@ -112,6 +113,7 @@ const TOOLBAR_I18N: Record<Language, {
     copyLinkTitle: 'Copy link',
     accommodationsHeader: 'Rooms',
     chooseCheckOut: '(Choose Check-Out)',
+    selectRoomFirst: '(Select an accommodation)',
     reset: 'Reset'
   },
   TH: {
@@ -126,6 +128,7 @@ const TOOLBAR_I18N: Record<Language, {
     copyLinkTitle: 'คัดลอกลิงก์',
     accommodationsHeader: 'ห้องพัก',
     chooseCheckOut: '(เลือกวันเช็คเอาท์)',
+    selectRoomFirst: '(เลือกห้องพัก)',
     reset: 'รีเซ็ต'
   },
   DE: {
@@ -140,6 +143,7 @@ const TOOLBAR_I18N: Record<Language, {
     copyLinkTitle: 'Link kopieren',
     accommodationsHeader: 'Unterkünfte',
     chooseCheckOut: '(Check-Out wählen)',
+    selectRoomFirst: '(Unterkunft wählen)',
     reset: 'Zurücksetzen'
   }
 };
@@ -555,17 +559,18 @@ export default function ResortPublicCalendarPage() {
       }) || null;
     }
 
-    if (!targetRoom && availableRooms.length > 0) {
-      targetRoom = availableRooms[0];
-    }
+    // ZERO SELEZIONE FORZATA: Se l'utente non ha richiesto alcuna camera, non forziamo availableRooms[0] (es. Jungle Villa)!
+    // targetRoom e heroRoom rimarranno null finché l'utente non seleziona esplicitamente un alloggio.
 
-    const others = availableRooms.filter((r) => r.id !== targetRoom?.id);
+    const others = targetRoom
+      ? availableRooms.filter((r) => r.id !== targetRoom?.id)
+      : availableRooms;
 
     const filteredOthers = selectedCategory === 'TUTTI'
       ? others
       : others.filter((r) => r.category.toUpperCase() === selectedCategory);
 
-    // La stanza selezionata (targetRoom) è TASSATIVAMENTE E SEMPRE LA PRIMA IN ALTO
+    // Se c'è una stanza richiesta (targetRoom), è la prima in alto; altrimenti viene mostrato l'elenco naturale
     const list = targetRoom ? [targetRoom, ...filteredOthers] : filteredOthers;
 
     return { heroRoom: targetRoom, sortedRoomsList: list };
@@ -1568,7 +1573,7 @@ export default function ResortPublicCalendarPage() {
               </div>
               <div className="leading-tight">
                 <p className="text-[10px] uppercase tracking-wider text-[#a2b997] font-extrabold truncate">
-                  {bookingSelectionSummary?.room.title || heroRoom?.title}
+                  {bookingSelectionSummary?.room.title || (heroRoom ? heroRoom.title : (TOOLBAR_I18N[lang]?.selectRoomFirst || '(Seleziona un alloggio)'))}
                 </p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-xs sm:text-sm font-black text-white">
@@ -1590,7 +1595,9 @@ export default function ResortPublicCalendarPage() {
                 onClick={() => {
                   setCheckIn(null);
                   setCheckOut(null);
-                  updateUrlParams({ from: null, to: null });
+                  setBookingRoomSlug(null);
+                  setHeroRoomSlug(null);
+                  updateUrlParams({ from: null, to: null, room: null, slug: null });
                 }}
                 className="px-2.5 py-1.5 rounded-lg text-stone-400 hover:text-white text-[11px] font-bold hover:bg-white/10 transition-all cursor-pointer"
               >
@@ -1599,9 +1606,9 @@ export default function ResortPublicCalendarPage() {
 
               <button
                 type="button"
-                disabled={!checkOut}
+                disabled={!checkOut || !bookingSelectionSummary}
                 onClick={handleProceedToBooking}
-                className={`flex-1 sm:flex-initial text-xs sm:text-sm font-black px-5 py-2.5 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center gap-1.5 ${checkOut
+                className={`flex-1 sm:flex-initial text-xs sm:text-sm font-black px-5 py-2.5 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center gap-1.5 ${checkOut && bookingSelectionSummary
                     ? 'bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer active:scale-95 shadow-emerald-700/40'
                     : 'bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700'
                   }`}
