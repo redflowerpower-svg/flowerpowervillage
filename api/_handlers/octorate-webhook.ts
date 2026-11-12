@@ -34,21 +34,21 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'jungle villa left': {
     motherId: 495795,
     name: 'Jungle Villa Left',
-    ids: ['495795', '495807', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
+    ids: ['495795', '495807', '495803', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
     keywords: [["jungle", "jv"], ["left", "jvl"]],
     linkedKeys: ['jungle villa']
   },
   'jungle villa right': {
     motherId: 495796,
     name: 'Jungle Villa Right',
-    ids: ['495796', '495980', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
+    ids: ['495796', '495980', '495976', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
     keywords: [["jungle", "jv"], ["right", "jvr"]],
     linkedKeys: ['jungle villa']
   },
   'peace & love villa': {
     motherId: 494840,
     name: 'Peace & Love Villa',
-    ids: ['494840', '495566', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
+    ids: ['494840', '495566', '495549', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
     keywords: [["peace", "love", "p&l"]]
   },
   'villa penthouse': {
@@ -234,7 +234,8 @@ export interface DynamicMinStayUpdate {
  */
 export function calculateServerDynamicMinStay(
   bookings: any[],
-  dateRange: { start: string; end: string }
+  dateRange: { start: string; end: string },
+  calendarItems?: any[]
 ): DynamicMinStayUpdate[] {
   const updates: DynamicMinStayUpdate[] = [];
   const activeBookings = (bookings || []).filter(b => {
@@ -245,6 +246,7 @@ export function calculateServerDynamicMinStay(
   // 1. Inizializzazione obbligatoria di TUTTI gli alloggi del villaggio
   // Garantisce che le stanze senza prenotazioni (o con prenotazioni cancellate) vengano calcolate e ripristinate al baseline
   const roomBookingsMap: Record<string, { roomName: string; motherId: string; targetProductIds: string[]; bookings: Array<{ in: string; out: string }> }> = {};
+  const roomUnavailableMap: Record<string, Array<{ in: string; out: string }>> = {};
 
   Object.entries(ALL_ACCOMMODATIONS_MAP).forEach(([key, canonical]) => {
     roomBookingsMap[key] = {
@@ -253,6 +255,7 @@ export function calculateServerDynamicMinStay(
       targetProductIds: canonical.ids,
       bookings: []
     };
+    roomUnavailableMap[key] = [];
   });
 
   // 2. Mappatura prenotazioni attive sugli alloggi corrispondenti con motore canonico
@@ -284,11 +287,34 @@ export function calculateServerDynamicMinStay(
     return Math.round((e - s) / 86400000);
   }
 
-  // 3. Calcolo intervalli occupati e gap per ciascun alloggio (incorporando unità collegate parent/child)
+  // 2b. Integrazione Giorni a Disponibilità 0 / Stop Sell dalla Griglia Octorate (Stato Inventario Reale)
+  // Se la disponibilità è a 0 o c'è stopSells/closed sulla tariffa madre (o BE), il giorno è bloccato e non affittabile
+  if (Array.isArray(calendarItems) && calendarItems.length > 0) {
+    calendarItems.forEach((cItem: any) => {
+      const cId = Number(cItem.id);
+      // Mappa sulla tariffa madre corrispondente
+      const motherMatch = Object.entries(ALL_ACCOMMODATIONS_MAP).find(([_, v]) => v.motherId === cId);
+      if (!motherMatch) return;
+      const roomKey = motherMatch[0];
+
+      (cItem.days || []).forEach((d: any) => {
+        const isUnavailable = (d.availability !== undefined && Number(d.availability) <= 0) || d.stopSells === true || d.closed === true;
+        if (isUnavailable) {
+          const dStr = toThailandDateStr(d.date || d.day);
+          if (dStr) {
+            roomUnavailableMap[roomKey].push({ in: dStr, out: addDaysISO(dStr, 1) });
+          }
+        }
+      });
+    });
+  }
+
+  // 3. Calcolo intervalli occupati e gap per ciascun alloggio (incorporando unità collegate parent/child e giorni a disponibilità 0)
   Object.entries(roomBookingsMap).forEach(([key, { roomName, motherId, targetProductIds, bookings: bList }]) => {
     const canonical = ALL_ACCOMMODATIONS_MAP[key] || Object.values(ALL_ACCOMMODATIONS_MAP).find(a => String(a.motherId) === String(motherId));
     const linkedList = (canonical?.linkedKeys || []).flatMap(lKey => roomBookingsMap[lKey]?.bookings || []);
-    const combinedList = [...bList, ...linkedList];
+    const ownUnavail = roomUnavailableMap[key] || [];
+    const combinedList = [...bList, ...linkedList, ...ownUnavail];
 
     const sorted = combinedList.sort((a, b) => a.in.localeCompare(b.in));
     const mergedOccupied: Array<{ in: string; out: string }> = [];
@@ -607,9 +633,47 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           console.warn('[OCTORATE WEBHOOK] Failed to fetch live bookings from Octorate:', octErr);
         }
 
+        const calendarItems: any[] = [];
+        try {
+          // 🌟 Fetch contemporaneo griglia live (calendario) da tutte le strutture per catturare availability: 0 e stopSells
+          await Promise.all(ALL_OCTORATE_STRUCTURE_IDS.map(async (structId) => {
+            let page = 0;
+            let hasMore = true;
+            while (hasMore && page <= 5) {
+              const calUrl = `https://api.octorate.com/connect/rest/v1/calendar/${structId}?dateFrom=${todayISO}&dateTo=${endISO}&size=20&page=${page}`;
+              const calRes = await fetch(calUrl, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  ...(clientId ? { 'Octorate-Api-Key': clientId } : {}),
+                  'Accept': 'application/json'
+                }
+              });
+              if (calRes.ok) {
+                const calJson = await calRes.json();
+                const pageItems = calJson && Array.isArray(calJson.data) ? calJson.data : (Array.isArray(calJson) ? calJson : []);
+                if (pageItems.length > 0) {
+                  calendarItems.push(...pageItems);
+                  if (pageItems.length < 20) {
+                    hasMore = false;
+                  } else {
+                    page++;
+                  }
+                } else {
+                  hasMore = false;
+                }
+              } else {
+                hasMore = false;
+              }
+            }
+          }));
+        } catch (calErr) {
+          console.warn('[OCTORATE WEBHOOK] Failed to fetch live calendar grid from Octorate:', calErr);
+        }
+
         const calculatedUpdates = calculateServerDynamicMinStay(
           bookingsData,
-          { start: todayISO, end: endISO }
+          { start: todayISO, end: endISO },
+          calendarItems
         );
 
         calculatedUpdatesCount = calculatedUpdates.length;

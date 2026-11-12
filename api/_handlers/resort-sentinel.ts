@@ -237,13 +237,37 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
   try {
     const currentYear = new Date().getFullYear();
     const endSeasonStr = `${currentYear + 1}-05-31`;
-    const resUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${todayStr}&endDate=${endSeasonStr}&size=100&page=0`;
-    const bRes = await fetch(resUrl, { headers });
-    if (bRes.ok) {
-      const bJson = await bRes.json();
-      const bookingsData = bJson && Array.isArray(bJson.data) ? bJson.data : (Array.isArray(bJson) ? bJson : (bJson.reservations || []));
-      
-      const gapUpdates = calculateServerDynamicMinStay(bookingsData, { start: todayStr, end: endSeasonStr });
+    const structuresToAudit = [366879, 807324];
+    const bookingsData: any[] = [];
+    const liveCalendarItems: any[] = [];
+
+    await Promise.all(structuresToAudit.map(async (sId) => {
+      try {
+        const resUrl = `https://api.octorate.com/connect/rest/v1/reservation/${sId}?type=STAY&startDate=${todayStr}&endDate=${endSeasonStr}&size=100&page=0`;
+        const bRes = await fetch(resUrl, { headers });
+        if (bRes.ok) {
+          const bJson = await bRes.json();
+          const items = bJson && Array.isArray(bJson.data) ? bJson.data : (Array.isArray(bJson) ? bJson : (bJson.reservations || []));
+          bookingsData.push(...items);
+        }
+
+        const calUrl = `https://api.octorate.com/connect/rest/v1/calendar/${sId}?dateFrom=${todayStr}&dateTo=${endSeasonStr}&size=20&page=0`;
+        const cRes = await fetch(calUrl, { headers });
+        if (cRes.ok) {
+          const cJson = await cRes.json();
+          const cItems = cJson && Array.isArray(cJson.data) ? cJson.data : (Array.isArray(cJson) ? cJson : []);
+          liveCalendarItems.push(...cItems);
+        }
+      } catch (err) {
+        console.warn(`[Resort Sentinel] Warning fetching structure ${sId}:`, err);
+      }
+    }));
+
+    const gapUpdates = calculateServerDynamicMinStay(
+      bookingsData,
+      { start: todayStr, end: endSeasonStr },
+      liveCalendarItems
+    );
       
       // Filtra i buchi residui (gapDays < baseline)
       const gapReductions = gapUpdates.filter(u => u.reason && u.reason.includes('Gap-Fill'));
