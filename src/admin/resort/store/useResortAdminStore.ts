@@ -711,7 +711,7 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       set({ dynamicMinStayRunning: true, isDynamicCalculationEnabled: true });
     }
     try {
-      let { rawOctorateBookings, bookings, dynamicMinStayGapFill, dynamicMinStayExecutionMode, fetchBookings, downloadSeasonSequential } = get();
+      let { rawOctorateBookings, rawOctorateGridItems, bookings, dynamicMinStayGapFill, dynamicMinStayExecutionMode, fetchBookings, downloadSeasonSequential } = get();
 
       // Regola 1: Se l'array rawOctorateBookings è vuoto, recupera l'intera stagione
       if (!rawOctorateBookings || rawOctorateBookings.length === 0) {
@@ -771,8 +771,8 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
           });
         });
       } else {
-        // Calcolo Assoluto basato sulle prenotazioni reali stagionali in memoria con enabled = true
-        updates = calculateDynamicMinStay(poolToUse, { start: todayISO, end: endISO, enabled: true });
+        // Calcolo Assoluto basato sulle prenotazioni reali stagionali e disponibilità della griglia in memoria con enabled = true
+        updates = calculateDynamicMinStay(poolToUse, { start: todayISO, end: endISO, enabled: true }, rawOctorateGridItems);
       }
 
       // Se la modalità è simulation o dynamicMinStayGapFill è false, dryRun = true

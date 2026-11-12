@@ -43,21 +43,21 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'jungle villa left': {
     motherId: 495795,
     name: 'Jungle Villa Left',
-    ids: ['495795', '495807', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
+    ids: ['495795', '495807', '495803', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
     keywords: [["jungle", "jv"], ["left", "jvl"]],
     linkedKeys: ['jungle villa']
   },
   'jungle villa right': {
     motherId: 495796,
     name: 'Jungle Villa Right',
-    ids: ['495796', '495980', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
+    ids: ['495796', '495980', '495976', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
     keywords: [["jungle", "jv"], ["right", "jvr"]],
     linkedKeys: ['jungle villa']
   },
   'peace & love villa': {
     motherId: 494840,
     name: 'Peace & Love Villa',
-    ids: ['494840', '495566', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
+    ids: ['494840', '495566', '495549', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
     keywords: [["peace", "love", "p&l"]]
   },
   'villa penthouse': {
@@ -326,7 +326,8 @@ export interface DynamicMinStayUpdate {
  */
 export function calculateDynamicMinStay(
   bookingsInput?: Array<{ accommodation_name?: string; accommodation_id?: string; check_in: string; check_out: string; status?: string; product?: string; roomName?: string }>,
-  dateRange?: { start?: string; end?: string; enabled?: boolean }
+  dateRange?: { start?: string; end?: string; enabled?: boolean },
+  calendarItems?: any[]
 ): DynamicMinStayUpdate[] {
   const updates: DynamicMinStayUpdate[] = [];
 
@@ -342,9 +343,11 @@ export function calculateDynamicMinStay(
 
   // Mappatura prenotazioni per alloggio CANONICO (utilizzando l'Albero Octorate 212 Prodotti)
   const roomBookingsMap: Record<string, { motherId: number; name: string; list: Array<{ in: string; out: string }> }> = {};
+  const roomUnavailableMap: Record<string, Array<{ in: string; out: string }>> = {};
 
   Object.entries(ALL_ACCOMMODATIONS_MAP).forEach(([key, canonical]) => {
     roomBookingsMap[key] = { motherId: canonical.motherId, name: canonical.name, list: [] };
+    roomUnavailableMap[key] = [];
   });
 
   activeBookings.forEach(b => {
@@ -355,6 +358,7 @@ export function calculateDynamicMinStay(
 
     if (!roomBookingsMap[key]) {
       roomBookingsMap[key] = { motherId, name: displayName, list: [] };
+      roomUnavailableMap[key] = [];
     }
 
     const checkInStr = toThailandDateStr(b.check_in || (b as any).checkin || (b as any).checkIn || (b as any).startDate);
@@ -365,6 +369,32 @@ export function calculateDynamicMinStay(
     }
   });
 
+  function addDaysISO(isoStr: string, n: number): string {
+    const parts = isoStr.split('-').map(Number);
+    const d = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] + n));
+    return d.toISOString().slice(0, 10);
+  }
+
+  // 2b. Integrazione Giorni a Disponibilità 0 / Stop Sell dalla Griglia Octorate (Stato Inventario Reale)
+  if (Array.isArray(calendarItems) && calendarItems.length > 0) {
+    calendarItems.forEach((cItem: any) => {
+      const cId = Number(cItem.id);
+      const motherMatch = Object.entries(ALL_ACCOMMODATIONS_MAP).find(([_, v]) => v.motherId === cId);
+      if (!motherMatch) return;
+      const roomKey = motherMatch[0];
+
+      (cItem.days || []).forEach((d: any) => {
+        const isUnavailable = (d.availability !== undefined && Number(d.availability) <= 0) || d.stopSells === true || d.closed === true;
+        if (isUnavailable) {
+          const dStr = toThailandDateStr(d.date || d.day);
+          if (dStr) {
+            roomUnavailableMap[roomKey].push({ in: dStr, out: addDaysISO(dStr, 1) });
+          }
+        }
+      });
+    });
+  }
+
   const todayStr = toThailandDateStr(new Date());
   const rangeStartStr = dateRange?.start ? toThailandDateStr(dateRange.start) : todayStr;
   const rangeEndStr = dateRange?.end ? toThailandDateStr(dateRange.end) : getSeasonalEndDateStr(todayStr);
@@ -373,7 +403,8 @@ export function calculateDynamicMinStay(
   Object.entries(roomBookingsMap).forEach(([key, { motherId, name: roomName, list }]) => {
     const canonical = ALL_ACCOMMODATIONS_MAP[key] || Object.values(ALL_ACCOMMODATIONS_MAP).find(a => a.motherId === motherId);
     const linkedList = (canonical?.linkedKeys || []).flatMap(lKey => roomBookingsMap[lKey]?.list || []);
-    const combinedList = [...list, ...linkedList];
+    const ownUnavail = roomUnavailableMap[key] || [];
+    const combinedList = [...list, ...linkedList, ...ownUnavail];
 
     // Ordina TUTTE le prenotazioni della camera (e delle collegate) in sequenza temporale per l'intera stagione
     const sorted = combinedList.sort((a, b) => a.in.localeCompare(b.in));
