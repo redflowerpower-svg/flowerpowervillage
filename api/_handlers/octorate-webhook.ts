@@ -34,7 +34,8 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'jungle villa left': {
     motherId: 495795,
     name: 'Jungle Villa Left',
-    ids: ['495795', '495807', '495803', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
+    // Rimuoviamo eventuali ID non esistenti su Octorate (es. 495804)
+    ids: ['495795', '495807', '495803', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
     keywords: [["jungle", "jv"], ["left", "jvl"]],
     linkedKeys: ['jungle villa']
   },
@@ -376,17 +377,22 @@ export function calculateServerDynamicMinStay(
         while (cur < gapEnd) {
           const baseline = getBaselineMinStay(cur);
           const target = Math.min(gapDays, baseline);
+          const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => String(a.motherId) === String(motherId));
+          const allTargetIds = canonical?.ids && canonical.ids.length > 0 ? canonical.ids : [String(motherId)];
+
           if (target !== blockMinStay) {
             const blockEnd = addDaysISO(cur, -1);
-            updates.push({
-              roomTypeId: String(motherId),
-              accommodationName: roomName,
-              dateFrom: blockStart,
-              dateTo: blockEnd,
-              minStay: blockMinStay,
-              reason: gapDays < baseline
-                ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
-                : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
+            allTargetIds.forEach(targetId => {
+              updates.push({
+                roomTypeId: String(targetId),
+                accommodationName: roomName,
+                dateFrom: blockStart,
+                dateTo: blockEnd,
+                minStay: blockMinStay,
+                reason: gapDays < baseline
+                  ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
+                  : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
+              });
             });
             blockStart = cur;
             blockMinStay = target;
@@ -396,15 +402,20 @@ export function calculateServerDynamicMinStay(
 
         const lastDate = addDaysISO(gapEnd, -1);
         if (blockStart <= lastDate) {
-          updates.push({
-            roomTypeId: String(motherId),
-            accommodationName: roomName,
-            dateFrom: blockStart,
-            dateTo: lastDate,
-            minStay: blockMinStay,
-            reason: gapDays < getBaselineMinStay(blockStart)
-              ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
-              : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
+          const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => String(a.motherId) === String(motherId));
+          const allTargetIds = canonical?.ids && canonical.ids.length > 0 ? canonical.ids : [String(motherId)];
+
+          allTargetIds.forEach(targetId => {
+            updates.push({
+              roomTypeId: String(targetId),
+              accommodationName: roomName,
+              dateFrom: blockStart,
+              dateTo: lastDate,
+              minStay: blockMinStay,
+              reason: gapDays < getBaselineMinStay(blockStart)
+                ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
+                : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
+            });
           });
         }
       }
