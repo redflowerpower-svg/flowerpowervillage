@@ -4,6 +4,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync.js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
+import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES } from "../_helpers/octorate-structures.js";
 
 function getSupabaseAdmin() {
   let url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "https://gjqevgkbjkharczhikcl.supabase.co";
@@ -502,8 +503,8 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       refreshToken = process.env.OCTORATE_REFRESH_TOKEN || "4717539bfc7644ff820bfa1e0d5a36a1";
     }
 
-    const fetchCalendarPage = async (token: string, pageNum: number) => {
-      const url = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${dateFrom}&dateTo=${dateTo}&size=20&page=${pageNum}`;
+    const fetchCalendarPageForStructure = async (token: string, structId: string, pageNum: number) => {
+      const url = `https://api.octorate.com/connect/rest/v1/calendar/${structId}?dateFrom=${dateFrom}&dateTo=${dateTo}&size=20&page=${pageNum}`;
       return await fetch(url, {
         method: "GET",
         headers: {
@@ -562,42 +563,49 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
 
     const targetIds = new Set([...OFFICIAL_BE_RATE_IDS, ...MOTHER_RATE_IDS]);
 
+    // 🌟 MULTI-STRUTTURA: Se l'utente specifica un singolo structureId (es. query), interroghiamo solo quello, altrimenti tutti e 3 in parallelo
+    const requestedStructure = (req.query.structureId as string) || (req.query.resortId as string);
+    const targetStructures = requestedStructure ? [requestedStructure] : ALL_OCTORATE_STRUCTURE_IDS;
+
     const allFetchedItems: any[] = [];
-    let page = 0;
     const PAGE_SIZE = 20;
-    const MAX_PAGES = 25;
+    const MAX_PAGES = 15; // per singola struttura
 
-    while (page < MAX_PAGES) {
-      let response = await fetchCalendarPage(accessToken, page);
+    // Chiamata parallela per le strutture target
+    await Promise.all(targetStructures.map(async (structId) => {
+      let page = 0;
+      while (page < MAX_PAGES) {
+        let response = await fetchCalendarPageForStructure(accessToken, structId, page);
 
-      if ((response.status === 401 || response.status === 403) && page === 0) {
-        const newTok = await tryRefreshToken();
-        if (newTok) {
-          accessToken = newTok;
-          response = await fetchCalendarPage(accessToken, page);
+        if ((response.status === 401 || response.status === 403) && page === 0) {
+          const newTok = await tryRefreshToken();
+          if (newTok) {
+            accessToken = newTok;
+            response = await fetchCalendarPageForStructure(accessToken, structId, page);
+          }
         }
+
+        if (!response.ok) {
+          console.warn(`[api/resort/octorate-grid] Struct ${structId} Page ${page} returned status ${response.status}`);
+          break;
+        }
+
+        const payload = await response.json();
+        const pageItems = payload && Array.isArray(payload.data) ? payload.data : (Array.isArray(payload) ? payload : []);
+
+        if (pageItems.length === 0) {
+          break;
+        }
+
+        allFetchedItems.push(...pageItems);
+
+        if (pageItems.length < PAGE_SIZE) {
+          break;
+        }
+
+        page++;
       }
-
-      if (!response.ok) {
-        console.warn(`[api/resort/octorate-grid] Page ${page} returned status ${response.status}`);
-        break;
-      }
-
-      const payload = await response.json();
-      const pageItems = payload && Array.isArray(payload.data) ? payload.data : (Array.isArray(payload) ? payload : []);
-
-      if (pageItems.length === 0) {
-        break;
-      }
-
-      allFetchedItems.push(...pageItems);
-
-      if (pageItems.length < PAGE_SIZE) {
-        break;
-      }
-
-      page++;
-    }
+    }));
 
     const filteredBEItems = allFetchedItems.filter((item: any) => {
       const idNum = Number(item.id);

@@ -7,6 +7,7 @@ import { checkAndNotifyOverbookings } from "../_helpers/overbooking-detector.js"
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { formatDateDMY } from "../_helpers/date-formatter.js";
 import { runResortSentinelAudit } from "./resort-sentinel.js";
+import { ALL_OCTORATE_STRUCTURE_IDS, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
@@ -571,35 +572,37 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
         const endISO = `${currentYear + 1}-10-31`;
 
         try {
-          // Paginazione completa partendo da page 0 (0-indexed nell'API Octorate)
-          let page = 0;
-          let hasMore = true;
-          while (hasMore && page <= 25) {
-            const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${todayISO}&endDate=${endISO}&size=100&page=${page}`;
-            const octRes = await fetch(octUrl, {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                ...(clientId ? { 'Octorate-Api-Key': clientId } : {}),
-                'Accept': 'application/json'
-              }
-            });
-            if (octRes.ok) {
-              const octJson = await octRes.json();
-              const pageData = octJson && Array.isArray(octJson.data) ? octJson.data : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
-              if (pageData.length > 0) {
-                bookingsData.push(...pageData);
-                if (pageData.length < 100) {
-                  hasMore = false;
+          // 🌟 MULTI-STRUTTURA: Fetch prenotazioni da tutte e 3 le strutture in parallelo
+          await Promise.all(ALL_OCTORATE_STRUCTURE_IDS.map(async (structId) => {
+            let page = 0;
+            let hasMore = true;
+            while (hasMore && page <= 10) {
+              const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/${structId}?type=STAY&startDate=${todayISO}&endDate=${endISO}&size=100&page=${page}`;
+              const octRes = await fetch(octUrl, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  ...(clientId ? { 'Octorate-Api-Key': clientId } : {}),
+                  'Accept': 'application/json'
+                }
+              });
+              if (octRes.ok) {
+                const octJson = await octRes.json();
+                const pageData = octJson && Array.isArray(octJson.data) ? octJson.data : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
+                if (pageData.length > 0) {
+                  bookingsData.push(...pageData);
+                  if (pageData.length < 100) {
+                    hasMore = false;
+                  } else {
+                    page++;
+                  }
                 } else {
-                  page++;
+                  hasMore = false;
                 }
               } else {
                 hasMore = false;
               }
-            } else {
-              hasMore = false;
             }
-          }
+          }));
         } catch (octErr) {
           console.warn('[OCTORATE WEBHOOK] Failed to fetch live bookings from Octorate:', octErr);
         }
@@ -739,6 +742,11 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
               const isCancelled = st === 'CANCELLED' || st === 'CANCELED' || st === 'DELETED' || st === 'VOID' || st === 'REJECTED' || eventType.toUpperCase().includes('CANCEL');
               const isModified = !isCancelled && (eventType.toUpperCase().includes('CHANGE') || eventType.toUpperCase().includes('MODIF') || eventType.toUpperCase().includes('UPDATE'));
 
+              // 🏷️ MULTI-STRUTTURA: Riconoscimento resort di appartenenza per badge Telegram
+              const roomRawId = targetBooking.product || targetBooking.pmsProduct || targetBooking.accommodation_id || targetBooking.roomId || targetBooking.roomTypeId || '';
+              const resortConfig = getOctorateStructureByRoomId(roomRawId);
+              const resortBadge = `${resortConfig.badgeEmoji} <b>[${resortConfig.name.toUpperCase()}]</b>`;
+
               // 📲 1. Notifica Telegram Immediata allo Staff del Villaggio (Strict AWAIT per evitare Context Freeze di Vercel)
               try {
                 let tgMessage = '';
@@ -755,7 +763,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                 if (!alreadySent) {
                   if (isCancelled) {
                     targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
-                    tgMessage = `🔴 <b>[CANCELLAZIONE PRENOTAZIONE]</b>\n` +
+                    tgMessage = `🔴 ${resortBadge} <b>CANCELLAZIONE PRENOTAZIONE</b>\n` +
                       `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
                       `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
                       `🌐 <b>Canale:</b> ${channelName}\n` +
@@ -764,7 +772,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                       `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
                   } else if (isModified) {
                     targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
-                    tgMessage = `🟡 <b>[PRENOTAZIONE MODIFICATA]</b>\n` +
+                    tgMessage = `🟡 ${resortBadge} <b>PRENOTAZIONE MODIFICATA</b>\n` +
                       `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
                       `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
                       `🌐 <b>Canale:</b> ${channelName}\n` +
@@ -773,7 +781,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                       `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
                   } else {
                     targetTopicKey = 'BOOKINGS';
-                    tgMessage = `🟢 <b>[NUOVA PRENOTAZIONE RICEVUTA]</b>\n` +
+                    tgMessage = `🟢 ${resortBadge} <b>NUOVA PRENOTAZIONE RICEVUTA</b>\n` +
                       `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
                       `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
                       `🌐 <b>Canale:</b> ${channelName}\n` +

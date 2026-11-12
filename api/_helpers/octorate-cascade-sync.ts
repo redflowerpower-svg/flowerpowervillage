@@ -113,8 +113,9 @@ export async function checkAndSyncCascadeLastMinute(
   // Se ha già 2061฿ (-10%), Octorate è già aggiornato e allineato
   if (!force) {
     try {
+      // 🌟 Probe su Jungle Villas (807324) dove risiede la camera benchmark Jungle Villa (529773)
       const probeRes = await fetch(
-        `https://api.octorate.com/connect/rest/v1/calendar/366879?dateFrom=${todayStr}&dateTo=${todayStr}&size=20&page=0`,
+        `https://api.octorate.com/connect/rest/v1/calendar/807324?dateFrom=${todayStr}&dateTo=${todayStr}&size=20&page=0`,
         { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
       );
       if (probeRes.ok) {
