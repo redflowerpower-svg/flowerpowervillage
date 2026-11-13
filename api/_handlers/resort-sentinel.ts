@@ -331,7 +331,6 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
           }
         }
       }
-    }
   } catch (gapErr) {
     console.warn('[Resort Sentinel] Gap-fill audit warning:', gapErr);
   }
