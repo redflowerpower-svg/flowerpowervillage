@@ -140,6 +140,77 @@ export function ResortDashboard() {
     return 'bookings';
   });
 
+  const [activeJungleSource, setActiveJungleSource] = useState<'807324' | '366879'>('807324');
+  const [jungleMirrorBusy, setJungleMirrorBusy] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/octorate-jungle-mirror')
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (data?.activeJungleSource === '807324' || data?.activeJungleSource === '366879') {
+          setActiveJungleSource(data.activeJungleSource);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSwitchJungleSource = async () => {
+    if (jungleMirrorBusy) return;
+    const target: '807324' | '366879' = activeJungleSource === '807324' ? '366879' : '807324';
+    const currentLabel = activeJungleSource === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
+    const targetLabel = target === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
+
+    const confirmed = window.confirm(
+      `Vuoi spostare le 4 Ville (Jungle Villa, Left, Right, Peace & Love) da ${currentLabel} a ${targetLabel}?\n\n` +
+      `• ${targetLabel} verrà aperta sulle 4 ville (copiando prezzi e giorni occupati).\n` +
+      `• ${currentLabel} passerà in standby (stopSells: true sulle 4 ville).\n` +
+      `• Gli altri bungalow di Flower Power Village non verranno toccati.`
+    );
+    if (!confirmed) return;
+
+    setJungleMirrorBusy(true);
+    try {
+      const res = await fetch('/api/octorate-jungle-mirror', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'switch', targetStructureId: target })
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error || `HTTP ${res.status}`);
+      }
+      setActiveJungleSource(target);
+      window.alert(`Switch completato! Ora le 4 Ville vendono da ${targetLabel} (${json.syncedEntries || 0} giorni allineati).`);
+    } catch (err: any) {
+      window.alert(`Errore durante lo switch: ${err?.message || 'Errore sconosciuto'}`);
+    } finally {
+      setJungleMirrorBusy(false);
+    }
+  };
+
+  const handleSyncJungleMirror = async () => {
+    if (jungleMirrorBusy) return;
+    setJungleMirrorBusy(true);
+    try {
+      const res = await fetch('/api/octorate-jungle-mirror', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync', daysAhead: 365 })
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error || `HTTP ${res.status}`);
+      }
+      const fromLabel = json.active === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
+      const toLabel = json.standby === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
+      window.alert(`Specchio allineato! Copiati ${json.syncedEntries || 0} giorni da ${fromLabel} a ${toLabel}.`);
+    } catch (err: any) {
+      window.alert(`Errore sync specchio: ${err?.message || 'Errore sconosciuto'}`);
+    } finally {
+      setJungleMirrorBusy(false);
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const tabParam = new URLSearchParams(window.location.search).get('tab');
@@ -998,6 +1069,38 @@ export function ResortDashboard() {
               <ShieldCheck className={`w-4 h-4 text-emerald-400 ${sentinelRunning ? 'animate-pulse' : 'group-hover:scale-110'} transition-transform`} />
               <span>{sentinelRunning ? 'Audit Sentinel...' : '🛡️ Sentinel 24/7'}</span>
             </button>
+
+            {/* Switch 4 Ville Jungle Villas (807324) <-> Flower Power Village (366879) */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-stone-900 border border-amber-500/40 rounded-2xl">
+              <span
+                className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-lg ${
+                  activeJungleSource === '807324'
+                    ? 'bg-amber-500/20 text-amber-300'
+                    : 'bg-emerald-500/20 text-emerald-300'
+                }`}
+                title="Struttura attualmente attiva per le 4 ville (Jungle Villa, Left, Right, Peace & Love)"
+              >
+                4 Ville: {activeJungleSource === '807324' ? 'Jungle Villas (807324)' : 'FPV (366879)'}
+              </span>
+              <button
+                type="button"
+                onClick={handleSwitchJungleSource}
+                disabled={jungleMirrorBusy}
+                className="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-stone-950 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer whitespace-nowrap"
+                title="Switcha le 4 ville tra Jungle Villas (807324) e Flower Power Village (366879)"
+              >
+                {jungleMirrorBusy ? 'Attendi...' : '⇄ Switcha'}
+              </button>
+              <button
+                type="button"
+                onClick={handleSyncJungleMirror}
+                disabled={jungleMirrorBusy}
+                className="px-2 py-1 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-200 border border-stone-700 rounded-xl text-[10px] font-bold transition-all cursor-pointer whitespace-nowrap"
+                title="Forza riallineamento prezzi e disponibilità verso la gemella in standby"
+              >
+                Sync Specchio
+              </button>
+            </div>
 
             {/* Search Input for Bookings & Reset Blacklist Control (Moved after Sincronizza) */}
             <div className="flex items-center gap-2">
