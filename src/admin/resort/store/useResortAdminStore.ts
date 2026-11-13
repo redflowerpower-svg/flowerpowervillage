@@ -32,6 +32,10 @@ export interface ResortBooking {
   stripe_session_id?: string;
   octorate_reservation_id?: string;
   source_channel?: string;
+  channelId?: number;
+  structure_id?: string;
+  structureId?: string;
+  structure_name?: string;
   extra_breakfast: boolean;
   extra_ac: boolean;
 }

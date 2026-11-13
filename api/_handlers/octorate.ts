@@ -4,7 +4,8 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync.js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
-import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES } from "../_helpers/octorate-structures.js";
+import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
+import { executeOctorateMove } from "../_helpers/octorate-move.js";
 
 function getSupabaseAdmin() {
   let url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "https://gjqevgkbjkharczhikcl.supabase.co";
@@ -38,7 +39,7 @@ function getSupabaseAdmin() {
 const OFFICIAL_BE_RATE_IDS = new Set([
   529784, 495807, 495980, 495566, 449348, 449385, 449422, 449668,
   449675, 449674, 449678, 449684, 449699, 449724, 449730, 449736,
-  923905, 449742
+  923905, 449742, 932243, 932256
 ]);
 
 // 1. handleOctorateExchange
@@ -368,75 +369,98 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
       });
 
       try {
-        const pageSize = 20;
-        let page = 0;
-        let hasMore = true;
-        const maxPages = 50; // Safety guard for up to 1000 reservations
-        const rawItems: any[] = [];
+        const pageSize = 50;
+        const maxPages = 30;
+        const rawById = new Map<string, { item: any; fetchedStructureId: string }>();
 
-        while (hasMore && page < maxPages) {
-          const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=${pageSize}&page=${page}`;
-          let octRes = await fetch(octUrl, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${tokenData.access_token}`,
-              'Accept': 'application/json'
-            }
-          });
+        await Promise.all(
+          ALL_OCTORATE_STRUCTURE_IDS.map(async (structId) => {
+            let page = 0;
+            let hasMore = true;
+            while (hasMore && page < maxPages) {
+              const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/${structId}?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=${pageSize}&page=${page}`;
+              let octRes = await fetch(octUrl, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${tokenData.access_token}`,
+                  'Accept': 'application/json'
+                }
+              });
 
-          if (!octRes.ok) {
-            const fallbackUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=366879&type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=${pageSize}&page=${page}`;
-            octRes = await fetch(fallbackUrl, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${tokenData.access_token}`,
-                'Accept': 'application/json'
+              if (!octRes.ok) {
+                const fallbackUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=${structId}&type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=${pageSize}&page=${page}`;
+                octRes = await fetch(fallbackUrl, {
+                  method: 'GET',
+                  headers: {
+                    'Authorization': `Bearer ${tokenData.access_token}`,
+                    'Accept': 'application/json'
+                  }
+                });
               }
-            });
-          }
 
-          if (octRes.ok) {
-            const octJson = await octRes.json();
-            const pageItems = octJson && Array.isArray(octJson.data)
-              ? octJson.data
-              : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
+              if (octRes.ok) {
+                const octJson = await octRes.json();
+                const pageItems = octJson && Array.isArray(octJson.data)
+                  ? octJson.data
+                  : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
 
-            if (Array.isArray(pageItems) && pageItems.length > 0) {
-              rawItems.push(...pageItems);
-              if (pageItems.length < pageSize) {
-                hasMore = false; // Reached last page
+                if (Array.isArray(pageItems) && pageItems.length > 0) {
+                  for (const item of pageItems) {
+                    const idStr = String(item.id || item.reservationId || '');
+                    if (!idStr) continue;
+                    const prodId = item.product || item.roomTypeId || item.roomId || '';
+                    const inferredStruct = item.accommodation?.id
+                      ? String(item.accommodation.id)
+                      : getOctorateStructureByRoomId(prodId).id;
+                    const existing = rawById.get(idStr);
+                    // Prefer the structure that actually owns the reservation/room
+                    if (!existing || structId === inferredStruct) {
+                      rawById.set(idStr, { item, fetchedStructureId: inferredStruct || structId });
+                    }
+                  }
+                  if (pageItems.length < pageSize) {
+                    hasMore = false;
+                  } else {
+                    page++;
+                  }
+                } else {
+                  hasMore = false;
+                }
               } else {
-                page++;
+                console.warn(`[api/resort/octorate-bookings] Octorate API status ${octRes.status} for structure ${structId} on page ${page}`);
+                hasMore = false;
               }
-            } else {
-              hasMore = false;
             }
-          } else {
-            console.warn(`[api/resort/octorate-bookings] Octorate API status ${octRes.status} on page ${page}`);
-            hasMore = false;
-          }
-        }
+          })
+        );
 
-        octorateReservations = rawItems.map((r: any) => {
+        octorateReservations = Array.from(rawById.values()).map(({ item: r, fetchedStructureId }) => {
           const inStr = toThailandDateStr(r.checkin || r.check_in || r.checkIn || r.startDate);
           const outStr = toThailandDateStr(r.checkout || r.check_out || r.checkOut || r.endDate);
+          const prodId = String(r.product || r.roomTypeId || r.roomId || r.accommodation_id || '');
+          const structCfg = OCTORATE_STRUCTURES.find(s => s.id === fetchedStructureId) || getOctorateStructureByRoomId(prodId);
           return {
             id: String(r.id || r.reservationId || Math.random()),
             guest_name: r.guestName || r.guest_name || `${r.firstName || r.first_name || 'Ospite'} ${r.lastName || r.last_name || ''}`.trim(),
             guest_email: r.guestMailAddress || r.email || r.guestEmail || r.customerEmail || (r.guests && r.guests[0]?.email) || (r.guests && r.guests[0]?.mailAddress) || '',
             guest_phone: r.phone || (r.guests && r.guests[0]?.phone) || '',
-            accommodation_id: String(r.product || r.roomTypeId || r.roomId || r.accommodation_id || ''),
+            accommodation_id: prodId,
             accommodation_name: r.roomName || r.accommodation_name || '',
-            product: String(r.product || r.roomTypeId || ''),
+            product: prodId,
+            pmsProduct: r.pmsProduct ? String(r.pmsProduct) : undefined,
             roomName: r.roomName || r.accommodation_name || '',
+            structure_id: structCfg.id,
+            structureId: structCfg.id,
+            structure_name: structCfg.name,
             check_in: inStr,
             check_out: outStr,
             checkin: inStr,
             checkout: outStr,
             guests: Number(r.totalGuest || r.pax || r.guestsCount || 2),
             total_price: Number(r.roomGross || r.totalGross || r.totalAmount || 0),
-            deposit_paid: Number(r.deposit || 0),
+            deposit_paid: Number(r.deposit || r.totalPaid || 0),
             status: (['CANCELLED', 'CANCELED', 'DELETED', 'VOID', 'REJECTED'].includes(String(r.status || '').toUpperCase().trim()) || Boolean(r.cancelled || r.isCancelled)) ? 'cancelled' : 'confirmed',
+            channelId: r.channelId !== undefined ? Number(r.channelId) : undefined,
             source_channel: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com',
             channelName: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com'
           };
@@ -558,7 +582,7 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
     const MOTHER_RATE_IDS = new Set([
       529773, 495795, 495796, 494840, 421511, 293957, 293954, 293962,
       293965, 293955, 293963, 293959, 293948, 293945, 293943, 293951,
-      883795, 293942
+      883795, 293942, 649669, 921799
     ]);
 
     const targetIds = new Set([...OFFICIAL_BE_RATE_IDS, ...MOTHER_RATE_IDS]);
@@ -832,6 +856,7 @@ export async function handleOctorateEnrichEmails(req: VercelRequest, res: Vercel
   const token = tokenData.access_token;
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
   const ids: (number | string)[] = Array.isArray(body.ids) ? body.ids.filter(Boolean) : [];
+  const structureMap: Record<string, string> = (body.structureMap && typeof body.structureMap === 'object') ? body.structureMap : {};
 
   if (ids.length === 0) {
     return res.status(400).json({ error: 'Nessun ID prenotazione fornito' });
@@ -847,17 +872,22 @@ export async function handleOctorateEnrichEmails(req: VercelRequest, res: Vercel
     await Promise.all(
       chunk.map(async (id) => {
         try {
-          const detailRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation/366879/${id}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json'
+          const preferredStruct = structureMap[String(id)] || '366879';
+          const structsToTry = [preferredStruct, ...ALL_OCTORATE_STRUCTURE_IDS.filter(s => s !== preferredStruct)];
+          for (const structId of structsToTry) {
+            const detailRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation/${structId}/${id}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+              }
+            });
+            if (detailRes.ok) {
+              const dJson = await detailRes.json();
+              const email = (dJson.guestMailAddress || dJson.email || dJson.guestEmail || (dJson.guests && dJson.guests[0]?.email) || '').trim().toLowerCase();
+              const phone = (dJson.phone || (dJson.guests && dJson.guests[0]?.phone) || '').trim();
+              contacts[String(id)] = { email, phone };
+              break;
             }
-          });
-          if (detailRes.ok) {
-            const dJson = await detailRes.json();
-            const email = (dJson.guestMailAddress || dJson.email || dJson.guestEmail || (dJson.guests && dJson.guests[0]?.email) || '').trim().toLowerCase();
-            const phone = (dJson.phone || (dJson.guests && dJson.guests[0]?.phone) || '').trim();
-            contacts[String(id)] = { email, phone };
           }
         } catch (err) {
           console.warn(`[enrichEmails] Errore recupero ID ${id}:`, err);
@@ -871,4 +901,34 @@ export async function handleOctorateEnrichEmails(req: VercelRequest, res: Vercel
     count: Object.keys(contacts).length,
     contacts
   });
+}
+
+// 10. handleOctorateMoveReservation — Sposta una prenotazione tra alloggi (stessa struttura o cross-struttura Octorate)
+export async function handleOctorateMoveReservation(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) {
+    return res.status(500).json({ error: 'Supabase configuration missing' });
+  }
+
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+  try {
+    const result = await executeOctorateMove({
+      reservationId: String(body.reservationId || '').trim(),
+      sourceStructureId: String(body.sourceStructureId || '').trim(),
+      targetStructureId: String(body.targetStructureId || '').trim(),
+      targetProductId: Number(body.targetProductId || 0),
+      targetRoomName: String(body.targetRoomName || '').trim(),
+      otaSourceAction: body.otaSourceAction === 'move_to_fake' ? 'move_to_fake' : 'note_only',
+      holdingProductId: Number(body.holdingProductId || 649669),
+      dryRun: Boolean(body.dryRun)
+    }, supabaseAdmin);
+    return res.status(result.status).json(result.body);
+  } catch (error: any) {
+    console.error('[moveReservation] Error:', error);
+    return res.status(500).json({ error: error.message || 'Errore interno spostamento prenotazione' });
+  }
 }

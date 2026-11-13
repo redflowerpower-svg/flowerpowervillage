@@ -17,9 +17,20 @@ import {
   buildContactLines,
   getSupabaseClient,
   formatAllDatesToDMY,
+  formatDateDMY,
   PIZZA_TOPICS,
+  VILLAGE_TOPICS,
   resolvePaymentDetails
 } from "../_helpers/telegram.js";
+import {
+  searchOctorateReservations,
+  fetchReservationDetail,
+  findAvailableTargetRooms,
+  executeOctorateMove,
+  getRoomOptionByMotherId,
+  toThailandDateStr,
+  DIRECT_CHANNEL_IDS
+} from "../_helpers/octorate-move.js";
 import {
   sendPizzaOrderEmail,
   extractOrderMetadata
@@ -465,6 +476,151 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         const chatId = incomingMsg.chat.id;
         const threadId = incomingMsg.message_thread_id;
         const messageId = incomingMsg.message_id;
+
+        // ── Booking Editor Topic (ID: 569) — Gestione /sposta da mobile ──
+        if (threadId === VILLAGE_TOPICS.BOOKING_EDITOR) {
+          const editorStateKey = `booking_editor_state_${chatId}_${threadId}`;
+          const sendEditorMsg = async (text: string, replyMarkup?: any) => {
+            await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text,
+                parse_mode: 'HTML',
+                message_thread_id: threadId,
+                reply_to_message_id: messageId,
+                ...(replyMarkup ? { reply_markup: replyMarkup } : {})
+              })
+            });
+          };
+
+          const showAvailableRoomsForHit = async (hit: {
+            id: string;
+            structureId: string;
+            structureName: string;
+            structureEmoji: string;
+            guestName: string;
+            roomName: string;
+            productId: string;
+            checkIn: string;
+            checkOut: string;
+            channelName: string;
+          }) => {
+            const availableRooms = await findAvailableTargetRooms(hit.checkIn, hit.checkOut, hit.productId, supabase);
+            if (availableRooms.length === 0) {
+              await sendEditorMsg(
+                `❌ Nessun altro alloggio disponibile su Octorate per le date <b>${formatDateDMY(hit.checkIn)} → ${formatDateDMY(hit.checkOut)}</b>.`
+              );
+              return;
+            }
+            const keyboardRows: any[][] = [];
+            for (let i = 0; i < availableRooms.length; i += 2) {
+              const pair = availableRooms.slice(i, i + 2).map(rm => ({
+                text: `${rm.emoji} ${rm.shortName}`,
+                callback_data: `mv:r:${hit.id}:${hit.structureId}:${rm.motherId}`
+              }));
+              keyboardRows.push(pair);
+            }
+            keyboardRows.push([{ text: '❌ Annulla', callback_data: 'mv:cancel' }]);
+
+            await sendEditorMsg(
+              `📋 <b>Prenotazione Trovata</b>\n` +
+              `👤 <b>${escapeHtml(hit.guestName)}</b> (<code>#${hit.id}</code>)\n` +
+              `🏨 Attuale: ${hit.structureEmoji} <b>${escapeHtml(hit.roomName)}</b>\n` +
+              `📅 Date: <b>${formatDateDMY(hit.checkIn)} → ${formatDateDMY(hit.checkOut)}</b>\n` +
+              `🌐 Canale: <b>${escapeHtml(hit.channelName)}</b>\n\n` +
+              `👇 <b>Seleziona l'alloggio di destinazione</b> (solo alloggi liberi):`,
+              { inline_keyboard: keyboardRows }
+            );
+          };
+
+          if (msgText === '/start' || msgText === '/help' || msgText.startsWith('/start@') || msgText.startsWith('/help@')) {
+            await sendEditorMsg(
+              `🛠️ <b>Booking Editor — Comandi Disponibili</b>\n\n` +
+              `• <b>/sposta</b> — Sposta una prenotazione su un altro alloggio (anche tra strutture diverse)\n` +
+              `• <b>/sposta Nome o ID</b> — Cerca subito la prenotazione\n` +
+              `• <b>/cancel</b> — Annulla l'operazione in corso`
+            );
+            return res.status(200).json({ status: 'booking_editor_help' });
+          }
+
+          if (msgText === '/cancel' || msgText.startsWith('/cancel@')) {
+            if (supabase) {
+              await supabase.from('telegram_config').delete().eq('id', editorStateKey);
+            }
+            await sendEditorMsg('❌ Operazione annullata. Scrivi /sposta quando vuoi iniziare.');
+            return res.status(200).json({ status: 'booking_editor_cancelled' });
+          }
+
+          const isSpostaCmd = msgText === '/sposta' || msgText.startsWith('/sposta ') || msgText.startsWith('/sposta@');
+          let searchQuery = '';
+
+          if (isSpostaCmd) {
+            searchQuery = msgText.replace(/^\/sposta(@\S+)?\s*/i, '').trim();
+            if (!searchQuery) {
+              if (supabase) {
+                await supabase.from('telegram_config').upsert({
+                  id: editorStateKey,
+                  bot_token: 'awaiting_move_query',
+                  chat_id: String(chatId),
+                  updated_at: new Date().toISOString()
+                });
+              }
+              await sendEditorMsg(
+                `🔄 <b>Sposta Prenotazione</b>\n\n` +
+                `Quale prenotazione vuoi spostare?\n` +
+                `Scrivi qui il <b>nome dell'ospite</b> oppure l'<b>ID prenotazione</b> (es. <code>Pozdeev</code> oppure <code>130371809</code>):`,
+                { force_reply: true, selective: true }
+              );
+              return res.status(200).json({ status: 'booking_editor_awaiting_query' });
+            }
+          } else {
+            // Controlla se siamo in attesa di risposta per /sposta
+            let awaiting = false;
+            if (supabase) {
+              const { data: stData } = await supabase
+                .from('telegram_config')
+                .select('bot_token')
+                .eq('id', editorStateKey)
+                .maybeSingle();
+              if (stData?.bot_token === 'awaiting_move_query') {
+                awaiting = true;
+                await supabase.from('telegram_config').delete().eq('id', editorStateKey);
+              }
+            }
+            if (!awaiting) {
+              return res.status(200).json({ status: 'booking_editor_ignored_non_command' });
+            }
+            searchQuery = msgText;
+          }
+
+          // Esegui ricerca su tutte e 3 le strutture
+          const hits = await searchOctorateReservations(searchQuery, supabase);
+          if (hits.length === 0) {
+            await sendEditorMsg(
+              `🔍 Nessuna prenotazione attiva trovata per "<code>${escapeHtml(searchQuery)}</code>".\nScrivi /sposta per riprovare.`
+            );
+            return res.status(200).json({ status: 'booking_editor_no_hits' });
+          }
+
+          if (hits.length === 1) {
+            await showAvailableRoomsForHit(hits[0]);
+            return res.status(200).json({ status: 'booking_editor_single_hit' });
+          }
+
+          const pickButtons = hits.slice(0, 8).map(h => ([{
+            text: `${h.structureEmoji} ${h.guestName} · ${h.roomName} (${formatDateDMY(h.checkIn).slice(0, 5)}→${formatDateDMY(h.checkOut).slice(0, 5)})`,
+            callback_data: `mv:p:${h.id}:${h.structureId}`
+          }]));
+          pickButtons.push([{ text: '❌ Annulla', callback_data: 'mv:cancel' }]);
+
+          await sendEditorMsg(
+            `🔍 Trovate <b>${hits.length}</b> prenotazioni per "<code>${escapeHtml(searchQuery)}</code>".\nScegli quale vuoi spostare:`,
+            { inline_keyboard: pickButtons }
+          );
+          return res.status(200).json({ status: 'booking_editor_multi_hits' });
+        }
 
         // Auto-persist active topic thread_id for Concierge Bot
         if (threadId && supabase) {
@@ -1193,6 +1349,173 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
   const messageChatId = message.chat.id;
   const messageId = message.message_id;
   const callbackData = callbackQuery.data;
+
+  // ── Booking Editor Topic Inline Actions (mv:...) ──
+  if (callbackData && callbackData.startsWith('mv:')) {
+    const { botToken: vBotToken } = await getTelegramCredentials('village');
+    const targetToken = vBotToken || botToken;
+    const answerCb = (text?: string) =>
+      fetch(`https://api.telegram.org/bot${targetToken}/answerCallbackQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callback_query_id: callbackQueryId, ...(text ? { text } : {}) })
+      }).catch(() => {});
+
+    const editEditorMsg = (text: string, replyMarkup?: any) =>
+      fetch(`https://api.telegram.org/bot${targetToken}/editMessageText`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: messageChatId,
+          message_id: messageId,
+          text,
+          parse_mode: 'HTML',
+          ...(replyMarkup ? { reply_markup: replyMarkup } : {})
+        })
+      });
+
+    if (callbackData === 'mv:cancel') {
+      await answerCb('Annullato');
+      await editEditorMsg('❌ Operazione annullata. Scrivi /sposta per iniziare.');
+      return res.status(200).json({ status: 'mv_cancelled' });
+    }
+
+    const parts = callbackData.split(':');
+    const action = parts[1];
+
+    if (action === 'p') {
+      // mv:p:<resId>:<srcStruct>
+      const resId = parts[2];
+      const srcStruct = parts[3];
+      await answerCb('Verifica disponibilità...');
+      const detail = await fetchReservationDetail(resId, srcStruct, supabase);
+      if (!detail) {
+        await editEditorMsg(`❌ Prenotazione #${resId} non trovata su Octorate.`);
+        return res.status(200).json({ status: 'mv_not_found' });
+      }
+      const { orig, sourceStructureId } = detail;
+      const checkIn = toThailandDateStr(orig.checkin || orig.check_in);
+      const checkOut = toThailandDateStr(orig.checkout || orig.check_out);
+      const guestName = `${orig.firstName || ''} ${orig.lastName || ''}`.trim() || orig.guestsList || 'Ospite';
+      const roomName = orig.roomName || String(orig.product || '');
+      const availableRooms = await findAvailableTargetRooms(checkIn, checkOut, orig.product, supabase);
+      if (availableRooms.length === 0) {
+        await editEditorMsg(`❌ Nessun alloggio disponibile su Octorate per le date <b>${formatDateDMY(checkIn)} → ${formatDateDMY(checkOut)}</b>.`);
+        return res.status(200).json({ status: 'mv_no_rooms' });
+      }
+      const keyboardRows: any[][] = [];
+      for (let i = 0; i < availableRooms.length; i += 2) {
+        keyboardRows.push(
+          availableRooms.slice(i, i + 2).map(rm => ({
+            text: `${rm.emoji} ${rm.shortName}`,
+            callback_data: `mv:r:${resId}:${sourceStructureId}:${rm.motherId}`
+          }))
+        );
+      }
+      keyboardRows.push([{ text: '❌ Annulla', callback_data: 'mv:cancel' }]);
+      await editEditorMsg(
+        `📋 <b>Prenotazione Selezionata</b>\n` +
+        `👤 <b>${escapeHtml(guestName)}</b> (<code>#${resId}</code>)\n` +
+        `🏨 Attuale: <b>${escapeHtml(roomName)}</b>\n` +
+        `📅 Date: <b>${formatDateDMY(checkIn)} → ${formatDateDMY(checkOut)}</b>\n` +
+        `🌐 Canale: <b>${escapeHtml(orig.channelName || 'Direct')}</b>\n\n` +
+        `👇 <b>Seleziona l'alloggio di destinazione</b> (solo alloggi liberi):`,
+        { inline_keyboard: keyboardRows }
+      );
+      return res.status(200).json({ status: 'mv_rooms_shown' });
+    }
+
+    if (action === 'r') {
+      // mv:r:<resId>:<srcStruct>:<targetProductId>
+      const resId = parts[2];
+      const srcStruct = parts[3];
+      const targetProdId = Number(parts[4]);
+      await answerCb();
+      const detail = await fetchReservationDetail(resId, srcStruct, supabase);
+      const targetRoom = getRoomOptionByMotherId(targetProdId);
+      if (!detail || !targetRoom) {
+        await editEditorMsg(`❌ Dati prenotazione o alloggio non trovati.`);
+        return res.status(200).json({ status: 'mv_invalid_selection' });
+      }
+      const { orig, sourceStructureId } = detail;
+      const checkIn = toThailandDateStr(orig.checkin || orig.check_in);
+      const checkOut = toThailandDateStr(orig.checkout || orig.check_out);
+      const guestName = `${orig.firstName || ''} ${orig.lastName || ''}`.trim() || orig.guestsList || 'Ospite';
+      const roomName = orig.roomName || String(orig.product || '');
+      const chId = Number(orig.channelId || 0);
+      const isDirect = !chId || DIRECT_CHANNEL_IDS.has(chId);
+      const isCross = sourceStructureId !== targetRoom.structureId;
+
+      const confirmRows: any[][] = [];
+      if (isDirect || !isCross) {
+        confirmRows.push([{
+          text: '✅ Conferma Spostamento',
+          callback_data: `mv:g:${resId}:${sourceStructureId}:${targetProdId}:del`
+        }]);
+      } else {
+        confirmRows.push([{
+          text: '✅ Conferma (Solo Nota su OTA)',
+          callback_data: `mv:g:${resId}:${sourceStructureId}:${targetProdId}:note`
+        }]);
+        if (sourceStructureId === '366879') {
+          confirmRows.push([{
+            text: '🔄 Conferma + Parcheggia OTA su Fake 1',
+            callback_data: `mv:g:${resId}:${sourceStructureId}:${targetProdId}:fake`
+          }]);
+        }
+      }
+      confirmRows.push([{ text: '❌ Annulla', callback_data: 'mv:cancel' }]);
+
+      const origPolicyText = !isCross
+        ? 'Aggiornamento diretto nella stessa struttura.'
+        : isDirect
+          ? '🗑️ Prenotazione diretta/manuale: verrà cancellata dalla vecchia struttura.'
+          : '🌐 Prenotazione OTA: scegli come gestire la prenotazione originale.';
+
+      await editEditorMsg(
+        `🔎 <b>Riepilogo Spostamento</b>\n\n` +
+        `👤 Ospite: <b>${escapeHtml(guestName)}</b> (<code>#${resId}</code>)\n` +
+        `📅 Date: <b>${formatDateDMY(checkIn)} → ${formatDateDMY(checkOut)}</b>\n` +
+        `📤 Da: <b>${escapeHtml(roomName)}</b>\n` +
+        `📥 A: ${targetRoom.emoji} <b>${escapeHtml(targetRoom.name)}</b> (<i>${escapeHtml(targetRoom.structureName)}</i>)\n\n` +
+        `${origPolicyText}`,
+        { inline_keyboard: confirmRows }
+      );
+      return res.status(200).json({ status: 'mv_confirm_shown' });
+    }
+
+    if (action === 'g') {
+      // mv:g:<resId>:<srcStruct>:<targetProductId>:<mode>
+      const resId = parts[2];
+      const srcStruct = parts[3];
+      const targetProdId = Number(parts[4]);
+      const mode = parts[5] || 'note';
+      await answerCb('Spostamento su Octorate in corso...');
+      await editEditorMsg('⏳ <b>Spostamento su Octorate in corso...</b>');
+
+      const result = await executeOctorateMove({
+        reservationId: resId,
+        sourceStructureId: srcStruct,
+        targetProductId: targetProdId,
+        otaSourceAction: mode === 'fake' ? 'move_to_fake' : 'note_only'
+      }, supabase);
+
+      if (!result.body?.success) {
+        await editEditorMsg(`❌ <b>Spostamento fallito:</b>\n${escapeHtml(result.body?.error || 'Errore sconosciuto')}`);
+        return res.status(200).json({ status: 'mv_failed' });
+      }
+
+      const targetRoom = getRoomOptionByMotherId(targetProdId);
+      await editEditorMsg(
+        `✅ <b>Spostamento Completato su Octorate!</b>\n\n` +
+        `📥 Destinazione: ${targetRoom?.emoji || ''} <b>${escapeHtml(targetRoom?.name || String(targetProdId))}</b>\n` +
+        `🆔 Nuovo ID Octorate: <code>#${result.body.newReservationId}</code>\n` +
+        `⚙️ Origine: <b>${escapeHtml(String(result.body.sourceAction || ''))}</b>` +
+        (result.body.warning ? `\n\n⚠️ ${escapeHtml(result.body.warning)}` : '')
+      );
+      return res.status(200).json({ status: 'mv_executed' });
+    }
+  }
 
   // ── Village Bot AI Concierge Actions (e.g. Save Rule) ──
   if (callbackData && callbackData.startsWith('save_rule_')) {

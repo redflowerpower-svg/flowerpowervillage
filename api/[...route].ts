@@ -17,7 +17,8 @@ import {
   handleOctorateBookings,
   handleOctorateGrid,
   handleOctorateMinStay,
-  handleOctorateEnrichEmails
+  handleOctorateEnrichEmails,
+  handleOctorateMoveReservation
 } from "./_handlers/octorate.js";
 import { handleOctorateWebhook } from "./_handlers/octorate-webhook.js";
 import { handleEmailAlerts } from "./_handlers/email-alerts.js";
@@ -203,6 +204,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return handleOctorateMinStay(req, res);
   }
 
+  if (cleanPath.includes('octorate-move-reservation') || cleanPath.includes('octorate_move_reservation')) {
+    return handleOctorateMoveReservation(req, res);
+  }
+
   if (cleanPath.includes('octorate-enrich-emails') || cleanPath.includes('octorate_enrich_emails')) {
     return handleOctorateEnrichEmails(req, res);
   }
@@ -274,6 +279,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     case 'resort/octorate-bookings':
       return handleOctorateBookings(req, res);
+
+    case 'resort/octorate-move-reservation':
+    case 'octorate-move-reservation':
+      return handleOctorateMoveReservation(req, res);
 
     case 'resort/octorate-grid':
       return handleOctorateGrid(req, res);

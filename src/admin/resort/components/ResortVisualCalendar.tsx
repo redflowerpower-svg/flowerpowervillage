@@ -17,7 +17,9 @@ import {
   DollarSign, 
   Globe,
   RefreshCw,
-  Lock
+  Lock,
+  ArrowRightLeft,
+  AlertTriangle
 } from 'lucide-react';
 
 const MONTH_NAMES_IT = [
@@ -103,6 +105,67 @@ export const ACCOMMODATION_RATE_PLANS: Record<string, { motherId: number; beId: 
   'Fake Bungalow 1': { motherId: 649669, beId: 932244 },
   'Fake Bungalow 2': { motherId: 921799, beId: 932257 }
 };
+
+export const MOVE_STRUCTURE_CATALOG: Array<{
+  id: string;
+  label: string;
+  rooms: Array<{ motherId: number; name: string }>;
+}> = [
+  {
+    id: '366879',
+    label: '🌸 Flower Power Village (366879)',
+    rooms: [
+      { motherId: 421511, name: 'Villa Penthouse' },
+      { motherId: 293957, name: 'Yellow Bungalow' },
+      { motherId: 293954, name: 'Red Bungalow' },
+      { motherId: 293962, name: 'Green Bungalow' },
+      { motherId: 293965, name: 'Camel Tent Bungalow' },
+      { motherId: 293955, name: 'Lagoon Tent Bungalow' },
+      { motherId: 293942, name: 'Internal Room' },
+      { motherId: 649669, name: 'Fake Bungalow 1 (Appoggio)' },
+      { motherId: 921799, name: 'Fake Bungalow 2 (Appoggio)' }
+    ]
+  },
+  {
+    id: '807324',
+    label: '🌴 Jungle Villas (807324)',
+    rooms: [
+      { motherId: 529773, name: 'Jungle Villa' },
+      { motherId: 495795, name: 'Jungle Villa Left' },
+      { motherId: 495796, name: 'Jungle Villa Right' },
+      { motherId: 494840, name: 'Peace & Love Villa' }
+    ]
+  },
+  {
+    id: '619403',
+    label: '🏠 Hubitat GuestHouse & Lodges (619403)',
+    rooms: [
+      { motherId: 293963, name: 'Room 1' },
+      { motherId: 293959, name: 'Room 2' },
+      { motherId: 293948, name: 'Room 3' },
+      { motherId: 293945, name: 'Room 4' },
+      { motherId: 293943, name: 'Room 5' },
+      { motherId: 293951, name: 'Lodge 1' },
+      { motherId: 883795, name: 'Lodge 2' }
+    ]
+  }
+];
+
+function inferStructureForBooking(b: any): { id: string; label: string } {
+  if (b?.structure_id || b?.structureId) {
+    const sid = String(b.structure_id || b.structureId);
+    const found = MOVE_STRUCTURE_CATALOG.find(s => s.id === sid);
+    if (found) return { id: found.id, label: found.label };
+  }
+  const name = String(b?.accommodation_name || b?.roomName || '').toLowerCase();
+  if (name.includes('jungle') || name.includes('peace') || name.includes('p&l') || name.includes('jvl') || name.includes('jvr')) {
+    return { id: '807324', label: MOVE_STRUCTURE_CATALOG[1].label };
+  }
+  if (name.includes('lodge') || (name.includes('room') && !name.includes('internal')) || /\br[1-5]\b/.test(name)) {
+    return { id: '619403', label: MOVE_STRUCTURE_CATALOG[2].label };
+  }
+  return { id: '366879', label: MOVE_STRUCTURE_CATALOG[0].label };
+}
 
 export function getIdsForRoom(roomName: string): { motherId: number; beId: number } {
   if (!roomName) return { motherId: 0, beId: 0 };
@@ -1105,6 +1168,15 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [selectedBooking, setSelectedBooking] = useState<ResortBooking | null>(null);
+  const [moveOpen, setMoveOpen] = useState<boolean>(false);
+  const [moveTargetStructure, setMoveTargetStructure] = useState<string>('366879');
+  const [moveTargetProductId, setMoveTargetProductId] = useState<number>(0);
+  const [moveOtaAction, setMoveOtaAction] = useState<'note_only' | 'move_to_fake'>('note_only');
+  const [moveChecking, setMoveChecking] = useState<boolean>(false);
+  const [moveCheckResult, setMoveCheckResult] = useState<any | null>(null);
+  const [moveExecuting, setMoveExecuting] = useState<boolean>(false);
+  const [moveResult, setMoveResult] = useState<any | null>(null);
+  const [moveError, setMoveError] = useState<string | null>(null);
   const [selectedRatesCell, setSelectedRatesCell] = useState<any | null>(null);
   const [liveGridData, setLiveGridData] = useState<Record<string, Record<string, OctorateDayData>>>({});
   const [loadingLive, setLoadingLive] = useState<boolean>(false);
@@ -1120,7 +1192,86 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
   const handleSelectBooking = useCallback((booking: ResortBooking) => {
     setSelectedBooking(booking);
+    setMoveOpen(false);
+    setMoveCheckResult(null);
+    setMoveResult(null);
+    setMoveError(null);
+    setMoveOtaAction('note_only');
+    const inferred = inferStructureForBooking(booking);
+    setMoveTargetStructure(inferred.id);
+    const catalogStruct = MOVE_STRUCTURE_CATALOG.find(s => s.id === inferred.id) || MOVE_STRUCTURE_CATALOG[0];
+    setMoveTargetProductId(catalogStruct.rooms[0]?.motherId || 0);
   }, []);
+
+  useEffect(() => {
+    if (!moveOpen || !selectedBooking || !moveTargetStructure || !moveTargetProductId) return;
+    let cancelled = false;
+    const checkAvailability = async () => {
+      setMoveChecking(true);
+      setMoveCheckResult(null);
+      setMoveError(null);
+      try {
+        const srcStruct = inferStructureForBooking(selectedBooking).id;
+        const res = await fetch('/api/octorate-move-reservation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            reservationId: selectedBooking.octorate_reservation_id || selectedBooking.id,
+            sourceStructureId: srcStruct,
+            targetStructureId: moveTargetStructure,
+            targetProductId: moveTargetProductId,
+            dryRun: true
+          })
+        });
+        const data = await res.json();
+        if (!cancelled) {
+          setMoveCheckResult(data);
+        }
+      } catch (err: any) {
+        if (!cancelled) setMoveError(err.message || 'Errore verifica disponibilità');
+      } finally {
+        if (!cancelled) setMoveChecking(false);
+      }
+    };
+    checkAvailability();
+    return () => { cancelled = true; };
+  }, [moveOpen, selectedBooking, moveTargetStructure, moveTargetProductId]);
+
+  const handleExecuteMoveReservation = async () => {
+    if (!selectedBooking || !moveTargetStructure || !moveTargetProductId) return;
+    setMoveExecuting(true);
+    setMoveError(null);
+    setMoveResult(null);
+    try {
+      const srcStruct = inferStructureForBooking(selectedBooking).id;
+      const targetStructObj = MOVE_STRUCTURE_CATALOG.find(s => s.id === moveTargetStructure);
+      const targetRoomObj = targetStructObj?.rooms.find(r => r.motherId === moveTargetProductId);
+      const res = await fetch('/api/octorate-move-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reservationId: selectedBooking.octorate_reservation_id || selectedBooking.id,
+          sourceStructureId: srcStruct,
+          targetStructureId: moveTargetStructure,
+          targetProductId: moveTargetProductId,
+          targetRoomName: targetRoomObj?.name || '',
+          otaSourceAction: moveOtaAction,
+          dryRun: false
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setMoveError(data.error || 'Spostamento non riuscito');
+      } else {
+        setMoveResult(data);
+        handleForceSyncLive();
+      }
+    } catch (err: any) {
+      setMoveError(err.message || 'Errore durante lo spostamento');
+    } finally {
+      setMoveExecuting(false);
+    }
+  };
 
   const handleSelectEmptyCell = useCallback((cellInfo: any) => {
     setSelectedRatesCell(cellInfo);
@@ -1617,69 +1768,203 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
       </div>
 
       {/* Booking Details Modal Popup */}
-      {selectedBooking && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
-            <div className="flex justify-between items-center pb-2 border-b border-stone-800">
-              <div className="flex items-center gap-2">
-                <Info className="w-5 h-5 text-amber-400" />
-                <h3 className="font-extrabold text-white text-base">Dettaglio Prenotazione</h3>
+      {selectedBooking && (() => {
+        const currentStruct = inferStructureForBooking(selectedBooking);
+        const targetStructObj = MOVE_STRUCTURE_CATALOG.find(s => s.id === moveTargetStructure) || MOVE_STRUCTURE_CATALOG[0];
+        const isCrossStruct = currentStruct.id !== moveTargetStructure;
+        const chLower = String(selectedBooking.source_channel || '').toLowerCase();
+        const isDirectChannel = (selectedBooking.channelId !== undefined && [0, 233, 288].includes(Number(selectedBooking.channelId))) || chLower === 'direct' || chLower.includes('octorate') || chLower.includes('octoevo');
+        const isOtaBooking = moveCheckResult ? !moveCheckResult.isDirect : !isDirectChannel;
+
+        return (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4 my-auto">
+              <div className="flex justify-between items-center pb-2 border-b border-stone-800">
+                <div className="flex items-center gap-2">
+                  <Info className="w-5 h-5 text-amber-400" />
+                  <h3 className="font-extrabold text-white text-base">Dettaglio Prenotazione</h3>
+                </div>
+                <button
+                  onClick={() => setSelectedBooking(null)}
+                  className="p-1 text-stone-400 hover:text-white rounded-lg cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
+
+              <div className="space-y-3 text-xs">
+                <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-850 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Ospite (Cognome Nome):</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-800 text-amber-300 border border-stone-700">
+                      {currentStruct.label}
+                    </span>
+                  </div>
+                  <div className="font-extrabold text-white text-sm flex items-center gap-2">
+                    <User className="w-4 h-4 text-amber-400" />
+                    <span>{formatGuestLastNameFirst(selectedBooking.guest_name || (selectedBooking as any).guestName)}</span>
+                  </div>
+                  <div className="text-stone-400">{selectedBooking.guest_email} · {selectedBooking.guest_phone}</div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-stone-950 p-3 rounded-2xl border border-stone-850 space-y-1">
+                    <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Alloggio:</span>
+                    <div className="font-bold text-stone-200">{selectedBooking.accommodation_name}</div>
+                  </div>
+
+                  <div className="bg-stone-950 p-3 rounded-2xl border border-stone-850 space-y-1">
+                    <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Canale / Agenzia:</span>
+                    <div className="font-bold text-emerald-400">{selectedBooking.source_channel || 'Prenotazione Diretta'}</div>
+                  </div>
+                </div>
+
+                <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-850 space-y-2">
+                  <div className="flex justify-between items-center text-stone-300">
+                    <span>Periodo Check-in / Out:</span>
+                    <span className="font-mono font-bold text-white">
+                      {selectedBooking.check_in} ➔ {selectedBooking.check_out}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-stone-300 border-t border-stone-850 pt-2">
+                    <span>Totale Prenotazione:</span>
+                    <span className="font-mono font-black text-amber-400 text-sm">
+                      ฿{(selectedBooking.total_price ?? 0).toLocaleString('it-IT')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pannello Spostamento Alloggio / Struttura Octorate */}
+              {!moveOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setMoveOpen(true)}
+                  className="w-full py-2.5 px-4 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <ArrowRightLeft className="w-4 h-4" />
+                  Sposta Alloggio / Struttura su Octorate
+                </button>
+              ) : (
+                <div className="bg-stone-950 border border-amber-500/30 rounded-2xl p-4 space-y-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-extrabold text-amber-300 flex items-center gap-1.5">
+                      <ArrowRightLeft className="w-4 h-4" />
+                      Sposta Prenotazione su Octorate
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setMoveOpen(false)}
+                      className="text-stone-400 hover:text-white text-[11px] cursor-pointer"
+                    >
+                      Annulla
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                      Alloggio di destinazione
+                    </label>
+                    <select
+                      value={moveTargetProductId}
+                      onChange={(e) => {
+                        const prodId = Number(e.target.value);
+                        setMoveTargetProductId(prodId);
+                        const ownerStruct = MOVE_STRUCTURE_CATALOG.find(s => s.rooms.some(r => r.motherId === prodId));
+                        if (ownerStruct) setMoveTargetStructure(ownerStruct.id);
+                      }}
+                      className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-stone-100 font-semibold"
+                    >
+                      {MOVE_STRUCTURE_CATALOG.map(s => (
+                        <optgroup key={s.id} label={s.label}>
+                          {s.rooms.map(r => (
+                            <option key={r.motherId} value={r.motherId}>{r.name}</option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Stato disponibilità live */}
+                  {moveChecking && (
+                    <div className="flex items-center gap-2 text-amber-300 text-[11px] font-semibold">
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      Verifica disponibilità su Octorate in corso...
+                    </div>
+                  )}
+
+                  {!moveChecking && moveCheckResult && (
+                    moveCheckResult.available ? (
+                      <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 shrink-0" />
+                        <span>
+                          Libero su Octorate ({isCrossStruct ? 'Spostamento Cross-Struttura' : 'Stessa Struttura'}).
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-[11px] font-semibold flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 shrink-0" />
+                        <span>{moveCheckResult.error || 'Alloggio occupato in queste date.'}</span>
+                      </div>
+                    )
+                  )}
+
+                  {/* Opzione gestione origine per OTA cross-struttura */}
+                  {isCrossStruct && isOtaBooking && (
+                    <div className="space-y-1.5 pt-1 border-t border-stone-800">
+                      <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                        Gestione prenotazione OTA originale ({selectedBooking.source_channel}):
+                      </label>
+                      <select
+                        value={moveOtaAction}
+                        onChange={(e) => setMoveOtaAction(e.target.value as 'note_only' | 'move_to_fake')}
+                        className="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-stone-200 text-[11px]"
+                      >
+                        <option value="note_only">Aggiungi solo nota MOVED TO (sicuro, non tocca OTA originale)</option>
+                        {currentStruct.id === '366879' && (
+                          <option value="move_to_fake">Sposta originale su Fake Bungalow 1 (tenta di liberare camera reale)</option>
+                        )}
+                      </select>
+                    </div>
+                  )}
+
+                  {moveError && (
+                    <div className="p-2.5 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-[11px]">
+                      {moveError}
+                    </div>
+                  )}
+
+                  {moveResult?.success && (
+                    <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[11px] space-y-1">
+                      <div className="font-bold">✅ Spostamento completato su Octorate!</div>
+                      <div>Nuovo ID: <span className="font-mono font-bold">#{moveResult.newReservationId}</span></div>
+                      {moveResult.warning && (
+                        <div className="text-amber-300">{moveResult.warning}</div>
+                      )}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={moveChecking || moveExecuting || !moveCheckResult?.available}
+                    onClick={handleExecuteMoveReservation}
+                    className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-stone-950 font-black text-xs rounded-xl transition-all cursor-pointer"
+                  >
+                    {moveExecuting ? 'Spostamento su Octorate in corso...' : 'Conferma Spostamento su Octorate'}
+                  </button>
+                </div>
+              )}
+
               <button
                 onClick={() => setSelectedBooking(null)}
-                className="p-1 text-stone-400 hover:text-white rounded-lg cursor-pointer"
+                className="w-full py-2.5 bg-stone-800 hover:bg-stone-750 text-white font-bold text-xs rounded-2xl transition-all cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                Chiudi
               </button>
             </div>
-
-            <div className="space-y-3 text-xs">
-              <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-850 space-y-1.5">
-                <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Ospite (Cognome Nome):</span>
-                <div className="font-extrabold text-white text-sm flex items-center gap-2">
-                  <User className="w-4 h-4 text-amber-400" />
-                  <span>{formatGuestLastNameFirst(selectedBooking.guest_name || (selectedBooking as any).guestName)}</span>
-                </div>
-                <div className="text-stone-400">{selectedBooking.guest_email} · {selectedBooking.guest_phone}</div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-stone-950 p-3 rounded-2xl border border-stone-850 space-y-1">
-                  <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Alloggio:</span>
-                  <div className="font-bold text-stone-200">{selectedBooking.accommodation_name}</div>
-                </div>
-
-                <div className="bg-stone-950 p-3 rounded-2xl border border-stone-850 space-y-1">
-                  <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Canale / Agenzia:</span>
-                  <div className="font-bold text-emerald-400">{selectedBooking.source_channel || 'Prenotazione Diretta'}</div>
-                </div>
-              </div>
-
-              <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-850 space-y-2">
-                <div className="flex justify-between items-center text-stone-300">
-                  <span>Periodo Check-in / Out:</span>
-                  <span className="font-mono font-bold text-white">
-                    {selectedBooking.check_in} ➔ {selectedBooking.check_out}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-stone-300 border-t border-stone-850 pt-2">
-                  <span>Totale Prenotazione:</span>
-                  <span className="font-mono font-black text-amber-400 text-sm">
-                    ฿{(selectedBooking.total_price ?? 0).toLocaleString('it-IT')}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setSelectedBooking(null)}
-              className="w-full py-2.5 bg-stone-800 hover:bg-stone-750 text-white font-bold text-xs rounded-2xl transition-all cursor-pointer"
-            >
-              Chiudi
-            </button>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Rates Detail Modal Popup for Empty Cells */}
       {selectedRatesCell && (
