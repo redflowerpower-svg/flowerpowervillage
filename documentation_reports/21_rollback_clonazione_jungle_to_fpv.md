@@ -1,6 +1,7 @@
-# Guida di Rollback Completo — Clonazione Jungle Villas (`807324`) ➔ Flower Power Village (`366879`)
+# Guida di Rollback Dinamico — Clonazione Jungle Villas (`807324`) ➔ Flower Power Village (`366879`)
 
-> **Scopo di questo documento**: se in qualsiasi momento decidessi di annullare tutto il lavoro fatto in questa sessione e riportare il sistema esattamente allo stato precedente, segui (o chiedi all'agente di eseguire) questi 4 passaggi nell'ordine indicato.
+> **Documento Vivo & Dinamico**: questo file viene aggiornato ad ogni nuovo intervento/commit sul progetto di migrazione tra **Jungle Villas (`807324`)** e **Flower Power Village (`366879`)**.  
+> Inoltre tutte le regole di pulizia su Octorate (`MIRROR-*` / `[MIRROR_SYNC]`) e Supabase (`mirror_res_%`) sono **dinamiche**: intercettano automaticamente anche tutte le prenotazioni specchio che verranno create in futuro dopo questa sessione.
 
 ---
 
@@ -82,3 +83,4 @@ WHERE id = 'active_jungle_source_v1'
    OR id LIKE 'mirror_res_%';
 ```
 Nessuna altra tabella Supabase (`octorate_tokens`, ordini, prenotazioni, documenti, ecc.) è stata modificata.
+
