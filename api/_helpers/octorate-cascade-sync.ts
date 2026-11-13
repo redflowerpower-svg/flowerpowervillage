@@ -11,10 +11,14 @@ export interface CascadeRoomConfig {
 }
 
 export const CASCADE_MOTHER_ROOMS: CascadeRoomConfig[] = [
-  { motherId: 529773, name: 'Jungle Villa', basePrice: 2290 },
-  { motherId: 495795, name: 'Jungle Villa Left', basePrice: 1290 },
-  { motherId: 495796, name: 'Jungle Villa Right', basePrice: 1290 },
-  { motherId: 494840, name: 'Peace & Love Villa', basePrice: 1290 },
+  { motherId: 529773, name: 'Jungle Villa 2', basePrice: 2290 },
+  { motherId: 495795, name: 'Jungle Villa Left 2', basePrice: 1290 },
+  { motherId: 495796, name: 'Jungle Villa Right 2', basePrice: 1290 },
+  { motherId: 494840, name: 'Peace & Love Villa 2', basePrice: 1290 },
+  { motherId: 960389, name: 'Jungle Villa', basePrice: 2290 },
+  { motherId: 960385, name: 'Jungle Villa Left', basePrice: 1290 },
+  { motherId: 960387, name: 'Jungle Villa Right', basePrice: 1290 },
+  { motherId: 960383, name: 'Peace & Love Villa', basePrice: 1290 },
   { motherId: 421511, name: 'Villa Penthouse', basePrice: 1290 },
   { motherId: 293957, name: 'Yellow Bungalow', basePrice: 990 },
   { motherId: 293954, name: 'Red Bungalow', basePrice: 790 },
@@ -222,7 +226,7 @@ export async function checkAndSyncCascadeLastMinute(
         `• Gg 7+: <b>Ripristino Baseline 100%</b>\n` +
         `✅ Octorate PMS sincronizzato automaticamente.`;
 
-      sendTelegramAlert(supabaseAdmin, alertMsg).catch(() => {});
+      sendTelegramAlert(supabaseAdmin, alertMsg).catch(() => { });
     }
 
     return {

@@ -6,6 +6,12 @@ import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
 import { executeOctorateMove } from "../_helpers/octorate-move.js";
+import {
+  getActiveJungleSource,
+  switchActiveJungleStructure,
+  syncActiveToStandbyCalendar,
+  JungleSourceStructureId
+} from "../_helpers/octorate-jungle-mirror.js";
 
 function getSupabaseAdmin() {
   let url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "https://gjqevgkbjkharczhikcl.supabase.co";
@@ -581,7 +587,8 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
     };
 
     const MOTHER_RATE_IDS = new Set([
-      529773, 495795, 495796, 494840, 421511, 293957, 293954, 293962,
+      529773, 495795, 495796, 494840, 960383, 960385, 960387, 960389,
+      421511, 293957, 293954, 293962,
       293965, 293955, 293963, 293959, 293948, 293945, 293943, 293951,
       883795, 293942, 649669, 921799
     ]);
@@ -622,6 +629,9 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
           break;
         }
 
+        for (const item of pageItems) {
+          item._structureId = structId;
+        }
         allFetchedItems.push(...pageItems);
 
         if (pageItems.length < PAGE_SIZE) {
@@ -632,20 +642,32 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       }
     }));
 
-    const filteredBEItems = allFetchedItems.filter((item: any) => {
+    // Nascondi le 4 ville della struttura in standby per evitare duplicati nel calendario 30/365 giorni
+    const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
+    const visibleItems = allFetchedItems.filter((item: any) => {
+      const idNum = Number(item.id);
+      if (activeJungleSource === '807324') {
+        return !(item._structureId === '366879' && idNum >= 960378 && idNum <= 960438);
+      }
+      // activeJungleSource === '366879': nascondi tutta 807324 (che contiene solo le 4 ville)
+      return item._structureId !== '807324';
+    });
+
+    const filteredBEItems = visibleItems.filter((item: any) => {
       const idNum = Number(item.id);
       const nameStr = String(item.name || '').toLowerCase();
       return OFFICIAL_BE_RATE_IDS.has(idNum) || MOTHER_RATE_IDS.has(idNum) || nameStr.endsWith('be') || nameStr.includes('booking engine');
     });
 
-    console.log(`[OCTORATE GRID] Scaricati tutti i ${allFetchedItems.length} rate plans. Filtrati ${filteredBEItems.length} BE e Mother rate plans dal ${dateFrom} al ${dateTo}.`);
+    console.log(`[OCTORATE GRID] Scaricati ${allFetchedItems.length} rate plans, visibili ${visibleItems.length} (activeJungle=${activeJungleSource}). Filtrati ${filteredBEItems.length} BE/Mother dal ${dateFrom} al ${dateTo}.`);
 
     const responsePayload = {
       success: true,
-      data: allFetchedItems,
-      grid: allFetchedItems,
+      activeJungleSource,
+      data: visibleItems,
+      grid: visibleItems,
       beGrid: filteredBEItems,
-      totalFetched: allFetchedItems.length,
+      totalFetched: visibleItems.length,
       structuresQueried: targetStructures.length
     };
 
@@ -931,5 +953,58 @@ export async function handleOctorateMoveReservation(req: VercelRequest, res: Ver
   } catch (error: any) {
     console.error('[moveReservation] Error:', error);
     return res.status(500).json({ error: error.message || 'Errore interno spostamento prenotazione' });
+  }
+}
+
+// 11. handleOctorateJungleMirror — Stato attivo/standby, sync calendario bilaterale e switch sicuro 807324 <-> 366879
+export async function handleOctorateJungleMirror(req: VercelRequest, res: VercelResponse) {
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) {
+    return res.status(500).json({ error: 'Supabase configuration missing' });
+  }
+
+  if (req.method === 'GET') {
+    const active = await getActiveJungleSource(supabaseAdmin);
+    return res.status(200).json({
+      success: true,
+      activeJungleSource: active,
+      standbyJungleSource: active === '807324' ? '366879' : '807324'
+    });
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { data: tokenData } = await supabaseAdmin
+    .from('octorate_tokens')
+    .select('access_token')
+    .eq('id', 'singleton')
+    .maybeSingle();
+
+  if (!tokenData?.access_token) {
+    return res.status(500).json({ error: 'Octorate access token not found' });
+  }
+
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+  const action = String(body.action || 'sync');
+
+  try {
+    if (action === 'switch') {
+      const target = String(body.targetStructureId || '') as JungleSourceStructureId;
+      if (target !== '807324' && target !== '366879') {
+        return res.status(400).json({ error: 'targetStructureId must be 807324 or 366879' });
+      }
+      const result = await switchActiveJungleStructure(supabaseAdmin, tokenData.access_token, target);
+      gridCache.clear();
+      return res.status(200).json(result);
+    }
+
+    const daysAhead = Number(body.daysAhead || 365);
+    const result = await syncActiveToStandbyCalendar(supabaseAdmin, tokenData.access_token, { daysAhead });
+    return res.status(200).json(result);
+  } catch (error: any) {
+    console.error('[octorate-jungle-mirror] Error:', error);
+    return res.status(500).json({ error: error.message || 'Jungle mirror sync error' });
   }
 }

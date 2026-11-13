@@ -8,6 +8,7 @@ import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { formatDateDMY } from "../_helpers/date-formatter.js";
 import { runResortSentinelAudit } from "./resort-sentinel.js";
 import { ALL_OCTORATE_STRUCTURE_IDS, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
+import { isMirrorReservation, mirrorReservationToStandby } from "../_helpers/octorate-jungle-mirror.js";
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
@@ -27,7 +28,7 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'jungle villa': {
     motherId: 529773,
     name: 'Jungle Villa',
-    ids: ['529773', '529784', '529778', '529792', '529788', '529780', '916817', '529781', '529801', '921868', '921869', '529783', '529813'],
+    ids: ['529773', '529784', '529778', '529792', '529788', '529780', '916817', '529781', '529801', '921868', '921869', '529783', '529813', '960389', '960403', '960404', '960405', '960406', '960407', '960408', '960409', '960410', '960411', '960412', '960413', '960414'],
     keywords: [["jungle", "jv"], ["villa", "ac", "be"]],
     linkedKeys: ['jungle villa left', 'jungle villa right']
   },
@@ -35,21 +36,21 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
     motherId: 495795,
     name: 'Jungle Villa Left',
     // Rimuoviamo eventuali ID non esistenti su Octorate (es. 495804)
-    ids: ['495795', '495807', '495803', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
+    ids: ['495795', '495807', '495803', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057', '960385', '960415', '960416', '960417', '960418', '960419', '960420', '960421', '960422', '960423', '960424', '960425', '960426'],
     keywords: [["jungle", "jv"], ["left", "jvl"]],
     linkedKeys: ['jungle villa']
   },
   'jungle villa right': {
     motherId: 495796,
     name: 'Jungle Villa Right',
-    ids: ['495796', '495980', '495976', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
+    ids: ['495796', '495980', '495976', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056', '960387', '960427', '960428', '960429', '960430', '960431', '960432', '960433', '960434', '960435', '960436', '960437', '960438'],
     keywords: [["jungle", "jv"], ["right", "jvr"]],
     linkedKeys: ['jungle villa']
   },
   'peace & love villa': {
     motherId: 494840,
     name: 'Peace & Love Villa',
-    ids: ['494840', '495566', '495549', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
+    ids: ['494840', '495566', '495549', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609', '960383', '960391', '960392', '960393', '960394', '960395', '960396', '960397', '960398', '960399', '960400', '960401', '960402'],
     keywords: [["peace", "love", "p&l"]]
   },
   'villa penthouse': {
@@ -805,7 +806,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                 if (!isNaN(dIn.getTime()) && !isNaN(dOut.getTime())) {
                   stayNights = Math.max(1, Math.round((dOut.getTime() - dIn.getTime()) / (1000 * 60 * 60 * 24)));
                 }
-              } catch {}
+              } catch { }
 
               // Calcolo totale formattato
               const totalGross = targetBooking.totalGross ?? targetBooking.roomGross ?? targetBooking.total ?? targetBooking.totalPrice ?? 0;
@@ -822,104 +823,130 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
               const resortConfig = getOctorateStructureByRoomId(roomRawId);
               const resortBadge = `${resortConfig.badgeEmoji} <b>[${resortConfig.name.toUpperCase()}]</b>`;
 
-              // 📲 1. Notifica Telegram Immediata allo Staff del Villaggio (Strict AWAIT per evitare Context Freeze di Vercel)
-              try {
-                let tgMessage = '';
-                let targetTopicKey: 'BOOKINGS' | 'MODIFICATIONS_CANCELLATIONS' = 'BOOKINGS';
+              // 🔄 ANTI-ECO MIRROR: Le prenotazioni specchio [MIRROR_SYNC] non devono inviare notifiche o creare loop
+              if (isMirrorReservation(targetBooking)) {
+                console.log(`[OCTORATE WEBHOOK] Prenotazione specchio [MIRROR_SYNC] #${reservationId} ignorata per anti-eco e anti-loop.`);
+              } else {
+                // 📲 1. Notifica Telegram Immediata allo Staff del Villaggio (Strict AWAIT per evitare Context Freeze di Vercel)
+                try {
+                  let tgMessage = '';
+                  let targetTopicKey: 'BOOKINGS' | 'MODIFICATIONS_CANCELLATIONS' = 'BOOKINGS';
 
-                // Verifica se già notificata come nuova prenotazione per evitare spam
-                const notificationKey = isCancelled ? `res_cancelled_${reservationId}` : (isModified ? `res_modified_${reservationId}_${rawIn}_${rawOut}` : `res_notified_${reservationId}`);
-                const { data: alreadySent } = await supabaseAdmin
-                  .from('telegram_config')
-                  .select('id')
-                  .eq('id', notificationKey)
-                  .maybeSingle();
+                  // Verifica se già notificata come nuova prenotazione per evitare spam
+                  const notificationKey = isCancelled ? `res_cancelled_${reservationId}` : (isModified ? `res_modified_${reservationId}_${rawIn}_${rawOut}` : `res_notified_${reservationId}`);
+                  const { data: alreadySent } = await supabaseAdmin
+                    .from('telegram_config')
+                    .select('id')
+                    .eq('id', notificationKey)
+                    .maybeSingle();
 
-                if (!alreadySent) {
-                  if (isCancelled) {
-                    targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
-                    tgMessage = `🔴 ${resortBadge} <b>CANCELLAZIONE PRENOTAZIONE</b>\n` +
-                      `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
-                      `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                      `🌐 <b>Canale:</b> ${channelName}\n` +
-                      `📅 <b>Periodo Annullato:</b> <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
-                      `💰 <b>Importo Rilasciato:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                      `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-                  } else if (isModified) {
-                    targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
-                    tgMessage = `🟡 ${resortBadge} <b>PRENOTAZIONE MODIFICATA</b>\n` +
-                      `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
-                      `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                      `🌐 <b>Canale:</b> ${channelName}\n` +
-                      `📅 <b>Nuovo Periodo:</b> <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
-                      `💰 <b>Totale Aggiornato:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                      `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-                  } else {
-                    targetTopicKey = 'BOOKINGS';
-                    tgMessage = `🟢 ${resortBadge} <b>NUOVA PRENOTAZIONE RICEVUTA</b>\n` +
-                      `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
-                      `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                      `🌐 <b>Canale:</b> ${channelName}\n` +
-                      `📅 <b>Check-in:</b> <code>${formatDateDMY(rawIn)}</code>\n` +
-                      `🛫 <b>Check-out:</b> <code>${formatDateDMY(rawOut)}</code>\n` +
-                      `🌙 <b>Durata:</b> <b>${stayNights} notti</b>\n` +
-                      `💰 <b>Totale:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                      `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-                  }
+                  if (!alreadySent) {
+                    if (isCancelled) {
+                      targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
+                      tgMessage = `🔴 ${resortBadge} <b>CANCELLAZIONE PRENOTAZIONE</b>\n` +
+                        `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                        `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                        `🌐 <b>Canale:</b> ${channelName}\n` +
+                        `📅 <b>Periodo Annullato:</b> <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
+                        `💰 <b>Importo Rilasciato:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                        `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                    } else if (isModified) {
+                      targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
+                      tgMessage = `🟡 ${resortBadge} <b>PRENOTAZIONE MODIFICATA</b>\n` +
+                        `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                        `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                        `🌐 <b>Canale:</b> ${channelName}\n` +
+                        `📅 <b>Nuovo Periodo:</b> <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
+                        `💰 <b>Totale Aggiornato:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                        `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                    } else {
+                      targetTopicKey = 'BOOKINGS';
+                      tgMessage = `🟢 ${resortBadge} <b>NUOVA PRENOTAZIONE RICEVUTA</b>\n` +
+                        `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                        `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                        `🌐 <b>Canale:</b> ${channelName}\n` +
+                        `📅 <b>Check-in:</b> <code>${formatDateDMY(rawIn)}</code>\n` +
+                        `🛫 <b>Check-out:</b> <code>${formatDateDMY(rawOut)}</code>\n` +
+                        `🌙 <b>Durata:</b> <b>${stayNights} notti</b>\n` +
+                        `💰 <b>Totale:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                        `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                    }
 
-                  const tgRes = await sendDepartmentTelegramMessage('village', tgMessage, { topic: targetTopicKey });
-                  console.log(`[OCTORATE WEBHOOK] Inviata notifica Telegram per prenotazione #${reservationId}:`, tgRes);
+                    const tgRes = await sendDepartmentTelegramMessage('village', tgMessage, { topic: targetTopicKey });
+                    console.log(`[OCTORATE WEBHOOK] Inviata notifica Telegram per prenotazione #${reservationId}:`, tgRes);
 
-                  // Memorizzazione chiave notifica inviata per non duplicare
-                  await supabaseAdmin.from('telegram_config').upsert({
-                    id: notificationKey,
-                    bot_token: 'notified',
-                    chat_id: String(reservationId),
-                    updated_at: new Date().toISOString()
-                  });
-
-                  if (notificationKey !== `res_notified_${reservationId}`) {
+                    // Memorizzazione chiave notifica inviata per non duplicare
                     await supabaseAdmin.from('telegram_config').upsert({
-                      id: `res_notified_${reservationId}`,
+                      id: notificationKey,
                       bot_token: 'notified',
                       chat_id: String(reservationId),
                       updated_at: new Date().toISOString()
                     });
+
+                    if (notificationKey !== `res_notified_${reservationId}`) {
+                      await supabaseAdmin.from('telegram_config').upsert({
+                        id: `res_notified_${reservationId}`,
+                        bot_token: 'notified',
+                        chat_id: String(reservationId),
+                        updated_at: new Date().toISOString()
+                      });
+                    }
+                  } else {
+                    console.log(`[OCTORATE WEBHOOK] Notifica Telegram per prenotazione #${reservationId} (${notificationKey}) già inviata in precedenza. Ignorata per evitare duplicati.`);
+                  }
+                } catch (notifyErr) {
+                  console.warn('[OCTORATE WEBHOOK] Errore creazione/invio notifica Telegram:', notifyErr);
+                }
+
+                // 🛡️ 2. Auto-Shield o Gestione Cancellazione Diretta (Anti-Loop: eseguito solo per nuove prenotazioni non ancora processate)
+                if (!isCancelled) {
+                  if (!alreadySent) {
+                    await executeAutoShieldForReservation({
+                      accessToken,
+                      checkIn: toThailandDateStr(rawIn),
+                      checkOut: toThailandDateStr(rawOut),
+                      roomName: targetBooking.roomName || targetBooking.accommodation_name || roomName,
+                      productId: targetBooking.product || targetBooking.accommodation_id,
+                      pmsProductId: targetBooking.pmsProduct,
+                      reservationId: targetBooking.id || targetResId,
+                      guestName,
+                      channelName: targetBooking.channelName || targetBooking.channel || 'OTA Webhook',
+                      supabaseAdmin
+                    });
+                  } else {
+                    console.log(`[OCTORATE WEBHOOK] Auto-Shield per #${reservationId} già sigillato in precedenza. Ignorato per evitare loop.`);
                   }
                 } else {
-                  console.log(`[OCTORATE WEBHOOK] Notifica Telegram per prenotazione #${reservationId} (${notificationKey}) già inviata in precedenza. Ignorata per evitare duplicati.`);
+                  // ✉️ Gestione Cancellazione: Solo per prenotazioni dirette (Sito Web o Octorate interno)
+                  try {
+                    console.log(`[OCTORATE WEBHOOK] Rilevata cancellazione per prenotazione #${targetBooking.id || targetResId} (${targetBooking.channelName || targetBooking.channelId}). Avvio gestione diretta...`);
+                    await handleDirectReservationCancellation(targetBooking);
+                  } catch (cancelErr) {
+                    console.warn('[OCTORATE WEBHOOK] Errore gestione cancellazione:', cancelErr);
+                  }
                 }
-              } catch (notifyErr) {
-                console.warn('[OCTORATE WEBHOOK] Errore creazione/invio notifica Telegram:', notifyErr);
-              }
 
-              // 🛡️ 2. Auto-Shield o Gestione Cancellazione Diretta (Anti-Loop: eseguito solo per nuove prenotazioni non ancora processate)
-              if (!isCancelled) {
-                if (!alreadySent) {
-                  await executeAutoShieldForReservation({
+                // 🔄 3. Mirroring Automatico su Struttura Standby (807324 <-> 366879)
+                try {
+                  const mirrorOutcome = await mirrorReservationToStandby({
+                    supabaseAdmin,
                     accessToken,
+                    sourceStructureId: String(resortConfig.id),
+                    sourceReservationId: reservationId,
+                    productId: targetBooking.product || targetBooking.pmsProduct || targetBooking.accommodation_id,
+                    roomName: targetBooking.roomName || targetBooking.accommodation_name || roomName,
                     checkIn: toThailandDateStr(rawIn),
                     checkOut: toThailandDateStr(rawOut),
-                    roomName: targetBooking.roomName || targetBooking.accommodation_name || roomName,
-                    productId: targetBooking.product || targetBooking.accommodation_id,
-                    pmsProductId: targetBooking.pmsProduct,
-                    reservationId: targetBooking.id || targetResId,
                     guestName,
-                    channelName: targetBooking.channelName || targetBooking.channel || 'OTA Webhook',
-                    supabaseAdmin
+                    isCancelled
                   });
-                } else {
-                  console.log(`[OCTORATE WEBHOOK] Auto-Shield per #${reservationId} già sigillato in precedenza. Ignorato per evitare loop.`);
+                  if (mirrorOutcome.mirrored) {
+                    console.log(`[OCTORATE WEBHOOK] 🔄 Mirroring ${mirrorOutcome.action} su ${mirrorOutcome.targetStructureId} (#${mirrorOutcome.targetReservationId})`);
+                  }
+                } catch (mirrorErr) {
+                  console.warn('[OCTORATE WEBHOOK] Errore mirroring standby (non bloccante):', mirrorErr);
                 }
-              } else {
-                // ✉️ Gestione Cancellazione: Solo per prenotazioni dirette (Sito Web o Octorate interno)
-                try {
-                  console.log(`[OCTORATE WEBHOOK] Rilevata cancellazione per prenotazione #${targetBooking.id || targetResId} (${targetBooking.channelName || targetBooking.channelId}). Avvio gestione diretta...`);
-                  await handleDirectReservationCancellation(targetBooking);
-                } catch (cancelErr) {
-                  console.warn('[OCTORATE WEBHOOK] Errore gestione cancellazione:', cancelErr);
-                }
-              }
+              } // Fine blocco non-mirror
             } else {
               console.log(`[OCTORATE WEBHOOK] Evento '${eventType}' senza intervallo date completo (${rawIn} ➔ ${rawOut}). Notifica Telegram ignorata.`);
             }

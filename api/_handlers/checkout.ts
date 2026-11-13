@@ -96,7 +96,7 @@ function getAccommodationAcConfig(identifier?: string | number | null) {
   }
 
   // 2 Units Portable: Jungle Villa (intera) or Villa Penthouse -> 800 THB/night (400 + 400)
-  const isJungleFull = (raw.includes('jungle') && !raw.includes('left') && !raw.includes('right')) || raw === '529784' || raw === '529773';
+  const isJungleFull = (raw.includes('jungle') && !raw.includes('left') && !raw.includes('right')) || raw === '529784' || raw === '529773' || raw === '960389';
   const isPenthouse = raw.includes('penthouse') || raw === '449348' || raw === '421511';
 
   if (isJungleFull || isPenthouse) {
@@ -112,9 +112,9 @@ function getAccommodationAcConfig(identifier?: string | number | null) {
   }
 
   // 1 Unit Portable: Peace & Love, Jungle Villa Left, Jungle Villa Right -> 400 THB/night
-  const isPeaceLove = raw.includes('peace') || raw.includes('love') || raw === '495566' || raw === '494840';
-  const isJungleLeft = (raw.includes('jungle') && raw.includes('left')) || raw === '495807' || raw === '495795';
-  const isJungleRight = (raw.includes('jungle') && raw.includes('right')) || raw === '495980' || raw === '495796';
+  const isPeaceLove = raw.includes('peace') || raw.includes('love') || raw === '495566' || raw === '494840' || raw === '960383';
+  const isJungleLeft = (raw.includes('jungle') && raw.includes('left')) || raw === '495807' || raw === '495795' || raw === '960385';
+  const isJungleRight = (raw.includes('jungle') && raw.includes('right')) || raw === '495980' || raw === '495796' || raw === '960387';
 
   if (isPeaceLove || isJungleLeft || isJungleRight) {
     return {

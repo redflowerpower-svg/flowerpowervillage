@@ -23,12 +23,16 @@ export const MOVE_ROOM_CATALOG: MoveRoomOption[] = [
   { motherId: 293942, name: 'Internal Room', shortName: 'Internal Room', structureId: '366879', structureName: 'Flower Power Village', emoji: '🌸' },
   { motherId: 649669, name: 'Fake Bungalow 1', shortName: 'Fake Bung. 1', structureId: '366879', structureName: 'Flower Power Village', emoji: '🧪', isFake: true },
   { motherId: 921799, name: 'Fake Bungalow 2', shortName: 'Fake Bung. 2', structureId: '366879', structureName: 'Flower Power Village', emoji: '🧪', isFake: true },
+  { motherId: 960389, name: 'Jungle Villa', shortName: 'Jungle Villa', structureId: '366879', structureName: 'Flower Power Village', emoji: '🌸' },
+  { motherId: 960385, name: 'Jungle Villa Left', shortName: 'Jungle Left', structureId: '366879', structureName: 'Flower Power Village', emoji: '🌸' },
+  { motherId: 960387, name: 'Jungle Villa Right', shortName: 'Jungle Right', structureId: '366879', structureName: 'Flower Power Village', emoji: '🌸' },
+  { motherId: 960383, name: 'Peace & Love Villa', shortName: 'Peace & Love', structureId: '366879', structureName: 'Flower Power Village', emoji: '🌸' },
 
   // 🌴 Jungle Villas (807324)
-  { motherId: 529773, name: 'Jungle Villa', shortName: 'Jungle Villa', structureId: '807324', structureName: 'Jungle Villas', emoji: '🌴' },
-  { motherId: 495795, name: 'Jungle Villa Left', shortName: 'Jungle Left', structureId: '807324', structureName: 'Jungle Villas', emoji: '🌴' },
-  { motherId: 495796, name: 'Jungle Villa Right', shortName: 'Jungle Right', structureId: '807324', structureName: 'Jungle Villas', emoji: '🌴' },
-  { motherId: 494840, name: 'Peace & Love Villa', shortName: 'Peace & Love', structureId: '807324', structureName: 'Jungle Villas', emoji: '🌴' },
+  { motherId: 529773, name: 'Jungle Villa 2', shortName: 'Jungle Villa 2', structureId: '807324', structureName: 'Jungle Villas', emoji: '🌴' },
+  { motherId: 495795, name: 'Jungle Villa Left 2', shortName: 'Jungle Left 2', structureId: '807324', structureName: 'Jungle Villas', emoji: '🌴' },
+  { motherId: 495796, name: 'Jungle Villa Right 2', shortName: 'Jungle Right 2', structureId: '807324', structureName: 'Jungle Villas', emoji: '🌴' },
+  { motherId: 494840, name: 'Peace & Love Villa 2', shortName: 'Peace & Love 2', structureId: '807324', structureName: 'Jungle Villas', emoji: '🌴' },
 
   // 🏠 Hubitat GuestHouse & Lodges (619403)
   { motherId: 293963, name: 'Room 1', shortName: 'Room 1', structureId: '619403', structureName: 'Hubitat', emoji: '🏠' },
@@ -448,7 +452,7 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
       guestName: guestFullName,
       channelName: orig.channelName || 'Direct',
       supabaseAdmin
-    }).catch(() => {});
+    }).catch(() => { });
 
     sendDepartmentTelegramMessage('village',
       `🔄 <b>[Spostamento Alloggio Octorate]</b>\n` +
@@ -458,7 +462,7 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
       `📅 Date: <b>${checkIn} → ${checkOut}</b>\n` +
       `🆔 Prenotazione: <code>#${reservationId}</code>`,
       { topic: 'BOOKINGS' }
-    ).catch(() => {});
+    ).catch(() => { });
 
     return {
       status: 200,
@@ -492,23 +496,23 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
 
   const guestsPayload = Array.isArray(orig.guests) && orig.guests.length > 0
     ? orig.guests.map((g: any) => ({
-        type: g.type || 'BOOKER',
-        givenName: g.givenName || orig.firstName || 'Guest',
-        familyName: g.familyName || orig.lastName || 'Guest',
-        email: orig.guestMailAddress || g.email || '',
-        phone: orig.phone || g.phone || '',
-        checkin: checkIn,
-        checkout: checkOut
-      }))
+      type: g.type || 'BOOKER',
+      givenName: g.givenName || orig.firstName || 'Guest',
+      familyName: g.familyName || orig.lastName || 'Guest',
+      email: orig.guestMailAddress || g.email || '',
+      phone: orig.phone || g.phone || '',
+      checkin: checkIn,
+      checkout: checkOut
+    }))
     : [{
-        type: 'BOOKER',
-        givenName: orig.firstName || guestFullName.split(' ')[0] || 'Guest',
-        familyName: orig.lastName || guestFullName.split(' ').slice(1).join(' ') || 'Guest',
-        email: orig.guestMailAddress || '',
-        phone: orig.phone || '',
-        checkin: checkIn,
-        checkout: checkOut
-      }];
+      type: 'BOOKER',
+      givenName: orig.firstName || guestFullName.split(' ')[0] || 'Guest',
+      familyName: orig.lastName || guestFullName.split(' ').slice(1).join(' ') || 'Guest',
+      email: orig.guestMailAddress || '',
+      phone: orig.phone || '',
+      checkin: checkIn,
+      checkout: checkOut
+    }];
 
   const nowIso = new Date().toISOString();
   const createPayload = {
@@ -553,7 +557,7 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
         description: `Transferred deposit from #${reservationId} (${sourceStructName})`,
         status: 'NORMAL'
       })
-    }).catch(() => {});
+    }).catch(() => { });
   }
 
   let sourceAction = 'note_updated';
@@ -594,7 +598,7 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ privateNotes: updatedOrigNotes })
-      }).catch(() => {});
+      }).catch(() => { });
       sourceAction = 'ota_kept_with_note';
     }
   }
@@ -609,7 +613,7 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
     guestName: guestFullName,
     channelName: orig.channelName || 'Direct',
     supabaseAdmin
-  }).catch(() => {});
+  }).catch(() => { });
 
   sendDepartmentTelegramMessage('village',
     `🔀 <b>[Spostamento Cross-Struttura Octorate]</b>\n` +
@@ -619,7 +623,7 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
     `📅 Date: <b>${checkIn} → ${checkOut}</b>\n` +
     `⚙️ Origine: <b>${sourceAction}</b>`,
     { topic: 'BOOKINGS' }
-  ).catch(() => {});
+  ).catch(() => { });
 
   return {
     status: 200,

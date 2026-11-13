@@ -11,10 +11,14 @@ function getSupabaseAdmin() {
 }
 
 export const MOTHER_ROOM_INFOS: Record<number, { name: string; basePrice: number }> = {
-  529773: { name: 'Jungle Villa', basePrice: 2290 },
-  495795: { name: 'Jungle Villa Left', basePrice: 1290 },
-  495796: { name: 'Jungle Villa Right', basePrice: 1290 },
-  494840: { name: 'Peace & Love Villa', basePrice: 1290 },
+  529773: { name: 'Jungle Villa 2', basePrice: 2290 },
+  495795: { name: 'Jungle Villa Left 2', basePrice: 1290 },
+  495796: { name: 'Jungle Villa Right 2', basePrice: 1290 },
+  494840: { name: 'Peace & Love Villa 2', basePrice: 1290 },
+  960389: { name: 'Jungle Villa', basePrice: 2290 },
+  960385: { name: 'Jungle Villa Left', basePrice: 1290 },
+  960387: { name: 'Jungle Villa Right', basePrice: 1290 },
+  960383: { name: 'Peace & Love Villa', basePrice: 1290 },
   421511: { name: 'Penthouse Villa', basePrice: 1290 },
   293957: { name: 'Yellow Bungalow', basePrice: 990 },
   293954: { name: 'Red Bungalow', basePrice: 790 },
