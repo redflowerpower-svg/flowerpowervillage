@@ -1782,7 +1782,12 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
               <div className="flex justify-between items-center pb-2 border-b border-stone-800">
                 <div className="flex items-center gap-2">
                   <Info className="w-5 h-5 text-amber-400" />
-                  <h3 className="font-extrabold text-white text-base">Dettaglio Prenotazione</h3>
+                  <h3 className="font-extrabold text-white text-base">
+                    Dettaglio Prenotazione{' '}
+                    <span className="font-mono text-amber-400 text-sm">
+                      #{selectedBooking.octorate_reservation_id || selectedBooking.id}
+                    </span>
+                  </h3>
                 </div>
                 <button
                   onClick={() => setSelectedBooking(null)}
@@ -1821,6 +1826,13 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
                 <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-850 space-y-2">
                   <div className="flex justify-between items-center text-stone-300">
+                    <span>Codice Prenotazione:</span>
+                    <span className="font-mono font-bold text-amber-300 select-all">
+                      #{selectedBooking.octorate_reservation_id || selectedBooking.id}
+                      {(selectedBooking as any).refer ? ` (${(selectedBooking as any).refer})` : ''}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-stone-300 border-t border-stone-850 pt-2">
                     <span>Periodo Check-in / Out:</span>
                     <span className="font-mono font-bold text-white">
                       {selectedBooking.check_in} ➔ {selectedBooking.check_out}
