@@ -127,7 +127,8 @@ export const VILLAGE_TOPICS = {
   MODIFICATIONS_CANCELLATIONS: 7,
   ALERTS_OVERBOOKING: 8,
   DAILY_REPORT: 9,
-  BOOKING_OFFERS: 12
+  BOOKING_OFFERS: 12,
+  BOOKING_EDITOR: 569
 } as const;
 
 export { formatDateDMY, formatAllDatesToDMY } from "./date-formatter.js";
