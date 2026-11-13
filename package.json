@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:full": "npx concurrently \"vercel dev --listen 3000\" \"vite\"",
-    "build": "vite build",
+    "build": "npm run api:check && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
