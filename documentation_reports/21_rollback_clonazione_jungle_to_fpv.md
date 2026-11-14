@@ -150,3 +150,13 @@ Nessuna altra tabella Supabase (`octorate_tokens`, ordini, prenotazioni, documen
   - In `mirrorReservationToStandby`, la verifica di `existingMirrorId` avviene **prima** dell'uscita `!twin`: se una prenotazione viene spostata da una delle 4 ville gemelle verso una camera non gemella (es. `Fake Bungalow 1`), l'eventuale specchio `[MIRROR_SYNC]` viene cancellato automaticamente.
 - **Rollback rapido**: `git revert 2af1bdd` su `feature/clone-jungle-to-fpv`.
 - **Verifiche**: `npx tsc --noEmit` (`0`), `npm run api:check` (`0`).
+
+---
+
+## 7. Passo 0 Pre-Flight: Audit & Auto-Riparazione Prenotazioni prima dello Switch (Commit `929ed38`)
+
+- **File aggiornato**: `api/_helpers/octorate-jungle-mirror.ts`
+  - Aggiunti `fetchTwinActiveReservations` e `verifyAndRepairTwinReservationsBeforeSwitch` eseguiti **prima del Tempo 1** in `switchActiveJungleStructure`.
+  - Scarica le prenotazioni attive delle 4 ville da entrambe le strutture (`outgoing` e `targetStructureId`), crea eventuali specchi `[MIRROR_SYNC]` mancanti su `targetStructureId`, rimuove eventuali specchi orfani non più presenti su `outgoing` e riesegue una lettura di conferma prima di procedere allo Stop Sell del Tempo 1.
+- **Rollback rapido**: `git revert 929ed38` su `feature/clone-jungle-to-fpv`.
+- **Verifiche**: `npx tsc --noEmit` (`0`), `npm run api:check` (`0`).
