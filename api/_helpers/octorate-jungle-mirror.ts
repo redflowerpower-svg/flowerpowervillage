@@ -285,6 +285,57 @@ export interface MirrorParams {
  * struttura attiva sia eventuali prenotazioni Keep-Alive 2x su Jungle Villas in standby,
  * con doppia protezione anti-loop tramite MIRROR_TAG e registro inverso Supabase.
  */
+async function cancelExistingMirrorReservation(params: {
+  supabaseAdmin: any;
+  accessToken: string;
+  srcStruct: string;
+  sourceReservationId: string;
+  targetStructureId: JungleSourceStructureId;
+  existingMirrorId: string;
+  reasonNote: string;
+}): Promise<void> {
+  const {
+    supabaseAdmin,
+    accessToken,
+    srcStruct,
+    sourceReservationId,
+    targetStructureId,
+    existingMirrorId,
+    reasonNote
+  } = params;
+
+  const delRes = await fetch(
+    `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}/${existingMirrorId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }
+    }
+  );
+  if (!delRes.ok) {
+    await fetch(
+      `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}/${existingMirrorId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({
+          status: 'CANCELLED',
+          privateNotes: `${MIRROR_TAG} ${reasonNote} (${srcStruct} #${sourceReservationId})`
+        })
+      }
+    );
+  }
+
+  if (supabaseAdmin) {
+    const mapKey = `mirror_res_${srcStruct}_${sourceReservationId}`;
+    const reverseKey = `mirror_target_${targetStructureId}_${existingMirrorId}`;
+    await supabaseAdmin.from('telegram_config').delete().in('id', [mapKey, reverseKey]);
+  }
+}
+
 export async function mirrorReservationToStandby(params: MirrorParams): Promise<{
   mirrored: boolean;
   action?: 'created' | 'cancelled' | 'skipped';
@@ -310,11 +361,6 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     return { mirrored: false, action: 'skipped', reason: `Structure ${srcStruct} does not participate in Jungle mirror` };
   }
 
-  const twin = resolveTwinByProductOrName(productId, roomName);
-  if (!twin) {
-    return { mirrored: false, action: 'skipped', reason: 'Not a Jungle/Peace&Love twin room' };
-  }
-
   // Anti-loop: se questa reservation ID risulta già creata come specchio, ignora subito
   const reverseKey = `mirror_target_${srcStruct}_${sourceReservationId}`;
   if (supabaseAdmin) {
@@ -329,7 +375,6 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
   }
 
   const targetStructureId: JungleSourceStructureId = srcStruct === '807324' ? '366879' : '807324';
-  const targetMotherId = targetStructureId === '366879' ? twin.fpvMotherId : twin.jungleMotherId;
   const mapKey = `mirror_res_${srcStruct}_${sourceReservationId}`;
 
   let existingMirrorId: string | null = null;
@@ -342,34 +387,45 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     if (data?.chat_id) existingMirrorId = String(data.chat_id);
   }
 
+  const twin = resolveTwinByProductOrName(productId, roomName);
+  if (!twin) {
+    // Se la prenotazione è stata spostata fuori dalle 4 ville (es. Fake Bungalow 1), cancella l'eventuale specchio esistente
+    if (existingMirrorId) {
+      await cancelExistingMirrorReservation({
+        supabaseAdmin,
+        accessToken,
+        srcStruct,
+        sourceReservationId,
+        targetStructureId,
+        existingMirrorId,
+        reasonNote: 'Moved out of twin room'
+      });
+      return {
+        mirrored: true,
+        action: 'cancelled',
+        targetStructureId,
+        targetReservationId: existingMirrorId,
+        reason: 'Moved out of twin room to non-twin room'
+      };
+    }
+    return { mirrored: false, action: 'skipped', reason: 'Not a Jungle/Peace&Love twin room' };
+  }
+
+  const targetMotherId = targetStructureId === '366879' ? twin.fpvMotherId : twin.jungleMotherId;
+
   if (isCancelled) {
     if (!existingMirrorId) {
       return { mirrored: false, action: 'skipped', reason: 'No existing mirror reservation to cancel' };
     }
-    const delRes = await fetch(
-      `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}/${existingMirrorId}`,
-      {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }
-      }
-    );
-    if (!delRes.ok) {
-      await fetch(
-        `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}/${existingMirrorId}`,
-        {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-            Accept: 'application/json'
-          },
-          body: JSON.stringify({
-            status: 'CANCELLED',
-            privateNotes: `${MIRROR_TAG} Cancelled from ${srcStruct} #${sourceReservationId}`
-          })
-        }
-      );
-    }
+    await cancelExistingMirrorReservation({
+      supabaseAdmin,
+      accessToken,
+      srcStruct,
+      sourceReservationId,
+      targetStructureId,
+      existingMirrorId,
+      reasonNote: 'Cancelled from'
+    });
     return {
       mirrored: true,
       action: 'cancelled',
