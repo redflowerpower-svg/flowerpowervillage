@@ -985,7 +985,9 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                     checkIn: toThailandDateStr(rawIn),
                     checkOut: toThailandDateStr(rawOut),
                     guestName,
-                    isCancelled
+                    isCancelled,
+                    channelId: targetBooking.channelId,
+                    channelRefer: targetBooking.channelRefer
                   });
                   if (mirrorOutcome.mirrored) {
                     console.log(`[OCTORATE WEBHOOK] 🔄 Mirroring ${mirrorOutcome.action} su ${mirrorOutcome.targetStructureId} (#${mirrorOutcome.targetReservationId})`);
