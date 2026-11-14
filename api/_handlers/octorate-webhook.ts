@@ -12,9 +12,11 @@ import {
   getActiveJungleSource,
   getCompanionRateId,
   getJungleTwinPairByRateId,
+  isLowSeasonKeepAliveDate,
   isMirrorReservation,
   JungleSourceStructureId,
   mirrorReservationToStandby,
+  STANDBY_KEEPALIVE_MIN_STAY,
   syncActiveToStandbyCalendar
 } from "../_helpers/octorate-jungle-mirror.js";
 
@@ -736,6 +738,24 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
         // Invio sincronizzazione in blocchi (batch da 250 per Octorate API) specchiando anche la madre gemella in standby
         if (calculatedUpdates.length > 0) {
+          const resolveWebhookMinStayForRoom = (
+            roomId: number,
+            baseMinStay: number,
+            dateFrom: string,
+            dateTo: string
+          ): number => {
+            const pair = getJungleTwinPairByRateId(roomId);
+            if (
+              pair &&
+              pair.jungleId === roomId &&
+              activeJungleSource === '366879' &&
+              (isLowSeasonKeepAliveDate(dateFrom) || isLowSeasonKeepAliveDate(dateTo))
+            ) {
+              return Math.max(STANDBY_KEEPALIVE_MIN_STAY, baseMinStay);
+            }
+            return baseMinStay;
+          };
+
           const roomsPayload: any[] = [];
           for (const u of calculatedUpdates) {
             const primaryId = Number(u.roomTypeId);
@@ -743,7 +763,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
               room: primaryId,
               dateFrom: u.dateFrom,
               dateTo: u.dateTo,
-              values: { minstay: Number(u.minStay) }
+              values: { minstay: resolveWebhookMinStayForRoom(primaryId, Number(u.minStay), u.dateFrom, u.dateTo) }
             });
             const companionId = getCompanionRateId(primaryId);
             if (companionId) {
@@ -751,7 +771,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                 room: companionId,
                 dateFrom: u.dateFrom,
                 dateTo: u.dateTo,
-                values: { minstay: Number(u.minStay) }
+                values: { minstay: resolveWebhookMinStayForRoom(companionId, Number(u.minStay), u.dateFrom, u.dateTo) }
               });
             }
           }
@@ -875,19 +895,29 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                 console.log(`[OCTORATE WEBHOOK] Prenotazione specchio [MIRROR_SYNC] #${reservationId} ignorata per anti-eco e anti-loop.`);
               } else {
                 // 📲 1. Notifica Telegram Immediata allo Staff del Villaggio (Strict AWAIT per evitare Context Freeze di Vercel)
+                let alreadySent: any = null;
                 try {
                   let tgMessage = '';
                   let targetTopicKey: 'BOOKINGS' | 'MODIFICATIONS_CANCELLATIONS' = 'BOOKINGS';
 
                   // Verifica se già notificata come nuova prenotazione per evitare spam
                   const notificationKey = isCancelled ? `res_cancelled_${reservationId}` : (isModified ? `res_modified_${reservationId}_${rawIn}_${rawOut}` : `res_notified_${reservationId}`);
-                  const { data: alreadySent } = await supabaseAdmin
+                  const { data: alreadySentRow } = await supabaseAdmin
                     .from('telegram_config')
                     .select('id')
                     .eq('id', notificationKey)
                     .maybeSingle();
+                  alreadySent = alreadySentRow;
 
                   if (!alreadySent) {
+                    const twinPairForNotify = getJungleTwinPairByRateId(roomRawId);
+                    const twinStructId = twinPairForNotify
+                      ? (twinPairForNotify.jungleId === Number(roomRawId) ? '807324' : '366879')
+                      : String(resortConfig.id);
+                    const isTwinStandbyBooking =
+                      Boolean(twinPairForNotify) &&
+                      twinStructId !== String(activeJungleSource);
+
                     if (isCancelled) {
                       targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
                       tgMessage = `🔴 ${resortBadge} <b>CANCELLAZIONE PRENOTAZIONE</b>\n` +
@@ -919,8 +949,34 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                         `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
                     }
 
+                    if (isTwinStandbyBooking && !isCancelled) {
+                      tgMessage =
+                        `🚨 <b>[PRENOTAZIONE KEEP-ALIVE SU STRUTTURA IN STANDBY!]</b>\n` +
+                        `🛡️ <i>Ricevuta su ${resortConfig.name} (in Standby con filtro 14+ notti / prezzo 2x). Clonata automaticamente sulla struttura principale e date chiuse su entrambe!</i>\n\n` +
+                        tgMessage;
+                    }
+
                     const tgRes = await sendDepartmentTelegramMessage('village', tgMessage, { topic: targetTopicKey });
                     console.log(`[OCTORATE WEBHOOK] Inviata notifica Telegram per prenotazione #${reservationId}:`, tgRes);
+
+                    if (isTwinStandbyBooking && !isCancelled) {
+                      await sendDepartmentTelegramMessage(
+                        'village',
+                        `🚨 <b>PRENOTAZIONE RICEVUTA SU STRUTTURA IN STANDBY (${resortConfig.name})</b>\n` +
+                          `🏨 <b>${roomName}</b> • 👤 <b>${guestName}</b>\n` +
+                          `📅 <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
+                          `💰 <b>${formattedTotal} ${currency}</b> (<code>#${reservationId}</code>)\n\n` +
+                          `✅ <i>La prenotazione è già stata clonata in automatico sulla struttura principale. Usa il pulsante qui sotto se desideri verificare o fare lo switch tra le strutture:</i>`,
+                        {
+                          topic: 'BOOKING_EDITOR',
+                          replyMarkup: {
+                            inline_keyboard: [
+                              [{ text: '🔄 Apri Pannello /switchvillas', callback_data: 'swv:menu' }]
+                            ]
+                          }
+                        }
+                      );
+                    }
 
                     // Memorizzazione chiave notifica inviata per non duplicare
                     await supabaseAdmin.from('telegram_config').upsert({

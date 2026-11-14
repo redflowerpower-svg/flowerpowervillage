@@ -23,6 +23,7 @@ import {
   resolvePaymentDetails
 } from "../_helpers/telegram.js";
 import {
+  createOctClient,
   searchOctorateReservations,
   fetchReservationDetail,
   findAvailableTargetRooms,
@@ -31,6 +32,11 @@ import {
   toThailandDateStr,
   DIRECT_CHANNEL_IDS
 } from "../_helpers/octorate-move.js";
+import {
+  getActiveJungleSource,
+  switchActiveJungleStructure,
+  JungleSourceStructureId
+} from "../_helpers/octorate-jungle-mirror.js";
 import {
   sendPizzaOrderEmail,
   extractOrderMetadata
@@ -45,6 +51,61 @@ import {
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null as any;
+
+function buildSwitchVillasPrompt(currentActive: JungleSourceStructureId): {
+  text: string;
+  replyMarkup: any;
+  targetStructure: JungleSourceStructureId;
+} {
+  const is807Active = currentActive === '807324';
+  const targetStructure: JungleSourceStructureId = is807Active ? '366879' : '807324';
+  const currentLabel = is807Active
+    ? '🌴 Jungle Villas (807324)'
+    : '🌺 Flower Power Village (366879)';
+  const targetLabel = is807Active
+    ? '🌺 Flower Power Village (366879)'
+    : '🌴 Jungle Villas (807324)';
+  const standbyRuleNote = targetStructure === '366879'
+    ? "• <b>Jungle Villas (807324)</b> passerà in <b>Standby Protetto</b> (Stop Sell 100% Nov–Mag + Keep-Alive Giu–Ott con Prezzo 2x e MinStay 14 notti)."
+    : "• <b>Flower Power Village (366879)</b> passerà in <b>Standby Protetto</b> (Stop Sell 100% tutto l'anno sulle 4 ville).";
+
+  const text = [
+    '🔄 <b>SWITCH STRUTTURA 4 VILLE (PROTOCOLLO BLINDATO A 6 CANCELLI)</b>',
+    '━━━━━━━━━━━━━━━━━━━━━━',
+    '🟢 <b>Attualmente in Produzione (Vendite Aperte):</b>',
+    `   <b>${currentLabel}</b>`,
+    '',
+    '🛡️ <b>Attualmente in Standby (Protetta):</b>',
+    `   <b>${targetLabel}</b>`,
+    '━━━━━━━━━━━━━━━━━━━━━━',
+    '🎯 <b>OPERAZIONE PROPOSTA:</b>',
+    `Passaggio da <b>${currentLabel}</b> ➔ a <b>${targetLabel}</b>`,
+    '',
+    '📋 <b>Cosa farà il sistema in automatico:</b>',
+    `1️⃣ Metterà in <b>Stop Sell</b> le 4 ville su <b>${currentLabel}</b> e verificherà che siano chiuse.`,
+    `2️⃣ Verificherà e allineerà al 100% tutte le prenotazioni (con loghi e colori OTA) e le 52 tariffe su <b>${targetLabel}</b> a porte chiuse.`,
+    `3️⃣ Aprirà le vendite ufficiali su <b>${targetLabel}</b> e verificherà l'apertura.`,
+    standbyRuleNote,
+    '',
+    '❓ <b>Sei sicuro di voler procedere con lo switch?</b>'
+  ].join('\n');
+
+  const replyMarkup = {
+    inline_keyboard: [
+      [
+        {
+          text: `✅ SÌ, CONFERMA SWITCH ➔ ${is807Active ? 'FPV (366879)' : 'Jungle (807324)'}`,
+          callback_data: `swv:confirm:${targetStructure}`
+        }
+      ],
+      [
+        { text: '❌ Annulla', callback_data: 'swv:cancel' }
+      ]
+    ]
+  };
+
+  return { text, replyMarkup, targetStructure };
+}
 
 // 1. handleTelegramNotify
 export async function handleTelegramNotify(req: VercelRequest, res: VercelResponse) {
@@ -540,9 +601,21 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               `🛠️ <b>Booking Editor — Comandi Disponibili</b>\n\n` +
               `• <b>/sposta</b> — Sposta una prenotazione su un altro alloggio (anche tra strutture diverse)\n` +
               `• <b>/sposta Nome o ID</b> — Cerca subito la prenotazione\n` +
+              `• <b>/switchvillas</b> — Verifica quale struttura è attiva e passa le 4 ville tra Jungle Villas (807324) e Flower Power Village (366879)\n` +
               `• <b>/cancel</b> — Annulla l'operazione in corso`
             );
             return res.status(200).json({ status: 'booking_editor_help' });
+          }
+
+          if (msgText === '/switchvillas' || msgText.startsWith('/switchvillas@') || msgText.startsWith('/switchvillas ')) {
+            const currentActive = await getActiveJungleSource(supabase);
+            const prompt = buildSwitchVillasPrompt(currentActive);
+            await sendEditorMsg(prompt.text, prompt.replyMarkup);
+            return res.status(200).json({
+              status: 'booking_editor_switchvillas_prompt',
+              currentActive,
+              targetStructure: prompt.targetStructure
+            });
           }
 
           if (msgText === '/cancel' || msgText.startsWith('/cancel@')) {
@@ -1514,6 +1587,104 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         (result.body.warning ? `\n\n⚠️ ${escapeHtml(result.body.warning)}` : '')
       );
       return res.status(200).json({ status: 'mv_executed' });
+    }
+  }
+
+  // ── Switch Villas Remote Actions (swv:...) ──
+  if (callbackData && callbackData.startsWith('swv:')) {
+    const { botToken: vBotToken } = await getTelegramCredentials('village');
+    const targetToken = vBotToken || botToken;
+    const answerCb = (text?: string) =>
+      fetch(`https://api.telegram.org/bot${targetToken}/answerCallbackQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ callback_query_id: callbackQueryId, ...(text ? { text } : {}) })
+      }).catch(() => {});
+
+    const editEditorMsg = (text: string, replyMarkup?: any) =>
+      fetch(`https://api.telegram.org/bot${targetToken}/editMessageText`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: messageChatId,
+          message_id: messageId,
+          text,
+          parse_mode: 'HTML',
+          ...(replyMarkup ? { reply_markup: replyMarkup } : {})
+        })
+      });
+
+    if (callbackData === 'swv:cancel') {
+      const currentActive = await getActiveJungleSource(supabase);
+      const activeName = currentActive === '807324'
+        ? '🌴 Jungle Villas (807324)'
+        : '🌺 Flower Power Village (366879)';
+      await answerCb('Switch annullato');
+      await editEditorMsg(
+        `❌ <b>Switch annullato.</b>\nNessuna modifica effettuata: resta regolarmente in produzione <b>${activeName}</b>.`
+      );
+      return res.status(200).json({ status: 'swv_cancelled', currentActive });
+    }
+
+    if (callbackData === 'swv:menu') {
+      const currentActive = await getActiveJungleSource(supabase);
+      const prompt = buildSwitchVillasPrompt(currentActive);
+      await answerCb();
+      await editEditorMsg(prompt.text, prompt.replyMarkup);
+      return res.status(200).json({ status: 'swv_menu_shown', currentActive, targetStructure: prompt.targetStructure });
+    }
+
+    if (callbackData.startsWith('swv:confirm:')) {
+      const targetRaw = callbackData.split(':')[2];
+      if (targetRaw !== '807324' && targetRaw !== '366879') {
+        await answerCb('Struttura non valida');
+        await editEditorMsg('❌ <b>Struttura di destinazione non valida.</b> Riprova con /switchvillas.');
+        return res.status(200).json({ status: 'swv_invalid_target' });
+      }
+      const targetStructure = targetRaw as JungleSourceStructureId;
+
+      await answerCb('⏳ Avvio Switch Blindato a 6 Cancelli...');
+      await editEditorMsg(
+        '⏳ <b>SWITCH IN CORSO (Protocollo Blindato a 6 Cancelli)...</b>\n' +
+        '<i>Attendere 15–30 secondi...</i>'
+      );
+
+      try {
+        const octClient = await createOctClient(supabase);
+        await octClient.octFetch('https://api.octorate.com/connect/rest/v1/accommodation/366879');
+        const accessToken = octClient.getAccessToken();
+        const swRes = await switchActiveJungleStructure(supabase, accessToken, targetStructure);
+
+        const activeLabel = swRes.active === '807324'
+          ? '🌴 Jungle Villas (807324)'
+          : '🌺 Flower Power Village (366879)';
+        const standbyLabel = swRes.outgoing === '807324'
+          ? '🌴 Jungle Villas (807324) (Keep-Alive Giu–Ott: Prezzo 2x + MinStay 14 notti)'
+          : '🌺 Flower Power Village (366879) (Stop Sell 100%)';
+
+        await editEditorMsg(
+          '✅ <b>SWITCH COMPLETATO E CERTIFICATO A 6 CANCELLI!</b>\n' +
+          '━━━━━━━━━━━━━━━━━━━━━━\n' +
+          `🟢 <b>Ora in Produzione (Vendite Aperte):</b> <b>${activeLabel}</b>\n` +
+          `🛡️ <b>Ora in Standby (Protetta):</b> <b>${standbyLabel}</b>\n` +
+          `📋 <b>Prenotazioni verificate:</b> <code>${swRes.reservationSync?.checked ?? 'OK'}</code> (create: <code>${swRes.reservationSync?.repairedCreated ?? 0}</code>, rimosse orfane: <code>${swRes.reservationSync?.repairedCancelled ?? 0}</code>)\n` +
+          `📊 <b>52 Tariffe sincronizzate:</b> <code>${swRes.syncedEntries}</code> celle (Blocchi Fase 1: <code>${swRes.phase1Blocks}</code>, Fase 2: <code>${swRes.phase2Blocks}</code>)\n` +
+          `🔒 <b>Verifica Finale Incrociata (Cancello 6):</b> <b>SUPERATA (${swRes.verificationAttempts} letture live GET /calendar)</b>`
+        );
+        return res.status(200).json({ status: 'swv_executed', active: swRes.active, outgoing: swRes.outgoing });
+      } catch (swErr: any) {
+        await editEditorMsg(
+          `❌ <b>Switch bloccato dal Cancello di Sicurezza:</b>\n` +
+          `<code>${escapeHtml(swErr?.message || 'Errore sconosciuto')}</code>\n\n` +
+          `🛡️ <i>Le strutture sono rimaste protette contro qualsiasi overbooking.</i>`,
+          {
+            inline_keyboard: [
+              [{ text: '🔄 Riprova / Verifica Stato', callback_data: 'swv:menu' }]
+            ]
+          }
+        );
+        return res.status(200).json({ status: 'swv_blocked', error: swErr?.message || 'Unknown error' });
+      }
     }
   }
 
