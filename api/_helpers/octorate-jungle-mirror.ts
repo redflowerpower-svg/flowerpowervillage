@@ -196,6 +196,8 @@ export function computeStandbyKeepAlivePrice(
   return Math.min(9500, Math.max(Math.round(validBase * 2), minDoubled));
 }
 
+export const STANDBY_KEEPALIVE_MIN_STAY = 14;
+
 export const MIRROR_TAG = '[MIRROR_SYNC]';
 const ACTIVE_SOURCE_CONFIG_ID = 'active_jungle_source_v1';
 
@@ -865,7 +867,7 @@ function build52RateDailyEntries(
                   };
               entries.push({ room: dstRateId, date: dateStr, values });
             } else if (pair.isMother) {
-              // Bassa Stagione Keep-Alive Madre (807324): aperto solo se libera, prezzo raddoppiato 2x (< 10.000 THB)
+              // Bassa Stagione Keep-Alive Madre (807324): aperto solo se libera, prezzo raddoppiato 2x (< 10.000 THB) e minstay 14 notti
               const keepAlivePrice = computeStandbyKeepAlivePrice(mDay.price, pair.key);
               const lockDay = !isMotherFree;
               entries.push({
@@ -878,7 +880,7 @@ function build52RateDailyEntries(
                   closed: lockDay,
                   closedArrival: lockDay,
                   closedDeparture: lockDay,
-                  ...(mDay.minstay ? { minstay: mDay.minstay } : {})
+                  minstay: STANDBY_KEEPALIVE_MIN_STAY
                 }
               });
             } else {
@@ -1233,6 +1235,14 @@ async function verifyStructureCalendarState(
         }
       }
 
+      if (pair?.isMother && entry.values.minstay !== undefined && Number(entry.values.minstay) > 0) {
+        const expMinStay = Number(entry.values.minstay);
+        const liveMinStay = Number(liveDay.minstay ?? 0);
+        if (liveMinStay !== expMinStay) {
+          mismatches.push(`${rateTag} @ ${entry.date}: minstay atteso=${expMinStay} reale=${liveMinStay}`);
+        }
+      }
+
       if (pair?.isMother) {
         // Sui giorni parziali della Suite JV (una sola metà occupata), availability viene omessa in bulk POST ma deve risultare 0 da aggregazione Octorate
         const expAvail =
@@ -1477,6 +1487,7 @@ export async function switchActiveJungleStructure(
   phase1Blocks: number;
   phase2Blocks: number;
   syncedEntries: number;
+  reservationSync?: { checked: number; repairedCreated: number; repairedCancelled: number };
 }> {
   const currentActive = await getActiveJungleSource(supabaseAdmin);
   const outgoing: JungleSourceStructureId = targetStructureId === '366879' ? '807324' : '366879';
@@ -1540,7 +1551,7 @@ export async function switchActiveJungleStructure(
 
   // PASSO 3 & PASSO 4 (Clonazione Totale & Verifica Prenotazioni + Prezzi sulla Nuova Struttura ANCORA CHIUSA):
   // 3a. Con la vecchia struttura già chiusa, allinea e verifica al 100% tutte le prenotazioni (con loghi e colori agenzia) sulla nuova struttura
-  await verifyAndRepairTwinReservationsBeforeSwitch(
+  const reservationSync = await verifyAndRepairTwinReservationsBeforeSwitch(
     supabaseAdmin,
     accessToken,
     outgoing,
@@ -1605,6 +1616,7 @@ export async function switchActiveJungleStructure(
     verifiedSampleDates: sampleDates,
     phase1Blocks: phase1BlocksList.length,
     phase2Blocks: phase2BlocksList.length,
-    syncedEntries: phase2Entries.length
+    syncedEntries: phase2Entries.length,
+    reservationSync
   };
 }
