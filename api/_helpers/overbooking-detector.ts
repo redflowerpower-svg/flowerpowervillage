@@ -1,5 +1,6 @@
 import { sendDepartmentTelegramMessage } from "./telegram.js";
 import { formatDateDMY } from "./date-formatter.js";
+import { isMirrorReservation } from "./octorate-jungle-mirror.js";
 
 export interface CanonicalAccommodation {
   key: string;
@@ -92,8 +93,9 @@ export async function checkAndNotifyOverbookings(
     return { detected: 0, notified: 0 };
   }
 
-  // 1. Filtra solo prenotazioni attive / confermate
+  // 1. Filtra solo prenotazioni attive / confermate, escludendo le prenotazioni specchio [MIRROR_SYNC]
   const activeBookings = bookings.filter(b => {
+    if (isMirrorReservation(b)) return false;
     const st = String(b.status || '').toUpperCase().trim();
     return st !== 'CANCELLED' && st !== 'CANCELED' && st !== 'DELETED' && st !== 'VOID' && st !== 'REJECTED' && !b.cancelled && !b.isCancelled;
   });

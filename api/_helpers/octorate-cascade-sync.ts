@@ -1,20 +1,39 @@
 /**
  * ⚡ Motore Serverless Permanente: Sconti a Cascata Last-Minute (3 Stadi Sequenziali)
  * Sincronizzazione automatica 24/7 su Octorate PMS (Regola d'Oro: Sempre e solo Livello 0).
+ *
+ * Architettura Bidirezionale (Octorate Portal <-> Dashboard):
+ * - Octorate è l'unica fonte di verità per i prezzi base.
+ * - La tabella esistente `telegram_config` (record `cascade_price_ledger_v1`) memorizza
+ *   solo lo stato degli sconti applicati per ciascun `(motherId, date)` nella finestra
+ *   mobile di 8 giorni, evitando doppi sconti e preservando qualsiasi modifica manuale
+ *   eseguita sia dal portale Octorate sia dalla Dashboard.
  */
 import { formatDateDMY, formatAllDatesToDMY } from "./date-formatter.js";
+import { ALL_OCTORATE_STRUCTURE_IDS } from "./octorate-structures.js";
+import {
+  getActiveJungleSource,
+  getJungleTwinPairByRateId,
+  isLowSeasonKeepAliveDate,
+  JungleSourceStructureId
+} from "./octorate-jungle-mirror.js";
 
 export interface CascadeRoomConfig {
   motherId: number;
   name: string;
+  /** Usato esclusivamente come fallback di migrazione iniziale o se Octorate non restituisce dati */
   basePrice: number;
 }
 
 export const CASCADE_MOTHER_ROOMS: CascadeRoomConfig[] = [
-  { motherId: 529773, name: 'Jungle Villa', basePrice: 2290 },
-  { motherId: 495795, name: 'Jungle Villa Left', basePrice: 1290 },
-  { motherId: 495796, name: 'Jungle Villa Right', basePrice: 1290 },
-  { motherId: 494840, name: 'Peace & Love Villa', basePrice: 1290 },
+  { motherId: 529773, name: 'Jungle Villa 2', basePrice: 2290 },
+  { motherId: 495795, name: 'Jungle Villa Left 2', basePrice: 1290 },
+  { motherId: 495796, name: 'Jungle Villa Right 2', basePrice: 1290 },
+  { motherId: 494840, name: 'Peace & Love Villa 2', basePrice: 1290 },
+  { motherId: 960389, name: 'Jungle Villa', basePrice: 2290 },
+  { motherId: 960385, name: 'Jungle Villa Left', basePrice: 1290 },
+  { motherId: 960387, name: 'Jungle Villa Right', basePrice: 1290 },
+  { motherId: 960383, name: 'Peace & Love Villa', basePrice: 1290 },
   { motherId: 421511, name: 'Villa Penthouse', basePrice: 1290 },
   { motherId: 293957, name: 'Yellow Bungalow', basePrice: 990 },
   { motherId: 293954, name: 'Red Bungalow', basePrice: 790 },
@@ -32,6 +51,19 @@ export const CASCADE_MOTHER_ROOMS: CascadeRoomConfig[] = [
   { motherId: 649669, name: 'Fake Bungalow 1', basePrice: 1000 },
   { motherId: 921799, name: 'Fake Bungalow 2', basePrice: 1000 }
 ];
+
+const CASCADE_MOTHER_ID_SET = new Set<number>(CASCADE_MOTHER_ROOMS.map(r => r.motherId));
+const CASCADE_LEDGER_ROW_ID = 'cascade_price_ledger_v1';
+const SYNC_COOLDOWN_MS = 60 * 1000; // 1 minuto anti-burst in memoria serverless
+
+export interface CascadeLedgerEntry {
+  basePrice: number;
+  discountPct: number;
+  discountedPrice: number;
+  updatedAt: string;
+}
+
+export type CascadeLedger = Record<string, CascadeLedgerEntry>;
 
 export function getThailandTodayStr(): string {
   try {
@@ -54,8 +86,103 @@ export function addDaysToDate(baseDateStr: string, days: number): string {
   return date.toISOString().slice(0, 10);
 }
 
-// Memoria volatile per istanza serverless
-let lastSyncedCascadeDateGlobal = '';
+export function getStageDiscountPctForOffset(offset: number): number {
+  if (offset < 0 || offset >= 7) return 0;
+  if (offset < 3) return 10;
+  if (offset < 5) return 5;
+  return 2.5;
+}
+
+export function computeDiscountedPrice(basePrice: number, discountPct: number): number {
+  if (discountPct <= 0) return Math.round(basePrice);
+  return Math.round(basePrice * (1 - discountPct / 100));
+}
+
+export async function loadCascadeLedger(supabaseAdmin: any): Promise<CascadeLedger> {
+  if (!supabaseAdmin) return {};
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('telegram_config')
+      .select('bot_token')
+      .eq('id', CASCADE_LEDGER_ROW_ID)
+      .maybeSingle();
+
+    if (error || !data?.bot_token) return {};
+    const parsed = JSON.parse(data.bot_token);
+    return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
+  } catch (err) {
+    console.warn('[Cascade Ledger Load Warning]:', err);
+    return {};
+  }
+}
+
+export async function saveCascadeLedger(
+  supabaseAdmin: any,
+  ledger: CascadeLedger,
+  todayStr: string = getThailandTodayStr()
+): Promise<void> {
+  if (!supabaseAdmin) return;
+  try {
+    // Pulizia automatica chiavi passate per mantenere compatto il record JSON
+    const pruned: CascadeLedger = {};
+    for (const [key, entry] of Object.entries(ledger)) {
+      const sepIdx = key.lastIndexOf('_');
+      const datePart = sepIdx >= 0 ? key.slice(sepIdx + 1) : '';
+      if (datePart >= todayStr && entry && typeof entry.basePrice === 'number') {
+        pruned[key] = entry;
+      }
+    }
+
+    await supabaseAdmin.from('telegram_config').upsert({
+      id: CASCADE_LEDGER_ROW_ID,
+      bot_token: JSON.stringify(pruned),
+      chat_id: 'cascade_ledger',
+      updated_at: new Date().toISOString()
+    });
+  } catch (err) {
+    console.warn('[Cascade Ledger Save Warning]:', err);
+  }
+}
+
+/**
+ * Invalida le voci del ledger per gli alloggi e gli intervalli modificati manualmente
+ * dalla Dashboard, così la successiva sincronizzazione acquisisce subito i nuovi prezzi base.
+ */
+export async function invalidateCascadeLedgerEntries(
+  supabaseAdmin: any,
+  updates: Array<{ roomMotherId: number; dateFrom: string; dateTo: string }>
+): Promise<void> {
+  if (!supabaseAdmin || !Array.isArray(updates) || updates.length === 0) return;
+  try {
+    const todayStr = getThailandTodayStr();
+    const ledger = await loadCascadeLedger(supabaseAdmin);
+    let changed = false;
+
+    for (const u of updates) {
+      const rId = Number(u.roomMotherId);
+      if (!rId || !u.dateFrom || !u.dateTo) continue;
+      for (const key of Object.keys(ledger)) {
+        const prefix = `${rId}_`;
+        if (key.startsWith(prefix)) {
+          const datePart = key.slice(prefix.length);
+          if (datePart >= u.dateFrom && datePart <= u.dateTo) {
+            delete ledger[key];
+            changed = true;
+          }
+        }
+      }
+    }
+
+    if (changed) {
+      await saveCascadeLedger(supabaseAdmin, ledger, todayStr);
+    }
+  } catch (err) {
+    console.warn('[Cascade Ledger Invalidate Warning]:', err);
+  }
+}
+
+// Cooldown volatile per istanza serverless
+let lastSyncTimestampMs = 0;
 
 async function sendTelegramAlert(supabase: any, message: string): Promise<void> {
   if (!supabase) return;
@@ -90,9 +217,181 @@ async function sendTelegramAlert(supabase: any, message: string): Promise<void> 
   }
 }
 
+export interface CascadeSyncPlanInput {
+  rooms: CascadeRoomConfig[];
+  todayStr: string;
+  livePriceMap: Map<string, number>;
+  ledger: CascadeLedger;
+  nowIso?: string;
+  activeJungleSource?: JungleSourceStructureId;
+}
+
+export interface CascadeSyncPlanOutput {
+  bulkPayload: Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }>;
+  nextLedger: CascadeLedger;
+  ledgerChanged: boolean;
+}
+
+/**
+ * Funzione pura e deterministica che confronta i prezzi live su Octorate con il ledger
+ * per calcolare solo gli aggiornamenti necessari senza mai sovrascrivere modifiche manuali.
+ */
+export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): CascadeSyncPlanOutput {
+  const { rooms, todayStr, livePriceMap, ledger } = input;
+  const nowIso = input.nowIso || new Date().toISOString();
+  const activeJungleSource = input.activeJungleSource || '807324';
+  const nextLedger: CascadeLedger = { ...ledger };
+  const bulkPayload: Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }> = [];
+  let ledgerChanged = false;
+
+  for (const room of rooms) {
+    const twinPair = getJungleTwinPairByRateId(room.motherId);
+    for (let offset = 0; offset <= 7; offset++) {
+      const targetDateStr = addDaysToDate(todayStr, offset);
+
+      if (
+        activeJungleSource === '366879' &&
+        twinPair &&
+        twinPair.jungleId === room.motherId &&
+        isLowSeasonKeepAliveDate(targetDateStr)
+      ) {
+        // Regola Standby Asimmetrica: in Bassa Stagione (01 Giu - 31 Ott) Jungle Villas (807324) resta a 2x Keep-Alive
+        continue;
+      }
+
+      const key = `${room.motherId}_${targetDateStr}`;
+      const livePrice = livePriceMap.get(key);
+
+      if (livePrice === undefined || livePrice <= 0) {
+        continue;
+      }
+
+      const targetDiscountPct = getStageDiscountPctForOffset(offset);
+      const existing = nextLedger[key];
+
+      if (existing && existing.discountedPrice === livePrice) {
+        // Nessuna modifica manuale rilevata: il prezzo su Octorate corrisponde a quello da noi scritto.
+        const basePrice = existing.basePrice;
+        if (existing.discountPct === targetDiscountPct) {
+          continue;
+        }
+
+        const newDiscounted = computeDiscountedPrice(basePrice, targetDiscountPct);
+        if (newDiscounted !== livePrice) {
+          bulkPayload.push({
+            room: room.motherId,
+            dateFrom: targetDateStr,
+            dateTo: targetDateStr,
+            values: { price: newDiscounted }
+          });
+        }
+
+        if (targetDiscountPct === 0) {
+          delete nextLedger[key];
+        } else {
+          nextLedger[key] = {
+            basePrice,
+            discountPct: targetDiscountPct,
+            discountedPrice: newDiscounted,
+            updatedAt: nowIso
+          };
+        }
+        ledgerChanged = true;
+      } else {
+        // Nuova data o modifica manuale rilevata (da Portale Octorate o da Dashboard):
+        // Se non esiste ancora alcun record nel ledger ma Octorate ha già lo sconto legacy esatto
+        // del vecchio sistema hardcoded, riconosciamo il basePrice legacy per evitare il doppio sconto
+        // alla prima esecuzione post-migrazione.
+        let basePrice = livePrice;
+        if (
+          !existing &&
+          targetDiscountPct > 0 &&
+          livePrice === computeDiscountedPrice(room.basePrice, targetDiscountPct)
+        ) {
+          basePrice = room.basePrice;
+        }
+
+        const newDiscounted = computeDiscountedPrice(basePrice, targetDiscountPct);
+
+        if (targetDiscountPct === 0) {
+          if (existing) {
+            delete nextLedger[key];
+            ledgerChanged = true;
+          }
+          continue;
+        }
+
+        if (newDiscounted !== livePrice) {
+          bulkPayload.push({
+            room: room.motherId,
+            dateFrom: targetDateStr,
+            dateTo: targetDateStr,
+            values: { price: newDiscounted }
+          });
+        }
+
+        nextLedger[key] = {
+          basePrice,
+          discountPct: targetDiscountPct,
+          discountedPrice: newDiscounted,
+          updatedAt: nowIso
+        };
+        ledgerChanged = true;
+      }
+    }
+  }
+
+  return { bulkPayload, nextLedger, ledgerChanged };
+}
+
+/**
+ * Fetch parallelo della griglia live delle 3 strutture Octorate per la finestra mobile (oggi .. oggi+7).
+ */
+async function fetchLiveMotherPricesWindow(
+  accessToken: string,
+  dateFrom: string,
+  dateTo: string
+): Promise<Map<string, number>> {
+  const livePriceMap = new Map<string, number>();
+
+  await Promise.all(ALL_OCTORATE_STRUCTURE_IDS.map(async (structId) => {
+    let page = 0;
+    const MAX_PAGES = 5;
+    while (page < MAX_PAGES) {
+      const url = `https://api.octorate.com/connect/rest/v1/calendar/${structId}?dateFrom=${dateFrom}&dateTo=${dateTo}&size=50&page=${page}`;
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }
+      });
+      if (!res.ok) break;
+
+      const json = await res.json();
+      const items = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+      if (items.length === 0) break;
+
+      for (const item of items) {
+        const idNum = Number(item.id);
+        if (!CASCADE_MOTHER_ID_SET.has(idNum)) continue;
+        const days = Array.isArray(item.days) ? item.days : [];
+        for (const day of days) {
+          const dStr = String(day.date || '').slice(0, 10);
+          const price = Number(day.price ?? 0);
+          if (dStr && price > 0) {
+            livePriceMap.set(`${idNum}_${dStr}`, price);
+          }
+        }
+      }
+
+      if (items.length < 50) break;
+      page++;
+    }
+  }));
+
+  return livePriceMap;
+}
+
 /**
  * Verifica e sincronizza automaticamente la finestra di sconti a cascata (3 stadi)
- * su Octorate PMS. Esecuzione idempotente e priva di sovraccarico (solo 1 sync al giorno).
+ * su Octorate PMS leggendo sempre i prezzi reali live da Octorate.
  */
 export async function checkAndSyncCascadeLastMinute(
   accessToken: string,
@@ -103,76 +402,46 @@ export async function checkAndSyncCascadeLastMinute(
     return { synced: false, message: 'Access token mancante per sync sconti a cascata.' };
   }
 
+  const nowMs = Date.now();
+  if (!force && nowMs - lastSyncTimestampMs < SYNC_COOLDOWN_MS) {
+    return { synced: false, message: 'Sync sconti a cascata in cooldown (1 min).' };
+  }
+
   const todayStr = getThailandTodayStr();
+  const windowEndStr = addDaysToDate(todayStr, 7);
 
-  if (!force && lastSyncedCascadeDateGlobal === todayStr) {
-    return { synced: false, message: `Sconti a cascata già sincronizzati per oggi (${todayStr}).` };
+  let livePriceMap: Map<string, number>;
+  try {
+    livePriceMap = await fetchLiveMotherPricesWindow(accessToken, todayStr, windowEndStr);
+  } catch (fetchErr) {
+    console.warn('[Cascade Live Fetch Warning]:', fetchErr);
+    return { synced: false, message: 'Impossibile leggere la griglia live da Octorate.' };
   }
 
-  // Sonda rapida dello stato live di Octorate per Jungle Villa (529773) su todayStr
-  // Se ha già 2061฿ (-10%), Octorate è già aggiornato e allineato
-  if (!force) {
-    try {
-      // 🌟 Probe su Jungle Villas (807324) dove risiede la camera benchmark Jungle Villa (529773)
-      const probeRes = await fetch(
-        `https://api.octorate.com/connect/rest/v1/calendar/807324?dateFrom=${todayStr}&dateTo=${todayStr}&size=20&page=0`,
-        { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
-      );
-      if (probeRes.ok) {
-        const probeJson = await probeRes.json();
-        const items = Array.isArray(probeJson.data) ? probeJson.data : (Array.isArray(probeJson) ? probeJson : []);
-        const jv = items.find((x: any) => Number(x.id) === 529773);
-        const day0Price = jv?.days?.[0]?.price;
-        if (day0Price === 2061) {
-          lastSyncedCascadeDateGlobal = todayStr;
-          return { synced: false, message: `Octorate live calendar già allineato con sconti per oggi (${todayStr}).` };
-        }
-      }
-    } catch (probeErr) {
-      console.warn('[Cascade Probe Warning]:', probeErr);
-    }
+  if (livePriceMap.size === 0) {
+    return { synced: false, message: 'Nessun prezzo live restituito da Octorate per la finestra a cascata.' };
   }
 
-  console.log(`⚡ [CASCADE LAST-MINUTE 24/7] Avvio sincronizzazione finestra mobile per ${todayStr}...`);
-
-  // Costruzione della sequenza 7 giorni + 1 giorno coda:
-  // Offset 0, 1, 2 (3 gg): -10%
-  // Offset 3, 4 (2 gg): -5%
-  // Offset 5, 6 (2 gg): -2.5%
-  // Offset 7 (1 gg coda): 100% baseline (pulizia del giorno che esce dalla finestra)
-  const bulkPayload: Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }> = [];
-
-  CASCADE_MOTHER_ROOMS.forEach((room) => {
-    for (let offset = 0; offset <= 7; offset++) {
-      const targetDateStr = addDaysToDate(todayStr, offset);
-      let discountedPrice = room.basePrice;
-
-      if (offset < 3) {
-        // Stadio 1: -10%
-        discountedPrice = Math.round(room.basePrice * 0.90);
-      } else if (offset < 5) {
-        // Stadio 2: -5%
-        discountedPrice = Math.round(room.basePrice * 0.95);
-      } else if (offset < 7) {
-        // Stadio 3: -2.5%
-        discountedPrice = Math.round(room.basePrice * 0.975);
-      } else {
-        // Offset 7 (Coda di pulizia): 100% Prezzo Base
-        discountedPrice = room.basePrice;
-      }
-
-      bulkPayload.push({
-        room: room.motherId,
-        dateFrom: targetDateStr,
-        dateTo: targetDateStr,
-        values: {
-          price: discountedPrice
-        }
-      });
-    }
+  const activeJungleSource = supabaseAdmin ? await getActiveJungleSource(supabaseAdmin) : '807324';
+  const ledger = await loadCascadeLedger(supabaseAdmin);
+  const { bulkPayload, nextLedger, ledgerChanged } = buildDynamicCascadeSyncPlan({
+    rooms: CASCADE_MOTHER_ROOMS,
+    todayStr,
+    livePriceMap,
+    ledger,
+    activeJungleSource
   });
 
-  // Invio a scaglioni (Batch da 25) per rispettare i limiti di carico Octorate
+  if (bulkPayload.length === 0) {
+    if (ledgerChanged) {
+      await saveCascadeLedger(supabaseAdmin, nextLedger, todayStr);
+    }
+    lastSyncTimestampMs = Date.now();
+    return { synced: false, message: `Octorate live già allineato con gli sconti a cascata (${todayStr}).` };
+  }
+
+  console.log(`⚡ [CASCADE LAST-MINUTE 24/7] Avvio sincronizzazione dinamica (${bulkPayload.length} celle) per ${todayStr}...`);
+
   const BATCH_SIZE = 25;
   const chunks: Array<typeof bulkPayload> = [];
   for (let i = 0; i < bulkPayload.length; i += BATCH_SIZE) {
@@ -207,22 +476,22 @@ export async function checkAndSyncCascadeLastMinute(
   }
 
   if (totalSuccessful > 0) {
-    lastSyncedCascadeDateGlobal = todayStr;
+    lastSyncTimestampMs = Date.now();
+    await saveCascadeLedger(supabaseAdmin, nextLedger, todayStr);
     console.log(`✅ [CASCADE LAST-MINUTE 24/7] Sincronizzazione completata: ${totalSuccessful} tariffe scritte su Octorate PMS.`);
 
-    // Notifica Telegram discreta allo staff
     if (supabaseAdmin) {
       const endWindowStr = addDaysToDate(todayStr, 6);
       const alertMsg = `⚡ <b>[Cascade Last-Minute Auto-Roll]</b>\n` +
         `📅 Finestra Sconti Aggiornata: <code>${formatDateDMY(todayStr)}</code> ➔ <code>${formatDateDMY(endWindowStr)}</code>\n` +
-        `🏨 Applicati sconti a cascata su <b>${CASCADE_MOTHER_ROOMS.length} Alloggi</b> (Livello 0):\n` +
+        `🏨 Sincronizzate <b>${totalSuccessful} tariffe</b> dai prezzi reali di Octorate (Livello 0):\n` +
         `• Gg 0-2 (3 gg): <b>-10.0%</b>\n` +
         `• Gg 3-4 (2 gg): <b>-5.0%</b>\n` +
         `• Gg 5-6 (2 gg): <b>-2.5%</b>\n` +
-        `• Gg 7+: <b>Ripristino Baseline 100%</b>\n` +
+        `• Gg 7+: <b>Ripristino Prezzo Base Reale</b>\n` +
         `✅ Octorate PMS sincronizzato automaticamente.`;
 
-      sendTelegramAlert(supabaseAdmin, alertMsg).catch(() => {});
+      sendTelegramAlert(supabaseAdmin, alertMsg).catch(() => { });
     }
 
     return {

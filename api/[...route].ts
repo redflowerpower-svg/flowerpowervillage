@@ -18,7 +18,8 @@ import {
   handleOctorateGrid,
   handleOctorateMinStay,
   handleOctorateEnrichEmails,
-  handleOctorateMoveReservation
+  handleOctorateMoveReservation,
+  handleOctorateJungleMirror
 } from "./_handlers/octorate.js";
 import { handleOctorateWebhook } from "./_handlers/octorate-webhook.js";
 import { handleEmailAlerts } from "./_handlers/email-alerts.js";
@@ -202,6 +203,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('min-stay') || cleanPath.includes('minstay')) {
     return handleOctorateMinStay(req, res);
+  }
+
+  if (cleanPath.includes('octorate-jungle-mirror') || cleanPath.includes('octorate_jungle_mirror')) {
+    return handleOctorateJungleMirror(req, res);
   }
 
   if (cleanPath.includes('octorate-move-reservation') || cleanPath.includes('octorate_move_reservation')) {

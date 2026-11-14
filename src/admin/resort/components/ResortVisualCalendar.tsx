@@ -3,6 +3,7 @@ import { useResortAdminStore, ResortBooking } from '../store/useResortAdminStore
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { fetchOctorateMonthlyGrid, OctorateDayData } from '../../../booking/lib/octorate';
 import { getBaselineMinStay, getMotherRatePlanId, getCanonicalAccommodation, getSeasonalEndDateStr } from '../lib/octorateAdmin';
+import { isMirrorSyncBooking } from '../lib/bookingFilters';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -19,7 +20,9 @@ import {
   RefreshCw,
   Lock,
   ArrowRightLeft,
-  AlertTriangle
+  AlertTriangle,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 const MONTH_NAMES_IT = [
@@ -167,15 +170,26 @@ function inferStructureForBooking(b: any): { id: string; label: string } {
   return { id: '366879', label: MOVE_STRUCTURE_CATALOG[0].label };
 }
 
-export function getIdsForRoom(roomName: string): { motherId: number; beId: number } {
+export function getIdsForRoom(
+  roomName: string,
+  activeJungleSource: '807324' | '366879' = '807324'
+): { motherId: number; beId: number } {
   if (!roomName) return { motherId: 0, beId: 0 };
   const nameLower = roomName.trim().toLowerCase();
 
   const MAPPING: Record<string, { motherId: number; beId: number }> = {
-    'jungle villa left': { motherId: 495795, beId: 495807 },
-    'jungle villa right': { motherId: 495796, beId: 495980 },
-    'jungle villa': { motherId: 529773, beId: 529784 },
-    'peace & love villa': { motherId: 494840, beId: 495566 },
+    'jungle villa left': activeJungleSource === '366879'
+      ? { motherId: 960385, beId: 960415 }
+      : { motherId: 495795, beId: 495807 },
+    'jungle villa right': activeJungleSource === '366879'
+      ? { motherId: 960387, beId: 960427 }
+      : { motherId: 495796, beId: 495980 },
+    'jungle villa': activeJungleSource === '366879'
+      ? { motherId: 960389, beId: 960403 }
+      : { motherId: 529773, beId: 529784 },
+    'peace & love villa': activeJungleSource === '366879'
+      ? { motherId: 960383, beId: 960391 }
+      : { motherId: 494840, beId: 495566 },
     'villa penthouse': { motherId: 421511, beId: 449348 },
     'penthouse villa': { motherId: 421511, beId: 449348 },
     'yellow bungalow': { motherId: 293957, beId: 449385 },
@@ -283,19 +297,19 @@ function getBookingChannelName(booking: any): string {
 // Universal All-18 Accommodations ID & Keyword Map for Bidirectional Fuzzy Matching
 const ALL_ACCOMMODATIONS_MAP: Record<string, { ids: string[]; keywords: string[][] }> = {
   'jungle villa': {
-    ids: ['529773', '529784', '529778', '529792', '529788', '529780', '916817', '529781', '529801', '921868', '921869', '529783', '529813'],
+    ids: ['529773', '529784', '529778', '529792', '529788', '529780', '916816', '529781', '529801', '921868', '921869', '529783', '529813', '960389', '960403', '960404', '960405', '960406', '960407', '960408', '960409', '960410', '960411', '960412', '960413', '960414'],
     keywords: [["jungle","jv"],["villa","ac"]]
   },
   'jungle villa left': {
-    ids: ['495795', '495807', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
+    ids: ['495795', '495807', '495803', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057', '960385', '960415', '960416', '960417', '960418', '960419', '960420', '960421', '960422', '960423', '960424', '960425', '960426'],
     keywords: [["jungle","jv"],["left","jvl"]]
   },
   'jungle villa right': {
-    ids: ['495796', '495980', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
+    ids: ['495796', '495980', '495976', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056', '960387', '960427', '960428', '960429', '960430', '960431', '960432', '960433', '960434', '960435', '960436', '960437', '960438'],
     keywords: [["jungle","jv"],["right","jvr"]]
   },
   'peace & love villa': {
-    ids: ['494840', '495566', '495551', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
+    ids: ['494840', '495566', '495549', '495551', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609', '960383', '960391', '960392', '960393', '960394', '960395', '960396', '960397', '960398', '960399', '960400', '960401', '960402'],
     keywords: [["peace","love","p&l"]]
   },
   'villa penthouse': {
@@ -386,12 +400,13 @@ function toThailandDateStr(raw: any): string {
   }
 }
 
-function findMatchingBooking(
+function matchBookingForRoomDate(
   roomName: string,
   roomId: string,
   roomOctId: string,
   cellDate: Date,
-  bookings: ResortBooking[]
+  bookings: ResortBooking[],
+  mirrorMode: 'exclude' | 'only'
 ): ResortBooking | null {
   if (!bookings || !Array.isArray(bookings) || bookings.length === 0) return null;
 
@@ -407,6 +422,10 @@ function findMatchingBooking(
   const mapEntry = ALL_ACCOMMODATIONS_MAP[targetNameLower];
 
   return bookings.find((b: any) => {
+    const isMirror = isMirrorSyncBooking(b);
+    if (mirrorMode === 'exclude' && isMirror) return false;
+    if (mirrorMode === 'only' && !isMirror) return false;
+
     const status = String(b.status || '').toLowerCase();
     if (status === 'cancelled' || status === 'canceled') return false;
 
@@ -475,6 +494,26 @@ function findMatchingBooking(
   }) || null;
 }
 
+function findMatchingBooking(
+  roomName: string,
+  roomId: string,
+  roomOctId: string,
+  cellDate: Date,
+  bookings: ResortBooking[]
+): ResortBooking | null {
+  return matchBookingForRoomDate(roomName, roomId, roomOctId, cellDate, bookings, 'exclude');
+}
+
+function findStandbyMirrorBooking(
+  roomName: string,
+  roomId: string,
+  roomOctId: string,
+  cellDate: Date,
+  bookings: ResortBooking[]
+): ResortBooking | null {
+  return matchBookingForRoomDate(roomName, roomId, roomOctId, cellDate, bookings, 'only');
+}
+
 export interface MinStayCellInfo {
   minStay: number;
   isGapFill: boolean;
@@ -518,6 +557,7 @@ function computeGapFillMinStays(
       (liveData ? (liveData.stopSell || !liveData.available || liveData.price >= 10000) : false);
 
     const hasBooking = (bookings || []).some((b: any) => {
+      if (isMirrorSyncBooking(b)) return false;
       const status = String(b.status || '').toLowerCase();
       if (status === 'cancelled' || status === 'canceled') return false;
 
@@ -631,7 +671,8 @@ function computeDerivedRateIndicators(
   roomInput: any,
   dateStr: string,
   liveGridData?: Record<string, Record<string, OctorateDayData>>,
-  activeGridItems?: any[]
+  activeGridItems?: any[],
+  activeJungleSource: '807324' | '366879' = '807324'
 ): {
   bnbLabel: string;
   agodaLabel: string;
@@ -653,7 +694,7 @@ function computeDerivedRateIndicators(
     roomEntry.ids.forEach(id => mappedIdsSet.add(id.toString()));
   }
 
-  const { motherId, beId } = getIdsForRoom(roomNameStr);
+  const { motherId, beId } = getIdsForRoom(roomNameStr, activeJungleSource);
   if (motherId) mappedIdsSet.add(motherId.toString());
   if (beId) mappedIdsSet.add(beId.toString());
 
@@ -1109,9 +1150,10 @@ const CalendarCell = React.memo(function CalendarCell({
 
 export interface ResortVisualCalendarProps {
   viewMode?: 'full_season' | '30_days';
+  activeJungleSource?: '807324' | '366879';
 }
 
-export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualCalendarProps = {}) {
+export function ResortVisualCalendar({ viewMode = 'full_season', activeJungleSource: propActiveJungleSource }: ResortVisualCalendarProps = {}) {
   const [startIndex, setStartIndex] = useState(0);
   const { 
     bookings, 
@@ -1180,6 +1222,10 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
   const [selectedRatesCell, setSelectedRatesCell] = useState<any | null>(null);
   const [liveGridData, setLiveGridData] = useState<Record<string, Record<string, OctorateDayData>>>({});
   const [loadingLive, setLoadingLive] = useState<boolean>(false);
+  const [showStandbyTwins, setShowStandbyTwins] = useState<boolean>(false);
+  const [standbyTwins, setStandbyTwins] = useState<any[]>([]);
+  const [detectedJungleSource, setDetectedJungleSource] = useState<'807324' | '366879'>(propActiveJungleSource || '807324');
+  const effectiveJungleSource: '807324' | '366879' = propActiveJungleSource || detectedJungleSource;
 
   // STEP 3: TIMING BLINDATO (PROTEZIONE DAL FREEZE TRAMITE RENDERING A 2 FASI)
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
@@ -1395,6 +1441,12 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
       const gridData = await fetchOctorateMonthlyGrid(dateFrom, dateTo);
       setLiveGridData(gridData || {});
+      if (typeof window !== 'undefined') {
+        const st = (window as any).__fp_last_standby_twins;
+        if (Array.isArray(st)) setStandbyTwins(st);
+        const src = (window as any).__fp_last_active_jungle_source;
+        if (src === '807324' || src === '366879') setDetectedJungleSource(src);
+      }
     } catch (err) {
       console.warn('[ResortVisualCalendar] Live grid fetch error:', err);
     } finally {
@@ -1406,7 +1458,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
     if (seasonDownloadStatus === 'completed') {
       loadLiveGrid();
     }
-  }, [seasonDownloadStatus]);
+  }, [seasonDownloadStatus, propActiveJungleSource]);
 
   // Ricarica automatica griglia live dopo sincronizzazione o ripristino su Octorate
   useEffect(() => {
@@ -1604,6 +1656,21 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
               </button>
             </div>
 
+            {/* Toggle Mostra Gemelle Standby (4) */}
+            <button
+              type="button"
+              onClick={() => setShowStandbyTwins((v) => !v)}
+              className={`px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider border transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                showStandbyTwins
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/60 shadow'
+                  : 'bg-stone-950 text-stone-300 hover:text-white border-stone-800'
+              }`}
+              title="Mostra o nasconde le 4 righe gemelle in standby per verificare Stop Sell, Keep-Alive 2x (Giu-Ott su 807324) e [MIRROR_SYNC]"
+            >
+              {showStandbyTwins ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              <span>Mostra Gemelle Standby (4)</span>
+            </button>
+
             {/* Sync Live Button */}
             <button
               type="button"
@@ -1693,16 +1760,46 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
             <tbody className="divide-y divide-stone-850/60 text-[10px]">
               {filteredRooms.map((room) => {
                 const gapFillMinStays = computeGapFillMinStays(room.name, room.id, room.octorateId, room.isAvailable, visibleDays, liveGridData, bookingsPool, dynamicMinStayGapFill);
+                const rLower = room.name.trim().toLowerCase();
+                const twinKey: 'jv' | 'jvl' | 'jvr' | 'pl' | null =
+                  rLower === 'jungle villa' ? 'jv'
+                    : rLower === 'jungle villa left' ? 'jvl'
+                    : rLower === 'jungle villa right' ? 'jvr'
+                    : rLower === 'peace & love villa' ? 'pl'
+                    : null;
+                const standbyStructId = effectiveJungleSource === '807324' ? '366879' : '807324';
+                const standbyTwinObj = twinKey ? standbyTwins.find((st: any) => st.key === twinKey) : null;
+                const standbyDayByDate = new Map<string, any>();
+                if (standbyTwinObj && Array.isArray(standbyTwinObj.days)) {
+                  for (const d of standbyTwinObj.days) {
+                    if (d?.date) standbyDayByDate.set(String(d.date).slice(0, 10), d);
+                  }
+                }
 
                 return (
-                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-[37px]">
+                  <React.Fragment key={room.id}>
+                  <tr className="hover:bg-stone-850/40 transition-colors h-[37px]">
                     {/* STEP 3: Z-INDEX ELEVATO Z-40 CON BACKGROUND SOLIDO PER COPRIRE I CERCHIETTI SCORREVOLI */}
                     <td className="sticky left-0 bg-stone-900 z-30 px-2 py-1 text-[10px] font-bold border-b border-r border-stone-850/40 text-white whitespace-nowrap leading-tight" title={room.name}>
-                      {room.name}
+                      <div className="flex items-center gap-1.5">
+                        <span>{room.name}</span>
+                        {twinKey && (
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase ${
+                              effectiveJungleSource === '807324'
+                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            }`}
+                            title={`Struttura attiva in campo per ${room.name}`}
+                          >
+                            {effectiveJungleSource === '807324' ? 'JV 807324' : 'FPV 366879'}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     {visibleDays.map((cellDate, idx) => {
                       const dateStr = toThailandDateStr(cellDate);
-                      const { motherId, beId } = getIdsForRoom(room.name);
+                      const { motherId, beId } = getIdsForRoom(room.name, effectiveJungleSource);
                       const motherData = liveGridData?.[String(motherId)]?.[dateStr];
                       const beData = liveGridData?.[String(beId)]?.[dateStr];
                       const expectedBaseline = getBaselineMinStay(dateStr);
@@ -1723,7 +1820,8 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                         room.name,
                         dateStr,
                         liveGridData,
-                        activeGridItems
+                        activeGridItems,
+                        effectiveJungleSource
                       );
 
                       return (
@@ -1760,6 +1858,61 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                       );
                     })}
                   </tr>
+                  {showStandbyTwins && twinKey && (
+                    <tr className="bg-stone-950/75 h-[28px]">
+                      <td
+                        className="sticky left-0 bg-stone-950 z-30 px-2 py-0.5 text-[9px] font-bold border-b border-r border-stone-800/80 text-stone-400 whitespace-nowrap"
+                        title={`Gemella in standby su ${standbyStructId === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)'}`}
+                      >
+                        <div className="flex items-center gap-1 pl-2">
+                          <span className="text-amber-500/80">↳</span>
+                          <span>Standby</span>
+                          <span className="px-1 py-0.2 rounded bg-stone-800 text-stone-300 font-mono text-[8px]">
+                            {standbyStructId === '807324' ? 'JV 807324' : 'FPV 366879'}
+                          </span>
+                        </div>
+                      </td>
+                      {visibleDays.map((cellDate, idx) => {
+                        const dateStr = toThailandDateStr(cellDate);
+                        const mirrorBooking = findStandbyMirrorBooking(room.name, room.id, room.octorateId, cellDate, bookingsPool);
+                        const dayInfo = standbyDayByDate.get(dateStr);
+                        const isStopped = dayInfo ? (Boolean(dayInfo.stopSells) || Boolean(dayInfo.closed) || Number(dayInfo.availability ?? 0) <= 0) : false;
+
+                        return (
+                          <td
+                            key={`standby_${twinKey}_${idx}`}
+                            className="border-l border-b border-stone-850/70 text-center px-0.5 py-0.5 text-[8px] font-mono whitespace-nowrap"
+                          >
+                            {mirrorBooking ? (
+                              <span
+                                className="inline-block px-1 py-0.5 rounded bg-indigo-900/70 text-indigo-200 border border-indigo-500/40 font-black"
+                                title={`Mirror attivo: ${mirrorBooking.refer || '[MIRROR_SYNC]'} — ${formatGuestLastNameFirst(mirrorBooking)}`}
+                              >
+                                MIRROR
+                              </span>
+                            ) : !dayInfo ? (
+                              <span className="text-stone-600">—</span>
+                            ) : isStopped ? (
+                              <span
+                                className="inline-block px-1 py-0.5 rounded bg-red-950/80 text-red-300 border border-red-700/40 font-black"
+                                title={`Standby bloccata (stopSells=${Boolean(dayInfo.stopSells)}, avail=${dayInfo.availability ?? 0})`}
+                              >
+                                STOP
+                              </span>
+                            ) : (
+                              <span
+                                className="inline-block px-1 py-0.5 rounded bg-emerald-950/80 text-amber-300 border border-emerald-600/50 font-black"
+                                title={`Keep-Alive Bassa Stagione APERTA a prezzo maggiorato (${dayInfo.price || ''} THB)`}
+                              >
+                                2x {dayInfo.price ? `${dayInfo.price}` : 'OPEN'}
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  )}
+                  </React.Fragment>
                 );
               })}
             </tbody>

@@ -3,6 +3,33 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [14/11/2026 - ORE 15:15] · MERGE SU MAIN & TAG DI RIPRISTINO SICURO (CLONE JUNGLE <-> FPV 52 TARIFFE)
+- **Cosa abbiamo fatto:**
+  1. 🔖 **Punti di Ripristino Git Immutabili**:
+     - Creati i tag `backup/pre-jungle-fpv-mirror-main` (`35cb4b3`), `backup/pre-jungle-fpv-mirror-cc124ea` (`cc124ea`) e `backup/pre-jungle-fpv-mirror` (`3289370`) per garantire il rollback immediato di `main`/`staging` in qualunque momento, mantenendo al sicuro il branch `feature/clone-jungle-to-fpv`.
+  2. 🔄 **Allineamento Live `24/11/2026` & Auto-Sync Prezzi in Background**:
+     - Sincronizzato live il ribasso di `Jungle Villa Left` del `24/11/2026` (`1.490 THB`, `stopSells: true`) su **Flower Power Village (`366879`)** (`960385`).
+     - Integrato `syncActiveToStandbyCalendar(..., { daysAhead: 60 })` in `resort-sentinel.ts` e `octorate-webhook.ts` per catturare automaticamente anche eventuali modifiche manuali fatte dentro il portale web Octorate.
+  3. 🔀 **Fusione Completa in `staging` & `main`**:
+     - Unificate le migliorie preesistenti di `staging` (Fake Bungalow auto-open, Cascade Ledger e OAuth token auto-refresh) con il motore bilaterale a 52 tariffe, Doppia Verifica Profonda e Switch a 2 fasi.
+- **Stato:** 🟢 VERIFICATO (`npx tsc --noEmit`, `npm run api:check`, `npm run build` a `0` errori; `Jungle Villas 807324` attiva e `Flower Power Village 366879` in `Stop Sell 100%`).
+
+---
+
+### 🚀 [13/11/2026 - ORE 11:36] · VERIFICA & AUTO-APERTURA FAKE BUNGALOW 1 & 2 (OCTORATE + SENTINEL)
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Verifica Live su Octorate**:
+     - Accertato che **Fake Bungalow 1** (`649669`) e **Fake Bungalow 2** (`921799`) risultavano chiusi perché avevano `availability: 0` su tutti i 200 giorni (`13/11/2026` → `31/05/2027`), pur avendo `stopSells: false` e **0 prenotazioni attive**.
+  2. 🔓 **Riapertura Immediata**:
+     - Inviato aggiornamento bulk su Octorate (`availability: 1`) per `649669` e `921799` su tutta la stagione (`200/200` giorni ora aperti, verificato live).
+  3. 🛡️ **Protezione Automatica nel Sentinel & Griglia**:
+     - Aggiornato `api/_handlers/resort-sentinel.ts` affinché mantenga automaticamente aperti i due Fake Bungalow (`availability: 1`) ogni volta che non ci sono prenotazioni attive né chiusure manuali (`stopSells: true` / `closed: true`).
+     - Aggiornato `api/_handlers/octorate.ts` includendo `649669`, `921799` in `MOTHER_RATE_IDS` e `932243`, `932256` in `OFFICIAL_BE_RATE_IDS`.
+- **File aggiornati:** `api/_handlers/resort-sentinel.ts`, `api/_handlers/octorate.ts`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% VERIFICATO (`npx tsc --noEmit` a 0 errori, 200/200 giorni aperti su Octorate).
+
+---
+
 ### 🚀 [11/11/2026 - ORE 15:55] · VERIFICA & BLINDATURA COLONNA SONORA FORMATO R1 (KOH PHAYAM COMMUNITY)
 - **Cosa abbiamo fatto:**
   1. 🔍 **Diagnosi Retrospettiva Post 8 Novembre ore 19:14**:

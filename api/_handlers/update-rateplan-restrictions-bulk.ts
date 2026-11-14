@@ -2,6 +2,10 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import fs from 'fs';
 import path from 'path';
+import {
+  getActiveJungleSource,
+  getJungleTwinPairByRateId
+} from "../_helpers/octorate-jungle-mirror.js";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -25,10 +29,10 @@ export const REAL_PRODUCTS_BY_PLAN: Record<string, number[]> = {
   ac_14d: [495979, 529781, 916105, 422157, 421527, 495806, 495565, 421998, 331922, 331924, 330970, 331969, 331971, 331967, 331977, 331973],
   ac_bnb_7d: [496022, 496021, 916818, 916816, 916840, 916829, 495587, 332057, 421525, 332072, 332121, 332123, 332119, 332129, 332125, 332035],
   ac_bnb_14d: [496031, 496030, 916402, 916838, 916830, 529801, 421530, 495593, 332060, 332074, 332138, 332140, 332134, 332136, 332142, 332036],
-  agd_ac_7d: [921874, 921872, 921870, 921868],
-  agoda_ac_7d: [921874, 921872, 921870, 921868],
-  agd_ac_14d: [921875, 921873, 921871, 921869],
-  agoda_ac_14d: [921875, 921873, 921871, 921869],
+  agd_ac_7d: [921868, 921870, 921872, 921874, 921876, 921878, 921880, 921882, 921884, 921886, 921889, 921891, 921892, 921894, 921896, 921898],
+  agoda_ac_7d: [921868, 921870, 921872, 921874, 921876, 921878, 921880, 921882, 921884, 921886, 921889, 921891, 921892, 921894, 921896, 921898],
+  agd_ac_14d: [921869, 921871, 921873, 921875, 921877, 921879, 921881, 921883, 921885, 921887, 921890, 921900, 921893, 921895, 921897, 921899],
+  agoda_ac_14d: [921869, 921871, 921873, 921875, 921877, 921879, 921881, 921883, 921885, 921887, 921890, 921900, 921893, 921895, 921897, 921899],
   airbnb: [529783, 495982, 916103, 421532, 495810, 495569, 297025, 297027, 297028, 297021, 297022, 297023, 297024, 297033, 297029, 297030, 297031, 297032],
   airbnb_ac: [529813, 496057, 496056, 916104, 421533, 495609, 422147, 340196, 340198, 340200, 421507, 421508, 421505, 421506, 421509, 421510]
 };
@@ -86,7 +90,7 @@ export const TEST_PRODUCT_IDS: Record<string, number> = {
 
 export const MOTHER_ACCOMMODATION_IDS = {
   test: [649669, 921799],
-  real: [883795, 529773, 495796, 495795, 494840, 421511, 293965, 293945, 293948, 293942, 293943, 293954, 293955, 293951, 293962, 293963, 293957, 293959]
+  real: [883795, 529773, 495796, 495795, 494840, 960389, 960387, 960385, 960383, 421511, 293965, 293945, 293948, 293942, 293943, 293954, 293955, 293951, 293962, 293963, 293957, 293959]
 };
 
 /**
@@ -173,12 +177,20 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
         headers['Octorate-Api-Key'] = clientId;
       }
 
+      const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
       const rateIdFB1 = Number(targetRateIdNum || (planKey ? TEST_PRODUCT_IDS[planKey] : 0));
       const rateIdFB2 = rateIdFB1 + 13;
       const rateIdReal = Number(targetRateIdNum || (planKey ? REAL_PRODUCT_IDS[planKey] : 0));
-      const roomsToUpdate = testOnly
+      const rawRoomsToUpdate = testOnly
         ? (planKey && TEST_PRODUCTS_BY_PLAN[planKey] ? TEST_PRODUCTS_BY_PLAN[planKey] : [rateIdFB1, rateIdFB2])
         : (planKey && REAL_PRODUCTS_BY_PLAN[planKey] ? REAL_PRODUCTS_BY_PLAN[planKey] : (targetRateIdNum ? [targetRateIdNum] : [rateIdReal]));
+      const roomsToUpdate = (!testOnly && planKey)
+        ? Array.from(new Set(rawRoomsToUpdate.map((id) => {
+            const pair = getJungleTwinPairByRateId(id);
+            if (!pair) return id;
+            return activeJungleSource === '366879' ? pair.fpvId : pair.jungleId;
+          })))
+        : rawRoomsToUpdate;
       const onlyCheckoutDaysNum = Number(req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 0);
 
       const addDaysISO = (dateStr: string, days: number): string => {

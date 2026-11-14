@@ -88,6 +88,7 @@ export function getOctorateStructureByRoomId(roomIdOrRateId: number | string): O
 
   // 🌸 3. DEFAULT: FLOWER POWER VILLAGE (366879)
   // Alloggi: Red Bungalow, Green Bungalow, Yellow Bungalow, Camel Tent, Lagoon Tent, Internal Room, Villa Penthouse
+  // + Copie Standby Jungle/Peace&Love: 960389 (Jungle Villa), 960385 (Jungle Left), 960387 (Jungle Right), 960383 (Peace & Love)
   return OCTORATE_STRUCTURES[0];
 }
 

@@ -140,6 +140,94 @@ export function ResortDashboard() {
     return 'bookings';
   });
 
+  const [activeJungleSource, setActiveJungleSource] = useState<'807324' | '366879'>('807324');
+  const [jungleMirrorBusy, setJungleMirrorBusy] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/octorate-jungle-mirror')
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (data?.activeJungleSource === '807324' || data?.activeJungleSource === '366879') {
+          setActiveJungleSource(data.activeJungleSource);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSwitchJungleSource = async () => {
+    if (jungleMirrorBusy) return;
+    const target: '807324' | '366879' = activeJungleSource === '807324' ? '366879' : '807324';
+    const currentLabel = activeJungleSource === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
+    const targetLabel = target === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
+
+    const confirmed = window.confirm(
+      `Vuoi spostare in 2 TEMPI SICURI (con Doppia Verifica Profonda live su Octorate) le 4 Ville (Jungle Villa, Left, Right, Peace & Love) da ${currentLabel} a ${targetLabel}?\n\n` +
+      `• TEMPO 1 + VERIFICA PROFONDA 1: ${currentLabel} passa in standby su tutte le 52 tariffe (4 Madri + 48 Derivate) e il sistema rilegge GET /calendar live per avere la certezza 100% della chiusura prima di toccare l'altra struttura (in caso di anomalia, annulla tutto -> ZERO overbooking).\n` +
+      `• TEMPO 2 + VERIFICA PROFONDA 2: Solo dopo conferma reale del Tempo 1, ${targetLabel} viene aperta su tutte le 52 tariffe copiando prezzi normali, giorni occupati e regole Sacro Graal, verificando infine live sia l'apertura entrante sia che ${currentLabel} sia ancora in standby.\n` +
+      `• Regola Standby Asimmetrica: Se Jungle Villas (807324) va in standby, resta APERTA Keep-Alive solo in Bassa Stagione (01 Giu - 31 Ott) sui giorni liberi a prezzo raddoppiato 2x (< 10.000 THB), mentre in Alta/Media (01 Nov - 31 Mag) resta 100% Stop Sell.\n` +
+      `• Flower Power Village (366879) in standby resta Stop Sell 100% tutto l'anno sulle 4 ville clonate; gli altri 14 alloggi non vengono mai toccati.`
+    );
+    if (!confirmed) return;
+
+    setJungleMirrorBusy(true);
+    try {
+      const res = await fetch('/api/octorate-jungle-mirror', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'switch', targetStructureId: target })
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error || `HTTP ${res.status}`);
+      }
+      setActiveJungleSource(target);
+      const datesInfo = Array.isArray(json.verifiedSampleDates) && json.verifiedSampleDates.length > 0
+        ? ` | Date campioni verificate: ${json.verifiedSampleDates.join(', ')}`
+        : '';
+      const verifyBadge = json.verifiedPhase1 && json.verifiedPhase2
+        ? `\n• Doppia Verifica Profonda OK (${json.verificationAttempts || 2} cicli GET /calendar)${datesInfo}`
+        : '';
+      window.alert(
+        `Switch completato e verificato live! Ora le 4 Ville vendono da ${targetLabel} (${json.syncedEntries || 0} voci allineate su 52 tariffe).${verifyBadge}`
+      );
+    } catch (err: any) {
+      window.alert(`Errore / Blocco sicurezza durante lo switch: ${err?.message || 'Errore sconosciuto'}`);
+    } finally {
+      setJungleMirrorBusy(false);
+    }
+  };
+
+  const handleSyncJungleMirror = async () => {
+    if (jungleMirrorBusy) return;
+    setJungleMirrorBusy(true);
+    try {
+      const res = await fetch('/api/octorate-jungle-mirror', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync', daysAhead: 365 })
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error || `HTTP ${res.status}`);
+      }
+      const fromLabel = json.active === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
+      const toLabel = json.standby === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
+      const datesInfo = Array.isArray(json.verifiedSampleDates) && json.verifiedSampleDates.length > 0
+        ? ` | Date campioni verificate: ${json.verifiedSampleDates.join(', ')}`
+        : '';
+      const verifyBadge = json.verified
+        ? `\n• Verifica Profonda live OK (${json.verificationAttempts || 1} cicli GET /calendar)${datesInfo}`
+        : '';
+      window.alert(
+        `Specchio allineato e verificato! Copiate ${json.syncedEntries || 0} voci su 52 tariffe da ${fromLabel} a ${toLabel}.${verifyBadge}`
+      );
+    } catch (err: any) {
+      window.alert(`Errore sync specchio: ${err?.message || 'Errore sconosciuto'}`);
+    } finally {
+      setJungleMirrorBusy(false);
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const tabParam = new URLSearchParams(window.location.search).get('tab');
@@ -998,6 +1086,38 @@ export function ResortDashboard() {
               <ShieldCheck className={`w-4 h-4 text-emerald-400 ${sentinelRunning ? 'animate-pulse' : 'group-hover:scale-110'} transition-transform`} />
               <span>{sentinelRunning ? 'Audit Sentinel...' : '🛡️ Sentinel 24/7'}</span>
             </button>
+
+            {/* Switch 4 Ville Jungle Villas (807324) <-> Flower Power Village (366879) */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-stone-900 border border-amber-500/40 rounded-2xl">
+              <span
+                className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-lg ${
+                  activeJungleSource === '807324'
+                    ? 'bg-amber-500/20 text-amber-300'
+                    : 'bg-emerald-500/20 text-emerald-300'
+                }`}
+                title="Struttura attualmente attiva per le 4 ville (Jungle Villa, Left, Right, Peace & Love)"
+              >
+                4 Ville: {activeJungleSource === '807324' ? 'Jungle Villas (807324)' : 'FPV (366879)'}
+              </span>
+              <button
+                type="button"
+                onClick={handleSwitchJungleSource}
+                disabled={jungleMirrorBusy}
+                className="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-stone-950 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer whitespace-nowrap"
+                title="Switcha le 4 ville tra Jungle Villas (807324) e Flower Power Village (366879)"
+              >
+                {jungleMirrorBusy ? 'Attendi...' : '⇄ Switcha'}
+              </button>
+              <button
+                type="button"
+                onClick={handleSyncJungleMirror}
+                disabled={jungleMirrorBusy}
+                className="px-2 py-1 bg-stone-800 hover:bg-stone-700 disabled:opacity-50 text-stone-200 border border-stone-700 rounded-xl text-[10px] font-bold transition-all cursor-pointer whitespace-nowrap"
+                title="Forza riallineamento prezzi e disponibilità verso la gemella in standby"
+              >
+                Sync Specchio
+              </button>
+            </div>
 
             {/* Search Input for Bookings & Reset Blacklist Control (Moved after Sincronizza) */}
             <div className="flex items-center gap-2">
@@ -2117,12 +2237,12 @@ export function ResortDashboard() {
 
       {/* Tab Visual Calendar 30gg Veloce */}
       {activeTab === 'calendar_30_days' && (
-        <ResortVisualCalendar viewMode="30_days" />
+        <ResortVisualCalendar viewMode="30_days" activeJungleSource={activeJungleSource} />
       )}
 
       {/* Tab Visual Calendar Full Season */}
       {activeTab === 'calendar' && (
-        <ResortVisualCalendar viewMode="full_season" />
+        <ResortVisualCalendar viewMode="full_season" activeJungleSource={activeJungleSource} />
       )}
 
       {/* Tab Tariffe Derivate & Albero Canali OTA */}

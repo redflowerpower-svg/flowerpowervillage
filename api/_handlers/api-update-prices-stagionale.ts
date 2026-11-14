@@ -1,5 +1,56 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import { checkAndSyncCascadeLastMinute, invalidateCascadeLedgerEntries } from "../_helpers/octorate-cascade-sync.js";
+import { clearOctorateGridCache } from "./octorate.js";
+import {
+  computeStandbyKeepAlivePrice,
+  getActiveJungleSource,
+  getCompanionRateId,
+  getJungleTwinPairByRateId,
+  isLowSeasonKeepAliveDate
+} from "../_helpers/octorate-jungle-mirror.js";
+
+function splitRangeWithKeepAlive(
+  room: number,
+  dateFrom: string,
+  dateTo: string,
+  basePrice: number,
+  key: 'jv' | 'jvl' | 'jvr' | 'pl'
+): Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }> {
+  const blocks: Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }> = [];
+  const start = new Date(dateFrom + 'T00:00:00Z');
+  const end = new Date(dateTo + 'T00:00:00Z');
+  if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
+    return [{ room, dateFrom, dateTo, values: { price: basePrice } }];
+  }
+
+  let curFrom = '';
+  let curTo = '';
+  let curPrice = -1;
+
+  for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    const iso = d.toISOString().slice(0, 10);
+    const p = isLowSeasonKeepAliveDate(iso)
+      ? computeStandbyKeepAlivePrice(basePrice, key)
+      : basePrice;
+    if (!curFrom) {
+      curFrom = iso;
+      curTo = iso;
+      curPrice = p;
+    } else if (p === curPrice) {
+      curTo = iso;
+    } else {
+      blocks.push({ room, dateFrom: curFrom, dateTo: curTo, values: { price: curPrice } });
+      curFrom = iso;
+      curTo = iso;
+      curPrice = p;
+    }
+  }
+  if (curFrom) {
+    blocks.push({ room, dateFrom: curFrom, dateTo: curTo, values: { price: curPrice } });
+  }
+  return blocks;
+}
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -64,7 +115,7 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
   try {
     let body = req.body;
     if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch {}
+      try { body = JSON.parse(body); } catch { }
     }
     const { periodUpdates, testMode, testOnly, updates } = body || {};
     const isTest = testMode === true || testOnly === true;
@@ -81,7 +132,7 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
     // SCUDO DI PROTEZIONE: In modalità test, filtra tassativamente SOLO i Fake Bungalow (649669 e 921799)
     let filteredUpdates = updatesList;
     if (isTest) {
-      filteredUpdates = updatesList.filter((item: any) => 
+      filteredUpdates = updatesList.filter((item: any) =>
         FAKE_BUNGALOW_MOTHER_IDS.includes(Number(item.roomMotherId || item.room || item.motherRateId))
       );
 
@@ -118,20 +169,41 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
       headers['Octorate-Api-Key'] = clientId;
     }
 
+    const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
+
     // 2. Formattazione e Risoluzione Date per il Bulk Payload (Octorate Golden Rule: Tariffa Madre Livello 0)
-    const bulkPayload = filteredUpdates.map((item: any) => {
+    // Specchia automaticamente anche sulla Tariffa Madre gemella rispettando la Regola Standby Asimmetrica
+    const bulkPayload: Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }> = [];
+    for (const item of filteredUpdates) {
       const dateFromFormatted = normalizeDateToYYYYMMDD(item.dateFrom, false);
       const dateToFormatted = normalizeDateToYYYYMMDD(item.dateTo, true, dateFromFormatted);
+      const primaryRoom = Number(item.roomMotherId || item.room);
+      const priceVal = Number(item.price);
 
-      return {
-        room: Number(item.roomMotherId || item.room),
+      bulkPayload.push({
+        room: primaryRoom,
         dateFrom: dateFromFormatted,
         dateTo: dateToFormatted,
-        values: {
-          price: Number(item.price)
+        values: { price: priceVal }
+      });
+
+      const companionId = getCompanionRateId(primaryRoom);
+      if (companionId) {
+        const companionPair = getJungleTwinPairByRateId(companionId);
+        if (activeJungleSource === '366879' && companionPair && companionPair.jungleId === companionId) {
+          bulkPayload.push(
+            ...splitRangeWithKeepAlive(companionId, dateFromFormatted, dateToFormatted, priceVal, companionPair.key)
+          );
+        } else {
+          bulkPayload.push({
+            room: companionId,
+            dateFrom: dateFromFormatted,
+            dateTo: dateToFormatted,
+            values: { price: priceVal }
+          });
         }
-      };
-    });
+      }
+    }
 
     const bulkUrl = 'https://api.octorate.com/connect/rest/v1/calendar/bulk';
     const bulkRes = await fetch(bulkUrl, {
@@ -148,6 +220,20 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
     }
 
     const resultData = await bulkRes.json().catch(() => ({ success: true }));
+
+    // Invalida la cache griglia locale e riallinea subito il ledger/cascata sui nuovi prezzi salvati
+    clearOctorateGridCache();
+    try {
+      const ledgerUpdates = bulkPayload.map((b) => ({
+        roomMotherId: b.room,
+        dateFrom: b.dateFrom,
+        dateTo: b.dateTo
+      }));
+      await invalidateCascadeLedgerEntries(supabaseAdmin, ledgerUpdates);
+      await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin, true);
+    } catch (cascadeErr) {
+      console.warn('[update-prices-stagionale] Cascade re-sync warning:', cascadeErr);
+    }
 
     return res.status(200).json({
       success: true,

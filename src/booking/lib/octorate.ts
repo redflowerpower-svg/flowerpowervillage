@@ -520,9 +520,9 @@ export async function fetchAccommodations(): Promise<Accommodation[]> {
 }
 
 const WHITELISTED_RATEPLAN_IDS: number[] = [
-  529784, 495807, 495980, 495566, 449348, 449385, 449422, 449668,
-  449674, 449675, 449678, 449684, 449699, 449724, 449730, 449736,
-  923905, 449742,
+  529784, 495807, 495980, 495566, 960403, 960415, 960427, 960391,
+  449348, 449385, 449422, 449668, 449674, 449675, 449678, 449684,
+  449699, 449724, 449730, 449736, 923905, 449742,
 ];
 const PAGINATION_PARAM_NAME = "page";
 const PAGE_SIZE = 20;
@@ -719,10 +719,16 @@ export async function fetchOctorateMonthlyGrid(
       ? payload.grid
       : (payload && payload.data && Array.isArray(payload.data) ? payload.data : []);
 
-    // Save raw rate plans items (all rate plans) and reservations via decoupled callback if available
+    // Save raw rate plans items (all rate plans), standby twins and reservations via decoupled callback if available
     try {
-      if (typeof window !== 'undefined' && typeof (window as any).__fp_set_octorate_grid === 'function') {
-        (window as any).__fp_set_octorate_grid(items, payload?.reservations);
+      if (typeof window !== 'undefined') {
+        (window as any).__fp_last_standby_twins = Array.isArray(payload?.standbyTwins) ? payload.standbyTwins : [];
+        if (payload?.activeJungleSource === '807324' || payload?.activeJungleSource === '366879') {
+          (window as any).__fp_last_active_jungle_source = payload.activeJungleSource;
+        }
+        if (typeof (window as any).__fp_set_octorate_grid === 'function') {
+          (window as any).__fp_set_octorate_grid(items, payload?.reservations);
+        }
       }
     } catch (stErr) {
       console.warn('[Octorate Grid API] Store update warning:', stErr);
@@ -732,9 +738,9 @@ export async function fetchOctorateMonthlyGrid(
 
     // Primary BE Rate Plan IDs to process after secondary sub-rate plans
     const PRIMARY_BE_IDS = [
-      529784, 495807, 495980, 495566, 449348, 449385, 449422, 449668,
-      449675, 449674, 449678, 449684, 449699, 449724, 449730, 449736,
-      923905, 449742
+      529784, 495807, 495980, 495566, 960403, 960415, 960427, 960391,
+      449348, 449385, 449422, 449668, 449675, 449674, 449678, 449684,
+      449699, 449724, 449730, 449736, 923905, 449742
     ];
 
     const isPrimaryBEItem = (item: any) => {
@@ -751,10 +757,18 @@ export async function fetchOctorateMonthlyGrid(
     });
 
     const ALIAS_MAP: Record<string, string[]> = {
-      '529784': ['jungle villa', 'jv be', '529773'],
-      '495807': ['jungle villa left', 'jvl be', '495795'],
-      '495980': ['jungle villa right', 'jvr be', '495796'],
-      '495566': ['peace & love villa', 'p&l be', '494840'],
+      '529784': ['jungle villa', 'jv be', '529773', '960403', '960389'],
+      '960403': ['jungle villa', 'jv be', '960389', '529784', '529773'],
+      '960389': ['jungle villa', 'jv be', '960403', '529784', '529773'],
+      '495807': ['jungle villa left', 'jvl be', '495795', '960415', '960385'],
+      '960415': ['jungle villa left', 'jvl be', '960385', '495807', '495795'],
+      '960385': ['jungle villa left', 'jvl be', '960415', '495807', '495795'],
+      '495980': ['jungle villa right', 'jvr be', '495796', '960427', '960387'],
+      '960427': ['jungle villa right', 'jvr be', '960387', '495980', '495796'],
+      '960387': ['jungle villa right', 'jvr be', '960427', '495980', '495796'],
+      '495566': ['peace & love villa', 'p&l be', '494840', '960391', '960383'],
+      '960391': ['peace & love villa', 'p&l be', '960383', '495566', '494840'],
+      '960383': ['peace & love villa', 'p&l be', '960391', '495566', '494840'],
       '449348': ['villa penthouse', 'pent be', '421511'],
       '449385': ['yellow bungalow', 'yellow be', '293957'],
       '449422': ['red bungalow', 'red be', '293954'],
