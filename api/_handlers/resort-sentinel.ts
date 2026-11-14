@@ -189,8 +189,8 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
   const jungleClosedAcIds = JUNGLE_RATE_PAIRS.filter(p => p.isClosedAc).map(p => p.jungleId);
 
   const fullyClosedIds = new Set([
-    ...(REAL_PRODUCTS_BY_PLAN.ac_7d || []).filter(id => !agodaBungalowAcIds.has(id)),
-    ...(REAL_PRODUCTS_BY_PLAN.ac_14d || []).filter(id => !agodaBungalowAcIds.has(id)),
+    ...(REAL_PRODUCTS_BY_PLAN.ac_7d || []),
+    ...(REAL_PRODUCTS_BY_PLAN.ac_14d || []),
     ...(REAL_PRODUCTS_BY_PLAN.ac_bnb_7d || []),
     ...(REAL_PRODUCTS_BY_PLAN.ac_bnb_14d || []),
     ...(REAL_PRODUCTS_BY_PLAN.airbnb_ac || []),
@@ -611,8 +611,8 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     verifiedActiveGaps: verifiedActiveGapsToday,
     details: invalidMinStayRooms.length === 0
       ? (imminentGapsHealed.length > 0
-          ? `Rilevati e sanati ${imminentGapsHealed.length} buchi imminenti (es. Jungle Villa 1 notte per oggi). MinStay baseline stagionale a ${baselineNights} notti.`
-          : `Soggiorno minimo baseline di ${baselineNights} notti verificato su ${motherRoomsAudited.length} alloggi. Gap-fill allineato (${verifiedActiveGapsToday.length} alloggi con buchi attivi ridotti a 1 notte).`)
+        ? `Rilevati e sanati ${imminentGapsHealed.length} buchi imminenti (es. Jungle Villa 1 notte per oggi). MinStay baseline stagionale a ${baselineNights} notti.`
+        : `Soggiorno minimo baseline di ${baselineNights} notti verificato su ${motherRoomsAudited.length} alloggi. Gap-fill allineato (${verifiedActiveGapsToday.length} alloggi con buchi attivi ridotti a 1 notte).`)
       : `Rilevati ${invalidMinStayRooms.length} alloggi con minStay non valido o a 0 notti.`
   };
 

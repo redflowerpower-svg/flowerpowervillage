@@ -115,7 +115,7 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
   try {
     let body = req.body;
     if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch {}
+      try { body = JSON.parse(body); } catch { }
     }
     const { periodUpdates, testMode, testOnly, updates } = body || {};
     const isTest = testMode === true || testOnly === true;
@@ -132,7 +132,7 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
     // SCUDO DI PROTEZIONE: In modalità test, filtra tassativamente SOLO i Fake Bungalow (649669 e 921799)
     let filteredUpdates = updatesList;
     if (isTest) {
-      filteredUpdates = updatesList.filter((item: any) => 
+      filteredUpdates = updatesList.filter((item: any) =>
         FAKE_BUNGALOW_MOTHER_IDS.includes(Number(item.roomMotherId || item.room || item.motherRateId))
       );
 
