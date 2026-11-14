@@ -1375,91 +1375,129 @@ export async function verifyAndRepairTwinReservationsBeforeSwitch(
   ]);
 
   const outReal = outRes.filter(r => !r.isMirror);
+  const inReal = inRes.filter(r => !r.isMirror);
   const sig = (r: TwinReservationLite) => `${r.twinKey}|${r.checkIn}|${r.checkOut}`;
+
   const inBySig = new Map<string, TwinReservationLite>();
   for (const m of inRes) inBySig.set(sig(m), m);
+
+  const outBySig = new Map<string, TwinReservationLite>();
+  for (const m of outRes) outBySig.set(sig(m), m);
+
   const outSigs = new Set(outReal.map(sig));
+  const inRealSigs = new Set(inReal.map(sig));
 
   let repairedCreated = 0;
   let repairedCancelled = 0;
 
-  for (const r of outReal) {
-    const existing = inBySig.get(sig(r));
-    const needsAgencyUpgrade =
-      existing &&
-      existing.isMirror &&
-      Number(existing.channelId || 233) === 233 &&
-      Number(r.channelId || 233) !== 233;
+  const syncDirection = async (
+    srcStruct: JungleSourceStructureId,
+    dstStruct: JungleSourceStructureId,
+    srcRealList: TwinReservationLite[],
+    dstBySig: Map<string, TwinReservationLite>,
+    upgradeReason: string
+  ) => {
+    for (const r of srcRealList) {
+      const existing = dstBySig.get(sig(r));
+      const needsAgencyUpgrade =
+        existing &&
+        existing.isMirror &&
+        Number(existing.channelId || 233) === 233 &&
+        Number(r.channelId || 233) !== 233;
 
-    if (needsAgencyUpgrade && existing) {
-      await cancelExistingMirrorReservation({
-        supabaseAdmin,
-        accessToken,
-        srcStruct: outgoing,
-        sourceReservationId: r.id,
-        targetStructureId,
-        existingMirrorId: existing.id,
-        reasonNote: 'Upgrading mirror to native OTA agency channel'
-      });
-      inBySig.delete(sig(r));
-      repairedCancelled++;
-    }
+      if (needsAgencyUpgrade && existing) {
+        await cancelExistingMirrorReservation({
+          supabaseAdmin,
+          accessToken,
+          srcStruct,
+          sourceReservationId: r.id,
+          targetStructureId: dstStruct,
+          existingMirrorId: existing.id,
+          reasonNote: upgradeReason
+        });
+        dstBySig.delete(sig(r));
+        repairedCancelled++;
+      }
 
-    if (!inBySig.has(sig(r))) {
-      const mRes = await mirrorReservationToStandby({
-        supabaseAdmin,
-        accessToken,
-        sourceStructureId: outgoing,
-        sourceReservationId: r.id,
-        productId: r.productId,
-        roomName: r.roomName,
-        checkIn: r.checkIn,
-        checkOut: r.checkOut,
-        guestName: r.guestName,
-        isCancelled: false,
-        channelId: r.channelId,
-        channelRefer: r.channelRefer,
-        channelName: r.channelName,
-        color: r.color
-      });
-      if (mRes.mirrored && mRes.action === 'created') {
-        repairedCreated++;
+      if (!dstBySig.has(sig(r))) {
+        const mRes = await mirrorReservationToStandby({
+          supabaseAdmin,
+          accessToken,
+          sourceStructureId: srcStruct,
+          sourceReservationId: r.id,
+          productId: r.productId,
+          roomName: r.roomName,
+          checkIn: r.checkIn,
+          checkOut: r.checkOut,
+          guestName: r.guestName,
+          isCancelled: false,
+          channelId: r.channelId,
+          channelRefer: r.channelRefer,
+          channelName: r.channelName,
+          color: r.color
+        });
+        if (mRes.mirrored && mRes.action === 'created') {
+          repairedCreated++;
+        }
       }
     }
-  }
+  };
 
-  for (const m of inRes.filter(r => r.isMirror)) {
-    if (!outSigs.has(sig(m))) {
-      await cancelExistingMirrorReservation({
-        supabaseAdmin,
-        accessToken,
-        srcStruct: outgoing,
-        sourceReservationId: m.id,
-        targetStructureId,
-        existingMirrorId: m.id,
-        reasonNote: 'Pre-flight orphan cleanup'
-      });
-      repairedCancelled++;
+  const cleanupOrphans = async (
+    mirrorOwnerList: TwinReservationLite[],
+    oppositeRealSigs: Set<string>,
+    oppositeStruct: JungleSourceStructureId,
+    mirrorStruct: JungleSourceStructureId,
+    reasonNote: string
+  ) => {
+    for (const m of mirrorOwnerList.filter(r => r.isMirror)) {
+      if (!oppositeRealSigs.has(sig(m))) {
+        await cancelExistingMirrorReservation({
+          supabaseAdmin,
+          accessToken,
+          srcStruct: oppositeStruct,
+          sourceReservationId: m.id,
+          targetStructureId: mirrorStruct,
+          existingMirrorId: m.id,
+          reasonNote
+        });
+        repairedCancelled++;
+      }
     }
-  }
+  };
 
-  const inFinal =
+  // 1. Direzione Outgoing -> Target (es. Attiva -> Standby) e 2. Direzione inversa Target -> Outgoing
+  await syncDirection(outgoing, targetStructureId, outReal, inBySig, 'Upgrading mirror to native OTA agency channel');
+  await syncDirection(targetStructureId, outgoing, inReal, outBySig, 'Upgrading reverse mirror to native OTA agency channel');
+
+  // 3. Pulizia specchi orfani su entrambi i lati (solo se non esiste più la reale corrispondente sull'altro lato)
+  await cleanupOrphans(inRes, outSigs, outgoing, targetStructureId, 'Pre-flight orphan cleanup');
+  await cleanupOrphans(outRes, inRealSigs, targetStructureId, outgoing, 'Pre-flight reverse orphan cleanup');
+
+  const [outFinal, inFinal] =
     repairedCreated > 0 || repairedCancelled > 0
-      ? await fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
-      : inRes;
-  const inFinalSigs = new Set(inFinal.map(sig));
-  const missingAfter = outReal.filter(r => !inFinalSigs.has(sig(r)));
+      ? await Promise.all([
+          fetchTwinActiveReservations(accessToken, outgoing, dateFrom, dateTo),
+          fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
+        ])
+      : [outRes, inRes];
 
-  if (missingAfter.length > 0) {
+  const inFinalSigs = new Set(inFinal.map(sig));
+  const outFinalSigs = new Set(outFinal.map(sig));
+  const missingOnTarget = outReal.filter(r => !inFinalSigs.has(sig(r)));
+  const missingOnOutgoing = inReal.filter(r => !outFinalSigs.has(sig(r)));
+  const allMissing = [...missingOnTarget, ...missingOnOutgoing];
+
+  if (allMissing.length > 0) {
     throw new Error(
-      `Verifica Prenotazioni fallita: ${missingAfter.length} prenotazioni di ${outgoing} non risultano allineate su ${targetStructureId} (${missingAfter
+      `Verifica Prenotazioni Bilaterale fallita: ${allMissing.length} prenotazioni non risultano allineate tra ${outgoing} e ${targetStructureId} (${allMissing
         .slice(0, 3)
         .map(m => `${m.twinKey} ${m.checkIn}->${m.checkOut}`)
         .join(', ')}). Switch ANNULLATO in sicurezza.`
     );
   }
 
-  return { checked: outReal.length, repairedCreated, repairedCancelled };
+  return { checked: outReal.length + inReal.length, repairedCreated, repairedCancelled };
 }
 
 /**
