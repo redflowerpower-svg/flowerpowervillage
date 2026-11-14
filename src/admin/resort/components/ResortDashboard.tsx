@@ -164,7 +164,7 @@ export function ResortDashboard() {
       `Vuoi spostare in 2 TEMPI SICURI (con Doppia Verifica Profonda live su Octorate) le 4 Ville (Jungle Villa, Left, Right, Peace & Love) da ${currentLabel} a ${targetLabel}?\n\n` +
       `• TEMPO 1 + VERIFICA PROFONDA 1: ${currentLabel} passa in standby su tutte le 52 tariffe (4 Madri + 48 Derivate) e il sistema rilegge GET /calendar live per avere la certezza 100% della chiusura prima di toccare l'altra struttura (in caso di anomalia, annulla tutto -> ZERO overbooking).\n` +
       `• TEMPO 2 + VERIFICA PROFONDA 2: Solo dopo conferma reale del Tempo 1, ${targetLabel} viene aperta su tutte le 52 tariffe copiando prezzi normali, giorni occupati e regole Sacro Graal, verificando infine live sia l'apertura entrante sia che ${currentLabel} sia ancora in standby.\n` +
-      `• Regola Standby Asimmetrica: Se Jungle Villas (807324) va in standby, resta APERTA Keep-Alive solo in Bassa Stagione (01 Giu - 31 Ott) sui giorni liberi a prezzo raddoppiato 2x (< 10.000 THB), mentre in Alta/Media (01 Nov - 31 Mag) resta 100% Stop Sell.\n` +
+      `• Regola Standby Asimmetrica: Se Jungle Villas (807324) va in standby, resta APERTA Keep-Alive solo a Luglio (01 Lug - 31 Lug) sui giorni liberi a prezzo raddoppiato 2x (< 10.000 THB) e MinStay 14 notti, mentre negli altri 11 mesi (01 Ago - 30 Giu) resta 100% Stop Sell.\n` +
       `• Flower Power Village (366879) in standby resta Stop Sell 100% tutto l'anno sulle 4 ville clonate; gli altri 14 alloggi non vengono mai toccati.`
     );
     if (!confirmed) return;

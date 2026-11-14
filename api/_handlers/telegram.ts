@@ -66,7 +66,7 @@ function buildSwitchVillasPrompt(currentActive: JungleSourceStructureId): {
     ? '🌺 Flower Power Village (366879)'
     : '🌴 Jungle Villas (807324)';
   const standbyRuleNote = targetStructure === '366879'
-    ? "• <b>Jungle Villas (807324)</b> passerà in <b>Standby Protetto</b> (Stop Sell 100% Nov–Mag + Keep-Alive Giu–Ott con Prezzo 2x e MinStay 14 notti)."
+    ? "• <b>Jungle Villas (807324)</b> passerà in <b>Standby Protetto</b> (Stop Sell 100% Ago–Giu + Keep-Alive solo Luglio con Prezzo 2x e MinStay 14 notti)."
     : "• <b>Flower Power Village (366879)</b> passerà in <b>Standby Protetto</b> (Stop Sell 100% tutto l'anno sulle 4 ville).";
 
   const text = [
@@ -1774,7 +1774,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           ? '🌴 Jungle Villas (807324)'
           : '🌺 Flower Power Village (366879)';
         const standbyLabel = swRes.outgoing === '807324'
-          ? '🌴 Jungle Villas (807324) (Keep-Alive Giu–Ott: Prezzo 2x + MinStay 14 notti)'
+          ? '🌴 Jungle Villas (807324) (Stop Sell 11 mesi + Keep-Alive solo Luglio: Prezzo 2x + MinStay 14 notti)'
           : '🌺 Flower Power Village (366879) (Stop Sell 100%)';
 
         await editEditorMsg(

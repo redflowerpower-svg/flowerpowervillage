@@ -6,8 +6,8 @@
  *  - Switch in 2 Tempi: Prima chiude/mette in standby la struttura uscente (52 tariffe), solo dopo apre l'entrante.
  *  - Regola Standby Asimmetrica:
  *      • Flower Power Village (366879) in standby -> Stop Sell 100% su tutte le 52 tariffe per 365 giorni.
- *      • Jungle Villas (807324) in standby -> Alta/Media (01 Nov - 31 Mag) Stop Sell 100%;
- *        Bassa Stagione Livello 2 (01 Giu - 31 Ott) Keep-Alive APERTO sui soli giorni liberi a prezzo 2x (< 10.000 THB),
+ *      • Jungle Villas (807324) in standby -> Stop Sell 100% per 11 mesi (01 Ago - 30 Giu);
+ *        Keep-Alive SOLO LUGLIO (01 Lug - 31 Lug) APERTO sui soli giorni liberi a prezzo 2x (< 10.000 THB) e minStay 14 notti,
  *        con mirroring bidirezionale se arrivasse una prenotazione a prezzo raddoppiato.
  */
 
@@ -172,13 +172,14 @@ export function getJungleTwinDerivedIds(structureId: JungleSourceStructureId): n
 }
 
 /**
- * Restituisce true per le date di Bassa Stagione Livello 2 (01 Giugno -> 31 Ottobre),
- * unica finestra in cui Jungle Villas (807324) in standby resta aperta a prezzo raddoppiato (Keep-Alive).
+ * Restituisce true SOLO per il mese di Luglio (01 Luglio -> 31 Luglio),
+ * unica finestra di Keep-Alive in cui Jungle Villas (807324) in standby resta aperta
+ * con prezzo raddoppiato (2x) e soggiorno minimo di 14 notti (gli altri 11 mesi sono Stop Sell 100%).
  */
 export function isLowSeasonKeepAliveDate(dateStr: string): boolean {
   const mmdd = String(dateStr || '').slice(5, 10);
   if (mmdd.length !== 5) return false;
-  return mmdd >= '06-01' && mmdd <= '10-31';
+  return mmdd >= '07-01' && mmdd <= '07-31';
 }
 
 /**
@@ -1242,9 +1243,9 @@ function pickVerificationSampleDates(
   );
   addDate(preferredHigh || availableDates.find(d => !isLowSeasonKeepAliveDate(d) && !picked.includes(d)));
 
-  // 4. Bassa Stagione Livello 2 (01 Giu - 31 Ott: preferenza 15 Lug / 15 Ago)
+  // 4. Finestra Keep-Alive SOLO Luglio (01 Lug - 31 Lug: preferenza 15 Lug / 10 Lug / 20 Lug / 25 Lug)
   const preferredLow = availableDates.find(
-    d => isLowSeasonKeepAliveDate(d) && ['-07-15', '-08-15', '-06-15', '-09-15'].some(sfx => d.endsWith(sfx))
+    d => isLowSeasonKeepAliveDate(d) && ['-07-15', '-07-10', '-07-20', '-07-25'].some(sfx => d.endsWith(sfx))
   );
   addDate(preferredLow || availableDates.find(d => isLowSeasonKeepAliveDate(d)));
 

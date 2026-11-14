@@ -1665,7 +1665,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season', activeJungleSou
                   ? 'bg-amber-500/20 text-amber-300 border-amber-500/60 shadow'
                   : 'bg-stone-950 text-stone-300 hover:text-white border-stone-800'
               }`}
-              title="Mostra o nasconde le 4 righe gemelle in standby per verificare Stop Sell, Keep-Alive 2x (Giu-Ott su 807324) e [MIRROR_SYNC]"
+              title="Mostra o nasconde le 4 righe gemelle in standby per verificare Stop Sell (11 mesi), Keep-Alive 2x (solo Luglio su 807324) e [MIRROR_SYNC]"
             >
               {showStandbyTwins ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               <span>Mostra Gemelle Standby (4)</span>
