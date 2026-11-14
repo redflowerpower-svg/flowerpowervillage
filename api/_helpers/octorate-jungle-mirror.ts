@@ -713,14 +713,15 @@ function buildOverlaySnapshot(
 
 /**
  * Filtra solo le righe giornaliere effettivamente diverse dallo snapshot attuale su Octorate.
- * Mantiene sempre i blocchi `isClosedAc` per le date/camere in cui la rispettiva Madre viene scritta con `stopSells: false`,
- * affinché Wave 3 richiuda le tariffe AC dopo l'eventuale cascata automatica di Octorate.
+ * Confronta solo i 4 campi reali restituiti da GET /calendar (`availability`, `price`, `stopSells`, `minstay`),
+ * mantiene le derivate non-AC effettivamente cambiate e genera un unico blocco continuo `isClosedAc`
+ * sull'intero span aperto della rispettiva Madre per la chiusura finale in Wave 4.
  */
 function filterChangedDailyEntries(
   entries: DailyBulkEntry[],
   existingSnapshot: Map<number, Map<string, SnapshotDay>>
 ): DailyBulkEntry[] {
-  const motherChangedOpenKeys = new Set<string>();
+  const openSpanByKey = new Map<string, { minDate: string; maxDate: string }>();
 
   const hasDiff = (e: DailyBulkEntry): boolean => {
     const cur = existingSnapshot.get(e.room)?.get(e.date);
@@ -729,24 +730,29 @@ function filterChangedDailyEntries(
     if (v.availability !== undefined && Number(cur.availability) !== Number(v.availability)) return true;
     if (v.price !== undefined && Math.abs(Number(cur.price ?? -1) - Number(v.price)) > 0.01) return true;
     if (v.stopSells !== undefined && cur.stopSells !== Boolean(v.stopSells)) return true;
-    if (v.closed !== undefined && cur.closed !== Boolean(v.closed)) return true;
-    if (v.closedArrival !== undefined && cur.closedArrival !== Boolean(v.closedArrival)) return true;
-    if (v.closedDeparture !== undefined && cur.closedDeparture !== Boolean(v.closedDeparture)) return true;
     if (v.minstay !== undefined && Number(cur.minstay ?? 0) !== Number(v.minstay)) return true;
     return false;
   };
 
   for (const e of entries) {
     const pair = RATE_PAIR_BY_ID.get(e.room);
-    if (pair?.isMother && e.values.stopSells === false && hasDiff(e)) {
-      motherChangedOpenKeys.add(`${pair.key}|${e.date}`);
+    if (pair && !pair.isClosedAc && e.values.stopSells === false && hasDiff(e)) {
+      const prevSpan = openSpanByKey.get(pair.key);
+      if (!prevSpan) {
+        openSpanByKey.set(pair.key, { minDate: e.date, maxDate: e.date });
+      } else {
+        if (e.date < prevSpan.minDate) prevSpan.minDate = e.date;
+        if (e.date > prevSpan.maxDate) prevSpan.maxDate = e.date;
+      }
     }
   }
 
   return entries.filter(e => {
     const pair = RATE_PAIR_BY_ID.get(e.room);
-    if (pair?.isClosedAc && motherChangedOpenKeys.has(`${pair.key}|${e.date}`)) {
-      return true;
+    if (pair?.isClosedAc) {
+      if (hasDiff(e)) return true;
+      const span = openSpanByKey.get(pair.key);
+      return Boolean(span && e.date >= span.minDate && e.date <= span.maxDate);
     }
     return hasDiff(e);
   });
@@ -754,19 +760,28 @@ function filterChangedDailyEntries(
 
 async function postCalendarBulkBlocks(
   accessToken: string,
-  blocks: CompressedBulkBlock[]
+  blocks: CompressedBulkBlock[],
+  options?: { onFirstChunkSuccess?: () => void }
 ): Promise<{ ok: boolean; status: number; sentBlocks: number; lastResponse: any }> {
-  // Invia le Madri figlie JVL/JVR in Wave 2 (dopo la Suite JV) e le derivate isClosedAc in Wave 3
-  // così la cascata automatica di Octorate dalle Madri non riapre mai le tariffe AC chiuse.
+  // Architettura a 4 Wave:
+  // Wave 1: Madri principali (PL, JV)
+  // Wave 2: Madri figlie (JVL, JVR - dopo la Suite JV)
+  // Wave 3: Derivate non-AC (20 tariffe)
+  // Wave 4: Derivate isClosedAc (28 tariffe, 1 blocco continuo ciascuna - inviate per ultime così nessuna cascata le lascia aperte)
+  const mainMotherIds = new Set([494840, 529773, 960383, 960389]);
   const childMotherIds = new Set([495795, 495796, 960385, 960387]);
   const closedAcIds = new Set(JUNGLE_RATE_PAIRS.filter(p => p.isClosedAc).flatMap(p => [p.jungleId, p.fpvId]));
-  const wave1 = blocks.filter(b => !childMotherIds.has(b.room) && !closedAcIds.has(b.room));
+
+  const wave1 = blocks.filter(b => mainMotherIds.has(b.room));
   const wave2 = blocks.filter(b => childMotherIds.has(b.room));
-  const wave3 = blocks.filter(b => closedAcIds.has(b.room));
-  const waves = [wave1, wave2, wave3].filter(w => w.length > 0);
+  const wave3 = blocks.filter(b => !mainMotherIds.has(b.room) && !childMotherIds.has(b.room) && !closedAcIds.has(b.room));
+  const wave4 = blocks.filter(b => closedAcIds.has(b.room));
+  const waves = [wave1, wave2, wave3, wave4].filter(w => w.length > 0);
 
   const CHUNK_SIZE = 150;
+  const MAX_RETRIES = 5;
   let lastJson: any = {};
+  let firstChunkApplied = false;
 
   for (let wIdx = 0; wIdx < waves.length; wIdx++) {
     if (wIdx > 0) await sleepMs(1200);
@@ -774,18 +789,37 @@ async function postCalendarBulkBlocks(
     for (let i = 0; i < waveBlocks.length; i += CHUNK_SIZE) {
       if (i > 0) await sleepMs(500);
       const chunk = waveBlocks.slice(i, i + CHUNK_SIZE);
-      const bulkRes = await fetch('https://api.octorate.com/connect/rest/v1/calendar/bulk', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
-        },
-        body: JSON.stringify(chunk)
-      });
-      const json = await bulkRes.json().catch(() => ({}));
-      lastJson = json;
-      if (!bulkRes.ok || json?.success === false) {
+
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        const bulkRes = await fetch('https://api.octorate.com/connect/rest/v1/calendar/bulk', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          },
+          body: JSON.stringify(chunk)
+        });
+        const json = await bulkRes.json().catch(() => ({}));
+        lastJson = json;
+
+        if (bulkRes.ok && json?.success !== false) {
+          if (!firstChunkApplied) {
+            firstChunkApplied = true;
+            options?.onFirstChunkSuccess?.();
+          }
+          break;
+        }
+
+        const isRetryable = bulkRes.status === 403 || bulkRes.status === 429 || bulkRes.status >= 500;
+        if (isRetryable && attempt < MAX_RETRIES) {
+          console.warn(
+            `[JUNGLE MIRROR] Chunk wave ${wIdx + 1}/${i / CHUNK_SIZE} HTTP ${bulkRes.status}, retry ${attempt}/${MAX_RETRIES} su nodo libero...`
+          );
+          await sleepMs(1000 * attempt);
+          continue;
+        }
+
         throw new Error(
           `Calendar bulk POST failed (${bulkRes.status} at wave ${wIdx + 1} chunk ${i / CHUNK_SIZE}): ${JSON.stringify(json).slice(0, 300)}`
         );
@@ -1707,8 +1741,11 @@ export async function switchActiveJungleStructure(
     phase2Filtered = filterChangedDailyEntries(phase2Entries, targetSnapshot);
     phase2BlocksList = compressDailyBulkItems(phase2Filtered);
     if (phase2BlocksList.length > 0) {
-      phase2Posted = true;
-      await postCalendarBulkBlocks(accessToken, phase2BlocksList);
+      await postCalendarBulkBlocks(accessToken, phase2BlocksList, {
+        onFirstChunkSuccess: () => {
+          phase2Posted = true;
+        }
+      });
     }
 
     // PASSO 5 (Doppia Verifica Finale Incrociata): Conferma reale che la nuova struttura sia APERTA E la vecchia CHIUSA in Standby
