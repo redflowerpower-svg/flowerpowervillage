@@ -596,13 +596,15 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             );
           };
 
-          if (msgText === '/start' || msgText === '/help' || msgText.startsWith('/start@') || msgText.startsWith('/help@')) {
+          const cmdLower = msgText.toLowerCase();
+          if (cmdLower === '/start' || cmdLower === '/help' || cmdLower === '/menu' || cmdLower.startsWith('/start@') || cmdLower.startsWith('/help@') || cmdLower.startsWith('/menu@')) {
             await sendEditorMsg(
               `🛠️ <b>Booking Editor — Comandi Disponibili</b>\n\n` +
               `• <b>/sposta</b> — Sposta una prenotazione su un altro alloggio (anche tra strutture diverse)\n` +
               `• <b>/sposta Nome o ID</b> — Cerca subito la prenotazione\n` +
               `• <b>/switchvillas</b> — Verifica quale struttura è attiva e passa le 4 ville tra Jungle Villas (807324) e Flower Power Village (366879)\n` +
-              `• <b>/cancel</b> — Annulla l'operazione in corso`
+              `• <b>/cancel</b> — Annulla l'operazione in corso\n` +
+              `• <b>/menu</b> — Mostra questo elenco di comandi`
             );
             return res.status(200).json({ status: 'booking_editor_help' });
           }
@@ -709,21 +711,77 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             .catch(() => { });
         }
 
-        // /start or /help
-        if (msgText === '/start' || msgText === '/help' || msgText.startsWith('/start@') || msgText.startsWith('/help@')) {
-          const welcomeText = [
-            '🌺 <b>Flower Power Village — AI Booking Concierge</b>',
-            '',
-            'Benvenuto nel topic <b>Concierge Bot</b>!',
-            'Incolla qui qualsiasi richiesta ricevuta dai clienti via WhatsApp, Email o Social (in qualunque lingua).',
-            '',
-            '🤖 <b>Comandi e Funzioni:</b>',
-            '• <b>/messaggio o /richiesta:</b> elabora la richiesta cliente (oppure incolla direttamente il testo!).',
-            '• <b>/mod:</b> modifica la risposta e propone di <b>memorizzare la regola permanente</b> per il futuro.',
-            '• <b>/mod2:</b> modifica estemporanea <b>solo per questa risposta</b> (senza apprendere alcuna regola).',
-            '• <b>/input o /dati:</b> inserisce direttamente informazioni e nozioni nella Knowledge Base.',
-            '• <b>/cancel:</b> annulla qualsiasi modalità attiva.'
-          ].join('\n');
+        // /start, /help or /menu
+        const cmdLower = msgText.toLowerCase();
+        if (cmdLower === '/start' || cmdLower === '/help' || cmdLower === '/menu' || cmdLower.startsWith('/start@') || cmdLower.startsWith('/help@') || cmdLower.startsWith('/menu@')) {
+          let welcomeText = '';
+
+          if (threadId === VILLAGE_TOPICS.BOOKINGS) {
+            welcomeText = [
+              '🛏️ <b>Topic: Prenotazioni (Bookings)</b>',
+              '',
+              'Questo topic riceve le notifiche in tempo reale delle nuove prenotazioni.',
+              '',
+              '🤖 <b>Comandi disponibili in questo topic:</b>',
+              '• <b>/menu</b> — Mostra questo riepilogo.',
+              '• <i>Comandi AI Concierge:</i> <b>/messaggio</b>, <b>/richiesta</b>, <b>/mod</b>, <b>/mod2</b>, <b>/input</b>, <b>/dati</b>, <b>/cancel</b>'
+            ].join('\n');
+          } else if (threadId === VILLAGE_TOPICS.MODIFICATIONS_CANCELLATIONS) {
+            welcomeText = [
+              '🔄 <b>Topic: Modifiche & Cancellazioni</b>',
+              '',
+              'Questo topic riceve gli aggiornamenti su modifiche e cancellazioni da Octorate.',
+              '',
+              '🤖 <b>Comandi disponibili in questo topic:</b>',
+              '• <b>/menu</b> — Mostra questo riepilogo.',
+              '• <i>Comandi AI Concierge:</i> <b>/messaggio</b>, <b>/richiesta</b>, <b>/mod</b>, <b>/mod2</b>, <b>/input</b>, <b>/dati</b>, <b>/cancel</b>'
+            ].join('\n');
+          } else if (threadId === VILLAGE_TOPICS.ALERTS_OVERBOOKING) {
+            welcomeText = [
+              '🚨 <b>Topic: Alert & Overbooking</b>',
+              '',
+              'Questo topic riceve gli avvisi critici di disponibilità e overbooking.',
+              '',
+              '🤖 <b>Comandi disponibili in questo topic:</b>',
+              '• <b>/menu</b> — Mostra questo riepilogo.',
+              '• <i>Comandi AI Concierge:</i> <b>/messaggio</b>, <b>/richiesta</b>, <b>/mod</b>, <b>/mod2</b>, <b>/input</b>, <b>/dati</b>, <b>/cancel</b>'
+            ].join('\n');
+          } else if (threadId === VILLAGE_TOPICS.DAILY_REPORT) {
+            welcomeText = [
+              '📊 <b>Topic: Daily Report</b>',
+              '',
+              'Questo topic riceve il riepilogo giornaliero di arrivi, partenze e occupazione.',
+              '',
+              '🤖 <b>Comandi disponibili in questo topic:</b>',
+              '• <b>/menu</b> — Mostra questo riepilogo.',
+              '• <i>Comandi AI Concierge:</i> <b>/messaggio</b>, <b>/richiesta</b>, <b>/mod</b>, <b>/mod2</b>, <b>/input</b>, <b>/dati</b>, <b>/cancel</b>'
+            ].join('\n');
+          } else if (threadId === VILLAGE_TOPICS.BOOKING_OFFERS) {
+            welcomeText = [
+              '🏷️ <b>Topic: Booking Offers</b>',
+              '',
+              'Questo topic gestisce le notifiche sulle offerte e tariffe speciali.',
+              '',
+              '🤖 <b>Comandi disponibili in questo topic:</b>',
+              '• <b>/menu</b> — Mostra questo riepilogo.',
+              '• <i>Comandi AI Concierge:</i> <b>/messaggio</b>, <b>/richiesta</b>, <b>/mod</b>, <b>/mod2</b>, <b>/input</b>, <b>/dati</b>, <b>/cancel</b>'
+            ].join('\n');
+          } else {
+            welcomeText = [
+              '🌺 <b>Flower Power Village — AI Booking Concierge</b>',
+              '',
+              'Benvenuto nel topic <b>Concierge Bot</b>!',
+              'Incolla qui qualsiasi richiesta ricevuta dai clienti via WhatsApp, Email o Social (in qualunque lingua).',
+              '',
+              '🤖 <b>Comandi e Funzioni:</b>',
+              '• <b>/messaggio o /richiesta:</b> elabora la richiesta cliente (oppure incolla direttamente il testo!).',
+              '• <b>/mod:</b> modifica la risposta e propone di <b>memorizzare la regola permanente</b> per il futuro.',
+              '• <b>/mod2:</b> modifica estemporanea <b>solo per questa risposta</b> (senza apprendere alcuna regola).',
+              '• <b>/input o /dati:</b> inserisce direttamente informazioni e nozioni nella Knowledge Base.',
+              '• <b>/cancel:</b> annulla qualsiasi modalità attiva.',
+              '• <b>/menu:</b> mostra questo elenco di comandi.'
+            ].join('\n');
+          }
 
           await fetch(`https://api.telegram.org/bot${vBotToken}/sendMessage`, {
             method: 'POST',
@@ -1400,6 +1458,63 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
             }).catch(() => { });
             return res.status(200).json({ status: 'concierge_error', error: inqErr.message });
           }
+        }
+      }
+    } else {
+      // Canale Pizza o altri canali/topic
+      const msgText = incomingMsg.text.trim();
+      const chatId = incomingMsg.chat.id;
+      const threadId = incomingMsg.message_thread_id;
+      const messageId = incomingMsg.message_id;
+
+      const cmdLower = msgText.toLowerCase();
+      if (cmdLower === '/menu' || cmdLower === '/start' || cmdLower === '/help' || cmdLower.startsWith('/menu@') || cmdLower.startsWith('/start@') || cmdLower.startsWith('/help@')) {
+        const { botToken: pBotToken } = await getTelegramCredentials('pizza');
+        if (pBotToken) {
+          let menuText = '';
+          if (threadId === PIZZA_TOPICS.RESTAURANT) {
+            menuText = [
+              '🍽️ <b>Topic: Order Restaurant (Tavoli &amp; Dining)</b>',
+              '',
+              'Questo topic riceve in tempo reale gli ordini ai tavoli e le prenotazioni ristorante.',
+              'Usa i pulsanti inline sotto ogni notifica per confermare o gestire gli ordini.',
+              '',
+              '🤖 <b>Comandi disponibili in questo topic:</b>',
+              '• <b>/menu</b> — Mostra questo riepilogo.'
+            ].join('\n');
+          } else if (threadId === PIZZA_TOPICS.WEBSITE) {
+            menuText = [
+              '🍕 <b>Topic: Order Website (Delivery &amp; Asporto)</b>',
+              '',
+              'Questo topic riceve in tempo reale gli ordini dal sito web.',
+              'Usa i pulsanti inline sotto ogni notifica per accettare, preparare o completare gli ordini.',
+              '',
+              '🤖 <b>Comandi disponibili in questo topic:</b>',
+              '• <b>/menu</b> — Mostra questo riepilogo.'
+            ].join('\n');
+          } else {
+            menuText = [
+              '🍕 <b>Flower Power Pizza — Menu Comandi</b>',
+              '',
+              'Questo topic è attivo per le notifiche del canale.',
+              '',
+              '🤖 <b>Comandi disponibili in questo topic:</b>',
+              '• <b>/menu</b> — Mostra questo riepilogo.'
+            ].join('\n');
+          }
+
+          await fetch(`https://api.telegram.org/bot${pBotToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: menuText,
+              parse_mode: 'HTML',
+              ...(threadId ? { message_thread_id: threadId } : {}),
+              reply_to_message_id: messageId
+            })
+          });
+          return res.status(200).json({ status: 'pizza_menu_sent' });
         }
       }
     }
