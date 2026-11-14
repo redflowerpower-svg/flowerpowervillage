@@ -140,3 +140,13 @@ Nessuna altra tabella Supabase (`octorate_tokens`, ordini, prenotazioni, documen
   - `src/admin/resort/components/ResortDashboard.tsx`: dialoghi di conferma e alert post-switch aggiornati con dettaglio della Doppia Verifica Profonda.
 - **Rollback rapido di questo step**: `git revert b11b14c` sul branch `feature/clone-jungle-to-fpv` (lascia intatti il motore 52 tariffe e il blocco live a 365 giorni su **Flower Power Village (`366879`)**).
 - **Build check post-modifica**: `npx tsc --noEmit` (`0`), `npm run api:check` (`0`), `npm run build` (`vite built in 5.08s`, `2036` moduli).
+
+---
+
+## 6. Fix Cancellazione Specchio su Spostamento Camera Non-Gemella (Commit `2af1bdd`)
+
+- **File aggiornato**: `api/_helpers/octorate-jungle-mirror.ts`
+  - Estratto helper `cancelExistingMirrorReservation` (`DELETE` + fallback `PATCH CANCELLED` + pulizia chiavi `mirror_res_*` / `mirror_target_*` su `telegram_config`).
+  - In `mirrorReservationToStandby`, la verifica di `existingMirrorId` avviene **prima** dell'uscita `!twin`: se una prenotazione viene spostata da una delle 4 ville gemelle verso una camera non gemella (es. `Fake Bungalow 1`), l'eventuale specchio `[MIRROR_SYNC]` viene cancellato automaticamente.
+- **Rollback rapido**: `git revert 2af1bdd` su `feature/clone-jungle-to-fpv`.
+- **Verifiche**: `npx tsc --noEmit` (`0`), `npm run api:check` (`0`).
