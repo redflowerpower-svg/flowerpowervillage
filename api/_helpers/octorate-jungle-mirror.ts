@@ -1167,6 +1167,160 @@ export async function switchActiveJungleStructure(
     };
   }
 
+interface TwinReservationLite {
+  id: string;
+  twinKey: JungleTwinRoom['key'];
+  checkIn: string;
+  checkOut: string;
+  guestName: string;
+  productId?: number | string;
+  roomName?: string;
+  isMirror: boolean;
+}
+
+async function fetchTwinActiveReservations(
+  accessToken: string,
+  structureId: JungleSourceStructureId,
+  dateFrom: string,
+  dateTo: string
+): Promise<TwinReservationLite[]> {
+  const results: TwinReservationLite[] = [];
+  let page = 0;
+
+  while (page < 10) {
+    const url = `https://api.octorate.com/connect/rest/v1/reservation/${structureId}?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=50&page=${page}`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }
+    });
+    if (!res.ok) {
+      throw new Error(`Reservation GET failed (${structureId} page ${page}): ${res.status}`);
+    }
+    const json = await res.json().catch(() => ({}));
+    const rows: any[] = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
+    if (rows.length === 0) break;
+
+    for (const r of rows) {
+      const status = String(r.status || '').toUpperCase();
+      if (status === 'CANCELLED' || status === 'CANCELED') continue;
+
+      const productId = r.productId ?? r.roomId ?? r.room?.id;
+      const roomName = r.roomName ?? r.room?.name ?? '';
+      const twin = resolveTwinByProductOrName(productId, roomName);
+      if (!twin) continue;
+
+      const checkIn = String(r.checkin || r.checkIn || '').slice(0, 10);
+      const checkOut = String(r.checkout || r.checkOut || '').slice(0, 10);
+      if (!checkIn || !checkOut) continue;
+
+      results.push({
+        id: String(r.id ?? ''),
+        twinKey: twin.key,
+        checkIn,
+        checkOut,
+        guestName: String(r.referent || `${r.firstName || ''} ${r.lastName || ''}`.trim() || 'Guest'),
+        productId,
+        roomName,
+        isMirror: isMirrorReservation(r)
+      });
+    }
+
+    const totalPages = Number(json?.totalPages ?? 0);
+    if (rows.length < 50 || (totalPages > 0 && page + 1 >= totalPages)) break;
+    page++;
+  }
+
+  return results;
+}
+
+/**
+ * PASSO 0 (Pre-Flight): Verifica che le prenotazioni attive delle 4 ville tra uscente ed entrante
+ * siano allineate al 100%, riparando eventuali specchi [MIRROR_SYNC] mancanti o orfani prima del Tempo 1.
+ */
+async function verifyAndRepairTwinReservationsBeforeSwitch(
+  supabaseAdmin: any,
+  accessToken: string,
+  outgoing: JungleSourceStructureId,
+  targetStructureId: JungleSourceStructureId,
+  dateFrom: string,
+  dateTo: string
+): Promise<{ checked: number; repairedCreated: number; repairedCancelled: number }> {
+  const [outRes, inRes] = await Promise.all([
+    fetchTwinActiveReservations(accessToken, outgoing, dateFrom, dateTo),
+    fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
+  ]);
+
+  const outReal = outRes.filter(r => !r.isMirror);
+  const sig = (r: TwinReservationLite) => `${r.twinKey}|${r.checkIn}|${r.checkOut}`;
+  const inSigs = new Set(inRes.map(sig));
+  const outSigs = new Set(outReal.map(sig));
+
+  let repairedCreated = 0;
+  let repairedCancelled = 0;
+
+  for (const r of outReal) {
+    if (!inSigs.has(sig(r))) {
+      const mRes = await mirrorReservationToStandby({
+        supabaseAdmin,
+        accessToken,
+        sourceStructureId: outgoing,
+        sourceReservationId: r.id,
+        productId: r.productId,
+        roomName: r.roomName,
+        checkIn: r.checkIn,
+        checkOut: r.checkOut,
+        guestName: r.guestName,
+        isCancelled: false
+      });
+      if (mRes.mirrored && mRes.action === 'created') {
+        repairedCreated++;
+      }
+    }
+  }
+
+  for (const m of inRes.filter(r => r.isMirror)) {
+    if (!outSigs.has(sig(m))) {
+      await cancelExistingMirrorReservation({
+        supabaseAdmin,
+        accessToken,
+        srcStruct: outgoing,
+        sourceReservationId: m.id,
+        targetStructureId,
+        existingMirrorId: m.id,
+        reasonNote: 'Pre-flight orphan cleanup'
+      });
+      repairedCancelled++;
+    }
+  }
+
+  const inFinal =
+    repairedCreated > 0 || repairedCancelled > 0
+      ? await fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
+      : inRes;
+  const inFinalSigs = new Set(inFinal.map(sig));
+  const missingAfter = outReal.filter(r => !inFinalSigs.has(sig(r)));
+
+  if (missingAfter.length > 0) {
+    throw new Error(
+      `Pre-Flight Prenotazioni fallito: ${missingAfter.length} prenotazioni di ${outgoing} non risultano specchiate su ${targetStructureId} (${missingAfter
+        .slice(0, 3)
+        .map(m => `${m.twinKey} ${m.checkIn}->${m.checkOut}`)
+        .join(', ')}). Switch ANNULLATO prima del Tempo 1.`
+    );
+  }
+
+  return { checked: outReal.length, repairedCreated, repairedCancelled };
+}
+
+  // PASSO 0 (Pre-Flight): Verifica & auto-riparazione allineamento prenotazioni tra uscente ed entrante
+  await verifyAndRepairTwinReservationsBeforeSwitch(
+    supabaseAdmin,
+    accessToken,
+    outgoing,
+    targetStructureId,
+    dateFrom,
+    dateTo
+  );
+
   // 0. Snapshot affidabile dalla struttura uscente (che possiede prezzi normali + disponibilità reali + Sacro Graal)
   const snapshot = await fetchTwin52RateSnapshot(accessToken, outgoing, dateFrom, dateTo);
   const expectedMothers = JUNGLE_TWIN_ROOMS.map(r => (outgoing === '366879' ? r.fpvMotherId : r.jungleMotherId));
