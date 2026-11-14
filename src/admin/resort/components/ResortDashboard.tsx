@@ -161,10 +161,11 @@ export function ResortDashboard() {
     const targetLabel = target === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
 
     const confirmed = window.confirm(
-      `Vuoi spostare le 4 Ville (Jungle Villa, Left, Right, Peace & Love) da ${currentLabel} a ${targetLabel}?\n\n` +
-      `• ${targetLabel} verrà aperta sulle 4 ville (copiando prezzi e giorni occupati).\n` +
-      `• ${currentLabel} passerà in standby (stopSells: true sulle 4 ville).\n` +
-      `• Gli altri bungalow di Flower Power Village non verranno toccati.`
+      `Vuoi spostare in 2 TEMPI SICURI le 4 Ville (Jungle Villa, Left, Right, Peace & Love) da ${currentLabel} a ${targetLabel}?\n\n` +
+      `• TEMPO 1 (Prima Chiudi): ${currentLabel} passa subito in standby su tutte le 52 tariffe (4 Madri + 48 Derivate) e si attende conferma Octorate (zero rischio overbooking).\n` +
+      `• TEMPO 2 (Poi Apri): ${targetLabel} viene aperta su tutte le 52 tariffe copiando prezzi normali, giorni occupati e regole Sacro Graal.\n` +
+      `• Regola Standby Asimmetrica: Se Jungle Villas (807324) va in standby, resta APERTA Keep-Alive solo in Bassa Stagione (01 Giu - 31 Ott) sui giorni liberi a prezzo raddoppiato 2x (< 10.000 THB), mentre in Alta/Media (01 Nov - 31 Mag) resta 100% Stop Sell.\n` +
+      `• Flower Power Village (366879) in standby resta Stop Sell 100% tutto l'anno sulle 4 ville clonate; gli altri 14 alloggi non vengono mai toccati.`
     );
     if (!confirmed) return;
 
@@ -2220,12 +2221,12 @@ export function ResortDashboard() {
 
       {/* Tab Visual Calendar 30gg Veloce */}
       {activeTab === 'calendar_30_days' && (
-        <ResortVisualCalendar viewMode="30_days" />
+        <ResortVisualCalendar viewMode="30_days" activeJungleSource={activeJungleSource} />
       )}
 
       {/* Tab Visual Calendar Full Season */}
       {activeTab === 'calendar' && (
-        <ResortVisualCalendar viewMode="full_season" />
+        <ResortVisualCalendar viewMode="full_season" activeJungleSource={activeJungleSource} />
       )}
 
       {/* Tab Tariffe Derivate & Albero Canali OTA */}

@@ -8,7 +8,14 @@ import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { formatDateDMY } from "../_helpers/date-formatter.js";
 import { runResortSentinelAudit } from "./resort-sentinel.js";
 import { ALL_OCTORATE_STRUCTURE_IDS, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
-import { isMirrorReservation, mirrorReservationToStandby } from "../_helpers/octorate-jungle-mirror.js";
+import {
+  getActiveJungleSource,
+  getCompanionRateId,
+  getJungleTwinPairByRateId,
+  isMirrorReservation,
+  JungleSourceStructureId,
+  mirrorReservationToStandby
+} from "../_helpers/octorate-jungle-mirror.js";
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
@@ -28,7 +35,7 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'jungle villa': {
     motherId: 529773,
     name: 'Jungle Villa',
-    ids: ['529773', '529784', '529778', '529792', '529788', '529780', '916817', '529781', '529801', '921868', '921869', '529783', '529813', '960389', '960403', '960404', '960405', '960406', '960407', '960408', '960409', '960410', '960411', '960412', '960413', '960414'],
+    ids: ['529773', '529784', '529778', '529792', '529788', '529780', '916816', '529781', '529801', '921868', '921869', '529783', '529813', '960389', '960403', '960404', '960405', '960406', '960407', '960408', '960409', '960410', '960411', '960412', '960413', '960414'],
     keywords: [["jungle", "jv"], ["villa", "ac", "be"]],
     linkedKeys: ['jungle villa left', 'jungle villa right']
   },
@@ -237,10 +244,12 @@ export interface DynamicMinStayUpdate {
 export function calculateServerDynamicMinStay(
   bookings: any[],
   dateRange: { start: string; end: string },
-  calendarItems?: any[]
+  calendarItems?: any[],
+  activeJungleSource: JungleSourceStructureId = '807324'
 ): DynamicMinStayUpdate[] {
   const updates: DynamicMinStayUpdate[] = [];
   const activeBookings = (bookings || []).filter(b => {
+    if (isMirrorReservation(b)) return false;
     const st = String(b.status || '').toUpperCase().trim();
     return st !== 'CANCELLED' && st !== 'CANCELED' && st !== 'DELETED' && st !== 'VOID' && st !== 'REJECTED' && !b.cancelled && !b.isCancelled;
   });
@@ -292,12 +301,34 @@ export function calculateServerDynamicMinStay(
   // 2b. Integrazione Giorni a Disponibilità 0 / Stop Sell dalla Griglia Octorate (Stato Inventario Reale)
   // Se la disponibilità è a 0 o c'è stopSells/closed sulla tariffa madre (o BE), il giorno è bloccato e non affittabile
   if (Array.isArray(calendarItems) && calendarItems.length > 0) {
+    const pairKeyToCanonicalKey: Record<string, string> = {
+      jv: 'jungle villa',
+      jvl: 'jungle villa left',
+      jvr: 'jungle villa right',
+      pl: 'peace & love villa'
+    };
+
     calendarItems.forEach((cItem: any) => {
       const cId = Number(cItem.id);
-      // Mappa sulla tariffa madre corrispondente
-      const motherMatch = Object.entries(ALL_ACCOMMODATIONS_MAP).find(([_, v]) => v.motherId === cId);
-      if (!motherMatch) return;
-      const roomKey = motherMatch[0];
+      const twinPair = getJungleTwinPairByRateId(cId);
+      if (twinPair) {
+        if (
+          (activeJungleSource === '807324' && twinPair.fpvId === cId) ||
+          (activeJungleSource === '366879' && twinPair.jungleId === cId)
+        ) {
+          return;
+        }
+      }
+
+      // Mappa sulla tariffa madre corrispondente (supporta anche le madri gemelle 960383..960389 se FPV attiva)
+      let roomKey: string | undefined;
+      if (twinPair && twinPair.isMother) {
+        roomKey = pairKeyToCanonicalKey[twinPair.key];
+      } else {
+        const motherMatch = Object.entries(ALL_ACCOMMODATIONS_MAP).find(([_, v]) => v.motherId === cId);
+        roomKey = motherMatch?.[0];
+      }
+      if (!roomKey) return;
 
       (cItem.days || []).forEach((d: any) => {
         const isUnavailable = (d.availability !== undefined && Number(d.availability) <= 0) || d.stopSells === true || d.closed === true;
@@ -682,32 +713,47 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           console.warn('[OCTORATE WEBHOOK] Failed to fetch live calendar grid from Octorate:', calErr);
         }
 
+        const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
+        const nonMirrorBookings = bookingsData.filter(b => !isMirrorReservation(b));
+
         const calculatedUpdates = calculateServerDynamicMinStay(
-          bookingsData,
+          nonMirrorBookings,
           { start: todayISO, end: endISO },
-          calendarItems
+          calendarItems,
+          activeJungleSource
         );
 
         calculatedUpdatesCount = calculatedUpdates.length;
         console.log(`[OCTORATE WEBHOOK 24/7] Calculated ${calculatedUpdates.length} gap-filling updates.`);
 
-        // 🚨 [OVERBOOKING DETECTOR] Controllo collisioni e notifica istantanea Telegram allo Staff
+        // 🚨 [OVERBOOKING DETECTOR] Controllo collisioni e notifica istantanea Telegram allo Staff (esclude specchi MIRROR_SYNC)
         try {
-          await checkAndNotifyOverbookings(bookingsData, supabaseAdmin, ALL_ACCOMMODATIONS_MAP);
+          await checkAndNotifyOverbookings(nonMirrorBookings, supabaseAdmin, ALL_ACCOMMODATIONS_MAP);
         } catch (overErr) {
           console.warn('[OCTORATE WEBHOOK] Overbooking detection non-blocking warning:', overErr);
         }
 
-        // Invio sincronizzazione in blocchi (batch da 250 per Octorate API)
+        // Invio sincronizzazione in blocchi (batch da 250 per Octorate API) specchiando anche la madre gemella in standby
         if (calculatedUpdates.length > 0) {
-          const roomsPayload = calculatedUpdates.map(u => ({
-            room: Number(u.roomTypeId),
-            dateFrom: u.dateFrom,
-            dateTo: u.dateTo,
-            values: {
-              minstay: Number(u.minStay)
+          const roomsPayload: any[] = [];
+          for (const u of calculatedUpdates) {
+            const primaryId = Number(u.roomTypeId);
+            roomsPayload.push({
+              room: primaryId,
+              dateFrom: u.dateFrom,
+              dateTo: u.dateTo,
+              values: { minstay: Number(u.minStay) }
+            });
+            const companionId = getCompanionRateId(primaryId);
+            if (companionId) {
+              roomsPayload.push({
+                room: companionId,
+                dateFrom: u.dateFrom,
+                dateTo: u.dateTo,
+                values: { minstay: Number(u.minStay) }
+              });
             }
-          }));
+          }
 
           const chunkSize = 250;
           const chunks: any[][] = [];

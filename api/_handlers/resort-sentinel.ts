@@ -3,6 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { REAL_PRODUCTS_BY_PLAN } from "./update-restriction.js";
 import { calculateServerDynamicMinStay, ALL_ACCOMMODATIONS_MAP } from "./octorate-webhook.js";
+import {
+  getActiveJungleSource,
+  getCompanionRateId,
+  getJungleTwinPairByRateId,
+  isMirrorReservation,
+  JUNGLE_RATE_PAIRS
+} from "../_helpers/octorate-jungle-mirror.js";
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
@@ -119,20 +126,38 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     921878, 921879, 921880, 921881, 921882, 921883 // Alias
   ]);
 
-  // Tariffe AC delle Ville e Piani Standard AC categoricamente CHIUSI SEMPRE per tutta la stagione
+  const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
+
+  // Tariffe AC delle Ville e Piani Standard AC categoricamente CHIUSI SEMPRE per tutta la stagione (entrambe le strutture)
+  const fpvClosedAcIds = JUNGLE_RATE_PAIRS.filter(p => p.isClosedAc).map(p => p.fpvId);
+  const jungleClosedAcIds = JUNGLE_RATE_PAIRS.filter(p => p.isClosedAc).map(p => p.jungleId);
+
   const fullyClosedIds = new Set([
     ...(REAL_PRODUCTS_BY_PLAN.ac_7d || []).filter(id => !agodaBungalowAcIds.has(id)),
     ...(REAL_PRODUCTS_BY_PLAN.ac_14d || []).filter(id => !agodaBungalowAcIds.has(id)),
     ...(REAL_PRODUCTS_BY_PLAN.ac_bnb_7d || []),
     ...(REAL_PRODUCTS_BY_PLAN.ac_bnb_14d || []),
     ...(REAL_PRODUCTS_BY_PLAN.airbnb_ac || []),
+    ...jungleClosedAcIds,
+    ...fpvClosedAcIds,
     // Agoda AC Ville (sempre chiuse al 100%)
     921868, 921869, 921870, 921871, 921872, 921873, 921874, 921875, 921876, 921877
   ]);
 
-  const stdIds = new Set(REAL_PRODUCTS_BY_PLAN['7d'] || []);
-  const main14dIds = new Set([...(REAL_PRODUCTS_BY_PLAN.main_bnb_14d || [])]);
-  const main7dIds = new Set([...(REAL_PRODUCTS_BY_PLAN.main_bnb_7d || [])]);
+  const stdIds = new Set([
+    ...(REAL_PRODUCTS_BY_PLAN['7d'] || []),
+    960392, 960404, 960416, 960428
+  ]);
+  const main14dIds = new Set([
+    ...(REAL_PRODUCTS_BY_PLAN.main_bnb_14d || []),
+    960394, 960406, 960418, 960430
+  ]);
+  const main7dIds = new Set([
+    ...(REAL_PRODUCTS_BY_PLAN.main_bnb_7d || []),
+    960393, 960405, 960417, 960429
+  ]);
+
+  const structuresToScanForAudit = Array.from(new Set([String(structureId), '807324']));
 
   let totalAudited = 0;
   const motherRoomsAudited: Array<{
@@ -144,90 +169,112 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
   }> = [];
 
   for (const ad of auditDates) {
-    for (let page = 0; page < 25; page++) {
-      const url = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${ad.from}&dateTo=${ad.to}&size=20&page=${page}`;
-      const res = await fetch(url, { headers });
-      if (!res.ok) break;
-      const json = await res.json();
-      const items = Array.isArray(json) ? json : (json.data || json.calendar || []);
-      if (!items.length) break;
+    for (const sIdAudit of structuresToScanForAudit) {
+      for (let page = 0; page < 25; page++) {
+        const url = `https://api.octorate.com/connect/rest/v1/calendar/${sIdAudit}?dateFrom=${ad.from}&dateTo=${ad.to}&size=20&page=${page}`;
+        const res = await fetch(url, { headers });
+        if (!res.ok) break;
+        const json = await res.json();
+        const items = Array.isArray(json) ? json : (json.data || json.calendar || []);
+        if (!items.length) break;
 
-      for (const it of items) {
-        totalAudited++;
-        const idNum = Number(it.id);
-        const name = String(it.name || '');
-        const day = it.days && it.days[0];
-        if (!day) continue;
+        for (const it of items) {
+          totalAudited++;
+          const idNum = Number(it.id);
+          const name = String(it.name || '');
+          const day = it.days && it.days[0];
+          if (!day) continue;
 
-        const isStopSell = day.stopSells === true;
+          const isStopSell = day.stopSells === true;
+          const twinPair = getJungleTwinPairByRateId(idNum);
+          const isStandbyTwin = Boolean(
+            twinPair &&
+            ((activeJungleSource === '807324' && twinPair.fpvId === idNum) ||
+              (activeJungleSource === '366879' && twinPair.jungleId === idNum))
+          );
 
-        // Campionamento Alloggi Madri per MinStay e Last Minute nella data odierna
-        if (ad.label === 'Oggi' && MOTHER_ROOM_INFOS[idNum]) {
-          motherRoomsAudited.push({
-            id: idNum,
-            name: MOTHER_ROOM_INFOS[idNum].name,
-            basePrice: MOTHER_ROOM_INFOS[idNum].basePrice,
-            livePrice: Number(day.price || 0),
-            liveMinStay: Number(day.minStay || 2)
-          });
-        }
+          // Campionamento Alloggi Madri solo per la struttura attualmente attiva
+          if (ad.label === 'Oggi' && MOTHER_ROOM_INFOS[idNum] && !isStandbyTwin) {
+            motherRoomsAudited.push({
+              id: idNum,
+              name: MOTHER_ROOM_INFOS[idNum].name,
+              basePrice: MOTHER_ROOM_INFOS[idNum].basePrice,
+              livePrice: Number(day.price || 0),
+              liveMinStay: Number(day.minStay || 2)
+            });
+          }
 
-        // Regola 1: Tariffe Spente devono essere SEMPRE StopSell: true
-        if (fullyClosedIds.has(idNum) && !isStopSell) {
-          anomalies.push({ id: idNum, name, issue: 'Tariffa AC spenta risultava APERTA (stopSells: false)', date: ad.from });
-          healPayload.push({
-            room: idNum,
-            dateFrom: todayStr,
-            dateTo: '2027-10-31',
-            values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
-          });
-        }
-
-        // Regola 1B: Agoda AC Red, Green, Yellow Bungalow deve essere CHIUSA fuori da High Season (16 Dic - 31 Mar)
-        if (agodaBungalowAcIds.has(idNum)) {
-          const isHighSeason = ad.from >= '2026-12-16' && ad.from <= '2027-03-31';
-          if (!isHighSeason && !isStopSell) {
-            anomalies.push({ id: idNum, name, issue: 'Agoda AC Bungalow risultava APERTA fuori da High Season', date: ad.from });
+          // Regola 1: Tariffe Spente devono essere SEMPRE StopSell: true
+          if (fullyClosedIds.has(idNum) && !isStopSell) {
+            anomalies.push({ id: idNum, name, issue: 'Tariffa AC spenta risultava APERTA (stopSells: false)', date: ad.from });
             healPayload.push({
               room: idNum,
               dateFrom: todayStr,
-              dateTo: '2026-12-15',
+              dateTo: '2027-10-31',
               values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
             });
           }
-        }
 
-        // Regola 2: Standard 7d a Gennaio/Febbraio deve essere StopSell: true
-        if (stdIds.has(idNum) && (ad.label === 'Capodanno' || ad.label === 'Febbraio High Season') && !isStopSell) {
-          anomalies.push({ id: idNum, name, issue: 'Standard 7d risultava APERTA in piena High Season', date: ad.from });
-          healPayload.push({
-            room: idNum,
-            dateFrom: '2026-12-26',
-            dateTo: '2027-03-31',
-            values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
-          });
-        }
+          if (isStandbyTwin) {
+            // Se FPV (366879) è in standby, tutte le sue 52 tariffe clonate devono restare 100% chiuse
+            if (activeJungleSource === '807324' && twinPair?.fpvId === idNum && !isStopSell && !fullyClosedIds.has(idNum)) {
+              anomalies.push({ id: idNum, name, issue: 'Tariffa gemella Flower Power Village (366879) in standby risultava APERTA', date: ad.from });
+              healPayload.push({
+                room: idNum,
+                dateFrom: todayStr,
+                dateTo: '2027-10-31',
+                values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
+              });
+            }
+            continue;
+          }
 
-        // Regola 3: Main bnb-14d a Febbraio deve essere StopSell: true (aperta solo a Capodanno)
-        if (main14dIds.has(idNum) && ad.label === 'Febbraio High Season' && !isStopSell) {
-          anomalies.push({ id: idNum, name, issue: 'Main bnb-14d risultava APERTA fuori dal picco di Capodanno', date: ad.from });
-          healPayload.push({
-            room: idNum,
-            dateFrom: '2027-01-26',
-            dateTo: '2027-05-31',
-            values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
-          });
-        }
+          // Regola 1B: Agoda AC Red, Green, Yellow Bungalow deve essere CHIUSA fuori da High Season (16 Dic - 31 Mar)
+          if (agodaBungalowAcIds.has(idNum)) {
+            const isHighSeason = ad.from >= '2026-12-16' && ad.from <= '2027-03-31';
+            if (!isHighSeason && !isStopSell) {
+              anomalies.push({ id: idNum, name, issue: 'Agoda AC Bungalow risultava APERTA fuori da High Season', date: ad.from });
+              healPayload.push({
+                room: idNum,
+                dateFrom: todayStr,
+                dateTo: '2026-12-15',
+                values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
+              });
+            }
+          }
 
-        // Regola 4: Main bnb-7d a Capodanno deve essere StopSell: true (aperta solo dopo)
-        if (main7dIds.has(idNum) && ad.label === 'Capodanno' && !isStopSell) {
-          anomalies.push({ id: idNum, name, issue: 'Main bnb-7d risultava APERTA durante picco Capodanno (14d)', date: ad.from });
-          healPayload.push({
-            room: idNum,
-            dateFrom: '2026-12-26',
-            dateTo: '2027-01-15',
-            values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
-          });
+          // Regola 2: Standard 7d a Gennaio/Febbraio deve essere StopSell: true
+          if (stdIds.has(idNum) && (ad.label === 'Capodanno' || ad.label === 'Febbraio High Season') && !isStopSell) {
+            anomalies.push({ id: idNum, name, issue: 'Standard 7d risultava APERTA in piena High Season', date: ad.from });
+            healPayload.push({
+              room: idNum,
+              dateFrom: '2026-12-26',
+              dateTo: '2027-03-31',
+              values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
+            });
+          }
+
+          // Regola 3: Main bnb-14d a Febbraio deve essere StopSell: true (aperta solo a Capodanno)
+          if (main14dIds.has(idNum) && ad.label === 'Febbraio High Season' && !isStopSell) {
+            anomalies.push({ id: idNum, name, issue: 'Main bnb-14d risultava APERTA fuori dal picco di Capodanno', date: ad.from });
+            healPayload.push({
+              room: idNum,
+              dateFrom: '2027-01-26',
+              dateTo: '2027-05-31',
+              values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
+            });
+          }
+
+          // Regola 4: Main bnb-7d a Capodanno deve essere StopSell: true (aperta solo dopo)
+          if (main7dIds.has(idNum) && ad.label === 'Capodanno' && !isStopSell) {
+            anomalies.push({ id: idNum, name, issue: 'Main bnb-7d risultava APERTA durante picco Capodanno (14d)', date: ad.from });
+            healPayload.push({
+              room: idNum,
+              dateFrom: '2026-12-26',
+              dateTo: '2027-01-15',
+              values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
+            });
+          }
         }
       }
     }
@@ -260,6 +307,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
         if (cRes.ok) {
           const cJson = await cRes.json();
           const cItems = cJson && Array.isArray(cJson.data) ? cJson.data : (Array.isArray(cJson) ? cJson : []);
+          for (const ci of cItems) ci._structureId = String(sId);
           liveCalendarItems.push(...cItems);
         }
       } catch (err) {
@@ -267,10 +315,12 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
       }
     }));
 
+    const nonMirrorBookings = bookingsData.filter(b => !isMirrorReservation(b));
     const gapUpdates = calculateServerDynamicMinStay(
-      bookingsData,
+      nonMirrorBookings,
       { start: todayStr, end: endSeasonStr },
-      liveCalendarItems
+      liveCalendarItems,
+      activeJungleSource
     );
       
       // Filtra i buchi residui (gapDays < baseline)
@@ -278,7 +328,10 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
 
       for (const u of gapReductions) {
         const targetMotherId = Number(u.roomTypeId);
-        const liveAudited = motherRoomsAudited.find(m => m.id === targetMotherId);
+        const companionMotherId = getCompanionRateId(targetMotherId);
+        const liveAudited = motherRoomsAudited.find(
+          m => m.id === targetMotherId || (companionMotherId !== null && m.id === companionMotherId)
+        );
 
         // Se il buco interessa la data di oggi o i prossimi giorni
         if (liveAudited && u.dateFrom <= todayStr && u.dateTo >= todayStr) {

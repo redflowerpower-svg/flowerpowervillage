@@ -2,6 +2,11 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import fs from 'fs';
 import path from 'path';
+import {
+  getActiveJungleSource,
+  getCompanionRateId,
+  getJungleTwinPairByRateId
+} from "../_helpers/octorate-jungle-mirror.js";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -178,14 +183,25 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
       const rateIdFB2 = rateIdFB1 + 13;
       const rateIdReal = Number(targetRateIdNum || (planKey ? REAL_PRODUCT_IDS[planKey] : 0));
 
+      const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
+
       // 🌙 NOTTI MINIME (MinStay): Vengono scritte ESCLUSIVAMENTE sulle Camere Madri di Livello 0 (Alloggio Padre)
       // Octorate calcola ed eredita automaticamente il minstay a cascata su tutte le tariffe derivate (BE, 7d, 14d, Airbnb, ecc.)
-      const roomsToUpdate = isMinStay
+      const rawRoomsToUpdate = isMinStay
         ? (testOnly ? MOTHER_ACCOMMODATION_IDS.test : MOTHER_ACCOMMODATION_IDS.real)
         : (testOnly
             ? (planKey && TEST_PRODUCTS_BY_PLAN[planKey] ? TEST_PRODUCTS_BY_PLAN[planKey] : [rateIdFB1, rateIdFB2])
             : (planKey && REAL_PRODUCTS_BY_PLAN[planKey] ? REAL_PRODUCTS_BY_PLAN[planKey] : (targetRateIdNum ? [targetRateIdNum] : [rateIdReal]))
           );
+
+      // Per restrizioni Sacro Graal su piani globali (`planKey`), instrada le 4 ville sempre e solo sulla struttura attiva
+      const roomsToUpdate = (!testOnly && !isMinStay && planKey)
+        ? Array.from(new Set(rawRoomsToUpdate.map((id) => {
+            const pair = getJungleTwinPairByRateId(id);
+            if (!pair) return id;
+            return activeJungleSource === '366879' ? pair.fpvId : pair.jungleId;
+          })))
+        : rawRoomsToUpdate;
 
       const onlyCheckoutDaysNum = Number(req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 0);
 

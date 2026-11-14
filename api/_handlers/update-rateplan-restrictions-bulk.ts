@@ -2,6 +2,10 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import fs from 'fs';
 import path from 'path';
+import {
+  getActiveJungleSource,
+  getJungleTwinPairByRateId
+} from "../_helpers/octorate-jungle-mirror.js";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -173,12 +177,20 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
         headers['Octorate-Api-Key'] = clientId;
       }
 
+      const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
       const rateIdFB1 = Number(targetRateIdNum || (planKey ? TEST_PRODUCT_IDS[planKey] : 0));
       const rateIdFB2 = rateIdFB1 + 13;
       const rateIdReal = Number(targetRateIdNum || (planKey ? REAL_PRODUCT_IDS[planKey] : 0));
-      const roomsToUpdate = testOnly
+      const rawRoomsToUpdate = testOnly
         ? (planKey && TEST_PRODUCTS_BY_PLAN[planKey] ? TEST_PRODUCTS_BY_PLAN[planKey] : [rateIdFB1, rateIdFB2])
         : (planKey && REAL_PRODUCTS_BY_PLAN[planKey] ? REAL_PRODUCTS_BY_PLAN[planKey] : (targetRateIdNum ? [targetRateIdNum] : [rateIdReal]));
+      const roomsToUpdate = (!testOnly && planKey)
+        ? Array.from(new Set(rawRoomsToUpdate.map((id) => {
+            const pair = getJungleTwinPairByRateId(id);
+            if (!pair) return id;
+            return activeJungleSource === '366879' ? pair.fpvId : pair.jungleId;
+          })))
+        : rawRoomsToUpdate;
       const onlyCheckoutDaysNum = Number(req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 0);
 
       const addDaysISO = (dateStr: string, days: number): string => {

@@ -36,7 +36,7 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'jungle villa': {
     motherId: 529773,
     name: 'Jungle Villa',
-    ids: ['529773', '529784', '529778', '529792', '529788', '529780', '916817', '529781', '529801', '921868', '921869', '529783', '529813'],
+    ids: ['529773', '529784', '529778', '529792', '529788', '529780', '916816', '529781', '529801', '921868', '921869', '529783', '529813', '960389', '960403', '960404', '960405', '960406', '960407', '960408', '960409', '960410', '960411', '960412', '960413', '960414'],
     keywords: [["jungle", "jv"], ["villa", "ac", "be"]],
     linkedKeys: ['jungle villa left', 'jungle villa right']
   },
@@ -44,21 +44,21 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
     motherId: 495795,
     name: 'Jungle Villa Left',
     // Rimuoviamo eventuali ID non esistenti su Octorate (es. 495804)
-    ids: ['495795', '495807', '495803', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
+    ids: ['495795', '495807', '495803', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057', '960385', '960415', '960416', '960417', '960418', '960419', '960420', '960421', '960422', '960423', '960424', '960425', '960426'],
     keywords: [["jungle", "jv"], ["left", "jvl"]],
     linkedKeys: ['jungle villa']
   },
   'jungle villa right': {
     motherId: 495796,
     name: 'Jungle Villa Right',
-    ids: ['495796', '495980', '495976', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
+    ids: ['495796', '495980', '495976', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056', '960387', '960427', '960428', '960429', '960430', '960431', '960432', '960433', '960434', '960435', '960436', '960437', '960438'],
     keywords: [["jungle", "jv"], ["right", "jvr"]],
     linkedKeys: ['jungle villa']
   },
   'peace & love villa': {
     motherId: 494840,
     name: 'Peace & Love Villa',
-    ids: ['494840', '495566', '495549', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
+    ids: ['494840', '495566', '495549', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609', '960383', '960391', '960392', '960393', '960394', '960395', '960396', '960397', '960398', '960399', '960400', '960401', '960402'],
     keywords: [["peace", "love", "p&l"]]
   },
   'villa penthouse': {
@@ -338,6 +338,8 @@ export function calculateDynamicMinStay(
   }
 
   const activeBookings = (bookingsInput || []).filter(b => {
+    const hay = [(b as any).privateNotes, (b as any).notes, (b as any).refer, (b as any).channelName, (b as any).guestName].filter(Boolean).join(' ');
+    if (hay.includes('[MIRROR_SYNC]') || String((b as any).refer || '').startsWith('MIRROR-')) return false;
     const st = String(b.status || '').toUpperCase().trim();
     return st !== 'CANCELLED' && st !== 'CANCELED' && st !== 'DELETED' && st !== 'VOID' && st !== 'REJECTED' && !(b as any).cancelled && !(b as any).isCancelled;
   });
@@ -886,6 +888,10 @@ export const STANDARD_7D_RATE_IDS: Record<string, string> = {
   '495795': '495976', // Jungle Villa Left -> 7d
   '495796': '872182', // Jungle Villa Right -> 7d
   '494840': '529778', // Peace & Love -> 7d
+  '960389': '960404', // Jungle Villa (FPV 366879) -> JV 7d
+  '960385': '960416', // Jungle Villa Left (FPV 366879) -> JVL 7d
+  '960387': '960428', // Jungle Villa Right (FPV 366879) -> JVR 7d
+  '960383': '960392', // Peace & Love Villa (FPV 366879) -> P&L 7d
   '421511': '422300', // Penthouse -> 7d
   '293957': '422296', // Yellow -> 7d
   '293954': '422293', // Red -> 7d

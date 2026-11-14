@@ -3,6 +3,12 @@
  * Sincronizzazione automatica 24/7 su Octorate PMS (Regola d'Oro: Sempre e solo Livello 0).
  */
 import { formatDateDMY, formatAllDatesToDMY } from "./date-formatter.js";
+import {
+  computeStandbyKeepAlivePrice,
+  getActiveJungleSource,
+  getJungleTwinPairByRateId,
+  isLowSeasonKeepAliveDate
+} from "./octorate-jungle-mirror.js";
 
 export interface CascadeRoomConfig {
   motherId: number;
@@ -113,19 +119,21 @@ export async function checkAndSyncCascadeLastMinute(
     return { synced: false, message: `Sconti a cascata già sincronizzati per oggi (${todayStr}).` };
   }
 
-  // Sonda rapida dello stato live di Octorate per Jungle Villa (529773) su todayStr
-  // Se ha già 2061฿ (-10%), Octorate è già aggiornato e allineato
+  const activeJungleSource = supabaseAdmin ? await getActiveJungleSource(supabaseAdmin) : '807324';
+
+  // Sonda rapida dello stato live sulla struttura attualmente attiva
   if (!force) {
     try {
-      // 🌟 Probe su Jungle Villas (807324) dove risiede la camera benchmark Jungle Villa (529773)
+      const probeStructure = activeJungleSource;
+      const probeRoomId = activeJungleSource === '366879' ? 960389 : 529773;
       const probeRes = await fetch(
-        `https://api.octorate.com/connect/rest/v1/calendar/807324?dateFrom=${todayStr}&dateTo=${todayStr}&size=20&page=0`,
+        `https://api.octorate.com/connect/rest/v1/calendar/${probeStructure}?dateFrom=${todayStr}&dateTo=${todayStr}&size=20&page=0`,
         { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
       );
       if (probeRes.ok) {
         const probeJson = await probeRes.json();
         const items = Array.isArray(probeJson.data) ? probeJson.data : (Array.isArray(probeJson) ? probeJson : []);
-        const jv = items.find((x: any) => Number(x.id) === 529773);
+        const jv = items.find((x: any) => Number(x.id) === probeRoomId);
         const day0Price = jv?.days?.[0]?.price;
         if (day0Price === 2061) {
           lastSyncedCascadeDateGlobal = todayStr;
@@ -147,11 +155,20 @@ export async function checkAndSyncCascadeLastMinute(
   const bulkPayload: Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }> = [];
 
   CASCADE_MOTHER_ROOMS.forEach((room) => {
+    const twinPair = getJungleTwinPairByRateId(room.motherId);
     for (let offset = 0; offset <= 7; offset++) {
       const targetDateStr = addDaysToDate(todayStr, offset);
       let discountedPrice = room.basePrice;
 
-      if (offset < 3) {
+      if (
+        activeJungleSource === '366879' &&
+        twinPair &&
+        twinPair.jungleId === room.motherId &&
+        isLowSeasonKeepAliveDate(targetDateStr)
+      ) {
+        // Regola Standby Asimmetrica: in Bassa Stagione (01 Giu - 31 Ott) Jungle Villas (807324) in standby resta a prezzo 2x
+        discountedPrice = computeStandbyKeepAlivePrice(room.basePrice, twinPair.key);
+      } else if (offset < 3) {
         // Stadio 1: -10%
         discountedPrice = Math.round(room.basePrice * 0.90);
       } else if (offset < 5) {

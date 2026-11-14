@@ -8,6 +8,8 @@ import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES, getOctorateStructureBy
 import { executeOctorateMove } from "../_helpers/octorate-move.js";
 import {
   getActiveJungleSource,
+  getCompanionRateId,
+  getJungleTwinPairByRateId,
   switchActiveJungleStructure,
   syncActiveToStandbyCalendar,
   JungleSourceStructureId
@@ -43,9 +45,9 @@ function getSupabaseAdmin() {
 }
 
 const OFFICIAL_BE_RATE_IDS = new Set([
-  529784, 495807, 495980, 495566, 449348, 449385, 449422, 449668,
-  449675, 449674, 449678, 449684, 449699, 449724, 449730, 449736,
-  923905, 449742, 932243, 932256
+  529784, 495807, 495980, 495566, 960403, 960415, 960427, 960391,
+  449348, 449385, 449422, 449668, 449675, 449674, 449678, 449684,
+  449699, 449724, 449730, 449736, 923905, 449742, 932243, 932256
 ]);
 
 // 1. handleOctorateExchange
@@ -642,7 +644,8 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       }
     }));
 
-    // Nascondi le 4 ville della struttura in standby per evitare duplicati nel calendario 30/365 giorni
+    // Nascondi le 4 ville della struttura in standby per evitare duplicati nel calendario 30/365 giorni,
+    // ma estrai le 4 Madri gemelle in standby per l'ispezione opzionale "Mostra Gemelle Standby (4)" in dashboard
     const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
     const visibleItems = allFetchedItems.filter((item: any) => {
       const idNum = Number(item.id);
@@ -652,6 +655,28 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       // activeJungleSource === '366879': nascondi tutta 807324 (che contiene solo le 4 ville)
       return item._structureId !== '807324';
     });
+
+    const standbyTwins = allFetchedItems
+      .filter((item: any) => {
+        const idNum = Number(item.id);
+        const pair = getJungleTwinPairByRateId(idNum);
+        if (!pair || !pair.isMother) return false;
+        return activeJungleSource === '807324'
+          ? pair.fpvId === idNum
+          : pair.jungleId === idNum;
+      })
+      .map((item: any) => {
+        const idNum = Number(item.id);
+        const pair = getJungleTwinPairByRateId(idNum)!;
+        return {
+          id: idNum,
+          companionActiveId: getCompanionRateId(idNum),
+          key: pair.key,
+          name: item.name || pair.label,
+          structureId: item._structureId || (activeJungleSource === '807324' ? '366879' : '807324'),
+          days: Array.isArray(item.days) ? item.days : []
+        };
+      });
 
     const filteredBEItems = visibleItems.filter((item: any) => {
       const idNum = Number(item.id);
@@ -667,6 +692,7 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       data: visibleItems,
       grid: visibleItems,
       beGrid: filteredBEItems,
+      standbyTwins,
       totalFetched: visibleItems.length,
       structuresQueried: targetStructures.length
     };
@@ -789,14 +815,31 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
       return res.status(400).json({ error: 'No Octorate access token available in database' });
     }
 
-    const roomsPayload = updateItems.map((item: any) => ({
-      room: Number(item.roomTypeId || item.motherId || item.id || item.octorateId || item.room),
-      dateFrom: item.dateFrom || item.date || item.from_date || item.startDate,
-      dateTo: item.dateTo || item.to_date || item.endDate,
-      values: {
-        minstay: Number(item.minStay || item.min_stay || item.minimumStay || 2)
+    const roomsPayloadMap = new Map<string, any>();
+    for (const item of updateItems) {
+      const primaryRoom = Number(item.roomTypeId || item.motherId || item.id || item.octorateId || item.room);
+      const df = item.dateFrom || item.date || item.from_date || item.startDate;
+      const dt = item.dateTo || item.to_date || item.endDate;
+      const ms = Number(item.minStay || item.min_stay || item.minimumStay || 2);
+      const entry = {
+        room: primaryRoom,
+        dateFrom: df,
+        dateTo: dt,
+        values: { minstay: ms }
+      };
+      roomsPayloadMap.set(`${primaryRoom}_${df}_${dt}`, entry);
+
+      const companionId = getCompanionRateId(primaryRoom);
+      if (companionId) {
+        roomsPayloadMap.set(`${companionId}_${df}_${dt}`, {
+          room: companionId,
+          dateFrom: df,
+          dateTo: dt,
+          values: { minstay: ms }
+        });
       }
-    }));
+    }
+    const roomsPayload = Array.from(roomsPayloadMap.values());
 
     // Invio sincronizzazione in batch paralleli da 250 blocchi per Octorate API
     const chunkSize = 250;
@@ -1002,6 +1045,7 @@ export async function handleOctorateJungleMirror(req: VercelRequest, res: Vercel
 
     const daysAhead = Number(body.daysAhead || 365);
     const result = await syncActiveToStandbyCalendar(supabaseAdmin, tokenData.access_token, { daysAhead });
+    gridCache.clear();
     return res.status(200).json(result);
   } catch (error: any) {
     console.error('[octorate-jungle-mirror] Error:', error);

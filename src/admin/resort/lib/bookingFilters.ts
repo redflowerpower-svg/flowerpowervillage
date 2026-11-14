@@ -71,8 +71,26 @@ export const clearBlacklistedBookings = () => {
   }
 };
 
+export const isMirrorSyncBooking = (b: any): boolean => {
+  if (!b) return false;
+  const hay = [
+    b.privateNotes,
+    b.private_notes,
+    b.notes,
+    b.refer,
+    b.channelName,
+    b.channel_name,
+    b.guestName,
+    b.guest_name
+  ]
+    .filter(Boolean)
+    .join(' ');
+  return hay.includes('[MIRROR_SYNC]') || String(b.refer || '').startsWith('MIRROR-');
+};
+
 export const isValidActiveBooking = (b: any): boolean => {
   if (!b) return false;
+  if (isMirrorSyncBooking(b)) return false;
   if (isCancelledBooking(b)) return false;
   if (isTestBookingToHide(b)) return false;
   if (isBlacklistedBooking(b)) return false;
