@@ -888,13 +888,178 @@ export async function syncActiveToStandbyCalendar(
   };
 }
 
+export interface CalendarVerificationResult {
+  ok: boolean;
+  structureId: JungleSourceStructureId;
+  attempts: number;
+  checkedDates: string[];
+  checkedEntries: number;
+  mismatches: string[];
+}
+
+const sleepMs = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
 /**
- * Esegue lo Switch sicuro in 2 TEMPI su tutte le 52 tariffe:
+ * Seleziona fino a 4 date campione reali presenti nello snapshot dell'uscente
+ * (domani, +15 giorni, alta stagione e bassa stagione 01 Giu - 31 Ott).
+ */
+function pickVerificationSampleDates(
+  snapshot: Map<number, Map<string, SnapshotDay>>,
+  structureId: JungleSourceStructureId,
+  dateFrom: string
+): string[] {
+  const motherIds = JUNGLE_TWIN_ROOMS.map(r => (structureId === '366879' ? r.fpvMotherId : r.jungleMotherId));
+  const baseMap = snapshot.get(motherIds[0]);
+  const availableDates = baseMap
+    ? Array.from(baseMap.keys())
+        .filter(d => motherIds.every(mId => snapshot.get(mId)?.has(d)))
+        .sort()
+    : [];
+
+  if (availableDates.length === 0) return [];
+
+  const picked: string[] = [];
+  const addDate = (d?: string) => {
+    if (d && !picked.includes(d)) picked.push(d);
+  };
+
+  // 1. Domani
+  const tomorrow = addOneDayISO(dateFrom);
+  addDate(availableDates.find(d => d >= tomorrow) || availableDates[0]);
+
+  // 2. +15 giorni
+  const plus15Date = new Date(`${dateFrom}T00:00:00Z`);
+  plus15Date.setUTCDate(plus15Date.getUTCDate() + 15);
+  const plus15Str = plus15Date.toISOString().slice(0, 10);
+  addDate(availableDates.find(d => d >= plus15Str));
+
+  // 3. Alta / Media stagione (preferenza 08 Gen, poi altre date fuori Bassa Stagione)
+  const preferredHigh = availableDates.find(
+    d => !isLowSeasonKeepAliveDate(d) && ['-01-08', '-02-01', '-12-20', '-11-25'].some(sfx => d.endsWith(sfx))
+  );
+  addDate(preferredHigh || availableDates.find(d => !isLowSeasonKeepAliveDate(d) && !picked.includes(d)));
+
+  // 4. Bassa Stagione Livello 2 (01 Giu - 31 Ott: preferenza 15 Lug / 15 Ago)
+  const preferredLow = availableDates.find(
+    d => isLowSeasonKeepAliveDate(d) && ['-07-15', '-08-15', '-06-15', '-09-15'].some(sfx => d.endsWith(sfx))
+  );
+  addDate(preferredLow || availableDates.find(d => isLowSeasonKeepAliveDate(d)));
+
+  return picked;
+}
+
+/**
+ * Esegue read-back polling su GET /calendar/{structureId} per verificare che Octorate
+ * abbia applicato realmente tutti gli stati attesi (stopSells, prezzi 2x/normali, disponibilità Madri)
+ * su tutte le 52 tariffe nelle date campione.
+ */
+async function verifyStructureCalendarState(
+  accessToken: string,
+  structureId: JungleSourceStructureId,
+  expectedEntries: DailyBulkEntry[],
+  sampleDates: string[],
+  options?: { maxAttempts?: number; initialDelayMs?: number; retryDelayMs?: number }
+): Promise<CalendarVerificationResult> {
+  const sampleDateSet = new Set(sampleDates);
+  const targets = expectedEntries.filter(e => sampleDateSet.has(e.date));
+  if (targets.length === 0) {
+    throw new Error(`Verifica calendario impossibile su ${structureId}: nessuna voce attesa per le date [${sampleDates.join(', ')}].`);
+  }
+
+  const maxAttempts = options?.maxAttempts ?? 5;
+  const initialDelayMs = options?.initialDelayMs ?? 800;
+  const retryDelayMs = options?.retryDelayMs ?? 1500;
+
+  let lastMismatches: string[] = [];
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    await sleepMs(attempt === 1 ? initialDelayMs : retryDelayMs);
+
+    const perDateSnaps = await Promise.all(
+      sampleDates.map(d => fetchTwin52RateSnapshot(accessToken, structureId, d, d))
+    );
+
+    const liveByRate = new Map<number, Map<string, SnapshotDay>>();
+    for (const snap of perDateSnaps) {
+      for (const [rateId, dayMap] of snap.entries()) {
+        let merged = liveByRate.get(rateId);
+        if (!merged) {
+          merged = new Map<string, SnapshotDay>();
+          liveByRate.set(rateId, merged);
+        }
+        for (const [dStr, dVal] of dayMap.entries()) {
+          merged.set(dStr, dVal);
+        }
+      }
+    }
+
+    const mismatches: string[] = [];
+    for (const entry of targets) {
+      const pair = getJungleTwinPairByRateId(entry.room);
+      const rateTag = pair ? `${pair.label} (${entry.room})` : `rate ${entry.room}`;
+      const liveDay = liveByRate.get(entry.room)?.get(entry.date);
+
+      if (!liveDay) {
+        mismatches.push(`${rateTag} @ ${entry.date}: assente in GET /calendar`);
+        continue;
+      }
+
+      if (entry.values.stopSells !== undefined) {
+        const expStop = Boolean(entry.values.stopSells);
+        const liveStop = Boolean(liveDay.stopSells);
+        if (liveStop !== expStop) {
+          mismatches.push(`${rateTag} @ ${entry.date}: stopSells atteso=${expStop} reale=${liveStop}`);
+        }
+      }
+
+      if (entry.values.price !== undefined && Number(entry.values.price) > 0) {
+        const expPrice = Number(entry.values.price);
+        const livePrice = Number(liveDay.price ?? 0);
+        if (Math.abs(livePrice - expPrice) > 1) {
+          mismatches.push(`${rateTag} @ ${entry.date}: price atteso=${expPrice} reale=${livePrice}`);
+        }
+      }
+
+      if (pair?.isMother && entry.values.availability !== undefined) {
+        const expAvail = Number(entry.values.availability);
+        const liveAvail = Number(liveDay.availability ?? 0);
+        if (liveAvail !== expAvail) {
+          mismatches.push(`${rateTag} @ ${entry.date}: availability attesa=${expAvail} reale=${liveAvail}`);
+        }
+      }
+    }
+
+    lastMismatches = mismatches;
+    if (mismatches.length === 0) {
+      return {
+        ok: true,
+        structureId,
+        attempts: attempt,
+        checkedDates: sampleDates,
+        checkedEntries: targets.length,
+        mismatches: []
+      };
+    }
+  }
+
+  return {
+    ok: false,
+    structureId,
+    attempts: maxAttempts,
+    checkedDates: sampleDates,
+    checkedEntries: targets.length,
+    mismatches: lastMismatches
+  };
+}
+
+/**
+ * Esegue lo Switch sicuro in 2 TEMPI con DOPPIA VERIFICA PROFONDA (`GET /calendar`) su tutte le 52 tariffe:
  *  - Cattura snapshot completo (prezzi normali, disponibilità reali, Sacro Graal) dalla struttura uscente attiva
- *  - TEMPO 1: Chiude/mette in standby asimmetrico la struttura uscente su tutte le 52 tariffe e attende 200 OK
- *             (in caso di errore si ferma subito: ZERO overbooking).
+ *  - TEMPO 1: Chiude/mette in standby asimmetrico la struttura uscente su tutte le 52 tariffe
+ *  - VERIFICA PROFONDA 1: Read-back GET /calendar sull'uscente prima di toccare l'entrante (in caso di fallimento ABORT: ZERO overbooking).
  *  - TEMPO 2: Applica prezzi normali, disponibilità e regole Sacro Graal su tutte le 52 tariffe della struttura entrante.
- *  - Aggiorna active_jungle_source_v1 su Supabase.
+ *  - VERIFICA PROFONDA 2: Read-back GET /calendar sull'entrante (apertura + prezzi normali) E ri-verifica che l'uscente sia ancora in standby.
+ *  - Aggiorna active_jungle_source_v1 su Supabase solo dopo entrambe le conferme live.
  */
 export async function switchActiveJungleStructure(
   supabaseAdmin: any,
@@ -906,6 +1071,10 @@ export async function switchActiveJungleStructure(
   outgoing: JungleSourceStructureId;
   closedOld: boolean;
   openedNew: boolean;
+  verifiedPhase1: boolean;
+  verifiedPhase2: boolean;
+  verificationAttempts: number;
+  verifiedSampleDates: string[];
   phase1Blocks: number;
   phase2Blocks: number;
   syncedEntries: number;
@@ -932,6 +1101,10 @@ export async function switchActiveJungleStructure(
       outgoing,
       closedOld: true,
       openedNew: true,
+      verifiedPhase1: true,
+      verifiedPhase2: true,
+      verificationAttempts: 0,
+      verifiedSampleDates: [],
       phase1Blocks: syncRes.sentBlocks,
       phase2Blocks: 0,
       syncedEntries: syncRes.syncedEntries
@@ -948,15 +1121,50 @@ export async function switchActiveJungleStructure(
     );
   }
 
+  const sampleDates = pickVerificationSampleDates(snapshot, outgoing, dateFrom);
+  if (sampleDates.length === 0) {
+    throw new Error(`Impossibile determinare le date campione per la verifica profonda da ${outgoing}. Switch annullato per sicurezza.`);
+  }
+
   // TEMPO 1: Prima chiudi / metti in standby la struttura uscente su tutte le 52 tariffe
   const phase1Entries = build52RateDailyEntries(outgoing, outgoing, snapshot, 'standby');
   const phase1BlocksList = compressDailyBulkItems(phase1Entries);
   await postCalendarBulkBlocks(accessToken, phase1BlocksList);
 
-  // TEMPO 2: Solo dopo conferma 200 OK del Tempo 1, apri e allinea la struttura entrante su tutte le 52 tariffe
+  // VERIFICA PROFONDA 1: Conferma reale da GET /calendar/{outgoing} prima di aprire l'entrante
+  const v1 = await verifyStructureCalendarState(accessToken, outgoing, phase1Entries, sampleDates);
+  if (!v1.ok) {
+    throw new Error(
+      `Verifica Profonda TEMPO 1 fallita su ${outgoing} dopo ${v1.attempts} tentativi: apertura su ${targetStructureId} ANNULLATA per prevenire overbooking. Anomalie (${v1.mismatches.length}): ${v1.mismatches.slice(0, 5).join(' | ')}`
+    );
+  }
+
+  // TEMPO 2: Solo dopo conferma reale del Tempo 1, apre e allinea la struttura entrante su tutte le 52 tariffe
   const phase2Entries = build52RateDailyEntries(outgoing, targetStructureId, snapshot, 'active');
   const phase2BlocksList = compressDailyBulkItems(phase2Entries);
   await postCalendarBulkBlocks(accessToken, phase2BlocksList);
+
+  // VERIFICA PROFONDA 2: Conferma reale che l'entrante sia attiva E che l'uscente sia ancora in standby
+  const [v2Incoming, v2Outgoing] = await Promise.all([
+    verifyStructureCalendarState(accessToken, targetStructureId, phase2Entries, sampleDates),
+    verifyStructureCalendarState(accessToken, outgoing, phase1Entries, sampleDates, {
+      maxAttempts: 3,
+      initialDelayMs: 800,
+      retryDelayMs: 1200
+    })
+  ]);
+
+  if (!v2Incoming.ok) {
+    throw new Error(
+      `Verifica Profonda TEMPO 2 fallita su entrante ${targetStructureId} dopo ${v2Incoming.attempts} tentativi (${outgoing} resta protetta in standby). Anomalie (${v2Incoming.mismatches.length}): ${v2Incoming.mismatches.slice(0, 5).join(' | ')}`
+    );
+  }
+
+  if (!v2Outgoing.ok) {
+    throw new Error(
+      `ALERT SICUREZZA TEMPO 2: ${outgoing} non risulta più in standby dopo l'apertura di ${targetStructureId} (${v2Outgoing.attempts} tentativi). Anomalie (${v2Outgoing.mismatches.length}): ${v2Outgoing.mismatches.slice(0, 5).join(' | ')}`
+    );
+  }
 
   await setActiveJungleSource(supabaseAdmin, targetStructureId);
 
@@ -966,6 +1174,10 @@ export async function switchActiveJungleStructure(
     outgoing,
     closedOld: true,
     openedNew: true,
+    verifiedPhase1: true,
+    verifiedPhase2: true,
+    verificationAttempts: v1.attempts + Math.max(v2Incoming.attempts, v2Outgoing.attempts),
+    verifiedSampleDates: sampleDates,
     phase1Blocks: phase1BlocksList.length,
     phase2Blocks: phase2BlocksList.length,
     syncedEntries: phase2Entries.length

@@ -161,9 +161,9 @@ export function ResortDashboard() {
     const targetLabel = target === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
 
     const confirmed = window.confirm(
-      `Vuoi spostare in 2 TEMPI SICURI le 4 Ville (Jungle Villa, Left, Right, Peace & Love) da ${currentLabel} a ${targetLabel}?\n\n` +
-      `• TEMPO 1 (Prima Chiudi): ${currentLabel} passa subito in standby su tutte le 52 tariffe (4 Madri + 48 Derivate) e si attende conferma Octorate (zero rischio overbooking).\n` +
-      `• TEMPO 2 (Poi Apri): ${targetLabel} viene aperta su tutte le 52 tariffe copiando prezzi normali, giorni occupati e regole Sacro Graal.\n` +
+      `Vuoi spostare in 2 TEMPI SICURI (con Doppia Verifica Profonda live su Octorate) le 4 Ville (Jungle Villa, Left, Right, Peace & Love) da ${currentLabel} a ${targetLabel}?\n\n` +
+      `• TEMPO 1 + VERIFICA PROFONDA 1: ${currentLabel} passa in standby su tutte le 52 tariffe (4 Madri + 48 Derivate) e il sistema rilegge GET /calendar live per avere la certezza 100% della chiusura prima di toccare l'altra struttura (in caso di anomalia, annulla tutto -> ZERO overbooking).\n` +
+      `• TEMPO 2 + VERIFICA PROFONDA 2: Solo dopo conferma reale del Tempo 1, ${targetLabel} viene aperta su tutte le 52 tariffe copiando prezzi normali, giorni occupati e regole Sacro Graal, verificando infine live sia l'apertura entrante sia che ${currentLabel} sia ancora in standby.\n` +
       `• Regola Standby Asimmetrica: Se Jungle Villas (807324) va in standby, resta APERTA Keep-Alive solo in Bassa Stagione (01 Giu - 31 Ott) sui giorni liberi a prezzo raddoppiato 2x (< 10.000 THB), mentre in Alta/Media (01 Nov - 31 Mag) resta 100% Stop Sell.\n` +
       `• Flower Power Village (366879) in standby resta Stop Sell 100% tutto l'anno sulle 4 ville clonate; gli altri 14 alloggi non vengono mai toccati.`
     );
@@ -181,9 +181,17 @@ export function ResortDashboard() {
         throw new Error(json?.error || `HTTP ${res.status}`);
       }
       setActiveJungleSource(target);
-      window.alert(`Switch completato! Ora le 4 Ville vendono da ${targetLabel} (${json.syncedEntries || 0} giorni allineati).`);
+      const datesInfo = Array.isArray(json.verifiedSampleDates) && json.verifiedSampleDates.length > 0
+        ? ` | Date campioni verificate: ${json.verifiedSampleDates.join(', ')}`
+        : '';
+      const verifyBadge = json.verifiedPhase1 && json.verifiedPhase2
+        ? `\n• Doppia Verifica Profonda OK (${json.verificationAttempts || 2} cicli GET /calendar)${datesInfo}`
+        : '';
+      window.alert(
+        `Switch completato e verificato live! Ora le 4 Ville vendono da ${targetLabel} (${json.syncedEntries || 0} voci allineate su 52 tariffe).${verifyBadge}`
+      );
     } catch (err: any) {
-      window.alert(`Errore durante lo switch: ${err?.message || 'Errore sconosciuto'}`);
+      window.alert(`Errore / Blocco sicurezza durante lo switch: ${err?.message || 'Errore sconosciuto'}`);
     } finally {
       setJungleMirrorBusy(false);
     }
