@@ -160,3 +160,22 @@ Nessuna altra tabella Supabase (`octorate_tokens`, ordini, prenotazioni, documen
   - Scarica le prenotazioni attive delle 4 ville da entrambe le strutture (`outgoing` e `targetStructureId`), crea eventuali specchi `[MIRROR_SYNC]` mancanti su `targetStructureId`, rimuove eventuali specchi orfani non più presenti su `outgoing` e riesegue una lettura di conferma prima di procedere allo Stop Sell del Tempo 1.
 - **Rollback rapido**: `git revert 929ed38` su `feature/clone-jungle-to-fpv`.
 - **Verifiche**: `npx tsc --noEmit` (`0`), `npm run api:check` (`0`).
+
+---
+
+## 8. Fix Aggregate Suite (`JV` + `JVL`/`JVR`), Verifica Obbligatoria su Ogni Sync & Riallineamento Live 365 Giorni (Commit `31e78b7`)
+
+- **Causa radice risolta**:
+  - Su Octorate **Jungle Villa (`960389` / `529773`)** è una Suite aggregata con figlie `Jungle Villa Left` (`960385` / `495795`) e `Jungle Villa Right` (`960387` / `495796`). Inviare esplicitamente `availability: 0` sulla Suite nei giorni in cui una sola metà è occupata portava Octorate ad azzerare entrambe le figlie e, se inviati nello stesso batch delle derivate frammentate per `minstay`, lasciava giorni con `price: 0` su `960387` e disallineamenti su `960385`.
+- **Modifiche codice (`31e78b7`)**:
+  - `api/_helpers/octorate-jungle-mirror.ts`:
+    - In `build52RateDailyEntries`: omette `availability` sulla Suite `jv` nei giorni con una sola figlia occupata (lasciando all'aggregazione Octorate il calcolo automatico) e rimuove `minstay` dalle 48 derivate riducendo il push da `791` a `202` blocchi.
+    - In `postCalendarBulkBlocks`: invio in 2 ondate sequenziali (`Wave 1`: Suite, P&L, 48 Derivate -> pausa `1200ms` -> `Wave 2`: Madri figlie `JVL`/`JVR` così non vengono sovrascritte), chunk da `150` con pausa `500ms`.
+    - In `syncCalendarBetweenStructures` e `syncActiveToStandbyCalendar`: aggiunta verifica read-back obbligatoria `verifyStructureCalendarState` (`6` tentativi, attesa iniziale `1500ms`, retry `2000ms`), estesa al controllo `availability === 0` sui giorni parziali della Suite `jv`.
+  - `src/admin/resort/components/ResortDashboard.tsx`: `handleSyncJungleMirror` mostra nell'alert anche il resoconto della verifica read-back live.
+- **Risultato Live 365 Giorni (`2026-11-14` -> `2027-11-14`)**:
+  - Prenotazione `#130389443` mirrorata su `366879` (`PREFLIGHT_MIRRORED_CREATED: 1`).
+  - Push `19.032` voci (`202` blocchi) da **Jungle Villas (`807324`)** -> **Flower Power Village (`366879`)**, verificato in `2` tentativi.
+  - **Audit completo `1464/1464` giorni (`366` giorni x `4` ville Madri)**: **`zeroPriceDiffs: 0`**, **`priceDiffs: 0`**, **`availDiffs: 0`**, **`unlockedRates: 0`** (`52/52` tariffe confermate in `Stop Sell 100%`).
+- **Rollback rapido**: `git revert 31e78b7` su `feature/clone-jungle-to-fpv`.
+- **Verifiche**: `npx tsc --noEmit` (`0`), `npm run api:check` (`0`).
