@@ -125,3 +125,18 @@ Nessuna altra tabella Supabase (`octorate_tokens`, ordini, prenotazioni, documen
 2. **Octorate Live**:
    - In attesa del mapping Channel Manager / Octorate, **Jungle Villas (`807324`)** resta la struttura attiva (`active_jungle_source_v1 = '807324'`) e **Flower Power Village (`366879`)** ha tutte le **52 tariffe (`960383`–`960438`) bloccate `stopSells: true` per 365 giorni**.
    - Se servisse riaprire manualmente `366879` o riallineare lo specchio, chiamare `POST /api/octorate-jungle-mirror` (`action: 'switch'` o `action: 'sync'`) dalla dashboard.
+
+---
+
+## 5. Doppia Verifica Profonda Read-Back (`GET /calendar`) — Switch in 2 Tempi Blindato (Commit `b11b14c`)
+
+- **File aggiornati**:
+  - `api/_helpers/octorate-jungle-mirror.ts`: aggiunti `pickVerificationSampleDates` e `verifyStructureCalendarState` dentro `switchActiveJungleStructure`:
+    1. **Tempo 1**: `POST /calendar/bulk` porta l'uscente in standby asimmetrico su tutte le `52` tariffe (`4 Madri + 48 Derivate`).
+    2. **Verifica Profonda 1**: read-back polling su `GET /calendar/{outgoing}` su fino a 4 date campione reali (domani, +15g, alta stagione, bassa stagione `01 Giu - 31 Ott`), con attesa iniziale `800ms` + retry ogni `1500ms` (max 5 tentativi). Verifica presenza `52/52` tariffe, `stopSells`, prezzi Madre (`2x` keep-alive se `807324` in Bassa Stagione) e disponibilità Madre. **Se fallisce, interrompe prima del Tempo 2 -> zero rischio overbooking.**
+    3. **Tempo 2**: `POST /calendar/bulk` apre e allinea l'entrante su tutte le `52` tariffe (prezzi normali, disponibilità reali, Sacro Graal, 24 AC chiuse).
+    4. **Verifica Profonda 2**: verifica in parallelo (`Promise.all`) su `GET /calendar/{incoming}` (apertura, prezzi normali e 24 AC chiuse) e ri-verifica su `GET /calendar/{outgoing}` (conferma che lo standby non sia stato alterato).
+    5. Solo dopo conferma di entrambe le fasi aggiorna `active_jungle_source_v1` su Supabase e restituisce `verifiedPhase1`, `verifiedPhase2`, `verificationAttempts`, `verifiedSampleDates`.
+  - `src/admin/resort/components/ResortDashboard.tsx`: dialoghi di conferma e alert post-switch aggiornati con dettaglio della Doppia Verifica Profonda.
+- **Rollback rapido di questo step**: `git revert b11b14c` sul branch `feature/clone-jungle-to-fpv` (lascia intatti il motore 52 tariffe e il blocco live a 365 giorni su **Flower Power Village (`366879`)**).
+- **Build check post-modifica**: `npx tsc --noEmit` (`0`), `npm run api:check` (`0`), `npm run build` (`vite built in 5.08s`, `2036` moduli).
