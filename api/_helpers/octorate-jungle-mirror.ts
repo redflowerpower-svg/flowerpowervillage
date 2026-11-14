@@ -452,8 +452,21 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     };
   }
 
+  const resolveAgencyTag = (chName?: string | null): string => {
+    const n = String(chName || '').toLowerCase();
+    if (n.includes('booking')) return '[BKG]';
+    if (n.includes('agoda')) return '[AGD]';
+    if (n.includes('airbnb')) return '[ABB]';
+    if (n.includes('expedia')) return '[EXP]';
+    if (n.includes('hostelworld')) return '[HW]';
+    if (n.includes('octoevo') || n.includes('autosubmit') || n.includes('whatsapp')) return '[WA]';
+    return '[DIR]';
+  };
+
   const nameParts = String(guestName || 'Guest').trim().split(/\s+/);
-  const firstName = nameParts[0] || 'Guest';
+  const rawFirst = nameParts[0] || 'Guest';
+  const agencyTag = resolveAgencyTag(channelName);
+  const firstName = rawFirst.startsWith('[') ? rawFirst : `${agencyTag} ${rawFirst}`;
   const lastName = nameParts.slice(1).join(' ') || 'Mirror';
 
   const checkInDate = String(checkIn).slice(0, 10);
