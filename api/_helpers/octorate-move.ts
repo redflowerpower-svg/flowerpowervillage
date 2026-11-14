@@ -514,7 +514,8 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
   const createPayload = {
     status: 'CONFIRMED',
     refer: `MV-${reservationId}`.slice(0, 25),
-    channelId: 233,
+    channelId: Number(orig.channelId || 233),
+    ...(orig.channelRefer ? { channelRefer: String(orig.channelRefer) } : {}),
     product: targetProductId,
     checkin: `${checkIn}T14:00:00Z`,
     checkout: `${checkOut}T12:00:00Z`,
