@@ -473,24 +473,11 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
   const checkOutDate = String(checkOut).slice(0, 10);
   const nowIso = new Date().toISOString();
 
-  const resolveAgencyColor = (chName?: string | null, origColor?: string | null): string | undefined => {
-    if (origColor && /^#[0-9a-fA-F]{6}$/.test(origColor.trim())) return origColor.trim();
-    const n = String(chName || '').toLowerCase();
-    if (n.includes('booking')) return '#003580';
-    if (n.includes('agoda')) return '#674ea7';
-    if (n.includes('airbnb')) return '#ff5a5f';
-    if (n.includes('expedia')) return '#eab308';
-    if (n.includes('hostelworld')) return '#f97316';
-    return undefined;
-  };
-  const resolvedColor = resolveAgencyColor(channelName, color);
-
   const createPayload = {
     status: 'CONFIRMED',
     refer: `MIRROR-${sourceReservationId}`.slice(0, 25),
     channelId: Number(channelId || 233),
     ...(channelRefer ? { channelRefer: String(channelRefer) } : {}),
-    ...(resolvedColor ? { color: resolvedColor } : {}),
     product: targetMotherId,
     checkin: `${checkInDate}T14:00:00Z`,
     checkout: `${checkOutDate}T12:00:00Z`,
