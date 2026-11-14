@@ -1339,56 +1339,73 @@ async function sendMessageToTelegram({ topicId, text, photoUrl }) {
   }
 }
 
-// Esegue il rendering automatico di un video tramite render-parity-test
-async function renderVideoMode(mode) {
+// Esegue il rendering automatico di un video tramite render-parity-test con retry automatico di sicurezza
+async function renderVideoMode(mode, maxAttempts = 2) {
   const videoFile = path.join(outDir, `${mode}.dispatch.mp4`);
-  console.log(`[scheduler-dispatch] Avvio rendering robot per formato ${mode}...`);
+  let lastError = null;
 
-  const runArgs = [
-    'scripts/render-parity-test.mjs',
-    '--api=https://www.flowerpowerpizza.com',
-    `--mode=${mode}`,
-    `--base=${base}`,
-    `--out=${outDir}`,
-    `--tag=dispatch`
-  ];
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    console.log(`[scheduler-dispatch] Avvio rendering robot per formato ${mode} (tentativo ${attempt}/${maxAttempts})...`);
 
-  const res = spawnSync('node', runArgs, { stdio: 'inherit' });
-  if (res.status !== 0) {
-    throw new Error(`Rendering fallito per ${mode} (exit code ${res.status})`);
-  }
+    const runArgs = [
+      'scripts/render-parity-test.mjs',
+      '--api=https://www.flowerpowerpizza.com',
+      `--mode=${mode}`,
+      `--base=${base}`,
+      `--out=${outDir}`,
+      `--tag=dispatch`
+    ];
 
-  // Verifica presenza video
-  const candidates = [
-    path.join(outDir, `${mode}.dispatch.mp4`),
-    path.join(outDir, `${mode}.cloud.mp4`),
-    path.join(outDir, `${mode}.local.mp4`)
-  ];
-  const found = candidates.find(c => fs.existsSync(c));
-  if (!found) throw new Error(`Video non generato per ${mode}`);
+    const res = spawnSync('node', runArgs, { stdio: 'inherit' });
+    if (res.status === 0) {
+      // Verifica presenza video
+      const candidates = [
+        path.join(outDir, `${mode}.dispatch.mp4`),
+        path.join(outDir, `${mode}.cloud.mp4`),
+        path.join(outDir, `${mode}.local.mp4`)
+      ];
+      const found = candidates.find(c => fs.existsSync(c));
+      if (found) {
+        // Carica il copy ufficiale sincronizzato generato in parità dal player
+        let copy = null;
+        const copyCandidates = [
+          path.join(outDir, `${mode}.copy.json`),
+          path.join(outDir, `${mode}.cloud.copy.json`),
+          path.join(outDir, `${mode}.local.copy.json`)
+        ];
+        const copyFile = copyCandidates.find(c => fs.existsSync(c));
+        if (copyFile) {
+          try {
+            copy = JSON.parse(fs.readFileSync(copyFile, 'utf8'));
+            console.log(`[scheduler-dispatch] Copy ufficiale sincronizzato caricato da ${copyFile}!`);
+          } catch (e) {
+            console.warn('[scheduler-dispatch] Errore lettura copy JSON:', e.message);
+          }
+        }
 
-  // Carica il copy ufficiale sincronizzato generato in parità dal player
-  let copy = null;
-  const copyCandidates = [
-    path.join(outDir, `${mode}.copy.json`),
-    path.join(outDir, `${mode}.cloud.copy.json`),
-    path.join(outDir, `${mode}.local.copy.json`)
-  ];
-  const copyFile = copyCandidates.find(c => fs.existsSync(c));
-  if (copyFile) {
-    try {
-      copy = JSON.parse(fs.readFileSync(copyFile, 'utf8'));
-      console.log(`[scheduler-dispatch] Copy ufficiale sincronizzato caricato da ${copyFile}!`);
-    } catch (e) {
-      console.warn('[scheduler-dispatch] Errore lettura copy JSON:', e.message);
+        return {
+          filePath: found,
+          copy,
+          toString: () => found
+        };
+      }
+      lastError = new Error(`Video non generato per ${mode} nonostante exit code 0`);
+    } else {
+      lastError = new Error(`Rendering fallito per ${mode} (exit code ${res.status})`);
+    }
+
+    if (attempt < maxAttempts) {
+      console.warn(`[scheduler-dispatch] Tentativo ${attempt} fallito per ${mode}. Pausa di 6 secondi prima del retry...`);
+      // Breve pausa per scaricare la memoria prima del retry
+      const sleepBuf = Buffer.alloc(1);
+      try {
+        fs.readSync(0, sleepBuf, 0, 0, null);
+      } catch {}
+      await new Promise(r => setTimeout(r, 6000));
     }
   }
 
-  return {
-    filePath: found,
-    copy,
-    toString: () => found
-  };
+  throw lastError || new Error(`Rendering fallito per ${mode} dopo ${maxAttempts} tentativi`);
 }
 
 async function run() {

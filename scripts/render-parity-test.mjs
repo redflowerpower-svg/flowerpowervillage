@@ -260,8 +260,10 @@ async function main() {
   });
 
   log(`Apro ${base}/social-studio (mode ${mode})`);
-  await page.goto(`${base}/social-studio?mode=${mode}`, { waitUntil: 'domcontentloaded', timeout: 120000 });
-  await page.waitForFunction(() => typeof window.__autoCutGetVideo === 'function', null, { timeout: 120000 });
+  const isCloudOrLong = env.CI || mode.startsWith('V') || mode === 'DS';
+  const navTimeout = isCloudOrLong ? 180000 : 120000;
+  await page.goto(`${base}/social-studio?mode=${mode}`, { waitUntil: 'domcontentloaded', timeout: navTimeout });
+  await page.waitForFunction(() => typeof window.__autoCutGetVideo === 'function', null, { timeout: navTimeout });
 
   // Capacità del browser (decisiva per il cloud)
   const caps = await page.evaluate(async () => {
@@ -481,4 +483,8 @@ async function main() {
   process.exit(ok ? 0 : 1);
 }
 
-main().catch(e => { console.error('[parity] ERRORE:', e); process.exit(2); });
+main().catch(e => {
+  console.error('\n🚨 [parity] ERRORE FATALE DURANTE IL RENDERING:');
+  console.error(e?.stack || e?.message || e);
+  process.exit(2);
+});
