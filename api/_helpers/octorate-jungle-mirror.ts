@@ -676,15 +676,93 @@ function compressDailyBulkItems(entries: DailyBulkEntry[]): CompressedBulkBlock[
 
 const sleepMs = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
+function buildOverlaySnapshot(
+  baseSnapshot: Map<number, Map<string, SnapshotDay>>,
+  appliedEntries: DailyBulkEntry[]
+): Map<number, Map<string, SnapshotDay>> {
+  const next = new Map<number, Map<string, SnapshotDay>>();
+  for (const [room, daysMap] of baseSnapshot.entries()) {
+    const clonedDays = new Map<string, SnapshotDay>();
+    for (const [dStr, dVal] of daysMap.entries()) {
+      clonedDays.set(dStr, { ...dVal });
+    }
+    next.set(room, clonedDays);
+  }
+  for (const e of appliedEntries) {
+    let daysMap = next.get(e.room);
+    if (!daysMap) {
+      daysMap = new Map<string, SnapshotDay>();
+      next.set(e.room, daysMap);
+    }
+    const prev = daysMap.get(e.date);
+    const v = e.values;
+    daysMap.set(e.date, {
+      date: e.date,
+      availability: v.availability !== undefined ? Number(v.availability) : (prev?.availability ?? 0),
+      price: v.price !== undefined ? Number(v.price) : prev?.price,
+      stopSells: v.stopSells !== undefined ? Boolean(v.stopSells) : (prev?.stopSells ?? false),
+      closed: v.closed !== undefined ? Boolean(v.closed) : (prev?.closed ?? false),
+      closedArrival: v.closedArrival !== undefined ? Boolean(v.closedArrival) : (prev?.closedArrival ?? false),
+      closedDeparture: v.closedDeparture !== undefined ? Boolean(v.closedDeparture) : (prev?.closedDeparture ?? false),
+      minstay: v.minstay !== undefined ? Number(v.minstay) : prev?.minstay
+    });
+  }
+  return next;
+}
+
+/**
+ * Filtra solo le righe giornaliere effettivamente diverse dallo snapshot attuale su Octorate.
+ * Mantiene sempre i blocchi `isClosedAc` per le date/camere in cui la rispettiva Madre viene scritta con `stopSells: false`,
+ * affinché Wave 3 richiuda le tariffe AC dopo l'eventuale cascata automatica di Octorate.
+ */
+function filterChangedDailyEntries(
+  entries: DailyBulkEntry[],
+  existingSnapshot: Map<number, Map<string, SnapshotDay>>
+): DailyBulkEntry[] {
+  const motherChangedOpenKeys = new Set<string>();
+
+  const hasDiff = (e: DailyBulkEntry): boolean => {
+    const cur = existingSnapshot.get(e.room)?.get(e.date);
+    if (!cur) return true;
+    const v = e.values;
+    if (v.availability !== undefined && Number(cur.availability) !== Number(v.availability)) return true;
+    if (v.price !== undefined && Math.abs(Number(cur.price ?? -1) - Number(v.price)) > 0.01) return true;
+    if (v.stopSells !== undefined && cur.stopSells !== Boolean(v.stopSells)) return true;
+    if (v.closed !== undefined && cur.closed !== Boolean(v.closed)) return true;
+    if (v.closedArrival !== undefined && cur.closedArrival !== Boolean(v.closedArrival)) return true;
+    if (v.closedDeparture !== undefined && cur.closedDeparture !== Boolean(v.closedDeparture)) return true;
+    if (v.minstay !== undefined && Number(cur.minstay ?? 0) !== Number(v.minstay)) return true;
+    return false;
+  };
+
+  for (const e of entries) {
+    const pair = RATE_PAIR_BY_ID.get(e.room);
+    if (pair?.isMother && e.values.stopSells === false && hasDiff(e)) {
+      motherChangedOpenKeys.add(`${pair.key}|${e.date}`);
+    }
+  }
+
+  return entries.filter(e => {
+    const pair = RATE_PAIR_BY_ID.get(e.room);
+    if (pair?.isClosedAc && motherChangedOpenKeys.has(`${pair.key}|${e.date}`)) {
+      return true;
+    }
+    return hasDiff(e);
+  });
+}
+
 async function postCalendarBulkBlocks(
   accessToken: string,
   blocks: CompressedBulkBlock[]
 ): Promise<{ ok: boolean; status: number; sentBlocks: number; lastResponse: any }> {
-  // Invia le Madri figlie JVL/JVR in Wave 2 (dopo la Suite JV) così il ricalcolo aggregato della Suite non sovrascrive prezzi/disponibilità delle figlie
+  // Invia le Madri figlie JVL/JVR in Wave 2 (dopo la Suite JV) e le derivate isClosedAc in Wave 3
+  // così la cascata automatica di Octorate dalle Madri non riapre mai le tariffe AC chiuse.
   const childMotherIds = new Set([495795, 495796, 960385, 960387]);
-  const wave1 = blocks.filter(b => !childMotherIds.has(b.room));
+  const closedAcIds = new Set(JUNGLE_RATE_PAIRS.filter(p => p.isClosedAc).flatMap(p => [p.jungleId, p.fpvId]));
+  const wave1 = blocks.filter(b => !childMotherIds.has(b.room) && !closedAcIds.has(b.room));
   const wave2 = blocks.filter(b => childMotherIds.has(b.room));
-  const waves = [wave1, wave2].filter(w => w.length > 0);
+  const wave3 = blocks.filter(b => closedAcIds.has(b.room));
+  const waves = [wave1, wave2, wave3].filter(w => w.length > 0);
 
   const CHUNK_SIZE = 150;
   let lastJson: any = {};
@@ -1012,7 +1090,10 @@ export async function syncCalendarBetweenStructures(
   const dateFrom = options?.dateFrom || today.toISOString().slice(0, 10);
   const dateTo = options?.dateTo || end.toISOString().slice(0, 10);
 
-  const snapshot = await fetchTwin52RateSnapshot(accessToken, fromStructureId, dateFrom, dateTo);
+  const [snapshot, targetSnapshot] = await Promise.all([
+    fetchTwin52RateSnapshot(accessToken, fromStructureId, dateFrom, dateTo),
+    fetchTwin52RateSnapshot(accessToken, toStructureId, dateFrom, dateTo)
+  ]);
   const expectedMothers = JUNGLE_TWIN_ROOMS.map(r => (fromStructureId === '366879' ? r.fpvMotherId : r.jungleMotherId));
   const missingMothers = expectedMothers.filter(id => !(snapshot.get(id)?.size));
   if (missingMothers.length > 0) {
@@ -1027,29 +1108,36 @@ export async function syncCalendarBetweenStructures(
     snapshot,
     keepTargetClosed ? 'standby' : 'active'
   );
-  const blocks = compressDailyBulkItems(dailyEntries);
-  await postCalendarBulkBlocks(accessToken, blocks);
+  const filteredEntries = filterChangedDailyEntries(dailyEntries, targetSnapshot);
+  const blocks = compressDailyBulkItems(filteredEntries);
+  if (blocks.length > 0) {
+    await postCalendarBulkBlocks(accessToken, blocks);
+  }
 
   const sampleDates = pickVerificationSampleDates(snapshot, fromStructureId, dateFrom);
   if (sampleDates.length === 0) {
     throw new Error(`Impossibile determinare date campione per verifica post-sync su ${toStructureId}.`);
   }
 
-  const verification = await verifyStructureCalendarState(accessToken, toStructureId, dailyEntries, sampleDates);
-  if (!verification.ok) {
-    throw new Error(
-      `Verifica Profonda post-sync fallita su ${toStructureId} dopo ${verification.attempts} tentativi. Anomalie (${verification.mismatches.length}): ${verification.mismatches.slice(0, 5).join(' | ')}`
-    );
+  let verificationAttempts = 1;
+  if (blocks.length > 0) {
+    const verification = await verifyStructureCalendarState(accessToken, toStructureId, dailyEntries, sampleDates);
+    verificationAttempts = verification.attempts;
+    if (!verification.ok) {
+      throw new Error(
+        `Verifica Profonda post-sync fallita su ${toStructureId} dopo ${verification.attempts} tentativi. Anomalie (${verification.mismatches.length}): ${verification.mismatches.slice(0, 5).join(' | ')}`
+      );
+    }
   }
 
   return {
     ok: true,
-    syncedEntries: dailyEntries.length,
+    syncedEntries: filteredEntries.length,
     sentBlocks: blocks.length,
     dateFrom,
     dateTo,
     verified: true,
-    verificationAttempts: verification.attempts,
+    verificationAttempts,
     verifiedSampleDates: sampleDates
   };
 }
@@ -1559,8 +1647,11 @@ export async function switchActiveJungleStructure(
     };
   }
 
-  // PASSO 0 (Fotografia Pre-Chiusura): Cattura snapshot completo (prezzi normali, disponibilità reali, Sacro Graal) dalla struttura attiva uscente
-  const snapshot = await fetchTwin52RateSnapshot(accessToken, outgoing, dateFrom, dateTo);
+  // PASSO 0 (Fotografia Pre-Chiusura): Cattura snapshot completo uscente (prezzi/disp) e entrante (diff-only)
+  const [snapshot, targetSnapshot] = await Promise.all([
+    fetchTwin52RateSnapshot(accessToken, outgoing, dateFrom, dateTo),
+    fetchTwin52RateSnapshot(accessToken, targetStructureId, dateFrom, dateTo)
+  ]);
   const expectedMothers = JUNGLE_TWIN_ROOMS.map(r => (outgoing === '366879' ? r.fpvMotherId : r.jungleMotherId));
   const missingMothers = expectedMothers.filter(id => !(snapshot.get(id)?.size));
   if (missingMothers.length > 0) {
@@ -1574,12 +1665,15 @@ export async function switchActiveJungleStructure(
     throw new Error(`Impossibile determinare le date campione per la verifica profonda da ${outgoing}. Switch annullato per sicurezza.`);
   }
 
-  // PASSO 1 (Stop Sell Struttura Uscente): Chiudi / metti in standby la struttura uscente su tutte le 52 tariffe
+  // PASSO 1 (Stop Sell Struttura Uscente): Applica solo le differenze reali verso lo standby sull'uscente
   const phase1Entries = build52RateDailyEntries(outgoing, outgoing, snapshot, 'standby');
-  const phase1BlocksList = compressDailyBulkItems(phase1Entries);
-  await postCalendarBulkBlocks(accessToken, phase1BlocksList);
+  const phase1Filtered = filterChangedDailyEntries(phase1Entries, snapshot);
+  const phase1BlocksList = compressDailyBulkItems(phase1Filtered);
+  if (phase1BlocksList.length > 0) {
+    await postCalendarBulkBlocks(accessToken, phase1BlocksList);
+  }
 
-  // PASSO 2 (Verifica Reale dello Stop Sell Uscente): Conferma da GET /calendar/{outgoing} che sia realmente chiusa prima di procedere
+  // PASSO 2 (Verifica Reale dello Stop Sell Uscente): Conferma da GET /calendar/{outgoing} che sia realmente in standby prima di procedere
   const v1 = await verifyStructureCalendarState(accessToken, outgoing, phase1Entries, sampleDates);
   if (!v1.ok) {
     throw new Error(
@@ -1587,57 +1681,89 @@ export async function switchActiveJungleStructure(
     );
   }
 
-  // PASSO 3 & PASSO 4 (Clonazione Totale & Verifica Prenotazioni + Prezzi sulla Nuova Struttura ANCORA CHIUSA):
-  // 3a. Con la vecchia struttura già chiusa, allinea e verifica al 100% tutte le prenotazioni (con loghi e colori agenzia) sulla nuova struttura
-  const reservationSync = await verifyAndRepairTwinReservationsBeforeSwitch(
-    supabaseAdmin,
-    accessToken,
-    outgoing,
-    targetStructureId,
-    dateFrom,
-    dateTo
-  );
+  let phase2Posted = false;
+  let phase2Filtered: DailyBulkEntry[] = [];
+  let phase2Entries: DailyBulkEntry[] = [];
+  let phase2BlocksList: CompressedBulkBlock[] = [];
+  let reservationSync: Awaited<ReturnType<typeof verifyAndRepairTwinReservationsBeforeSwitch>>;
+  let v2Incoming: Awaited<ReturnType<typeof verifyStructureCalendarState>>;
+  let v2Outgoing: Awaited<ReturnType<typeof verifyStructureCalendarState>>;
 
-  // 3b. Pre-carica prezzi, disponibilità e regole Sacro Graal sulla nuova struttura mantenendola ANCORA IN STOP SELL (porte chiuse) e verifica
-  const preLoadClosedEntries = build52RateDailyEntries(outgoing, targetStructureId, snapshot, 'active').map(e => ({
-    ...e,
-    values: { ...e.values, stopSells: true }
-  }));
-  const preLoadBlocksList = compressDailyBulkItems(preLoadClosedEntries);
-  await postCalendarBulkBlocks(accessToken, preLoadBlocksList);
-
-  const vPreLoad = await verifyStructureCalendarState(accessToken, targetStructureId, preLoadClosedEntries, sampleDates);
-  if (!vPreLoad.ok) {
-    throw new Error(
-      `Verifica PASSO 4 (Pre-Caricamento a porte chiuse) fallita su ${targetStructureId} (${outgoing} è già protetta in Stop Sell). Anomalie (${vPreLoad.mismatches.length}): ${vPreLoad.mismatches.slice(0, 5).join(' | ')}`
+  try {
+    // PASSO 3 (Allineamento Totale Prenotazioni sulla Nuova Struttura ANCORA CHIUSA in Standby)
+    reservationSync = await verifyAndRepairTwinReservationsBeforeSwitch(
+      supabaseAdmin,
+      accessToken,
+      outgoing,
+      targetStructureId,
+      dateFrom,
+      dateTo
     );
-  }
 
-  // PASSO 5 (Apertura Vendite Nuova Struttura): Ora che prenotazioni, prezzi e disponibilità sono verificati al 100%, apre le vendite sulla nuova struttura
-  const phase2Entries = build52RateDailyEntries(outgoing, targetStructureId, snapshot, 'active');
-  const phase2BlocksList = compressDailyBulkItems(phase2Entries);
-  await postCalendarBulkBlocks(accessToken, phase2BlocksList);
+    // PASSO 4 (Scrittura Singola Diff-Only + Wave 3 AC-Lock sulla Nuova Struttura):
+    // Invia in un'unica passata le sole differenze verso lo stato Active (eliminando la doppia scrittura pre-load).
+    phase2Entries = build52RateDailyEntries(outgoing, targetStructureId, snapshot, 'active');
+    phase2Filtered = filterChangedDailyEntries(phase2Entries, targetSnapshot);
+    phase2BlocksList = compressDailyBulkItems(phase2Filtered);
+    if (phase2BlocksList.length > 0) {
+      phase2Posted = true;
+      await postCalendarBulkBlocks(accessToken, phase2BlocksList);
+    }
 
-  // PASSO 6 (Doppia Verifica Finale Incrociata): Conferma reale che la nuova struttura sia APERTA in produzione E che la vecchia struttura sia CHIUSA in Stop Sell
-  const [v2Incoming, v2Outgoing] = await Promise.all([
-    verifyStructureCalendarState(accessToken, targetStructureId, phase2Entries, sampleDates),
-    verifyStructureCalendarState(accessToken, outgoing, phase1Entries, sampleDates, {
-      maxAttempts: 3,
-      initialDelayMs: 800,
-      retryDelayMs: 1200
-    })
-  ]);
+    // PASSO 5 (Doppia Verifica Finale Incrociata): Conferma reale che la nuova struttura sia APERTA E la vecchia CHIUSA in Standby
+    [v2Incoming, v2Outgoing] = await Promise.all([
+      verifyStructureCalendarState(accessToken, targetStructureId, phase2Entries, sampleDates),
+      verifyStructureCalendarState(accessToken, outgoing, phase1Entries, sampleDates, {
+        maxAttempts: 3,
+        initialDelayMs: 800,
+        retryDelayMs: 1200
+      })
+    ]);
 
-  if (!v2Incoming.ok) {
-    throw new Error(
-      `Verifica Profonda TEMPO 2 fallita su entrante ${targetStructureId} dopo ${v2Incoming.attempts} tentativi (${outgoing} resta protetta in standby). Anomalie (${v2Incoming.mismatches.length}): ${v2Incoming.mismatches.slice(0, 5).join(' | ')}`
-    );
-  }
+    if (!v2Incoming.ok) {
+      throw new Error(
+        `Verifica Profonda TEMPO 2 fallita su entrante ${targetStructureId} dopo ${v2Incoming.attempts} tentativi. Anomalie (${v2Incoming.mismatches.length}): ${v2Incoming.mismatches.slice(0, 5).join(' | ')}`
+      );
+    }
 
-  if (!v2Outgoing.ok) {
-    throw new Error(
-      `ALERT SICUREZZA TEMPO 2: ${outgoing} non risulta più in standby dopo l'apertura di ${targetStructureId} (${v2Outgoing.attempts} tentativi). Anomalie (${v2Outgoing.mismatches.length}): ${v2Outgoing.mismatches.slice(0, 5).join(' | ')}`
-    );
+    if (!v2Outgoing.ok) {
+      throw new Error(
+        `ALERT SICUREZZA TEMPO 2: ${outgoing} non risulta più in standby dopo l'apertura di ${targetStructureId} (${v2Outgoing.attempts} tentativi). Anomalie (${v2Outgoing.mismatches.length}): ${v2Outgoing.mismatches.slice(0, 5).join(' | ')}`
+      );
+    }
+  } catch (switchErr: any) {
+    // ROLLBACK AUTOMATICO DI SICUREZZA: richiude prima l'entrante se già toccata, poi ripristina l'uscente in Active
+    let relockStatus = '';
+    if (phase2Posted) {
+      try {
+        const relockEntries = build52RateDailyEntries(outgoing, targetStructureId, snapshot, 'standby');
+        const postPhase2Snap = buildOverlaySnapshot(targetSnapshot, phase2Filtered);
+        const relockFiltered = filterChangedDailyEntries(relockEntries, postPhase2Snap);
+        const relockBlocks = compressDailyBulkItems(relockFiltered);
+        if (relockBlocks.length > 0) {
+          await postCalendarBulkBlocks(accessToken, relockBlocks);
+        }
+        relockStatus = ` Entrante ${targetStructureId} richiusa in standby.`;
+      } catch (relockErr: any) {
+        relockStatus = ` ATTENZIONE: richiusura entrante ${targetStructureId} fallita (${relockErr?.message || relockErr}).`;
+      }
+    }
+
+    let rollbackStatus = '';
+    try {
+      const rollbackEntries = build52RateDailyEntries(outgoing, outgoing, snapshot, 'active');
+      const postPhase1Snap = buildOverlaySnapshot(snapshot, phase1Filtered);
+      const rollbackFiltered = filterChangedDailyEntries(rollbackEntries, postPhase1Snap);
+      const rollbackBlocks = compressDailyBulkItems(rollbackFiltered);
+      if (rollbackBlocks.length > 0) {
+        await postCalendarBulkBlocks(accessToken, rollbackBlocks);
+      }
+      rollbackStatus = `Rollback automatico completato: ${outgoing} è stata ripristinata 100% attiva.`;
+    } catch (rbErr: any) {
+      rollbackStatus = `Rollback automatico su ${outgoing} fallito (${rbErr?.message || rbErr}).`;
+    }
+
+    throw new Error(`${switchErr?.message || switchErr} | ${rollbackStatus}${relockStatus}`);
   }
 
   await setActiveJungleSource(supabaseAdmin, targetStructureId);
