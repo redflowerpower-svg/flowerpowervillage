@@ -3,6 +3,20 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [13/11/2026 - ORE 11:36] · VERIFICA & AUTO-APERTURA FAKE BUNGALOW 1 & 2 (OCTORATE + SENTINEL)
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Verifica Live su Octorate**:
+     - Accertato che **Fake Bungalow 1** (`649669`) e **Fake Bungalow 2** (`921799`) risultavano chiusi perché avevano `availability: 0` su tutti i 200 giorni (`13/11/2026` → `31/05/2027`), pur avendo `stopSells: false` e **0 prenotazioni attive**.
+  2. 🔓 **Riapertura Immediata**:
+     - Inviato aggiornamento bulk su Octorate (`availability: 1`) per `649669` e `921799` su tutta la stagione (`200/200` giorni ora aperti, verificato live).
+  3. 🛡️ **Protezione Automatica nel Sentinel & Griglia**:
+     - Aggiornato `api/_handlers/resort-sentinel.ts` affinché mantenga automaticamente aperti i due Fake Bungalow (`availability: 1`) ogni volta che non ci sono prenotazioni attive né chiusure manuali (`stopSells: true` / `closed: true`).
+     - Aggiornato `api/_handlers/octorate.ts` includendo `649669`, `921799` in `MOTHER_RATE_IDS` e `932243`, `932256` in `OFFICIAL_BE_RATE_IDS`.
+- **File aggiornati:** `api/_handlers/resort-sentinel.ts`, `api/_handlers/octorate.ts`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 100% VERIFICATO (`npx tsc --noEmit` a 0 errori, 200/200 giorni aperti su Octorate).
+
+---
+
 ### 🚀 [11/11/2026 - ORE 15:55] · VERIFICA & BLINDATURA COLONNA SONORA FORMATO R1 (KOH PHAYAM COMMUNITY)
 - **Cosa abbiamo fatto:**
   1. 🔍 **Diagnosi Retrospettiva Post 8 Novembre ore 19:14**:

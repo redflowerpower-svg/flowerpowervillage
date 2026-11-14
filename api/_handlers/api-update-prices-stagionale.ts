@@ -1,5 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import { checkAndSyncCascadeLastMinute, invalidateCascadeLedgerEntries } from "../_helpers/octorate-cascade-sync.js";
+import { clearOctorateGridCache } from "./octorate.js";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -64,7 +66,7 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
   try {
     let body = req.body;
     if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch {}
+      try { body = JSON.parse(body); } catch { }
     }
     const { periodUpdates, testMode, testOnly, updates } = body || {};
     const isTest = testMode === true || testOnly === true;
@@ -81,7 +83,7 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
     // SCUDO DI PROTEZIONE: In modalità test, filtra tassativamente SOLO i Fake Bungalow (649669 e 921799)
     let filteredUpdates = updatesList;
     if (isTest) {
-      filteredUpdates = updatesList.filter((item: any) => 
+      filteredUpdates = updatesList.filter((item: any) =>
         FAKE_BUNGALOW_MOTHER_IDS.includes(Number(item.roomMotherId || item.room || item.motherRateId))
       );
 
@@ -148,6 +150,20 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
     }
 
     const resultData = await bulkRes.json().catch(() => ({ success: true }));
+
+    // Invalida la cache griglia locale e riallinea subito il ledger/cascata sui nuovi prezzi salvati
+    clearOctorateGridCache();
+    try {
+      const ledgerUpdates = bulkPayload.map((b) => ({
+        roomMotherId: b.room,
+        dateFrom: b.dateFrom,
+        dateTo: b.dateTo
+      }));
+      await invalidateCascadeLedgerEntries(supabaseAdmin, ledgerUpdates);
+      await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin, true);
+    } catch (cascadeErr) {
+      console.warn('[update-prices-stagionale] Cascade re-sync warning:', cascadeErr);
+    }
 
     return res.status(200).json({
       success: true,
