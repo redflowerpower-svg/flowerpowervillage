@@ -212,7 +212,15 @@ export function ResortDashboard() {
       }
       const fromLabel = json.active === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
       const toLabel = json.standby === '807324' ? 'Jungle Villas (807324)' : 'Flower Power Village (366879)';
-      window.alert(`Specchio allineato! Copiati ${json.syncedEntries || 0} giorni da ${fromLabel} a ${toLabel}.`);
+      const datesInfo = Array.isArray(json.verifiedSampleDates) && json.verifiedSampleDates.length > 0
+        ? ` | Date campioni verificate: ${json.verifiedSampleDates.join(', ')}`
+        : '';
+      const verifyBadge = json.verified
+        ? `\n• Verifica Profonda live OK (${json.verificationAttempts || 1} cicli GET /calendar)${datesInfo}`
+        : '';
+      window.alert(
+        `Specchio allineato e verificato! Copiate ${json.syncedEntries || 0} voci su 52 tariffe da ${fromLabel} a ${toLabel}.${verifyBadge}`
+      );
     } catch (err: any) {
       window.alert(`Errore sync specchio: ${err?.message || 'Errore sconosciuto'}`);
     } finally {

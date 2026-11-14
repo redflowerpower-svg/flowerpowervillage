@@ -597,29 +597,43 @@ function compressDailyBulkItems(entries: DailyBulkEntry[]): CompressedBulkBlock[
   return blocks;
 }
 
+const sleepMs = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
 async function postCalendarBulkBlocks(
   accessToken: string,
   blocks: CompressedBulkBlock[]
 ): Promise<{ ok: boolean; status: number; sentBlocks: number; lastResponse: any }> {
-  const CHUNK_SIZE = 350;
+  // Invia le Madri figlie JVL/JVR in Wave 2 (dopo la Suite JV) così il ricalcolo aggregato della Suite non sovrascrive prezzi/disponibilità delle figlie
+  const childMotherIds = new Set([495795, 495796, 960385, 960387]);
+  const wave1 = blocks.filter(b => !childMotherIds.has(b.room));
+  const wave2 = blocks.filter(b => childMotherIds.has(b.room));
+  const waves = [wave1, wave2].filter(w => w.length > 0);
+
+  const CHUNK_SIZE = 150;
   let lastJson: any = {};
-  for (let i = 0; i < blocks.length; i += CHUNK_SIZE) {
-    const chunk = blocks.slice(i, i + CHUNK_SIZE);
-    const bulkRes = await fetch('https://api.octorate.com/connect/rest/v1/calendar/bulk', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      body: JSON.stringify(chunk)
-    });
-    const json = await bulkRes.json().catch(() => ({}));
-    lastJson = json;
-    if (!bulkRes.ok || json?.success === false) {
-      throw new Error(
-        `Calendar bulk POST failed (${bulkRes.status} at chunk ${i / CHUNK_SIZE}): ${JSON.stringify(json).slice(0, 300)}`
-      );
+
+  for (let wIdx = 0; wIdx < waves.length; wIdx++) {
+    if (wIdx > 0) await sleepMs(1200);
+    const waveBlocks = waves[wIdx];
+    for (let i = 0; i < waveBlocks.length; i += CHUNK_SIZE) {
+      if (i > 0) await sleepMs(500);
+      const chunk = waveBlocks.slice(i, i + CHUNK_SIZE);
+      const bulkRes = await fetch('https://api.octorate.com/connect/rest/v1/calendar/bulk', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify(chunk)
+      });
+      const json = await bulkRes.json().catch(() => ({}));
+      lastJson = json;
+      if (!bulkRes.ok || json?.success === false) {
+        throw new Error(
+          `Calendar bulk POST failed (${bulkRes.status} at wave ${wIdx + 1} chunk ${i / CHUNK_SIZE}): ${JSON.stringify(json).slice(0, 300)}`
+        );
+      }
     }
   }
   return { ok: true, status: 200, sentBlocks: blocks.length, lastResponse: lastJson };
@@ -699,6 +713,10 @@ function build52RateDailyEntries(
   targetMode: 'standby' | 'active'
 ): DailyBulkEntry[] {
   const entries: DailyBulkEntry[] = [];
+  const jvlRoom = JUNGLE_TWIN_ROOMS.find(r => r.key === 'jvl')!;
+  const jvrRoom = JUNGLE_TWIN_ROOMS.find(r => r.key === 'jvr')!;
+  const jvlDays = snapshot.get(fromStructureId === '366879' ? jvlRoom.fpvMotherId : jvlRoom.jungleMotherId);
+  const jvrDays = snapshot.get(fromStructureId === '366879' ? jvrRoom.fpvMotherId : jvrRoom.jungleMotherId);
 
   for (const roomTwin of JUNGLE_TWIN_ROOMS) {
     const pairsForRoom = JUNGLE_RATE_PAIRS.filter(p => p.key === roomTwin.key);
@@ -716,13 +734,23 @@ function build52RateDailyEntries(
 
       for (const [dateStr, mDay] of motherDays.entries()) {
         const dDay = srcDays?.get(dateStr) || mDay;
+        const leftAvail = jvlDays?.get(dateStr)?.availability;
+        const rightAvail = jvrDays?.get(dateStr)?.availability;
+        // Se una sola metà è occupata sulla Suite aggregata (JV), non inviare availability=0 sulla Suite (altrimenti Octorate azzera anche la figlia libera)
+        const isPartialChildBookedOnSuite =
+          pair.isMother &&
+          pair.key === 'jv' &&
+          leftAvail !== undefined &&
+          rightAvail !== undefined &&
+          ((leftAvail > 0 && rightAvail === 0) || (leftAvail === 0 && rightAvail > 0));
+        const availField = isPartialChildBookedOnSuite ? {} : { availability: mDay.availability };
 
         if (targetMode === 'standby') {
           if (toStructureId === '366879') {
             // Standby Flower Power Village (366879): Stop Sell 100% su tutte le 52 tariffe per 365 giorni
             const values: Record<string, any> = pair.isMother
               ? {
-                  availability: mDay.availability,
+                  ...availField,
                   ...(mDay.price ? { price: mDay.price } : {}),
                   stopSells: true,
                   closed: true,
@@ -734,8 +762,7 @@ function build52RateDailyEntries(
                   stopSells: true,
                   closed: true,
                   closedArrival: true,
-                  closedDeparture: true,
-                  ...(dDay.minstay ? { minstay: dDay.minstay } : {})
+                  closedDeparture: true
                 };
             entries.push({ room: dstRateId, date: dateStr, values });
           } else {
@@ -747,7 +774,7 @@ function build52RateDailyEntries(
               // Alta/Media Stagione (01 Nov -> 31 Mag): Stop Sell 100% su tutte le 52 tariffe
               const values: Record<string, any> = pair.isMother
                 ? {
-                    availability: mDay.availability,
+                    ...availField,
                     ...(mDay.price ? { price: mDay.price } : {}),
                     stopSells: true,
                     closed: true,
@@ -759,8 +786,7 @@ function build52RateDailyEntries(
                     stopSells: true,
                     closed: true,
                     closedArrival: true,
-                    closedDeparture: true,
-                    ...(dDay.minstay ? { minstay: dDay.minstay } : {})
+                    closedDeparture: true
                   };
               entries.push({ room: dstRateId, date: dateStr, values });
             } else if (pair.isMother) {
@@ -771,7 +797,7 @@ function build52RateDailyEntries(
                 room: dstRateId,
                 date: dateStr,
                 values: {
-                  availability: mDay.availability,
+                  ...availField,
                   price: keepAlivePrice,
                   stopSells: lockDay,
                   closed: lockDay,
@@ -790,8 +816,7 @@ function build52RateDailyEntries(
                   stopSells: forceLockDerived ? true : dDay.stopSells,
                   closed: forceLockDerived ? true : dDay.closed,
                   closedArrival: forceLockDerived ? true : dDay.closedArrival,
-                  closedDeparture: forceLockDerived ? true : dDay.closedDeparture,
-                  ...(dDay.minstay ? { minstay: dDay.minstay } : {})
+                  closedDeparture: forceLockDerived ? true : dDay.closedDeparture
                 }
               });
             }
@@ -803,7 +828,7 @@ function build52RateDailyEntries(
               room: dstRateId,
               date: dateStr,
               values: {
-                availability: mDay.availability,
+                ...availField,
                 ...(mDay.price ? { price: mDay.price } : {}),
                 stopSells: mDay.stopSells,
                 closed: mDay.closed,
@@ -820,8 +845,7 @@ function build52RateDailyEntries(
                 stopSells: pair.isClosedAc ? true : dDay.stopSells,
                 closed: pair.isClosedAc ? true : dDay.closed,
                 closedArrival: pair.isClosedAc ? true : dDay.closedArrival,
-                closedDeparture: pair.isClosedAc ? true : dDay.closedDeparture,
-                ...(dDay.minstay ? { minstay: dDay.minstay } : {})
+                closedDeparture: pair.isClosedAc ? true : dDay.closedDeparture
               }
             });
           }
@@ -885,14 +909,24 @@ export async function setJungleStructureAvailabilityLock(
 
 /**
  * Sincronizza prezzi, disponibilità reale e restrizioni Sacro Graal su tutte le 52 tariffe
- * da una struttura sorgente verso la struttura gemella destinataria.
+ * da una struttura sorgente verso la struttura gemella destinataria,
+ * con verifica read-back obbligatoria post-scrittura su GET /calendar.
  */
 export async function syncCalendarBetweenStructures(
   accessToken: string,
   fromStructureId: JungleSourceStructureId,
   toStructureId: JungleSourceStructureId,
   options?: { keepTargetClosed?: boolean; daysAhead?: number; dateFrom?: string; dateTo?: string }
-): Promise<{ ok: boolean; syncedEntries: number; sentBlocks: number; dateFrom: string; dateTo: string }> {
+): Promise<{
+  ok: boolean;
+  syncedEntries: number;
+  sentBlocks: number;
+  dateFrom: string;
+  dateTo: string;
+  verified: boolean;
+  verificationAttempts: number;
+  verifiedSampleDates: string[];
+}> {
   const keepTargetClosed = options?.keepTargetClosed ?? true;
   const daysAhead = options?.daysAhead ?? 365;
   const today = new Date();
@@ -902,6 +936,14 @@ export async function syncCalendarBetweenStructures(
   const dateTo = options?.dateTo || end.toISOString().slice(0, 10);
 
   const snapshot = await fetchTwin52RateSnapshot(accessToken, fromStructureId, dateFrom, dateTo);
+  const expectedMothers = JUNGLE_TWIN_ROOMS.map(r => (fromStructureId === '366879' ? r.fpvMotherId : r.jungleMotherId));
+  const missingMothers = expectedMothers.filter(id => !(snapshot.get(id)?.size));
+  if (missingMothers.length > 0) {
+    throw new Error(
+      `Snapshot incompleto dalla struttura sorgente ${fromStructureId}: tariffe madri mancanti [${missingMothers.join(', ')}]. Sync annullato per sicurezza.`
+    );
+  }
+
   const dailyEntries = build52RateDailyEntries(
     fromStructureId,
     toStructureId,
@@ -911,12 +953,33 @@ export async function syncCalendarBetweenStructures(
   const blocks = compressDailyBulkItems(dailyEntries);
   await postCalendarBulkBlocks(accessToken, blocks);
 
-  return { ok: true, syncedEntries: dailyEntries.length, sentBlocks: blocks.length, dateFrom, dateTo };
+  const sampleDates = pickVerificationSampleDates(snapshot, fromStructureId, dateFrom);
+  if (sampleDates.length === 0) {
+    throw new Error(`Impossibile determinare date campione per verifica post-sync su ${toStructureId}.`);
+  }
+
+  const verification = await verifyStructureCalendarState(accessToken, toStructureId, dailyEntries, sampleDates);
+  if (!verification.ok) {
+    throw new Error(
+      `Verifica Profonda post-sync fallita su ${toStructureId} dopo ${verification.attempts} tentativi. Anomalie (${verification.mismatches.length}): ${verification.mismatches.slice(0, 5).join(' | ')}`
+    );
+  }
+
+  return {
+    ok: true,
+    syncedEntries: dailyEntries.length,
+    sentBlocks: blocks.length,
+    dateFrom,
+    dateTo,
+    verified: true,
+    verificationAttempts: verification.attempts,
+    verifiedSampleDates: sampleDates
+  };
 }
 
 /**
  * Sincronizza automaticamente il calendario (52 tariffe + Regola Asimmetrica standby)
- * dalla struttura attualmente attiva verso la gemella in standby.
+ * dalla struttura attualmente attiva verso la gemella in standby, con verifica finale live.
  */
 export async function syncActiveToStandbyCalendar(
   supabaseAdmin: any,
@@ -928,6 +991,9 @@ export async function syncActiveToStandbyCalendar(
   standby: JungleSourceStructureId;
   syncedEntries: number;
   sentBlocks: number;
+  verified: boolean;
+  verificationAttempts: number;
+  verifiedSampleDates: string[];
 }> {
   const active = await getActiveJungleSource(supabaseAdmin);
   const standby: JungleSourceStructureId = active === '807324' ? '366879' : '807324';
@@ -940,7 +1006,10 @@ export async function syncActiveToStandbyCalendar(
     active,
     standby,
     syncedEntries: result.syncedEntries,
-    sentBlocks: result.sentBlocks
+    sentBlocks: result.sentBlocks,
+    verified: result.verified,
+    verificationAttempts: result.verificationAttempts,
+    verifiedSampleDates: result.verifiedSampleDates
   };
 }
 
@@ -952,8 +1021,6 @@ export interface CalendarVerificationResult {
   checkedEntries: number;
   mismatches: string[];
 }
-
-const sleepMs = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
 /**
  * Seleziona fino a 4 date campione reali presenti nello snapshot dell'uscente
@@ -1022,9 +1089,9 @@ async function verifyStructureCalendarState(
     throw new Error(`Verifica calendario impossibile su ${structureId}: nessuna voce attesa per le date [${sampleDates.join(', ')}].`);
   }
 
-  const maxAttempts = options?.maxAttempts ?? 5;
-  const initialDelayMs = options?.initialDelayMs ?? 800;
-  const retryDelayMs = options?.retryDelayMs ?? 1500;
+  const maxAttempts = options?.maxAttempts ?? 6;
+  const initialDelayMs = options?.initialDelayMs ?? 1500;
+  const retryDelayMs = options?.retryDelayMs ?? 2000;
 
   let lastMismatches: string[] = [];
 
@@ -1076,11 +1143,19 @@ async function verifyStructureCalendarState(
         }
       }
 
-      if (pair?.isMother && entry.values.availability !== undefined) {
-        const expAvail = Number(entry.values.availability);
-        const liveAvail = Number(liveDay.availability ?? 0);
-        if (liveAvail !== expAvail) {
-          mismatches.push(`${rateTag} @ ${entry.date}: availability attesa=${expAvail} reale=${liveAvail}`);
+      if (pair?.isMother) {
+        // Sui giorni parziali della Suite JV (una sola metà occupata), availability viene omessa in bulk POST ma deve risultare 0 da aggregazione Octorate
+        const expAvail =
+          entry.values.availability !== undefined
+            ? Number(entry.values.availability)
+            : pair.key === 'jv'
+              ? 0
+              : undefined;
+        if (expAvail !== undefined) {
+          const liveAvail = Number(liveDay.availability ?? 0);
+          if (liveAvail !== expAvail) {
+            mismatches.push(`${rateTag} @ ${entry.date}: availability attesa=${expAvail} reale=${liveAvail}`);
+          }
         }
       }
     }
@@ -1157,10 +1232,10 @@ export async function switchActiveJungleStructure(
       outgoing,
       closedOld: true,
       openedNew: true,
-      verifiedPhase1: true,
-      verifiedPhase2: true,
-      verificationAttempts: 0,
-      verifiedSampleDates: [],
+      verifiedPhase1: syncRes.verified,
+      verifiedPhase2: syncRes.verified,
+      verificationAttempts: syncRes.verificationAttempts,
+      verifiedSampleDates: syncRes.verifiedSampleDates,
       phase1Blocks: syncRes.sentBlocks,
       phase2Blocks: 0,
       syncedEntries: syncRes.syncedEntries
