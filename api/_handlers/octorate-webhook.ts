@@ -14,7 +14,8 @@ import {
   getJungleTwinPairByRateId,
   isMirrorReservation,
   JungleSourceStructureId,
-  mirrorReservationToStandby
+  mirrorReservationToStandby,
+  syncActiveToStandbyCalendar
 } from "../_helpers/octorate-jungle-mirror.js";
 
 function getSupabaseAdmin() {
@@ -1008,6 +1009,13 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin);
         } catch (cascadeErr) {
           console.warn('[OCTORATE WEBHOOK] Cascade sync non-fatal warning:', cascadeErr);
+        }
+
+        // 🔄 [MIRROR AUTO-SYNC 60GG] Riallinea eventuali modifiche prezzi manuali fatte dentro il portale web Octorate
+        try {
+          await syncActiveToStandbyCalendar(supabaseAdmin, accessToken, { daysAhead: 60 });
+        } catch (mirrorSyncErr) {
+          console.warn('[OCTORATE WEBHOOK] Standby calendar auto-sync warning (non-blocking):', mirrorSyncErr);
         }
 
         // 🛡️ [RESORT SENTINEL 24/7] Auto-audit silenzioso di conformità (zero spam: il report arriva alle 01:00 via cron)

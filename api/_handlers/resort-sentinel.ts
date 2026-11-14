@@ -3,12 +3,15 @@ import { createClient } from "@supabase/supabase-js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { REAL_PRODUCTS_BY_PLAN } from "./update-restriction.js";
 import { calculateServerDynamicMinStay, ALL_ACCOMMODATIONS_MAP } from "./octorate-webhook.js";
+import { checkAndSyncCascadeLastMinute, loadCascadeLedger, getThailandTodayStr } from "../_helpers/octorate-cascade-sync.js";
+import { ALL_OCTORATE_STRUCTURE_IDS } from "../_helpers/octorate-structures.js";
 import {
   getActiveJungleSource,
   getCompanionRateId,
   getJungleTwinPairByRateId,
   isMirrorReservation,
-  JUNGLE_RATE_PAIRS
+  JUNGLE_RATE_PAIRS,
+  syncActiveToStandbyCalendar
 } from "../_helpers/octorate-jungle-mirror.js";
 
 function getSupabaseAdmin() {
@@ -42,6 +45,8 @@ export const MOTHER_ROOM_INFOS: Record<number, { name: string; basePrice: number
   883795: { name: 'Lodge 2', basePrice: 890 }
 };
 
+export const FAKE_BUNGALOW_MOTHER_IDS = [649669, 921799] as const;
+
 export interface SentinelAuditResult {
   timestamp: string;
   totalProductsAudited: number;
@@ -73,9 +78,9 @@ export interface SentinelAuditResult {
 /**
  * 🛡️ Core Engine: Esegue l'audit live su Octorate e applica l'auto-riparazione immediata.
  * Verifica 3 pilastri fondamentali:
- * 1. Sacro Graal (Tariffe Derivate, Stop-Sell AC, Standard 7d High Season)
- * 2. Soggiorno Minimo Dinamico (Gap-Fill dei buchi residui & Baseline MinStay su Octorate)
- * 3. Sistema Last Minute (Sconti a cascata su Tariffe Madri per date odierne)
+ * 1. Sacro Graal (Tariffe Derivate, Stop-Sell AC, Standard 7d High Season, Standby gemelle FPV/Jungle)
+ * 2. Soggiorno Minimo Dinamico (Gap-Fill dei buchi residui & Baseline MinStay su Octorate + Fake Bungalows)
+ * 3. Sistema Last Minute (Sconti a cascata su Tariffe Madri per date odierne + Sync prezzi portale web)
  */
 export async function runResortSentinelAudit(options?: { sendTelegram?: boolean; forceReport?: boolean }): Promise<SentinelAuditResult> {
   const supabaseAdmin = getSupabaseAdmin();
@@ -85,7 +90,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
 
   const { data: tokenData, error: tokenError } = await supabaseAdmin
     .from('octorate_tokens')
-    .select('access_token')
+    .select('access_token, refresh_token')
     .eq('id', 'singleton')
     .maybeSingle();
 
@@ -93,9 +98,45 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     throw new Error("Nessun token Octorate disponibile nel database per il Sentinel.");
   }
 
-  const token = tokenData.access_token;
+  let token = tokenData.access_token;
   const clientId = process.env.VITE_OCTORATE_CLIENT_ID || process.env.OCTORATE_CLIENT_ID || '';
+  const clientSecret = process.env.VITE_OCTORATE_CLIENT_SECRET || process.env.OCTORATE_CLIENT_SECRET || '';
   const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || '366879';
+
+  // Auto-refresh token se scaduto (evita 401 silenziosi nel cron notturno)
+  try {
+    const probeRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${getThailandTodayStr()}&dateTo=${getThailandTodayStr()}&size=1&page=0`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+    });
+    if (probeRes.status === 401 && tokenData.refresh_token && clientId && clientSecret) {
+      const refreshBody = new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: 'refresh_token',
+        refresh_token: tokenData.refresh_token
+      });
+      const refreshRes = await fetch('https://api.octorate.com/connect/rest/v1/identity/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: refreshBody.toString()
+      });
+      if (refreshRes.ok) {
+        const refreshed = await refreshRes.json();
+        if (refreshed?.access_token) {
+          token = refreshed.access_token;
+          await supabaseAdmin.from('octorate_tokens').upsert({
+            id: 'singleton',
+            access_token: refreshed.access_token,
+            refresh_token: refreshed.refresh_token || tokenData.refresh_token,
+            updated_at: new Date().toISOString()
+          });
+          console.info('[Resort Sentinel] 🔄 Token Octorate rinnovato automaticamente.');
+        }
+      }
+    }
+  } catch (refreshErr) {
+    console.warn('[Resort Sentinel] Token probe/refresh warning:', refreshErr);
+  }
 
   const headers: Record<string, string> = {
     'Authorization': `Bearer ${token}`,
@@ -104,26 +145,41 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
   };
   if (clientId) headers['Octorate-Api-Key'] = clientId;
 
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = getThailandTodayStr();
   const anomalies: Array<{ id: number; name: string; issue: string; date: string }> = [];
   const healPayload: any[] = [];
 
+  // Sincronizza preventivamente la finestra mobile a cascata sui prezzi reali di Octorate
+  try {
+    await checkAndSyncCascadeLastMinute(token, supabaseAdmin);
+  } catch (cascadeErr) {
+    console.warn('[Resort Sentinel] Cascade pre-sync warning:', cascadeErr);
+  }
+
+  // Riallinea sulla struttura standby eventuali modifiche manuali fatte dentro il portale web Octorate (finestra 60gg)
+  try {
+    await syncActiveToStandbyCalendar(supabaseAdmin, token, { daysAhead: 60 });
+  } catch (mirrorSyncErr) {
+    console.warn('[Resort Sentinel] Standby calendar auto-sync warning (non-blocking):', mirrorSyncErr);
+  }
+
+  const cascadeLedger = await loadCascadeLedger(supabaseAdmin);
+
   // Scansione date chiave di audit:
-  // 1. Data odierna (per Sacro Graal + MinStay + Last Minute Live)
-  // 2. Data Picco Capodanno (08 Gennaio 2027)
-  // 3. Data Post-Capodanno High Season (20 Febbraio 2027)
   const auditDates = [
     { label: 'Oggi', from: todayStr, to: todayStr },
+    { label: 'Inizio High Season', from: '2026-12-17', to: '2026-12-18' },
     { label: 'Capodanno', from: '2027-01-08', to: '2027-01-09' },
-    { label: 'Febbraio High Season', from: '2027-02-15', to: '2027-02-16' }
+    { label: 'Febbraio High Season', from: '2027-02-15', to: '2027-02-16' },
+    { label: 'Post High Season Aprile', from: '2027-04-05', to: '2027-04-06' }
   ];
 
-  // Regole del Sacro Graal da verificare
+  // Regole del Sacro Graal da verificare:
+  // UNICHE 6 tariffe AC ammesse (esclusivamente Agoda in High Season 16 Dic - 31 Mar): Red, Green, Yellow AGD AC-7d / AC-14d
   const agodaBungalowAcIds = new Set([
-    330964, 330970, // Red AC7d, Red AC14d
-    331921, 331922, // Yellow AC7d, Yellow AC14d
-    331923, 331924, // Green AC7d, Green AC14d
-    921878, 921879, 921880, 921881, 921882, 921883 // Alias
+    921878, 921879, // Yellow AGD AC-7d, Yellow AGD AC-14d
+    921880, 921881, // Red AGD AC-7d, Red AGD AC-14d
+    921882, 921883  // Green AGD AC-7d, Green AGD AC-14d
   ]);
 
   const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
@@ -140,8 +196,10 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     ...(REAL_PRODUCTS_BY_PLAN.airbnb_ac || []),
     ...jungleClosedAcIds,
     ...fpvClosedAcIds,
-    // Agoda AC Ville (sempre chiuse al 100%)
-    921868, 921869, 921870, 921871, 921872, 921873, 921874, 921875, 921876, 921877
+    // Tutti gli AGD AC non-Bungalow (sempre chiusi al 100%)
+    921868, 921869, 921870, 921871, 921872, 921873, 921874, 921875, 921876, 921877,
+    921884, 921885, 921886, 921887, 921889, 921890, 921891, 921892, 921893, 921894,
+    921895, 921896, 921897, 921898, 921899, 921900
   ]);
 
   const stdIds = new Set([
@@ -157,8 +215,6 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     960393, 960405, 960417, 960429
   ]);
 
-  const structuresToScanForAudit = Array.from(new Set([String(structureId), '807324']));
-
   let totalAudited = 0;
   const motherRoomsAudited: Array<{
     id: number;
@@ -168,8 +224,10 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     liveMinStay: number;
   }> = [];
 
+  const auditedMotherIds = new Set<number>();
+
   for (const ad of auditDates) {
-    for (const sIdAudit of structuresToScanForAudit) {
+    for (const sIdAudit of ALL_OCTORATE_STRUCTURE_IDS) {
       for (let page = 0; page < 25; page++) {
         const url = `https://api.octorate.com/connect/rest/v1/calendar/${sIdAudit}?dateFrom=${ad.from}&dateTo=${ad.to}&size=20&page=${page}`;
         const res = await fetch(url, { headers });
@@ -194,11 +252,13 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
           );
 
           // Campionamento Alloggi Madri solo per la struttura attualmente attiva
-          if (ad.label === 'Oggi' && MOTHER_ROOM_INFOS[idNum] && !isStandbyTwin) {
+          if (ad.label === 'Oggi' && MOTHER_ROOM_INFOS[idNum] && !isStandbyTwin && !auditedMotherIds.has(idNum)) {
+            auditedMotherIds.add(idNum);
+            const ledgerEntry = cascadeLedger[`${idNum}_${todayStr}`];
             motherRoomsAudited.push({
               id: idNum,
               name: MOTHER_ROOM_INFOS[idNum].name,
-              basePrice: MOTHER_ROOM_INFOS[idNum].basePrice,
+              basePrice: ledgerEntry?.basePrice || MOTHER_ROOM_INFOS[idNum].basePrice,
               livePrice: Number(day.price || 0),
               liveMinStay: Number(day.minStay || 2)
             });
@@ -236,8 +296,8 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
               anomalies.push({ id: idNum, name, issue: 'Agoda AC Bungalow risultava APERTA fuori da High Season', date: ad.from });
               healPayload.push({
                 room: idNum,
-                dateFrom: todayStr,
-                dateTo: '2026-12-15',
+                dateFrom: ad.from < '2026-12-16' ? todayStr : '2027-04-01',
+                dateTo: ad.from < '2026-12-16' ? '2026-12-15' : '2027-10-31',
                 values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
               });
             }
@@ -276,6 +336,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
             });
           }
         }
+        if (items.length < 20) break;
       }
     }
   }
@@ -322,72 +383,168 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
       liveCalendarItems,
       activeJungleSource
     );
-      
-      // Filtra i buchi residui (gapDays < baseline)
-      const gapReductions = gapUpdates.filter(u => u.reason && u.reason.includes('Gap-Fill'));
 
-      for (const u of gapReductions) {
-        const targetMotherId = Number(u.roomTypeId);
-        const companionMotherId = getCompanionRateId(targetMotherId);
-        const liveAudited = motherRoomsAudited.find(
-          m => m.id === targetMotherId || (companionMotherId !== null && m.id === companionMotherId)
-        );
+    // Filtra i buchi residui (gapDays < baseline)
+    const gapReductions = gapUpdates.filter(u => u.reason && u.reason.includes('Gap-Fill'));
 
-        // Se il buco interessa la data di oggi o i prossimi giorni
-        if (liveAudited && u.dateFrom <= todayStr && u.dateTo >= todayStr) {
-          if (liveAudited.liveMinStay > u.minStay) {
-            anomalies.push({
-              id: targetMotherId,
-              name: u.accommodationName,
-              issue: `Buco residuo di ${u.minStay} notte/i tra ${u.dateFrom} e ${u.dateTo}: Octorate aveva minStay=${liveAudited.liveMinStay} invece di ${u.minStay}`,
-              date: u.dateFrom
-            });
+    for (const u of gapReductions) {
+      const targetMotherId = Number(u.roomTypeId);
+      const companionMotherId = getCompanionRateId(targetMotherId);
+      const liveAudited = motherRoomsAudited.find(
+        m => m.id === targetMotherId || (companionMotherId !== null && m.id === companionMotherId)
+      );
 
-            // Trova la configurazione canonica e gli alloggi collegati (es. Jungle Villa Left & Right)
-            const canonicalEntry = Object.values(ALL_ACCOMMODATIONS_MAP).find(c => c.motherId === targetMotherId);
-            const targetIdsToHeal = new Set<number>([targetMotherId]);
-            if (canonicalEntry) {
-              canonicalEntry.ids.forEach(id => targetIdsToHeal.add(Number(id)));
-              if (canonicalEntry.linkedKeys) {
-                canonicalEntry.linkedKeys.forEach(lKey => {
-                  const linkedCanonical = ALL_ACCOMMODATIONS_MAP[lKey];
-                  if (linkedCanonical) {
-                    targetIdsToHeal.add(linkedCanonical.motherId);
-                    linkedCanonical.ids.forEach(id => targetIdsToHeal.add(Number(id)));
-                  }
-                });
-              }
-            }
+      // Se il buco interessa la data di oggi o i prossimi giorni
+      if (liveAudited && u.dateFrom <= todayStr && u.dateTo >= todayStr) {
+        if (liveAudited.liveMinStay > u.minStay) {
+          anomalies.push({
+            id: targetMotherId,
+            name: u.accommodationName,
+            issue: `Buco residuo di ${u.minStay} notte/i tra ${u.dateFrom} e ${u.dateTo}: Octorate aveva minStay=${liveAudited.liveMinStay} invece di ${u.minStay}`,
+            date: u.dateFrom
+          });
 
-            for (const rId of targetIdsToHeal) {
-              healPayload.push({
-                room: rId,
-                dateFrom: u.dateFrom,
-                dateTo: u.dateTo,
-                values: { minstay: u.minStay }
-              });
-            }
-
-            imminentGapsHealed.push({
-              name: u.accommodationName,
-              dateFrom: u.dateFrom,
-              dateTo: u.dateTo,
-              minStay: u.minStay,
-              oldMinStay: liveAudited.liveMinStay
-            });
-          } else {
-            // Già attivo, conforme e sincronizzato su Octorate
-            if (!verifiedActiveGapsToday.some(v => v.name === u.accommodationName)) {
-              verifiedActiveGapsToday.push({
-                name: u.accommodationName,
-                dateFrom: u.dateFrom,
-                dateTo: u.dateTo,
-                minStay: liveAudited.liveMinStay
+          // Trova la configurazione canonica e gli alloggi collegati (es. Jungle Villa Left & Right)
+          const canonicalEntry = Object.values(ALL_ACCOMMODATIONS_MAP).find(c => c.motherId === targetMotherId);
+          const targetIdsToHeal = new Set<number>([targetMotherId]);
+          if (canonicalEntry) {
+            canonicalEntry.ids.forEach(id => targetIdsToHeal.add(Number(id)));
+            if (canonicalEntry.linkedKeys) {
+              canonicalEntry.linkedKeys.forEach(lKey => {
+                const linkedCanonical = ALL_ACCOMMODATIONS_MAP[lKey];
+                if (linkedCanonical) {
+                  targetIdsToHeal.add(linkedCanonical.motherId);
+                  linkedCanonical.ids.forEach(id => targetIdsToHeal.add(Number(id)));
+                }
               });
             }
           }
+
+          for (const rId of targetIdsToHeal) {
+            healPayload.push({
+              room: rId,
+              dateFrom: u.dateFrom,
+              dateTo: u.dateTo,
+              values: { minstay: u.minStay }
+            });
+          }
+
+          imminentGapsHealed.push({
+            name: u.accommodationName,
+            dateFrom: u.dateFrom,
+            dateTo: u.dateTo,
+            minStay: u.minStay,
+            oldMinStay: liveAudited.liveMinStay
+          });
+        } else {
+          // Già attivo, conforme e sincronizzato su Octorate
+          if (!verifiedActiveGapsToday.some(v => v.name === u.accommodationName)) {
+            verifiedActiveGapsToday.push({
+              name: u.accommodationName,
+              dateFrom: u.dateFrom,
+              dateTo: u.dateTo,
+              minStay: liveAudited.liveMinStay
+            });
+          }
         }
       }
+    }
+
+    // -------------------------------------------------------------
+    // 🧪 AUTO-APERTURA FAKE BUNGALOW 1 & 2 (SEMPRE APERTI SALVO PRENOTAZIONE O STOP-SELL MANUALE)
+    // -------------------------------------------------------------
+    try {
+      const fakeCalUrl = `https://api.octorate.com/connect/rest/v1/calendar/366879?product[]=649669&product[]=921799&dateFrom=${todayStr}&dateTo=${endSeasonStr}`;
+      const fakeCalRes = await fetch(fakeCalUrl, { headers });
+      if (fakeCalRes.ok) {
+        const fakeJson = await fakeCalRes.json();
+        const fakeItems: any[] = Array.isArray(fakeJson) ? fakeJson : (fakeJson?.data || []);
+
+        const fakeBookingsByMother: Record<number, Set<string>> = {
+          649669: new Set<string>(),
+          921799: new Set<string>()
+        };
+
+        for (const b of bookingsData) {
+          const st = String(b.status || '').toUpperCase().trim();
+          if (['CANCELLED', 'CANCELED', 'DELETED', 'VOID', 'REJECTED'].includes(st) || b.cancelled || b.isCancelled) {
+            continue;
+          }
+          const prodId = Number(b.product || b.roomTypeId || b.roomId || 0);
+          const rName = String(b.roomName || '').toLowerCase();
+          let targetMother: number | null = null;
+          if (prodId === 649669 || (prodId >= 932243 && prodId <= 932255) || rName.includes('fake bungalow 1') || rName.includes('fb1')) {
+            targetMother = 649669;
+          } else if (prodId === 921799 || (prodId >= 932256 && prodId <= 932268) || rName.includes('fake bungalow 2') || rName.includes('fb2')) {
+            targetMother = 921799;
+          }
+          if (!targetMother) continue;
+
+          const rawIn = String(b.checkin || b.check_in || b.checkIn || b.startDate || '').slice(0, 10);
+          const rawOut = String(b.checkout || b.check_out || b.checkOut || b.endDate || '').slice(0, 10);
+          if (!rawIn || !rawOut) continue;
+
+          const cur = new Date(`${rawIn}T12:00:00Z`);
+          const endD = new Date(`${rawOut}T12:00:00Z`);
+          while (cur < endD) {
+            fakeBookingsByMother[targetMother].add(cur.toISOString().slice(0, 10));
+            cur.setUTCDate(cur.getUTCDate() + 1);
+          }
+        }
+
+        for (const fakeId of FAKE_BUNGALOW_MOTHER_IDS) {
+          const item = fakeItems.find((x: any) => Number(x.id || x.room) === fakeId);
+          if (!item || !Array.isArray(item.days)) continue;
+          const bookedSet = fakeBookingsByMother[fakeId] || new Set<string>();
+
+          const daysToOpen = item.days
+            .filter((d: any) => {
+              const dStr = String(d.date || '').slice(0, 10);
+              if (!dStr) return false;
+              const isManuallyClosed = d.stopSells === true || d.closed === true;
+              const isBooked = bookedSet.has(dStr);
+              const avail = Number(d.availability ?? 0);
+              return !isManuallyClosed && !isBooked && avail <= 0;
+            })
+            .map((d: any) => String(d.date).slice(0, 10))
+            .sort();
+
+          if (daysToOpen.length > 0) {
+            let rangeStart = daysToOpen[0];
+            let prev = daysToOpen[0];
+            const flushRange = (from: string, to: string) => {
+              healPayload.push({
+                room: fakeId,
+                dateFrom: from,
+                dateTo: to,
+                values: { availability: 1 }
+              });
+            };
+            for (let i = 1; i < daysToOpen.length; i++) {
+              const nextDate = new Date(`${prev}T12:00:00Z`);
+              nextDate.setUTCDate(nextDate.getUTCDate() + 1);
+              if (nextDate.toISOString().slice(0, 10) === daysToOpen[i]) {
+                prev = daysToOpen[i];
+              } else {
+                flushRange(rangeStart, prev);
+                rangeStart = daysToOpen[i];
+                prev = daysToOpen[i];
+              }
+            }
+            flushRange(rangeStart, prev);
+
+            anomalies.push({
+              id: fakeId,
+              name: fakeId === 649669 ? 'Fake Bungalow 1' : 'Fake Bungalow 2',
+              issue: `Fake Bungalow chiuso senza prenotazione né stop-sell manuale (${daysToOpen.length} giorni a availability=0)`,
+              date: daysToOpen[0]
+            });
+          }
+        }
+      }
+    } catch (fakeErr) {
+      console.warn('[Resort Sentinel] Fake Bungalows auto-open check warning:', fakeErr);
+    }
   } catch (gapErr) {
     console.warn('[Resort Sentinel] Gap-fill audit warning:', gapErr);
   }
@@ -404,23 +561,29 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
   if (uniqueHealList.length > 0) {
     console.info(`[Resort Sentinel] 🚨 Rilevate ${anomalies.length} anomalie. Avvio Auto-Guarigione per ${uniqueHealList.length} blocchi tariffe/minStay...`);
     const bulkUrl = 'https://api.octorate.com/connect/rest/v1/calendar/bulk';
-    const healRes = await fetch(bulkUrl, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(uniqueHealList)
-    });
-    if (healRes.ok) {
-      healedCount = uniqueHealList.length;
-      console.info(`[Resort Sentinel] ✅ Auto-Guarigione completata: ${healedCount} blocchi risigillati/aggiornati su Octorate.`);
-    } else {
-      console.error(`[Resort Sentinel] ❌ Errore Auto-Guarigione Octorate: HTTP ${healRes.status}`);
+    const BATCH_SIZE = 25;
+    for (let i = 0; i < uniqueHealList.length; i += BATCH_SIZE) {
+      const chunk = uniqueHealList.slice(i, i + BATCH_SIZE);
+      const healRes = await fetch(bulkUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(chunk)
+      });
+      if (healRes.ok) {
+        healedCount += chunk.length;
+      } else {
+        const errTxt = await healRes.text().catch(() => '');
+        console.error(`[Resort Sentinel] ❌ Errore Auto-Guarigione Octorate batch ${i / BATCH_SIZE + 1}: HTTP ${healRes.status} ${errTxt.slice(0, 120)}`);
+      }
+    }
+    if (healedCount > 0) {
+      console.info(`[Resort Sentinel] ✅ Auto-Guarigione completata: ${healedCount}/${uniqueHealList.length} blocchi risigillati/aggiornati su Octorate.`);
     }
   }
 
   // -------------------------------------------------------------
   // 📏 STATO SOGGIORNO MINIMO DINAMICO
   // -------------------------------------------------------------
-  // Determina la baseline stagionale (valore più comune tra gli alloggi non interessati da gap)
   const freqMap: Record<number, number> = {};
   motherRoomsAudited.forEach(r => {
     if (r.liveMinStay > 0) {
@@ -532,15 +695,17 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
       gapSectionStr = `• Buchi Imminenti: <b>Nessun buco residuo sotto la baseline, calendario continuo</b>\n• MinStay Baseline: <b>${baselineNights} notti verificato su tutti gli alloggi</b>`;
     }
 
-    if (!allClear && healedCount > 0) {
+    if (!allClear) {
       const anomalyLines = anomalies.slice(0, 5).map(a => `• <b>${a.name}</b> (${a.id}): ${a.issue}`).join('\n');
-      const extraNotice = anomalies.length > 5 ? `\n<i>...e altre ${anomalies.length - 5} anomalie corrette.</i>` : '';
-      const alertMsg = `🚨 <b>RESORT SENTINEL — INTERVENTO DI AUTO-GUARIGIONE</b>\n\n` +
-        `Rilevate e sanate in tempo reale le seguenti discrepanze su Octorate:\n${anomalyLines}${extraNotice}\n\n` +
+      const extraNotice = anomalies.length > 5 ? `\n<i>...e altre ${anomalies.length - 5} anomalie rilevate.</i>` : '';
+      const actionLine = healedCount > 0
+        ? `🛠️ <b>Azione Eseguita:</b> L'Auto-Healer ha inviato l'aggiornamento a Octorate (${healedCount} blocchi aggiornati).\n✅ <b>Stato Attuale:</b> Le falle sono state sanate e tutte le OTA sono ora protette e allineate.`
+        : `⚠️ <b>Attenzione:</b> L'Auto-Healer non ha potuto completare il push su Octorate (0 blocchi aggiornati). Verificare subito manualmente!`;
+      const alertMsg = `🚨 <b>RESORT SENTINEL — ANOMALIA RILEVATA</b>\n\n` +
+        `Rilevate le seguenti discrepanze su Octorate:\n${anomalyLines}${extraNotice}\n\n` +
         `📏 <b>SOGGIORNO MINIMO DINAMICO (GAP-FILL):</b>\n${gapSectionStr}\n\n` +
         `⚡ <b>SISTEMA LAST MINUTE:</b>\n• Stato: <b>${detectedStage}</b>\n${sampleLines}\n\n` +
-        `🛠️ <b>Azione Eseguita:</b> L'Auto-Healer ha inviato l'aggiornamento a Octorate (${healedCount} blocchi aggiornati).\n` +
-        `✅ <b>Stato Attuale:</b> Le falle sono state sanate e tutte le OTA sono ora protette e allineate.`;
+        `${actionLine}`;
       await sendDepartmentTelegramMessage('village', alertMsg, { topic: 'ALERTS_OVERBOOKING' });
     } else if (options?.forceReport || allClear) {
       const okMsg = `🛡️ <b>FPV RESORT SENTINEL — REPORT DI CONFORMITÀ GLOBALE</b>\n\n` +

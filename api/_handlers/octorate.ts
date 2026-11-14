@@ -492,6 +492,10 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
 const gridCache = new Map<string, { timestamp: number; payload: any }>();
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
+export function clearOctorateGridCache(): void {
+  gridCache.clear();
+}
+
 // 7. handleOctorateGrid
 export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -502,13 +506,14 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
   const dateFrom = (req.query.dateFrom as string) || new Date().toISOString().substring(0, 10);
   const dateTo = req.query.dateTo as string;
   const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
+  const skipCache = req.query.nocache === '1' || req.query.nocache === 'true';
 
   if (!dateTo) {
     return res.status(400).json({ error: 'Missing dateTo query parameter' });
   }
 
   const cacheKey = `${structureId}_${dateFrom}_${dateTo}`;
-  const cached = gridCache.get(cacheKey);
+  const cached = !skipCache ? gridCache.get(cacheKey) : undefined;
   if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
     return res.status(200).json(cached.payload);
   }

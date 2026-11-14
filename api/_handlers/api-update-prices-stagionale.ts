@@ -1,5 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import { checkAndSyncCascadeLastMinute, invalidateCascadeLedgerEntries } from "../_helpers/octorate-cascade-sync.js";
+import { clearOctorateGridCache } from "./octorate.js";
 import {
   computeStandbyKeepAlivePrice,
   getActiveJungleSource,
@@ -218,6 +220,20 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
     }
 
     const resultData = await bulkRes.json().catch(() => ({ success: true }));
+
+    // Invalida la cache griglia locale e riallinea subito il ledger/cascata sui nuovi prezzi salvati
+    clearOctorateGridCache();
+    try {
+      const ledgerUpdates = bulkPayload.map((b) => ({
+        roomMotherId: b.room,
+        dateFrom: b.dateFrom,
+        dateTo: b.dateTo
+      }));
+      await invalidateCascadeLedgerEntries(supabaseAdmin, ledgerUpdates);
+      await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin, true);
+    } catch (cascadeErr) {
+      console.warn('[update-prices-stagionale] Cascade re-sync warning:', cascadeErr);
+    }
 
     return res.status(200).json({
       success: true,

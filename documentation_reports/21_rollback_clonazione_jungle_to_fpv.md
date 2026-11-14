@@ -179,3 +179,23 @@ Nessuna altra tabella Supabase (`octorate_tokens`, ordini, prenotazioni, documen
   - **Audit completo `1464/1464` giorni (`366` giorni x `4` ville Madri)**: **`zeroPriceDiffs: 0`**, **`priceDiffs: 0`**, **`availDiffs: 0`**, **`unlockedRates: 0`** (`52/52` tariffe confermate in `Stop Sell 100%`).
 - **Rollback rapido**: `git revert 31e78b7` su `feature/clone-jungle-to-fpv`.
 - **Verifiche**: `npx tsc --noEmit` (`0`), `npm run api:check` (`0`).
+
+---
+
+## 9. Backup Git Immutabili Pre-Merge (`main` & `staging`) + Auto-Sync Prezzi da Portale Octorate
+
+- **Tag Git immutabili creati prima del merge su `staging` e `main`**:
+  - `backup/pre-jungle-fpv-mirror-main`: punta a **`35cb4b3`** (stato esatto di `origin/main` in produzione prima del merge).
+  - `backup/pre-jungle-fpv-mirror-cc124ea`: punta a **`cc124ea`** (commit di partenza di `staging`).
+  - `backup/pre-jungle-fpv-mirror`: punta a **`3289370`** (include anche le migliorie Fake Bungalow auto-open e Cascade Ledger presenti in locale su `staging` prima del merge).
+- **Procedura di Rollback 1-Comando in caso di problemi in produzione**:
+  ```bash
+  # Sul repository principale (d:\01 ANTIGRAVITY\flower-power-village-com\flowerpowervillage)
+  git checkout main
+  git reset --hard backup/pre-jungle-fpv-mirror-main
+  git push --force-with-lease origin main
+  ```
+  > Il branch sperimentale `feature/clone-jungle-to-fpv` e il worktree `Clone-Jungle-To-FPV` restano intatti e separati per eventuali miglioramenti successivi.
+- **Auto-Sync Prezzi da Portale Web Octorate**:
+  - Integrato `syncActiveToStandbyCalendar(supabaseAdmin, accessToken, { daysAhead: 60 })` in `api/_handlers/resort-sentinel.ts` e `api/_handlers/octorate-webhook.ts` in modalità non bloccante per riallineare automaticamente eventuali modifiche manuali fatte direttamente dentro il calendario web di Octorate.
+  - Eseguito sync live del giorno `2026-11-24` (`Jungle Villa Left`: `1.490 THB` + `stopSells: true` su `960385`).
