@@ -442,42 +442,71 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     };
   }
 
-  if (existingMirrorId) {
-    return {
-      mirrored: false,
-      action: 'skipped',
-      targetStructureId,
-      targetReservationId: existingMirrorId,
-      reason: 'Already mirrored'
-    };
-  }
-
-  const resolveAgencyTag = (chName?: string | null): string => {
-    const n = String(chName || '').toLowerCase();
-    if (n.includes('booking')) return '[BKG]';
-    if (n.includes('agoda')) return '[AGD]';
-    if (n.includes('airbnb')) return '[ABB]';
-    if (n.includes('expedia')) return '[EXP]';
-    if (n.includes('hostelworld')) return '[HW]';
-    if (n.includes('octoevo') || n.includes('autosubmit') || n.includes('whatsapp')) return '[WA]';
-    return '[DIR]';
-  };
-
-  const nameParts = String(guestName || 'Guest').trim().split(/\s+/);
-  const rawFirst = nameParts[0] || 'Guest';
-  const agencyTag = resolveAgencyTag(channelName);
-  const firstName = rawFirst.startsWith('[') ? rawFirst : `${agencyTag} ${rawFirst}`;
-  const lastName = nameParts.slice(1).join(' ') || 'Mirror';
-
   const checkInDate = String(checkIn).slice(0, 10);
   const checkOutDate = String(checkOut).slice(0, 10);
-  const nowIso = new Date().toISOString();
+  const numChannelId = Number(channelId || 233);
 
-  const createPayload = {
+  if (existingMirrorId) {
+    // Verifica se la copia esistente ha ancora stesse date, stessa villa e canale OTA allineato
+    const checkRes = await fetch(
+      `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}/${existingMirrorId}`,
+      { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
+    ).catch(() => null);
+
+    if (checkRes && checkRes.ok) {
+      const existingData: any = await checkRes.json().catch(() => ({}));
+      const exStatus = String(existingData?.status || '').toUpperCase();
+      const exIn = String(existingData?.checkin || '').slice(0, 10);
+      const exOut = String(existingData?.checkout || '').slice(0, 10);
+      const exProd = Number(existingData?.product || 0);
+      const exCh = Number(existingData?.channelId || 233);
+
+      const isUpToDate =
+        exStatus !== 'CANCELLED' &&
+        exStatus !== 'CANCELED' &&
+        exIn === checkInDate &&
+        exOut === checkOutDate &&
+        exProd === targetMotherId &&
+        (exCh === numChannelId || numChannelId === 233);
+
+      if (isUpToDate) {
+        return {
+          mirrored: false,
+          action: 'skipped',
+          targetStructureId,
+          targetReservationId: existingMirrorId,
+          reason: 'Already mirrored and up-to-date'
+        };
+      }
+    }
+
+    // Se date, villa o canale sono cambiati, rimuove la vecchia copia prima di ricrearla aggiornata
+    await cancelExistingMirrorReservation({
+      supabaseAdmin,
+      accessToken,
+      srcStruct,
+      sourceReservationId: String(sourceReservationId),
+      targetStructureId,
+      existingMirrorId,
+      reasonNote: 'Updated dates/room/channel from'
+    });
+  }
+
+  const nameParts = String(guestName || 'Guest').trim().split(/\s+/);
+  const firstName = nameParts[0] || 'Guest';
+  const lastName = nameParts.slice(1).join(' ') || 'Guest';
+  const nowIso = new Date().toISOString();
+  const directColor =
+    (numChannelId === 288 || numChannelId === 233) &&
+    color &&
+    /^#[0-9a-fA-F]{6}$/.test(String(color).trim())
+      ? String(color).trim()
+      : undefined;
+
+  const basePayload = {
     status: 'CONFIRMED',
-    refer: `MIRROR-${sourceReservationId}`.slice(0, 25),
-    channelId: Number(channelId || 233),
-    ...(channelRefer ? { channelRefer: String(channelRefer) } : {}),
+    channelId: numChannelId,
+    ...(directColor ? { color: directColor } : {}),
     product: targetMotherId,
     checkin: `${checkInDate}T14:00:00Z`,
     checkout: `${checkOutDate}T12:00:00Z`,
@@ -498,7 +527,7 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     totalInfants: 0
   };
 
-  const res = await fetch(
+  let res = await fetch(
     `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}`,
     {
       method: 'POST',
@@ -507,9 +536,33 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
         'Content-Type': 'application/json',
         Accept: 'application/json'
       },
-      body: JSON.stringify(createPayload)
+      body: JSON.stringify({
+        ...basePayload,
+        refer: `MIRROR-${sourceReservationId}`.slice(0, 25),
+        ...(channelRefer ? { channelRefer: String(channelRefer) } : {})
+      })
     }
   );
+
+  if (!res.ok && res.status === 400) {
+    const suffix = Date.now().toString(36).slice(-3);
+    res = await fetch(
+      `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({
+          ...basePayload,
+          refer: `MIRROR-${sourceReservationId}-${suffix}`.slice(0, 25),
+          ...(channelRefer ? { channelRefer: `${channelRefer}-M` } : {})
+        })
+      }
+    );
+  }
 
   const json = await res.json().catch(() => ({}));
   const newId = json?.id || json?.data?.id || json?.reservationId;
@@ -1019,6 +1072,21 @@ export async function syncActiveToStandbyCalendar(
 }> {
   const active = await getActiveJungleSource(supabaseAdmin);
   const standby: JungleSourceStructureId = active === '807324' ? '366879' : '807324';
+  try {
+    const today = new Date();
+    const end = new Date(today);
+    end.setDate(end.getDate() + 365);
+    await verifyAndRepairTwinReservationsBeforeSwitch(
+      supabaseAdmin,
+      accessToken,
+      active,
+      standby,
+      today.toISOString().slice(0, 10),
+      end.toISOString().slice(0, 10)
+    );
+  } catch (resSyncErr) {
+    console.warn('[JUNGLE MIRROR] Reservation photocopy check warning (non-blocking):', resSyncErr);
+  }
   const result = await syncCalendarBetweenStructures(accessToken, active, standby, {
     keepTargetClosed: true,
     ...options
@@ -1205,14 +1273,192 @@ async function verifyStructureCalendarState(
   };
 }
 
+interface TwinReservationLite {
+  id: string;
+  twinKey: JungleTwinRoom['key'];
+  checkIn: string;
+  checkOut: string;
+  guestName: string;
+  productId?: number | string;
+  roomName?: string;
+  channelId?: number | string;
+  channelRefer?: string;
+  channelName?: string;
+  color?: string;
+  isMirror: boolean;
+}
+
+async function fetchTwinActiveReservations(
+  accessToken: string,
+  structureId: JungleSourceStructureId,
+  dateFrom: string,
+  dateTo: string
+): Promise<TwinReservationLite[]> {
+  const results: TwinReservationLite[] = [];
+  let page = 0;
+
+  while (page < 10) {
+    const url = `https://api.octorate.com/connect/rest/v1/reservation/${structureId}?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=50&page=${page}`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }
+    });
+    if (!res.ok) {
+      throw new Error(`Reservation GET failed (${structureId} page ${page}): ${res.status}`);
+    }
+    const json = await res.json().catch(() => ({}));
+    const rows: any[] = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
+    if (rows.length === 0) break;
+
+    for (const r of rows) {
+      const status = String(r.status || '').toUpperCase();
+      if (status === 'CANCELLED' || status === 'CANCELED') continue;
+
+      const productId = r.product ?? r.productId ?? r.roomId ?? r.room?.id;
+      const roomName = r.roomName ?? r.room?.name ?? '';
+      const twin = resolveTwinByProductOrName(productId, roomName);
+      if (!twin) continue;
+
+      const checkIn = String(r.checkin || r.checkIn || '').slice(0, 10);
+      const checkOut = String(r.checkout || r.checkOut || '').slice(0, 10);
+      if (!checkIn || !checkOut) continue;
+
+      results.push({
+        id: String(r.id ?? ''),
+        twinKey: twin.key,
+        checkIn,
+        checkOut,
+        guestName: String(r.referent || `${r.firstName || ''} ${r.lastName || ''}`.trim() || 'Guest'),
+        productId,
+        roomName,
+        channelId: r.channelId,
+        channelRefer: r.channelRefer || r.refer,
+        channelName: r.channelName,
+        color: r.color,
+        isMirror: isMirrorReservation(r)
+      });
+    }
+
+    const totalPages = Number(json?.totalPages ?? 0);
+    if (rows.length < 50 || (totalPages > 0 && page + 1 >= totalPages)) break;
+    page++;
+  }
+
+  return results;
+}
+
 /**
- * Esegue lo Switch sicuro in 2 TEMPI con DOPPIA VERIFICA PROFONDA (`GET /calendar`) su tutte le 52 tariffe:
- *  - Cattura snapshot completo (prezzi normali, disponibilità reali, Sacro Graal) dalla struttura uscente attiva
- *  - TEMPO 1: Chiude/mette in standby asimmetrico la struttura uscente su tutte le 52 tariffe
- *  - VERIFICA PROFONDA 1: Read-back GET /calendar sull'uscente prima di toccare l'entrante (in caso di fallimento ABORT: ZERO overbooking).
- *  - TEMPO 2: Applica prezzi normali, disponibilità e regole Sacro Graal su tutte le 52 tariffe della struttura entrante.
- *  - VERIFICA PROFONDA 2: Read-back GET /calendar sull'entrante (apertura + prezzi normali) E ri-verifica che l'uscente sia ancora in standby.
- *  - Aggiorna active_jungle_source_v1 su Supabase solo dopo entrambe le conferme live.
+ * Verifica che tutte le prenotazioni attive delle 4 ville tra struttura sorgente e destinazione
+ * siano allineate al 100% con loghi e colori agenzia originali, riparando eventuali specchi mancanti,
+ * con canale 233 obsoleto o orfani.
+ */
+export async function verifyAndRepairTwinReservationsBeforeSwitch(
+  supabaseAdmin: any,
+  accessToken: string,
+  outgoing: JungleSourceStructureId,
+  targetStructureId: JungleSourceStructureId,
+  dateFrom: string,
+  dateTo: string
+): Promise<{ checked: number; repairedCreated: number; repairedCancelled: number }> {
+  const [outRes, inRes] = await Promise.all([
+    fetchTwinActiveReservations(accessToken, outgoing, dateFrom, dateTo),
+    fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
+  ]);
+
+  const outReal = outRes.filter(r => !r.isMirror);
+  const sig = (r: TwinReservationLite) => `${r.twinKey}|${r.checkIn}|${r.checkOut}`;
+  const inBySig = new Map<string, TwinReservationLite>();
+  for (const m of inRes) inBySig.set(sig(m), m);
+  const outSigs = new Set(outReal.map(sig));
+
+  let repairedCreated = 0;
+  let repairedCancelled = 0;
+
+  for (const r of outReal) {
+    const existing = inBySig.get(sig(r));
+    const needsAgencyUpgrade =
+      existing &&
+      existing.isMirror &&
+      Number(existing.channelId || 233) === 233 &&
+      Number(r.channelId || 233) !== 233;
+
+    if (needsAgencyUpgrade && existing) {
+      await cancelExistingMirrorReservation({
+        supabaseAdmin,
+        accessToken,
+        srcStruct: outgoing,
+        sourceReservationId: r.id,
+        targetStructureId,
+        existingMirrorId: existing.id,
+        reasonNote: 'Upgrading mirror to native OTA agency channel'
+      });
+      inBySig.delete(sig(r));
+      repairedCancelled++;
+    }
+
+    if (!inBySig.has(sig(r))) {
+      const mRes = await mirrorReservationToStandby({
+        supabaseAdmin,
+        accessToken,
+        sourceStructureId: outgoing,
+        sourceReservationId: r.id,
+        productId: r.productId,
+        roomName: r.roomName,
+        checkIn: r.checkIn,
+        checkOut: r.checkOut,
+        guestName: r.guestName,
+        isCancelled: false,
+        channelId: r.channelId,
+        channelRefer: r.channelRefer,
+        channelName: r.channelName,
+        color: r.color
+      });
+      if (mRes.mirrored && mRes.action === 'created') {
+        repairedCreated++;
+      }
+    }
+  }
+
+  for (const m of inRes.filter(r => r.isMirror)) {
+    if (!outSigs.has(sig(m))) {
+      await cancelExistingMirrorReservation({
+        supabaseAdmin,
+        accessToken,
+        srcStruct: outgoing,
+        sourceReservationId: m.id,
+        targetStructureId,
+        existingMirrorId: m.id,
+        reasonNote: 'Pre-flight orphan cleanup'
+      });
+      repairedCancelled++;
+    }
+  }
+
+  const inFinal =
+    repairedCreated > 0 || repairedCancelled > 0
+      ? await fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
+      : inRes;
+  const inFinalSigs = new Set(inFinal.map(sig));
+  const missingAfter = outReal.filter(r => !inFinalSigs.has(sig(r)));
+
+  if (missingAfter.length > 0) {
+    throw new Error(
+      `Verifica Prenotazioni fallita: ${missingAfter.length} prenotazioni di ${outgoing} non risultano allineate su ${targetStructureId} (${missingAfter
+        .slice(0, 3)
+        .map(m => `${m.twinKey} ${m.checkIn}->${m.checkOut}`)
+        .join(', ')}). Switch ANNULLATO in sicurezza.`
+    );
+  }
+
+  return { checked: outReal.length, repairedCreated, repairedCancelled };
+}
+
+/**
+ * Esegue lo Switch sicuro in 6 PASSI A PORTE CHIUSE con VERIFICHE REALE (`GET /calendar`) su tutte le 52 tariffe:
+ *  - PASSO 0: Cattura snapshot completo (prezzi normali, disponibilità reali, Sacro Graal) dalla struttura uscente attiva.
+ *  - PASSO 1 & 2: Chiude/mette in standby asimmetrico la struttura uscente su tutte le 52 tariffe e verifica da GET /calendar (se fallisce: ABORT).
+ *  - PASSO 3 & 4: Mentre la nuova struttura è ANCORA CHIUSA in Stop Sell, allinea/verifica 100% delle prenotazioni (con loghi e colori agenzia) + pre-carica e verifica prezzi e disponibilità.
+ *  - PASSO 5: Apre le vendite sulla nuova struttura.
+ *  - PASSO 6: Doppia verifica incrociata finale (entrante aperta + uscente chiusa) prima di aggiornare active_jungle_source_v1.
  */
 export async function switchActiveJungleStructure(
   supabaseAdmin: any,
@@ -1264,161 +1510,7 @@ export async function switchActiveJungleStructure(
     };
   }
 
-interface TwinReservationLite {
-  id: string;
-  twinKey: JungleTwinRoom['key'];
-  checkIn: string;
-  checkOut: string;
-  guestName: string;
-  productId?: number | string;
-  roomName?: string;
-  isMirror: boolean;
-}
-
-async function fetchTwinActiveReservations(
-  accessToken: string,
-  structureId: JungleSourceStructureId,
-  dateFrom: string,
-  dateTo: string
-): Promise<TwinReservationLite[]> {
-  const results: TwinReservationLite[] = [];
-  let page = 0;
-
-  while (page < 10) {
-    const url = `https://api.octorate.com/connect/rest/v1/reservation/${structureId}?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=50&page=${page}`;
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }
-    });
-    if (!res.ok) {
-      throw new Error(`Reservation GET failed (${structureId} page ${page}): ${res.status}`);
-    }
-    const json = await res.json().catch(() => ({}));
-    const rows: any[] = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
-    if (rows.length === 0) break;
-
-    for (const r of rows) {
-      const status = String(r.status || '').toUpperCase();
-      if (status === 'CANCELLED' || status === 'CANCELED') continue;
-
-      const productId = r.productId ?? r.roomId ?? r.room?.id;
-      const roomName = r.roomName ?? r.room?.name ?? '';
-      const twin = resolveTwinByProductOrName(productId, roomName);
-      if (!twin) continue;
-
-      const checkIn = String(r.checkin || r.checkIn || '').slice(0, 10);
-      const checkOut = String(r.checkout || r.checkOut || '').slice(0, 10);
-      if (!checkIn || !checkOut) continue;
-
-      results.push({
-        id: String(r.id ?? ''),
-        twinKey: twin.key,
-        checkIn,
-        checkOut,
-        guestName: String(r.referent || `${r.firstName || ''} ${r.lastName || ''}`.trim() || 'Guest'),
-        productId,
-        roomName,
-        isMirror: isMirrorReservation(r)
-      });
-    }
-
-    const totalPages = Number(json?.totalPages ?? 0);
-    if (rows.length < 50 || (totalPages > 0 && page + 1 >= totalPages)) break;
-    page++;
-  }
-
-  return results;
-}
-
-/**
- * PASSO 0 (Pre-Flight): Verifica che le prenotazioni attive delle 4 ville tra uscente ed entrante
- * siano allineate al 100%, riparando eventuali specchi [MIRROR_SYNC] mancanti o orfani prima del Tempo 1.
- */
-async function verifyAndRepairTwinReservationsBeforeSwitch(
-  supabaseAdmin: any,
-  accessToken: string,
-  outgoing: JungleSourceStructureId,
-  targetStructureId: JungleSourceStructureId,
-  dateFrom: string,
-  dateTo: string
-): Promise<{ checked: number; repairedCreated: number; repairedCancelled: number }> {
-  const [outRes, inRes] = await Promise.all([
-    fetchTwinActiveReservations(accessToken, outgoing, dateFrom, dateTo),
-    fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
-  ]);
-
-  const outReal = outRes.filter(r => !r.isMirror);
-  const sig = (r: TwinReservationLite) => `${r.twinKey}|${r.checkIn}|${r.checkOut}`;
-  const inSigs = new Set(inRes.map(sig));
-  const outSigs = new Set(outReal.map(sig));
-
-  let repairedCreated = 0;
-  let repairedCancelled = 0;
-
-  for (const r of outReal) {
-    if (!inSigs.has(sig(r))) {
-      const mRes = await mirrorReservationToStandby({
-        supabaseAdmin,
-        accessToken,
-        sourceStructureId: outgoing,
-        sourceReservationId: r.id,
-        productId: r.productId,
-        roomName: r.roomName,
-        checkIn: r.checkIn,
-        checkOut: r.checkOut,
-        guestName: r.guestName,
-        isCancelled: false
-      });
-      if (mRes.mirrored && mRes.action === 'created') {
-        repairedCreated++;
-      }
-    }
-  }
-
-  for (const m of inRes.filter(r => r.isMirror)) {
-    if (!outSigs.has(sig(m))) {
-      await cancelExistingMirrorReservation({
-        supabaseAdmin,
-        accessToken,
-        srcStruct: outgoing,
-        sourceReservationId: m.id,
-        targetStructureId,
-        existingMirrorId: m.id,
-        reasonNote: 'Pre-flight orphan cleanup'
-      });
-      repairedCancelled++;
-    }
-  }
-
-  const inFinal =
-    repairedCreated > 0 || repairedCancelled > 0
-      ? await fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
-      : inRes;
-  const inFinalSigs = new Set(inFinal.map(sig));
-  const missingAfter = outReal.filter(r => !inFinalSigs.has(sig(r)));
-
-  if (missingAfter.length > 0) {
-    throw new Error(
-      `Pre-Flight Prenotazioni fallito: ${missingAfter.length} prenotazioni di ${outgoing} non risultano specchiate su ${targetStructureId} (${missingAfter
-        .slice(0, 3)
-        .map(m => `${m.twinKey} ${m.checkIn}->${m.checkOut}`)
-        .join(', ')}). Switch ANNULLATO prima del Tempo 1.`
-    );
-  }
-
-  return { checked: outReal.length, repairedCreated, repairedCancelled };
-}
-
-  // PASSO 0 (Pre-Flight): Verifica & auto-riparazione allineamento prenotazioni tra uscente ed entrante
-  await verifyAndRepairTwinReservationsBeforeSwitch(
-    supabaseAdmin,
-    accessToken,
-    outgoing,
-    targetStructureId,
-    dateFrom,
-    dateTo
-  );
-
-  // 0. Snapshot affidabile dalla struttura uscente (che possiede prezzi normali + disponibilità reali + Sacro Graal)
+  // PASSO 0 (Fotografia Pre-Chiusura): Cattura snapshot completo (prezzi normali, disponibilità reali, Sacro Graal) dalla struttura attiva uscente
   const snapshot = await fetchTwin52RateSnapshot(accessToken, outgoing, dateFrom, dateTo);
   const expectedMothers = JUNGLE_TWIN_ROOMS.map(r => (outgoing === '366879' ? r.fpvMotherId : r.jungleMotherId));
   const missingMothers = expectedMothers.filter(id => !(snapshot.get(id)?.size));
@@ -1433,25 +1525,51 @@ async function verifyAndRepairTwinReservationsBeforeSwitch(
     throw new Error(`Impossibile determinare le date campione per la verifica profonda da ${outgoing}. Switch annullato per sicurezza.`);
   }
 
-  // TEMPO 1: Prima chiudi / metti in standby la struttura uscente su tutte le 52 tariffe
+  // PASSO 1 (Stop Sell Struttura Uscente): Chiudi / metti in standby la struttura uscente su tutte le 52 tariffe
   const phase1Entries = build52RateDailyEntries(outgoing, outgoing, snapshot, 'standby');
   const phase1BlocksList = compressDailyBulkItems(phase1Entries);
   await postCalendarBulkBlocks(accessToken, phase1BlocksList);
 
-  // VERIFICA PROFONDA 1: Conferma reale da GET /calendar/{outgoing} prima di aprire l'entrante
+  // PASSO 2 (Verifica Reale dello Stop Sell Uscente): Conferma da GET /calendar/{outgoing} che sia realmente chiusa prima di procedere
   const v1 = await verifyStructureCalendarState(accessToken, outgoing, phase1Entries, sampleDates);
   if (!v1.ok) {
     throw new Error(
-      `Verifica Profonda TEMPO 1 fallita su ${outgoing} dopo ${v1.attempts} tentativi: apertura su ${targetStructureId} ANNULLATA per prevenire overbooking. Anomalie (${v1.mismatches.length}): ${v1.mismatches.slice(0, 5).join(' | ')}`
+      `Verifica Profonda PASSO 2 fallita su ${outgoing} dopo ${v1.attempts} tentativi: passaggio a ${targetStructureId} ANNULLATO per prevenire overbooking. Anomalie (${v1.mismatches.length}): ${v1.mismatches.slice(0, 5).join(' | ')}`
     );
   }
 
-  // TEMPO 2: Solo dopo conferma reale del Tempo 1, apre e allinea la struttura entrante su tutte le 52 tariffe
+  // PASSO 3 & PASSO 4 (Clonazione Totale & Verifica Prenotazioni + Prezzi sulla Nuova Struttura ANCORA CHIUSA):
+  // 3a. Con la vecchia struttura già chiusa, allinea e verifica al 100% tutte le prenotazioni (con loghi e colori agenzia) sulla nuova struttura
+  await verifyAndRepairTwinReservationsBeforeSwitch(
+    supabaseAdmin,
+    accessToken,
+    outgoing,
+    targetStructureId,
+    dateFrom,
+    dateTo
+  );
+
+  // 3b. Pre-carica prezzi, disponibilità e regole Sacro Graal sulla nuova struttura mantenendola ANCORA IN STOP SELL (porte chiuse) e verifica
+  const preLoadClosedEntries = build52RateDailyEntries(outgoing, targetStructureId, snapshot, 'active').map(e => ({
+    ...e,
+    values: { ...e.values, stopSells: true }
+  }));
+  const preLoadBlocksList = compressDailyBulkItems(preLoadClosedEntries);
+  await postCalendarBulkBlocks(accessToken, preLoadBlocksList);
+
+  const vPreLoad = await verifyStructureCalendarState(accessToken, targetStructureId, preLoadClosedEntries, sampleDates);
+  if (!vPreLoad.ok) {
+    throw new Error(
+      `Verifica PASSO 4 (Pre-Caricamento a porte chiuse) fallita su ${targetStructureId} (${outgoing} è già protetta in Stop Sell). Anomalie (${vPreLoad.mismatches.length}): ${vPreLoad.mismatches.slice(0, 5).join(' | ')}`
+    );
+  }
+
+  // PASSO 5 (Apertura Vendite Nuova Struttura): Ora che prenotazioni, prezzi e disponibilità sono verificati al 100%, apre le vendite sulla nuova struttura
   const phase2Entries = build52RateDailyEntries(outgoing, targetStructureId, snapshot, 'active');
   const phase2BlocksList = compressDailyBulkItems(phase2Entries);
   await postCalendarBulkBlocks(accessToken, phase2BlocksList);
 
-  // VERIFICA PROFONDA 2: Conferma reale che l'entrante sia attiva E che l'uscente sia ancora in standby
+  // PASSO 6 (Doppia Verifica Finale Incrociata): Conferma reale che la nuova struttura sia APERTA in produzione E che la vecchia struttura sia CHIUSA in Stop Sell
   const [v2Incoming, v2Outgoing] = await Promise.all([
     verifyStructureCalendarState(accessToken, targetStructureId, phase2Entries, sampleDates),
     verifyStructureCalendarState(accessToken, outgoing, phase1Entries, sampleDates, {
