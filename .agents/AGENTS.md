@@ -547,3 +547,7 @@ Per evitare che i report generati per l'utente superino i limiti di input di Gem
    - Se un handoff (es. MARKDOWN-PROJECT) o una spiegazione tecnica supera inevitabilmente questo limite, l'agente DEVE dividerlo in blocchi numerati (es. "[Parte 1 di 3]", "[Parte 2 di 3]").
    - Alla fine di ogni parte, l'agente deve fermarsi e scrivere: 
      *«⚠️ Il report è troppo lungo per la tua casella di testo. Copia e invia questa prima parte, poi ti scriverò la Parte 2 nel prossimo turno appena rispondi 'continua'.»*
+
+24. **Regola Fondamentale Modalità `/plan` (Consiglio Modello Prima di Pianificare)**:
+    - Ogni volta che l'utente attiva la modalità `/plan`, l'agente DEVE **fermarsi prima di generare piani o modificare file** e limitarsi a rispondere consigliando **con quale modello conviene procedere** (es. modello leggero/veloce per economia di token su task circoscritti vs modello più potente/orchestrator per architetture complesse multi-file), attendendo conferma dell'utente prima di avviare la pianificazione vera e propria.
+    - Inoltre, **alla fine di ogni risposta** (nella sezione `3. 🚀 Prossimo passo`), ogni volta che l'agente propone un'azione successiva (es. commit & push, test, nuova modifica), DEVE sempre consigliare esplicitamente **con quale modello procedere** per quel prossimo passo in ottica di economia di token.

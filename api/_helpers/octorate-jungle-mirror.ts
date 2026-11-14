@@ -277,6 +277,8 @@ export interface MirrorParams {
   checkOut: string;
   guestName: string;
   isCancelled: boolean;
+  channelId?: number | string | null;
+  channelRefer?: string | null;
 }
 
 /**
@@ -353,7 +355,9 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     checkIn,
     checkOut,
     guestName,
-    isCancelled
+    isCancelled,
+    channelId,
+    channelRefer
   } = params;
 
   const srcStruct = String(sourceStructureId);
@@ -455,7 +459,8 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
   const createPayload = {
     status: 'CONFIRMED',
     refer: `MIRROR-${sourceReservationId}`.slice(0, 25),
-    channelId: 233,
+    channelId: Number(channelId || 233),
+    ...(channelRefer ? { channelRefer: String(channelRefer) } : {}),
     product: targetMotherId,
     checkin: `${checkInDate}T14:00:00Z`,
     checkout: `${checkOutDate}T12:00:00Z`,
