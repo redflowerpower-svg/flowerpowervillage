@@ -121,7 +121,7 @@ Nessuna altra tabella Supabase (`octorate_tokens`, ordini, prenotazioni, documen
   - `src/admin/resort/components/ResortDashboard.tsx` (dialog conferma Switch 2 Tempi + Keep-Alive `2x` e propagazione `activeJungleSource`)
 
 ### 4. Procedura di Rollback Aggiornata
-1. **Codice**: `git revert <COMMIT_HASH>` su branch `feature/clone-jungle-to-fpv` (oppure tornare al branch stabile precedente senza intaccare il repo principale).
+1. **Codice**: `git revert 38d6ca9` su branch `feature/clone-jungle-to-fpv` (oppure tornare al branch stabile precedente senza intaccare il repo principale).
 2. **Octorate Live**:
    - In attesa del mapping Channel Manager / Octorate, **Jungle Villas (`807324`)** resta la struttura attiva (`active_jungle_source_v1 = '807324'`) e **Flower Power Village (`366879`)** ha tutte le **52 tariffe (`960383`–`960438`) bloccate `stopSells: true` per 365 giorni**.
    - Se servisse riaprire manualmente `366879` o riallineare lo specchio, chiamare `POST /api/octorate-jungle-mirror` (`action: 'switch'` o `action: 'sync'`) dalla dashboard.
