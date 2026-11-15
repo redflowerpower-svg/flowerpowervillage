@@ -126,6 +126,23 @@ async function main() {
     await route.continue();
   });
 
+  // 🏨 Proxy Live Octorate Grid (3 strutture: FP Village, Jungle Villas, Hubitat) per LM1 in locale/CI
+  await context.route('**/api/octorate-grid**', async (route) => {
+    const req = route.request();
+    const u = new URL(req.url());
+    const targetApi = 'https://www.flowerpowervillage.com';
+    try {
+      const resp = await fetch(`${targetApi}${u.pathname}${u.search}`);
+      await route.fulfill({
+        status: resp.status,
+        contentType: resp.headers.get('content-type') || 'application/json',
+        body: Buffer.from(await resp.arrayBuffer())
+      });
+    } catch (e) {
+      await route.abort();
+    }
+  });
+
   // 🎵 Intercettatore API: muxing audio istantaneo in locale con FFmpeg per evitare timeout Vercel (15s)
   await context.route('**/api/social-publisher**', async (route) => {
     const req = route.request();
@@ -264,6 +281,17 @@ async function main() {
   const navTimeout = isCloudOrLong ? 180000 : 120000;
   await page.goto(`${base}/social-studio?mode=${mode}`, { waitUntil: 'domcontentloaded', timeout: navTimeout });
   await page.waitForFunction(() => typeof window.__autoCutGetVideo === 'function', null, { timeout: navTimeout });
+  if (mode === 'LM1') {
+    log('Attendo verifica live disponibilità Octorate sulle 3 strutture (LM1)...');
+    await page.waitForFunction(() => window.__autoCutLm1Ready === true, null, { timeout: 60000 });
+    const lm1Count = await page.evaluate(() => window.__autoCutLm1Count);
+    log(`Disponibilità live LM1 caricata: ${lm1Count ?? 'N/D'} alloggi reali liberi oggi.`);
+    if (lm1Count === 0) {
+      throw new Error('LM1: 0 alloggi disponibili oggi su Octorate (Flower Power Village, Jungle Villas, Hubitat).');
+    }
+    await page.waitForTimeout(600);
+    await page.waitForFunction(() => typeof window.__autoCutGetVideo === 'function', null, { timeout: 30000 });
+  }
 
   // Capacità del browser (decisiva per il cloud)
   const caps = await page.evaluate(async () => {

@@ -340,6 +340,8 @@ export const VILLAGE_LODGINGS = [
   {
     id: 'jungle-villa',
     motherId: 529773,
+    motherIds: [529773, 960389],
+    structureName: 'Jungle Villas',
     folder: '44_jungle_villa',
     nameEn: 'Jungle Villa Tropical Sanctuary',
     lodgingTitle: 'Jungle Villa',
@@ -358,6 +360,8 @@ export const VILLAGE_LODGINGS = [
   {
     id: 'peace-and-love-villa',
     motherId: 494840,
+    motherIds: [494840, 960383],
+    structureName: 'Jungle Villas',
     folder: '41_peace_and_love_villa',
     nameEn: 'Peace & Love Villa Poolside Oasis',
     lodgingTitle: 'Peace & Love Villa',
@@ -425,6 +429,152 @@ export const VILLAGE_LODGINGS = [
       { file: '04-Garden.jpg', labelEn: 'Lush Tropical Palm Garden Path', labelTh: 'ทางเดินสวนทรอปิคอลเขียวขจี' },
       { file: '05-Side.jpg', labelEn: 'Private Shaded Wooden Deck', labelTh: 'มุมนั่งเล่นส่วนตัวริมระเบียงไม้' }
     ]
+  },
+  {
+    id: 'jungle-villa-left',
+    motherId: 495795,
+    motherIds: [495795, 960385],
+    structureName: 'Jungle Villas',
+    folder: '42_jungle_villa_left',
+    nameEn: 'Jungle Villa Left Tropical Suite',
+    lodgingTitle: 'Jungle Villa Left',
+    lodgingSubtitle: 'Tropical Suite',
+    nameTh: 'จังเกิ้ลวิลล่า เลฟท์ สวีทท่ามกลางธรรมชาติ เกาะพยาม',
+    category: 'VILLE',
+    mainImage: `${STORAGE_ACC}/42_jungle_villa_left/01-Main.jpg`,
+    gallery: [
+      { file: '01-Main.jpg', labelEn: 'Jungle Villa Left Entrance', labelTh: 'วิลล่าธรรมชาติส่วนตัว' },
+      { file: '02-Front.jpg', labelEn: 'Private Wooden Veranda', labelTh: 'ระเบียงไม้ส่วนตัวกลางสวน' },
+      { file: '03-Kitchen.jpg', labelEn: 'Fully Equipped Kitchen', labelTh: 'ครัวส่วนตัวพร้อมอุปกรณ์ครบครัน' },
+      { file: '05-Steps.jpg', labelEn: 'Tropical Garden Access', labelTh: 'ทางเดินสู่สวนธรรมชาติเขตร้อน' }
+    ]
+  },
+  {
+    id: 'jungle-villa-right',
+    motherId: 495796,
+    motherIds: [495796, 960387],
+    structureName: 'Jungle Villas',
+    folder: '43_jungle_villa_right',
+    nameEn: 'Jungle Villa Right Tropical Suite',
+    lodgingTitle: 'Jungle Villa Right',
+    lodgingSubtitle: 'Tropical Suite',
+    nameTh: 'จังเกิ้ลวิลล่า ไรท์ สวีทท่ามกลางธรรมชาติ เกาะพยาม',
+    category: 'VILLE',
+    mainImage: `${STORAGE_ACC}/43_jungle_villa_right/01-Main.jpg`,
+    gallery: [
+      { file: '01-Main.jpg', labelEn: 'Jungle Villa Right Entrance', labelTh: 'วิลล่าธรรมชาติส่วนตัว' },
+      { file: '02-Front2.jpg', labelEn: 'Private Wooden Veranda', labelTh: 'ระเบียงไม้ส่วนตัวกลางสวน' },
+      { file: '03-Kitcken.jpg', labelEn: 'Fully Equipped Kitchen', labelTh: 'ครัวส่วนตัวพร้อมอุปกรณ์ครบครัน' },
+      { file: '04-Steps.jpg', labelEn: 'Tropical Garden Access', labelTh: 'ทางเดินสู่สวนธรรมชาติเขตร้อน' }
+    ]
+  },
+  {
+    id: 'internal-room',
+    motherId: 293942,
+    structureName: 'Flower Power Village',
+    folder: '21_internal_room',
+    nameEn: 'Internal Room Cozy Sanctuary',
+    lodgingTitle: 'Internal Room',
+    lodgingSubtitle: 'Cozy Sanctuary',
+    nameTh: 'อินเทอร์นอล รูม ห้องพักส่วนตัวแสนสบาย เกาะพยาม',
+    category: 'THE HUB GUESTHOUSE',
+    mainImage: `${STORAGE_ACC}/21_internal_room/01-Main.jpg`,
+    gallery: [
+      { file: '01-Main.jpg', labelEn: 'Cozy Internal Room', labelTh: 'ห้องพักส่วนตัวแสนสบาย' },
+      { file: '02-Bed-View.jpg', labelEn: 'King Size Bed Sanctuary', labelTh: 'เตียงคิงไซส์นุ่มสบาย' },
+      { file: '04-Desk.jpg', labelEn: 'Wooden Desk & Work Corner', labelTh: 'มุมโต๊ะทำงานและพักผ่อน' }
+    ]
+  },
+  {
+    id: 'room-1',
+    motherId: 293963,
+    structureName: 'Hubitat GuestHouse',
+    folder: '31_room_1',
+    nameEn: 'Hubitat Room 1 Garden View',
+    lodgingTitle: 'Hubitat Room 1',
+    lodgingSubtitle: 'Garden View',
+    nameTh: 'ฮับบิแทท รูม 1 วิวสวนธรรมชาติ เกาะพยาม',
+    category: 'THE HUB GUESTHOUSE',
+    mainImage: `${STORAGE_ACC}/31_room_1/01-Main.jpg`,
+    gallery: [{ file: '01-Main.jpg', labelEn: 'Hubitat Room 1', labelTh: 'ฮับบิแทท รูม 1' }]
+  },
+  {
+    id: 'room-2',
+    motherId: 293959,
+    structureName: 'Hubitat GuestHouse',
+    folder: '32_room_2',
+    nameEn: 'Hubitat Room 2 Garden View',
+    lodgingTitle: 'Hubitat Room 2',
+    lodgingSubtitle: 'Garden View',
+    nameTh: 'ฮับบิแทท รูม 2 วิวสวนธรรมชาติ เกาะพยาม',
+    category: 'THE HUB GUESTHOUSE',
+    mainImage: `${STORAGE_ACC}/32_room_2/01-Main.jpg`,
+    gallery: [{ file: '01-Main.jpg', labelEn: 'Hubitat Room 2', labelTh: 'ฮับบิแทท รูม 2' }]
+  },
+  {
+    id: 'room-3',
+    motherId: 293948,
+    structureName: 'Hubitat GuestHouse',
+    folder: '33_room_3',
+    nameEn: 'Hubitat Room 3 Garden View',
+    lodgingTitle: 'Hubitat Room 3',
+    lodgingSubtitle: 'Garden View',
+    nameTh: 'ฮับบิแทท รูม 3 วิวสวนธรรมชาติ เกาะพยาม',
+    category: 'THE HUB GUESTHOUSE',
+    mainImage: `${STORAGE_ACC}/33_room_3/01-Main.jpg`,
+    gallery: [{ file: '01-Main.jpg', labelEn: 'Hubitat Room 3', labelTh: 'ฮับบิแทท รูม 3' }]
+  },
+  {
+    id: 'room-4',
+    motherId: 293945,
+    structureName: 'Hubitat GuestHouse',
+    folder: '34_room_4',
+    nameEn: 'Hubitat Room 4 Garden View',
+    lodgingTitle: 'Hubitat Room 4',
+    lodgingSubtitle: 'Garden View',
+    nameTh: 'ฮับบิแทท รูม 4 วิวสวนธรรมชาติ เกาะพยาม',
+    category: 'THE HUB GUESTHOUSE',
+    mainImage: `${STORAGE_ACC}/34_room_4/01-Main.jpg`,
+    gallery: [{ file: '01-Main.jpg', labelEn: 'Hubitat Room 4', labelTh: 'ฮับบิแทท รูม 4' }]
+  },
+  {
+    id: 'room-5',
+    motherId: 293943,
+    structureName: 'Hubitat GuestHouse',
+    folder: '35_room_5',
+    nameEn: 'Hubitat Room 5 Cozy Queen',
+    lodgingTitle: 'Hubitat Room 5',
+    lodgingSubtitle: 'Cozy Queen',
+    nameTh: 'ฮับบิแทท รูม 5 ห้องพักแสนสบาย เกาะพยาม',
+    category: 'THE HUB GUESTHOUSE',
+    mainImage: `${STORAGE_ACC}/35_room_5/01-Main.jpg`,
+    gallery: [{ file: '01-Main.jpg', labelEn: 'Hubitat Room 5', labelTh: 'ฮับบิแทท รูม 5' }]
+  },
+  {
+    id: 'lodge-1',
+    motherId: 293951,
+    structureName: 'Hubitat GuestHouse',
+    folder: '36_lodge_1',
+    nameEn: 'Hubitat Lodge 1 Family Suite',
+    lodgingTitle: 'Hubitat Lodge 1',
+    lodgingSubtitle: 'Family Suite',
+    nameTh: 'ฮับบิแทท ลอดจ์ 1 สวีทครอบครัว เกาะพยาม',
+    category: 'THE HUB GUESTHOUSE',
+    mainImage: `${STORAGE_ACC}/36_lodge_1/01-Main.jpg`,
+    gallery: [{ file: '01-Main.jpg', labelEn: 'Hubitat Lodge 1', labelTh: 'ฮับบิแทท ลอดจ์ 1' }]
+  },
+  {
+    id: 'lodge-2',
+    motherId: 883795,
+    structureName: 'Hubitat GuestHouse',
+    folder: '37_lodge_2',
+    nameEn: 'Hubitat Lodge 2 Family Suite',
+    lodgingTitle: 'Hubitat Lodge 2',
+    lodgingSubtitle: 'Family Suite',
+    nameTh: 'ฮับบิแทท ลอดจ์ 2 สวีทครอบครัว เกาะพยาม',
+    category: 'THE HUB GUESTHOUSE',
+    mainImage: `${STORAGE_ACC}/37_lodge_2/01-Main.jpg`,
+    gallery: [{ file: '01-Main.jpg', labelEn: 'Hubitat Lodge 2', labelTh: 'ฮับบิแทท ลอดจ์ 2' }]
   }
 ];
 
@@ -1078,7 +1228,7 @@ export function generateV1Test(): AutoCutTestRun {
  * 🌴 V2: 5 Foto della Galleria dello STESSO Alloggio · Durata Intero MP3
  */
 export function generateV2Test(): AutoCutTestRun {
-  const lodgings = getVillageLodgingsLive();
+  const lodgings = getVillageLodgingsLive().filter(l => l.gallery && l.gallery.length >= 4);
   const lodging = getRandomItem(lodgings);
   const audio = getNextVillageAudioTrack();
   const totalDuration = audio.duration;
@@ -1235,7 +1385,7 @@ export let cachedLiveLastMinuteRooms: LiveLastMinuteRoomEntry[] | null = null;
  */
 export async function fetchLiveLastMinuteRooms(): Promise<LiveLastMinuteRoomEntry[]> {
   try {
-    const today = new Date().toISOString().substring(0, 10);
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
     const res = await fetch(`/api/octorate-grid?dateFrom=${today}&dateTo=${today}`);
     if (!res.ok) throw new Error(`Octorate grid HTTP ${res.status}`);
 
@@ -1244,12 +1394,18 @@ export async function fetchLiveLastMinuteRooms(): Promise<LiveLastMinuteRoomEntr
       ? payload.grid
       : (payload && payload.data && Array.isArray(payload.data) ? payload.data : []);
 
+    const TEST_MOTHER_IDS = new Set([649669, 921799]);
     const verifiedRooms: LiveLastMinuteRoomEntry[] = [];
 
     VILLAGE_LODGINGS.forEach(lodging => {
+      if (TEST_MOTHER_IDS.has(lodging.motherId)) return;
+      const validIds: number[] = (lodging as any).motherIds
+        ? (lodging as any).motherIds
+        : [lodging.motherId];
+
       const matched = items.find((it: any) => {
         const idNum = Number(it.id || it.motherRateId || it.ratePlanId || 0);
-        return idNum === lodging.motherId;
+        return validIds.includes(idNum);
       });
 
       if (matched && Array.isArray(matched.days)) {
@@ -1271,25 +1427,13 @@ export async function fetchLiveLastMinuteRooms(): Promise<LiveLastMinuteRoomEntr
       }
     });
 
-    if (verifiedRooms.length > 0) {
-      cachedLiveLastMinuteRooms = verifiedRooms;
-      return verifiedRooms;
-    }
+    cachedLiveLastMinuteRooms = verifiedRooms;
+    console.log(`[LM1 Live Fetch] ${today} (Bangkok) -> ${verifiedRooms.length} alloggi reali disponibili sulle 3 strutture:`, verifiedRooms.map(r => `${r.lodging.lodgingTitle} (${r.livePrice} THB)`));
+    return verifiedRooms;
   } catch (err) {
-    console.warn('[LM1 Live Fetch] Errore fetch grid, utilizzo baseline certificata odierna:', err);
+    console.warn('[LM1 Live Fetch] Errore fetch grid:', err);
+    return [];
   }
-
-  // Fallback certificato del Calendario Octorate di oggi (Green 711 ฿, Camel 387 ฿, Lagoon 387 ฿)
-  const green = VILLAGE_LODGINGS.find(l => l.id === 'green-bungalow')!;
-  const camel = VILLAGE_LODGINGS.find(l => l.id === 'camel-tent')!;
-  const lagoon = VILLAGE_LODGINGS.find(l => l.id === 'lagoon-tent')!;
-
-  cachedLiveLastMinuteRooms = [
-    { lodging: green, livePrice: 711, availability: 1 },
-    { lodging: camel, livePrice: 387, availability: 1 },
-    { lodging: lagoon, livePrice: 387, availability: 1 }
-  ];
-  return cachedLiveLastMinuteRooms;
 }
 
 /**

@@ -115,12 +115,45 @@ export function AutoCutLabView() {
   // 🛡️ REGOLA 21 AGENTS.MD: PERSISTENZA AL REFRESH (ZERO RIGENERAZIONE AL RICARICAMENTO DELLA PAGINA)
   // Non rigenera il video né brucia token al semplice refresh: mantiene quello salvato nel browser!
   React.useEffect(() => {
+    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const qMode = urlParams?.get('mode')?.toUpperCase();
+    const isLm1Initial = qMode === 'LM1' || activeMode === 'LM1';
+
+    if (typeof window !== 'undefined') {
+      (window as any).__autoCutLm1Ready = !isLm1Initial;
+    }
+
+    if (isLm1Initial) {
+      fetchLiveLastMinuteRooms().then((rooms) => {
+        if (typeof window !== 'undefined') {
+          (window as any).__autoCutLm1Count = rooms.length;
+        }
+        if (rooms && rooms.length > 0) {
+          const liveLm1 = generateLM1Test(rooms);
+          setCurrentTest(liveLm1);
+          setTestsByMode(prev => {
+            const updated = { ...prev, LM1: liveLm1 };
+            try {
+              localStorage.setItem('autocut_tests_by_mode', JSON.stringify(updated));
+              localStorage.setItem('autocut_current_test', JSON.stringify(liveLm1));
+            } catch (e) {}
+            return updated;
+          });
+          setShuffleKey(k => k + 1);
+        }
+      }).finally(() => {
+        if (typeof window !== 'undefined') {
+          (window as any).__autoCutLm1Ready = true;
+        }
+      });
+    }
+
     fetchLiveKitchenAvailability().then(() => {
       const liveSpecials = getLiveDailySpecialDishes();
       setDailySpecialDishes(liveSpecials);
 
       const hasSavedTests = typeof window !== 'undefined' && localStorage.getItem('autocut_tests_by_mode');
-      if (!hasSavedTests) {
+      if (!hasSavedTests && !isLm1Initial) {
         const initialP1 = generateAutoCutTestByMode('P1');
         setCurrentTest(initialP1);
         setTestsByMode(prev => {
