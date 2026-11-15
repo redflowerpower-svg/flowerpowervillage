@@ -380,19 +380,76 @@ export function calculateDynamicMinStay(
 
   // 2b. Integrazione Giorni a Disponibilità 0 / Stop Sell dalla Griglia Octorate (Stato Inventario Reale)
   if (Array.isArray(calendarItems) && calendarItems.length > 0) {
+    const TWIN_MOTHER_TO_KEY_AND_BE: Record<number, { roomKey: string; beId: number; companionMotherId: number; companionBeId: number }> = {
+      529773: { roomKey: 'jungle villa', beId: 529784, companionMotherId: 960389, companionBeId: 960403 },
+      495795: { roomKey: 'jungle villa left', beId: 495807, companionMotherId: 960385, companionBeId: 960415 },
+      495796: { roomKey: 'jungle villa right', beId: 495980, companionMotherId: 960387, companionBeId: 960427 },
+      494840: { roomKey: 'peace & love villa', beId: 495566, companionMotherId: 960383, companionBeId: 960391 },
+      960389: { roomKey: 'jungle villa', beId: 960403, companionMotherId: 529773, companionBeId: 529784 },
+      960385: { roomKey: 'jungle villa left', beId: 960415, companionMotherId: 495795, companionBeId: 495807 },
+      960387: { roomKey: 'jungle villa right', beId: 960427, companionMotherId: 495796, companionBeId: 495980 },
+      960383: { roomKey: 'peace & love villa', beId: 960391, companionMotherId: 494840, companionBeId: 495566 }
+    };
+
+    const calById = new Map<number, any>();
+    calendarItems.forEach((ci: any) => {
+      const idNum = Number(ci?.id);
+      if (idNum && !calById.has(idNum)) {
+        calById.set(idNum, ci);
+      }
+    });
+
     calendarItems.forEach((cItem: any) => {
       const cId = Number(cItem.id);
-      const motherMatch = Object.entries(ALL_ACCOMMODATIONS_MAP).find(([_, v]) => v.motherId === cId);
-      if (!motherMatch) return;
-      const roomKey = motherMatch[0];
+      const twinInfo = TWIN_MOTHER_TO_KEY_AND_BE[cId];
+      let roomKey: string | undefined;
+      let beId: number | undefined;
+
+      if (twinInfo) {
+        // Se entrambi i gemelli sono presenti nella griglia, ignora quello in standby con la BE tutta chiusa
+        if (calById.has(twinInfo.companionMotherId)) {
+          const ownBeDays = calById.get(twinInfo.beId)?.days || [];
+          const cmpBeDays = calById.get(twinInfo.companionBeId)?.days || [];
+          const ownHasOpen = ownBeDays.some((bd: any) => !bd.stopSells && !bd.closed);
+          const cmpHasOpen = cmpBeDays.some((bd: any) => !bd.stopSells && !bd.closed);
+          if (!ownHasOpen && cmpHasOpen) return;
+        }
+        roomKey = twinInfo.roomKey;
+        beId = twinInfo.beId;
+      } else {
+        const motherMatch = Object.entries(ALL_ACCOMMODATIONS_MAP).find(([_, v]) => v.motherId === cId);
+        if (!motherMatch) return;
+        roomKey = motherMatch[0];
+        if (motherMatch[1]?.ids?.[1]) {
+          beId = Number(motherMatch[1].ids[1]);
+        }
+      }
+      if (!roomKey) return;
+
+      const beCalItem = beId ? calById.get(beId) : undefined;
+      const beDaysByDate = new Map<string, any>();
+      if (Array.isArray(beCalItem?.days)) {
+        beCalItem.days.forEach((bd: any) => {
+          const bStr = toThailandDateStr(bd.date || bd.day);
+          if (bStr) beDaysByDate.set(bStr, bd);
+        });
+      }
 
       (cItem.days || []).forEach((d: any) => {
-        const isUnavailable = (d.availability !== undefined && Number(d.availability) <= 0) || d.stopSells === true || d.closed === true;
-        if (isUnavailable) {
-          const dStr = toThailandDateStr(d.date || d.day);
-          if (dStr) {
-            roomUnavailableMap[roomKey].push({ in: dStr, out: addDaysISO(dStr, 1) });
+        const dStr = toThailandDateStr(d.date || d.day);
+        if (!dStr) return;
+
+        const avail = d.availability !== undefined ? Number(d.availability) : 1;
+        let isUnavailable = avail <= 0;
+        if (!isUnavailable && (d.stopSells === true || d.closed === true)) {
+          const beDay = beDaysByDate.get(dStr);
+          if (!beDay || beDay.stopSells === true || beDay.closed === true) {
+            isUnavailable = true;
           }
+        }
+
+        if (isUnavailable) {
+          roomUnavailableMap[roomKey!].push({ in: dStr, out: addDaysISO(dStr, 1) });
         }
       });
     });
@@ -401,6 +458,7 @@ export function calculateDynamicMinStay(
   const todayStr = toThailandDateStr(new Date());
   const rangeStartStr = dateRange?.start ? toThailandDateStr(dateRange.start) : todayStr;
   const rangeEndStr = dateRange?.end ? toThailandDateStr(dateRange.end) : getSeasonalEndDateStr(todayStr);
+  const rangeEndExclusiveStr = addDaysISO(rangeEndStr, 1);
 
   // Calcolo Puro Gap-Fill Assoluto per ogni alloggio
   Object.entries(roomBookingsMap).forEach(([key, { motherId, name: roomName, list }]) => {
@@ -436,11 +494,14 @@ export function calculateDynamicMinStay(
 
     if (mergedOccupied.length === 0) {
       // Stanza completamente libera per tutta la stagione: ripristina la baseline su tutto il range
-      gaps.push({ start: rangeStartStr, end: rangeEndStr });
+      gaps.push({ start: rangeStartStr, end: rangeEndExclusiveStr });
     } else {
       // 1. Gap iniziale: da rangeStartStr al checkin del primo blocco occupato
       if (mergedOccupied[0].in > rangeStartStr) {
-        gaps.push({ start: rangeStartStr, end: mergedOccupied[0].in });
+        const firstGapEnd = mergedOccupied[0].in > rangeEndExclusiveStr ? rangeEndExclusiveStr : mergedOccupied[0].in;
+        if (rangeStartStr < firstGapEnd) {
+          gaps.push({ start: rangeStartStr, end: firstGapEnd });
+        }
       }
 
       // 2. Gap intermedi tra blocchi occupati consecutivi
@@ -449,19 +510,26 @@ export function calculateDynamicMinStay(
         const nextIn = mergedOccupied[i + 1].in;
         if (prevOut < nextIn && prevOut <= rangeEndStr && nextIn >= rangeStartStr) {
           const effectiveStart = prevOut < rangeStartStr ? rangeStartStr : prevOut;
-          if (effectiveStart < nextIn) {
-            gaps.push({ start: effectiveStart, end: nextIn });
+          const effectiveEnd = nextIn > rangeEndExclusiveStr ? rangeEndExclusiveStr : nextIn;
+          if (effectiveStart < effectiveEnd) {
+            gaps.push({ start: effectiveStart, end: effectiveEnd });
           }
         }
       }
 
       // 3. Gap finale (Coda): dall'ultimo checkout fino al termine della stagione
       const lastOut = mergedOccupied[mergedOccupied.length - 1].out;
-      if (lastOut < rangeEndStr) {
+      if (lastOut <= rangeEndStr) {
         const effectiveStart = lastOut < rangeStartStr ? rangeStartStr : lastOut;
-        gaps.push({ start: effectiveStart, end: rangeEndStr });
+        if (effectiveStart < rangeEndExclusiveStr) {
+          gaps.push({ start: effectiveStart, end: rangeEndExclusiveStr });
+        }
       }
     }
+
+    const targetIds = canonical?.ids && canonical.ids.length > 0
+      ? canonical.ids
+      : [String(motherId || getMotherRatePlanId(roomName) || roomName)];
 
     gaps.forEach(({ start: gapStart, end: gapEnd }) => {
       const pParts = parseThailandDateParts(gapStart);
@@ -473,11 +541,6 @@ export function calculateDynamicMinStay(
         const gapDays = Math.round((nextInTime - prevOutTime) / (1000 * 60 * 60 * 24));
 
         if (gapDays > 0) {
-          const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => a.motherId === motherId);
-          const targetIds = canonical?.ids && canonical.ids.length > 0
-            ? canonical.ids
-            : [String(motherId || getMotherRatePlanId(roomName) || roomName)];
-
           let cur = gapStart;
           let blockStart = cur;
           let blockMinStay = Math.min(gapDays, getBaselineMinStay(cur));
@@ -535,6 +598,53 @@ export function calculateDynamicMinStay(
             });
           }
         }
+      }
+    });
+
+    // Ripristina al baseline stagionale anche tutti i giorni occupati o non disponibili
+    mergedOccupied.forEach(({ in: occStart, out: occEnd }) => {
+      const clampedStart = occStart < rangeStartStr ? rangeStartStr : occStart;
+      const clampedEnd = occEnd > rangeEndExclusiveStr ? rangeEndExclusiveStr : occEnd;
+      if (clampedStart >= clampedEnd) return;
+
+      let cur = clampedStart;
+      let blockStart = cur;
+      let blockMinStay = getBaselineMinStay(cur);
+
+      while (cur < clampedEnd) {
+        const target = getBaselineMinStay(cur);
+        if (target !== blockMinStay) {
+          const blockEndInclusive = addDaysISO(cur, -1);
+          targetIds.forEach(targetId => {
+            updates.push({
+              roomTypeId: targetId,
+              motherId: motherId,
+              accommodationName: roomName,
+              dateFrom: blockStart,
+              dateTo: blockEndInclusive,
+              minStay: blockMinStay,
+              reason: `Ripristino Baseline su Giorni Non Disponibili/Occupati: M=${blockMinStay}`
+            });
+          });
+          blockStart = cur;
+          blockMinStay = target;
+        }
+        cur = addDaysISO(cur, 1);
+      }
+
+      const lastOccDateInclusive = addDaysISO(clampedEnd, -1);
+      if (blockStart <= lastOccDateInclusive) {
+        targetIds.forEach(targetId => {
+          updates.push({
+            roomTypeId: targetId,
+            motherId: motherId,
+            accommodationName: roomName,
+            dateFrom: blockStart,
+            dateTo: lastOccDateInclusive,
+            minStay: blockMinStay,
+            reason: `Ripristino Baseline su Giorni Non Disponibili/Occupati: M=${blockMinStay}`
+          });
+        });
       }
     });
   });

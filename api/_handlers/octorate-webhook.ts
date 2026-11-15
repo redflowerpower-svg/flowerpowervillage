@@ -10,14 +10,15 @@ import { runResortSentinelAudit } from "./resort-sentinel.js";
 import { clearOctorateGridCache } from "./octorate.js";
 import { ALL_OCTORATE_STRUCTURE_IDS, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
 import {
+  expandMinStayEntryWithStandbyKeepAlive,
   getActiveJungleSource,
   getCompanionRateId,
   getJungleTwinPairByRateId,
-  isLowSeasonKeepAliveDate,
   isMirrorReservation,
+  JUNGLE_RATE_PAIRS,
   JungleSourceStructureId,
   mirrorReservationToStandby,
-  STANDBY_KEEPALIVE_MIN_STAY,
+  postOctorateCalendarBulkWithRetry,
   syncActiveToStandbyCalendar
 } from "../_helpers/octorate-jungle-mirror.js";
 
@@ -303,7 +304,7 @@ export function calculateServerDynamicMinStay(
   }
 
   // 2b. Integrazione Giorni a Disponibilità 0 / Stop Sell dalla Griglia Octorate (Stato Inventario Reale)
-  // Se la disponibilità è a 0 o c'è stopSells/closed sulla tariffa madre (o BE), il giorno è bloccato e non affittabile
+  // Un giorno con availability > 0 ma stopSells sulla sola Madre resta disponibile se la corrispondente BE è aperta
   if (Array.isArray(calendarItems) && calendarItems.length > 0) {
     const pairKeyToCanonicalKey: Record<string, string> = {
       jv: 'jungle villa',
@@ -311,6 +312,14 @@ export function calculateServerDynamicMinStay(
       jvr: 'jungle villa right',
       pl: 'peace & love villa'
     };
+
+    const calById = new Map<number, any>();
+    calendarItems.forEach((ci: any) => {
+      const idNum = Number(ci?.id);
+      if (idNum && !calById.has(idNum)) {
+        calById.set(idNum, ci);
+      }
+    });
 
     calendarItems.forEach((cItem: any) => {
       const cId = Number(cItem.id);
@@ -326,25 +335,52 @@ export function calculateServerDynamicMinStay(
 
       // Mappa sulla tariffa madre corrispondente (supporta anche le madri gemelle 960383..960389 se FPV attiva)
       let roomKey: string | undefined;
+      let beId: number | undefined;
       if (twinPair && twinPair.isMother) {
         roomKey = pairKeyToCanonicalKey[twinPair.key];
+        const bePair = JUNGLE_RATE_PAIRS.find(p => p.key === twinPair.key && (p.isBe || p.label.includes('BE')));
+        if (bePair) {
+          beId = activeJungleSource === '366879' ? bePair.fpvId : bePair.jungleId;
+        }
       } else {
         const motherMatch = Object.entries(ALL_ACCOMMODATIONS_MAP).find(([_, v]) => v.motherId === cId);
         roomKey = motherMatch?.[0];
+        if (motherMatch?.[1]?.ids?.[1]) {
+          beId = Number(motherMatch[1].ids[1]);
+        }
       }
       if (!roomKey) return;
 
+      const beCalItem = beId ? calById.get(beId) : undefined;
+      const beDaysByDate = new Map<string, any>();
+      if (Array.isArray(beCalItem?.days)) {
+        beCalItem.days.forEach((bd: any) => {
+          const bStr = toThailandDateStr(bd.date || bd.day);
+          if (bStr) beDaysByDate.set(bStr, bd);
+        });
+      }
+
       (cItem.days || []).forEach((d: any) => {
-        const isUnavailable = (d.availability !== undefined && Number(d.availability) <= 0) || d.stopSells === true || d.closed === true;
-        if (isUnavailable) {
-          const dStr = toThailandDateStr(d.date || d.day);
-          if (dStr) {
-            roomUnavailableMap[roomKey].push({ in: dStr, out: addDaysISO(dStr, 1) });
+        const dStr = toThailandDateStr(d.date || d.day);
+        if (!dStr) return;
+
+        const avail = d.availability !== undefined ? Number(d.availability) : 1;
+        let isUnavailable = avail <= 0;
+        if (!isUnavailable && (d.stopSells === true || d.closed === true)) {
+          const beDay = beDaysByDate.get(dStr);
+          if (!beDay || beDay.stopSells === true || beDay.closed === true) {
+            isUnavailable = true;
           }
+        }
+
+        if (isUnavailable) {
+          roomUnavailableMap[roomKey!].push({ in: dStr, out: addDaysISO(dStr, 1) });
         }
       });
     });
   }
+
+  const rangeEndExclusive = addDaysISO(dateRange.end, 1);
 
   // 3. Calcolo intervalli occupati e gap per ciascun alloggio (incorporando unità collegate parent/child e giorni a disponibilità 0)
   Object.entries(roomBookingsMap).forEach(([key, { roomName, motherId, targetProductIds, bookings: bList }]) => {
@@ -373,11 +409,14 @@ export function calculateServerDynamicMinStay(
 
     if (mergedOccupied.length === 0) {
       // Stanza completamente libera (o dopo cancellazione totale): ripristina l'intera stagione
-      gaps.push({ start: dateRange.start, end: dateRange.end });
+      gaps.push({ start: dateRange.start, end: rangeEndExclusive });
     } else {
       // Gap iniziale
       if (mergedOccupied[0].in > dateRange.start) {
-        gaps.push({ start: dateRange.start, end: mergedOccupied[0].in });
+        const firstGapEnd = mergedOccupied[0].in > rangeEndExclusive ? rangeEndExclusive : mergedOccupied[0].in;
+        if (dateRange.start < firstGapEnd) {
+          gaps.push({ start: dateRange.start, end: firstGapEnd });
+        }
       }
 
       // Gap intermedi tra prenotazioni
@@ -386,21 +425,24 @@ export function calculateServerDynamicMinStay(
         const nextIn = mergedOccupied[i + 1].in;
         if (prevOut < nextIn && prevOut <= dateRange.end && nextIn >= dateRange.start) {
           const effectiveStart = prevOut < dateRange.start ? dateRange.start : prevOut;
-          if (effectiveStart < nextIn) {
-            gaps.push({ start: effectiveStart, end: nextIn });
+          const effectiveEnd = nextIn > rangeEndExclusive ? rangeEndExclusive : nextIn;
+          if (effectiveStart < effectiveEnd) {
+            gaps.push({ start: effectiveStart, end: effectiveEnd });
           }
         }
       }
 
       // Gap finale (Coda di stagione)
       const lastOut = mergedOccupied[mergedOccupied.length - 1].out;
-      if (lastOut < dateRange.end) {
+      if (lastOut <= dateRange.end) {
         const effectiveStart = lastOut < dateRange.start ? dateRange.start : lastOut;
-        gaps.push({ start: effectiveStart, end: dateRange.end });
+        if (effectiveStart < rangeEndExclusive) {
+          gaps.push({ start: effectiveStart, end: rangeEndExclusive });
+        }
       }
     }
 
-    const prodIds = targetProductIds && targetProductIds.length > 0 ? targetProductIds : [motherId];
+    const prodIds = targetProductIds && targetProductIds.length > 0 ? targetProductIds : [String(motherId)];
 
     gaps.forEach(({ start: gapStart, end: gapEnd }) => {
       const gapDays = daysDiffISO(gapStart, gapEnd);
@@ -413,12 +455,10 @@ export function calculateServerDynamicMinStay(
         while (cur < gapEnd) {
           const baseline = getBaselineMinStay(cur);
           const target = Math.min(gapDays, baseline);
-          const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => String(a.motherId) === String(motherId));
-          const allTargetIds = canonical?.ids && canonical.ids.length > 0 ? canonical.ids : [String(motherId)];
 
           if (target !== blockMinStay) {
             const blockEnd = addDaysISO(cur, -1);
-            allTargetIds.forEach(targetId => {
+            prodIds.forEach(targetId => {
               updates.push({
                 roomTypeId: String(targetId),
                 accommodationName: roomName,
@@ -438,10 +478,7 @@ export function calculateServerDynamicMinStay(
 
         const lastDate = addDaysISO(gapEnd, -1);
         if (blockStart <= lastDate) {
-          const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => String(a.motherId) === String(motherId));
-          const allTargetIds = canonical?.ids && canonical.ids.length > 0 ? canonical.ids : [String(motherId)];
-
-          allTargetIds.forEach(targetId => {
+          prodIds.forEach(targetId => {
             updates.push({
               roomTypeId: String(targetId),
               accommodationName: roomName,
@@ -454,6 +491,51 @@ export function calculateServerDynamicMinStay(
             });
           });
         }
+      }
+    });
+
+    // Ripristina al baseline stagionale anche tutti i giorni occupati o non disponibili (evita minStay=1 residui)
+    mergedOccupied.forEach(({ in: occStart, out: occEnd }) => {
+      const clampedStart = occStart < dateRange.start ? dateRange.start : occStart;
+      const clampedEnd = occEnd > rangeEndExclusive ? rangeEndExclusive : occEnd;
+      if (clampedStart >= clampedEnd) return;
+
+      let cur = clampedStart;
+      let blockStart = cur;
+      let blockMinStay = getBaselineMinStay(cur);
+
+      while (cur < clampedEnd) {
+        const target = getBaselineMinStay(cur);
+        if (target !== blockMinStay) {
+          const blockEnd = addDaysISO(cur, -1);
+          prodIds.forEach(targetId => {
+            updates.push({
+              roomTypeId: String(targetId),
+              accommodationName: roomName,
+              dateFrom: blockStart,
+              dateTo: blockEnd,
+              minStay: blockMinStay,
+              reason: `Ripristino Baseline su Giorni Non Disponibili/Occupati: M=${blockMinStay}`
+            });
+          });
+          blockStart = cur;
+          blockMinStay = target;
+        }
+        cur = addDaysISO(cur, 1);
+      }
+
+      const lastOccDate = addDaysISO(clampedEnd, -1);
+      if (blockStart <= lastOccDate) {
+        prodIds.forEach(targetId => {
+          updates.push({
+            roomTypeId: String(targetId),
+            accommodationName: roomName,
+            dateFrom: blockStart,
+            dateTo: lastOccDate,
+            minStay: blockMinStay,
+            reason: `Ripristino Baseline su Giorni Non Disponibili/Occupati: M=${blockMinStay}`
+          });
+        });
       }
     });
   });
@@ -829,46 +911,32 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
         // Invio sincronizzazione in blocchi (batch da 250 per Octorate API) specchiando anche la madre gemella in standby
         if (calculatedUpdates.length > 0) {
-          const resolveWebhookMinStayForRoom = (
-            roomId: number,
-            baseMinStay: number,
-            dateFrom: string,
-            dateTo: string
-          ): number => {
-            const pair = getJungleTwinPairByRateId(roomId);
-            if (
-              pair &&
-              pair.jungleId === roomId &&
-              activeJungleSource === '366879' &&
-              (isLowSeasonKeepAliveDate(dateFrom) || isLowSeasonKeepAliveDate(dateTo))
-            ) {
-              return Math.max(STANDBY_KEEPALIVE_MIN_STAY, baseMinStay);
+          const liveCalIdSet = new Set(calendarItems.map((it: any) => String(it?.id || '')).filter(Boolean));
+          const roomsPayloadMap = new Map<string, { room: number; dateFrom: string; dateTo: string; values: { minstay: number } }>();
+          const pushExpandedSegments = (roomId: number, dateFrom: string, dateTo: string, minStay: number) => {
+            if (liveCalIdSet.size > 0 && !liveCalIdSet.has(String(roomId))) return;
+            const segments = expandMinStayEntryWithStandbyKeepAlive(
+              roomId,
+              dateFrom,
+              dateTo,
+              minStay,
+              activeJungleSource
+            );
+            for (const seg of segments) {
+              roomsPayloadMap.set(`${seg.room}_${seg.dateFrom}_${seg.dateTo}`, seg);
             }
-            return baseMinStay;
           };
 
-          const liveCalIdSet = new Set(calendarItems.map((it: any) => String(it?.id || '')).filter(Boolean));
-          const roomsPayload: any[] = [];
           for (const u of calculatedUpdates) {
             const primaryId = Number(u.roomTypeId);
-            if (liveCalIdSet.size === 0 || liveCalIdSet.has(String(primaryId))) {
-              roomsPayload.push({
-                room: primaryId,
-                dateFrom: u.dateFrom,
-                dateTo: u.dateTo,
-                values: { minstay: resolveWebhookMinStayForRoom(primaryId, Number(u.minStay), u.dateFrom, u.dateTo) }
-              });
-            }
+            const minStayNum = Number(u.minStay);
+            pushExpandedSegments(primaryId, u.dateFrom, u.dateTo, minStayNum);
             const companionId = getCompanionRateId(primaryId);
-            if (companionId && (liveCalIdSet.size === 0 || liveCalIdSet.has(String(companionId)))) {
-              roomsPayload.push({
-                room: companionId,
-                dateFrom: u.dateFrom,
-                dateTo: u.dateTo,
-                values: { minstay: resolveWebhookMinStayForRoom(companionId, Number(u.minStay), u.dateFrom, u.dateTo) }
-              });
+            if (companionId) {
+              pushExpandedSegments(companionId, u.dateFrom, u.dateTo, minStayNum);
             }
           }
+          const roomsPayload = Array.from(roomsPayloadMap.values());
 
           const chunkSize = 250;
           const chunks: any[][] = [];
@@ -876,34 +944,22 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
             chunks.push(roomsPayload.slice(c, c + chunkSize));
           }
 
-          // Invio parallelo per massimizzare la velocità su Vercel Serverless
-          const batchPromises = chunks.map(async (chunk, idx) => {
-            const bulkRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify(chunk)
-            });
-            const bulkText = await bulkRes.text().catch(() => '');
-            let bulkJson: any = null;
-            try {
-              bulkJson = bulkText ? JSON.parse(bulkText) : null;
-            } catch {
-              // risposta non JSON
+          // Invio sequenziale con backoff anti-quota per evitare HTTP 403 API_QUOTA_EXCEEDED su Octorate
+          const { lastStatus } = await postOctorateCalendarBulkWithRetry(
+            {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            chunks,
+            {
+              interBatchDelayMs: 1200,
+              quotaRetryDelayMs: 2500,
+              maxQuotaRetries: 2,
+              logPrefix: '[OCTORATE WEBHOOK 24/7]'
             }
-            if (!bulkRes.ok || bulkJson?.success === false) {
-              console.error(`[OCTORATE WEBHOOK 24/7] Bulk minstay batch ${idx + 1}/${chunks.length} error (HTTP ${bulkRes.status}): ${bulkText.slice(0, 200)}`);
-            } else {
-              console.log(`[OCTORATE WEBHOOK 24/7] Bulk minstay batch ${idx + 1}/${chunks.length} sent (Status: ${bulkRes.status}).`);
-            }
-            return bulkRes.status;
-          });
-
-          const results = await Promise.all(batchPromises);
-          octorateStatus = results[0] || 200;
+          );
+          octorateStatus = lastStatus || 200;
           clearOctorateGridCache();
 
           // Sincronizzazione Gap-Fill su Octorate completata silenziosamente (zero spam Telegram)
