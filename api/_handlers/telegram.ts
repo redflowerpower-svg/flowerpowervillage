@@ -1547,7 +1547,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ callback_query_id: callbackQueryId, ...(text ? { text } : {}) })
-      }).catch(() => {});
+      }).catch(() => { });
 
     const editEditorMsg = (text: string, replyMarkup?: any) =>
       fetch(`https://api.telegram.org/bot${targetToken}/editMessageText`, {
@@ -1714,7 +1714,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ callback_query_id: callbackQueryId, ...(text ? { text } : {}) })
-      }).catch(() => {});
+      }).catch(() => { });
 
     const editEditorMsg = (text: string, replyMarkup?: any) =>
       fetch(`https://api.telegram.org/bot${targetToken}/editMessageText`, {
@@ -1728,6 +1728,22 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           ...(replyMarkup ? { reply_markup: replyMarkup } : {})
         })
       });
+
+    const messageThreadId = message.message_thread_id;
+    const sendSwitchNotice = (text: string, replyMarkup?: any) =>
+      fetch(`https://api.telegram.org/bot${targetToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: messageChatId,
+          ...(messageThreadId ? { message_thread_id: messageThreadId } : {}),
+          reply_to_message_id: messageId,
+          text,
+          parse_mode: 'HTML',
+          disable_notification: false,
+          ...(replyMarkup ? { reply_markup: replyMarkup } : {})
+        })
+      }).catch(() => { });
 
     if (callbackData === 'swv:cancel') {
       const currentActive = await getActiveJungleSource(supabase);
@@ -1761,7 +1777,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
       await answerCb('⏳ Avvio Switch Blindato a 6 Cancelli...');
       await editEditorMsg(
         '⏳ <b>SWITCH IN CORSO (Protocollo Blindato a 6 Cancelli)...</b>\n' +
-        '<i>Attendere 15–30 secondi...</i>'
+        '<i>Attendere 15–30 secondi... Riceverai un messaggio di avviso appena completato!</i>'
       );
 
       try {
@@ -1786,6 +1802,12 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           `📊 <b>52 Tariffe sincronizzate:</b> <code>${swRes.syncedEntries}</code> celle (Blocchi Fase 1: <code>${swRes.phase1Blocks}</code>, Fase 2: <code>${swRes.phase2Blocks}</code>)\n` +
           `🔒 <b>Verifica Finale Incrociata (Cancello 6):</b> <b>SUPERATA (${swRes.verificationAttempts} letture live GET /calendar)</b>`
         );
+        await sendSwitchNotice(
+          `🔔 <b>AVVISO: SWITCH COMPLETATO!</b>\n` +
+          `🟢 <b>In Produzione:</b> <b>${activeLabel}</b>\n` +
+          `🛡️ <b>In Standby:</b> <b>${swRes.outgoing === '807324' ? '🌴 Jungle Villas (807324)' : '🌺 Flower Power Village (366879)'}</b>\n\n` +
+          `✅ <b>Tutto pronto: ora puoi andare a verificare!</b>`
+        );
         return res.status(200).json({ status: 'swv_executed', active: swRes.active, outgoing: swRes.outgoing });
       } catch (swErr: any) {
         await editEditorMsg(
@@ -1797,6 +1819,10 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               [{ text: '🔄 Riprova / Verifica Stato', callback_data: 'swv:menu' }]
             ]
           }
+        );
+        await sendSwitchNotice(
+          `🚨 <b>AVVISO: Switch bloccato dal Cancello di Sicurezza!</b>\n` +
+          `Controlla i dettagli nel messaggio qui sopra.`
         );
         return res.status(200).json({ status: 'swv_blocked', error: swErr?.message || 'Unknown error' });
       }
@@ -1957,23 +1983,23 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
     const promptText = isModTemp
       ? [
-          '⚡ <b>MODALITÀ MODIFICA TEMPORANEA ATTIVA</b> 📝',
-          '',
-          'Scrivimi le modifiche da applicare <b>esclusivamente a questo cliente</b>.',
-          '',
-          '🛡️ <i>Nessuna regola verrà memorizzata per il futuro.</i>',
-          '',
-          '<i>(Invia /cancel per annullare)</i>'
-        ].join('\n')
+        '⚡ <b>MODALITÀ MODIFICA TEMPORANEA ATTIVA</b> 📝',
+        '',
+        'Scrivimi le modifiche da applicare <b>esclusivamente a questo cliente</b>.',
+        '',
+        '🛡️ <i>Nessuna regola verrà memorizzata per il futuro.</i>',
+        '',
+        '<i>(Invia /cancel per annullare)</i>'
+      ].join('\n')
       : [
-          '💾 <b>MODALITÀ MODIFICA DEFINITIVA ATTIVA</b> 🧠',
-          '',
-          'Scrivimi le correzioni da applicare a questa risposta.',
-          '',
-          '✨ <i>Rigenererò il testo e ti proporrò il pulsante per memorizzare la regola permanente nella Knowledge Base!</i>',
-          '',
-          '<i>(Invia /cancel per annullare)</i>'
-        ].join('\n');
+        '💾 <b>MODALITÀ MODIFICA DEFINITIVA ATTIVA</b> 🧠',
+        '',
+        'Scrivimi le correzioni da applicare a questa risposta.',
+        '',
+        '✨ <i>Rigenererò il testo e ti proporrò il pulsante per memorizzare la regola permanente nella Knowledge Base!</i>',
+        '',
+        '<i>(Invia /cancel per annullare)</i>'
+      ].join('\n');
 
     await fetch(`https://api.telegram.org/bot${targetToken}/sendMessage`, {
       method: 'POST',

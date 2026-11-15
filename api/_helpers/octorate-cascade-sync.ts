@@ -12,7 +12,9 @@
 import { formatDateDMY, formatAllDatesToDMY } from "./date-formatter.js";
 import { ALL_OCTORATE_STRUCTURE_IDS } from "./octorate-structures.js";
 import {
+  computeStandbyKeepAlivePrice,
   getActiveJungleSource,
+  getCompanionRateId,
   getJungleTwinPairByRateId,
   isLowSeasonKeepAliveDate,
   JungleSourceStructureId
@@ -54,12 +56,15 @@ export const CASCADE_MOTHER_ROOMS: CascadeRoomConfig[] = [
 
 const CASCADE_MOTHER_ID_SET = new Set<number>(CASCADE_MOTHER_ROOMS.map(r => r.motherId));
 const CASCADE_LEDGER_ROW_ID = 'cascade_price_ledger_v1';
+const CASCADE_SYNC_LOCK_ROW_ID = 'cascade_sync_lock_v1';
 const SYNC_COOLDOWN_MS = 60 * 1000; // 1 minuto anti-burst in memoria serverless
+const DISTRIBUTED_COOLDOWN_MS = 2 * 60 * 1000; // 2 minuti cooldown condiviso su Supabase tra istanze serverless
 
 export interface CascadeLedgerEntry {
   basePrice: number;
   discountPct: number;
   discountedPrice: number;
+  previousDiscountedPrice?: number;
   updatedAt: string;
 }
 
@@ -133,14 +138,71 @@ export async function saveCascadeLedger(
       }
     }
 
-    await supabaseAdmin.from('telegram_config').upsert({
+    const { error: upsertErr } = await supabaseAdmin.from('telegram_config').upsert({
       id: CASCADE_LEDGER_ROW_ID,
       bot_token: JSON.stringify(pruned),
       chat_id: 'cascade_ledger',
       updated_at: new Date().toISOString()
     });
+    if (upsertErr) {
+      console.warn('[Cascade Ledger Save Error]:', upsertErr);
+    }
   } catch (err) {
     console.warn('[Cascade Ledger Save Warning]:', err);
+  }
+}
+
+async function tryAcquireDistributedCascadeLock(
+  supabaseAdmin: any,
+  force: boolean
+): Promise<boolean> {
+  if (!supabaseAdmin) return true;
+  const nowMs = Date.now();
+  try {
+    if (!force) {
+      const { data, error } = await supabaseAdmin
+        .from('telegram_config')
+        .select('bot_token, updated_at')
+        .eq('id', CASCADE_SYNC_LOCK_ROW_ID)
+        .maybeSingle();
+
+      if (!error && data) {
+        let lockedUntilMs = 0;
+        if (data.bot_token) {
+          try {
+            const parsed = JSON.parse(data.bot_token);
+            if (typeof parsed?.lockedUntilMs === 'number') {
+              lockedUntilMs = parsed.lockedUntilMs;
+            }
+          } catch {
+            // ignore parse error
+          }
+        }
+        if (!lockedUntilMs && data.updated_at) {
+          const updatedMs = Date.parse(data.updated_at);
+          if (!Number.isNaN(updatedMs)) {
+            lockedUntilMs = updatedMs + DISTRIBUTED_COOLDOWN_MS;
+          }
+        }
+        if (nowMs < lockedUntilMs) {
+          return false;
+        }
+      }
+    }
+
+    const { error: lockUpsertErr } = await supabaseAdmin.from('telegram_config').upsert({
+      id: CASCADE_SYNC_LOCK_ROW_ID,
+      bot_token: JSON.stringify({ lockedUntilMs: nowMs + DISTRIBUTED_COOLDOWN_MS }),
+      chat_id: 'cascade_lock',
+      updated_at: new Date(nowMs).toISOString()
+    });
+    if (lockUpsertErr) {
+      console.warn('[Cascade Lock Upsert Warning]:', lockUpsertErr);
+    }
+    return true;
+  } catch (err) {
+    console.warn('[Cascade Lock Warning]:', err);
+    return true;
   }
 }
 
@@ -232,6 +294,18 @@ export interface CascadeSyncPlanOutput {
   ledgerChanged: boolean;
 }
 
+const KNOWN_CASCADE_STAGE_PCTS = [0, 2.5, 5, 10];
+
+function isKnownCascadeOrBasePrice(existing: CascadeLedgerEntry, livePrice: number): boolean {
+  if (livePrice === existing.basePrice) return true;
+  if (existing.previousDiscountedPrice !== undefined && livePrice === existing.previousDiscountedPrice) {
+    return true;
+  }
+  return KNOWN_CASCADE_STAGE_PCTS.some(
+    (pct) => computeDiscountedPrice(existing.basePrice, pct) === livePrice
+  );
+}
+
 /**
  * Funzione pura e deterministica che confronta i prezzi live su Octorate con il ledger
  * per calcolare solo gli aggiornamenti necessari senza mai sovrascrivere modifiche manuali.
@@ -246,18 +320,17 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
 
   for (const room of rooms) {
     const twinPair = getJungleTwinPairByRateId(room.motherId);
+    const isStandbyTwin = Boolean(
+      twinPair &&
+      (activeJungleSource === '366879' ? twinPair.jungleId === room.motherId : twinPair.fpvId === room.motherId)
+    );
+    if (isStandbyTwin) {
+      // Le 4 madri gemelle in Standby seguono sempre il prezzo effettivo della rispettiva madre attiva
+      continue;
+    }
+
     for (let offset = 0; offset <= 7; offset++) {
       const targetDateStr = addDaysToDate(todayStr, offset);
-
-      if (
-        activeJungleSource === '366879' &&
-        twinPair &&
-        twinPair.jungleId === room.motherId &&
-        isLowSeasonKeepAliveDate(targetDateStr)
-      ) {
-        // Regola Standby Asimmetrica: in Bassa Stagione (01 Giu - 31 Ott) Jungle Villas (807324) resta a 2x Keep-Alive
-        continue;
-      }
 
       const key = `${room.motherId}_${targetDateStr}`;
       const livePrice = livePriceMap.get(key);
@@ -268,43 +341,82 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
 
       const targetDiscountPct = getStageDiscountPctForOffset(offset);
       const existing = nextLedger[key];
+      let effectiveActivePrice = livePrice;
 
       if (existing && existing.discountedPrice === livePrice) {
         // Nessuna modifica manuale rilevata: il prezzo su Octorate corrisponde a quello da noi scritto.
         const basePrice = existing.basePrice;
-        if (existing.discountPct === targetDiscountPct) {
-          continue;
-        }
+        if (existing.discountPct !== targetDiscountPct) {
+          const newDiscounted = computeDiscountedPrice(basePrice, targetDiscountPct);
+          effectiveActivePrice = newDiscounted;
+          if (newDiscounted !== livePrice) {
+            bulkPayload.push({
+              room: room.motherId,
+              dateFrom: targetDateStr,
+              dateTo: targetDateStr,
+              values: { price: newDiscounted }
+            });
+          }
 
-        const newDiscounted = computeDiscountedPrice(basePrice, targetDiscountPct);
-        if (newDiscounted !== livePrice) {
-          bulkPayload.push({
-            room: room.motherId,
-            dateFrom: targetDateStr,
-            dateTo: targetDateStr,
-            values: { price: newDiscounted }
-          });
+          if (targetDiscountPct === 0) {
+            delete nextLedger[key];
+          } else {
+            nextLedger[key] = {
+              basePrice,
+              discountPct: targetDiscountPct,
+              discountedPrice: newDiscounted,
+              previousDiscountedPrice: existing.discountedPrice,
+              updatedAt: nowIso
+            };
+          }
+          ledgerChanged = true;
         }
+      } else if (existing && isKnownCascadeOrBasePrice(existing, livePrice)) {
+        // Ritardo di propagazione Octorate o prezzo di uno stadio precedente:
+        // NON sovrascrivere basePrice con livePrice per evitare doppi sconti ricorsivi.
+        const basePrice = existing.basePrice;
+        const newDiscounted = computeDiscountedPrice(basePrice, targetDiscountPct);
 
         if (targetDiscountPct === 0) {
+          effectiveActivePrice = basePrice;
+          if (livePrice !== basePrice) {
+            bulkPayload.push({
+              room: room.motherId,
+              dateFrom: targetDateStr,
+              dateTo: targetDateStr,
+              values: { price: basePrice }
+            });
+          }
           delete nextLedger[key];
+          ledgerChanged = true;
         } else {
-          nextLedger[key] = {
-            basePrice,
-            discountPct: targetDiscountPct,
-            discountedPrice: newDiscounted,
-            updatedAt: nowIso
-          };
+          effectiveActivePrice = newDiscounted;
+          if (newDiscounted !== livePrice) {
+            bulkPayload.push({
+              room: room.motherId,
+              dateFrom: targetDateStr,
+              dateTo: targetDateStr,
+              values: { price: newDiscounted }
+            });
+          }
+
+          if (existing.discountPct !== targetDiscountPct || existing.discountedPrice !== newDiscounted) {
+            nextLedger[key] = {
+              basePrice,
+              discountPct: targetDiscountPct,
+              discountedPrice: newDiscounted,
+              previousDiscountedPrice: existing.discountedPrice,
+              updatedAt: nowIso
+            };
+            ledgerChanged = true;
+          }
         }
-        ledgerChanged = true;
       } else {
-        // Nuova data o modifica manuale rilevata (da Portale Octorate o da Dashboard):
-        // Se non esiste ancora alcun record nel ledger ma Octorate ha già lo sconto legacy esatto
-        // del vecchio sistema hardcoded, riconosciamo il basePrice legacy per evitare il doppio sconto
-        // alla prima esecuzione post-migrazione.
+        // Nuova data o modifica manuale reale rilevata (da Portale Octorate o da Dashboard):
+        // Se Octorate ha già lo sconto esatto sul basePrice canonico della stanza,
+        // riconosciamo quel basePrice anche se nel ledger era presente un prezzo precedente diverso.
         let basePrice = livePrice;
         if (
-          !existing &&
           targetDiscountPct > 0 &&
           livePrice === computeDiscountedPrice(room.basePrice, targetDiscountPct)
         ) {
@@ -314,29 +426,73 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
         const newDiscounted = computeDiscountedPrice(basePrice, targetDiscountPct);
 
         if (targetDiscountPct === 0) {
+          effectiveActivePrice = livePrice;
           if (existing) {
             delete nextLedger[key];
             ledgerChanged = true;
           }
-          continue;
-        }
+        } else {
+          effectiveActivePrice = newDiscounted;
+          if (newDiscounted !== livePrice) {
+            bulkPayload.push({
+              room: room.motherId,
+              dateFrom: targetDateStr,
+              dateTo: targetDateStr,
+              values: { price: newDiscounted }
+            });
+          }
 
-        if (newDiscounted !== livePrice) {
-          bulkPayload.push({
-            room: room.motherId,
-            dateFrom: targetDateStr,
-            dateTo: targetDateStr,
-            values: { price: newDiscounted }
-          });
+          nextLedger[key] = {
+            basePrice,
+            discountPct: targetDiscountPct,
+            discountedPrice: newDiscounted,
+            previousDiscountedPrice: existing?.discountedPrice,
+            updatedAt: nowIso
+          };
+          ledgerChanged = true;
         }
+      }
 
-        nextLedger[key] = {
-          basePrice,
-          discountPct: targetDiscountPct,
-          discountedPrice: newDiscounted,
-          updatedAt: nowIso
-        };
-        ledgerChanged = true;
+      if (twinPair) {
+        const standbyMotherId =
+          getCompanionRateId(room.motherId) ||
+          (activeJungleSource === '366879' ? twinPair.jungleId : twinPair.fpvId);
+        if (standbyMotherId) {
+          const expectedStandbyPrice =
+            activeJungleSource === '366879' && isLowSeasonKeepAliveDate(targetDateStr)
+              ? computeStandbyKeepAlivePrice(effectiveActivePrice, twinPair.key)
+              : effectiveActivePrice;
+          const standbyKey = `${standbyMotherId}_${targetDateStr}`;
+          const liveStandbyPrice = livePriceMap.get(standbyKey);
+
+          if (liveStandbyPrice !== expectedStandbyPrice) {
+            bulkPayload.push({
+              room: standbyMotherId,
+              dateFrom: targetDateStr,
+              dateTo: targetDateStr,
+              values: { price: expectedStandbyPrice }
+            });
+          }
+
+          if (targetDiscountPct === 0) {
+            if (nextLedger[standbyKey]) {
+              delete nextLedger[standbyKey];
+              ledgerChanged = true;
+            }
+          } else if (nextLedger[key]) {
+            const activeEntry = nextLedger[key];
+            const prevStandby = nextLedger[standbyKey];
+            if (
+              !prevStandby ||
+              prevStandby.basePrice !== activeEntry.basePrice ||
+              prevStandby.discountPct !== activeEntry.discountPct ||
+              prevStandby.discountedPrice !== activeEntry.discountedPrice
+            ) {
+              nextLedger[standbyKey] = { ...activeEntry };
+              ledgerChanged = true;
+            }
+          }
+        }
       }
     }
   }
@@ -405,6 +561,11 @@ export async function checkAndSyncCascadeLastMinute(
   const nowMs = Date.now();
   if (!force && nowMs - lastSyncTimestampMs < SYNC_COOLDOWN_MS) {
     return { synced: false, message: 'Sync sconti a cascata in cooldown (1 min).' };
+  }
+
+  const lockAcquired = await tryAcquireDistributedCascadeLock(supabaseAdmin, force);
+  if (!lockAcquired) {
+    return { synced: false, message: 'Sync sconti a cascata in cooldown distribuito (2 min).' };
   }
 
   const todayStr = getThailandTodayStr();

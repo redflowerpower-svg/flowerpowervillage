@@ -803,7 +803,7 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
             })
         : annotatedUpdates.map(u => ({
             ...u,
-            roomTypeId: String(u.motherId || u.roomTypeId)
+            roomTypeId: String(u.roomTypeId || u.motherId)
           }));
 
       const endpoints = [

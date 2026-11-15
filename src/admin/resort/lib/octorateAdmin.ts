@@ -51,7 +51,7 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'jungle villa right': {
     motherId: 495796,
     name: 'Jungle Villa Right',
-    ids: ['495796', '495980', '495976', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056', '960387', '960427', '960428', '960429', '960430', '960431', '960432', '960433', '960434', '960435', '960436', '960437', '960438'],
+    ids: ['495796', '495980', '495976', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056', '960387', '960427', '960428', '960429', '960430', '960431', '960432', '960433', '960434', '960435', '960436', '960437', '960438'],
     keywords: [["jungle", "jv"], ["right", "jvr"]],
     linkedKeys: ['jungle villa']
   },
@@ -64,43 +64,43 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'villa penthouse': {
     motherId: 421511,
     name: 'Villa Penthouse',
-    ids: ['421511', '449348', '421513', '421516', '421520', '421522', '421525', '421527', '421530', '921876', '921877', '421532', '421533'],
+    ids: ['421511', '449348', '422445', '421516', '421520', '421522', '421525', '421527', '421530', '921876', '921877', '421532', '421533'],
     keywords: [["penthouse", "pent"]]
   },
   'yellow bungalow': {
     motherId: 293957,
     name: 'Yellow Bungalow',
-    ids: ['293957', '449385', '293958', '332055', '332054', '331921', '332057', '331922', '332060', '921878', '921879', '297022', '340198'],
+    ids: ['293957', '449385', '422422', '332055', '332054', '331921', '332057', '331922', '332060', '921878', '921879', '297022', '340198'],
     keywords: [["yellow"]]
   },
   'red bungalow': {
     motherId: 293954,
     name: 'Red Bungalow',
-    ids: ['293954', '449422', '293953', '332030', '332029', '330964', '332035', '330970', '332036', '921880', '921881', '297021', '340196'],
+    ids: ['293954', '449422', '422131', '332030', '332029', '330964', '332035', '330970', '332036', '921880', '921881', '297021', '340196'],
     keywords: [["red"]]
   },
   'green bungalow': {
     motherId: 293962,
     name: 'Green Bungalow',
-    ids: ['293962', '449668', '293961', '332070', '332066', '331923', '332072', '331924', '332074', '921882', '921883', '297023', '340200'],
+    ids: ['293962', '449668', '422402', '332070', '332066', '331923', '332072', '331924', '332074', '921882', '921883', '297023', '340200'],
     keywords: [["green"]]
   },
   'camel tent bungalow': {
     motherId: 293965,
     name: 'Camel Tent',
-    ids: ['293965', '449675', '422325', '293966', '332089', '332084', '297025'],
+    ids: ['293965', '449675', '422325', '332089', '332084', '297025'],
     keywords: [["camel"]]
   },
   'lagoon tent bungalow': {
     motherId: 293955,
     name: 'Lagoon Tent',
-    ids: ['293955', '449674', '422351', '293956', '332081', '332077', '297024'],
+    ids: ['293955', '449674', '422351', '332081', '332077', '297024'],
     keywords: [["lagoon"]]
   },
   'internal room': {
     motherId: 293942,
     name: 'Internal Room',
-    ids: ['293942', '449742', '293941', '332109', '332105', '340367', '916840', '421998', '916838', '921898', '921899', '297027', '422147'],
+    ids: ['293942', '449742', '872182', '332109', '332105', '340367', '916840', '421998', '916838', '921898', '921899', '297027', '422147'],
     keywords: [["internal", "inter"]]
   },
   'room 1': {
@@ -142,7 +142,7 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'lodge 2': {
     motherId: 883795,
     name: 'Lodge 2',
-    ids: ['883795', '923905', '916108', '916107', '916109', '916114', '916829', '916105', '916830', '921886', '921887', '916103', '916104'],
+    ids: ['883795', '923905', '916110', '916107', '916109', '916114', '916829', '916105', '916830', '921886', '921887', '916103', '916104'],
     keywords: [["lodge"], ["2", "two"]]
   },
   'fake bungalow 1': {
@@ -474,8 +474,9 @@ export function calculateDynamicMinStay(
 
         if (gapDays > 0) {
           const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => a.motherId === motherId);
-          const derivedIds = canonical?.ids?.filter(id => String(id) !== String(motherId)) || [];
-          const targetIds = derivedIds.length > 0 ? derivedIds : [String(motherId || getMotherRatePlanId(roomName) || roomName)];
+          const targetIds = canonical?.ids && canonical.ids.length > 0
+            ? canonical.ids
+            : [String(motherId || getMotherRatePlanId(roomName) || roomName)];
 
           let cur = gapStart;
           let blockStart = cur;
@@ -498,7 +499,7 @@ export function calculateDynamicMinStay(
                   dateFrom: blockStart,
                   dateTo: blockEndInclusive,
                   minStay: blockMinStay,
-                  reason: gapDays < blockMinStay
+                  reason: gapDays < getBaselineMinStay(blockStart)
                     ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
                     : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
                 });
@@ -527,7 +528,7 @@ export function calculateDynamicMinStay(
                 dateFrom: blockStart,
                 dateTo: lastDateInclusive,
                 minStay: blockMinStay,
-                reason: gapDays < blockMinStay
+                reason: gapDays < getBaselineMinStay(blockStart)
                   ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
                   : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
               });

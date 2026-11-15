@@ -5,6 +5,7 @@ import { REAL_PRODUCTS_BY_PLAN } from "./update-restriction.js";
 import { calculateServerDynamicMinStay, ALL_ACCOMMODATIONS_MAP } from "./octorate-webhook.js";
 import { checkAndSyncCascadeLastMinute, loadCascadeLedger, getThailandTodayStr } from "../_helpers/octorate-cascade-sync.js";
 import { ALL_OCTORATE_STRUCTURE_IDS } from "../_helpers/octorate-structures.js";
+import { clearOctorateGridCache } from "./octorate.js";
 import {
   getActiveJungleSource,
   getCompanionRateId,
@@ -349,27 +350,57 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
   try {
     const currentYear = new Date().getFullYear();
     const endSeasonStr = `${currentYear + 1}-05-31`;
-    const structuresToAudit = [366879, 807324];
+    const structuresToAudit = ALL_OCTORATE_STRUCTURE_IDS;
     const bookingsData: any[] = [];
     const liveCalendarItems: any[] = [];
 
     await Promise.all(structuresToAudit.map(async (sId) => {
       try {
-        const resUrl = `https://api.octorate.com/connect/rest/v1/reservation/${sId}?type=STAY&startDate=${todayStr}&endDate=${endSeasonStr}&size=100&page=0`;
-        const bRes = await fetch(resUrl, { headers });
-        if (bRes.ok) {
-          const bJson = await bRes.json();
-          const items = bJson && Array.isArray(bJson.data) ? bJson.data : (Array.isArray(bJson) ? bJson : (bJson.reservations || []));
-          bookingsData.push(...items);
+        let resPage = 0;
+        let resHasMore = true;
+        while (resHasMore && resPage <= 10) {
+          const resUrl = `https://api.octorate.com/connect/rest/v1/reservation/${sId}?type=STAY&startDate=${todayStr}&endDate=${endSeasonStr}&size=100&page=${resPage}`;
+          const bRes = await fetch(resUrl, { headers });
+          if (bRes.ok) {
+            const bJson = await bRes.json();
+            const items = bJson && Array.isArray(bJson.data) ? bJson.data : (Array.isArray(bJson) ? bJson : (bJson.reservations || []));
+            if (items.length > 0) {
+              bookingsData.push(...items);
+              if (items.length < 100) {
+                resHasMore = false;
+              } else {
+                resPage++;
+              }
+            } else {
+              resHasMore = false;
+            }
+          } else {
+            resHasMore = false;
+          }
         }
 
-        const calUrl = `https://api.octorate.com/connect/rest/v1/calendar/${sId}?dateFrom=${todayStr}&dateTo=${endSeasonStr}&size=20&page=0`;
-        const cRes = await fetch(calUrl, { headers });
-        if (cRes.ok) {
-          const cJson = await cRes.json();
-          const cItems = cJson && Array.isArray(cJson.data) ? cJson.data : (Array.isArray(cJson) ? cJson : []);
-          for (const ci of cItems) ci._structureId = String(sId);
-          liveCalendarItems.push(...cItems);
+        let calPage = 0;
+        let calHasMore = true;
+        while (calHasMore && calPage <= 10) {
+          const calUrl = `https://api.octorate.com/connect/rest/v1/calendar/${sId}?dateFrom=${todayStr}&dateTo=${endSeasonStr}&size=50&page=${calPage}`;
+          const cRes = await fetch(calUrl, { headers });
+          if (cRes.ok) {
+            const cJson = await cRes.json();
+            const cItems = cJson && Array.isArray(cJson.data) ? cJson.data : (Array.isArray(cJson) ? cJson : []);
+            if (cItems.length > 0) {
+              for (const ci of cItems) ci._structureId = String(sId);
+              liveCalendarItems.push(...cItems);
+              if (cItems.length < 50) {
+                calHasMore = false;
+              } else {
+                calPage++;
+              }
+            } else {
+              calHasMore = false;
+            }
+          } else {
+            calHasMore = false;
+          }
         }
       } catch (err) {
         console.warn(`[Resort Sentinel] Warning fetching structure ${sId}:`, err);
@@ -387,26 +418,66 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     // Filtra i buchi residui (gapDays < baseline)
     const gapReductions = gapUpdates.filter(u => u.reason && u.reason.includes('Gap-Fill'));
 
+    const calItemById = new Map<number, any>();
+    for (const ci of liveCalendarItems) {
+      const idNum = Number(ci.id);
+      if (idNum && !calItemById.has(idNum)) {
+        calItemById.set(idNum, ci);
+      }
+    }
+
+    const healedRoomNamesToday = new Set<string>();
+    const compliantCandidatesToday: Array<{ name: string; dateFrom: string; dateTo: string; minStay: number }> = [];
+
     for (const u of gapReductions) {
-      const targetMotherId = Number(u.roomTypeId);
-      const companionMotherId = getCompanionRateId(targetMotherId);
+      if (!(u.dateFrom <= todayStr && u.dateTo >= todayStr)) continue;
+
+      const targetRateId = Number(u.roomTypeId);
+      const twinPair = getJungleTwinPairByRateId(targetRateId);
+      const isStandbyTwin = Boolean(
+        twinPair &&
+        ((activeJungleSource === '807324' && twinPair.fpvId === targetRateId) ||
+          (activeJungleSource === '366879' && twinPair.jungleId === targetRateId))
+      );
+      if (isStandbyTwin) continue;
+
+      const companionRateId = getCompanionRateId(targetRateId);
       const liveAudited = motherRoomsAudited.find(
-        m => m.id === targetMotherId || (companionMotherId !== null && m.id === companionMotherId)
+        m => m.id === targetRateId || (companionRateId !== null && m.id === companionRateId)
       );
 
-      // Se il buco interessa la data di oggi o i prossimi giorni
-      if (liveAudited && u.dateFrom <= todayStr && u.dateTo >= todayStr) {
-        if (liveAudited.liveMinStay > u.minStay) {
+      const rateCalItem = calItemById.get(targetRateId);
+      const todayDayObj = Array.isArray(rateCalItem?.days)
+        ? rateCalItem.days.find((d: any) => String(d.date || d.day || '').slice(0, 10) === todayStr)
+        : null;
+      const rateLiveMinStay = todayDayObj
+        ? Number(todayDayObj.minStay ?? todayDayObj.minstay ?? todayDayObj.minNights ?? 0)
+        : 0;
+
+      const observedMinStay = liveAudited
+        ? Math.max(liveAudited.liveMinStay, rateLiveMinStay || 0)
+        : rateLiveMinStay;
+
+      if (observedMinStay <= 0) continue;
+
+      if (observedMinStay > u.minStay) {
+        if (!healedRoomNamesToday.has(u.accommodationName)) {
+          healedRoomNamesToday.add(u.accommodationName);
+
+          // Trova la configurazione canonica e gli alloggi collegati (es. Jungle Villa Left & Right)
+          const canonicalEntry = Object.values(ALL_ACCOMMODATIONS_MAP).find(
+            c => c.motherId === targetRateId || c.ids.includes(String(targetRateId))
+          );
+          const targetMotherId = canonicalEntry?.motherId || targetRateId;
+
           anomalies.push({
             id: targetMotherId,
             name: u.accommodationName,
-            issue: `Buco residuo di ${u.minStay} notte/i tra ${u.dateFrom} e ${u.dateTo}: Octorate aveva minStay=${liveAudited.liveMinStay} invece di ${u.minStay}`,
+            issue: `Buco residuo di ${u.minStay} notte/i tra ${u.dateFrom} e ${u.dateTo}: Octorate aveva minStay=${observedMinStay} (rate #${targetRateId}) invece di ${u.minStay}`,
             date: u.dateFrom
           });
 
-          // Trova la configurazione canonica e gli alloggi collegati (es. Jungle Villa Left & Right)
-          const canonicalEntry = Object.values(ALL_ACCOMMODATIONS_MAP).find(c => c.motherId === targetMotherId);
-          const targetIdsToHeal = new Set<number>([targetMotherId]);
+          const targetIdsToHeal = new Set<number>([targetMotherId, targetRateId]);
           if (canonicalEntry) {
             canonicalEntry.ids.forEach(id => targetIdsToHeal.add(Number(id)));
             if (canonicalEntry.linkedKeys) {
@@ -421,6 +492,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
           }
 
           for (const rId of targetIdsToHeal) {
+            if (calItemById.size > 0 && !calItemById.has(rId)) continue;
             healPayload.push({
               room: rId,
               dateFrom: u.dateFrom,
@@ -434,19 +506,24 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
             dateFrom: u.dateFrom,
             dateTo: u.dateTo,
             minStay: u.minStay,
-            oldMinStay: liveAudited.liveMinStay
+            oldMinStay: observedMinStay
           });
-        } else {
-          // Già attivo, conforme e sincronizzato su Octorate
-          if (!verifiedActiveGapsToday.some(v => v.name === u.accommodationName)) {
-            verifiedActiveGapsToday.push({
-              name: u.accommodationName,
-              dateFrom: u.dateFrom,
-              dateTo: u.dateTo,
-              minStay: liveAudited.liveMinStay
-            });
-          }
         }
+      } else {
+        if (!compliantCandidatesToday.some(v => v.name === u.accommodationName)) {
+          compliantCandidatesToday.push({
+            name: u.accommodationName,
+            dateFrom: u.dateFrom,
+            dateTo: u.dateTo,
+            minStay: observedMinStay
+          });
+        }
+      }
+    }
+
+    for (const cand of compliantCandidatesToday) {
+      if (!healedRoomNamesToday.has(cand.name) && !verifiedActiveGapsToday.some(v => v.name === cand.name)) {
+        verifiedActiveGapsToday.push(cand);
       }
     }
 
@@ -569,14 +646,21 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
         headers,
         body: JSON.stringify(chunk)
       });
-      if (healRes.ok) {
+      const healText = await healRes.text().catch(() => '');
+      let healJson: any = null;
+      try {
+        healJson = healText ? JSON.parse(healText) : null;
+      } catch {
+        // risposta non JSON
+      }
+      if (healRes.ok && healJson?.success !== false) {
         healedCount += chunk.length;
       } else {
-        const errTxt = await healRes.text().catch(() => '');
-        console.error(`[Resort Sentinel] ❌ Errore Auto-Guarigione Octorate batch ${i / BATCH_SIZE + 1}: HTTP ${healRes.status} ${errTxt.slice(0, 120)}`);
+        console.error(`[Resort Sentinel] ❌ Errore Auto-Guarigione Octorate batch ${i / BATCH_SIZE + 1}: HTTP ${healRes.status} ${healText.slice(0, 200)}`);
       }
     }
     if (healedCount > 0) {
+      clearOctorateGridCache();
       console.info(`[Resort Sentinel] ✅ Auto-Guarigione completata: ${healedCount}/${uniqueHealList.length} blocchi risigillati/aggiornati su Octorate.`);
     }
   }
