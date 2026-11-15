@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [15/11/2026 - ORE 11:46] · FIX SOGGIORNO MINIMO DINAMICO (GAP-FILL) CAMEL TENT & SINCRONIZZAZIONE TARIFFE OCTORATE
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Diagnosi Completa su `Camel Tent` (`15/11/2026`)**:
+     - Accertato che la notte del `15/11/2026` aveva 1 solo buco libero prima della prenotazione `#126141610` (`16/11 → 22/11`), ma il MinStay restava bloccato a `2` notti per 4 cause cumulative:
+       - Paginazione troncata in `resort-sentinel.ts` (`page=0`) e `octorate-webhook.ts` (`page <= 5, size=20`) che escludeva la pagina 1 delle prenotazioni e le pagine alte delle tariffe dove risiedeva `293965` (`Camel Tent`).
+       - Sovrascrittura di `roomTypeId` con `motherId` in `useResortAdminStore.ts` e condizione errata `gapDays < blockMinStay` + esclusione di `motherId` in `octorateAdmin.ts`.
+       - Rifiuto silenzioso dei batch `POST /calendar/bulk` da parte di Octorate (`HTTP 200` con `{"error":"Room not found at index 3!","success":false}`) causato da 9 ID tariffa obsoleti/eliminati (tra cui `293966` per `Camel 14d`).
+  2. 🛠️ **Correzioni & Blindature Applicati**:
+     - Estesa la paginazione completa (`size=100` prenotazioni, `size=50` calendario fino a `page <= 10`) su tutte e 3 le strutture (`366879`, `807324`, `619403`), controllo per singola tariffa live e pulizia immediata cache `clearOctorateGridCache()`.
+     - Rimossi/aggiornati tutti i 9 ID tariffa obsoleti nelle mappe canoniche (`octorate-webhook.ts`, `octorateAdmin.ts`, `ResortVisualCalendar.tsx`, `octorate-auto-shield.ts`, `octorate-structures.ts`): rimossi `495977`, `293966`, `293956`; sostituiti `421513→422445`, `293958→422422`, `293953→422131`, `293961→422402`, `293941→872182`, `916108→916110`.
+     - Filtraggio automatico delle tariffe contro la griglia live Octorate prima dell'invio bulk e controllo rigoroso di `bulkJson?.success !== false` in `resort-sentinel.ts`, `octorate-webhook.ts` e `octorate.ts`.
+  3. ✅ **Verifica Live su Octorate**:
+     - Eseguito audit live (`6/6` blocchi aggiornati) e verificato tramite GET su `/calendar/366879` che tutte e 6 le tariffe attive di **Camel Tent** (`293965`, `449675`, `422325`, `332089`, `332084`, `297025`) risultano ora a `minStay: 1` e `availability: 1` per il `15/11/2026`.
+- **File aggiornati:** `api/_handlers/resort-sentinel.ts`, `api/_handlers/octorate-webhook.ts`, `api/_handlers/octorate.ts`, `api/_helpers/octorate-auto-shield.ts`, `api/_helpers/octorate-structures.ts`, `src/admin/resort/lib/octorateAdmin.ts`, `src/admin/resort/store/useResortAdminStore.ts`, `src/admin/resort/components/ResortVisualCalendar.tsx`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 VERIFICATO (`npx tsc --noEmit` e `npm run api:check` a `0` errori; tutte le 6 tariffe di Camel Tent aggiornate a `minStay: 1` su Octorate).
+
+---
+
 ### 🚀 [14/11/2026 - ORE 15:15] · MERGE SU MAIN & TAG DI RIPRISTINO SICURO (CLONE JUNGLE <-> FPV 52 TARIFFE)
 - **Cosa abbiamo fatto:**
   1. 🔖 **Punti di Ripristino Git Immutabili**:

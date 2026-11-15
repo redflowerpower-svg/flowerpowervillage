@@ -7,9 +7,11 @@ import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
 import { executeOctorateMove } from "../_helpers/octorate-move.js";
 import {
+  computeStandbyKeepAlivePrice,
   getActiveJungleSource,
   getCompanionRateId,
   getJungleTwinPairByRateId,
+  isLowSeasonKeepAliveDate,
   switchActiveJungleStructure,
   syncActiveToStandbyCalendar,
   JungleSourceStructureId
@@ -652,6 +654,114 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
     // Nascondi le 4 ville della struttura in standby per evitare duplicati nel calendario 30/365 giorni,
     // ma estrai le 4 Madri gemelle in standby per l'ispezione opzionale "Mostra Gemelle Standby (4)" in dashboard
     const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
+
+    // 🔄 Auto-allineamento prezzi 4 Madri Standby -> Madre Attiva (copre modifiche manuali sul portale Octorate anche oltre i 7gg)
+    if (!requestedStructure && accessToken) {
+      try {
+        const itemByRateId = new Map<number, any>();
+        for (const it of allFetchedItems) {
+          const idNum = Number(it?.id);
+          if (idNum) itemByRateId.set(idNum, it);
+        }
+
+        const addOneDay = (iso: string) => {
+          const [y, m, d] = iso.split('-').map(Number);
+          const dt = new Date(Date.UTC(y, (m || 1) - 1, (d || 1) + 1));
+          return dt.toISOString().slice(0, 10);
+        };
+
+        const priceDiffBlocks: Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }> = [];
+        for (const it of allFetchedItems) {
+          const standbyId = Number(it?.id);
+          const pair = getJungleTwinPairByRateId(standbyId);
+          if (!pair || !pair.isMother) continue;
+          const isStandby = activeJungleSource === '807324'
+            ? pair.fpvId === standbyId
+            : pair.jungleId === standbyId;
+          if (!isStandby) continue;
+
+          const activeId = getCompanionRateId(standbyId);
+          const activeItem = activeId ? itemByRateId.get(activeId) : null;
+          if (!activeItem || !Array.isArray(activeItem.days)) continue;
+
+          const standbyDayMap = new Map<string, any>();
+          for (const sDay of (Array.isArray(it.days) ? it.days : [])) {
+            const dStr = String(sDay?.date || '').slice(0, 10);
+            if (dStr) standbyDayMap.set(dStr, sDay);
+          }
+
+          const diffDays: Array<{ date: string; price: number }> = [];
+          for (const aDay of activeItem.days) {
+            const dStr = String(aDay?.date || '').slice(0, 10);
+            const activePrice = Number(aDay?.price ?? 0);
+            if (!dStr || activePrice <= 0) continue;
+
+            const expectedStandbyPrice =
+              activeJungleSource === '366879' && isLowSeasonKeepAliveDate(dStr)
+                ? computeStandbyKeepAlivePrice(activePrice, pair.key)
+                : activePrice;
+
+            const sDay = standbyDayMap.get(dStr);
+            const standbyPrice = Number(sDay?.price ?? 0);
+            if (Math.abs(standbyPrice - expectedStandbyPrice) > 0.01) {
+              if (sDay) sDay.price = expectedStandbyPrice;
+              diffDays.push({ date: dStr, price: expectedStandbyPrice });
+            }
+          }
+
+          diffDays.sort((a, b) => a.date.localeCompare(b.date));
+          let blockFrom = '';
+          let blockTo = '';
+          let blockPrice = -1;
+          for (const dd of diffDays) {
+            if (!blockFrom) {
+              blockFrom = dd.date;
+              blockTo = dd.date;
+              blockPrice = dd.price;
+            } else if (dd.date === blockTo && dd.price === blockPrice) {
+              continue;
+            } else if (dd.date === addOneDay(blockTo) && dd.price === blockPrice) {
+              blockTo = dd.date;
+            } else {
+              priceDiffBlocks.push({ room: standbyId, dateFrom: blockFrom, dateTo: blockTo, values: { price: blockPrice } });
+              blockFrom = dd.date;
+              blockTo = dd.date;
+              blockPrice = dd.price;
+            }
+          }
+          if (blockFrom) {
+            priceDiffBlocks.push({ room: standbyId, dateFrom: blockFrom, dateTo: blockTo, values: { price: blockPrice } });
+          }
+        }
+
+        if (priceDiffBlocks.length > 0) {
+          console.log(`[OCTORATE GRID] Rilevate ${priceDiffBlocks.length} discrepanze prezzi sulle 4 Madri Standby -> riallineamento automatico Octorate...`);
+          for (let i = 0; i < priceDiffBlocks.length; i += 150) {
+            const chunk = priceDiffBlocks.slice(i, i + 150);
+            const bulkRes = await fetch('https://api.octorate.com/connect/rest/v1/calendar/bulk', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+              },
+              body: JSON.stringify(chunk)
+            });
+            if (!bulkRes.ok) {
+              const errTxt = await bulkRes.text().catch(() => '');
+              console.warn(`[OCTORATE GRID] Standby auto-align chunk ${i / 150 + 1} HTTP ${bulkRes.status}: ${errTxt.slice(0, 150)}`);
+            }
+          }
+        }
+      } catch (alignErr) {
+        console.warn('[OCTORATE GRID] Standby twin price auto-align warning:', alignErr);
+      }
+
+      // ⚡ [CASCADE LAST-MINUTE 24/7] Auto-Roll in background per la finestra mobile 7 giorni
+      checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin).catch(err => {
+        console.warn('[octorate-grid] Cascade sync non-fatal warning:', err);
+      });
+    }
     const visibleItems = allFetchedItems.filter((item: any) => {
       const idNum = Number(item.id);
       if (activeJungleSource === '807324') {
@@ -863,14 +973,21 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
         },
         body: JSON.stringify(chunk)
       });
-      if (!bulkRes.ok) {
-        const errorText = await bulkRes.text();
-        throw new Error(`Batch ${idx + 1}/${chunks.length} failed (${bulkRes.status}): ${errorText}`);
+      const bulkText = await bulkRes.text().catch(() => '');
+      let bulkJson: any = null;
+      try {
+        bulkJson = bulkText ? JSON.parse(bulkText) : null;
+      } catch {
+        // risposta non JSON
+      }
+      if (!bulkRes.ok || bulkJson?.success === false) {
+        throw new Error(`Batch ${idx + 1}/${chunks.length} failed (${bulkRes.status}): ${bulkText}`);
       }
       return bulkRes.status;
     });
 
     await Promise.all(batchPromises);
+    clearOctorateGridCache();
 
     const isTest = executionMode === 'test_bungalows' || isTestEnvironment;
     const modeLabel = isTest ? 'Ambiente di Test (Fake Bungalows)' : 'Produzione Reale Resort';

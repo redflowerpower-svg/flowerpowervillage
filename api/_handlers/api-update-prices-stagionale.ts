@@ -5,7 +5,6 @@ import { clearOctorateGridCache } from "./octorate.js";
 import {
   computeStandbyKeepAlivePrice,
   getActiveJungleSource,
-  getCompanionRateId,
   getJungleTwinPairByRateId,
   isLowSeasonKeepAliveDate
 } from "../_helpers/octorate-jungle-mirror.js";
@@ -172,7 +171,7 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
     const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
 
     // 2. Formattazione e Risoluzione Date per il Bulk Payload (Octorate Golden Rule: Tariffa Madre Livello 0)
-    // Specchia automaticamente anche sulla Tariffa Madre gemella rispettando la Regola Standby Asimmetrica
+    // Specchia automaticamente tra struttura attiva e standby rispettando sempre la Regola Standby Asimmetrica
     const bulkPayload: Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }> = [];
     for (const item of filteredUpdates) {
       const dateFromFormatted = normalizeDateToYYYYMMDD(item.dateFrom, false);
@@ -180,28 +179,37 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
       const primaryRoom = Number(item.roomMotherId || item.room);
       const priceVal = Number(item.price);
 
-      bulkPayload.push({
-        room: primaryRoom,
-        dateFrom: dateFromFormatted,
-        dateTo: dateToFormatted,
-        values: { price: priceVal }
-      });
+      const pair = getJungleTwinPairByRateId(primaryRoom);
+      if (pair) {
+        const activeRoomId = activeJungleSource === '366879' ? pair.fpvId : pair.jungleId;
+        const standbyRoomId = activeJungleSource === '366879' ? pair.jungleId : pair.fpvId;
 
-      const companionId = getCompanionRateId(primaryRoom);
-      if (companionId) {
-        const companionPair = getJungleTwinPairByRateId(companionId);
-        if (activeJungleSource === '366879' && companionPair && companionPair.jungleId === companionId) {
+        bulkPayload.push({
+          room: activeRoomId,
+          dateFrom: dateFromFormatted,
+          dateTo: dateToFormatted,
+          values: { price: priceVal }
+        });
+
+        if (standbyRoomId === pair.jungleId) {
           bulkPayload.push(
-            ...splitRangeWithKeepAlive(companionId, dateFromFormatted, dateToFormatted, priceVal, companionPair.key)
+            ...splitRangeWithKeepAlive(standbyRoomId, dateFromFormatted, dateToFormatted, priceVal, pair.key)
           );
         } else {
           bulkPayload.push({
-            room: companionId,
+            room: standbyRoomId,
             dateFrom: dateFromFormatted,
             dateTo: dateToFormatted,
             values: { price: priceVal }
           });
         }
+      } else {
+        bulkPayload.push({
+          room: primaryRoom,
+          dateFrom: dateFromFormatted,
+          dateTo: dateToFormatted,
+          values: { price: priceVal }
+        });
       }
     }
 
