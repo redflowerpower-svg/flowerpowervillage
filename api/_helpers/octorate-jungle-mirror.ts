@@ -199,6 +199,149 @@ export function computeStandbyKeepAlivePrice(
 
 export const STANDBY_KEEPALIVE_MIN_STAY = 14;
 
+function addDaysToIsoDate(isoStr: string, delta: number): string {
+  const [y, m, d] = isoStr.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, (m || 1) - 1, (d || 1) + delta));
+  return dt.toISOString().slice(0, 10);
+}
+
+/**
+ * Spezza un intervallo minStay attorno a Luglio (01-07 .. 31-07) per preservare
+ * STANDBY_KEEPALIVE_MIN_STAY (14 notti) su Jungle Villas (807324) quando è in standby.
+ */
+export function expandMinStayEntryWithStandbyKeepAlive(
+  roomId: number,
+  dateFrom: string,
+  dateTo: string,
+  minStay: number,
+  activeJungleSource: JungleSourceStructureId
+): Array<{ room: number; dateFrom: string; dateTo: string; values: { minstay: number } }> {
+  const numRoomId = Number(roomId);
+  if (!dateFrom || !dateTo || dateFrom > dateTo) return [];
+
+  const pair = getJungleTwinPairByRateId(numRoomId);
+  if (!pair || pair.jungleId !== numRoomId || activeJungleSource !== '366879') {
+    return [{ room: numRoomId, dateFrom, dateTo, values: { minstay: minStay } }];
+  }
+
+  const startYear = Number(dateFrom.slice(0, 4));
+  const endYear = Number(dateTo.slice(0, 4));
+  if (isNaN(startYear) || isNaN(endYear)) {
+    return [{ room: numRoomId, dateFrom, dateTo, values: { minstay: minStay } }];
+  }
+
+  const segments: Array<{ room: number; dateFrom: string; dateTo: string; values: { minstay: number } }> = [];
+  let cursor = dateFrom;
+
+  for (let y = startYear; y <= endYear; y++) {
+    const julyStart = `${y}-07-01`;
+    const julyEnd = `${y}-07-31`;
+    if (julyEnd < cursor) continue;
+    if (julyStart > dateTo) break;
+
+    if (cursor < julyStart) {
+      segments.push({
+        room: numRoomId,
+        dateFrom: cursor,
+        dateTo: addDaysToIsoDate(julyStart, -1),
+        values: { minstay: minStay }
+      });
+      cursor = julyStart;
+    }
+
+    const keepAliveEnd = julyEnd < dateTo ? julyEnd : dateTo;
+    if (cursor <= keepAliveEnd) {
+      segments.push({
+        room: numRoomId,
+        dateFrom: cursor,
+        dateTo: keepAliveEnd,
+        values: { minstay: Math.max(STANDBY_KEEPALIVE_MIN_STAY, minStay) }
+      });
+      cursor = addDaysToIsoDate(keepAliveEnd, 1);
+    }
+  }
+
+  if (cursor <= dateTo) {
+    segments.push({
+      room: numRoomId,
+      dateFrom: cursor,
+      dateTo,
+      values: { minstay: minStay }
+    });
+  }
+
+  return segments;
+}
+
+/**
+ * Invia in sequenza chunk verso /calendar/bulk con pausa inter-batch e retry
+ * automatico su risposte HTTP 403/429 / API_QUOTA_EXCEEDED di Octorate.
+ */
+export async function postOctorateCalendarBulkWithRetry(
+  headers: Record<string, string>,
+  chunks: any[][],
+  options?: {
+    interBatchDelayMs?: number;
+    quotaRetryDelayMs?: number;
+    maxQuotaRetries?: number;
+    logPrefix?: string;
+  }
+): Promise<{ lastStatus: number; succeededItems: number }> {
+  const interBatchDelayMs = options?.interBatchDelayMs ?? 1200;
+  const quotaRetryDelayMs = options?.quotaRetryDelayMs ?? 2500;
+  const maxQuotaRetries = options?.maxQuotaRetries ?? 2;
+  const logPrefix = options?.logPrefix || '[OCTORATE BULK]';
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  let lastStatus = 200;
+  let succeededItems = 0;
+
+  for (let idx = 0; idx < chunks.length; idx++) {
+    const chunk = chunks[idx];
+    if (idx > 0 && interBatchDelayMs > 0) {
+      await sleep(interBatchDelayMs);
+    }
+
+    for (let attempt = 0; attempt <= maxQuotaRetries; attempt++) {
+      const bulkRes = await fetch('https://api.octorate.com/connect/rest/v1/calendar/bulk', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(chunk)
+      });
+      lastStatus = bulkRes.status;
+      const bulkText = await bulkRes.text().catch(() => '');
+      let bulkJson: any = null;
+      try {
+        bulkJson = bulkText ? JSON.parse(bulkText) : null;
+      } catch {
+        // risposta non JSON
+      }
+
+      if (bulkRes.ok && bulkJson?.success !== false) {
+        succeededItems += chunk.length;
+        console.log(`${logPrefix} Bulk batch ${idx + 1}/${chunks.length} sent (${chunk.length} items, HTTP ${bulkRes.status}).`);
+        break;
+      }
+
+      const isQuotaError =
+        bulkRes.status === 403 ||
+        bulkRes.status === 429 ||
+        bulkText.includes('API_QUOTA_EXCEEDED');
+
+      if (isQuotaError && attempt < maxQuotaRetries) {
+        console.warn(`${logPrefix} Quota Octorate (HTTP ${bulkRes.status}) su batch ${idx + 1}/${chunks.length}, attendo ${quotaRetryDelayMs}ms e riprovo (${attempt + 1}/${maxQuotaRetries})...`);
+        await sleep(quotaRetryDelayMs);
+        continue;
+      }
+
+      console.error(`${logPrefix} Errore batch ${idx + 1}/${chunks.length} (HTTP ${bulkRes.status}): ${bulkText.slice(0, 200)}`);
+      break;
+    }
+  }
+
+  return { lastStatus, succeededItems };
+}
+
 export const MIRROR_TAG = '[MIRROR_SYNC]';
 const ACTIVE_SOURCE_CONFIG_ID = 'active_jungle_source_v1';
 
@@ -913,8 +1056,11 @@ function build52RateDailyEntries(
     const motherPair = pairsForRoom.find(p => p.isMother);
     if (!motherPair) continue;
 
+    const bePair = pairsForRoom.find(p => p.isBe || p.label.includes('BE'));
     const srcMotherId = fromStructureId === '366879' ? motherPair.fpvId : motherPair.jungleId;
+    const srcBeId = bePair ? (fromStructureId === '366879' ? bePair.fpvId : bePair.jungleId) : undefined;
     const motherDays = snapshot.get(srcMotherId);
+    const beDays = srcBeId ? snapshot.get(srcBeId) : undefined;
     if (!motherDays || motherDays.size === 0) continue;
 
     for (const pair of pairsForRoom) {
@@ -1014,16 +1160,26 @@ function build52RateDailyEntries(
         } else {
           // Modalità ACTIVE (entrante): prezzi normali, disponibilità reale e regole Sacro Graal
           if (pair.isMother) {
+            const isMotherFreeActive =
+              mDay.availability > 0 &&
+              (pair.key !== 'jv' ||
+                ((leftAvail === undefined || leftAvail > 0) &&
+                  (rightAvail === undefined || rightAvail > 0)));
+            const beDay = beDays?.get(dateStr);
+            const forceOpenMother = Boolean(
+              isMotherFreeActive && beDay && beDay.stopSells === false && beDay.closed !== true
+            );
+
             entries.push({
               room: dstRateId,
               date: dateStr,
               values: {
                 ...availField,
                 ...(mDay.price ? { price: mDay.price } : {}),
-                stopSells: mDay.stopSells,
-                closed: mDay.closed,
-                closedArrival: mDay.closedArrival,
-                closedDeparture: mDay.closedDeparture,
+                stopSells: forceOpenMother ? false : mDay.stopSells,
+                closed: forceOpenMother ? false : mDay.closed,
+                closedArrival: forceOpenMother ? false : mDay.closedArrival,
+                closedDeparture: forceOpenMother ? false : mDay.closedDeparture,
                 ...(mDay.minstay ? { minstay: mDay.minstay } : {})
               }
             });

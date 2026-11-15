@@ -7,11 +7,13 @@ import { checkAndSyncCascadeLastMinute, loadCascadeLedger, getThailandTodayStr }
 import { ALL_OCTORATE_STRUCTURE_IDS } from "../_helpers/octorate-structures.js";
 import { clearOctorateGridCache } from "./octorate.js";
 import {
+  expandMinStayEntryWithStandbyKeepAlive,
   getActiveJungleSource,
   getCompanionRateId,
   getJungleTwinPairByRateId,
   isMirrorReservation,
   JUNGLE_RATE_PAIRS,
+  postOctorateCalendarBulkWithRetry,
   syncActiveToStandbyCalendar
 } from "../_helpers/octorate-jungle-mirror.js";
 
@@ -347,9 +349,10 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
   // -------------------------------------------------------------
   const imminentGapsHealed: Array<{ name: string; dateFrom: string; dateTo: string; minStay: number; oldMinStay: number }> = [];
   const verifiedActiveGapsToday: Array<{ name: string; dateFrom: string; dateTo: string; minStay: number }> = [];
+  let fullSeasonMinStayHealedRooms = 0;
   try {
     const currentYear = new Date().getFullYear();
-    const endSeasonStr = `${currentYear + 1}-05-31`;
+    const endSeasonStr = `${currentYear + 1}-10-31`;
     const structuresToAudit = ALL_OCTORATE_STRUCTURE_IDS;
     const bookingsData: any[] = [];
     const liveCalendarItems: any[] = [];
@@ -419,10 +422,97 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     const gapReductions = gapUpdates.filter(u => u.reason && u.reason.includes('Gap-Fill'));
 
     const calItemById = new Map<number, any>();
+    const calDayMapById = new Map<number, Map<string, any>>();
     for (const ci of liveCalendarItems) {
       const idNum = Number(ci.id);
       if (idNum && !calItemById.has(idNum)) {
         calItemById.set(idNum, ci);
+        const dayMap = new Map<string, any>();
+        if (Array.isArray(ci.days)) {
+          for (const d of ci.days) {
+            const dStr = String(d?.date || d?.day || '').slice(0, 10);
+            if (dStr) dayMap.set(dStr, d);
+          }
+        }
+        calDayMapById.set(idNum, dayMap);
+      }
+    }
+
+    // 🛡️ AUTO-HEAL MADRI DESINCRONIZZATE: availability > 0 con stopSells/closed sulla sola Madre ma BE aperta
+    const roomKeyToTwinKey: Record<string, 'jv' | 'jvl' | 'jvr' | 'pl'> = {
+      'jungle villa': 'jv',
+      'jungle villa left': 'jvl',
+      'jungle villa right': 'jvr',
+      'peace & love villa': 'pl'
+    };
+    const resolveActiveMotherAndBe = (roomKey: string, canonical: { motherId: number; ids: string[] }) => {
+      const twinKey = roomKeyToTwinKey[roomKey];
+      if (twinKey) {
+        const motherPair = JUNGLE_RATE_PAIRS.find(p => p.key === twinKey && p.isMother);
+        const bePair = JUNGLE_RATE_PAIRS.find(p => p.key === twinKey && (p.isBe || p.label.includes('BE')));
+        return {
+          motherId: motherPair ? (activeJungleSource === '366879' ? motherPair.fpvId : motherPair.jungleId) : canonical.motherId,
+          beId: bePair ? (activeJungleSource === '366879' ? bePair.fpvId : bePair.jungleId) : Number(canonical.ids[1])
+        };
+      }
+      return {
+        motherId: Number(canonical.motherId),
+        beId: Number(canonical.ids[1])
+      };
+    };
+
+    const jvlMotherBe = resolveActiveMotherAndBe('jungle villa left', ALL_ACCOMMODATIONS_MAP['jungle villa left']);
+    const jvrMotherBe = resolveActiveMotherAndBe('jungle villa right', ALL_ACCOMMODATIONS_MAP['jungle villa right']);
+    const jvlMotherDays = calDayMapById.get(jvlMotherBe.motherId);
+    const jvrMotherDays = calDayMapById.get(jvrMotherBe.motherId);
+
+    for (const [roomKey, canonical] of Object.entries(ALL_ACCOMMODATIONS_MAP)) {
+      if (roomKey === 'fake bungalow 1' || roomKey === 'fake bungalow 2') continue;
+      const { motherId: activeMotherId, beId: activeBeId } = resolveActiveMotherAndBe(roomKey, canonical);
+      const mDaysMap = calDayMapById.get(activeMotherId);
+      const beDaysMap = calDayMapById.get(activeBeId);
+      if (!mDaysMap || !beDaysMap) continue;
+
+      const desyncDates: string[] = [];
+      for (const [dStr, mDay] of mDaysMap.entries()) {
+        const avail = Number(mDay?.availability ?? 0);
+        const isMotherLocked = mDay?.stopSells === true || mDay?.closed === true;
+        if (!(avail > 0 && isMotherLocked)) continue;
+
+        const beDay = beDaysMap.get(dStr);
+        const isBeOpen = Boolean(beDay && beDay.stopSells === false && beDay.closed !== true);
+        if (!isBeOpen) continue;
+
+        if (roomKey === 'jungle villa') {
+          const jvlAvail = Number(jvlMotherDays?.get(dStr)?.availability ?? 0);
+          const jvrAvail = Number(jvrMotherDays?.get(dStr)?.availability ?? 0);
+          if (!(jvlAvail > 0 && jvrAvail > 0)) continue;
+        }
+
+        desyncDates.push(dStr);
+      }
+
+      if (desyncDates.length > 0) {
+        desyncDates.sort();
+        anomalies.push({
+          id: activeMotherId,
+          name: canonical.name,
+          issue: `Madre attiva #${activeMotherId} in Stop Sell con BE aperta su ${desyncDates.length} date libere (es. ${desyncDates.slice(0, 3).join(', ')})`,
+          date: desyncDates[0]
+        });
+        for (const dStr of desyncDates) {
+          healPayload.push({
+            room: activeMotherId,
+            dateFrom: dStr,
+            dateTo: dStr,
+            values: {
+              stopSells: false,
+              closed: false,
+              closedArrival: false,
+              closedDeparture: false
+            }
+          });
+        }
       }
     }
 
@@ -525,6 +615,104 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
       if (!healedRoomNamesToday.has(cand.name) && !verifiedActiveGapsToday.some(v => v.name === cand.name)) {
         verifiedActiveGapsToday.push(cand);
       }
+    }
+
+    // 🔍 AUDIT MINSTAY GLOBALE SU TUTTA LA STAGIONE E TUTTE LE 3 STRUTTURE (DISPONIBILI + OCCUPATI/CHIUSI)
+    const expandedMinStaySegments = new Map<
+      string,
+      { room: number; dateFrom: string; dateTo: string; values: { minstay: number }; accommodationName: string }
+    >();
+    const collectExpandedSegment = (
+      roomId: number,
+      dateFrom: string,
+      dateTo: string,
+      minStay: number,
+      accommodationName: string
+    ) => {
+      if (calItemById.size > 0 && !calItemById.has(roomId)) return;
+      const segs = expandMinStayEntryWithStandbyKeepAlive(
+        roomId,
+        dateFrom,
+        dateTo,
+        minStay,
+        activeJungleSource
+      );
+      for (const seg of segs) {
+        expandedMinStaySegments.set(`${seg.room}_${seg.dateFrom}_${seg.dateTo}`, {
+          ...seg,
+          accommodationName
+        });
+      }
+    };
+
+    for (const u of gapUpdates) {
+      const primaryId = Number(u.roomTypeId);
+      const minStayNum = Number(u.minStay);
+      collectExpandedSegment(primaryId, u.dateFrom, u.dateTo, minStayNum, u.accommodationName);
+      const companionId = getCompanionRateId(primaryId);
+      if (companionId) {
+        collectExpandedSegment(companionId, u.dateFrom, u.dateTo, minStayNum, u.accommodationName);
+      }
+    }
+
+    const minStayAnomaliesByRoom = new Map<
+      string,
+      { id: number; name: string; segmentsCount: number; firstDate: string; observed: number; expected: number }
+    >();
+
+    for (const seg of expandedMinStaySegments.values()) {
+      const dayMap = calDayMapById.get(seg.room);
+      if (!dayMap) continue;
+
+      let mismatchDate = '';
+      let mismatchObserved = 0;
+      for (const [dStr, dayObj] of dayMap.entries()) {
+        if (dStr < seg.dateFrom || dStr > seg.dateTo) continue;
+        const obs = Number(dayObj?.minStay ?? dayObj?.minstay ?? dayObj?.minNights ?? 0);
+        if (obs !== seg.values.minstay) {
+          mismatchDate = dStr;
+          mismatchObserved = obs;
+          break;
+        }
+      }
+
+      if (mismatchDate) {
+        healPayload.push({
+          room: seg.room,
+          dateFrom: seg.dateFrom,
+          dateTo: seg.dateTo,
+          values: { minstay: seg.values.minstay }
+        });
+
+        const existingRoomAnomaly = minStayAnomaliesByRoom.get(seg.accommodationName);
+        if (existingRoomAnomaly) {
+          existingRoomAnomaly.segmentsCount++;
+          if (mismatchDate < existingRoomAnomaly.firstDate) {
+            existingRoomAnomaly.firstDate = mismatchDate;
+            existingRoomAnomaly.observed = mismatchObserved;
+            existingRoomAnomaly.expected = seg.values.minstay;
+          }
+        } else {
+          minStayAnomaliesByRoom.set(seg.accommodationName, {
+            id: seg.room,
+            name: seg.accommodationName,
+            segmentsCount: 1,
+            firstDate: mismatchDate,
+            observed: mismatchObserved,
+            expected: seg.values.minstay
+          });
+        }
+      }
+    }
+
+    fullSeasonMinStayHealedRooms = minStayAnomaliesByRoom.size;
+    for (const entry of minStayAnomaliesByRoom.values()) {
+      anomalies.push({
+        id: entry.id,
+        name: entry.name,
+        issue: `Disallineamento MinStay su ${entry.segmentsCount} blocchi tariffari (es. ${entry.firstDate}: live=${entry.observed} != atteso=${entry.expected})`,
+        date: entry.firstDate
+      });
     }
 
     // -------------------------------------------------------------
@@ -637,28 +825,18 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
   let healedCount = 0;
   if (uniqueHealList.length > 0) {
     console.info(`[Resort Sentinel] 🚨 Rilevate ${anomalies.length} anomalie. Avvio Auto-Guarigione per ${uniqueHealList.length} blocchi tariffe/minStay...`);
-    const bulkUrl = 'https://api.octorate.com/connect/rest/v1/calendar/bulk';
-    const BATCH_SIZE = 25;
+    const BATCH_SIZE = 200;
+    const chunks: any[][] = [];
     for (let i = 0; i < uniqueHealList.length; i += BATCH_SIZE) {
-      const chunk = uniqueHealList.slice(i, i + BATCH_SIZE);
-      const healRes = await fetch(bulkUrl, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(chunk)
-      });
-      const healText = await healRes.text().catch(() => '');
-      let healJson: any = null;
-      try {
-        healJson = healText ? JSON.parse(healText) : null;
-      } catch {
-        // risposta non JSON
-      }
-      if (healRes.ok && healJson?.success !== false) {
-        healedCount += chunk.length;
-      } else {
-        console.error(`[Resort Sentinel] ❌ Errore Auto-Guarigione Octorate batch ${i / BATCH_SIZE + 1}: HTTP ${healRes.status} ${healText.slice(0, 200)}`);
-      }
+      chunks.push(uniqueHealList.slice(i, i + BATCH_SIZE));
     }
+    const { succeededItems } = await postOctorateCalendarBulkWithRetry(headers, chunks, {
+      interBatchDelayMs: 1200,
+      quotaRetryDelayMs: 2500,
+      maxQuotaRetries: 2,
+      logPrefix: '[Resort Sentinel]'
+    });
+    healedCount = succeededItems;
     if (healedCount > 0) {
       clearOctorateGridCache();
       console.info(`[Resort Sentinel] ✅ Auto-Guarigione completata: ${healedCount}/${uniqueHealList.length} blocchi risigillati/aggiornati su Octorate.`);
@@ -685,18 +863,19 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
 
   const invalidMinStayRooms = motherRoomsAudited.filter(r => r.liveMinStay <= 0);
 
+  const totalMinStayHealed = Math.max(imminentGapsHealed.length, fullSeasonMinStayHealedRooms);
   const dynamicMinStayResult = {
     status: (invalidMinStayRooms.length === 0
-      ? (imminentGapsHealed.length > 0 ? 'HEALED_AND_COMPLIANT' : 'ACTIVE_AND_COMPLIANT')
+      ? (totalMinStayHealed > 0 ? 'HEALED_AND_COMPLIANT' : 'ACTIVE_AND_COMPLIANT')
       : 'WARNING') as 'ACTIVE_AND_COMPLIANT' | 'HEALED_AND_COMPLIANT' | 'WARNING',
     baselineNights,
     auditedRoomsCount: motherRoomsAudited.length,
-    healedGapsCount: imminentGapsHealed.length,
+    healedGapsCount: totalMinStayHealed,
     verifiedActiveGaps: verifiedActiveGapsToday,
     details: invalidMinStayRooms.length === 0
-      ? (imminentGapsHealed.length > 0
-        ? `Rilevati e sanati ${imminentGapsHealed.length} buchi imminenti (es. Jungle Villa 1 notte per oggi). MinStay baseline stagionale a ${baselineNights} notti.`
-        : `Soggiorno minimo baseline di ${baselineNights} notti verificato su ${motherRoomsAudited.length} alloggi. Gap-fill allineato (${verifiedActiveGapsToday.length} alloggi con buchi attivi ridotti a 1 notte).`)
+      ? (totalMinStayHealed > 0
+        ? `Rilevati e sanati ${totalMinStayHealed} alloggi con buchi/disallineamenti MinStay su tutta la stagione (3 strutture). MinStay baseline a ${baselineNights} notti.`
+        : `Soggiorno minimo baseline di ${baselineNights} notti verificato su ${motherRoomsAudited.length} alloggi (tutte le 3 strutture). Gap-fill allineato (${verifiedActiveGapsToday.length} alloggi con buchi attivi ridotti a 1 notte).`)
       : `Rilevati ${invalidMinStayRooms.length} alloggi con minStay non valido o a 0 notti.`
   };
 

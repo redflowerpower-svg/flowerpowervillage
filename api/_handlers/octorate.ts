@@ -8,6 +8,7 @@ import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES, getOctorateStructureBy
 import { executeOctorateMove } from "../_helpers/octorate-move.js";
 import {
   computeStandbyKeepAlivePrice,
+  expandMinStayEntryWithStandbyKeepAlive,
   getActiveJungleSource,
   getCompanionRateId,
   getJungleTwinPairByRateId,
@@ -930,28 +931,23 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
       return res.status(400).json({ error: 'No Octorate access token available in database' });
     }
 
+    const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
     const roomsPayloadMap = new Map<string, any>();
     for (const item of updateItems) {
       const primaryRoom = Number(item.roomTypeId || item.motherId || item.id || item.octorateId || item.room);
       const df = item.dateFrom || item.date || item.from_date || item.startDate;
       const dt = item.dateTo || item.to_date || item.endDate;
       const ms = Number(item.minStay || item.min_stay || item.minimumStay || 2);
-      const entry = {
-        room: primaryRoom,
-        dateFrom: df,
-        dateTo: dt,
-        values: { minstay: ms }
-      };
-      roomsPayloadMap.set(`${primaryRoom}_${df}_${dt}`, entry);
+
+      for (const seg of expandMinStayEntryWithStandbyKeepAlive(primaryRoom, df, dt, ms, activeJungleSource)) {
+        roomsPayloadMap.set(`${seg.room}_${seg.dateFrom}_${seg.dateTo}`, seg);
+      }
 
       const companionId = getCompanionRateId(primaryRoom);
       if (companionId) {
-        roomsPayloadMap.set(`${companionId}_${df}_${dt}`, {
-          room: companionId,
-          dateFrom: df,
-          dateTo: dt,
-          values: { minstay: ms }
-        });
+        for (const seg of expandMinStayEntryWithStandbyKeepAlive(companionId, df, dt, ms, activeJungleSource)) {
+          roomsPayloadMap.set(`${seg.room}_${seg.dateFrom}_${seg.dateTo}`, seg);
+        }
       }
     }
     const roomsPayload = Array.from(roomsPayloadMap.values());
