@@ -65,6 +65,7 @@ export interface CascadeLedgerEntry {
   discountPct: number;
   discountedPrice: number;
   previousDiscountedPrice?: number;
+  manualOverride?: boolean;
   updatedAt: string;
 }
 
@@ -92,9 +93,9 @@ export function addDaysToDate(baseDateStr: string, days: number): string {
 }
 
 export function getStageDiscountPctForOffset(offset: number): number {
-  if (offset < 0 || offset >= 7) return 0;
+  if (offset < 0 || offset >= 9) return 0;
   if (offset < 3) return 10;
-  if (offset < 5) return 5;
+  if (offset < 6) return 5;
   return 2.5;
 }
 
@@ -243,6 +244,57 @@ export async function invalidateCascadeLedgerEntries(
   }
 }
 
+/**
+ * Registra nel ledger delle modifiche manuali mirate dentro la finestra di 9 giorni
+ * (es. da Dashboard) con `manualOverride: true`, così che il prezzo impostato
+ * rimanga esattamente quello scelto senza subire un ulteriore sconto percentuale.
+ */
+export async function applyManualCascadeOverrides(
+  supabaseAdmin: any,
+  updates: Array<{ roomMotherId: number; dateFrom: string; dateTo: string; price: number }>
+): Promise<void> {
+  if (!supabaseAdmin || !Array.isArray(updates) || updates.length === 0) return;
+  try {
+    const todayStr = getThailandTodayStr();
+    const windowEndStr = addDaysToDate(todayStr, 8);
+    const ledger = await loadCascadeLedger(supabaseAdmin);
+    const nowIso = new Date().toISOString();
+    let changed = false;
+
+    for (const u of updates) {
+      const rId = Number(u.roomMotherId);
+      const price = Math.round(Number(u.price));
+      if (!rId || !u.dateFrom || !u.dateTo || !(price > 0)) continue;
+
+      const roomCfg = CASCADE_MOTHER_ROOMS.find((r) => r.motherId === rId);
+      let cur = u.dateFrom < todayStr ? todayStr : u.dateFrom;
+      const end = u.dateTo > windowEndStr ? windowEndStr : u.dateTo;
+
+      while (cur <= end) {
+        const key = `${rId}_${cur}`;
+        const existing = ledger[key];
+        const basePrice = existing?.basePrice || roomCfg?.basePrice || price;
+        ledger[key] = {
+          basePrice,
+          discountPct: existing?.discountPct ?? 0,
+          discountedPrice: price,
+          previousDiscountedPrice: existing?.discountedPrice,
+          manualOverride: true,
+          updatedAt: nowIso
+        };
+        changed = true;
+        cur = addDaysToDate(cur, 1);
+      }
+    }
+
+    if (changed) {
+      await saveCascadeLedger(supabaseAdmin, ledger, todayStr);
+    }
+  } catch (err) {
+    console.warn('[Cascade Manual Override Warning]:', err);
+  }
+}
+
 // Cooldown volatile per istanza serverless
 let lastSyncTimestampMs = 0;
 
@@ -295,15 +347,31 @@ export interface CascadeSyncPlanOutput {
 }
 
 const KNOWN_CASCADE_STAGE_PCTS = [0, 2.5, 5, 10];
+const NON_ZERO_STAGE_PCTS = [2.5, 5, 10];
 
 function isKnownCascadeOrBasePrice(existing: CascadeLedgerEntry, livePrice: number): boolean {
   if (livePrice === existing.basePrice) return true;
   if (existing.previousDiscountedPrice !== undefined && livePrice === existing.previousDiscountedPrice) {
     return true;
   }
-  return KNOWN_CASCADE_STAGE_PCTS.some(
-    (pct) => computeDiscountedPrice(existing.basePrice, pct) === livePrice
-  );
+  // 1-step cascade discounts from existing.basePrice
+  for (const pct of KNOWN_CASCADE_STAGE_PCTS) {
+    const step1 = computeDiscountedPrice(existing.basePrice, pct);
+    if (step1 === livePrice) return true;
+    // 2-step compounded discounts (accidental double-discount on top of step1)
+    if (pct > 0) {
+      for (const pct2 of NON_ZERO_STAGE_PCTS) {
+        if (computeDiscountedPrice(step1, pct2) === livePrice) return true;
+      }
+    }
+  }
+  // 2-step compounded discount on top of existing.discountedPrice
+  for (const pct2 of NON_ZERO_STAGE_PCTS) {
+    if (computeDiscountedPrice(existing.discountedPrice, pct2) === livePrice) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -329,7 +397,7 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
       continue;
     }
 
-    for (let offset = 0; offset <= 7; offset++) {
+    for (let offset = 0; offset <= 9; offset++) {
       const targetDateStr = addDaysToDate(todayStr, offset);
 
       const key = `${room.motherId}_${targetDateStr}`;
@@ -343,7 +411,64 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
       const existing = nextLedger[key];
       let effectiveActivePrice = livePrice;
 
-      if (existing && existing.discountedPrice === livePrice) {
+      if (existing?.manualOverride) {
+        // Prezzo bloccato manualmente dall'utente dentro la finestra di 9 giorni (es. 1190 THB)
+        if (targetDiscountPct === 0) {
+          effectiveActivePrice = existing.basePrice;
+          if (livePrice !== existing.basePrice) {
+            bulkPayload.push({
+              room: room.motherId,
+              dateFrom: targetDateStr,
+              dateTo: targetDateStr,
+              values: { price: existing.basePrice }
+            });
+          }
+          delete nextLedger[key];
+          ledgerChanged = true;
+        } else if (livePrice === existing.discountedPrice) {
+          effectiveActivePrice = livePrice;
+          if (existing.discountPct !== targetDiscountPct) {
+            nextLedger[key] = {
+              ...existing,
+              discountPct: targetDiscountPct,
+              updatedAt: nowIso
+            };
+            ledgerChanged = true;
+          }
+        } else if (livePrice === existing.basePrice) {
+          // L'utente ha ripristinato manualmente il prezzo di listino originale: riattiva cascata standard
+          const newDiscounted = computeDiscountedPrice(existing.basePrice, targetDiscountPct);
+          effectiveActivePrice = newDiscounted;
+          if (newDiscounted !== livePrice) {
+            bulkPayload.push({
+              room: room.motherId,
+              dateFrom: targetDateStr,
+              dateTo: targetDateStr,
+              values: { price: newDiscounted }
+            });
+          }
+          nextLedger[key] = {
+            basePrice: existing.basePrice,
+            discountPct: targetDiscountPct,
+            discountedPrice: newDiscounted,
+            previousDiscountedPrice: existing.discountedPrice,
+            updatedAt: nowIso
+          };
+          ledgerChanged = true;
+        } else {
+          // L'utente ha impostato un nuovo prezzo manuale personalizzato su Octorate
+          effectiveActivePrice = livePrice;
+          nextLedger[key] = {
+            ...existing,
+            discountPct: targetDiscountPct,
+            discountedPrice: livePrice,
+            previousDiscountedPrice: existing.discountedPrice,
+            manualOverride: true,
+            updatedAt: nowIso
+          };
+          ledgerChanged = true;
+        }
+      } else if (existing && existing.discountedPrice === livePrice) {
         // Nessuna modifica manuale rilevata: il prezzo su Octorate corrisponde a quello da noi scritto.
         const basePrice = existing.basePrice;
         if (existing.discountPct !== targetDiscountPct) {
@@ -372,8 +497,8 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
           ledgerChanged = true;
         }
       } else if (existing && isKnownCascadeOrBasePrice(existing, livePrice)) {
-        // Ritardo di propagazione Octorate o prezzo di uno stadio precedente:
-        // NON sovrascrivere basePrice con livePrice per evitare doppi sconti ricorsivi.
+        // Ritardo di propagazione Octorate o doppio sconto accidentale (1-step / 2-step):
+        // NON sovrascrivere basePrice con livePrice e guarisci al prezzo corretto dello stadio.
         const basePrice = existing.basePrice;
         const newDiscounted = computeDiscountedPrice(basePrice, targetDiscountPct);
 
@@ -411,8 +536,21 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
             ledgerChanged = true;
           }
         }
+      } else if (existing && targetDiscountPct > 0) {
+        // Modifica manuale reale dentro la finestra di 9 giorni (es. 1791 -> 1190 su Octorate):
+        // Congela il prezzo scelto dall'utente con manualOverride: true senza ulteriori sconti.
+        effectiveActivePrice = livePrice;
+        nextLedger[key] = {
+          basePrice: existing.basePrice,
+          discountPct: targetDiscountPct,
+          discountedPrice: livePrice,
+          previousDiscountedPrice: existing.discountedPrice,
+          manualOverride: true,
+          updatedAt: nowIso
+        };
+        ledgerChanged = true;
       } else {
-        // Nuova data o modifica manuale reale rilevata (da Portale Octorate o da Dashboard):
+        // Nuova data fuori ledger o offset >= 9:
         // Se Octorate ha già lo sconto esatto sul basePrice canonico della stanza,
         // riconosciamo quel basePrice anche se nel ledger era presente un prezzo precedente diverso.
         let basePrice = livePrice;
@@ -486,7 +624,8 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
               !prevStandby ||
               prevStandby.basePrice !== activeEntry.basePrice ||
               prevStandby.discountPct !== activeEntry.discountPct ||
-              prevStandby.discountedPrice !== activeEntry.discountedPrice
+              prevStandby.discountedPrice !== activeEntry.discountedPrice ||
+              prevStandby.manualOverride !== activeEntry.manualOverride
             ) {
               nextLedger[standbyKey] = { ...activeEntry };
               ledgerChanged = true;
@@ -569,7 +708,7 @@ export async function checkAndSyncCascadeLastMinute(
   }
 
   const todayStr = getThailandTodayStr();
-  const windowEndStr = addDaysToDate(todayStr, 7);
+  const windowEndStr = addDaysToDate(todayStr, 9);
 
   let livePriceMap: Map<string, number>;
   try {
@@ -642,14 +781,14 @@ export async function checkAndSyncCascadeLastMinute(
     console.log(`✅ [CASCADE LAST-MINUTE 24/7] Sincronizzazione completata: ${totalSuccessful} tariffe scritte su Octorate PMS.`);
 
     if (supabaseAdmin) {
-      const endWindowStr = addDaysToDate(todayStr, 6);
+      const endWindowStr = addDaysToDate(todayStr, 8);
       const alertMsg = `⚡ <b>[Cascade Last-Minute Auto-Roll]</b>\n` +
         `📅 Finestra Sconti Aggiornata: <code>${formatDateDMY(todayStr)}</code> ➔ <code>${formatDateDMY(endWindowStr)}</code>\n` +
         `🏨 Sincronizzate <b>${totalSuccessful} tariffe</b> dai prezzi reali di Octorate (Livello 0):\n` +
         `• Gg 0-2 (3 gg): <b>-10.0%</b>\n` +
-        `• Gg 3-4 (2 gg): <b>-5.0%</b>\n` +
-        `• Gg 5-6 (2 gg): <b>-2.5%</b>\n` +
-        `• Gg 7+: <b>Ripristino Prezzo Base Reale</b>\n` +
+        `• Gg 3-5 (3 gg): <b>-5.0%</b>\n` +
+        `• Gg 6-8 (3 gg): <b>-2.5%</b>\n` +
+        `• Gg 9+: <b>Ripristino Prezzo Base Reale</b>\n` +
         `✅ Octorate PMS sincronizzato automaticamente.`;
 
       sendTelegramAlert(supabaseAdmin, alertMsg).catch(() => { });

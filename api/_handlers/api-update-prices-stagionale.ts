@@ -1,6 +1,12 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { checkAndSyncCascadeLastMinute, invalidateCascadeLedgerEntries } from "../_helpers/octorate-cascade-sync.js";
+import {
+  addDaysToDate,
+  applyManualCascadeOverrides,
+  checkAndSyncCascadeLastMinute,
+  getThailandTodayStr,
+  invalidateCascadeLedgerEntries
+} from "../_helpers/octorate-cascade-sync.js";
 import { clearOctorateGridCache } from "./octorate.js";
 import {
   computeStandbyKeepAlivePrice,
@@ -232,12 +238,34 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
     // Invalida la cache griglia locale e riallinea subito il ledger/cascata sui nuovi prezzi salvati
     clearOctorateGridCache();
     try {
-      const ledgerUpdates = bulkPayload.map((b) => ({
-        roomMotherId: b.room,
-        dateFrom: b.dateFrom,
-        dateTo: b.dateTo
-      }));
-      await invalidateCascadeLedgerEntries(supabaseAdmin, ledgerUpdates);
+      const todayStr = getThailandTodayStr();
+      const windowEndStr = addDaysToDate(todayStr, 8);
+      const shortManualUpdates: Array<{ roomMotherId: number; dateFrom: string; dateTo: string; price: number }> = [];
+      const seasonalUpdates: Array<{ roomMotherId: number; dateFrom: string; dateTo: string }> = [];
+
+      for (const b of bulkPayload) {
+        if (b.dateFrom >= todayStr && b.dateTo <= windowEndStr) {
+          shortManualUpdates.push({
+            roomMotherId: b.room,
+            dateFrom: b.dateFrom,
+            dateTo: b.dateTo,
+            price: b.values.price
+          });
+        } else {
+          seasonalUpdates.push({
+            roomMotherId: b.room,
+            dateFrom: b.dateFrom,
+            dateTo: b.dateTo
+          });
+        }
+      }
+
+      if (seasonalUpdates.length > 0) {
+        await invalidateCascadeLedgerEntries(supabaseAdmin, seasonalUpdates);
+      }
+      if (shortManualUpdates.length > 0) {
+        await applyManualCascadeOverrides(supabaseAdmin, shortManualUpdates);
+      }
       await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin, true);
     } catch (cascadeErr) {
       console.warn('[update-prices-stagionale] Cascade re-sync warning:', cascadeErr);

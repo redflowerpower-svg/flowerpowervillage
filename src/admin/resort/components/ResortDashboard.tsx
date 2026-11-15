@@ -1731,7 +1731,7 @@ export function ResortDashboard() {
                         🏷️ Stadio 2: Intermedio
                       </label>
                       <span className="text-[9px] bg-orange-500/20 text-orange-300 px-1.5 py-0.5 rounded border border-orange-500/30 font-mono">
-                        Gg {lastMinuteStage1Days || 3} - {(lastMinuteStage1Days || 3) + (lastMinuteStage2Days || 2) - 1}
+                        Gg {lastMinuteStage1Days || 3} - {(lastMinuteStage1Days || 3) + (lastMinuteStage2Days || 3) - 1}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-1.5 text-[11px]">
@@ -1741,7 +1741,7 @@ export function ResortDashboard() {
                           type="number"
                           min="1"
                           max="14"
-                          value={lastMinuteStage2Days ?? 2}
+                          value={lastMinuteStage2Days ?? 3}
                           onChange={(e) => setLastMinuteStage2Days(parseInt(e.target.value))}
                           className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
                         />
@@ -1770,7 +1770,7 @@ export function ResortDashboard() {
                         ⚡ Stadio 3: Esteso
                       </label>
                       <span className="text-[9px] bg-yellow-500/20 text-yellow-300 px-1.5 py-0.5 rounded border border-yellow-600/30 font-mono">
-                        Gg {(lastMinuteStage1Days || 3) + (lastMinuteStage2Days || 2)} - {(lastMinuteStage1Days || 3) + (lastMinuteStage2Days || 2) + (lastMinuteStage3Days || 2) - 1}
+                        Gg {(lastMinuteStage1Days || 3) + (lastMinuteStage2Days || 3)} - {(lastMinuteStage1Days || 3) + (lastMinuteStage2Days || 3) + (lastMinuteStage3Days || 3) - 1}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-1.5 text-[11px]">
@@ -1780,7 +1780,7 @@ export function ResortDashboard() {
                           type="number"
                           min="1"
                           max="14"
-                          value={lastMinuteStage3Days ?? 2}
+                          value={lastMinuteStage3Days ?? 3}
                           onChange={(e) => setLastMinuteStage3Days(parseInt(e.target.value))}
                           className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
                         />
