@@ -1479,7 +1479,7 @@ async function run() {
     });
 
     // 3. Reel Gruppo Facebook Koh Phayam: LM1 Alloggi Liberi Oggi (Topic 2: video + scheda bilingue 🇬🇧+🇹🇭)
-    const lm1Res = await renderVideoMode('LM1').catch(() => v1Res);
+    const lm1Res = await renderVideoMode('LM1');
     const lm1Text = getBilingualPostCopy('LM1', 'village', lm1Res.copy);
 
     await sendOfficialTelegramPost({

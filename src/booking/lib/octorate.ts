@@ -926,9 +926,9 @@ export async function updateLastMinuteRatesStrategy(
   structureId: string = '366879',
   stage1Days: number = 3,
   stage1Discount: number = 10,
-  stage2Days: number = 2,
+  stage2Days: number = 3,
   stage2Discount: number = 5,
-  stage3Days: number = 2,
+  stage3Days: number = 3,
   stage3Discount: number = 2.5,
   executionMode: DiscountExecutionMode = 'test_bungalows',
   isTestEnvironment?: boolean,
@@ -1029,8 +1029,8 @@ export async function updateLastMinuteRatesStrategy(
 export async function resetLastMinuteRatesStrategy(
   structureId: string = '366879',
   stage1Days: number = 3,
-  stage2Days: number = 2,
-  stage3Days: number = 2,
+  stage2Days: number = 3,
+  stage3Days: number = 3,
   executionMode: DiscountExecutionMode = 'test_bungalows',
   isTestEnvironment?: boolean,
   rawGridItems?: any[]

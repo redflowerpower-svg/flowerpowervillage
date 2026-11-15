@@ -641,9 +641,9 @@ export function calculateCascadeDiscountUpdates(options?: CascadeDiscountOptions
 
   const s1Days = Math.max(1, options?.stage1Days ?? 3);
   const s1Discount = Math.max(0, Math.min(80, options?.stage1Discount ?? 10));
-  const s2Days = Math.max(1, options?.stage2Days ?? 2);
+  const s2Days = Math.max(1, options?.stage2Days ?? 3);
   const s2Discount = Math.max(0, Math.min(80, options?.stage2Discount ?? 5));
-  const s3Days = Math.max(1, options?.stage3Days ?? 2);
+  const s3Days = Math.max(1, options?.stage3Days ?? 3);
   const s3Discount = Math.max(0, Math.min(80, options?.stage3Discount ?? 2.5));
 
   const mode: DiscountExecutionMode = options?.executionMode || (options?.isTestEnvironment === false ? 'production' : 'test_bungalows');
@@ -813,8 +813,8 @@ export function calculateOriginalPriceResetUpdates(options?: CascadeDiscountOpti
   const updates: CascadeDiscountUpdate[] = [];
 
   const s1Days = Math.max(1, options?.stage1Days ?? 3);
-  const s2Days = Math.max(1, options?.stage2Days ?? 2);
-  const s3Days = Math.max(1, options?.stage3Days ?? 2);
+  const s2Days = Math.max(1, options?.stage2Days ?? 3);
+  const s3Days = Math.max(1, options?.stage3Days ?? 3);
   const totalDays = s1Days + s2Days + s3Days;
 
   const mode: DiscountExecutionMode = options?.executionMode || (options?.isTestEnvironment === false ? 'production' : 'test_bungalows');
