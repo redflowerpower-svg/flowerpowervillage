@@ -128,7 +128,40 @@ function DynamicHeadManager() {
         canonicalUrl = `https://www.flowerpowervillage.com${cleanPath}`;
       }
 
+      const searchParams = new URLSearchParams(window.location.search);
+      const langParam = searchParams.get('lang');
+      const supportedLangs = ['it', 'th', 'de'] as const;
+      const activeLang = supportedLangs.includes(langParam as (typeof supportedLangs)[number])
+        ? (langParam as (typeof supportedLangs)[number])
+        : null;
+
+      const baseCanonicalUrl = canonicalUrl;
+      if (activeLang && !host.includes('flowerpowerpizza.com') && !pathname.startsWith('/pizza')) {
+        canonicalUrl = `${baseCanonicalUrl}?lang=${activeLang}`;
+      }
+
       canonicalLink.setAttribute('href', canonicalUrl);
+
+      // 🌐 Dynamic Hreflang Tags for Multilingual Indexing (en, it, th, de, x-default)
+      if (!host.includes('flowerpowerpizza.com') && !pathname.startsWith('/pizza') && !isAdmin && !isSocial) {
+        const hreflangEntries: Array<{ lang: string; href: string }> = [
+          { lang: 'en', href: baseCanonicalUrl },
+          { lang: 'it', href: `${baseCanonicalUrl}?lang=it` },
+          { lang: 'th', href: `${baseCanonicalUrl}?lang=th` },
+          { lang: 'de', href: `${baseCanonicalUrl}?lang=de` },
+          { lang: 'x-default', href: baseCanonicalUrl },
+        ];
+        hreflangEntries.forEach(({ lang, href }) => {
+          let link = document.querySelector<HTMLLinkElement>(`link[rel='alternate'][hreflang='${lang}']`);
+          if (!link) {
+            link = document.createElement('link');
+            link.setAttribute('rel', 'alternate');
+            link.setAttribute('hreflang', lang);
+            document.head.appendChild(link);
+          }
+          link.setAttribute('href', href);
+        });
+      }
 
       let ogUrl = document.querySelector<HTMLMetaElement>("meta[property='og:url']");
       if (!ogUrl) {
