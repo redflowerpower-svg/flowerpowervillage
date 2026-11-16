@@ -3,6 +3,20 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [16/11/2026 - ORE 15:30] · BONIFICA OVERBOOKING #130419544 (4 DUPLICATI) & IDEMPOTENZA MIRROR ANTI-DUPLICATI
+- **Cosa abbiamo fatto:**
+  1. 🧹 **Bonifica Live su `Jungle Villas (807324)` & Supabase**:
+     - Cancellati su Octorate i 4 duplicati `#130419613` (`-0kj`), `#130419694` (`-zog`), `#130419750` (`-whc`), `#130419804` (`-kny`) generati in **Jungle Villa Left 2 (`495795`)** tra il `18/11` e il `21/11/2026`, lasciando attiva **esclusivamente** la scheda specchio canonica `#130419584` (`MIRROR-130419544`).
+     - Ripristinate in `telegram_config` le righe `mirror_res_366879_130419544` ➔ `130419584` e `mirror_target_807324_130419584` ➔ `130419544`.
+  2. 🛡️ **Pre-check Live su Octorate, Stop Suffissi Ciechi & Deduplica (`octorate-jungle-mirror.ts`)**:
+     - Aggiunti `findExistingMirrorsOnTarget`, `upsertMirrorMapping` (con logging degli errori Supabase) e `cancelOctorateReservationDirect`.
+     - Prima di qualsiasi `POST` (e anche in caso di `isCancelled` o conflitto HTTP `400`), `mirrorReservationToStandby` interroga ora direttamente Octorate sulla struttura target: se trova un mirror attivo per `sourceReservationId`, recupera il mapping senza creare nuovi record e cancella eventuali duplicati extra.
+     - Aggiunta `deduplicateMirrors` in `verifyAndRepairTwinReservationsBeforeSwitch` per eliminare automaticamente eventuali copie multiple legate alla stessa `origSourceId`.
+- **File aggiornati:** `api/_helpers/octorate-jungle-mirror.ts`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 VERIFICATO (`GET /reservation/807324`, test live idempotenza con `supabaseAdmin=null` e con `supabaseAdmin`, `npm run api:check`, `npm run build`).
+
+---
+
 ### 🚀 [16/11/2026 - ORE 13:06] · MIRRORING LIVE #130419544 (JUNGLE VILLA LEFT 18–20/11) & BYPASS COOLDOWN PER PHOTOCOPY PRENOTAZIONI
 - **Cosa abbiamo fatto:**
   1. 🔄 **Clonazione Immediata `#130419544` (`Jungle Villa Left`, 18–21 Nov) su `Jungle Villas (807324)`**:
