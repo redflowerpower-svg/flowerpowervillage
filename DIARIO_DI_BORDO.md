@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [16/11/2026 - ORE 11:17] · HARDENING OCTORATE DELTA-ONLY, SCUDO STANZE CHIUSE & ALLINEAMENTO TYPESCRIPT RESORT
+- **Cosa abbiamo fatto:**
+  1. ⚡ **Motore Octorate Delta-Only & Protezione Strutture (`octorate-jungle-mirror.ts`, `octorate-webhook.ts`, `resort-sentinel.ts`, `octorate.ts`)**:
+     - Introdotto filtro delta (`filterChangedDailyEntries` + `compressDailyBulkItems`) con blocco integrale delle 28 tariffe `isClosedAc` e Keep-Alive di Luglio su `807324` in standby (`minstay: 14`, prezzo 2x `< 10.000 THB`, stop sell 100% negli altri mesi).
+     - Confermato calcolo `calculateServerDynamicMinStay` su ID Madre di Livello 0 con i 3 test offline in memoria passati a 0 chiamate HTTP verso Octorate.
+  2. 🔒 **Scudo Anti-Riapertura Stanze Chiuse (`octorate-closed-room-lock.ts`, `ClosedRoomLocksSection.tsx`, `api/[...route].ts`)**:
+     - Implementato Hard-Lock persistito in `telegram_config` (`resort_closed_room_locks_v1`) con sigillatura immediata (`availability: 0` sulla Madre + `stopSells: true`, `closed: true`, `closedArrival: true`, `closedDeparture: true` su Madre e derivate) e verifica nel webhook e in `Resort Sentinel`.
+  3. 🩺 **Allineamento TypeScript Moduli Resort & Build Completa**:
+     - Allineati i tipi in `octorateAdmin.ts` (`motherId?: number` su `DynamicMinStayUpdate`, rimosso `month` inutilizzato), `useRestrictionsStore-v17.ts` (`onlyCheckoutDays`, `strategy`, firma `syncPlanToOctorate`, `updatePlannedPeriod` opzionale e fix `ratePlanKey: planId` a riga 941) e `GestioneRestrizioniCanali.tsx` (rimossi import/stati inutilizzati).
+     - **0 errori TypeScript** sui 4 file Resort modificati, **`npm run api:check` PASS**, **`npm run build` (Vite + API) PASS** in `6.41s`, **`node scratch/security-audit.mjs` (`0 SECRETS DETECTED`)**.
+- **File aggiornati:** `api/_helpers/octorate-jungle-mirror.ts`, `api/_helpers/octorate-closed-room-lock.ts`, `api/_helpers/octorate-cascade-sync.ts`, `api/_handlers/octorate-webhook.ts`, `api/_handlers/octorate.ts`, `api/_handlers/resort-sentinel.ts`, `api/_handlers/api-update-prices-stagionale.ts`, `api/[...route].ts`, `src/admin/resort/lib/octorateAdmin.ts`, `src/admin/resort/store/useRestrictionsStore-v17.ts`, `src/admin/resort/components/GestioneRestrizioniCanali.tsx`, `src/admin/resort/components/ClosedRoomLocksSection.tsx`, `.agents/AGENTS.md`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 VERIFICATO (`npm run api:check`, `npm run build`, controllo TypeScript mirato Resort e `security-audit.mjs` tutti superati a `0` errori; nessuna modifica ai reparti stagni `/pizza`, `/social`, `/reader`).
+
+---
+
 ### 🚀 [15/11/2026 - ORE 11:46] · FIX SOGGIORNO MINIMO DINAMICO (GAP-FILL) CAMEL TENT & SINCRONIZZAZIONE TARIFFE OCTORATE
 - **Cosa abbiamo fatto:**
   1. 🔍 **Diagnosi Completa su `Camel Tent` (`15/11/2026`)**:

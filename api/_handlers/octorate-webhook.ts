@@ -6,9 +6,14 @@ import { handleDirectReservationCancellation } from "../_helpers/cancellation-em
 import { checkAndNotifyOverbookings } from "../_helpers/overbooking-detector.js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { formatDateDMY } from "../_helpers/date-formatter.js";
-import { runResortSentinelAudit } from "./resort-sentinel.js";
 import { clearOctorateGridCache } from "./octorate.js";
 import { ALL_OCTORATE_STRUCTURE_IDS, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
+import {
+  isDateLockedForRoom,
+  loadClosedRoomLocks,
+  resolveLockableRoom,
+  sealLockedRoomRangeOnOctorate
+} from "../_helpers/octorate-closed-room-lock.js";
 import {
   expandMinStayEntryWithStandbyKeepAlive,
   getActiveJungleSource,
@@ -268,7 +273,7 @@ export function calculateServerDynamicMinStay(
     roomBookingsMap[key] = {
       roomName: canonical.name,
       motherId: String(canonical.motherId),
-      targetProductIds: canonical.ids,
+      targetProductIds: [String(canonical.motherId)],
       bookings: []
     };
     roomUnavailableMap[key] = [];
@@ -779,6 +784,35 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
       }
 
       if (accessToken) {
+        const hasInlineBookingData = Boolean(
+          earlyTargetResId ||
+          eventPayload?.checkin ||
+          eventPayload?.reservation?.checkin ||
+          eventPayload?.check_in ||
+          eventPayload?.startDate ||
+          eventPayload?.data?.checkin
+        );
+
+        if (!hasInlineBookingData) {
+          console.log(`[OCTORATE WEBHOOK 24/7] Evento non-prenotazione '${eventType}': eseguo solo sync leggero protetto da cooldown.`);
+          try {
+            await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin);
+          } catch (cascadeErr) {
+            console.warn('[OCTORATE WEBHOOK] Light cascade sync warning:', cascadeErr);
+          }
+          try {
+            await syncActiveToStandbyCalendar(supabaseAdmin, accessToken, { daysAhead: 60 });
+          } catch (mirrorSyncErr) {
+            console.warn('[OCTORATE WEBHOOK] Light standby sync warning:', mirrorSyncErr);
+          }
+          return res.status(200).json({
+            received: true,
+            skipped: 'non_reservation_event_light_sync',
+            eventType,
+            timestamp: new Date().toISOString()
+          });
+        }
+
         const todayISO = toThailandDateStr(new Date());
         const currentYear = new Date().getFullYear();
         const endISO = `${currentYear + 1}-10-31`;
@@ -826,14 +860,18 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
         if (!preResolvedTargetBooking && earlyTargetResId) {
           try {
-            const singleRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation/366879/${earlyTargetResId}`, {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Accept': 'application/json'
+            for (const sId of ALL_OCTORATE_STRUCTURE_IDS) {
+              const singleRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation/${sId}/${earlyTargetResId}`, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  ...(clientId ? { 'Octorate-Api-Key': clientId } : {}),
+                  'Accept': 'application/json'
+                }
+              });
+              if (singleRes.ok) {
+                preResolvedTargetBooking = await singleRes.json();
+                break;
               }
-            });
-            if (singleRes.ok) {
-              preResolvedTargetBooking = await singleRes.json();
             }
           } catch (earlyFetchErr) {
             console.warn('[OCTORATE WEBHOOK] Early single reservation lookup warning:', earlyFetchErr);
@@ -909,9 +947,22 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           console.warn('[OCTORATE WEBHOOK] Overbooking detection non-blocking warning:', overErr);
         }
 
-        // Invio sincronizzazione in blocchi (batch da 250 per Octorate API) specchiando anche la madre gemella in standby
+        // Invio sincronizzazione in blocchi diff-only (solo giorni realmente disallineati vs calendarItems) specchiando anche la madre gemella in standby
         if (calculatedUpdates.length > 0) {
           const liveCalIdSet = new Set(calendarItems.map((it: any) => String(it?.id || '')).filter(Boolean));
+          const liveMinStayByRoomDate = new Map<string, number>();
+          for (const ci of calendarItems) {
+            const rId = Number(ci?.id);
+            if (!rId || !Array.isArray(ci?.days)) continue;
+            for (const d of ci.days) {
+              const dStr = String(d?.date || d?.day || '').slice(0, 10);
+              const ms = Number(d?.minStay ?? d?.minstay ?? d?.minNights ?? 0);
+              if (dStr && ms > 0) {
+                liveMinStayByRoomDate.set(`${rId}_${dStr}`, ms);
+              }
+            }
+          }
+
           const roomsPayloadMap = new Map<string, { room: number; dateFrom: string; dateTo: string; values: { minstay: number } }>();
           const pushExpandedSegments = (roomId: number, dateFrom: string, dateTo: string, minStay: number) => {
             if (liveCalIdSet.size > 0 && !liveCalIdSet.has(String(roomId))) return;
@@ -936,34 +987,86 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
               pushExpandedSegments(companionId, u.dateFrom, u.dateTo, minStayNum);
             }
           }
-          const roomsPayload = Array.from(roomsPayloadMap.values());
 
-          const chunkSize = 250;
-          const chunks: any[][] = [];
-          for (let c = 0; c < roomsPayload.length; c += chunkSize) {
-            chunks.push(roomsPayload.slice(c, c + chunkSize));
+          const addOneDayISO = (iso: string): string => {
+            const [y, m, d] = iso.split('-').map(Number);
+            const dt = new Date(Date.UTC(y, (m || 1) - 1, (d || 1) + 1));
+            return dt.toISOString().slice(0, 10);
+          };
+
+          const changedMinStayByRoom = new Map<number, Map<string, number>>();
+          for (const seg of roomsPayloadMap.values()) {
+            let cur = seg.dateFrom;
+            let guard = 0;
+            while (cur <= seg.dateTo && guard++ < 800) {
+              const obs = liveMinStayByRoomDate.get(`${seg.room}_${cur}`);
+              if (obs !== undefined && obs > 0 && obs !== seg.values.minstay) {
+                let dayMap = changedMinStayByRoom.get(seg.room);
+                if (!dayMap) {
+                  dayMap = new Map<string, number>();
+                  changedMinStayByRoom.set(seg.room, dayMap);
+                }
+                dayMap.set(cur, seg.values.minstay);
+              }
+              cur = addOneDayISO(cur);
+            }
           }
 
-          // Invio sequenziale con backoff anti-quota per evitare HTTP 403 API_QUOTA_EXCEEDED su Octorate
-          const { lastStatus } = await postOctorateCalendarBulkWithRetry(
-            {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            chunks,
-            {
-              interBatchDelayMs: 1200,
-              quotaRetryDelayMs: 2500,
-              maxQuotaRetries: 2,
-              logPrefix: '[OCTORATE WEBHOOK 24/7]'
+          const roomsPayload: Array<{ room: number; dateFrom: string; dateTo: string; values: { minstay: number } }> = [];
+          for (const [roomId, dayMap] of changedMinStayByRoom.entries()) {
+            const sortedDates = Array.from(dayMap.keys()).sort();
+            if (sortedDates.length === 0) continue;
+            let subFrom = sortedDates[0];
+            let subTo = sortedDates[0];
+            let subMs = dayMap.get(sortedDates[0])!;
+            for (let i = 1; i < sortedDates.length; i++) {
+              const dStr = sortedDates[i];
+              const ms = dayMap.get(dStr)!;
+              if (dStr === addOneDayISO(subTo) && ms === subMs) {
+                subTo = dStr;
+              } else {
+                roomsPayload.push({ room: roomId, dateFrom: subFrom, dateTo: subTo, values: { minstay: subMs } });
+                subFrom = dStr;
+                subTo = dStr;
+                subMs = ms;
+              }
             }
-          );
-          octorateStatus = lastStatus || 200;
-          clearOctorateGridCache();
+            roomsPayload.push({ room: roomId, dateFrom: subFrom, dateTo: subTo, values: { minstay: subMs } });
+          }
 
-          // Sincronizzazione Gap-Fill su Octorate completata silenziosamente (zero spam Telegram)
-          console.log(`[OCTORATE WEBHOOK 24/7] Gap-fill sync completed: ${calculatedUpdates.length} updates sent to Octorate.`);
+          calculatedUpdatesCount = roomsPayload.length;
+
+          if (roomsPayload.length > 0) {
+            const chunkSize = 250;
+            const chunks: any[][] = [];
+            for (let c = 0; c < roomsPayload.length; c += chunkSize) {
+              chunks.push(roomsPayload.slice(c, c + chunkSize));
+            }
+
+            // Invio sequenziale con backoff anti-quota per evitare HTTP 403 API_QUOTA_EXCEEDED su Octorate
+            const { lastStatus } = await postOctorateCalendarBulkWithRetry(
+              {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              chunks,
+              {
+                interBatchDelayMs: 1200,
+                quotaRetryDelayMs: 2500,
+                maxQuotaRetries: 2,
+                logPrefix: '[OCTORATE WEBHOOK 24/7]'
+              }
+            );
+            octorateStatus = lastStatus || 200;
+            clearOctorateGridCache();
+
+            // Sincronizzazione Gap-Fill su Octorate completata silenziosamente (zero spam Telegram)
+            console.log(`[OCTORATE WEBHOOK 24/7] Gap-fill diff sync completed: ${roomsPayload.length} blocks (${changedMinStayByRoom.size} rooms) sent to Octorate.`);
+          } else {
+            octorateStatus = 200;
+            console.log(`[OCTORATE WEBHOOK 24/7] Gap-fill diff sync: 0 mismatches vs Octorate live -> 0 /calendar/bulk calls.`);
+          }
         }
 
         // 🛡️ [AUTO-SHIELD & NOTIFICHE PRENOTAZIONI REALI CERTIFICATE]
@@ -976,14 +1079,18 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
             targetBooking = bookingsData.find(b => String(b.id) === String(targetResId));
             if (!targetBooking) {
               try {
-                const singleRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation/366879/${targetResId}`, {
-                  headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Accept': 'application/json'
+                for (const sId of ALL_OCTORATE_STRUCTURE_IDS) {
+                  const singleRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation/${sId}/${targetResId}`, {
+                    headers: {
+                      'Authorization': `Bearer ${accessToken}`,
+                      ...(clientId ? { 'Octorate-Api-Key': clientId } : {}),
+                      'Accept': 'application/json'
+                    }
+                  });
+                  if (singleRes.ok) {
+                    targetBooking = await singleRes.json();
+                    break;
                   }
-                });
-                if (singleRes.ok) {
-                  targetBooking = await singleRes.json();
                 }
               } catch (fetchErr) {
                 console.warn('[OCTORATE WEBHOOK] Failed to fetch single reservation for Auto-Shield:', fetchErr);
@@ -1113,10 +1220,10 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                       await sendDepartmentTelegramMessage(
                         'village',
                         `🚨 <b>PRENOTAZIONE RICEVUTA SU STRUTTURA IN STANDBY (${resortConfig.name})</b>\n` +
-                          `🏨 <b>${roomName}</b> • 👤 <b>${guestName}</b>\n` +
-                          `📅 <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
-                          `💰 <b>${formattedTotal} ${currency}</b> (<code>#${reservationId}</code>)\n\n` +
-                          `✅ <i>La prenotazione è già stata clonata in automatico sulla struttura principale. Usa il pulsante qui sotto se desideri verificare o fare lo switch tra le strutture:</i>`,
+                        `🏨 <b>${roomName}</b> • 👤 <b>${guestName}</b>\n` +
+                        `📅 <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
+                        `💰 <b>${formattedTotal} ${currency}</b> (<code>#${reservationId}</code>)\n\n` +
+                        `✅ <i>La prenotazione è già stata clonata in automatico sulla struttura principale. Usa il pulsante qui sotto se desideri verificare o fare lo switch tra le strutture:</i>`,
                         {
                           topic: 'BOOKING_EDITOR',
                           replyMarkup: {
@@ -1215,6 +1322,101 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
         }
 
         if (!isMirrorWebhookEvent) {
+          // 🔒 [ANTI-REOPEN SHIELD] Verifica e risigillatura immediata stanze chiuse (Hard-Lock)
+          try {
+            const closedLocks = await loadClosedRoomLocks(supabaseAdmin);
+            const activeLocks = closedLocks.filter(l => l.enabled !== false);
+            if (activeLocks.length > 0 && calendarItems.length > 0) {
+              for (const lock of activeLocks) {
+                const sealRes = await sealLockedRoomRangeOnOctorate({
+                  accessToken,
+                  clientId,
+                  roomKeyOrId: lock.roomKey,
+                  dateFrom: lock.dateFrom,
+                  dateTo: lock.dateTo,
+                  calendarItems,
+                  logPrefix: '[OCTORATE WEBHOOK HARD-LOCK]'
+                });
+
+                if (sealRes.sealedEntries > 0) {
+                  clearOctorateGridCache();
+                  const lockAlertMsg =
+                    `🛡️ <b>[ANTI-REOPEN SHIELD — STANZA CHIUSA RISIGILLATA]</b>\n` +
+                    `🏨 <b>Alloggio:</b> <b>${lock.roomName}</b>\n` +
+                    `📅 <b>Periodo Protetto:</b> <code>${formatDateDMY(lock.dateFrom)} ➔ ${formatDateDMY(lock.dateTo)}</code>\n` +
+                    `🔒 Rilevate <b>${sealRes.sealedDatesCount}</b> notti riaperte da Octorate (es. dopo cancellazione/riduzione): riportate istantaneamente a <code>avail=0</code> + <code>StopSell=ON</code> su Madre e tutte le derivate.`;
+                  await sendDepartmentTelegramMessage('village', lockAlertMsg, { topic: 'MODIFICATIONS_CANCELLATIONS' });
+                }
+              }
+            }
+
+            // ⚠️ Rete di sicurezza per stanze NON in Hard-Lock: avvisa se una cancellazione/modifica riapre notti tra giorni chiusi
+            if (preResolvedTargetBooking && calendarItems.length > 0) {
+              const stTarget = String(preResolvedTargetBooking.status || '').toUpperCase().trim();
+              const isTargetCancelledOrMod =
+                stTarget === 'CANCELLED' || stTarget === 'CANCELED' || stTarget === 'DELETED' || stTarget === 'VOID' || stTarget === 'REJECTED' ||
+                eventType.toUpperCase().includes('CANCEL') ||
+                eventType.toUpperCase().includes('CHANGE') ||
+                eventType.toUpperCase().includes('MODIF') ||
+                eventType.toUpperCase().includes('UPDATE');
+
+              if (isTargetCancelledOrMod) {
+                const tIn = String(preResolvedTargetBooking.checkin || preResolvedTargetBooking.checkIn || '').slice(0, 10);
+                const tOut = String(preResolvedTargetBooking.checkout || preResolvedTargetBooking.checkOut || '').slice(0, 10);
+                const tProd = preResolvedTargetBooking.product || preResolvedTargetBooking.pmsProduct || preResolvedTargetBooking.accommodation_id || preResolvedTargetBooking.roomId;
+                const tRoom = resolveLockableRoom(tProd) || resolveLockableRoom(preResolvedTargetBooking.roomName || preResolvedTargetBooking.accommodation_name);
+
+                if (tRoom && tIn.length === 10 && tOut.length === 10 && !isDateLockedForRoom(activeLocks, tRoom.roomKey, tIn)) {
+                  const motherCalItem = calendarItems.find((it: any) => Number(it?.id || it?.productId) === tRoom.motherId);
+                  const daysArr = Array.isArray(motherCalItem?.calendar) ? motherCalItem.calendar : (Array.isArray(motherCalItem?.days) ? motherCalItem.days : []);
+                  const dayByDate = new Map<string, any>();
+                  for (const d of daysArr) {
+                    const ds = String(d?.date || d?.day || '').slice(0, 10);
+                    if (ds) dayByDate.set(ds, d);
+                  }
+
+                  const prevD = new Date(`${tIn}T00:00:00Z`);
+                  prevD.setUTCDate(prevD.getUTCDate() - 1);
+                  const dayBeforeStr = prevD.toISOString().slice(0, 10);
+                  const dayBefore = dayByDate.get(dayBeforeStr);
+                  const dayAfter = dayByDate.get(tOut);
+                  const firstFreed = dayByDate.get(tIn);
+
+                  const isClosedDay = (d: any) => Boolean(d && (Number(d.availability ?? 0) <= 0 || d.stopSells === true || d.closed === true));
+                  const isOpenDay = (d: any) => Boolean(d && Number(d.availability ?? 0) > 0 && d.stopSells !== true && d.closed !== true);
+
+                  if (isOpenDay(firstFreed) && isClosedDay(dayBefore) && isClosedDay(dayAfter)) {
+                    const warnKey = `reopen_warn_${preResolvedTargetBooking.id || earlyTargetResId}_${tIn}_${tOut}`;
+                    const { data: alreadyWarned } = await supabaseAdmin
+                      .from('telegram_config')
+                      .select('id')
+                      .eq('id', warnKey)
+                      .maybeSingle();
+
+                    if (!alreadyWarned) {
+                      await sendDepartmentTelegramMessage(
+                        'village',
+                        `⚠️ <b>[AVVISO NOTTI RIAPERTE TRA GIORNI CHIUSI]</b>\n` +
+                        `🏨 <b>Alloggio:</b> <b>${tRoom.name}</b>\n` +
+                        `📅 <b>Periodo liberato:</b> <code>${formatDateDMY(tIn)} ➔ ${formatDateDMY(tOut)}</code>\n` +
+                        `🔎 I giorni prima e dopo risultano chiusi, ma la cancellazione/modifica ha riaperto queste notti su Octorate. Se la stanza deve restare chiusa, attiva il <b>Lock Stanze Chiuse</b> dalla Dashboard.`,
+                        { topic: 'MODIFICATIONS_CANCELLATIONS' }
+                      );
+                      await supabaseAdmin.from('telegram_config').upsert({
+                        id: warnKey,
+                        bot_token: 'notified',
+                        chat_id: String(preResolvedTargetBooking.id || earlyTargetResId || tRoom.roomKey),
+                        updated_at: new Date().toISOString()
+                      });
+                    }
+                  }
+                }
+              }
+            }
+          } catch (lockErr) {
+            console.warn('[OCTORATE WEBHOOK] Closed room hard-lock warning:', lockErr);
+          }
+
           // ⚡ [CASCADE LAST-MINUTE 24/7] Verifica e rinnovo automatico finestra 7 giorni sconti a cascata
           try {
             await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin);
@@ -1227,15 +1429,6 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
             await syncActiveToStandbyCalendar(supabaseAdmin, accessToken, { daysAhead: 60 });
           } catch (mirrorSyncErr) {
             console.warn('[OCTORATE WEBHOOK] Standby calendar auto-sync warning (non-blocking):', mirrorSyncErr);
-          }
-
-          // 🛡️ [RESORT SENTINEL 24/7] Auto-audit silenzioso di conformità (zero spam: il report arriva alle 01:00 via cron)
-          try {
-            runResortSentinelAudit({ sendTelegram: false }).catch(err => {
-              console.warn('[OCTORATE WEBHOOK] Resort Sentinel background audit notice:', err);
-            });
-          } catch (sentinelErr) {
-            console.warn('[OCTORATE WEBHOOK] Sentinel dispatch notice:', sentinelErr);
           }
         }
       }

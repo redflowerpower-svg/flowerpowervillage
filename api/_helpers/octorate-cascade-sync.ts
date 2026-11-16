@@ -57,8 +57,8 @@ export const CASCADE_MOTHER_ROOMS: CascadeRoomConfig[] = [
 const CASCADE_MOTHER_ID_SET = new Set<number>(CASCADE_MOTHER_ROOMS.map(r => r.motherId));
 const CASCADE_LEDGER_ROW_ID = 'cascade_price_ledger_v1';
 const CASCADE_SYNC_LOCK_ROW_ID = 'cascade_sync_lock_v1';
-const SYNC_COOLDOWN_MS = 60 * 1000; // 1 minuto anti-burst in memoria serverless
-const DISTRIBUTED_COOLDOWN_MS = 2 * 60 * 1000; // 2 minuti cooldown condiviso su Supabase tra istanze serverless
+const SYNC_COOLDOWN_MS = 30 * 60 * 1000; // 30 minuti anti-burst in memoria serverless
+const DISTRIBUTED_COOLDOWN_MS = 30 * 60 * 1000; // 30 minuti cooldown condiviso su Supabase tra istanze serverless
 
 export interface CascadeLedgerEntry {
   basePrice: number;
@@ -699,12 +699,12 @@ export async function checkAndSyncCascadeLastMinute(
 
   const nowMs = Date.now();
   if (!force && nowMs - lastSyncTimestampMs < SYNC_COOLDOWN_MS) {
-    return { synced: false, message: 'Sync sconti a cascata in cooldown (1 min).' };
+    return { synced: false, message: 'Sync sconti a cascata in cooldown (30 min).' };
   }
 
   const lockAcquired = await tryAcquireDistributedCascadeLock(supabaseAdmin, force);
   if (!lockAcquired) {
-    return { synced: false, message: 'Sync sconti a cascata in cooldown distribuito (2 min).' };
+    return { synced: false, message: 'Sync sconti a cascata in cooldown distribuito (30 min).' };
   }
 
   const todayStr = getThailandTodayStr();

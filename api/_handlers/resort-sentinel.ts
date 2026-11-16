@@ -7,6 +7,11 @@ import { checkAndSyncCascadeLastMinute, loadCascadeLedger, getThailandTodayStr }
 import { ALL_OCTORATE_STRUCTURE_IDS } from "../_helpers/octorate-structures.js";
 import { clearOctorateGridCache } from "./octorate.js";
 import {
+  isDateLockedForRoom,
+  loadClosedRoomLocks,
+  resolveLockableRoom
+} from "../_helpers/octorate-closed-room-lock.js";
+import {
   expandMinStayEntryWithStandbyKeepAlive,
   getActiveJungleSource,
   getCompanionRateId,
@@ -466,6 +471,8 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     const jvlMotherDays = calDayMapById.get(jvlMotherBe.motherId);
     const jvrMotherDays = calDayMapById.get(jvrMotherBe.motherId);
 
+    const closedLocks = await loadClosedRoomLocks(supabaseAdmin);
+
     for (const [roomKey, canonical] of Object.entries(ALL_ACCOMMODATIONS_MAP)) {
       if (roomKey === 'fake bungalow 1' || roomKey === 'fake bungalow 2') continue;
       const { motherId: activeMotherId, beId: activeBeId } = resolveActiveMotherAndBe(roomKey, canonical);
@@ -475,6 +482,9 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
 
       const desyncDates: string[] = [];
       for (const [dStr, mDay] of mDaysMap.entries()) {
+        // 🔒 Non sbloccare MAI una stanza/data protetta da Hard-Lock Stanze Chiuse
+        if (isDateLockedForRoom(closedLocks, roomKey, dStr)) continue;
+
         const avail = Number(mDay?.availability ?? 0);
         const isMotherLocked = mDay?.stopSells === true || mDay?.closed === true;
         if (!(avail > 0 && isMotherLocked)) continue;
@@ -513,6 +523,53 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
             }
           });
         }
+      }
+    }
+
+    // 🔒 AUDIT STANZE CHIUSE (HARD-LOCK): risigilla immediatamente eventuali notti riaperte da Octorate
+    for (const lock of closedLocks.filter(l => l.enabled !== false)) {
+      const lockRoom = resolveLockableRoom(lock.roomKey);
+      if (!lockRoom) continue;
+      const motherSet = new Set<number>([lockRoom.motherId]);
+      if (lockRoom.roomKey === 'jv') motherSet.add(960389);
+      if (lockRoom.roomKey === 'jvl') motherSet.add(960385);
+      if (lockRoom.roomKey === 'jvr') motherSet.add(960387);
+      if (lockRoom.roomKey === 'pl') motherSet.add(960383);
+
+      const reopenedDates = new Set<string>();
+      for (const prodId of lockRoom.productIds) {
+        const pDaysMap = calDayMapById.get(prodId);
+        if (!pDaysMap) continue;
+        const isMother = motherSet.has(prodId);
+        for (const [dStr, dObj] of pDaysMap.entries()) {
+          if (dStr < todayStr || dStr < lock.dateFrom || dStr > lock.dateTo) continue;
+          const avail = Number(dObj?.availability ?? 0);
+          const isClosed = dObj?.stopSells === true || dObj?.stopSell === true || dObj?.closed === true;
+          if ((isMother && avail > 0) || !isClosed) {
+            reopenedDates.add(dStr);
+            healPayload.push({
+              room: prodId,
+              dateFrom: dStr,
+              dateTo: dStr,
+              values: {
+                ...(isMother ? { availability: 0 } : {}),
+                stopSells: true,
+                closed: true,
+                closedArrival: true,
+                closedDeparture: true
+              }
+            });
+          }
+        }
+      }
+      if (reopenedDates.size > 0) {
+        const sortedReopened = Array.from(reopenedDates).sort();
+        anomalies.push({
+          id: lockRoom.motherId,
+          name: lockRoom.name,
+          issue: `Stanza in Hard-Lock riaperta su ${sortedReopened.length} date (es. ${sortedReopened.slice(0, 3).join(', ')}) -> Risigillata a avail=0 + StopSell`,
+          date: sortedReopened[0]
+        });
       }
     }
 
@@ -660,33 +717,62 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
       { id: number; name: string; segmentsCount: number; firstDate: string; observed: number; expected: number }
     >();
 
+    const addOneDayIso = (iso: string): string => {
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(Date.UTC(y, (m || 1) - 1, (d || 1) + 1));
+      return dt.toISOString().slice(0, 10);
+    };
+
     for (const seg of expandedMinStaySegments.values()) {
       const dayMap = calDayMapById.get(seg.room);
       if (!dayMap) continue;
 
-      let mismatchDate = '';
-      let mismatchObserved = 0;
+      const mismatchEntries: Array<{ date: string; observed: number }> = [];
       for (const [dStr, dayObj] of dayMap.entries()) {
         if (dStr < seg.dateFrom || dStr > seg.dateTo) continue;
         const obs = Number(dayObj?.minStay ?? dayObj?.minstay ?? dayObj?.minNights ?? 0);
-        if (obs !== seg.values.minstay) {
-          mismatchDate = dStr;
-          mismatchObserved = obs;
-          break;
+        if (obs > 0 && obs !== seg.values.minstay) {
+          mismatchEntries.push({ date: dStr, observed: obs });
         }
       }
 
-      if (mismatchDate) {
+      if (mismatchEntries.length > 0) {
+        mismatchEntries.sort((a, b) => a.date.localeCompare(b.date));
+        const mismatchDate = mismatchEntries[0].date;
+        const mismatchObserved = mismatchEntries[0].observed;
+
+        let subFrom = mismatchEntries[0].date;
+        let subTo = mismatchEntries[0].date;
+        let subBlocksCount = 0;
+
+        for (let i = 1; i < mismatchEntries.length; i++) {
+          const curDate = mismatchEntries[i].date;
+          if (curDate === subTo) continue;
+          if (curDate === addOneDayIso(subTo)) {
+            subTo = curDate;
+          } else {
+            healPayload.push({
+              room: seg.room,
+              dateFrom: subFrom,
+              dateTo: subTo,
+              values: { minstay: seg.values.minstay }
+            });
+            subBlocksCount++;
+            subFrom = curDate;
+            subTo = curDate;
+          }
+        }
         healPayload.push({
           room: seg.room,
-          dateFrom: seg.dateFrom,
-          dateTo: seg.dateTo,
+          dateFrom: subFrom,
+          dateTo: subTo,
           values: { minstay: seg.values.minstay }
         });
+        subBlocksCount++;
 
         const existingRoomAnomaly = minStayAnomaliesByRoom.get(seg.accommodationName);
         if (existingRoomAnomaly) {
-          existingRoomAnomaly.segmentsCount++;
+          existingRoomAnomaly.segmentsCount += subBlocksCount;
           if (mismatchDate < existingRoomAnomaly.firstDate) {
             existingRoomAnomaly.firstDate = mismatchDate;
             existingRoomAnomaly.observed = mismatchObserved;
@@ -696,7 +782,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
           minStayAnomaliesByRoom.set(seg.accommodationName, {
             id: seg.room,
             name: seg.accommodationName,
-            segmentsCount: 1,
+            segmentsCount: subBlocksCount,
             firstDate: mismatchDate,
             observed: mismatchObserved,
             expected: seg.values.minstay

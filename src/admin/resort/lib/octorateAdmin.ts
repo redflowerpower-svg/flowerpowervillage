@@ -284,7 +284,7 @@ export function getBaselineMinStay(dateInput: any): number {
     if (matched && matched.minStay) {
       return matched.minStay;
     }
-  } catch {}
+  } catch { }
 
   return 2;
 }
@@ -302,7 +302,6 @@ export function getSeasonalEndDateStr(todayInput?: any): string {
   }
   const parts = formatted.split('-');
   const year = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10);
 
   // La data di fine stagione assoluta per qualsiasi data nell'anno Y è sempre il 31 Ottobre (Y + 1)
   const seasonEndYear = year + 1;
@@ -311,6 +310,7 @@ export function getSeasonalEndDateStr(todayInput?: any): string {
 
 export interface DynamicMinStayUpdate {
   roomTypeId: string;
+  motherId?: number;
   accommodationName: string;
   dateFrom: string;
   dateTo: string;
@@ -958,7 +958,7 @@ export function calculateOriginalPriceResetUpdates(options?: CascadeDiscountOpti
         discountedPrice: resetPrice,
         minimumSellingPrice: 0,
         finalPrice: resetPrice,
-        reason: snapItem 
+        reason: snapItem
           ? `ROLLBACK SNAPSHOT: Ripristinato prezzo pre-sconto (${resetPrice}฿) per ${dateStr}`
           : `RESET RIPRISTINO: Prezzo base originale 100% (${resetPrice}฿) per offset ${offset}d`
       });

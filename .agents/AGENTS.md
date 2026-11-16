@@ -551,3 +551,7 @@ Per evitare che i report generati per l'utente superino i limiti di input di Gem
 24. **Regola Fondamentale Modalità `/plan` (Consiglio Modello Prima di Pianificare)**:
     - Ogni volta che l'utente attiva la modalità `/plan`, l'agente DEVE **fermarsi prima di generare piani o modificare file** e limitarsi a rispondere consigliando **con quale modello conviene procedere** (es. modello leggero/veloce per economia di token su task circoscritti vs modello più potente/orchestrator per architetture complesse multi-file), attendendo conferma dell'utente prima di avviare la pianificazione vera e propria.
     - Inoltre, **alla fine di ogni risposta** (nella sezione `3. 🚀 Prossimo passo`), ogni volta che l'agente propone un'azione successiva (es. commit & push, test, nuova modifica), DEVE sempre consigliare esplicitamente **con quale modello procedere** per quel prossimo passo in ottica di economia di token.
+
+24. **Regola Immodificabile Percorso Unico Worktree Git**:
+    - Tutti i worktree Git del progetto devono essere salvati **TASSATIVAMENTE ED ESCLUSIVAMENTE** dentro la directory `D:\01 ANTIGRAVITY\flower-power-village-com\WorkTrees\`.
+    - È severamente vietato creare o mantenere worktree in percorsi alternativi (inclusa la cartella interna dell'IDE `C:\Users\INTEL\.gemini\antigravity\worktrees\`). Se un worktree viene creato altrove, va immediatamente spostato (o rimosso e ricreato sullo stesso branch) dentro `D:\01 ANTIGRAVITY\flower-power-village-com\WorkTrees\`.
