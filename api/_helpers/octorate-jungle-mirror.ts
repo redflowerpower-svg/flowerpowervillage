@@ -344,6 +344,25 @@ export async function postOctorateCalendarBulkWithRetry(
 
 export const MIRROR_TAG = '[MIRROR_SYNC]';
 const ACTIVE_SOURCE_CONFIG_ID = 'active_jungle_source_v1';
+const STANDBY_SYNC_LOCK_ID = 'standby_calendar_sync_lock_v1';
+const STANDBY_SYNC_COOLDOWN_MS = 15 * 60 * 1000;
+let lastStandbySyncTimestampMs = 0;
+
+async function markStandbySyncCompleted(supabaseAdmin: any): Promise<void> {
+  const nowMs = Date.now();
+  lastStandbySyncTimestampMs = nowMs;
+  if (!supabaseAdmin) return;
+  try {
+    await supabaseAdmin.from('telegram_config').upsert({
+      id: STANDBY_SYNC_LOCK_ID,
+      bot_token: String(nowMs),
+      chat_id: 'standby_sync_lock',
+      updated_at: new Date(nowMs).toISOString()
+    });
+  } catch (err) {
+    console.warn('[JUNGLE MIRROR] Standby sync lock upsert warning:', err);
+  }
+}
 
 export function isMirrorReservation(booking: any): boolean {
   if (!booking) return false;
@@ -644,8 +663,8 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
   const nowIso = new Date().toISOString();
   const directColor =
     (numChannelId === 288 || numChannelId === 233) &&
-    color &&
-    /^#[0-9a-fA-F]{6}$/.test(String(color).trim())
+      color &&
+      /^#[0-9a-fA-F]{6}$/.test(String(color).trim())
       ? String(color).trim()
       : undefined;
 
@@ -855,50 +874,48 @@ function buildOverlaySnapshot(
 }
 
 /**
- * Filtra solo le righe giornaliere effettivamente diverse dallo snapshot attuale su Octorate.
- * Confronta solo i 4 campi reali restituiti da GET /calendar (`availability`, `price`, `stopSells`, `minstay`),
- * mantiene le derivate non-AC effettivamente cambiate e genera un unico blocco continuo `isClosedAc`
- * sull'intero span aperto della rispettiva Madre per la chiusura finale in Wave 4.
+ * Filtra solo le righe giornaliere effettivamente diverse dallo snapshot attuale su Octorate,
+ * confrontando i soli 4 campi reali restituiti da GET /calendar (`availability`, `price`, `stopSells`, `minstay`)
+ * e costruendo un payload Delta-Only (con i soli campi variati) per massimizzare la compressione dei blocchi.
  */
 function filterChangedDailyEntries(
   entries: DailyBulkEntry[],
   existingSnapshot: Map<number, Map<string, SnapshotDay>>
 ): DailyBulkEntry[] {
-  const openSpanByKey = new Map<string, { minDate: string; maxDate: string }>();
-
-  const hasDiff = (e: DailyBulkEntry): boolean => {
-    const cur = existingSnapshot.get(e.room)?.get(e.date);
-    if (!cur) return true;
-    const v = e.values;
-    if (v.availability !== undefined && Number(cur.availability) !== Number(v.availability)) return true;
-    if (v.price !== undefined && Math.abs(Number(cur.price ?? -1) - Number(v.price)) > 0.01) return true;
-    if (v.stopSells !== undefined && cur.stopSells !== Boolean(v.stopSells)) return true;
-    if (v.minstay !== undefined && Number(cur.minstay ?? 0) !== Number(v.minstay)) return true;
-    return false;
-  };
+  const result: DailyBulkEntry[] = [];
 
   for (const e of entries) {
-    const pair = RATE_PAIR_BY_ID.get(e.room);
-    if (pair && !pair.isClosedAc && e.values.stopSells === false && hasDiff(e)) {
-      const prevSpan = openSpanByKey.get(pair.key);
-      if (!prevSpan) {
-        openSpanByKey.set(pair.key, { minDate: e.date, maxDate: e.date });
-      } else {
-        if (e.date < prevSpan.minDate) prevSpan.minDate = e.date;
-        if (e.date > prevSpan.maxDate) prevSpan.maxDate = e.date;
-      }
+    const cur = existingSnapshot.get(e.room)?.get(e.date);
+    if (!cur) {
+      result.push(e);
+      continue;
+    }
+
+    const v = e.values;
+    const deltaValues: Record<string, any> = {};
+
+    if (v.availability !== undefined && Number(cur.availability) !== Number(v.availability)) {
+      deltaValues.availability = v.availability;
+    }
+    if (v.price !== undefined && Math.abs(Number(cur.price ?? -1) - Number(v.price)) > 0.01) {
+      deltaValues.price = v.price;
+    }
+    if (v.minstay !== undefined && Number(cur.minstay ?? 0) !== Number(v.minstay)) {
+      deltaValues.minstay = v.minstay;
+    }
+    if (v.stopSells !== undefined && cur.stopSells !== Boolean(v.stopSells)) {
+      deltaValues.stopSells = v.stopSells;
+      if (v.closed !== undefined) deltaValues.closed = v.closed;
+      if (v.closedArrival !== undefined) deltaValues.closedArrival = v.closedArrival;
+      if (v.closedDeparture !== undefined) deltaValues.closedDeparture = v.closedDeparture;
+    }
+
+    if (Object.keys(deltaValues).length > 0) {
+      result.push({ room: e.room, date: e.date, values: deltaValues });
     }
   }
 
-  return entries.filter(e => {
-    const pair = RATE_PAIR_BY_ID.get(e.room);
-    if (pair?.isClosedAc) {
-      if (hasDiff(e)) return true;
-      const span = openSpanByKey.get(pair.key);
-      return Boolean(span && e.date >= span.minDate && e.date <= span.maxDate);
-    }
-    return hasDiff(e);
-  });
+  return result;
 }
 
 async function postCalendarBulkBlocks(
@@ -1086,20 +1103,20 @@ function build52RateDailyEntries(
             // Standby Flower Power Village (366879): Stop Sell 100% su tutte le 52 tariffe per 365 giorni
             const values: Record<string, any> = pair.isMother
               ? {
-                  ...availField,
-                  ...(mDay.price ? { price: mDay.price } : {}),
-                  stopSells: true,
-                  closed: true,
-                  closedArrival: true,
-                  closedDeparture: true,
-                  ...(mDay.minstay ? { minstay: mDay.minstay } : {})
-                }
+                ...availField,
+                ...(mDay.price ? { price: mDay.price } : {}),
+                stopSells: true,
+                closed: true,
+                closedArrival: true,
+                closedDeparture: true,
+                ...(mDay.minstay ? { minstay: mDay.minstay } : {})
+              }
               : {
-                  stopSells: true,
-                  closed: true,
-                  closedArrival: true,
-                  closedDeparture: true
-                };
+                stopSells: true,
+                closed: true,
+                closedArrival: true,
+                closedDeparture: true
+              };
             entries.push({ room: dstRateId, date: dateStr, values });
           } else {
             // Standby Jungle Villas (807324): Regola Asimmetrica
@@ -1110,20 +1127,20 @@ function build52RateDailyEntries(
               // Alta/Media Stagione (01 Nov -> 31 Mag): Stop Sell 100% su tutte le 52 tariffe
               const values: Record<string, any> = pair.isMother
                 ? {
-                    ...availField,
-                    ...(mDay.price ? { price: mDay.price } : {}),
-                    stopSells: true,
-                    closed: true,
-                    closedArrival: true,
-                    closedDeparture: true,
-                    ...(mDay.minstay ? { minstay: mDay.minstay } : {})
-                  }
+                  ...availField,
+                  ...(mDay.price ? { price: mDay.price } : {}),
+                  stopSells: true,
+                  closed: true,
+                  closedArrival: true,
+                  closedDeparture: true,
+                  ...(mDay.minstay ? { minstay: mDay.minstay } : {})
+                }
                 : {
-                    stopSells: true,
-                    closed: true,
-                    closedArrival: true,
-                    closedDeparture: true
-                  };
+                  stopSells: true,
+                  closed: true,
+                  closedArrival: true,
+                  closedDeparture: true
+                };
               entries.push({ room: dstRateId, date: dateStr, values });
             } else if (pair.isMother) {
               // Bassa Stagione Keep-Alive Madre (807324): aperto solo se libera, prezzo raddoppiato 2x (< 10.000 THB) e minstay 14 notti
@@ -1233,19 +1250,19 @@ export async function setJungleStructureAvailabilityLock(
     const forceClose = lockClosed || p.isClosedAc;
     const values: Record<string, any> = forceClose
       ? {
-          stopSells: true,
-          closed: true,
-          closedArrival: true,
-          closedDeparture: true,
-          ...(p.isMother && lockClosed ? { availability: 0 } : {})
-        }
+        stopSells: true,
+        closed: true,
+        closedArrival: true,
+        closedDeparture: true,
+        ...(p.isMother && lockClosed ? { availability: 0 } : {})
+      }
       : {
-          stopSells: false,
-          closed: false,
-          closedArrival: false,
-          closedDeparture: false,
-          ...(p.isMother ? { availability: 1 } : {})
-        };
+        stopSells: false,
+        closed: false,
+        closedArrival: false,
+        closedDeparture: false,
+        ...(p.isMother ? { availability: 1 } : {})
+      };
     return { room, dateFrom, dateTo, values };
   });
 
@@ -1340,7 +1357,7 @@ export async function syncCalendarBetweenStructures(
 export async function syncActiveToStandbyCalendar(
   supabaseAdmin: any,
   accessToken: string,
-  options?: { daysAhead?: number; dateFrom?: string; dateTo?: string }
+  options?: { daysAhead?: number; dateFrom?: string; dateTo?: string; force?: boolean }
 ): Promise<{
   ok: boolean;
   active: JungleSourceStructureId;
@@ -1353,6 +1370,51 @@ export async function syncActiveToStandbyCalendar(
 }> {
   const active = await getActiveJungleSource(supabaseAdmin);
   const standby: JungleSourceStructureId = active === '807324' ? '366879' : '807324';
+  const { force, ...syncOptions } = options || {};
+
+  if (!force) {
+    const nowMs = Date.now();
+    if (nowMs - lastStandbySyncTimestampMs < STANDBY_SYNC_COOLDOWN_MS) {
+      return {
+        ok: true,
+        active,
+        standby,
+        syncedEntries: 0,
+        sentBlocks: 0,
+        verified: true,
+        verificationAttempts: 0,
+        verifiedSampleDates: []
+      };
+    }
+
+    if (supabaseAdmin) {
+      try {
+        const { data: lockRow } = await supabaseAdmin
+          .from('telegram_config')
+          .select('bot_token, updated_at')
+          .eq('id', STANDBY_SYNC_LOCK_ID)
+          .maybeSingle();
+
+        const updatedMs = lockRow?.updated_at ? Date.parse(lockRow.updated_at) : NaN;
+        if (!Number.isNaN(updatedMs) && nowMs - updatedMs < STANDBY_SYNC_COOLDOWN_MS) {
+          lastStandbySyncTimestampMs = updatedMs;
+          return {
+            ok: true,
+            active,
+            standby,
+            syncedEntries: 0,
+            sentBlocks: 0,
+            verified: true,
+            verificationAttempts: 0,
+            verifiedSampleDates: []
+          };
+        }
+      } catch (lockReadErr) {
+        console.warn('[JUNGLE MIRROR] Standby sync lock read warning:', lockReadErr);
+      }
+    }
+  }
+
   try {
     const today = new Date();
     const end = new Date(today);
@@ -1370,8 +1432,9 @@ export async function syncActiveToStandbyCalendar(
   }
   const result = await syncCalendarBetweenStructures(accessToken, active, standby, {
     keepTargetClosed: true,
-    ...options
+    ...syncOptions
   });
+  await markStandbySyncCompleted(supabaseAdmin);
   return {
     ok: result.ok,
     active,
@@ -1406,8 +1469,8 @@ function pickVerificationSampleDates(
   const baseMap = snapshot.get(motherIds[0]);
   const availableDates = baseMap
     ? Array.from(baseMap.keys())
-        .filter(d => motherIds.every(mId => snapshot.get(mId)?.has(d)))
-        .sort()
+      .filter(d => motherIds.every(mId => snapshot.get(mId)?.has(d)))
+      .sort()
     : [];
 
   if (availableDates.length === 0) return [];
@@ -1756,9 +1819,9 @@ export async function verifyAndRepairTwinReservationsBeforeSwitch(
   const [outFinal, inFinal] =
     repairedCreated > 0 || repairedCancelled > 0
       ? await Promise.all([
-          fetchTwinActiveReservations(accessToken, outgoing, dateFrom, dateTo),
-          fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
-        ])
+        fetchTwinActiveReservations(accessToken, outgoing, dateFrom, dateTo),
+        fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
+      ])
       : [outRes, inRes];
 
   const inFinalSigs = new Set(inFinal.map(sig));
@@ -1961,6 +2024,7 @@ export async function switchActiveJungleStructure(
   }
 
   await setActiveJungleSource(supabaseAdmin, targetStructureId);
+  await markStandbySyncCompleted(supabaseAdmin);
 
   return {
     ok: true,

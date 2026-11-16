@@ -38,6 +38,8 @@ export interface PlannedPeriod {
   closedToArrival: boolean;
   closedToDeparture: boolean;
   onlyCheckOutDays: number;  // Giorni consecutivi di finestra Only Check Out (es. 10gg)
+  onlyCheckoutDays?: number;
+  strategy?: string;
   minStayArrival?: number;
   failsafeCheckout: boolean;
 }
@@ -129,7 +131,7 @@ export interface RestrictionsStoreState extends RestrictionsState {
   removePeriod: (planId: string, periodId: string) => void;
   updatePeriod: (planId: string, periodId: string, updates: Partial<PlannedPeriod>) => void;
 
-  syncPlanToOctorate: (planId: string, periodId: string) => Promise<boolean>;
+  syncPlanToOctorate: (planId: string, periodId?: string, options?: { testOnly?: boolean }) => Promise<boolean>;
   syncAllPlansToOctorate: (options?: { testOnly?: boolean }) => Promise<boolean>;
   cancelBulkSync: () => void;
   resetDefaultStore: () => void;
@@ -745,7 +747,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         }
       },
 
-      updatePlannedPeriod: (planId: string, periodId: string, updates: Partial<PlannedPeriod>) => {
+      updatePlannedPeriod: (planId: string, periodId: string, updates: Partial<PlannedPeriod> = {}) => {
         const state = get();
         const list = state.plannedPeriods[planId] || [];
         set({
@@ -936,7 +938,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           const resetStrategy = planId === 'be' ? 'open' : 'stopsell';
           const resetPayload = {
             planId,
-            ratePlanKey,
+            ratePlanKey: planId,
             dateFrom: state.tabulaRasaDateFrom || '2026-10-01',
             dateTo: state.tabulaRasaDateTo || '2027-10-31',
             stopSell: resetStrategy === 'stopsell',

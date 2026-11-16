@@ -19,7 +19,8 @@ import {
   handleOctorateMinStay,
   handleOctorateEnrichEmails,
   handleOctorateMoveReservation,
-  handleOctorateJungleMirror
+  handleOctorateJungleMirror,
+  handleOctorateClosedRoomLocks
 } from "./_handlers/octorate.js";
 import { handleOctorateWebhook } from "./_handlers/octorate-webhook.js";
 import { handleEmailAlerts } from "./_handlers/email-alerts.js";
@@ -207,6 +208,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('octorate-jungle-mirror') || cleanPath.includes('octorate_jungle_mirror')) {
     return handleOctorateJungleMirror(req, res);
+  }
+
+  if (cleanPath.includes('octorate-closed-room-locks') || cleanPath.includes('octorate_closed_room_locks')) {
+    return handleOctorateClosedRoomLocks(req, res);
   }
 
   if (cleanPath.includes('octorate-move-reservation') || cleanPath.includes('octorate_move_reservation')) {

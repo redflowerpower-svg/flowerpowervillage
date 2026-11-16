@@ -13,10 +13,19 @@ import {
   getCompanionRateId,
   getJungleTwinPairByRateId,
   isLowSeasonKeepAliveDate,
+  postOctorateCalendarBulkWithRetry,
   switchActiveJungleStructure,
   syncActiveToStandbyCalendar,
   JungleSourceStructureId
 } from "../_helpers/octorate-jungle-mirror.js";
+import {
+  ClosedRoomLock,
+  LOCKABLE_ROOMS,
+  loadClosedRoomLocks,
+  resolveLockableRoom,
+  saveClosedRoomLocks,
+  sealLockedRoomRangeOnOctorate
+} from "../_helpers/octorate-closed-room-lock.js";
 
 function getSupabaseAdmin() {
   let url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "https://gjqevgkbjkharczhikcl.supabase.co";
@@ -494,6 +503,8 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
 // In-memory grid cache with 5-minute TTL for maximum speed and 100% uptime resilience
 const gridCache = new Map<string, { timestamp: number; payload: any }>();
 const CACHE_TTL_MS = 5 * 60 * 1000;
+let lastGridStandbyAlignMs = 0;
+const GRID_STANDBY_ALIGN_COOLDOWN_MS = 15 * 60 * 1000;
 
 export function clearOctorateGridCache(): void {
   gridCache.clear();
@@ -658,104 +669,107 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
 
     // 🔄 Auto-allineamento prezzi 4 Madri Standby -> Madre Attiva (copre modifiche manuali sul portale Octorate anche oltre i 7gg)
     if (!requestedStructure && accessToken) {
-      try {
-        const itemByRateId = new Map<number, any>();
-        for (const it of allFetchedItems) {
-          const idNum = Number(it?.id);
-          if (idNum) itemByRateId.set(idNum, it);
-        }
-
-        const addOneDay = (iso: string) => {
-          const [y, m, d] = iso.split('-').map(Number);
-          const dt = new Date(Date.UTC(y, (m || 1) - 1, (d || 1) + 1));
-          return dt.toISOString().slice(0, 10);
-        };
-
-        const priceDiffBlocks: Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }> = [];
-        for (const it of allFetchedItems) {
-          const standbyId = Number(it?.id);
-          const pair = getJungleTwinPairByRateId(standbyId);
-          if (!pair || !pair.isMother) continue;
-          const isStandby = activeJungleSource === '807324'
-            ? pair.fpvId === standbyId
-            : pair.jungleId === standbyId;
-          if (!isStandby) continue;
-
-          const activeId = getCompanionRateId(standbyId);
-          const activeItem = activeId ? itemByRateId.get(activeId) : null;
-          if (!activeItem || !Array.isArray(activeItem.days)) continue;
-
-          const standbyDayMap = new Map<string, any>();
-          for (const sDay of (Array.isArray(it.days) ? it.days : [])) {
-            const dStr = String(sDay?.date || '').slice(0, 10);
-            if (dStr) standbyDayMap.set(dStr, sDay);
+      if (Date.now() - lastGridStandbyAlignMs >= GRID_STANDBY_ALIGN_COOLDOWN_MS) {
+        lastGridStandbyAlignMs = Date.now();
+        try {
+          const itemByRateId = new Map<number, any>();
+          for (const it of allFetchedItems) {
+            const idNum = Number(it?.id);
+            if (idNum) itemByRateId.set(idNum, it);
           }
 
-          const diffDays: Array<{ date: string; price: number }> = [];
-          for (const aDay of activeItem.days) {
-            const dStr = String(aDay?.date || '').slice(0, 10);
-            const activePrice = Number(aDay?.price ?? 0);
-            if (!dStr || activePrice <= 0) continue;
+          const addOneDay = (iso: string) => {
+            const [y, m, d] = iso.split('-').map(Number);
+            const dt = new Date(Date.UTC(y, (m || 1) - 1, (d || 1) + 1));
+            return dt.toISOString().slice(0, 10);
+          };
 
-            const expectedStandbyPrice =
-              activeJungleSource === '366879' && isLowSeasonKeepAliveDate(dStr)
-                ? computeStandbyKeepAlivePrice(activePrice, pair.key)
-                : activePrice;
+          const priceDiffBlocks: Array<{ room: number; dateFrom: string; dateTo: string; values: { price: number } }> = [];
+          for (const it of allFetchedItems) {
+            const standbyId = Number(it?.id);
+            const pair = getJungleTwinPairByRateId(standbyId);
+            if (!pair || !pair.isMother) continue;
+            const isStandby = activeJungleSource === '807324'
+              ? pair.fpvId === standbyId
+              : pair.jungleId === standbyId;
+            if (!isStandby) continue;
 
-            const sDay = standbyDayMap.get(dStr);
-            const standbyPrice = Number(sDay?.price ?? 0);
-            if (Math.abs(standbyPrice - expectedStandbyPrice) > 0.01) {
-              if (sDay) sDay.price = expectedStandbyPrice;
-              diffDays.push({ date: dStr, price: expectedStandbyPrice });
+            const activeId = getCompanionRateId(standbyId);
+            const activeItem = activeId ? itemByRateId.get(activeId) : null;
+            if (!activeItem || !Array.isArray(activeItem.days)) continue;
+
+            const standbyDayMap = new Map<string, any>();
+            for (const sDay of (Array.isArray(it.days) ? it.days : [])) {
+              const dStr = String(sDay?.date || '').slice(0, 10);
+              if (dStr) standbyDayMap.set(dStr, sDay);
             }
-          }
 
-          diffDays.sort((a, b) => a.date.localeCompare(b.date));
-          let blockFrom = '';
-          let blockTo = '';
-          let blockPrice = -1;
-          for (const dd of diffDays) {
-            if (!blockFrom) {
-              blockFrom = dd.date;
-              blockTo = dd.date;
-              blockPrice = dd.price;
-            } else if (dd.date === blockTo && dd.price === blockPrice) {
-              continue;
-            } else if (dd.date === addOneDay(blockTo) && dd.price === blockPrice) {
-              blockTo = dd.date;
-            } else {
+            const diffDays: Array<{ date: string; price: number }> = [];
+            for (const aDay of activeItem.days) {
+              const dStr = String(aDay?.date || '').slice(0, 10);
+              const activePrice = Number(aDay?.price ?? 0);
+              if (!dStr || activePrice <= 0) continue;
+
+              const expectedStandbyPrice =
+                activeJungleSource === '366879' && isLowSeasonKeepAliveDate(dStr)
+                  ? computeStandbyKeepAlivePrice(activePrice, pair.key)
+                  : activePrice;
+
+              const sDay = standbyDayMap.get(dStr);
+              const standbyPrice = Number(sDay?.price ?? 0);
+              if (Math.abs(standbyPrice - expectedStandbyPrice) > 0.01) {
+                if (sDay) sDay.price = expectedStandbyPrice;
+                diffDays.push({ date: dStr, price: expectedStandbyPrice });
+              }
+            }
+
+            diffDays.sort((a, b) => a.date.localeCompare(b.date));
+            let blockFrom = '';
+            let blockTo = '';
+            let blockPrice = -1;
+            for (const dd of diffDays) {
+              if (!blockFrom) {
+                blockFrom = dd.date;
+                blockTo = dd.date;
+                blockPrice = dd.price;
+              } else if (dd.date === blockTo && dd.price === blockPrice) {
+                continue;
+              } else if (dd.date === addOneDay(blockTo) && dd.price === blockPrice) {
+                blockTo = dd.date;
+              } else {
+                priceDiffBlocks.push({ room: standbyId, dateFrom: blockFrom, dateTo: blockTo, values: { price: blockPrice } });
+                blockFrom = dd.date;
+                blockTo = dd.date;
+                blockPrice = dd.price;
+              }
+            }
+            if (blockFrom) {
               priceDiffBlocks.push({ room: standbyId, dateFrom: blockFrom, dateTo: blockTo, values: { price: blockPrice } });
-              blockFrom = dd.date;
-              blockTo = dd.date;
-              blockPrice = dd.price;
             }
           }
-          if (blockFrom) {
-            priceDiffBlocks.push({ room: standbyId, dateFrom: blockFrom, dateTo: blockTo, values: { price: blockPrice } });
-          }
-        }
 
-        if (priceDiffBlocks.length > 0) {
-          console.log(`[OCTORATE GRID] Rilevate ${priceDiffBlocks.length} discrepanze prezzi sulle 4 Madri Standby -> riallineamento automatico Octorate...`);
-          for (let i = 0; i < priceDiffBlocks.length; i += 150) {
-            const chunk = priceDiffBlocks.slice(i, i + 150);
-            const bulkRes = await fetch('https://api.octorate.com/connect/rest/v1/calendar/bulk', {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-                Accept: 'application/json'
-              },
-              body: JSON.stringify(chunk)
-            });
-            if (!bulkRes.ok) {
-              const errTxt = await bulkRes.text().catch(() => '');
-              console.warn(`[OCTORATE GRID] Standby auto-align chunk ${i / 150 + 1} HTTP ${bulkRes.status}: ${errTxt.slice(0, 150)}`);
+          if (priceDiffBlocks.length > 0) {
+            console.log(`[OCTORATE GRID] Rilevate ${priceDiffBlocks.length} discrepanze prezzi sulle 4 Madri Standby -> riallineamento automatico Octorate...`);
+            for (let i = 0; i < priceDiffBlocks.length; i += 150) {
+              const chunk = priceDiffBlocks.slice(i, i + 150);
+              const bulkRes = await fetch('https://api.octorate.com/connect/rest/v1/calendar/bulk', {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                  'Content-Type': 'application/json',
+                  Accept: 'application/json'
+                },
+                body: JSON.stringify(chunk)
+              });
+              if (!bulkRes.ok) {
+                const errTxt = await bulkRes.text().catch(() => '');
+                console.warn(`[OCTORATE GRID] Standby auto-align chunk ${i / 150 + 1} HTTP ${bulkRes.status}: ${errTxt.slice(0, 150)}`);
+              }
             }
           }
+        } catch (alignErr) {
+          console.warn('[OCTORATE GRID] Standby twin price auto-align warning:', alignErr);
         }
-      } catch (alignErr) {
-        console.warn('[OCTORATE GRID] Standby twin price auto-align warning:', alignErr);
       }
 
       // ⚡ [CASCADE LAST-MINUTE 24/7] Auto-Roll in background per la finestra mobile 7 giorni
@@ -952,37 +966,32 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
     }
     const roomsPayload = Array.from(roomsPayloadMap.values());
 
-    // Invio sincronizzazione in batch paralleli da 250 blocchi per Octorate API
+    // Invio sincronizzazione sequenziale con backoff anti-quota per Octorate API
     const chunkSize = 250;
     const chunks: any[][] = [];
     for (let c = 0; c < roomsPayload.length; c += chunkSize) {
       chunks.push(roomsPayload.slice(c, c + chunkSize));
     }
 
-    const batchPromises = chunks.map(async (chunk, idx) => {
-      const bulkRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
-        method: 'POST',
-        headers: {
+    if (chunks.length > 0) {
+      const { lastStatus, succeededItems } = await postOctorateCalendarBulkWithRetry(
+        {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify(chunk)
-      });
-      const bulkText = await bulkRes.text().catch(() => '');
-      let bulkJson: any = null;
-      try {
-        bulkJson = bulkText ? JSON.parse(bulkText) : null;
-      } catch {
-        // risposta non JSON
+        chunks,
+        {
+          interBatchDelayMs: 900,
+          quotaRetryDelayMs: 2500,
+          maxQuotaRetries: 2,
+          logPrefix: '[handleOctorateMinStay]'
+        }
+      );
+      if (succeededItems === 0 && lastStatus >= 400) {
+        throw new Error(`Octorate MinStay bulk failed (HTTP ${lastStatus})`);
       }
-      if (!bulkRes.ok || bulkJson?.success === false) {
-        throw new Error(`Batch ${idx + 1}/${chunks.length} failed (${bulkRes.status}): ${bulkText}`);
-      }
-      return bulkRes.status;
-    });
-
-    await Promise.all(batchPromises);
+    }
     clearOctorateGridCache();
 
     const isTest = executionMode === 'test_bungalows' || isTestEnvironment;
@@ -1162,11 +1171,122 @@ export async function handleOctorateJungleMirror(req: VercelRequest, res: Vercel
     }
 
     const daysAhead = Number(body.daysAhead || 365);
-    const result = await syncActiveToStandbyCalendar(supabaseAdmin, tokenData.access_token, { daysAhead });
+    const result = await syncActiveToStandbyCalendar(supabaseAdmin, tokenData.access_token, { daysAhead, force: true });
     gridCache.clear();
     return res.status(200).json(result);
   } catch (error: any) {
     console.error('[octorate-jungle-mirror] Error:', error);
     return res.status(500).json({ error: error.message || 'Jungle mirror sync error' });
+  }
+}
+
+// 12. handleOctorateClosedRoomLocks — Gestione Hard-Lock Stanze Chiuse (Anti-Riapertura su cancellazione/riduzione)
+export async function handleOctorateClosedRoomLocks(req: VercelRequest, res: VercelResponse) {
+  const supabaseAdmin = getSupabaseAdmin();
+  if (!supabaseAdmin) {
+    return res.status(500).json({ error: 'Supabase configuration missing' });
+  }
+
+  try {
+    if (req.method === 'GET') {
+      const locks = await loadClosedRoomLocks(supabaseAdmin);
+      return res.status(200).json({
+        success: true,
+        locks,
+        rooms: LOCKABLE_ROOMS.map(r => ({
+          roomKey: r.roomKey,
+          motherId: r.motherId,
+          name: r.name,
+          productsCount: r.productIds.length
+        }))
+      });
+    }
+
+    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+    const locks = await loadClosedRoomLocks(supabaseAdmin);
+
+    if (req.method === 'DELETE' || body.action === 'delete') {
+      const lockId = String(body.id || req.query?.id || '').trim();
+      if (!lockId) {
+        return res.status(400).json({ error: 'id mancante per rimuovere il lock' });
+      }
+      const nextLocks = locks.filter(l => l.id !== lockId);
+      await saveClosedRoomLocks(supabaseAdmin, nextLocks);
+      return res.status(200).json({ success: true, locks: nextLocks });
+    }
+
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const action = String(body.action || 'upsert');
+
+    if (action === 'toggle') {
+      const lockId = String(body.id || '').trim();
+      const nextLocks = locks.map(l =>
+        l.id === lockId ? { ...l, enabled: body.enabled !== undefined ? Boolean(body.enabled) : !l.enabled, updatedAt: new Date().toISOString() } : l
+      );
+      await saveClosedRoomLocks(supabaseAdmin, nextLocks);
+      return res.status(200).json({ success: true, locks: nextLocks });
+    }
+
+    const room = resolveLockableRoom(body.roomKey || body.motherId || body.roomName);
+    if (!room) {
+      return res.status(400).json({ error: 'Alloggio non valido per Hard-Lock' });
+    }
+
+    const dateFrom = String(body.dateFrom || '').slice(0, 10);
+    const dateTo = String(body.dateTo || '').slice(0, 10);
+    if (!dateFrom || !dateTo || dateFrom > dateTo) {
+      return res.status(400).json({ error: 'Intervallo date non valido (dateFrom <= dateTo)' });
+    }
+
+    const lockId = `${room.roomKey}_${dateFrom}_${dateTo}`;
+    const newLock: ClosedRoomLock = {
+      id: lockId,
+      roomKey: room.roomKey,
+      motherId: room.motherId,
+      roomName: room.name,
+      dateFrom,
+      dateTo,
+      reason: body.reason ? String(body.reason).slice(0, 140) : 'Chiusura protetta (Anti-Riapertura)',
+      enabled: true,
+      updatedAt: new Date().toISOString()
+    };
+
+    const nextLocks = [...locks.filter(l => l.id !== lockId), newLock];
+    await saveClosedRoomLocks(supabaseAdmin, nextLocks);
+
+    let sealResult = { sealedEntries: 0, sealedDatesCount: 0, lastStatus: 200 };
+    if (body.sealNow !== false) {
+      const { data: tokenData } = await supabaseAdmin
+        .from('octorate_tokens')
+        .select('access_token')
+        .eq('id', 'singleton')
+        .maybeSingle();
+
+      if (tokenData?.access_token) {
+        const clientId = process.env.VITE_OCTORATE_CLIENT_ID || process.env.OCTORATE_CLIENT_ID || '';
+        sealResult = await sealLockedRoomRangeOnOctorate({
+          accessToken: tokenData.access_token,
+          clientId,
+          roomKeyOrId: room.roomKey,
+          dateFrom,
+          dateTo,
+          logPrefix: '[ADMIN HARD-LOCK]'
+        });
+        gridCache.clear();
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      lock: newLock,
+      locks: nextLocks,
+      sealResult
+    });
+  } catch (error: any) {
+    console.error('[octorate-closed-room-locks] Error:', error);
+    return res.status(500).json({ error: error.message || 'Errore gestione Hard-Lock stanze chiuse' });
   }
 }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { formatDisplayDate, parseDisplayDateToISO } from '../../../lib/dateUtils';
+import { formatDisplayDate } from '../../../lib/dateUtils';
 import { useRestrictionsStore, REAL_OCTORATE_PLANS, RealOctoratePlan, PlannedPeriod, INITIAL_PLAN_PERIODS } from '../store/useRestrictionsStore-v17';
-import { useResortAdminStore } from '../store/useResortAdminStore';
 import { MOTHER_RATES } from '../store/useSeasonalRateStore';
+import { ClosedRoomLocksSection } from './ClosedRoomLocksSection';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -136,7 +136,6 @@ function getGanttWidth(dateFrom: string, dateTo: string): number {
 // ─── Component ────────────────────────────────────────────────────────────────
 export const GestioneRestrizioniCanali: React.FC = () => {
   const store = useRestrictionsStore();
-  const resortAdminStore = useResortAdminStore();
 
   const rawPeriods = store?.plannedPeriods;
   const liveOctorateRestrictions = store?.liveOctorateRestrictions || {};
@@ -179,7 +178,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const insertPlannedPeriodRelative = store?.insertPlannedPeriodRelative || (() => {});
   const removePlannedPeriod = store?.removePlannedPeriod || store?.removePeriod || (() => {});
   const syncPlanToOctorate = store?.syncPlanToOctorate || (async () => false);
-  const syncAllRatePlansToOctorate = store?.syncAllRatePlansToOctorate || store?.syncAllPlansToOctorate || (async () => false);
   const cancelBulkSync = store?.cancelBulkSync || (() => {});
   const resetDefaultStore = store?.resetDefaultStore || (() => {});
   const importConfig = store?.importConfig || (() => ({ success: true, message: '' }));
@@ -209,8 +207,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
 
   // Stati per la conferma a doppia pressione (3s timer)
   const [confirmingSingleSyncId, setConfirmingSingleSyncId] = useState<string | null>(null);
-  const [confirmingBulkSync, setConfirmingBulkSync] = useState<boolean>(false);
-  const [confirmingTestSync, setConfirmingTestSync] = useState<boolean>(false);
   const [confirmingCopyLive, setConfirmingCopyLive] = useState<boolean>(false);
 
   // Auto-allineamento iniziale con la configurazione speculare di Tabella 2 (Octorate Live)
@@ -223,8 +219,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   }, [rawPeriods, resetDefaultStore]);
 
   const singleSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const bulkSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const testSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const copyLiveTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const handleSingleSyncClick = (planId: string, periodId: string) => {
@@ -318,7 +312,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   // ─────────────────────────────────────────────────────────────────────────────
   // CARD TABELLA 1 — Layout fluido (Altezza compattata)
   // ─────────────────────────────────────────────────────────────────────────────
-  const renderPlannedPeriodCard = (plan: RealOctoratePlan, period: PlannedPeriod, periodsList: PlannedPeriod[]) => {
+  const renderPlannedPeriodCard = (plan: RealOctoratePlan, period: PlannedPeriod) => {
     const isSyncing = syncingPeriodId === period.id;
     const leftPx = getGanttOffset(period.dateFrom);
     const widthPx = getGanttWidth(period.dateFrom, period.dateTo);
@@ -345,7 +339,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
       }
     }
 
-    const isFailsafe = Boolean(period.failsafeCheckout || period.closedToArrival || period.strategy === 'failsafe_checkout' || period.name?.toLowerCase().includes('only check-out'));
     const hasWeldedCta = Boolean((period.onlyCheckoutDays ?? period.onlyCheckOutDays ?? 0) > 0);
     const roundedClass = hasWeldedCta ? 'rounded-l-2xl rounded-r-none border-r-0' : 'rounded-2xl';
 
@@ -1785,7 +1778,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                             const outDays = period.onlyCheckoutDays ?? period.onlyCheckOutDays ?? 0;
                             return (
                               <React.Fragment key={period.id}>
-                                {renderPlannedPeriodCard(plan, period, periodsList)}
+                                {renderPlannedPeriodCard(plan, period)}
                                 {outDays > 0 && (
                                   <div 
                                     className="flex-shrink-0 rounded-r-2xl rounded-l-none border border-l-0 border-amber-400 bg-amber-950/90 p-1 flex flex-col justify-center items-center text-center transition-all select-none overflow-hidden z-10 shadow-[0_0_15px_rgba(245,158,11,0.3)] ring-1 ring-amber-500/50" 
@@ -1983,6 +1976,9 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           </div>
         </div>
       )}
+      <div className="mt-6">
+        <ClosedRoomLocksSection />
+      </div>
     </div>
     </div>
   );
