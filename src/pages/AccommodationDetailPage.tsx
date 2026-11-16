@@ -120,8 +120,9 @@ const languages: { code: Language; label: string; flag: string }[] = [
   { code: 'DE', label: 'Deutsch', flag: '🇩🇪' },
 ];
 
-export default function AccommodationDetailPage() {
-  const { slug } = useParams<{ slug: string }>();
+export default function AccommodationDetailPage({ slugOverride }: { slugOverride?: string } = {}) {
+  const { slug: paramSlug } = useParams<{ slug: string }>();
+  const slug = slugOverride || paramSlug;
   const [accommodation, setAccommodation] = useState<Accommodation | null | undefined>(undefined);
   const [lang, setLang] = useState<Language>(() => {
     if (typeof window !== 'undefined') {
