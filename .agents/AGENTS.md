@@ -555,3 +555,10 @@ Per evitare che i report generati per l'utente superino i limiti di input di Gem
 24. **Regola Immodificabile Percorso Unico Worktree Git**:
     - Tutti i worktree Git del progetto devono essere salvati **TASSATIVAMENTE ED ESCLUSIVAMENTE** dentro la directory `D:\01 ANTIGRAVITY\flower-power-village-com\WorkTrees\`.
     - È severamente vietato creare o mantenere worktree in percorsi alternativi (inclusa la cartella interna dell'IDE `C:\Users\INTEL\.gemini\antigravity\worktrees\`). Se un worktree viene creato altrove, va immediatamente spostato (o rimosso e ricreato sullo stesso branch) dentro `D:\01 ANTIGRAVITY\flower-power-village-com\WorkTrees\`.
+
+25. **Regola Immodificabile Isolamento Sotto-Reparti Villaggio & Blast-Radius Check**:
+    - I sotto-reparti critici del dominio Booking/Octorate (`Notti Minime Dinamiche`, `Cascade Last-Minute`, `Split & Mirror Multi-Struttura`, `Closed-Room Lock & Auto-Shield`, `Prezzi Stagionali & Restrizioni`) sono protetti dalla suite automatica `npm run test:booking` (`tests/booking/*.contract.test.ts`).
+    - Prima di modificare qualsiasi file in `api/_helpers/octorate-*.ts` o `api/_handlers/octorate*.ts` (o `update-restriction.ts` / `api-update-prices-stagionale.ts` / `resort-sentinel.ts`), l'agente DEVE:
+      1. Dichiarare il **perimetro di impatto (blast radius)**: quali sotto-reparti e file condivisi tocca l'intervento.
+      2. Non mescolare mai modifiche a più di un sotto-reparto nello stesso intervento senza approvazione esplicita dell'utente.
+      3. Eseguire `npm run test:booking` **prima** (baseline) e `npm run verify:all` **dopo** ogni modifica prima di dichiarare il lavoro pronto o committare.

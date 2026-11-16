@@ -58,6 +58,7 @@ scratch/*_download/
 scratch/*.mjs
 scratch/*.ts
 !scratch/vault-sync.mjs
+.tmp-booking-tests-*/
 !scratch/deepseek-translate.mjs
 !scratch/security-audit.mjs
 scratch/audit_report_bookings.md

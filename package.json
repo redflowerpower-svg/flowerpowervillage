@@ -11,6 +11,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "api:check": "node -e \"import('esbuild').then(e => e.build({entryPoints:['api/[...route].ts'],bundle:true,platform:'node',format:'esm',packages:'external',write:false})).catch(()=>process.exit(1))\"",
+    "test:booking": "node scripts/run-booking-tests.mjs",
+    "verify:all": "npm run api:check && npm run test:booking && vite build",
     "render:cloud": "node scripts/render-social-video-cloud.mjs",
     "project:sync": "node scripts/project-sync.mjs",
     "branch:sync": "node scripts/branch-sync.mjs",
