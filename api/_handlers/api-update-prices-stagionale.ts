@@ -245,17 +245,24 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
       const seasonalUpdates: Array<{ roomMotherId: number; dateFrom: string; dateTo: string }> = [];
 
       for (const b of bulkPayload) {
-        if (b.dateFrom >= todayStr && b.dateTo <= windowEndStr) {
+        // 1) Porzione che interseca la finestra Last Minute (oggi .. oggi+8): congela con manualOverride
+        if (b.dateTo >= todayStr && b.dateFrom <= windowEndStr) {
+          const overlapFrom = b.dateFrom < todayStr ? todayStr : b.dateFrom;
+          const overlapTo = b.dateTo > windowEndStr ? windowEndStr : b.dateTo;
           shortManualUpdates.push({
             roomMotherId: b.room,
-            dateFrom: b.dateFrom,
-            dateTo: b.dateTo,
+            dateFrom: overlapFrom,
+            dateTo: overlapTo,
             price: b.values.price
           });
-        } else {
+        }
+        // 2) Porzione oltre la finestra Last Minute (> oggi+8): invalida solo quelle date
+        if (b.dateTo > windowEndStr) {
+          const afterWindowStart = addDaysToDate(windowEndStr, 1);
+          const seasonalFrom = b.dateFrom < afterWindowStart ? afterWindowStart : b.dateFrom;
           seasonalUpdates.push({
             roomMotherId: b.room,
-            dateFrom: b.dateFrom,
+            dateFrom: seasonalFrom,
             dateTo: b.dateTo
           });
         }

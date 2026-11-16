@@ -413,6 +413,14 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
 
       if (existing?.manualOverride) {
         // Prezzo bloccato manualmente dall'utente dentro la finestra di 9 giorni (es. 1190 THB)
+        const updatedMs = existing.updatedAt ? Date.parse(existing.updatedAt) : NaN;
+        const nowMs = Date.parse(nowIso);
+        const isRecentManualSave =
+          Number.isFinite(updatedMs) &&
+          Number.isFinite(nowMs) &&
+          nowMs - updatedMs >= 0 &&
+          nowMs - updatedMs < 5 * 60 * 1000;
+
         if (targetDiscountPct === 0) {
           effectiveActivePrice = existing.basePrice;
           if (livePrice !== existing.basePrice) {
@@ -435,6 +443,16 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
             };
             ledgerChanged = true;
           }
+        } else if (isRecentManualSave) {
+          // Latenza di propagazione Octorate subito dopo un salvataggio manuale (< 5 min):
+          // preserva il prezzo congelato nel ledger senza sbloccarlo né sovrascriverlo col vecchio livePrice.
+          effectiveActivePrice = existing.discountedPrice;
+          bulkPayload.push({
+            room: room.motherId,
+            dateFrom: targetDateStr,
+            dateTo: targetDateStr,
+            values: { price: existing.discountedPrice }
+          });
         } else if (livePrice === existing.basePrice) {
           // L'utente ha ripristinato manualmente il prezzo di listino originale: riattiva cascata standard
           const newDiscounted = computeDiscountedPrice(existing.basePrice, targetDiscountPct);
