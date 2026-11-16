@@ -456,6 +456,152 @@ export interface MirrorParams {
  * struttura attiva sia eventuali prenotazioni Keep-Alive 2x su Jungle Villas in standby,
  * con doppia protezione anti-loop tramite MIRROR_TAG e registro inverso Supabase.
  */
+/**
+ * Cancella una prenotazione su Octorate tramite DELETE con fallback PATCH status=CANCELLED.
+ */
+async function cancelOctorateReservationDirect(
+  accessToken: string,
+  structureId: string,
+  reservationId: string,
+  privateNotes: string
+): Promise<void> {
+  const delRes = await fetch(
+    `https://api.octorate.com/connect/rest/v1/reservation/${structureId}/${reservationId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }
+    }
+  );
+  if (!delRes.ok) {
+    await fetch(
+      `https://api.octorate.com/connect/rest/v1/reservation/${structureId}/${reservationId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({
+          status: 'CANCELLED',
+          privateNotes
+        })
+      }
+    );
+  }
+}
+
+/**
+ * Salva e logga eventuali errori del mapping bidirezionale mirror_res / mirror_target su Supabase.
+ */
+async function upsertMirrorMapping(
+  supabaseAdmin: any,
+  srcStruct: string,
+  sourceReservationId: string,
+  targetStructureId: string,
+  targetReservationId: string
+): Promise<void> {
+  if (!supabaseAdmin) return;
+  const now = new Date().toISOString();
+  const { error } = await supabaseAdmin.from('telegram_config').upsert([
+    {
+      id: `mirror_res_${srcStruct}_${sourceReservationId}`,
+      bot_token: String(targetStructureId),
+      chat_id: String(targetReservationId),
+      updated_at: now
+    },
+    {
+      id: `mirror_target_${targetStructureId}_${targetReservationId}`,
+      bot_token: String(srcStruct),
+      chat_id: String(sourceReservationId),
+      updated_at: now
+    }
+  ]);
+  if (error) {
+    console.warn(`[JUNGLE MIRROR] Errore salvataggio mapping Supabase per #${sourceReservationId} -> #${targetReservationId}:`, error);
+  }
+}
+
+function shiftIsoDays(isoDate: string, deltaDays: number): string {
+  const base = new Date(`${String(isoDate).slice(0, 10)}T00:00:00Z`);
+  if (Number.isNaN(base.getTime())) return String(isoDate).slice(0, 10);
+  base.setUTCDate(base.getUTCDate() + deltaDays);
+  return base.toISOString().slice(0, 10);
+}
+
+/**
+ * Cerca su Octorate (struttura target) eventuali mirror attivi già creati per sourceReservationId,
+ * restituendo un solo ID canonico (preferendo refer esatto MIRROR-<id>) ed eventuali copie duplicate extra.
+ */
+async function findExistingMirrorsOnTarget(params: {
+  accessToken: string;
+  srcStruct: string;
+  sourceReservationId: string;
+  targetStructureId: JungleSourceStructureId;
+  checkInDate: string;
+  checkOutDate: string;
+}): Promise<{ canonicalId: string | null; extraDuplicateIds: string[] }> {
+  const { accessToken, srcStruct, sourceReservationId, targetStructureId, checkInDate, checkOutDate } = params;
+  const startDate = shiftIsoDays(checkInDate, -1);
+  const endDate = shiftIsoDays(checkOutDate, 1);
+  const canonicalRefer = `MIRROR-${sourceReservationId}`.slice(0, 25);
+  const referPrefix = `MIRROR-${sourceReservationId}-`;
+  const origMarkerRegex = new RegExp(`Orig:\\s*${srcStruct}\\s*#${sourceReservationId}(?:\\D|$)`);
+
+  const matches: Array<{ id: string; refer: string }> = [];
+  for (let page = 0; page < 5; page++) {
+    const url = `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}?type=STAY&startDate=${startDate}&endDate=${endDate}&size=50&page=${page}`;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }
+    }).catch(() => null);
+    if (!res || !res.ok) break;
+    const json: any = await res.json().catch(() => ({}));
+    const rows: any[] = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
+    if (rows.length === 0) break;
+
+    for (const r of rows) {
+      const status = String(r.status || '').toUpperCase();
+      if (status === 'CANCELLED' || status === 'CANCELED') continue;
+      const refer = String(r.refer || '');
+      const notes = String(r.privateNotes || '');
+      const isMatch =
+        refer === canonicalRefer ||
+        refer.startsWith(referPrefix) ||
+        origMarkerRegex.test(notes);
+      if (isMatch && r.id) {
+        matches.push({ id: String(r.id), refer });
+      }
+    }
+    if (rows.length < 50) break;
+  }
+
+  if (matches.length === 0) {
+    return { canonicalId: null, extraDuplicateIds: [] };
+  }
+
+  // Preferisce la copia con refer canonico esatto MIRROR-<id>, altrimenti l'ID numerico più vecchio
+  matches.sort((a, b) => {
+    const aCanon = a.refer === canonicalRefer ? 0 : 1;
+    const bCanon = b.refer === canonicalRefer ? 0 : 1;
+    if (aCanon !== bCanon) return aCanon - bCanon;
+    return Number(a.id) - Number(b.id);
+  });
+
+  const [canonical, ...extras] = matches;
+  const seen = new Set<string>([canonical.id]);
+  const extraDuplicateIds: string[] = [];
+  for (const ex of extras) {
+    if (!seen.has(ex.id)) {
+      seen.add(ex.id);
+      extraDuplicateIds.push(ex.id);
+    }
+  }
+  return { canonicalId: canonical.id, extraDuplicateIds };
+}
+
+/**
+ * Cancella uno specchio esistente su Octorate (struttura target) e ripulisce il mapping Supabase.
+ */
 async function cancelExistingMirrorReservation(params: {
   supabaseAdmin: any;
   accessToken: string;
@@ -475,30 +621,12 @@ async function cancelExistingMirrorReservation(params: {
     reasonNote
   } = params;
 
-  const delRes = await fetch(
-    `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}/${existingMirrorId}`,
-    {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }
-    }
+  await cancelOctorateReservationDirect(
+    accessToken,
+    targetStructureId,
+    existingMirrorId,
+    `${MIRROR_TAG} ${reasonNote} (${srcStruct} #${sourceReservationId})`
   );
-  if (!delRes.ok) {
-    await fetch(
-      `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}/${existingMirrorId}`,
-      {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
-        },
-        body: JSON.stringify({
-          status: 'CANCELLED',
-          privateNotes: `${MIRROR_TAG} ${reasonNote} (${srcStruct} #${sourceReservationId})`
-        })
-      }
-    );
-  }
 
   if (supabaseAdmin) {
     const mapKey = `mirror_res_${srcStruct}_${sourceReservationId}`;
@@ -553,6 +681,8 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
 
   const targetStructureId: JungleSourceStructureId = srcStruct === '807324' ? '366879' : '807324';
   const mapKey = `mirror_res_${srcStruct}_${sourceReservationId}`;
+  const checkInDate = String(checkIn).slice(0, 10);
+  const checkOutDate = String(checkOut).slice(0, 10);
 
   let existingMirrorId: string | null = null;
   if (supabaseAdmin) {
@@ -562,6 +692,33 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
       .eq('id', mapKey)
       .maybeSingle();
     if (data?.chat_id) existingMirrorId = String(data.chat_id);
+  }
+
+  // Fallback Idempotenza Live su Octorate: se Supabase non ha il mapping, cerca comunque eventuali copie già attive
+  // su targetStructureId prima di procedere (previene overbooking da mapping assente o race condition)
+  if (!existingMirrorId && checkInDate && checkOutDate) {
+    const recovered = await findExistingMirrorsOnTarget({
+      accessToken,
+      srcStruct,
+      sourceReservationId,
+      targetStructureId,
+      checkInDate,
+      checkOutDate
+    });
+    if (recovered.extraDuplicateIds.length > 0) {
+      for (const dupId of recovered.extraDuplicateIds) {
+        await cancelOctorateReservationDirect(
+          accessToken,
+          targetStructureId,
+          dupId,
+          `${MIRROR_TAG} Auto-deduplicated duplicate mirror for (${srcStruct} #${sourceReservationId})`
+        );
+      }
+    }
+    if (recovered.canonicalId) {
+      existingMirrorId = recovered.canonicalId;
+      console.log(`[JUNGLE MIRROR] Mapping recuperato live da Octorate: #${sourceReservationId} -> #${existingMirrorId}`);
+    }
   }
 
   const twin = resolveTwinByProductOrName(productId, roomName);
@@ -611,8 +768,10 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     };
   }
 
-  const checkInDate = String(checkIn).slice(0, 10);
-  const checkOutDate = String(checkOut).slice(0, 10);
+  if (existingMirrorId) {
+    await upsertMirrorMapping(supabaseAdmin, srcStruct, sourceReservationId, targetStructureId, existingMirrorId);
+  }
+
   const numChannelId = Number(channelId || 233);
 
   let effectiveColor = color;
@@ -773,6 +932,34 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
   );
 
   if (!res.ok && res.status === 400) {
+    // Prima di ritentare con un refer alternativo, verifica se la 400 è dovuta a un mirror attivo già esistente (race condition / mapping mancante)
+    const conflictCheck = await findExistingMirrorsOnTarget({
+      accessToken,
+      srcStruct,
+      sourceReservationId,
+      targetStructureId,
+      checkInDate,
+      checkOutDate
+    });
+    for (const dupId of conflictCheck.extraDuplicateIds) {
+      await cancelOctorateReservationDirect(
+        accessToken,
+        targetStructureId,
+        dupId,
+        `${MIRROR_TAG} Auto-deduplicated on 400 conflict (${srcStruct} #${sourceReservationId})`
+      );
+    }
+    if (conflictCheck.canonicalId) {
+      await upsertMirrorMapping(supabaseAdmin, srcStruct, sourceReservationId, targetStructureId, conflictCheck.canonicalId);
+      return {
+        mirrored: false,
+        action: 'skipped',
+        targetStructureId,
+        targetReservationId: conflictCheck.canonicalId,
+        reason: 'Active mirror already exists on Octorate (resolved on 400 conflict)'
+      };
+    }
+
     const suffix = Date.now().toString(36).slice(-3);
     res = await fetch(
       `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}`,
@@ -798,23 +985,7 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     throw new Error(`Mirror POST failed (${res.status}): ${JSON.stringify(json).slice(0, 300)}`);
   }
 
-  if (supabaseAdmin) {
-    const now = new Date().toISOString();
-    await supabaseAdmin.from('telegram_config').upsert([
-      {
-        id: mapKey,
-        bot_token: String(targetStructureId),
-        chat_id: String(newId),
-        updated_at: now
-      },
-      {
-        id: `mirror_target_${targetStructureId}_${newId}`,
-        bot_token: String(srcStruct),
-        chat_id: String(sourceReservationId),
-        updated_at: now
-      }
-    ]);
-  }
+  await upsertMirrorMapping(supabaseAdmin, srcStruct, sourceReservationId, targetStructureId, String(newId));
 
   return {
     mirrored: true,
@@ -1712,6 +1883,7 @@ interface TwinReservationLite {
   productId?: number | string;
   roomName?: string;
   channelId?: number | string;
+  refer?: string;
   channelRefer?: string;
   channelName?: string;
   color?: string;
@@ -1776,6 +1948,7 @@ async function fetchTwinActiveReservations(
         productId,
         roomName,
         channelId: r.channelId,
+        refer: r.refer ? String(r.refer) : undefined,
         channelRefer: r.channelRefer || r.refer,
         channelName: r.channelName,
         color: r.color,
@@ -2247,7 +2420,7 @@ export async function verifyAndRepairTwinReservationsBeforeSwitch(
           supabaseAdmin,
           accessToken,
           srcStruct: oppositeStruct,
-          sourceReservationId: m.id,
+          sourceReservationId: m.origSourceId || m.id,
           targetStructureId: mirrorStruct,
           existingMirrorId: m.id,
           reasonNote
@@ -2257,13 +2430,53 @@ export async function verifyAndRepairTwinReservationsBeforeSwitch(
     }
   };
 
+  const deduplicateMirrors = async (
+    mirrorOwnerList: TwinReservationLite[],
+    oppositeRealSigs: Set<string>,
+    oppositeStruct: JungleSourceStructureId,
+    mirrorStruct: JungleSourceStructureId
+  ) => {
+    const groups = new Map<string, TwinReservationLite[]>();
+    for (const m of mirrorOwnerList) {
+      if (!m.isMirror || !oppositeRealSigs.has(sig(m))) continue;
+      const key = m.origSourceId ? `orig:${m.origSourceId}` : `sig:${sig(m)}`;
+      const bucket = groups.get(key) || [];
+      bucket.push(m);
+      groups.set(key, bucket);
+    }
+    for (const bucket of groups.values()) {
+      if (bucket.length <= 1) continue;
+      bucket.sort((a, b) => {
+        const canonRefA = a.origSourceId && a.refer === `MIRROR-${a.origSourceId}`.slice(0, 25) ? 0 : 1;
+        const canonRefB = b.origSourceId && b.refer === `MIRROR-${b.origSourceId}`.slice(0, 25) ? 0 : 1;
+        if (canonRefA !== canonRefB) return canonRefA - canonRefB;
+        return Number(a.id) - Number(b.id);
+      });
+      const [canonical, ...extras] = bucket;
+      if (canonical.origSourceId) {
+        await upsertMirrorMapping(supabaseAdmin, oppositeStruct, canonical.origSourceId, mirrorStruct, canonical.id);
+      }
+      for (const dup of extras) {
+        await cancelOctorateReservationDirect(
+          accessToken,
+          mirrorStruct,
+          dup.id,
+          `${MIRROR_TAG} Pre-flight duplicate mirror cleanup (${oppositeStruct} #${dup.origSourceId || canonical.id})`
+        );
+        repairedCancelled++;
+      }
+    }
+  };
+
   // 1. Direzione Outgoing -> Target (es. Attiva -> Standby) e 2. Direzione inversa Target -> Outgoing
   await syncDirection(outgoing, targetStructureId, outReal, inBySig, 'Upgrading mirror to native OTA agency channel');
   await syncDirection(targetStructureId, outgoing, inReal, outBySig, 'Upgrading reverse mirror to native OTA agency channel');
 
-  // 3. Pulizia specchi orfani su entrambi i lati (solo se non esiste più la reale corrispondente sull'altro lato)
+  // 3. Pulizia specchi orfani e deduplica copie multiple su entrambi i lati
   await cleanupOrphans(inRes, outSigs, outgoing, targetStructureId, 'Pre-flight orphan cleanup');
   await cleanupOrphans(outRes, inRealSigs, targetStructureId, outgoing, 'Pre-flight reverse orphan cleanup');
+  await deduplicateMirrors(inRes, outSigs, outgoing, targetStructureId);
+  await deduplicateMirrors(outRes, inRealSigs, targetStructureId, outgoing);
 
   const [outFinal, inFinal] =
     repairedCreated > 0 || repairedCancelled > 0
