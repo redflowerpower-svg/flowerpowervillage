@@ -23,8 +23,10 @@ import {
   JUNGLE_RATE_PAIRS,
   JungleSourceStructureId,
   mirrorReservationToStandby,
+  parseOctorateTimestampMs,
   postOctorateCalendarBulkWithRetry,
-  syncActiveToStandbyCalendar
+  syncActiveToStandbyCalendar,
+  syncManualMirrorEditToCounterpart
 } from "../_helpers/octorate-jungle-mirror.js";
 
 function getSupabaseAdmin() {
@@ -666,14 +668,35 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
     eventPayload = {};
   }
 
+  const tryParseNestedJson = (val: any): any => {
+    if (typeof val !== 'string') return val;
+    const trimmed = val.trim();
+    if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) return val;
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return val;
+    }
+  };
+  if (eventPayload && typeof eventPayload === 'object') {
+    if (typeof eventPayload.content === 'string') eventPayload.content = tryParseNestedJson(eventPayload.content);
+    if (typeof eventPayload.data === 'string') eventPayload.data = tryParseNestedJson(eventPayload.data);
+    if (typeof eventPayload.reservation === 'string') eventPayload.reservation = tryParseNestedJson(eventPayload.reservation);
+  }
+
   const eventType = eventPayload?.type || eventPayload?.event || eventPayload?.action || 'RESERVATION_NOTIFICATION';
   console.log(`[OCTORATE WEBHOOK 24/7] Received POST event: ${eventType}`, JSON.stringify(eventPayload, null, 2));
 
   const earlyTargetResId: any =
     eventPayload?.id ||
     eventPayload?.data?.id ||
+    eventPayload?.data?.reservation?.id ||
+    eventPayload?.data?.reservationId ||
     eventPayload?.reservation?.id ||
     eventPayload?.content?.id ||
+    eventPayload?.content?.reservation?.id ||
+    eventPayload?.content?.reservationId ||
+    (Array.isArray(eventPayload?.content) && (eventPayload.content[0]?.id || eventPayload.content[0]?.reservationId || eventPayload.content[0]?.reservation?.id)) ||
     eventPayload?.reservationId ||
     eventPayload?.resId ||
     eventPayload?.reservationNumber ||
@@ -685,14 +708,35 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
     req.query?.reservationId ||
     req.query?.resId;
 
-  // 🔄 LAYER 1 ANTI-LOOP (0 chiamate API): scarta subito payload mirror espliciti prima di qualsiasi refresh o bulk Octorate
+  const upperEventType = String(eventType || '').toUpperCase();
+  const isCreateOnlyEvent =
+    (upperEventType.includes('CREAT') || upperEventType.includes('NEW')) &&
+    !upperEventType.includes('CHANGE') &&
+    !upperEventType.includes('MODIF') &&
+    !upperEventType.includes('UPDATE') &&
+    !upperEventType.includes('CANCEL');
+  const isEditOrCancelEvent =
+    !isCreateOnlyEvent &&
+    (upperEventType.includes('CANCEL') ||
+      upperEventType.includes('CHANGE') ||
+      upperEventType.includes('MODIF') ||
+      upperEventType.includes('UPDATE') ||
+      upperEventType.includes('EDIT') ||
+      upperEventType.includes('DELETE') ||
+      upperEventType.includes('VOID') ||
+      upperEventType === 'RESERVATION_NOTIFICATION');
+
+  // 🔄 LAYER 1 ANTI-LOOP (0 chiamate API): scarta subito payload mirror espliciti di creazione o senza ID
   const inlineMirrorCandidate =
     isMirrorReservation(eventPayload) ||
     isMirrorReservation(eventPayload?.reservation) ||
     isMirrorReservation(eventPayload?.data) ||
+    isMirrorReservation(eventPayload?.data?.reservation) ||
     isMirrorReservation(eventPayload?.content) ||
+    isMirrorReservation(eventPayload?.content?.reservation) ||
+    (Array.isArray(eventPayload?.content) && isMirrorReservation(eventPayload.content[0])) ||
     (Array.isArray(eventPayload) && isMirrorReservation(eventPayload[0]));
-  if (inlineMirrorCandidate) {
+  if (inlineMirrorCandidate && (!earlyTargetResId || !isEditOrCancelEvent)) {
     console.log(`[OCTORATE WEBHOOK 24/7] Early-exit Layer 1: [MIRROR_SYNC] inline payload (${eventType}) ignorato -> 0 chiamate Octorate.`);
     return res.status(200).json({
       received: true,
@@ -710,25 +754,32 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
     let bookingsData: any[] = [];
     const supabaseAdmin = getSupabaseAdmin();
     if (supabaseAdmin) {
-      // 🔄 LAYER 2 ANTI-LOOP (0 chiamate Octorate): se l'ID prenotazione è già registrato come target mirror in Supabase, esci subito
+      let knownMirrorRow: { id: string; updated_at?: string; bot_token?: string; chat_id?: string } | null = null;
+      // 🔄 LAYER 2 ANTI-LOOP (0 chiamate Octorate): se l'ID prenotazione è stato creato/toccato dal server < 45s fa, esci subito; se modificato dopo > 45s propaga alla gemella
       if (earlyTargetResId) {
         try {
           const mirrorKeys = ALL_OCTORATE_STRUCTURE_IDS.map(s => `mirror_target_${s}_${earlyTargetResId}`);
-          const { data: knownMirrorRow } = await supabaseAdmin
+          const { data: mirrorRowData } = await supabaseAdmin
             .from('telegram_config')
-            .select('id')
+            .select('id, updated_at, bot_token, chat_id')
             .in('id', mirrorKeys)
             .limit(1)
             .maybeSingle();
+          knownMirrorRow = mirrorRowData || null;
           if (knownMirrorRow) {
-            console.log(`[OCTORATE WEBHOOK 24/7] Early-exit Layer 2: Mirror ID #${earlyTargetResId} (${knownMirrorRow.id}) trovata -> 0 chiamate Octorate.`);
-            return res.status(200).json({
-              received: true,
-              skipped: 'mirror_reservation_known_id',
-              reservationId: String(earlyTargetResId),
-              eventType,
-              timestamp: new Date().toISOString()
-            });
+            const updatedMs = knownMirrorRow.updated_at ? Date.parse(knownMirrorRow.updated_at) : 0;
+            const ageMs = updatedMs > 0 && !Number.isNaN(updatedMs) ? Date.now() - updatedMs : 0;
+            if (ageMs < 45000 || !isEditOrCancelEvent) {
+              console.log(`[OCTORATE WEBHOOK 24/7] Early-exit Layer 2: Mirror ID #${earlyTargetResId} (${knownMirrorRow.id}, age=${Math.round(ageMs / 1000)}s) -> 0 chiamate Octorate.`);
+              return res.status(200).json({
+                received: true,
+                skipped: 'mirror_reservation_known_id',
+                reservationId: String(earlyTargetResId),
+                eventType,
+                timestamp: new Date().toISOString()
+              });
+            }
+            console.log(`[OCTORATE WEBHOOK 24/7] Mirror ID #${earlyTargetResId} modificato/cancellato dopo ${Math.round(ageMs / 1000)}s -> verifico sync manuale verso struttura gemella.`);
           }
         } catch (mirrorLookupErr) {
           console.warn('[OCTORATE WEBHOOK] Mirror ID early-lookup warning:', mirrorLookupErr);
@@ -784,13 +835,26 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
       }
 
       if (accessToken) {
+        const isReservationEventType =
+          upperEventType.includes('RESERVATION') ||
+          upperEventType.includes('BOOKING') ||
+          upperEventType.includes('STAY') ||
+          upperEventType.includes('CREAT') ||
+          upperEventType.includes('MODIF') ||
+          upperEventType.includes('CHANGE') ||
+          upperEventType.includes('CANCEL');
+
         const hasInlineBookingData = Boolean(
           earlyTargetResId ||
+          isReservationEventType ||
           eventPayload?.checkin ||
           eventPayload?.reservation?.checkin ||
+          eventPayload?.content?.checkin ||
+          eventPayload?.content?.reservation?.checkin ||
           eventPayload?.check_in ||
           eventPayload?.startDate ||
-          eventPayload?.data?.checkin
+          eventPayload?.data?.checkin ||
+          eventPayload?.data?.reservation?.checkin
         );
 
         if (!hasInlineBookingData) {
@@ -878,16 +942,95 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           }
         }
 
-        // 🔄 LAYER 3 ANTI-LOOP: se la prenotazione risolta è uno specchio [MIRROR_SYNC], ferma prima di calendar/bulk/cascade/standby sync
+        // 🔄 LAYER 3 ANTI-LOOP / SYNC BIDIREZIONALE: se la prenotazione è [MIRROR_SYNC], ignora eco recenti o creazioni, ma propaga modifiche/cancellazioni manuali
+        let mirrorSyncedCounterpart = false;
         if (preResolvedTargetBooking && isMirrorReservation(preResolvedTargetBooking)) {
-          console.log(`[OCTORATE WEBHOOK 24/7] Early-exit Layer 3: [MIRROR_SYNC] #${preResolvedTargetBooking.id || earlyTargetResId} ignorato prima di calendar/bulk.`);
-          return res.status(200).json({
-            received: true,
-            skipped: 'mirror_reservation_resolved',
-            reservationId: String(preResolvedTargetBooking.id || earlyTargetResId),
-            eventType,
-            timestamp: new Date().toISOString()
-          });
+          const mirrorRowUpdatedMs = knownMirrorRow?.updated_at ? Date.parse(knownMirrorRow.updated_at) : 0;
+          const mirrorRowAgeMs = mirrorRowUpdatedMs > 0 && !Number.isNaN(mirrorRowUpdatedMs)
+            ? Date.now() - mirrorRowUpdatedMs
+            : Infinity;
+          const mCreateMs = parseOctorateTimestampMs(preResolvedTargetBooking.createTime);
+          const mUpdateMs = parseOctorateTimestampMs(preResolvedTargetBooking.updateTime);
+          const pStatus = String(preResolvedTargetBooking.status || '').toUpperCase().trim();
+          const isMirrorCancelled =
+            pStatus === 'CANCELLED' ||
+            pStatus === 'CANCELED' ||
+            pStatus === 'DELETED' ||
+            pStatus === 'VOID' ||
+            pStatus === 'REJECTED' ||
+            upperEventType.includes('CANCEL');
+
+          const shouldPropagateMirrorEdit =
+            isEditOrCancelEvent &&
+            mirrorRowAgeMs >= 45000 &&
+            (isMirrorCancelled || mUpdateMs === 0 || mCreateMs === 0 || mUpdateMs > mCreateMs + 5000);
+
+          if (!shouldPropagateMirrorEdit) {
+            console.log(`[OCTORATE WEBHOOK 24/7] Early-exit Layer 3: [MIRROR_SYNC] #${preResolvedTargetBooking.id || earlyTargetResId} ignorato prima di calendar/bulk.`);
+            return res.status(200).json({
+              received: true,
+              skipped: 'mirror_reservation_resolved',
+              reservationId: String(preResolvedTargetBooking.id || earlyTargetResId),
+              eventType,
+              timestamp: new Date().toISOString()
+            });
+          }
+
+          const mRoomRaw = preResolvedTargetBooking.product || preResolvedTargetBooking.pmsProduct || preResolvedTargetBooking.accommodation_id || preResolvedTargetBooking.roomId || '';
+          const mStructRaw = preResolvedTargetBooking.accommodation?.id
+            ? String(preResolvedTargetBooking.accommodation.id)
+            : getOctorateStructureByRoomId(mRoomRaw).id;
+          const mirrorStruct: JungleSourceStructureId = mStructRaw === '366879' ? '366879' : '807324';
+
+          try {
+            const propRes = await syncManualMirrorEditToCounterpart({
+              supabaseAdmin,
+              accessToken,
+              mirrorStruct,
+              mirrorBooking: preResolvedTargetBooking,
+              isCancelled: isMirrorCancelled,
+              forceOnWebhook: true
+            });
+            console.log(`[OCTORATE WEBHOOK 24/7] 🔄 Sync bidirezionale modifica manuale Mirror #${preResolvedTargetBooking.id || earlyTargetResId}:`, propRes);
+
+            if (propRes.synced && propRes.counterpartReservationId && propRes.counterpartStructureId) {
+              mirrorSyncedCounterpart = true;
+              const cIdStr = String(propRes.counterpartReservationId);
+              const newInDate = String(preResolvedTargetBooking.checkin || preResolvedTargetBooking.checkIn || '').slice(0, 10);
+              const newOutDate = String(preResolvedTargetBooking.checkout || preResolvedTargetBooking.checkOut || '').slice(0, 10);
+              const existingIdx = bookingsData.findIndex(b => String(b.id) === cIdStr);
+              if (propRes.action === 'cancelled') {
+                if (existingIdx >= 0) bookingsData[existingIdx].status = 'CANCELLED';
+              } else if (newInDate && newOutDate) {
+                if (existingIdx >= 0) {
+                  bookingsData[existingIdx].checkin = `${newInDate}T08:00:00Z`;
+                  bookingsData[existingIdx].checkout = `${newOutDate}T04:00:00Z`;
+                  bookingsData[existingIdx].check_in = newInDate;
+                  bookingsData[existingIdx].check_out = newOutDate;
+                } else {
+                  const freshCRes = await fetch(
+                    `https://api.octorate.com/connect/rest/v1/reservation/${propRes.counterpartStructureId}/${cIdStr}`,
+                    { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
+                  ).catch(() => null);
+                  if (freshCRes && freshCRes.ok) {
+                    const freshCData = await freshCRes.json().catch(() => null);
+                    if (freshCData) bookingsData.push(freshCData);
+                  }
+                }
+              }
+            } else {
+              return res.status(200).json({
+                received: true,
+                skipped: 'mirror_edit_no_counterpart_change',
+                reason: propRes.reason,
+                reservationId: String(preResolvedTargetBooking.id || earlyTargetResId),
+                eventType,
+                timestamp: new Date().toISOString()
+              });
+            }
+          } catch (propErr) {
+            console.warn('[OCTORATE WEBHOOK 24/7] Errore propagazione modifica manuale Mirror:', propErr);
+          }
         }
 
         const calendarItems: any[] = [];
@@ -1099,8 +1242,59 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           }
 
           // Se il webhook invia direttamente l'oggetto prenotazione nel payload
-          if (!targetBooking && (eventPayload?.checkin || eventPayload?.reservation?.checkin || eventPayload?.check_in || eventPayload?.startDate)) {
-            targetBooking = eventPayload.reservation || eventPayload;
+          if (!targetBooking && (eventPayload?.checkin || eventPayload?.reservation?.checkin || eventPayload?.content?.checkin || eventPayload?.content?.reservation?.checkin || eventPayload?.check_in || eventPayload?.startDate)) {
+            targetBooking = eventPayload.reservation || eventPayload.content?.reservation || eventPayload.content || eventPayload;
+          }
+
+          // Fallback intelligente: se il webhook prenotazione non includeva un ID esplicito, cerca prenotazioni reali create/aggiornate negli ultimi 15 minuti non ancora notificate
+          if (!targetBooking && !targetResId && bookingsData.length > 0) {
+            const nowMs = Date.now();
+            const RECENT_WINDOW_MS = 15 * 60 * 1000;
+            const recentNonMirrors = bookingsData
+              .filter(b => b && b.id && !isMirrorReservation(b))
+              .map(b => {
+                const cMs = parseOctorateTimestampMs(b.createTime);
+                const uMs = parseOctorateTimestampMs(b.updateTime);
+                return { booking: b, cMs, uMs, latestMs: Math.max(cMs, uMs) };
+              })
+              .filter(item => item.latestMs > 0 && nowMs - item.latestMs <= RECENT_WINDOW_MS)
+              .sort((a, b) => b.latestMs - a.latestMs);
+
+            for (const { booking: cand, cMs, uMs } of recentNonMirrors) {
+              const candId = String(cand.id);
+              const candIn = String(cand.checkin || cand.checkIn || cand.check_in || cand.startDate || '').slice(0, 10);
+              const candOut = String(cand.checkout || cand.checkOut || cand.check_out || cand.endDate || '').slice(0, 10);
+              const candStatus = String(cand.status || '').toUpperCase().trim();
+              const candCancelled =
+                candStatus === 'CANCELLED' ||
+                candStatus === 'CANCELED' ||
+                candStatus === 'DELETED' ||
+                candStatus === 'VOID' ||
+                candStatus === 'REJECTED' ||
+                upperEventType.includes('CANCEL');
+              const isCandUpdatedAfterCreate = uMs > 0 && cMs > 0 && uMs > cMs + 5000;
+              const candModified =
+                !candCancelled &&
+                (upperEventType.includes('CHANGE') ||
+                  upperEventType.includes('MODIF') ||
+                  upperEventType.includes('UPDATE') ||
+                  isCandUpdatedAfterCreate);
+              const candKey = candCancelled
+                ? `res_cancelled_${candId}`
+                : (candModified ? `res_modified_${candId}_${candIn}_${candOut}` : `res_notified_${candId}`);
+
+              const { data: existingNotifyRow } = await supabaseAdmin
+                .from('telegram_config')
+                .select('id')
+                .eq('id', candKey)
+                .maybeSingle();
+
+              if (!existingNotifyRow) {
+                targetBooking = cand;
+                console.log(`[OCTORATE WEBHOOK] Fallback ID da webhook senza payload ID: selezionata prenotazione recente #${candId} (${candKey}).`);
+                break;
+              }
+            }
           }
 
           // Se l'evento non specifica un targetResId né un oggetto prenotazione, è un aggiornamento calendario/tariffe/stop-sells:
@@ -1302,7 +1496,9 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                     channelId: targetBooking.channelId,
                     channelRefer: targetBooking.channelRefer,
                     channelName: targetBooking.channelName,
-                    color: targetBooking.color
+                    color: targetBooking.color,
+                    totalGross: Number(targetBooking.totalGross ?? targetBooking.roomGross ?? 0) || undefined,
+                    origPrivateNotes: targetBooking.privateNotes || undefined
                   });
                   if (mirrorOutcome.mirrored) {
                     console.log(`[OCTORATE WEBHOOK] 🔄 Mirroring ${mirrorOutcome.action} su ${mirrorOutcome.targetStructureId} (#${mirrorOutcome.targetReservationId})`);
@@ -1321,7 +1517,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           console.warn('[OCTORATE WEBHOOK] Auto-Shield / Notification error (non-blocking):', shieldErr);
         }
 
-        if (!isMirrorWebhookEvent) {
+        if (!isMirrorWebhookEvent || mirrorSyncedCounterpart) {
           // 🔒 [ANTI-REOPEN SHIELD] Verifica e risigillatura immediata stanze chiuse (Hard-Lock)
           try {
             const closedLocks = await loadClosedRoomLocks(supabaseAdmin);
@@ -1426,7 +1622,10 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
           // 🔄 [MIRROR AUTO-SYNC 60GG] Riallinea eventuali modifiche prezzi manuali fatte dentro il portale web Octorate
           try {
-            await syncActiveToStandbyCalendar(supabaseAdmin, accessToken, { daysAhead: 60 });
+            await syncActiveToStandbyCalendar(supabaseAdmin, accessToken, {
+              daysAhead: 60,
+              ...(mirrorSyncedCounterpart ? { force: true } : {})
+            });
           } catch (mirrorSyncErr) {
             console.warn('[OCTORATE WEBHOOK] Standby calendar auto-sync warning (non-blocking):', mirrorSyncErr);
           }
