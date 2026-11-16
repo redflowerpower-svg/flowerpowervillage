@@ -317,12 +317,12 @@ function App() {
           <Route path="/flowerpowerpizzaranong" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           <Route path="/flowerpowerpizza/*" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           <Route path="/flowerpowerpizza" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
-          {/* 🏨 Link Diretti Permanenti ai 18 Alloggi (Legacy & Canonical URLs) */}
+          {/* 🏨 Link Diretti Permanenti ai 18 Alloggi (Pagine Reali Indicizzabili) */}
           {ACCOMMODATION_IDENTITIES.map((acc) => (
             <React.Fragment key={acc.legacySlug}>
-              <Route path={`/${acc.legacySlug}`} element={<Navigate to={`/village?room=${acc.legacySlug}`} replace />} />
-              <Route path={`/${acc.legacySlug}/*`} element={<Navigate to={`/village?room=${acc.legacySlug}`} replace />} />
-              <Route path={`/${acc.canonicalSlug}`} element={<Navigate to={`/village?room=${acc.legacySlug}`} replace />} />
+              <Route path={`/${acc.legacySlug}`} element={<AccommodationDetailPage slugOverride={acc.legacySlug} />} />
+              <Route path={`/${acc.legacySlug}/*`} element={<AccommodationDetailPage slugOverride={acc.legacySlug} />} />
+              <Route path={`/${acc.canonicalSlug}`} element={<Navigate to={`/${acc.legacySlug}`} replace />} />
             </React.Fragment>
           ))}
           {/* 🔄 Alias Storico Room 6 da Volantino Cartaceo (ora Lodge 1) */}
