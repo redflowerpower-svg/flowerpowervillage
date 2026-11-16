@@ -446,6 +446,8 @@ export interface MirrorParams {
   channelRefer?: string | null;
   channelName?: string | null;
   color?: string | null;
+  totalGross?: number | null;
+  origPrivateNotes?: string | null;
 }
 
 /**
@@ -526,7 +528,9 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     channelId,
     channelRefer,
     channelName,
-    color
+    color,
+    totalGross,
+    origPrivateNotes
   } = params;
 
   const srcStruct = String(sourceStructureId);
@@ -611,8 +615,47 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
   const checkOutDate = String(checkOut).slice(0, 10);
   const numChannelId = Number(channelId || 233);
 
+  let effectiveColor = color;
+  let effectiveGross = totalGross;
+  let effectiveOrigNotes = origPrivateNotes;
+  if (!isCancelled && (!effectiveColor || effectiveGross === undefined || effectiveGross === null || !effectiveOrigNotes)) {
+    try {
+      const srcRes = await fetch(
+        `https://api.octorate.com/connect/rest/v1/reservation/${srcStruct}/${sourceReservationId}`,
+        { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
+      ).catch(() => null);
+      if (srcRes && srcRes.ok) {
+        const srcData: any = await srcRes.json().catch(() => null);
+        if (srcData) {
+          if (!effectiveColor && srcData.color) {
+            effectiveColor = String(srcData.color);
+          }
+          if (effectiveGross === undefined || effectiveGross === null) {
+            const parsedGross = Number(srcData.totalGross ?? srcData.roomGross ?? 0);
+            if (parsedGross > 0) effectiveGross = parsedGross;
+          }
+          if (!effectiveOrigNotes && srcData.privateNotes) {
+            effectiveOrigNotes = String(srcData.privateNotes);
+          }
+        }
+      }
+    } catch {
+      // fallback ai valori già passati
+    }
+  }
+
+  let cleanOrigNotes = String(effectiveOrigNotes || '').trim();
+  if (cleanOrigNotes.includes(MIRROR_TAG)) {
+    const notesIdx = cleanOrigNotes.indexOf('| Notes:');
+    cleanOrigNotes = notesIdx >= 0 ? cleanOrigNotes.slice(notesIdx + 8).trim() : '';
+  }
+
+  const normEffectiveColor = effectiveColor ? String(effectiveColor).trim().toLowerCase() : '';
+  const hasValidEffectiveColor = Boolean(normEffectiveColor && /^#[0-9a-f]{6}$/.test(normEffectiveColor));
+  const numericGross = effectiveGross && Number(effectiveGross) > 0 ? Number(effectiveGross) : 0;
+
   if (existingMirrorId) {
-    // Verifica se la copia esistente ha ancora stesse date, stessa villa e canale OTA allineato
+    // Verifica se la copia esistente ha ancora stesse date, stessa villa, canale OTA, colore e importo allineati
     const checkRes = await fetch(
       `https://api.octorate.com/connect/rest/v1/reservation/${targetStructureId}/${existingMirrorId}`,
       { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
@@ -625,6 +668,11 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
       const exOut = String(existingData?.checkout || '').slice(0, 10);
       const exProd = Number(existingData?.product || 0);
       const exCh = Number(existingData?.channelId || 233);
+      const exColor = String(existingData?.color || '').trim().toLowerCase();
+      const exGross = Number(existingData?.totalGross ?? existingData?.roomGross ?? 0);
+
+      const isColorAligned = !hasValidEffectiveColor || exColor === normEffectiveColor;
+      const isGrossAligned = numericGross <= 0 || Math.abs(exGross - numericGross) < 0.01;
 
       const isUpToDate =
         exStatus !== 'CANCELLED' &&
@@ -632,7 +680,9 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
         exIn === checkInDate &&
         exOut === checkOutDate &&
         exProd === targetMotherId &&
-        (exCh === numChannelId || numChannelId === 233);
+        (exCh === numChannelId || numChannelId === 233) &&
+        isColorAligned &&
+        isGrossAligned;
 
       if (isUpToDate) {
         return {
@@ -645,7 +695,7 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
       }
     }
 
-    // Se date, villa o canale sono cambiati, rimuove la vecchia copia prima di ricrearla aggiornata
+    // Se date, villa, canale, colore o prezzo sono cambiati, rimuove la vecchia copia prima di ricrearla aggiornata
     await cancelExistingMirrorReservation({
       supabaseAdmin,
       accessToken,
@@ -653,7 +703,7 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
       sourceReservationId: String(sourceReservationId),
       targetStructureId,
       existingMirrorId,
-      reasonNote: 'Updated dates/room/channel from'
+      reasonNote: 'Updated dates/room/channel/style from'
     });
   }
 
@@ -662,22 +712,35 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
   const lastName = nameParts.slice(1).join(' ') || 'Guest';
   const nowIso = new Date().toISOString();
   const directColor =
-    (numChannelId === 288 || numChannelId === 233) &&
-      color &&
-      /^#[0-9a-fA-F]{6}$/.test(String(color).trim())
-      ? String(color).trim()
+    effectiveColor && /^#[0-9a-fA-F]{6}$/.test(String(effectiveColor).trim())
+      ? String(effectiveColor).trim()
       : undefined;
+
+  const baseMirrorNotes = `${MIRROR_TAG} Agency: ${channelName || 'Direct'} | Ref: ${channelRefer || sourceReservationId} | Orig: ${srcStruct} #${sourceReservationId} (${twin.name})`;
+  const fullMirrorNotes = cleanOrigNotes
+    ? `${baseMirrorNotes} | Notes: ${cleanOrigNotes.replace(/\r?\n/g, ' / ')}`
+    : baseMirrorNotes;
 
   const basePayload = {
     status: 'CONFIRMED',
     channelId: numChannelId,
     ...(directColor ? { color: directColor } : {}),
+    ...(numericGross > 0
+      ? {
+        roomGross: numericGross,
+        totalGross: numericGross,
+        priceBreakdown: [
+          { type: 'ROOM_NET', price: numericGross, included: true, manual: true, group: false },
+          { type: 'VAT', price: 0, included: true, manual: true, group: false }
+        ]
+      }
+      : {}),
     product: targetMotherId,
     checkin: `${checkInDate}T14:00:00Z`,
     checkout: `${checkOutDate}T12:00:00Z`,
     createTime: nowIso,
     updateTime: nowIso,
-    privateNotes: `${MIRROR_TAG} Agency: ${channelName || 'Direct'} | Ref: ${channelRefer || sourceReservationId} | Orig: ${srcStruct} #${sourceReservationId} (${twin.name})`,
+    privateNotes: fullMirrorNotes,
     guests: [
       {
         type: 'BOOKER',
@@ -1372,7 +1435,30 @@ export async function syncActiveToStandbyCalendar(
   const standby: JungleSourceStructureId = active === '807324' ? '366879' : '807324';
   const { force, ...syncOptions } = options || {};
 
-  if (!force) {
+  let resSyncResult = { checked: 0, repairedCreated: 0, repairedCancelled: 0, propagatedEdits: 0 };
+  try {
+    const today = new Date();
+    const end = new Date(today);
+    end.setDate(end.getDate() + 365);
+    resSyncResult = await verifyAndRepairTwinReservationsBeforeSwitch(
+      supabaseAdmin,
+      accessToken,
+      active,
+      standby,
+      today.toISOString().slice(0, 10),
+      end.toISOString().slice(0, 10)
+    );
+  } catch (resSyncErr) {
+    console.warn('[JUNGLE MIRROR] Reservation photocopy check warning (non-blocking):', resSyncErr);
+  }
+
+  const hasReservationChanges =
+    resSyncResult.repairedCreated > 0 ||
+    resSyncResult.repairedCancelled > 0 ||
+    resSyncResult.propagatedEdits > 0;
+  const effectiveForce = Boolean(force || hasReservationChanges);
+
+  if (!effectiveForce) {
     const nowMs = Date.now();
     if (nowMs - lastStandbySyncTimestampMs < STANDBY_SYNC_COOLDOWN_MS) {
       return {
@@ -1415,21 +1501,6 @@ export async function syncActiveToStandbyCalendar(
     }
   }
 
-  try {
-    const today = new Date();
-    const end = new Date(today);
-    end.setDate(end.getDate() + 365);
-    await verifyAndRepairTwinReservationsBeforeSwitch(
-      supabaseAdmin,
-      accessToken,
-      active,
-      standby,
-      today.toISOString().slice(0, 10),
-      end.toISOString().slice(0, 10)
-    );
-  } catch (resSyncErr) {
-    console.warn('[JUNGLE MIRROR] Reservation photocopy check warning (non-blocking):', resSyncErr);
-  }
   const result = await syncCalendarBetweenStructures(accessToken, active, standby, {
     keepTargetClosed: true,
     ...syncOptions
@@ -1625,6 +1696,13 @@ async function verifyStructureCalendarState(
   };
 }
 
+export function parseOctorateTimestampMs(raw?: string | null): number {
+  if (!raw) return 0;
+  const cleaned = String(raw).trim().replace(/\[[^\]]+\]$/, '');
+  const ms = Date.parse(cleaned);
+  return Number.isNaN(ms) ? 0 : ms;
+}
+
 interface TwinReservationLite {
   id: string;
   twinKey: JungleTwinRoom['key'];
@@ -1638,6 +1716,11 @@ interface TwinReservationLite {
   channelName?: string;
   color?: string;
   isMirror: boolean;
+  updateTime?: string;
+  createTime?: string;
+  origSourceId?: string;
+  totalGross?: number;
+  privateNotes?: string;
 }
 
 async function fetchTwinActiveReservations(
@@ -1674,6 +1757,16 @@ async function fetchTwinActiveReservations(
       const checkOut = String(r.checkout || r.checkOut || '').slice(0, 10);
       if (!checkIn || !checkOut) continue;
 
+      const notesStr = String(r.privateNotes || '');
+      let origSourceId: string | undefined;
+      const origMatch = notesStr.match(/Orig:\s*\d+\s*#(\d+)/);
+      if (origMatch) {
+        origSourceId = origMatch[1];
+      } else {
+        const referMatch = String(r.refer || '').match(/^MIRROR-(\d+)/);
+        if (referMatch) origSourceId = referMatch[1];
+      }
+
       results.push({
         id: String(r.id ?? ''),
         twinKey: twin.key,
@@ -1686,7 +1779,12 @@ async function fetchTwinActiveReservations(
         channelRefer: r.channelRefer || r.refer,
         channelName: r.channelName,
         color: r.color,
-        isMirror: isMirrorReservation(r)
+        isMirror: isMirrorReservation(r),
+        updateTime: r.updateTime ? String(r.updateTime) : undefined,
+        createTime: r.createTime ? String(r.createTime) : undefined,
+        origSourceId,
+        totalGross: Number(r.totalGross ?? r.roomGross ?? 0),
+        privateNotes: notesStr || undefined
       });
     }
 
@@ -1696,6 +1794,314 @@ async function fetchTwinActiveReservations(
   }
 
   return results;
+}
+
+/**
+ * Propaga una modifica o cancellazione eseguita manualmente su una scheda [MIRROR_SYNC]
+ * verso la prenotazione originale sull'altra struttura gemella, prevenendo sovrascritture.
+ */
+export async function syncManualMirrorEditToCounterpart(params: {
+  supabaseAdmin: any;
+  accessToken: string;
+  mirrorStruct: JungleSourceStructureId;
+  mirrorBooking: any;
+  isCancelled?: boolean;
+  forceOnWebhook?: boolean;
+}): Promise<{
+  synced: boolean;
+  action: 'updated' | 'recreated' | 'cancelled' | 'skipped';
+  counterpartStructureId?: JungleSourceStructureId;
+  counterpartReservationId?: string;
+  reason?: string;
+}> {
+  const { supabaseAdmin, accessToken, mirrorStruct, mirrorBooking, isCancelled, forceOnWebhook } = params;
+  const mirrorResId = String(mirrorBooking?.id || '');
+  if (!mirrorResId) {
+    return { synced: false, action: 'skipped', reason: 'Missing mirror reservation ID' };
+  }
+
+  let origStruct: JungleSourceStructureId = mirrorStruct === '366879' ? '807324' : '366879';
+  let origResId = '';
+
+  if (supabaseAdmin) {
+    try {
+      const { data: revRow } = await supabaseAdmin
+        .from('telegram_config')
+        .select('bot_token, chat_id')
+        .eq('id', `mirror_target_${mirrorStruct}_${mirrorResId}`)
+        .maybeSingle();
+      if (revRow?.chat_id) {
+        origResId = String(revRow.chat_id);
+        if (revRow.bot_token === '807324' || revRow.bot_token === '366879') {
+          origStruct = revRow.bot_token;
+        }
+      }
+    } catch (lookupErr) {
+      console.warn('[JUNGLE MIRROR] Reverse mirror lookup warning:', lookupErr);
+    }
+  }
+
+  if (!origResId) {
+    const notesStr = String(mirrorBooking?.privateNotes || '');
+    const origMatch = notesStr.match(/Orig:\s*(366879|807324)\s*#(\d+)/);
+    if (origMatch) {
+      origStruct = origMatch[1] as JungleSourceStructureId;
+      origResId = origMatch[2];
+    } else if (mirrorBooking?.origSourceId) {
+      origResId = String(mirrorBooking.origSourceId);
+    } else {
+      const refMatch = String(mirrorBooking?.refer || '').match(/^MIRROR-(\d+)/);
+      if (refMatch) origResId = refMatch[1];
+    }
+  }
+
+  if (!origResId) {
+    return { synced: false, action: 'skipped', reason: 'Unable to resolve counterpart reservation ID' };
+  }
+
+  let mirrorData = mirrorBooking;
+  if (!mirrorData.updateTime || !mirrorData.createTime || !mirrorData.checkin) {
+    const mRes = await fetch(
+      `https://api.octorate.com/connect/rest/v1/reservation/${mirrorStruct}/${mirrorResId}`,
+      { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
+    ).catch(() => null);
+    if (mRes && mRes.ok) {
+      mirrorData = await mRes.json().catch(() => mirrorBooking);
+    }
+  }
+
+  const origRes = await fetch(
+    `https://api.octorate.com/connect/rest/v1/reservation/${origStruct}/${origResId}`,
+    { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
+  ).catch(() => null);
+
+  if (!origRes || !origRes.ok) {
+    return { synced: false, action: 'skipped', counterpartStructureId: origStruct, counterpartReservationId: origResId, reason: 'Counterpart reservation not found' };
+  }
+
+  const origData: any = await origRes.json().catch(() => ({}));
+  const mirrorStatus = String(mirrorData?.status || '').toUpperCase().trim();
+  const effectiveCancelled =
+    Boolean(isCancelled) ||
+    mirrorStatus === 'CANCELLED' ||
+    mirrorStatus === 'CANCELED' ||
+    mirrorStatus === 'DELETED' ||
+    mirrorStatus === 'VOID' ||
+    mirrorStatus === 'REJECTED';
+
+  if (effectiveCancelled) {
+    await cancelExistingMirrorReservation({
+      supabaseAdmin,
+      accessToken,
+      srcStruct: origStruct,
+      sourceReservationId: origResId,
+      targetStructureId: mirrorStruct,
+      existingMirrorId: mirrorResId,
+      reasonNote: 'Synced cancellation from counterpart'
+    });
+    // Also cancel counterpart if it wasn't already cancelled
+    const oStatus = String(origData?.status || '').toUpperCase().trim();
+    if (oStatus !== 'CANCELLED' && oStatus !== 'CANCELED') {
+      const delOrig = await fetch(
+        `https://api.octorate.com/connect/rest/v1/reservation/${origStruct}/${origResId}`,
+        { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
+      ).catch(() => null);
+      if (!delOrig || !delOrig.ok) {
+        await fetch(
+          `https://api.octorate.com/connect/rest/v1/reservation/${origStruct}/${origResId}`,
+          {
+            method: 'PATCH',
+            headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ status: 'CANCELLED' })
+          }
+        ).catch(() => null);
+      }
+    }
+    return {
+      synced: true,
+      action: 'cancelled',
+      counterpartStructureId: origStruct,
+      counterpartReservationId: origResId
+    };
+  }
+
+  const newIn = String(mirrorData.checkin || mirrorData.checkIn || '').slice(0, 10);
+  const newOut = String(mirrorData.checkout || mirrorData.checkOut || '').slice(0, 10);
+  const origIn = String(origData.checkin || origData.checkIn || '').slice(0, 10);
+  const origOut = String(origData.checkout || origData.checkOut || '').slice(0, 10);
+
+  if (!newIn || !newOut || (origIn === newIn && origOut === newOut)) {
+    return {
+      synced: false,
+      action: 'skipped',
+      counterpartStructureId: origStruct,
+      counterpartReservationId: origResId,
+      reason: 'Dates already aligned with counterpart'
+    };
+  }
+
+  const mirrorUpdateMs = parseOctorateTimestampMs(mirrorData.updateTime);
+  const origUpdateMs = parseOctorateTimestampMs(origData.updateTime);
+  if (!forceOnWebhook && mirrorUpdateMs > 0 && origUpdateMs > 0 && mirrorUpdateMs <= origUpdateMs) {
+    return {
+      synced: false,
+      action: 'skipped',
+      counterpartStructureId: origStruct,
+      counterpartReservationId: origResId,
+      reason: 'Counterpart reservation has newer updateTime'
+    };
+  }
+
+  const updatedGuests = Array.isArray(origData.guests) && origData.guests.length > 0
+    ? origData.guests.map((g: any) => ({ ...g, checkin: newIn, checkout: newOut }))
+    : undefined;
+
+  const patchPayload = {
+    checkin: `${newIn}T08:00:00Z`,
+    checkout: `${newOut}T04:00:00Z`,
+    ...(updatedGuests ? { guests: updatedGuests } : {})
+  };
+
+  await fetch(`https://api.octorate.com/connect/rest/v1/reservation/${origStruct}/${origResId}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: JSON.stringify(patchPayload)
+  }).catch(() => null);
+
+  const verifyOrigRes = await fetch(
+    `https://api.octorate.com/connect/rest/v1/reservation/${origStruct}/${origResId}`,
+    { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
+  ).catch(() => null);
+  const verifyOrigData: any = verifyOrigRes && verifyOrigRes.ok ? await verifyOrigRes.json().catch(() => null) : null;
+  const verifiedIn = String(verifyOrigData?.checkin || '').slice(0, 10);
+  const verifiedOut = String(verifyOrigData?.checkout || '').slice(0, 10);
+
+  if (verifiedIn === newIn && verifiedOut === newOut) {
+    if (supabaseAdmin) {
+      const now = new Date().toISOString();
+      await supabaseAdmin.from('telegram_config').upsert([
+        {
+          id: `mirror_res_${origStruct}_${origResId}`,
+          bot_token: String(mirrorStruct),
+          chat_id: String(mirrorResId),
+          updated_at: now
+        },
+        {
+          id: `mirror_target_${mirrorStruct}_${mirrorResId}`,
+          bot_token: String(origStruct),
+          chat_id: String(origResId),
+          updated_at: now
+        }
+      ]);
+    }
+    return {
+      synced: true,
+      action: 'updated',
+      counterpartStructureId: origStruct,
+      counterpartReservationId: origResId
+    };
+  }
+
+  // Fallback solo per prenotazioni ricreabili in sicurezza: ricrea in modo coerente su counterpart e aggiorna la mappa
+  const origChannelId = Number(origData?.channelId || 233);
+  const isSafeDirectToRecreate = origChannelId === 288 || origChannelId === 233;
+  const origHasPayments = Array.isArray(origData?.payments) && origData.payments.length > 0;
+  if (!isSafeDirectToRecreate || origHasPayments) {
+    console.warn(
+      `[JUNGLE MIRROR] PATCH checkout non accettato da Octorate su ${origStruct} #${origResId} (ch=${origChannelId}, payments=${origHasPayments ? origData.payments.length : 0}). Evitata cancellazione distruttiva della prenotazione nativa.`
+    );
+    return {
+      synced: false,
+      action: 'skipped',
+      counterpartStructureId: origStruct,
+      counterpartReservationId: origResId,
+      reason: 'PATCH did not update checkout and counterpart has native OTA/payment protection'
+    };
+  }
+
+  const origTwin = resolveTwinByProductOrName(origData.product || mirrorData.product, origData.roomName || mirrorData.roomName);
+  const recreatedProduct = origTwin ? (origStruct === '366879' ? origTwin.fpvMotherId : origTwin.jungleMotherId) : Number(origData.product);
+  const nowIso = new Date().toISOString();
+  const suffix = Date.now().toString(36).slice(-3);
+  const createBody: any = {
+    status: 'CONFIRMED',
+    channelId: origChannelId,
+    ...(origData.color ? { color: origData.color } : {}),
+    product: recreatedProduct,
+    checkin: `${newIn}T08:00:00Z`,
+    checkout: `${newOut}T04:00:00Z`,
+    createTime: nowIso,
+    updateTime: nowIso,
+    privateNotes: origData.privateNotes || '',
+    roomGross: Number(origData.roomGross ?? origData.totalGross ?? 0),
+    totalGross: Number(origData.totalGross ?? origData.roomGross ?? 0),
+    guests: updatedGuests || origData.guests || [],
+    totalGuest: Number(origData.totalGuest || 2),
+    totalChildren: Number(origData.totalChildren || 0),
+    totalInfants: Number(origData.totalInfants || 0),
+    refer: `${origData.refer || origResId}-R${suffix}`.slice(0, 25),
+    ...(origData.channelRefer ? { channelRefer: String(origData.channelRefer) } : {})
+  };
+
+  const createRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation/${origStruct}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: JSON.stringify(createBody)
+  });
+  const createJson: any = await createRes.json().catch(() => ({}));
+  const newCounterpartId = String(createJson?.id || createJson?.data?.id || createJson?.reservationId || '');
+  if (!createRes.ok || !newCounterpartId) {
+    return {
+      synced: false,
+      action: 'skipped',
+      counterpartStructureId: origStruct,
+      counterpartReservationId: origResId,
+      reason: `Counterpart recreate failed (${createRes.status})`
+    };
+  }
+
+  // Cancella la vecchia scheda ormai sostituita e aggiorna le chiavi mappa + note mirror
+  await fetch(`https://api.octorate.com/connect/rest/v1/reservation/${origStruct}/${origResId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' }
+  }).catch(() => null);
+
+  if (supabaseAdmin) {
+    const now = new Date().toISOString();
+    await supabaseAdmin.from('telegram_config').delete().in('id', [
+      `mirror_res_${origStruct}_${origResId}`,
+      `mirror_target_${mirrorStruct}_${mirrorResId}`
+    ]);
+    await supabaseAdmin.from('telegram_config').upsert([
+      {
+        id: `mirror_res_${origStruct}_${newCounterpartId}`,
+        bot_token: String(mirrorStruct),
+        chat_id: String(mirrorResId),
+        updated_at: now
+      },
+      {
+        id: `mirror_target_${mirrorStruct}_${mirrorResId}`,
+        bot_token: String(origStruct),
+        chat_id: String(newCounterpartId),
+        updated_at: now
+      }
+    ]);
+  }
+
+  return {
+    synced: true,
+    action: 'recreated',
+    counterpartStructureId: origStruct,
+    counterpartReservationId: newCounterpartId
+  };
 }
 
 /**
@@ -1710,11 +2116,52 @@ export async function verifyAndRepairTwinReservationsBeforeSwitch(
   targetStructureId: JungleSourceStructureId,
   dateFrom: string,
   dateTo: string
-): Promise<{ checked: number; repairedCreated: number; repairedCancelled: number }> {
-  const [outRes, inRes] = await Promise.all([
+): Promise<{ checked: number; repairedCreated: number; repairedCancelled: number; propagatedEdits: number }> {
+  let [outRes, inRes] = await Promise.all([
     fetchTwinActiveReservations(accessToken, outgoing, dateFrom, dateTo),
     fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
   ]);
+
+  // Sync Bidirezionale: se una scheda Mirror è stata modificata manualmente più di recente dell'originale, vince lei e aggiorna l'originale
+  let propagatedEdits = 0;
+  const checkMirrorUpdates = async (
+    mirrorList: TwinReservationLite[],
+    mirrorStruct: JungleSourceStructureId,
+    origList: TwinReservationLite[]
+  ) => {
+    for (const m of mirrorList) {
+      if (!m.isMirror || !m.origSourceId) continue;
+      const orig = origList.find(o => o.id === m.origSourceId);
+      if (!orig) continue;
+      if (m.checkIn === orig.checkIn && m.checkOut === orig.checkOut) continue;
+
+      const mUpdateMs = parseOctorateTimestampMs(m.updateTime);
+      const mCreateMs = parseOctorateTimestampMs(m.createTime);
+      const origUpdateMs = parseOctorateTimestampMs(orig.updateTime);
+
+      if (mUpdateMs > origUpdateMs && mUpdateMs > mCreateMs + 5000) {
+        const res = await syncManualMirrorEditToCounterpart({
+          supabaseAdmin,
+          accessToken,
+          mirrorStruct,
+          mirrorBooking: m
+        });
+        if (res.synced) {
+          propagatedEdits++;
+        }
+      }
+    }
+  };
+
+  await checkMirrorUpdates(outRes, outgoing, inRes);
+  await checkMirrorUpdates(inRes, targetStructureId, outRes);
+
+  if (propagatedEdits > 0) {
+    [outRes, inRes] = await Promise.all([
+      fetchTwinActiveReservations(accessToken, outgoing, dateFrom, dateTo),
+      fetchTwinActiveReservations(accessToken, targetStructureId, dateFrom, dateTo)
+    ]);
+  }
 
   const outReal = outRes.filter(r => !r.isMirror);
   const inReal = inRes.filter(r => !r.isMirror);
@@ -1776,7 +2223,9 @@ export async function verifyAndRepairTwinReservationsBeforeSwitch(
           channelId: r.channelId,
           channelRefer: r.channelRefer,
           channelName: r.channelName,
-          color: r.color
+          color: r.color,
+          totalGross: r.totalGross && r.totalGross > 0 ? r.totalGross : undefined,
+          origPrivateNotes: r.privateNotes || undefined
         });
         if (mRes.mirrored && mRes.action === 'created') {
           repairedCreated++;
@@ -1839,7 +2288,7 @@ export async function verifyAndRepairTwinReservationsBeforeSwitch(
     );
   }
 
-  return { checked: outReal.length + inReal.length, repairedCreated, repairedCancelled };
+  return { checked: outReal.length + inReal.length, repairedCreated, repairedCancelled, propagatedEdits };
 }
 
 /**
@@ -1867,7 +2316,7 @@ export async function switchActiveJungleStructure(
   phase1Blocks: number;
   phase2Blocks: number;
   syncedEntries: number;
-  reservationSync?: { checked: number; repairedCreated: number; repairedCancelled: number };
+  reservationSync?: { checked: number; repairedCreated: number; repairedCancelled: number; propagatedEdits: number };
 }> {
   const currentActive = await getActiveJungleSource(supabaseAdmin);
   const outgoing: JungleSourceStructureId = targetStructureId === '366879' ? '807324' : '366879';

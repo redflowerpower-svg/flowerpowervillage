@@ -3,6 +3,32 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [16/11/2026 - ORE 13:06] · MIRRORING LIVE #130419544 (JUNGLE VILLA LEFT 18–20/11) & BYPASS COOLDOWN PER PHOTOCOPY PRENOTAZIONI
+- **Cosa abbiamo fatto:**
+  1. 🔄 **Clonazione Immediata `#130419544` (`Jungle Villa Left`, 18–21 Nov) su `Jungle Villas (807324)`**:
+     - Creata e verificata la scheda specchio `#130419584` (`MIRROR-130419544`) su **Jungle Villa Left 2 (`495795`)** con check-in `18/11/2026` ➔ check-out `21/11/2026` (3 notti: 18, 19 e 20 novembre), ospite `Whatapp Flower Power Alexis Blanc`, colore `#9c27b0`, importo `3.600 THB`, canale `288` (`octoevo autosubmit`) e note originali `"To pay on arrival"`.
+     - Verificato live su `GET /calendar/366879` e `GET /calendar/807324` (`15–22/11/2026`): notti `18–20/11` chiuse (`availability: 0`) su **Jungle Villa Left** (`960385` / `495795`) e libera dal `21/11`, allineata al 100% con **Jungle Villa Right** (`15–20/11` `availability: 0`) e **Jungle Villa** Suite Madre.
+  2. 🛠️ **Fix Webhook Octorate & Cooldown Anti-DoS (`octorate-webhook.ts`, `octorate-jungle-mirror.ts`)**:
+     - Spostato `verifyAndRepairTwinReservationsBeforeSwitch(...)` (solo chiamate leggere `GET /reservation`, zero `/calendar/bulk`) **prima** del controllo cooldown di 15 minuti (`STANDBY_SYNC_COOLDOWN_MS`) in `syncActiveToStandbyCalendar`, con bypass automatico (`effectiveForce`) se viene rilevata una prenotazione creata, cancellata o modificata (`repairedCreated`, `repairedCancelled`, `propagatedEdits`).
+     - Aggiornato il parser webhook in `octorate-webhook.ts`: parsing JSON automatico dei campi stringa `content`/`data`/`reservation`, riconoscimento esplicito degli eventi prenotazione (`isReservationEventType`) dentro `hasInlineBookingData` e fallback intelligente sugli ultimi 15 minuti per webhook privi di ID esplicito nel payload.
+- **File aggiornati:** `api/_helpers/octorate-jungle-mirror.ts`, `api/_handlers/octorate-webhook.ts`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 VERIFICATO (`GET /reservation/807324/130419584`, `GET /calendar`, `npm run api:check`, `npm run build`, `security-audit.mjs` e deploy `staging` + `main`).
+
+---
+
+### 🚀 [16/11/2026 - ORE 12:35] · RIALLINEAMENTO JUNGLE VILLA RIGHT (15-21/11) & BLINDATURA SYNC BIDIREZIONALE MIRROR OCTORATE
+- **Cosa abbiamo fatto:**
+  1. 🔄 **Riallineamento Live Alexis Blanc (`Jungle Villa Right`) tra `807324` e `366879`**:
+     - Aggiornata la prenotazione nativa `#130389443` su **Jungle Villas (`807324`)** a `15/11/2026 ➔ 21/11/2026` (ultima notte occupata = 20 novembre) e rigenerata la gemella `#130419482` (`MIRROR-130389443-dn1`) su **Flower Power Village (`366879`)** con date `15/11 ➔ 21/11`, colore originale **Viola (`#9c27b0`)**, importo **`6.000 THB`** e note caparra preservate.
+     - Chiusa la notte del `20/11/2026` (`availability: 0`) su **Jungle Villa Right** (`960387`, `495796`) e **Jungle Villa Intera** (`960389`, `529773`) + tariffe BE/derivate su entrambe le strutture, mantenendo libero il `21/11/2026`.
+  2. 🛡️ **Blindatura "Anti-Errore Umano" su Prenotazioni `[MIRROR_SYNC]` (`octorate-jungle-mirror.ts` & `octorate-webhook.ts`)**:
+     - Implementato `syncManualMirrorEditToCounterpart`: se in futuro viene modificata o cancellata manualmente una scheda speculare dentro la struttura attiva (`366879`), il webhook (>45s dalla creazione) e `verifyAndRepairTwinReservationsBeforeSwitch` (confronto `updateTime`) propagano la modifica alla scheda gemella anziché annullarla.
+     - Esteso `mirrorReservationToStandby` affinché recuperi automaticamente e preservi sempre `color`, `totalGross`/`roomGross` e `privateNotes` originali anche in fase di ricreazione.
+- **File aggiornati:** `api/_helpers/octorate-jungle-mirror.ts`, `api/_handlers/octorate-webhook.ts`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 VERIFICATO (`GET /reservation`, `GET /calendar`, 2 test unitari offline in memoria, `npm run api:check`, `npm run build`, `security-audit.mjs`).
+
+---
+
 ### 🚀 [16/11/2026 - ORE 11:17] · HARDENING OCTORATE DELTA-ONLY, SCUDO STANZE CHIUSE & ALLINEAMENTO TYPESCRIPT RESORT
 - **Cosa abbiamo fatto:**
   1. ⚡ **Motore Octorate Delta-Only & Protezione Strutture (`octorate-jungle-mirror.ts`, `octorate-webhook.ts`, `resort-sentinel.ts`, `octorate.ts`)**:
