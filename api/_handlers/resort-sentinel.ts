@@ -12,13 +12,16 @@ import {
   resolveLockableRoom
 } from "../_helpers/octorate-closed-room-lock.js";
 import {
+  collectOccupiedDatesByTwinKey,
   expandMinStayEntryWithStandbyKeepAlive,
   getActiveJungleSource,
   getCompanionRateId,
   getJungleTwinPairByRateId,
   isMirrorReservation,
+  isTwinKeyOccupiedOnDate,
   JUNGLE_RATE_PAIRS,
   postOctorateCalendarBulkWithRetry,
+  shouldTwinRateStayClosedOnDate,
   syncActiveToStandbyCalendar
 } from "../_helpers/octorate-jungle-mirror.js";
 
@@ -416,15 +419,6 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     }));
 
     const nonMirrorBookings = bookingsData.filter(b => !isMirrorReservation(b));
-    const gapUpdates = calculateServerDynamicMinStay(
-      nonMirrorBookings,
-      { start: todayStr, end: endSeasonStr },
-      liveCalendarItems,
-      activeJungleSource
-    );
-
-    // Filtra i buchi residui (gapDays < baseline)
-    const gapReductions = gapUpdates.filter(u => u.reason && u.reason.includes('Gap-Fill'));
 
     const calItemById = new Map<number, any>();
     const calDayMapById = new Map<number, Map<string, any>>();
@@ -443,7 +437,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
       }
     }
 
-    // 🛡️ AUTO-HEAL MADRI DESINCRONIZZATE: availability > 0 con stopSells/closed sulla sola Madre ma BE aperta
+    // 🛡️ AUTO-HEAL MADRI DESINCRONIZZATE & STOP-SELL ORFANI SU VILLE GEMELLE (eseguito PRIMA del calcolo minStay con patch in memoria)
     const roomKeyToTwinKey: Record<string, 'jv' | 'jvl' | 'jvr' | 'pl'> = {
       'jungle villa': 'jv',
       'jungle villa left': 'jvl',
@@ -472,6 +466,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     const jvrMotherDays = calDayMapById.get(jvrMotherBe.motherId);
 
     const closedLocks = await loadClosedRoomLocks(supabaseAdmin);
+    const occupiedByTwinKey = collectOccupiedDatesByTwinKey(nonMirrorBookings);
 
     for (const [roomKey, canonical] of Object.entries(ALL_ACCOMMODATIONS_MAP)) {
       if (roomKey === 'fake bungalow 1' || roomKey === 'fake bungalow 2') continue;
@@ -479,6 +474,67 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
       const mDaysMap = calDayMapById.get(activeMotherId);
       const beDaysMap = calDayMapById.get(activeBeId);
       if (!mDaysMap || !beDaysMap) continue;
+
+      const twinKey = roomKeyToTwinKey[roomKey];
+      if (twinKey) {
+        const activePairs = JUNGLE_RATE_PAIRS.filter(p => p.key === twinKey);
+        const orphanDates: string[] = [];
+
+        for (const [dStr, mDay] of mDaysMap.entries()) {
+          if (dStr < todayStr) continue;
+          if (isDateLockedForRoom(closedLocks, roomKey, dStr)) continue;
+          if (twinKey === 'jv' && (isDateLockedForRoom(closedLocks, 'jungle villa left', dStr) || isDateLockedForRoom(closedLocks, 'jungle villa right', dStr))) {
+            continue;
+          }
+          const avail = Number(mDay?.availability ?? 0);
+          if (avail <= 0) continue;
+          if (isTwinKeyOccupiedOnDate(occupiedByTwinKey, twinKey, dStr)) continue;
+          if (twinKey === 'jv') {
+            const jvlAvail = Number(jvlMotherDays?.get(dStr)?.availability ?? 0);
+            const jvrAvail = Number(jvrMotherDays?.get(dStr)?.availability ?? 0);
+            if (!(jvlAvail > 0 && jvrAvail > 0)) continue;
+          }
+
+          let anyRateOrphanClosed = false;
+          for (const pair of activePairs) {
+            if (shouldTwinRateStayClosedOnDate(pair, dStr)) continue;
+            const rateId = activeJungleSource === '366879' ? pair.fpvId : pair.jungleId;
+            const rDay = calDayMapById.get(rateId)?.get(dStr);
+            const rClosed = rDay ? (rDay.stopSells === true || rDay.closed === true) : false;
+            if (rClosed && rDay) {
+              anyRateOrphanClosed = true;
+              rDay.stopSells = false;
+              rDay.closed = false;
+              healPayload.push({
+                room: rateId,
+                dateFrom: dStr,
+                dateTo: dStr,
+                values: {
+                  stopSells: false,
+                  closed: false,
+                  closeToArrival: false,
+                  closeToDeparture: false
+                }
+              });
+            }
+          }
+
+          if (anyRateOrphanClosed) {
+            orphanDates.push(dStr);
+          }
+        }
+
+        if (orphanDates.length > 0) {
+          orphanDates.sort();
+          anomalies.push({
+            id: activeMotherId,
+            name: canonical.name,
+            issue: `Stop Sell orfano su villa gemella attiva #${activeMotherId} per ${orphanDates.length} date libere (es. ${orphanDates.slice(0, 3).join(', ')})`,
+            date: orphanDates[0]
+          });
+        }
+        continue;
+      }
 
       const desyncDates: string[] = [];
       for (const [dStr, mDay] of mDaysMap.entries()) {
@@ -493,12 +549,8 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
         const isBeOpen = Boolean(beDay && beDay.stopSells === false && beDay.closed !== true);
         if (!isBeOpen) continue;
 
-        if (roomKey === 'jungle villa') {
-          const jvlAvail = Number(jvlMotherDays?.get(dStr)?.availability ?? 0);
-          const jvrAvail = Number(jvrMotherDays?.get(dStr)?.availability ?? 0);
-          if (!(jvlAvail > 0 && jvrAvail > 0)) continue;
-        }
-
+        mDay.stopSells = false;
+        mDay.closed = false;
         desyncDates.push(dStr);
       }
 
@@ -518,13 +570,23 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
             values: {
               stopSells: false,
               closed: false,
-              closedArrival: false,
-              closedDeparture: false
+              closeToArrival: false,
+              closeToDeparture: false
             }
           });
         }
       }
     }
+
+    const gapUpdates = calculateServerDynamicMinStay(
+      nonMirrorBookings,
+      { start: todayStr, end: endSeasonStr },
+      liveCalendarItems,
+      activeJungleSource
+    );
+
+    // Filtra i buchi residui (gapDays < baseline)
+    const gapReductions = gapUpdates.filter(u => u.reason && u.reason.includes('Gap-Fill'));
 
     // 🔒 AUDIT STANZE CHIUSE (HARD-LOCK): risigilla immediatamente eventuali notti riaperte da Octorate
     for (const lock of closedLocks.filter(l => l.enabled !== false)) {

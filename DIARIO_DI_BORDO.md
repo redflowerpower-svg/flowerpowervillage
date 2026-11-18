@@ -3,6 +3,78 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🔍 [18/11/2026 - ORE 12:18] · APPROFONDIMENTO CANCELLAZIONE AGODA & SBLOCCO JUNGLE VILLA RIGHT
+- **Cosa abbiamo fatto:**
+  1. 🔎 **Identificazione Prenotazione Agoda Cancellata (Jeroen Vuyk)**:
+     - Individuata la prenotazione cancellata su Jungle Villa Right (30 nov - 8 dic) che iniziava lo stesso giorno di Jacob Zonneveld su Jungle Villa Left (30 nov - 5 dic).
+     - Chiarito che l'errore **NON è causato dalla coincidenza di date**, bensì dal fatto che dopo la cancellazione Octorate non ha tolto lo `stopSells` su Jungle Villa Right (30 nov - 7 dic), lasciando la stanza chiusa per errore.
+  2. 🧩 **Doppio Difetto Risolutivo**:
+     - *Difetto 1 (PMS)*: Jungle Villa Right è rimasta chiusa dal 30 nov al 7 dic nonostante la cancellazione Agoda.
+     - *Difetto 2 (Algoritmo)*: L'algoritmo non riduceva a 1 notte l'ultimo giorno prima della chiusura (29 nov) perché guardava i 9 giorni complessivi dal 21 al 30 nov.
+  3. 📋 **Piano Operativo**: Riaprire Jungle Villa Right su Octorate dal 30 nov, aggiornare la formula dei giorni rimanenti e blindare il webhook di cancellazione.
+- **File di Riferimento:** `piano_diagnosi_minstay_jungle_villa_right.md`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 ANALISI CONDIVISA & PIANO AGGIORNATO.
+
+---
+
+### 🔍 [18/11/2026 - ORE 12:10] · DIAGNOSI & PIANO MINIMO NOTTI DINAMICHE JUNGLE VILLA RIGHT (29 NOVEMBRE)
+- **Cosa abbiamo fatto:**
+  1. 🕵️‍♂️ **Ispezione Live Stato Octorate (25 Nov - 05 Dic)**:
+     - Interrogata l'API Octorate per Jungle Villa Right (Mother 960387 / 495796 e BE 960427): dal 21 al 29 novembre la camera è libera (`availability: 1, stopSells: false`), mentre dal 30 novembre al 7 dicembre è chiusa (`stopSells: true`).
+     - Constatato che il 29 novembre era rimasto con soggiorno minimo a 2 notti (`minStay: 2`), rendendo la notte fisicamente invendibile (bloccata a 1 notte e impossibile a 2 notti per chiusura del 30 nov).
+  2. 📐 **Individuazione Causa Radice nell'Algoritmo Gap-Fill (`octorate-webhook.ts` & `octorateAdmin.ts`)**:
+     - L'algoritmo calcolava la durata del buco `gapDays = daysDiffISO(gapStart, gapEnd)` prendendo l'intera lunghezza (9 giorni dal 21 al 30 nov).
+     - Assegnava quindi `minStay = 2` a tutti i giorni del blocco perché $9 \ge 2$, senza calcolare i giorni rimanenti al termine del buco (`remainingDays = gapEnd - cur`).
+     - Sul 29 novembre, mancando solo 1 giorno alla chiusura del 30 nov, il soggiorno massimo possibile è 1 notte, ma l'algoritmo non riduceva a 1 notte perché guardava la lunghezza totale dell'intero gap (9 giorni).
+  3. 📋 **Formulazione Piano Risolutivo**:
+     - Integrazione della formula orizzonte dinamico `remainingDays = daysDiffISO(cur, gapEnd)` e `target = Math.min(remainingDays, baseline)`.
+     - In questo modo il 29 novembre scende automaticamente a `minStay = 1`, liberando la notte per la vendita diretta.
+- **File di Riferimento:** `piano_diagnosi_minstay_jungle_villa_right.md`, `api/_handlers/octorate-webhook.ts`, `src/admin/resort/lib/octorateAdmin.ts`.
+- **Stato:** 🟢 DIAGNOSI COMPLETATA & PIANO PRONTO.
+
+
+### 🚀 [18/11/2026 - ORE 11:58] · RILASCIO LIVE NUOVI PREZZI BASE VILLE (25-30 NOVEMBRE) & ALLINEAMENTO CASCATA OCTORATE
+- **Cosa abbiamo fatto:**
+  1. 🏷️ **Applicazione Nuovi Prezzi di Base su Octorate API Bulk (`/calendar/bulk`)**:
+     - **Jungle Villa**: **2.990 ฿** (prezzo pieno 27-30 nov, con sconto cascata 2,5% a **2.915 ฿** per 25-26 nov).
+     - **Jungle Villa Left**: **1.490 ฿** (prezzo pieno 27-30 nov, con sconto cascata 2,5% a **1.453 ฿** per 25-26 nov).
+     - **Jungle Villa Right**: **1.490 ฿** (prezzo pieno 27-30 nov, con sconto cascata 2,5% a **1.453 ฿** per 25-26 nov).
+     - **Peace & Love Villa**: **1.490 ฿** (prezzo pieno 27-30 nov, con sconto cascata 2,5% a **1.453 ฿** per 25-26 nov).
+     - **Penthouse Villa**: **1.490 ฿** (prezzo pieno 27-30 nov, con sconto cascata 2,5% a **1.453 ฿** per 25-26 nov).
+     - Aggiornate entrambe le strutture collegate: Flower Power Village (`366879`) e Jungle Villas (`807324`).
+  2. 📝 **Riallineamento Ledger Cascata Supabase (`cascade_price_ledger_v1`)**:
+     - Registrati i record per 25-26 nov con le nuove basi e sconto dinamico non bloccato (`manualOverride: false`), e invalidate le chiavi 27-30 nov per accogliere la cascata naturale nei giorni successivi.
+  3. 📦 **Aggiornamento Modulo Stagionale Codice (`useSeasonalRateStore.ts`)**:
+     - Suddiviso `p2` in `p2a` (15-24 nov) e `p2b` (25-30 nov), aggiunta la matrice `p2b`, aggiornata la versione a `v9` e registrati gli stili UI.
+  4. 🧪 **Verifica Live 100% Riuscita & Build Prod Superata**:
+     - Interrogata l'API live di Octorate per tutte e 5 le ville su tutti i 6 giorni: prezzi perfetti al centesimo.
+     - `vite build` completata con successo in 4.6s.
+- **File aggiornati:** `src/admin/resort/store/useSeasonalRateStore.ts`, `src/admin/resort/components/GestioneStagionaleTariffe.tsx`, `src/admin/resort/components/GestioneStagionaleTariffe-v6.tsx`, `DIARIO_DI_BORDO.md`, Artifacts `walkthrough.md`.
+- **Stato:** 🟢 COMPLETATO, RILASCIATO & ATTIVO LIVE SU OCTORATE AL 100%.
+
+---
+
+### 📋 [18/11/2026 - ORE 11:24] · PIANO VARIAZIONE PREZZI BASE VILLE (25-30 NOVEMBRE 2026) & CASCATA SCONTI
+- **Cosa abbiamo fatto:**
+  1. 🌴 **Analisi Listini Ville e Mappatura Multi-Struttura**:
+     - Esaminati gli ID ufficiali Octorate per Flower Power Village (`366879`) e Jungle Villas (`807324`).
+     - Verificato lo stato attuale dei prezzi live su Octorate per il periodo 25-30 novembre 2026: Jungle Villa attualmente a 3.590 ฿ base (3.245 ฿ - 3.413 ฿ con cascata), e le altre ville a 1.990 ฿ base (1.799 ฿ - 1.892 ฿ con cascata).
+  2. 🏷️ **Definizione Nuovi Prezzi Base Richiesti**:
+     - **Jungle Villa**: **2.990 ฿**
+     - **Jungle Villa Left**: **1.490 ฿**
+     - **Jungle Villa Right**: **1.490 ฿**
+     - **Peace & Love Villa**: **1.490 ฿**
+     - **Penthouse Villa**: **1.490 ฿**
+  3. 📉 **Calcolo Interazione Cascata Automatica**:
+     - Verificati gli sconti calcolati dinamicamente rispetto alla data odierna (18 novembre): sconto 2,5% per il 25 e 26 novembre (Jungle Villa a **2.915 ฿**, le altre 4 a **1.453 ฿**) e prezzo pieno da listino dal 27 al 30 novembre (**2.990 ฿** e **1.490 ฿**).
+  4. 📐 **Redazione Piano Tecnico & Sincronizzazione (`piano_variazione_prezzi_ville_novembre.md`)**:
+     - Definito lo split del periodo `p2` in `p2a` (15-24 nov) e `p2b` (25-30 nov) in `useSeasonalRateStore.ts`.
+     - Strutturata la procedura di invio bulk ad Octorate e riallineamento immediato del ledger di cascata (`handleUpdatePricesStagionale`).
+- **File aggiornati:** `DIARIO_DI_BORDO.md`, Artifact `piano_variazione_prezzi_ville_novembre.md`.
+- **Stato:** 🟢 PIANO PRONTO PER APPROVAZIONE ED ESECUZIONE.
+
+---
+
 ### 🚀 [18/11/2026 - ORE 11:05] · RILASCIO AREA IBRIDA CUSTOM DELIVERY (ISODISTANZA GEOFENCE SU STRADE DI RANONG)
 - **Cosa abbiamo fatto:**
   1. 📦 **Creazione Modulo Geofencing (`src/pizza/utils/geofence.ts`)**:

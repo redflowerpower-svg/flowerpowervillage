@@ -64,6 +64,8 @@ export const GestioneStagionaleTariffe: React.FC = () => {
     p1: { bg: 'bg-yellow-950/20', headerBg: 'bg-yellow-950/50 border-b-2 border-b-yellow-500', border: 'border-l border-stone-800', badge: 'bg-yellow-500/25 text-yellow-300 border border-yellow-500/50', text: 'text-yellow-300' },
     // High Season Level 2 (Rosato/Ambra caldo)
     p2: { bg: 'bg-amber-950/25', headerBg: 'bg-amber-950/60 border-b-2 border-b-amber-500', border: 'border-l border-stone-800', badge: 'bg-amber-500/25 text-amber-300 border border-amber-500/50', text: 'text-amber-300' },
+    p2a: { bg: 'bg-amber-950/25', headerBg: 'bg-amber-950/60 border-b-2 border-b-amber-500', border: 'border-l border-stone-800', badge: 'bg-amber-500/25 text-amber-300 border border-amber-500/50', text: 'text-amber-300' },
+    p2b: { bg: 'bg-amber-950/30', headerBg: 'bg-amber-950/70 border-b-2 border-b-amber-400', border: 'border-l border-stone-800', badge: 'bg-amber-400/25 text-amber-200 border border-amber-400/50', text: 'text-amber-200' },
     // High Season Level 3 (Corallo/Rosso chiaro)
     p3: { bg: 'bg-orange-950/35', headerBg: 'bg-orange-950/70 border-b-2 border-b-orange-500', border: 'border-l border-stone-800', badge: 'bg-orange-500/25 text-orange-300 border border-orange-500/50', text: 'text-orange-300' },
     // High Season Level 4 (Rosso vivo / Vermiglio)

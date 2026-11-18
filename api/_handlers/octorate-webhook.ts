@@ -25,6 +25,8 @@ import {
   mirrorReservationToStandby,
   parseOctorateTimestampMs,
   postOctorateCalendarBulkWithRetry,
+  reopenFreedTwinDatesOnActiveStructure,
+  resolveTwinByProductOrName,
   syncActiveToStandbyCalendar,
   syncManualMirrorEditToCounterpart
 } from "../_helpers/octorate-jungle-mirror.js";
@@ -1011,6 +1013,107 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           }
         }
 
+        // 🔄 Cancella immediatamente l'eventuale specchio PRIMA del fetch calendarItems & calcolo minStay
+        let earlyMirrorHandled = false;
+        let earlyCancelledTwin: { twinKey: 'jv' | 'jvl' | 'jvr' | 'pl'; checkIn: string; checkOut: string } | null = null;
+        if (preResolvedTargetBooking) {
+          const preStatus = String(preResolvedTargetBooking.status || '').toUpperCase().trim();
+          const isEarlyCancelled =
+            preStatus === 'CANCELLED' ||
+            preStatus === 'CANCELED' ||
+            preStatus === 'DELETED' ||
+            preStatus === 'VOID' ||
+            preStatus === 'REJECTED' ||
+            upperEventType.includes('CANCEL') ||
+            Boolean(preResolvedTargetBooking.cancelled) ||
+            Boolean(preResolvedTargetBooking.isCancelled);
+
+          if (isEarlyCancelled) {
+            preResolvedTargetBooking.status = 'CANCELLED';
+            const preIdStr = String(preResolvedTargetBooking.id || earlyTargetResId || '');
+            if (preIdStr) {
+              for (const b of bookingsData) {
+                if (String(b?.id || '') === preIdStr) {
+                  b.status = 'CANCELLED';
+                }
+              }
+            }
+
+            const preProd =
+              preResolvedTargetBooking.product ||
+              preResolvedTargetBooking.pmsProduct ||
+              preResolvedTargetBooking.accommodation_id ||
+              preResolvedTargetBooking.roomId ||
+              preResolvedTargetBooking.roomTypeId;
+            const preRoomName =
+              preResolvedTargetBooking.roomName ||
+              preResolvedTargetBooking.accommodation_name ||
+              preResolvedTargetBooking.room_name ||
+              resolveAccommodationName(preResolvedTargetBooking);
+            const preIn = toThailandDateStr(
+              preResolvedTargetBooking.checkin ||
+                preResolvedTargetBooking.checkIn ||
+                preResolvedTargetBooking.check_in ||
+                preResolvedTargetBooking.startDate ||
+                preResolvedTargetBooking.rooms?.[0]?.checkin ||
+                preResolvedTargetBooking.rooms?.[0]?.startDate
+            );
+            const preOut = toThailandDateStr(
+              preResolvedTargetBooking.checkout ||
+                preResolvedTargetBooking.checkOut ||
+                preResolvedTargetBooking.check_out ||
+                preResolvedTargetBooking.endDate ||
+                preResolvedTargetBooking.rooms?.[0]?.checkout ||
+                preResolvedTargetBooking.rooms?.[0]?.endDate
+            );
+
+            const earlyTwinMatch = resolveTwinByProductOrName(preProd, preRoomName);
+            if (earlyTwinMatch && preIn.length === 10 && preOut.length === 10 && preIn < preOut) {
+              earlyCancelledTwin = { twinKey: earlyTwinMatch.key, checkIn: preIn, checkOut: preOut };
+            }
+
+            if (!isMirrorReservation(preResolvedTargetBooking) && preIdStr && preIn.length === 10 && preOut.length === 10) {
+              const preStructId = preResolvedTargetBooking.accommodation?.id
+                ? String(preResolvedTargetBooking.accommodation.id)
+                : String(getOctorateStructureByRoomId(preProd || '').id);
+              if (preStructId === '807324' || preStructId === '366879') {
+                try {
+                  const earlyMirrorRes = await mirrorReservationToStandby({
+                    supabaseAdmin,
+                    accessToken,
+                    sourceStructureId: preStructId,
+                    sourceReservationId: preIdStr,
+                    productId: preProd,
+                    roomName: preRoomName,
+                    checkIn: preIn,
+                    checkOut: preOut,
+                    guestName: resolveGuestName(preResolvedTargetBooking),
+                    isCancelled: true,
+                    channelId: preResolvedTargetBooking.channelId,
+                    channelRefer: preResolvedTargetBooking.channelRefer,
+                    channelName: preResolvedTargetBooking.channelName,
+                    color: preResolvedTargetBooking.color,
+                    totalGross: Number(preResolvedTargetBooking.totalGross ?? preResolvedTargetBooking.roomGross ?? 0) || undefined,
+                    origPrivateNotes: preResolvedTargetBooking.privateNotes || undefined
+                  });
+                  earlyMirrorHandled = true;
+                  if (earlyMirrorRes.targetReservationId) {
+                    const mIdStr = String(earlyMirrorRes.targetReservationId);
+                    for (const b of bookingsData) {
+                      if (String(b?.id || '') === mIdStr) {
+                        b.status = 'CANCELLED';
+                      }
+                    }
+                  }
+                  console.log(`[OCTORATE WEBHOOK 24/7] 🔄 Early-mirror cancellazione pre-minStay #${preIdStr}:`, earlyMirrorRes);
+                } catch (earlyMirrorErr) {
+                  console.warn('[OCTORATE WEBHOOK 24/7] Early-mirror cancellazione warning:', earlyMirrorErr);
+                }
+              }
+            }
+          }
+        }
+
         const calendarItems: any[] = [];
         try {
           // 🌟 Fetch contemporaneo griglia live (calendario) da tutte le strutture per catturare availability: 0 e stopSells
@@ -1050,6 +1153,30 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
         const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
         const nonMirrorBookings = bookingsData.filter(b => !isMirrorReservation(b));
+
+        // 🔓 Dopo cancellazione su villa gemella: riapre le date liberate sulla struttura attiva e patcha calendarItems in memoria a latenza zero
+        if (earlyCancelledTwin && calendarItems.length > 0) {
+          try {
+            const earlyClosedLocks = await loadClosedRoomLocks(supabaseAdmin);
+            const reopenRes = await reopenFreedTwinDatesOnActiveStructure({
+              accessToken,
+              clientId,
+              activeJungleSource,
+              twinKey: earlyCancelledTwin.twinKey,
+              checkInDate: earlyCancelledTwin.checkIn,
+              checkOutDate: earlyCancelledTwin.checkOut,
+              nonMirrorBookings,
+              calendarItems,
+              closedLocks: earlyClosedLocks
+            });
+            if (reopenRes.blocksSent > 0) {
+              clearOctorateGridCache();
+              console.log(`[OCTORATE WEBHOOK 24/7] 🔓 Riaperti ${reopenRes.blocksSent} blocchi su ${activeJungleSource} per ${earlyCancelledTwin.twinKey} (${earlyCancelledTwin.checkIn} -> ${earlyCancelledTwin.checkOut})`);
+            }
+          } catch (reopenErr) {
+            console.warn('[OCTORATE WEBHOOK 24/7] Reopen twin dates warning (non-blocking):', reopenErr);
+          }
+        }
 
         const calculatedUpdates = calculateServerDynamicMinStay(
           nonMirrorBookings,
@@ -1459,30 +1586,32 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                 }
 
                 // 🔄 3. Mirroring Automatico su Struttura Standby (807324 <-> 366879)
-                try {
-                  const mirrorOutcome = await mirrorReservationToStandby({
-                    supabaseAdmin,
-                    accessToken,
-                    sourceStructureId: String(resortConfig.id),
-                    sourceReservationId: reservationId,
-                    productId: targetBooking.product || targetBooking.pmsProduct || targetBooking.accommodation_id,
-                    roomName: targetBooking.roomName || targetBooking.accommodation_name || roomName,
-                    checkIn: toThailandDateStr(rawIn),
-                    checkOut: toThailandDateStr(rawOut),
-                    guestName,
-                    isCancelled,
-                    channelId: targetBooking.channelId,
-                    channelRefer: targetBooking.channelRefer,
-                    channelName: targetBooking.channelName,
-                    color: targetBooking.color,
-                    totalGross: Number(targetBooking.totalGross ?? targetBooking.roomGross ?? 0) || undefined,
-                    origPrivateNotes: targetBooking.privateNotes || undefined
-                  });
-                  if (mirrorOutcome.mirrored) {
-                    console.log(`[OCTORATE WEBHOOK] 🔄 Mirroring ${mirrorOutcome.action} su ${mirrorOutcome.targetStructureId} (#${mirrorOutcome.targetReservationId})`);
+                if (!earlyMirrorHandled) {
+                  try {
+                    const mirrorOutcome = await mirrorReservationToStandby({
+                      supabaseAdmin,
+                      accessToken,
+                      sourceStructureId: String(resortConfig.id),
+                      sourceReservationId: reservationId,
+                      productId: targetBooking.product || targetBooking.pmsProduct || targetBooking.accommodation_id,
+                      roomName: targetBooking.roomName || targetBooking.accommodation_name || roomName,
+                      checkIn: toThailandDateStr(rawIn),
+                      checkOut: toThailandDateStr(rawOut),
+                      guestName,
+                      isCancelled,
+                      channelId: targetBooking.channelId,
+                      channelRefer: targetBooking.channelRefer,
+                      channelName: targetBooking.channelName,
+                      color: targetBooking.color,
+                      totalGross: Number(targetBooking.totalGross ?? targetBooking.roomGross ?? 0) || undefined,
+                      origPrivateNotes: targetBooking.privateNotes || undefined
+                    });
+                    if (mirrorOutcome.mirrored) {
+                      console.log(`[OCTORATE WEBHOOK] 🔄 Mirroring ${mirrorOutcome.action} su ${mirrorOutcome.targetStructureId} (#${mirrorOutcome.targetReservationId})`);
+                    }
+                  } catch (mirrorErr) {
+                    console.warn('[OCTORATE WEBHOOK] Errore mirroring standby (non bloccante):', mirrorErr);
                   }
-                } catch (mirrorErr) {
-                  console.warn('[OCTORATE WEBHOOK] Errore mirroring standby (non bloccante):', mirrorErr);
                 }
               } // Fine blocco non-mirror
             } else {

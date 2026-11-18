@@ -696,10 +696,15 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     if (data?.chat_id) existingMirrorId = String(data.chat_id);
   }
 
-  // Fallback Idempotenza Live su Octorate: se Supabase non ha il mapping, cerca comunque eventuali copie già attive
-  // su targetStructureId prima di procedere (previene overbooking da mapping assente o race condition)
-  if (!existingMirrorId && checkInDate && checkOutDate) {
-    const recovered = await findExistingMirrorsOnTarget({
+  // Fallback Idempotenza Live su Octorate:
+  // - Se Supabase non ha il mapping, cerca copie già attive su targetStructureId prima di procedere.
+  // - Se isCancelled === true, verifica SEMPRE live anche quando Supabase ha un vecchio mapping (evita mapping obsoleti).
+  let recoveredMirrors: { canonicalId: string | null; extraDuplicateIds: string[] } = {
+    canonicalId: null,
+    extraDuplicateIds: []
+  };
+  if ((!existingMirrorId || isCancelled) && checkInDate && checkOutDate) {
+    recoveredMirrors = await findExistingMirrorsOnTarget({
       accessToken,
       srcStruct,
       sourceReservationId,
@@ -707,8 +712,8 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
       checkInDate,
       checkOutDate
     });
-    if (recovered.extraDuplicateIds.length > 0) {
-      for (const dupId of recovered.extraDuplicateIds) {
+    if (!isCancelled && recoveredMirrors.extraDuplicateIds.length > 0) {
+      for (const dupId of recoveredMirrors.extraDuplicateIds) {
         await cancelOctorateReservationDirect(
           accessToken,
           targetStructureId,
@@ -717,8 +722,8 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
         );
       }
     }
-    if (recovered.canonicalId) {
-      existingMirrorId = recovered.canonicalId;
+    if (!existingMirrorId && recoveredMirrors.canonicalId) {
+      existingMirrorId = recoveredMirrors.canonicalId;
       console.log(`[JUNGLE MIRROR] Mapping recuperato live da Octorate: #${sourceReservationId} -> #${existingMirrorId}`);
     }
   }
@@ -750,23 +755,35 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
   const targetMotherId = targetStructureId === '366879' ? twin.fpvMotherId : twin.jungleMotherId;
 
   if (isCancelled) {
-    if (!existingMirrorId) {
+    const allMirrorIdsToCancel = Array.from(
+      new Set(
+        [existingMirrorId, recoveredMirrors.canonicalId, ...recoveredMirrors.extraDuplicateIds].filter(
+          (v): v is string => Boolean(v)
+        )
+      )
+    );
+    if (allMirrorIdsToCancel.length === 0) {
+      if (supabaseAdmin) {
+        await supabaseAdmin.from('telegram_config').delete().eq('id', mapKey);
+      }
       return { mirrored: false, action: 'skipped', reason: 'No existing mirror reservation to cancel' };
     }
-    await cancelExistingMirrorReservation({
-      supabaseAdmin,
-      accessToken,
-      srcStruct,
-      sourceReservationId,
-      targetStructureId,
-      existingMirrorId,
-      reasonNote: 'Cancelled from'
-    });
+    for (const mId of allMirrorIdsToCancel) {
+      await cancelExistingMirrorReservation({
+        supabaseAdmin,
+        accessToken,
+        srcStruct,
+        sourceReservationId,
+        targetStructureId,
+        existingMirrorId: mId,
+        reasonNote: 'Cancelled from'
+      });
+    }
     return {
       mirrored: true,
       action: 'cancelled',
       targetStructureId,
-      targetReservationId: existingMirrorId
+      targetReservationId: allMirrorIdsToCancel[0]
     };
   }
 
@@ -1071,6 +1088,248 @@ function compressDailyBulkItems(entries: DailyBulkEntry[]): CompressedBulkBlock[
   }
 
   return blocks;
+}
+
+/**
+ * Restituisce true se la tariffa della villa gemella deve restare chiusa (Stop Sell) per regola di canale o alta stagione.
+ */
+export function shouldTwinRateStayClosedOnDate(pair: JungleRatePair, dateStr: string): boolean {
+  if (pair.isClosedAc) return true;
+  if (pair.isStandard7d && dateStr >= '2026-12-26' && dateStr <= '2027-03-31') return true;
+  if (pair.label.includes('Main bnb-14d') && dateStr >= '2027-01-26' && dateStr <= '2027-05-31') return true;
+  return false;
+}
+
+function isBookingCancelledStatus(b: any): boolean {
+  const st = String(b?.status || '').toUpperCase().trim();
+  return (
+    st === 'CANCELLED' ||
+    st === 'CANCELED' ||
+    st === 'DELETED' ||
+    st === 'VOID' ||
+    st === 'REJECTED' ||
+    Boolean(b?.cancelled) ||
+    Boolean(b?.isCancelled)
+  );
+}
+
+/**
+ * Raccoglie l'insieme delle notti occupate [checkIn, checkOut) per ciascuna delle 4 ville gemelle
+ * partendo dalle prenotazioni attive reali (non-mirror).
+ */
+export function collectOccupiedDatesByTwinKey(
+  nonMirrorBookings: any[]
+): Record<JungleTwinRoom['key'], Set<string>> {
+  const occupied: Record<JungleTwinRoom['key'], Set<string>> = {
+    jv: new Set<string>(),
+    jvl: new Set<string>(),
+    jvr: new Set<string>(),
+    pl: new Set<string>()
+  };
+
+  for (const b of nonMirrorBookings || []) {
+    if (!b || isMirrorReservation(b) || isBookingCancelledStatus(b)) continue;
+    const twin = resolveTwinByProductOrName(
+      b.product || b.pmsProduct || b.accommodation_id || b.roomId || b.roomTypeId,
+      b.roomName || b.accommodation_name || b.room_name
+    );
+    if (!twin) continue;
+
+    const rawIn = String(b.checkin || b.checkIn || b.check_in || b.startDate || '').slice(0, 10);
+    const rawOut = String(b.checkout || b.checkOut || b.check_out || b.endDate || '').slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(rawIn) || !/^\d{4}-\d{2}-\d{2}$/.test(rawOut) || rawIn >= rawOut) {
+      continue;
+    }
+
+    let cur = rawIn;
+    let guard = 0;
+    while (cur < rawOut && guard++ < 800) {
+      occupied[twin.key].add(cur);
+      cur = addOneDayISO(cur);
+    }
+  }
+
+  return occupied;
+}
+
+/**
+ * Verifica se la villa gemella `key` è occupata nella notte `dateStr` (includendo il legame Suite JV <-> Left/Right).
+ */
+export function isTwinKeyOccupiedOnDate(
+  occupied: Record<JungleTwinRoom['key'], Set<string>>,
+  key: JungleTwinRoom['key'],
+  dateStr: string
+): boolean {
+  if (key === 'jv') {
+    return occupied.jv.has(dateStr) || occupied.jvl.has(dateStr) || occupied.jvr.has(dateStr);
+  }
+  if (key === 'jvl') {
+    return occupied.jvl.has(dateStr) || occupied.jv.has(dateStr);
+  }
+  if (key === 'jvr') {
+    return occupied.jvr.has(dateStr) || occupied.jv.has(dateStr);
+  }
+  return occupied.pl.has(dateStr);
+}
+
+function isTwinKeyLockedOnDate(
+  closedLocks: Array<{ roomKey: string; dateFrom: string; dateTo: string; enabled?: boolean }> | undefined,
+  key: JungleTwinRoom['key'],
+  dateStr: string
+): boolean {
+  if (!closedLocks || closedLocks.length === 0) return false;
+  const relatedKeys =
+    key === 'jv'
+      ? new Set(['jv', 'jvl', 'jvr'])
+      : key === 'jvl' || key === 'jvr'
+        ? new Set([key, 'jv'])
+        : new Set([key]);
+
+  return closedLocks.some(
+    l => l && l.enabled !== false && relatedKeys.has(String(l.roomKey)) && dateStr >= l.dateFrom && dateStr <= l.dateTo
+  );
+}
+
+/**
+ * Funzione pura/deterministica: dopo una cancellazione su una delle 4 ville gemelle,
+ * individua le notti effettivamente libere in [checkInDate, checkOutDate) (escludendo altre prenotazioni e Hard-Lock),
+ * aggiorna in memoria `calendarItems` sulla struttura attiva a latenza zero e restituisce i blocchi /calendar/bulk da riaprire.
+ */
+export function patchCalendarItemsForFreedTwinDates(params: {
+  activeJungleSource: JungleSourceStructureId;
+  twinKey: JungleTwinRoom['key'];
+  checkInDate: string;
+  checkOutDate: string;
+  nonMirrorBookings: any[];
+  calendarItems: any[];
+  closedLocks?: Array<{ roomKey: string; dateFrom: string; dateTo: string; enabled?: boolean }>;
+}): CompressedBulkBlock[] {
+  const { activeJungleSource, twinKey, checkInDate, checkOutDate, nonMirrorBookings, calendarItems, closedLocks } = params;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(checkInDate) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOutDate) || checkInDate >= checkOutDate) {
+    return [];
+  }
+
+  const affectedKeys: JungleTwinRoom['key'][] =
+    twinKey === 'jv' ? ['jv', 'jvl', 'jvr'] : twinKey === 'jvl' || twinKey === 'jvr' ? [twinKey, 'jv'] : ['pl'];
+
+  const occupied = collectOccupiedDatesByTwinKey(nonMirrorBookings);
+
+  const calById = new Map<number, any>();
+  const dayByRateDate = new Map<string, any>();
+  for (const ci of calendarItems || []) {
+    const idNum = Number(ci?.id);
+    if (!idNum || calById.has(idNum)) continue;
+    calById.set(idNum, ci);
+    if (Array.isArray(ci.days)) {
+      for (const d of ci.days) {
+        const dStr = String(d?.date || d?.day || '').slice(0, 10);
+        if (dStr) dayByRateDate.set(`${idNum}_${dStr}`, d);
+      }
+    }
+  }
+
+  const entries: DailyBulkEntry[] = [];
+
+  for (const key of affectedKeys) {
+    const pairs = JUNGLE_RATE_PAIRS.filter(p => p.key === key);
+    let cur = checkInDate;
+    let guard = 0;
+
+    while (cur < checkOutDate && guard++ < 800) {
+      if (!isTwinKeyOccupiedOnDate(occupied, key, cur) && !isTwinKeyLockedOnDate(closedLocks, key, cur)) {
+        for (const pair of pairs) {
+          if (shouldTwinRateStayClosedOnDate(pair, cur)) continue;
+          const rateId = activeJungleSource === '366879' ? pair.fpvId : pair.jungleId;
+          const dayObj = dayByRateDate.get(`${rateId}_${cur}`);
+
+          const curAvail = dayObj ? Number(dayObj.availability ?? 0) : 0;
+          const curClosed = dayObj ? (dayObj.stopSells === true || dayObj.closed === true) : true;
+
+          if (pair.isMother) {
+            const needsAvail = curAvail <= 0;
+            if (dayObj) {
+              dayObj.availability = Math.max(1, curAvail);
+              dayObj.stopSells = false;
+              dayObj.closed = false;
+            }
+            if (needsAvail || curClosed) {
+              entries.push({
+                room: rateId,
+                date: cur,
+                values: {
+                  ...(needsAvail ? { availability: 1 } : {}),
+                  stopSells: false,
+                  closed: false,
+                  closeToArrival: false,
+                  closeToDeparture: false
+                }
+              });
+            }
+          } else {
+            if (dayObj) {
+              dayObj.stopSells = false;
+              dayObj.closed = false;
+            }
+            if (curClosed) {
+              entries.push({
+                room: rateId,
+                date: cur,
+                values: {
+                  stopSells: false,
+                  closed: false,
+                  closeToArrival: false,
+                  closeToDeparture: false
+                }
+              });
+            }
+          }
+        }
+      }
+      cur = addOneDayISO(cur);
+    }
+  }
+
+  return compressDailyBulkItems(entries);
+}
+
+/**
+ * Riapre su Octorate (solo sulla struttura attiva) le date effettivamente liberate da una cancellazione
+ * su una delle 4 ville gemelle e aggiorna in memoria `calendarItems` a latenza zero.
+ */
+export async function reopenFreedTwinDatesOnActiveStructure(params: {
+  accessToken: string;
+  clientId?: string;
+  activeJungleSource: JungleSourceStructureId;
+  twinKey: JungleTwinRoom['key'];
+  checkInDate: string;
+  checkOutDate: string;
+  nonMirrorBookings: any[];
+  calendarItems: any[];
+  closedLocks?: Array<{ roomKey: string; dateFrom: string; dateTo: string; enabled?: boolean }>;
+}): Promise<{ blocksSent: number }> {
+  const blocks = patchCalendarItemsForFreedTwinDates(params);
+  if (blocks.length === 0) {
+    return { blocksSent: 0 };
+  }
+
+  const chunkSize = 250;
+  const chunks: CompressedBulkBlock[][] = [];
+  for (let i = 0; i < blocks.length; i += chunkSize) {
+    chunks.push(blocks.slice(i, i + chunkSize));
+  }
+
+  await postOctorateCalendarBulkWithRetry(
+    {
+      Authorization: `Bearer ${params.accessToken}`,
+      ...(params.clientId ? { 'Octorate-Api-Key': params.clientId } : {}),
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    chunks,
+    { logPrefix: '[JUNGLE REOPEN]' }
+  );
+
+  return { blocksSent: blocks.length };
 }
 
 const sleepMs = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
