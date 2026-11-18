@@ -1372,21 +1372,29 @@ export interface LiveLastMinuteRoomEntry {
   lodging: typeof VILLAGE_LODGINGS[0];
   livePrice: number;
   availability: number;
+  dateStr?: string;
+  dateLabel?: string;
+  isFutureOpening?: boolean;
 }
 
 // 🛡️ Cache in memoria degli alloggi verificati in tempo reale su Octorate
 export let cachedLiveLastMinuteRooms: LiveLastMinuteRoomEntry[] | null = null;
+export let isLm1SoldOutTonight: boolean = false;
 
 /**
  * 🏨 REGOLA 11 AGENTS.MD (IMPRESCINDIBILE ED IMMODIFICABILE):
- * Interroga il Calendario Live di Flower Power Village (/api/octorate-grid) per la data odierna.
- * Filtra SOLO gli alloggi APERTI E LIBERI OGGI (availability > 0, stopSells !== true, bookable === true).
- * Estrae il PREZZO FINALE SCONTATO A CASCATA ATTIVO SUL CALENDARIO (es. Green: 711 THB, Camel: 387 THB, Lagoon: 387 THB).
+ * Interroga il Calendario Live di Flower Power Village (/api/octorate-grid).
+ * - Se ci sono alloggi liberi OGGI: mostra gli alloggi APERTI E LIBERI OGGI (availability > 0, stopSells !== true, bookable === true).
+ * - Se stanotte il resort è 100% FULLY BOOKED: rileva le prime 5 aperture disponibili nei prossimi 7 giorni con date e prezzi reali scontati!
  */
 export async function fetchLiveLastMinuteRooms(): Promise<LiveLastMinuteRoomEntry[]> {
   try {
-    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
-    const res = await fetch(`/api/octorate-grid?dateFrom=${today}&dateTo=${today}`);
+    const now = new Date();
+    const today = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+    const dEnd = new Date(now.getTime() + 7 * 24 * 3600 * 1000);
+    const dateTo = dEnd.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+
+    const res = await fetch(`/api/octorate-grid?dateFrom=${today}&dateTo=${dateTo}`);
     if (!res.ok) throw new Error(`Octorate grid HTTP ${res.status}`);
 
     const payload = await res.json();
@@ -1395,7 +1403,8 @@ export async function fetchLiveLastMinuteRooms(): Promise<LiveLastMinuteRoomEntr
       : (payload && payload.data && Array.isArray(payload.data) ? payload.data : []);
 
     const TEST_MOTHER_IDS = new Set([649669, 921799]);
-    const verifiedRooms: LiveLastMinuteRoomEntry[] = [];
+    const todayRooms: LiveLastMinuteRoomEntry[] = [];
+    const upcomingOpenings: LiveLastMinuteRoomEntry[] = [];
 
     VILLAGE_LODGINGS.forEach(lodging => {
       if (TEST_MOTHER_IDS.has(lodging.motherId)) return;
@@ -1409,6 +1418,7 @@ export async function fetchLiveLastMinuteRooms(): Promise<LiveLastMinuteRoomEntr
       });
 
       if (matched && Array.isArray(matched.days)) {
+        // 1. Controlla la disponibilità per OGGI
         const todayDay = matched.days.find((d: any) => {
           const dStr = String(d.date || d.dateStr || '').substring(0, 10);
           return dStr === today;
@@ -1417,19 +1427,64 @@ export async function fetchLiveLastMinuteRooms(): Promise<LiveLastMinuteRoomEntr
         if (todayDay && todayDay.availability > 0 && todayDay.bookable !== false && todayDay.stopSells !== true) {
           const price = Number(todayDay.price || todayDay.value || todayDay.amount || 0);
           if (price > 0) {
-            verifiedRooms.push({
+            todayRooms.push({
               lodging,
               livePrice: price,
-              availability: todayDay.availability
+              availability: todayDay.availability,
+              dateStr: today,
+              dateLabel: 'Tonight',
+              isFutureOpening: false
             });
           }
+        }
+
+        // 2. Trova la prima data utile futura (> today) in cui l'alloggio è libero
+        const futureDays = matched.days
+          .filter((d: any) => {
+            const dStr = String(d.date || d.dateStr || '').substring(0, 10);
+            return dStr > today && d.availability > 0 && d.bookable !== false && d.stopSells !== true && Number(d.price || d.value || 0) > 0;
+          })
+          .sort((a: any, b: any) => String(a.date).localeCompare(String(b.date)));
+
+        if (futureDays.length > 0) {
+          const firstAvail = futureDays[0];
+          const dStr = String(firstAvail.date || firstAvail.dateStr || '').substring(0, 10);
+          const price = Number(firstAvail.price || firstAvail.value || firstAvail.amount || 0);
+          let dateLabel = dStr;
+          try {
+            const parts = dStr.split('-');
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const dayNum = parseInt(parts[2], 10);
+            const mName = months[parseInt(parts[1], 10) - 1];
+            dateLabel = `${dayNum} ${mName}`;
+          } catch {}
+
+          upcomingOpenings.push({
+            lodging,
+            livePrice: price,
+            availability: firstAvail.availability,
+            dateStr: dStr,
+            dateLabel,
+            isFutureOpening: true
+          });
         }
       }
     });
 
-    cachedLiveLastMinuteRooms = verifiedRooms;
-    console.log(`[LM1 Live Fetch] ${today} (Bangkok) -> ${verifiedRooms.length} alloggi reali disponibili sulle 3 strutture:`, verifiedRooms.map(r => `${r.lodging.lodgingTitle} (${r.livePrice} THB)`));
-    return verifiedRooms;
+    if (todayRooms.length > 0) {
+      isLm1SoldOutTonight = false;
+      cachedLiveLastMinuteRooms = todayRooms;
+      console.log(`[LM1 Live Fetch] ${today} (Bangkok) -> ${todayRooms.length} alloggi liberi stasera:`, todayRooms.map(r => `${r.lodging.lodgingTitle} (${r.livePrice} THB)`));
+      return todayRooms;
+    }
+
+    // Se stanotte è 100% SOLD OUT: ordina per data più vicina e poi per prezzo
+    isLm1SoldOutTonight = true;
+    upcomingOpenings.sort((a, b) => (a.dateStr || '').localeCompare(b.dateStr || '') || a.livePrice - b.livePrice);
+    const top5Upcoming = upcomingOpenings.slice(0, 5);
+    cachedLiveLastMinuteRooms = top5Upcoming;
+    console.log(`[LM1 Live Fetch] 🌺 FULLY BOOKED TONIGHT! Prossime ${top5Upcoming.length} aperture live estratte:`, top5Upcoming.map(r => `[${r.dateLabel}] ${r.lodging.lodgingTitle} (${r.livePrice} THB)`));
+    return top5Upcoming;
   } catch (err) {
     console.warn('[LM1 Live Fetch] Errore fetch grid:', err);
     return [];
@@ -1437,7 +1492,7 @@ export async function fetchLiveLastMinuteRooms(): Promise<LiveLastMinuteRoomEntr
 }
 
 /**
- * 🔥 LM1: Stories Last Minute (Alloggi Disponibili Oggi con Prezzo Reale Scontato a Cascata dal Calendario)
+ * 🔥 LM1: Stories Last Minute (Alloggi Disponibili Oggi o Prossime 5 Aperture se Sold Out Stanotte)
  */
 export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCutTestRun {
   const green = VILLAGE_LODGINGS.find(l => l.id === 'green-bungalow')!;
@@ -1445,9 +1500,9 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
   const lagoon = VILLAGE_LODGINGS.find(l => l.id === 'lagoon-tent')!;
 
   const defaultRooms: LiveLastMinuteRoomEntry[] = [
-    { lodging: green, livePrice: 711, availability: 1 },
-    { lodging: camel, livePrice: 387, availability: 1 },
-    { lodging: lagoon, livePrice: 387, availability: 1 }
+    { lodging: green, livePrice: 711, availability: 1, dateLabel: 'Tonight', isFutureOpening: false },
+    { lodging: camel, livePrice: 387, availability: 1, dateLabel: 'Tonight', isFutureOpening: false },
+    { lodging: lagoon, livePrice: 387, availability: 1, dateLabel: 'Tonight', isFutureOpening: false }
   ];
 
   const rawRooms = (customRooms && customRooms.length > 0)
@@ -1456,33 +1511,49 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
       ? cachedLiveLastMinuteRooms
       : defaultRooms;
 
-  // 🔀 Rimescolamento casuale delle stanze libere: azzera la monotonia e alterna la copertina/hero
-  const rooms = getRandomItems(rawRooms, rawRooms.length);
+  const isSoldOut = isLm1SoldOutTonight || (rawRooms.length > 0 && rawRooms.every(r => r.isFutureOpening));
+
+  // Se stasera è sold out, manteniamo l'ordine cronologico per data (non casuale) così lo spettatore vede la progressione delle date
+  const rooms = isSoldOut ? [...rawRooms] : getRandomItems(rawRooms, rawRooms.length);
 
   // 🌺 REGOLA: Tutti i formati Koh Phayam Village (V1, V2, V3, LM1, R1) usano le tracce Koh Phayam Village
   const audio = getNextVillageAudioTrack();
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / rooms.length;
 
-  const scenes: AutoCutScene[] = rooms.map((entry, idx) => ({
-    imageUrl: entry.lodging.mainImage,
-    titlePrimary: entry.lodging.nameEn,
-    titleSecondary: entry.lodging.nameTh, // Traduzione secca in Thai
-    lodgingTitle: entry.lodging.lodgingTitle,
-    lodgingSubtitle: entry.lodging.lodgingSubtitle,
-    priceLabel: `Last Minute: ${entry.livePrice.toLocaleString('en-US')} ฿`,
-    priceValue: entry.livePrice,
-    trajectory: TRAJECTORIES_SEQUENCE[idx % TRAJECTORIES_SEQUENCE.length],
-    badgeCategory: '🔥 AVAILABLE TONIGHT',
-    sourceName: entry.lodging.nameEn
-  }));
+  const scenes: AutoCutScene[] = rooms.map((entry, idx) => {
+    let badgeCategory = '🔥 AVAILABLE TONIGHT';
+    let priceLabel = `Last Minute: ${entry.livePrice.toLocaleString('en-US')} ฿`;
 
-  const roomNames = rooms.map(r => `${r.lodging.nameEn} (${r.livePrice}฿)`).join(' · ');
+    if (entry.isFutureOpening || isSoldOut) {
+      badgeCategory = `📅 FROM ${entry.dateLabel?.toUpperCase() || 'SOON'}`;
+      priceLabel = `From ${entry.dateLabel}: ${entry.livePrice.toLocaleString('en-US')} ฿`;
+    }
+
+    return {
+      imageUrl: entry.lodging.mainImage,
+      titlePrimary: entry.lodging.nameEn,
+      titleSecondary: entry.lodging.nameTh, // Traduzione secca in Thai
+      lodgingTitle: entry.lodging.lodgingTitle,
+      lodgingSubtitle: entry.lodging.lodgingSubtitle,
+      priceLabel,
+      priceValue: entry.livePrice,
+      trajectory: TRAJECTORIES_SEQUENCE[idx % TRAJECTORIES_SEQUENCE.length],
+      badgeCategory,
+      sourceName: entry.lodging.nameEn
+    };
+  });
+
+  const roomNames = rooms.map(r => `${r.lodging.nameEn} (${r.dateLabel || 'Today'}: ${r.livePrice}฿)`).join(' · ');
 
   return {
     mode: 'LM1',
-    modeTitle: 'LM1) Stories Last Minute (Alloggi Liberi Oggi & Prezzo a Cascata Octorate)',
-    modeDescription: `Disponibilità reale certificata dal Calendario Octorate di oggi: ${roomNames}. Prezzo finale con sconti a cascata attivi.`,
+    modeTitle: isSoldOut
+      ? 'LM1) Fully Booked Today · Next 5 Available Dates'
+      : 'LM1) Stories Last Minute (Alloggi Liberi Oggi & Prezzo a Cascata Octorate)',
+    modeDescription: isSoldOut
+      ? `Resort al completo per stanotte. Prossime disponibilità live su Octorate: ${roomNames}.`
+      : `Disponibilità reale certificata dal Calendario Octorate di oggi: ${roomNames}. Prezzo finale con sconti a cascata attivi.`,
     brand: 'village',
     audioTrack: {
       ...audio,
@@ -1490,7 +1561,9 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
     },
     scenes,
     totalDuration,
-    sceneDuration
+    sceneDuration,
+    isSoldOutTonight: isSoldOut,
+    upcomingOpenings: isSoldOut ? rooms : undefined
   };
 }
 

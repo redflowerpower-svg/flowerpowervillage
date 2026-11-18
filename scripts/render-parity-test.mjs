@@ -285,9 +285,27 @@ async function main() {
     log('Attendo verifica live disponibilità Octorate sulle 3 strutture (LM1)...');
     await page.waitForFunction(() => window.__autoCutLm1Ready === true, null, { timeout: 60000 });
     const lm1Count = await page.evaluate(() => window.__autoCutLm1Count);
-    log(`Disponibilità live LM1 caricata: ${lm1Count ?? 'N/D'} alloggi reali liberi oggi.`);
+    const isLm1SoldOut = await page.evaluate(() => window.__autoCutLm1SoldOut);
+    const upcomingRooms = await page.evaluate(() => window.__autoCutLm1Upcoming);
+
+    log(`Disponibilità live LM1: ${lm1Count ?? 'N/D'} alloggi ${isLm1SoldOut ? '(Prossime aperture post-Sold Out stanotte)' : 'liberi stanotte'}.`);
+
+    if (upcomingRooms && Array.isArray(upcomingRooms) && upcomingRooms.length > 0) {
+      const upFile = path.join(outDir, `${mode}.upcoming.json`);
+      fs.writeFileSync(upFile, JSON.stringify({
+        isSoldOutTonight: true,
+        upcomingRooms: upcomingRooms.map(r => ({
+          lodgingTitle: r.lodging?.lodgingTitle || r.lodging?.nameEn,
+          dateStr: r.dateStr,
+          dateLabel: r.dateLabel,
+          livePrice: r.livePrice
+        }))
+      }, null, 2));
+      log(`Metadati prossime aperture LM1 salvati in ${upFile}`);
+    }
+
     if (lm1Count === 0) {
-      log('ℹ️ [LM1] 0 alloggi disponibili oggi su Octorate: Resort 100% Sold Out per stanotte.');
+      log('ℹ️ [LM1] 0 alloggi disponibili anche nei prossimi 7 giorni: Resort 100% Sold Out.');
       const soldOutFile = path.join(outDir, `${mode}.soldout.json`);
       fs.writeFileSync(soldOutFile, JSON.stringify({
         fullyBooked: true,
@@ -295,7 +313,7 @@ async function main() {
         timestamp: new Date().toISOString()
       }, null, 2));
       await browser.close();
-      log('Chiusura pulita processo Playwright (Sold Out gestito con successo).');
+      log('Chiusura pulita processo Playwright (Sold Out totale gestito con successo).');
       process.exit(0);
     }
     await page.waitForTimeout(600);

@@ -14,7 +14,8 @@ import {
   fetchLiveKitchenAvailability,
   getLiveDailySpecialDishes,
   fetchLiveDailySpecials,
-  generateDSTest
+  generateDSTest,
+  isLm1SoldOutTonight
 } from '../services/autoCutLabEngine';
 import { AUTOCUT_RULES_REGISTRY } from '../services/autoCutRulesRegistry';
 import { AutoCutLabPlayer } from './AutoCutLabPlayer';
@@ -127,6 +128,8 @@ export function AutoCutLabView() {
       fetchLiveLastMinuteRooms().then((rooms) => {
         if (typeof window !== 'undefined') {
           (window as any).__autoCutLm1Count = rooms.length;
+          (window as any).__autoCutLm1SoldOut = isLm1SoldOutTonight;
+          (window as any).__autoCutLm1Upcoming = isLm1SoldOutTonight ? rooms : null;
         }
         if (rooms && rooms.length > 0) {
           const liveLm1 = generateLM1Test(rooms);
