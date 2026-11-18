@@ -604,6 +604,45 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
   }
 
   if (mode === 'LM1') {
+    const upcomingFile = path.join(outDir, 'LM1.upcoming.json');
+    let upcomingData = null;
+    if (fs.existsSync(upcomingFile)) {
+      try { upcomingData = JSON.parse(fs.readFileSync(upcomingFile, 'utf8')); } catch { }
+    }
+
+    if (upcomingData && upcomingData.isSoldOutTonight && Array.isArray(upcomingData.upcomingRooms) && upcomingData.upcomingRooms.length > 0) {
+      const tomorrow = new Date(Date.now() + 24 * 3600 * 1000).toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+
+      const enRooms = upcomingData.upcomingRooms.map(r => {
+        const isTomorrow = r.dateStr === tomorrow;
+        const prefix = isTomorrow ? `Tomorrow ${r.dateLabel}` : r.dateLabel;
+        return `▫️ ${prefix}: ${r.lodgingTitle} — ${r.livePrice.toLocaleString('en-US')} ฿ 🌿`;
+      }).join('\n');
+
+      const thRooms = upcomingData.upcomingRooms.map(r => {
+        const isTomorrow = r.dateStr === tomorrow;
+        const prefix = isTomorrow ? `พรุ่งนี้ ${r.dateLabel}` : r.dateLabel;
+        return `▫️ ${prefix}: ${r.lodgingTitle} — ${r.livePrice.toLocaleString('en-US')} ฿ 🌿`;
+      }).join('\n');
+
+      return sanitizeSocialBullets(applyUnicodeBoldHook(
+        `🇬🇧 𝗙𝗨𝗟𝗟𝗬 𝗕𝗢𝗢𝗞𝗘𝗗 𝗧𝗢𝗡𝗜𝗚𝗛𝗧! 𝗛𝘂𝗿𝗿𝘆 𝘁𝗼 𝗯𝗼𝗼𝗸 𝘁𝗵𝗲 𝗻𝗲𝘅𝘁 𝗮𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲 𝗿𝗼𝗼𝗺𝘀 𝗯𝗲𝗳𝗼𝗿𝗲 𝘁𝗵𝗲𝘆 𝗮𝗿𝗲 𝗴𝗼𝗻𝗲! 🏃💨🌴\n\n` +
+        `${enRooms}\n\n` +
+        `Go directly to our website flowerpowervillage.com to get a 10% discount! 🏝️✨\n\n` +
+        `🌐 flowerpowervillage.com\n` +
+        `💬 WhatsApp: +66 (0)95.882.5573\n` +
+        `📍 Buffalo Bay, Koh Phayam Island\n` +
+        `@flowerpowerphayam\n\n` +
+        `🇹🇭 วันนี้ห้องพักเต็ม 100%! รีบจองห้องว่างรอบถัดไปก่อนจะหมดนะครับ 🏃💨🌴\n\n` +
+        `${thRooms}\n\n` +
+        `จองตรงผ่านเว็บไซต์ flowerpowervillage.com รับส่วนลดทันที 10%! 🏝️✨\n\n` +
+        `🌐 flowerpowervillage.com\n` +
+        `💬 WhatsApp: +66 (0)95.882.5573\n` +
+        `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
+        `#KohPhayam #PhayamBungalow #KohPhayamResort #BuffaloBay #TropicalEscape #ThailandTravel #เกาะพยาม #ที่พักเกาะพยาม #อ่าวเขาควาย`
+      ));
+    }
+
     return sanitizeSocialBullets(applyUnicodeBoldHook(
       `🇬🇧 Looking for peaceful bungalows surrounded by tropical greenery in Koh Phayam? 🌴✨\n\n` +
       `Today we have vacant rooms and private wooden bungalows at Buffalo Bay with instant direct booking discount!\n\n` +
@@ -1184,7 +1223,7 @@ async function getTikTokToken(brand = 'pizza', forceRefresh = false) {
             if (p.client_key) clientKey = p.client_key;
             if (p.client_secret) clientSecret = p.client_secret;
           }
-        } catch {}
+        } catch { }
       }
     }
 
@@ -1193,7 +1232,7 @@ async function getTikTokToken(brand = 'pizza', forceRefresh = false) {
       if (rows?.[0]?.bot_token) {
         const row = rows[0];
         let parsed = {};
-        try { parsed = JSON.parse(row.chat_id || '{}'); } catch {}
+        try { parsed = JSON.parse(row.chat_id || '{}'); } catch { }
 
         const refreshToken = parsed.refresh_token;
         const updatedAtMs = row.updated_at ? new Date(row.updated_at).getTime() : 0;
@@ -1243,7 +1282,7 @@ async function getTikTokToken(brand = 'pizza', forceRefresh = false) {
       const { data } = await sb.from('telegram_config').select('bot_token').eq('id', `tiktok_${brand}`).maybeSingle();
       if (data?.bot_token) return data.bot_token;
     }
-  } catch {}
+  } catch { }
   return null;
 }
 
@@ -1444,7 +1483,7 @@ async function renderVideoMode(mode, maxAttempts = 2) {
       const sleepBuf = Buffer.alloc(1);
       try {
         fs.readSync(0, sleepBuf, 0, 0, null);
-      } catch {}
+      } catch { }
       await new Promise(r => setTimeout(r, 6000));
     }
   }
@@ -1526,15 +1565,15 @@ async function run() {
     const lm1Res = await renderVideoMode('LM1');
 
     if (lm1Res && lm1Res.fullyBooked) {
-      console.log(`🌴 [08:00 BANGKOK] Resort 100% Sold Out oggi su Koh Phayam (0 alloggi liberi su Octorate).`);
-      console.log(`👉 Fallback elegante: rendering ed invio video Villaggio V3 (senza prezzi) a Topic 2 per il Gruppo Facebook.`);
+      console.log(`🌴 [08:00 BANGKOK] Resort 100% Sold Out per i prossimi 7 giorni su Octorate.`);
+      console.log(`👉 Fallback su V3 senza prezzi.`);
 
       const v3Res = await renderVideoMode('V3');
       const soldOutText = getBilingualPostCopy('V3_SOLDOUT', 'village', v3Res.copy);
 
       await sendOfficialTelegramPost({
         topicId: TOPIC_KOH_PHAYAM_GROUP,
-        title: 'Tour Alloggi nel Verde a Koh Phayam · Post Community (Sold Out Tonight)',
+        title: 'Tour Alloggi nel Verde a Koh Phayam · Post Community (Sold Out)',
         format: 'V3',
         brand: 'village',
         copyText: soldOutText,
@@ -1544,25 +1583,29 @@ async function run() {
       await sendPublishedLog({
         brand: 'village',
         channel: '👥 Gruppo Facebook Koh Phayam + 🎵 TikTok/IG Stories',
-        format: 'V3 / P1 / V1 (LM1 Sold Out)',
-        title: 'Stories Mattutine Ranong & Phayam + Tour Alloggi V3 (Resort Sold Out)',
-        details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Reel V3 senza prezzi su Topic 2 per il Gruppo Facebook (Resort 100% Sold Out per stanotte)'
+        format: 'V3 / P1 / V1 (LM1 Full Sold Out)',
+        title: 'Stories Mattutine Ranong & Phayam + Tour Alloggi V3 (Sold Out)',
+        details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Reel V3 senza prezzi su Topic 2 per il Gruppo Facebook'
       });
 
       executedSummary = {
         brand: 'flowerpower',
-        title: 'Stories Mattutine Ranong & Phayam + Tour Alloggi V3 (Sold Out)',
-        details: 'Consegnate 2 Stories su Topic 3 e 1 Post Alloggi V3 senza prezzi su Topic 2'
+        title: 'Stories Mattutine Ranong & Phayam + Tour Alloggi V3',
+        details: 'Consegnate 2 Stories su Topic 3 e 1 Post Alloggi V3 su Topic 2'
       };
     } else {
+      const upcomingFile = path.join(outDir, 'LM1.upcoming.json');
+      const isSoldOutTonight = fs.existsSync(upcomingFile);
       const lm1Text = getBilingualPostCopy('LM1', 'village', lm1Res.copy);
 
       await sendOfficialTelegramPost({
         topicId: TOPIC_KOH_PHAYAM_GROUP,
-        title: 'Alloggi Disponibili Oggi a Koh Phayam · Reel & Post Community',
+        title: isSoldOutTonight
+          ? 'Fully Booked Today · Prossime Camere Disponibili a Koh Phayam'
+          : 'Alloggi Disponibili Oggi a Koh Phayam · Reel & Post Community',
         format: 'LM1',
         brand: 'village',
-        priceBadge: 'Sconto Cascata Live',
+        priceBadge: isSoldOutTonight ? 'Prossime Aperture Live' : 'Sconto Cascata Live',
         copyText: lm1Text,
         filePath: lm1Res.filePath
       });
@@ -1571,12 +1614,18 @@ async function run() {
         brand: 'village',
         channel: '👥 Gruppo Facebook Koh Phayam + 🎵 TikTok/IG Stories',
         format: 'LM1 / P1 / V1',
-        title: 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
-        details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Post Alloggi LM1 su Topic 2 con testo bilingue 🇬🇧+🇹🇭 e tasti interattivi'
+        title: isSoldOutTonight
+          ? 'Stories Mattutine + Post Prossime Camere LM1 (Sold Out Stanotte)'
+          : 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
+        details: isSoldOutTonight
+          ? 'Consegnate 2 Stories 9:16 su Topic 3 e 1 Post LM1 con le prossime 5 camere e date disponibili su Topic 2 per il Gruppo Facebook'
+          : 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Post Alloggi LM1 su Topic 2 con testo bilingue 🇬🇧+🇹🇭 e tasti interattivi'
       });
       executedSummary = {
         brand: 'flowerpower',
-        title: 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
+        title: isSoldOutTonight
+          ? 'Stories Mattutine + Post Prossime Camere LM1 (Sold Out Stanotte)'
+          : 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
         details: 'Consegnate 2 Stories su Topic 3 e 1 Post Alloggi LM1 su Topic 2'
       };
     }

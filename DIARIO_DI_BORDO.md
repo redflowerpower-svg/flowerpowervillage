@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🚀 [18/11/2026 - ORE 11:05] · RILASCIO AREA IBRIDA CUSTOM DELIVERY (ISODISTANZA GEOFENCE SU STRADE DI RANONG)
+- **Cosa abbiamo fatto:**
+  1. 📦 **Creazione Modulo Geofencing (`src/pizza/utils/geofence.ts`)**:
+     - Definito `RANONG_DELIVERY_POLYGON` a 10 vertici calibrati sulla percorrenza stradale reale di Ranong (~5.5 km di asfalto / 12-14 min).
+     - Implementato l'algoritmo matematico Ray-Casting `isPointInPolygon` (0ms offline, 0 costi API) ed esportata `isPointInRanongDeliveryZone`.
+  2. 📍 **Collegamento a Store di Localizzazione (`src/pizza/store/locationStore.ts`)**:
+     - Aggiornato `isDeliverable` affinché utilizzi il poligono territoriale custom, garantendo che ordini verso Pak Nam/Jansom Beach vengano esclusi all'istante.
+  3. 🗺️ **Mappa Interattiva & Avvisi Bilingue (`src/pizza/components/CheckoutFlow.tsx`)**:
+     - Sostituito il vecchio cerchio geometrico `<MapCircle>` con il componente `<MapDeliveryPolygon>` su Google Maps con sagoma verde smeraldo semitrasparente.
+     - Aggiornati i messaggi e gli avvisi di fuori zona in tutte le 9 lingue certificate (italiano, inglese, thai, tedesco, birmano, spagnolo, francese, russo, cinese).
+  4. 🧪 **Collaudo Unitario & TypeScript (`npx tsc --noEmit`)**:
+     - 10/10 test unitari territoriali superati al 100% e compilazione TypeScript completata con zero errori.
+- **File aggiornati:** `src/pizza/utils/geofence.ts`, `src/pizza/store/locationStore.ts`, `src/pizza/components/CheckoutFlow.tsx`, `DIARIO_DI_BORDO.md`, Artifacts `walkthrough.md`.
+- **Stato:** 🟢 COMPLETATO & COLLAUDATO AL 100%.
+
+---
+
 ### 🗺️ [18/11/2026 - ORE 10:58] · PIANO D'AZIONE AREA IBRIDA CUSTOM SU RETE STRADALE (ISODISTANZA GEOFENCE)
 - **Cosa abbiamo fatto:**
   1. 📐 **Generazione del Poligono su Misura (10 Vertici Strade di Ranong)**:
@@ -3884,3 +3901,16 @@
   - **Affinamento V3 Senza Prezzi su Richiesta Utente (`scripts/social-scheduler-dispatch.mjs`, `src/social/services/autoCutLabEngine.ts`)**:
     - Aggiornato il fallback di Sold-Out sullo slot 08:00 per il Gruppo Facebook (Topic 2): in caso di villaggio al completo, viene condiviso il formato **V3 (Panoramica di 5 alloggi diversi)** anziché V1.
     - **100% Senza Prezzi**: azzerati `priceLabel: ''` e `priceValue: 0` in `generateV3Test()`, eliminato il badge di prezzo su Telegram (`priceBadge: undefined`), e implementato il copy bilingue `V3_SOLDOUT` completamente privo di tariffe o sconti, incentrato sulla bellezza degli alloggi nel verde e sull'invito a prenotare in anticipo le date successive su `flowerpowervillage.com`.
+
+  - **Evoluzione Strategica LM1 'Fully Booked Today & Prossime 5 Camere' (`src/social/services/autoCutLabEngine.ts`, `scripts/social-scheduler-dispatch.mjs`)**:
+    - **Zero Ringraziamenti & Pura Azione**: Impostato il titolo ad alto impatto `FULLY BOOKED TODAY! Hurry to book the next available rooms before they are gone!`, eliminando qualsiasi convenevole o ringraziamento.
+    - **Invito Diretto al Website**: Chiamata all'azione immediata verso `flowerpowervillage.com` con applicazione dello sconto diretto.
+    - **Video con Alloggi e Prezzi Reali**: Quando stanotte è al completo, `LM1` estrae in automatico dal calendario Octorate a 7 giorni le prime 5 camere libere nei giorni successivi (es. 19 Nov Penthouse 1,060 ฿, 20 Nov Green 852 ฿, 21 Nov Red 949 ฿), mostrando le foto autentiche delle camere e il rispettivo cartellino prezzo e data sia nel video 9:16 sia nella scheda per il Gruppo Facebook di Koh Phayam.
+
+  - **Perfezionamento Copy Sold-Out Diretto (`scripts/social-scheduler-dispatch.mjs`)**:
+    - **Zero Convenevoli**: Eliminata ogni frase superflua ("We are completely sold out", ringraziamenti vari).
+    - **Sequenza Dinamica Perfetta**:
+      1. Hook d'apertura immediato: `FULLY BOOKED TONIGHT! Hurry to book next available rooms before they are gone!`
+      2. Elenco immediato delle stanze con date e prezzi: `▫️ Tomorrow 19 Nov: Internal Room — 468 ฿`, `▫️ Tomorrow 19 Nov: Villa Penthouse — 1,060 ฿`, ecc.
+      3. Call to Action diretta al sito web: `Go directly to our website flowerpowervillage.com to get a 10% discount!`
+      4. Canali diretti (Web, WhatsApp) e blocco finale hashtag.
