@@ -59,7 +59,7 @@ import { handleBookingConcierge } from "./_handlers/booking-concierge.js";
 import { handleSyncKnowledgeFromSheet } from "./_handlers/sync-sheet.js";
 import { handleMetaWebhook } from "./_handlers/meta-webhook.js";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function dispatchRoute(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('meta-webhook') || req.url?.includes('webhook/whatsapp')) {
     return handleMetaWebhook(req, res);
   }
@@ -346,5 +346,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     default:
       return res.status(404).json({ error: `Route not found: /api/${cleanPath}` });
+  }
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
+    return await dispatchRoute(req, res);
+  } catch (err: any) {
+    console.error(`[API GATEWAY FAULT BARRIER] Unhandled error on ${req.method} ${req.url}:`, err);
+    if (!res.headersSent) {
+      return res.status(500).json({
+        error: "Internal Server Error",
+        isolatedByFaultBarrier: true,
+        message: err?.message || "Unexpected compartment error"
+      });
+    }
   }
 }

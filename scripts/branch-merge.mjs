@@ -56,6 +56,11 @@ try {
   console.log(`\n🔀 Passo 4: Fusione di [${featureBranch}] dentro [staging]...`);
   run(`git merge ${featureBranch} --no-edit`);
 
+  // 5. Verifica integrità API e contratti dei compartimenti stagni sul merge
+  console.log('\n🛡️ Passo 5: Verifica API & Contratti Compartimenti Stagni post-fusione...');
+  run('npm run api:check');
+  run('npm run test:booking');
+
   console.log('\n===========================================================');
   console.log(`🎉 FUSIONE COMPLETATA CON SUCCESSO DENTRO [staging]!`);
   console.log('===========================================================');

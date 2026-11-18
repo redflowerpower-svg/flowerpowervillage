@@ -3,6 +3,16 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🔒 [18/11/2026 - ORE 15:20] · BLINDATURA INFRASTRUTTURA AL 100%: PRE-DEPLOY GATE, CONTRATTI PAGAMENTI/SOCIAL & FAULT BARRIER API
+- **Cosa abbiamo fatto:**
+  1. 🛡️ **Anello 1 — Blocco Automatico Pre-Deploy & Post-Merge**: Inseriti `npm run api:check` e `npm run test:booking` direttamente dentro `scripts/project-sync.mjs` e `scripts/branch-merge.mjs` così che nessun deploy verso `staging` o `main` possa mai partire se un contratto o un confine di reparto risulta violato.
+  2. 💳 **Anello 2 — Contratti Offline Pagamenti & Social (`tests/booking/payments-and-social.contract.test.ts`)**: Aggiunte 2 nuove suite offline che blindano il calcolo VAT 7% + commissioni (`bank_transfer`, `cash`, `ksher`, `stripe`, `paypal` in `paymentCalculations.ts`) e le regole bilingue inviolabili di `/social` (`ensureLangFlag`, `sanitizeSocialBullets`, `generatePostCopy` zero forno a legna / zero napoletana / hashtag solo in coda).
+  3. 🌐 **Anello 3 — Scudo Anti-Crash nel Router API Centrale (`api/[...route].ts`)**: Avvolto l'intero gateway API dentro `handler` con barriera `try/catch` isolata che intercetta eventuali eccezioni non gestite restituendo JSON `500` strutturato.
+- **Verifica:** `npm run verify:all` (`api:check` + tutti i test contrattuali + `vite build`) superato al 100%.
+- **Stato:** 🟢 COMPLETATO CON SUCCESSO.
+
+---
+
 ### 🛡️ [18/11/2026 - ORE 15:08] · COMPLETAMENTO FASE 2 & FASE 3: LAYER BASE OCTORATE & FIREWALL COMPARTIMENTI STAGNI
 - **Cosa abbiamo fatto:**
   1. 🧱 **Fase 2 — Disaccoppiamento Layer Base Octorate**:
