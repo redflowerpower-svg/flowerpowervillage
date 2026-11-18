@@ -70,6 +70,8 @@ export interface AutoCutTestRun {
   totalDuration: number;
   sceneDuration: number;
   isEmptyShowcase?: boolean;
+  isSoldOutTonight?: boolean;
+  upcomingOpenings?: LiveLastMinuteRoomEntry[];
 }
 
 // 🎵 I 3 Jingle Brevi Pizzeria per P1 e DS (Scelta 100% Casuale: So Good, Ranong, Aroi Mak Mak)
@@ -1653,6 +1655,21 @@ export function generateDSTest(customDishes?: MenuItem[]): AutoCutTestRun {
     sceneDuration,
     isEmptyShowcase: false
   };
+}
+
+/**
+ * 📸 Regola 14 AGENTS.MD: calcolo timestamp thumbnail pre-dissolvenza
+ * Un attimo prima dell'inizio del fade verso la 2a scena (zero ghosting).
+ */
+export function computePreFadeThumbnailTimestamp(scene1Dur: number): {
+  effectiveDissolve: number;
+  transitionThreshold: number;
+  thumbnailTimestamp: number;
+} {
+  const effectiveDissolve = Math.min(0.65, scene1Dur * 0.28);
+  const transitionThreshold = scene1Dur - effectiveDissolve;
+  const thumbnailTimestamp = Math.max(0.1, transitionThreshold - 0.05);
+  return { effectiveDissolve, transitionThreshold, thumbnailTimestamp };
 }
 
 /**

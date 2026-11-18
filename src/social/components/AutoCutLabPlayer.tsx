@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Play, Pause, RotateCcw, RotateCw, SkipBack, SkipForward, Volume2, VolumeX, Sparkles, Layers, Clock, Music, Star } from 'lucide-react';
-import { AutoCutTestRun, AutoCutScene, getCategoryThaiName, formatSemanticEnglishDishTitle, formatSemanticThaiDishTitle } from '../services/autoCutLabEngine';
+import { AutoCutTestRun, AutoCutScene, getCategoryThaiName, formatSemanticEnglishDishTitle, formatSemanticThaiDishTitle, computePreFadeThumbnailTimestamp } from '../services/autoCutLabEngine';
 import { LINE_QR_CODE_BASE64 } from '../services/lineQrData';
 import { autoCutSoundEngine } from '../services/autoCutSoundEffects';
 import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
@@ -285,9 +285,11 @@ export function AutoCutLabPlayer({
 
   // 📸 REGOLA 14 AGENTS.MD: CALCOLO FOTOGRAMMA THUMBNAIL UFFICIALE (MASSIMO ZOOM PRE-DISSOLVENZA)
   const scene1Dur = sceneTimeline[0]?.duration || sceneDuration;
-  const effectiveDissolve1 = Math.min(0.65, scene1Dur * 0.28);
-  const transitionThreshold1 = scene1Dur - effectiveDissolve1;
-  const thumbnailTimestamp = Math.max(0.1, transitionThreshold1 - 0.05);
+  const {
+    effectiveDissolve: effectiveDissolve1,
+    transitionThreshold: transitionThreshold1,
+    thumbnailTimestamp,
+  } = computePreFadeThumbnailTimestamp(scene1Dur);
 
   // Setup e caricamento traccia audio (SOLO quando cambia la sorgente audioTrack.src)
   useEffect(() => {

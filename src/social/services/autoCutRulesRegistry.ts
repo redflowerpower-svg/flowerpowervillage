@@ -408,49 +408,5 @@ export const AUTOCUT_RULES_REGISTRY: Record<AutoCutLabMode, AutoCutModeRuleDetai
       'Vietato inventare prezzi diversi da quelli a cascata del calendario.',
       'Vietato mostrare bagni.'
     ]
-  },
-
-  DS: {
-    mode: 'DS',
-    code: 'DS',
-    badgeLabel: 'DAILY SPECIAL DS',
-    badgeColor: 'amber',
-    title: 'Daily Special (Fuori Menu · Piatto Fresco in Pronta Consegna)',
-    subtitle: 'Commercial fuori menu dedicato alla freschezza del giorno: appena preparato e in pronta consegna a Ranong',
-    targetPlatform: 'TikTok · Instagram Stories & Reels',
-    aspectRatio: '9:16 Canvas Verticale (720x1280)',
-    durationNote: 'Intero brano MP3 suddiviso tra i piatti speciali presenti in vetrina oggi (~4-8s a piatto) + 4.0s Outro Brand con QR Code.',
-    objective: 'Promuovere le creazioni fresche del giorno dello chef e i fuori menu speciali, comunicando freschezza assoluta e pronta consegna immediata a domicilio a Ranong.',
-    assetRules: [
-      'REGOLA CARDINE DS: Il video si genera SOLO ED ESCLUSIVAMENTE se ci sono piatti attivi nella vetrina Daily Specials.',
-      'Rigorosamente verificato come DISPONIBILE nel Kitchen Monitor (Zero piatti Sold Out / 86).',
-      'Estratti fino a 4 piatti speciali attivi dal menu del giorno, ciascuno con foto HD reale, nome bilingue Thai/Inglese e prezzo ufficiale.'
-    ],
-    exclusions: [
-      'DIVIETO ASSOLUTO GENERAZIONE A VUOTO: Se la vetrina è vuota o tutti i piatti sono Sold Out, il video non genera sequenze fittizie ma mostra lo stato informativo elegante.',
-      'DIVIETO ASSOLUTO PIATTI ESAURITI (86): Esclusione istantanea dei piatti contrassegnati come esauriti nel Kitchen Monitor.',
-      'DIVIETO CATEGORICO BEVANDE: Zero bevande, zero bibite, zero birre, zero caffè.'
-    ],
-    typographyRules: {
-      topBanner: 'Pill esclusivo con logo Flower Power Pizza, [สดใหม่วันนี้ · DAILY SPECIAL] e [⚡ พร้อมส่ง • Fast Delivery • Ranong].',
-      primaryTitle: '🇹🇭 THAI IN GRANDE SOPRA (20px font-black text-amber-300 drop-shadow).',
-      secondaryTitle: '🇬🇧 INGLESE SOTTO (13px font-bold text-white).',
-      priceBadge: 'Badge Piatto giallo vivo bordato di nero con testo nero, simbolo ฿, puntino rosso e dicitura bilingue [🔥 ทำสดใหม่ พร้อมส่งทันทีในระนอง / Freshly Made · Fast Delivery in Ranong].'
-    },
-    cameraMovement: 'Food Macro Focus fluido CapCut alternato (SX->DX e DX->SX con climax zoom macro sui piatti freschi).',
-    outroSpec: {
-      timing: '4.0s a fine musica.',
-      elements: [
-        'Logo Ufficiale Flower Power Pizza con rimbalzo elastico 3D.',
-        'Titolo FLOWER POWER PIZZA · RANONG THAILAND.',
-        'Card Consegna con QR Code LINE Ufficiale scansionabile da schermo, sito e sconto 10% 1° ordine.'
-      ]
-    },
-    strictProhibitions: [
-      'Vietato mostrare piatti non presenti nella vetrina del giorno.',
-      'Vietato mostrare piatti esauriti nel Kitchen Monitor.',
-      'Vietato mostrare bevande o alcolici.',
-      'Vietato usare la parola "Napoletana".'
-    ]
   }
 };

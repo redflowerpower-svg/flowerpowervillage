@@ -56,7 +56,7 @@ class ErrorBoundary extends React.Component<
           <button
             onClick={() => {
               this.setState({ hasError: false, error: null });
-              window.location.href = '/dining';
+              window.location.reload();
             }}
             style={{ marginTop: 16, padding: '8px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
           >

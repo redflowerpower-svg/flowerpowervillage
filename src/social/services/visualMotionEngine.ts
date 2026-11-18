@@ -528,3 +528,62 @@ export async function analyzeVisualWithAI(params: {
   return res.json();
 }
 
+export type CameraTrajectory =
+  | 'auto_cinematic'
+  | 'pan_left_to_right'
+  | 'pan_right_to_left'
+  | 'tilt_top_to_bottom'
+  | 'tilt_bottom_to_top'
+  | 'push_in_focal'
+  | 'diagonal_up_right'
+  | 'diagonal_up_left';
+
+export type OverlayAtmosphere =
+  | 'none'
+  | 'auto_context'
+  | 'light_streaks'
+  | 'warm_steam'
+  | 'tropical_sunbeams'
+  | 'sparkle_stars'
+  | 'abstract_bokeh'
+  | 'floating_hearts';
+
+/**
+ * 🏰 Mappatura Rigorosa Pan & Scan Alloggi Villaggio (Website Assets)
+ * Regola Ferrea:
+ * - Le 4 sole traiettorie ammesse per garantire il 100% di visibilità della stanza:
+ *   1. pan_left_to_right (↔️ SX ➔ DX)
+ *   2. pan_right_to_left (↔️ DX ➔ SX)
+ *   3. diagonal_up_right (↗️ Basso-SX ➔ Alto-DX)
+ *   4. diagonal_up_left (↖️ Basso-DX ➔ Alto-SX)
+ * - Ciascun alloggio ha la propria traiettoria di partenza differenziata e univoca.
+ */
+export const VILLAGE_WEBSITE_TRAJECTORIES: CameraTrajectory[] = [
+  'pan_left_to_right',
+  'pan_right_to_left',
+  'diagonal_up_right',
+  'diagonal_up_left'
+];
+
+export function getVillageAccommodationTrajectory(itemId: string, stepIndex = 0): CameraTrajectory {
+  const KNOWN_LODGING_OFFSETS: Record<string, number> = {
+    'villa-penthouse-panoramic': 0, // ↔️ Pan SX ➔ DX
+    'red-bungalow-tropical': 1,     // ↔️ Pan DX ➔ SX
+    'yellow-bungalow-oasis': 2,     // ↗️ Diagonale Basso-SX ➔ Alto-DX
+    'bamboo-bungalow-nature': 3,    // ↖️ Diagonale Basso-DX ➔ Alto-SX
+  };
+
+  let offset = KNOWN_LODGING_OFFSETS[itemId];
+  if (offset === undefined) {
+    let hash = 0;
+    for (let i = 0; i < itemId.length; i++) {
+      hash = (hash << 5) - hash + itemId.charCodeAt(i);
+      hash |= 0;
+    }
+    offset = Math.abs(hash) % VILLAGE_WEBSITE_TRAJECTORIES.length;
+  }
+
+  const idx = (offset + stepIndex) % VILLAGE_WEBSITE_TRAJECTORIES.length;
+  return VILLAGE_WEBSITE_TRAJECTORIES[idx];
+}
+
