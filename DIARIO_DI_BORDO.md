@@ -3986,3 +3986,7 @@
       2. Elenco immediato delle stanze con date e prezzi: `▫️ Tomorrow 19 Nov: Internal Room — 468 ฿`, `▫️ Tomorrow 19 Nov: Villa Penthouse — 1,060 ฿`, ecc.
       3. Call to Action diretta al sito web: `Go directly to our website flowerpowervillage.com to get a 10% discount!`
       4. Canali diretti (Web, WhatsApp) e blocco finale hashtag.
+
+  - **Consegna Completa Post Definitivo su Telegram Topic 2 (`Koh Phayam Group`)**:
+    - **Video Streaming Full HD**: Inviato direttamente il filmato master del Villaggio (1080x1920, 7.24 MB) su Topic 2 via multipart streaming.
+    - **Scheda Testo Sincronizzata**: Recapitato il riquadro interattivo con il copy bilingue approvato (`FULLY BOOKED TONIGHT! Hurry to book the next available rooms...`), il rimando allo sconto 10% su `flowerpowervillage.com` e il pulsante rapido per aprire direttamente il gruppo Facebook di Koh Phayam.
