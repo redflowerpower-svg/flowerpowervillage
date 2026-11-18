@@ -67,6 +67,11 @@ try {
   console.log('\n🔐 Passo 2: Cifratura Vault Credenziali...');
   run('node scratch/vault-sync.mjs encrypt');
 
+  // 3b. Gate di Integrità API & Test Contrattuali / Firewall Compartimenti Stagni
+  console.log('\n🛡️ Passo 2b: Verifica Bundling API & Contratti Compartimenti Stagni...');
+  run('npm run api:check');
+  run('npm run test:booking');
+
   // 4. Housekeeping Locale Storico Chat Antigravity (snello, silenzioso e ultra-veloce)
   console.log('\n🧹 Passo 3: Housekeeping Locale Storico Antigravity...');
   try {
