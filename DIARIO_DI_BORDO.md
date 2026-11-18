@@ -3,6 +3,19 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🗺️ [18/11/2026 - ORE 10:58] · PIANO D'AZIONE AREA IBRIDA CUSTOM SU RETE STRADALE (ISODISTANZA GEOFENCE)
+- **Cosa abbiamo fatto:**
+  1. 📐 **Generazione del Poligono su Misura (10 Vertici Strade di Ranong)**:
+     - Mappate tutte le direttrici uscenti dalla Pizzeria fino a 5.5-6.0 km di asfalto: Bang Non (Nord), Bang Rin (Sud), Khao Niwet (Ovest) e limite canale prima di Pak Nam.
+  2. 🧪 **Collaudo Unitario Territoriale (12/12 Test Superati al 100%)**:
+     - Confermato che tutta la Ranong urbana (Centro, Ospedale, Scuole, Supermercati) è DENTRO, mentre Pak Nam Pier, Jansom Beach Resort (l'ordine di ieri sera) e i canyon sono categoricamente FUORI.
+  3. 🚀 **Redazione Piano Architetturale (`plan_area_ibrida_custom_ranong.md`)**:
+     - Definito l'algoritmo Ray-Casting Point-in-Polygon (0ms, 0 Baht, 100% offline) e la sostituzione del cerchio con il poligono verde visivo sulla mappa Google Maps in `CheckoutFlow.tsx`.
+- **File aggiornati:** `DIARIO_DI_BORDO.md`, `scratch/test_polygon_boundary.mjs`, Artifact `plan_area_ibrida_custom_ranong.md`.
+- **Stato:** 🟢 PIANO PRONTO PER APPROVAZIONE ED ESECUZIONE.
+
+---
+
 ### 🛣️ [18/11/2026 - ORE 10:48] · STUDIO DI FATTIBILITÀ CALCOLO DISTANZA SU STRADA REALE (DRIVING DISTANCE VS HAVERSINE)
 - **Cosa abbiamo fatto:**
   1. 🏎️ **Collaudo Motore di Routing Stradale (OSRM)**:
