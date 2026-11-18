@@ -23,7 +23,7 @@ import {
   subscribeToSandboxOrders 
 } from '../../../pizza/services/localSandboxOrderService';
 
-export type { PizzaPromoCode };
+export type { PizzaPromoCode, PizzaOrder };
 
 export interface PizzaMenuItem {
   id: string;

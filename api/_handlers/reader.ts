@@ -13,7 +13,7 @@ const supabaseAdmin = (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl
 
 const STORAGE_BUCKET = "documents";
 
-function escapeHtml(str: string): string {
+export function escapeHtml(str: string): string {
   if (!str) return "";
   return str
     .replace(/&/g, "&amp;")
@@ -23,7 +23,7 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#039;");
 }
 
-function highlightSearch(text: string, query: string): string {
+export function highlightSearch(text: string, query: string): string {
   if (!query || !query.trim()) return escapeHtml(text);
   const escapedText = escapeHtml(text);
   const escapedQuery = escapeHtml(query.trim());
@@ -31,7 +31,7 @@ function highlightSearch(text: string, query: string): string {
   return escapedText.replace(regex, '<mark style="background-color: #fef08a; color: #854d0e; padding: 2px 4px; border-radius: 4px; font-weight: bold;">$1</mark>');
 }
 
-function formatServerContent(textContent: string, searchParam: string): string {
+export function formatServerContent(textContent: string, searchParam: string): string {
   if (!textContent) return '<p style="color:#71717a; font-style:italic;">[Pagina vuota]</p>';
 
   // Check if content is tabular / Excel sheet

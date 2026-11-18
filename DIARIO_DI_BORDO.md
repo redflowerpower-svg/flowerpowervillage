@@ -3,6 +3,25 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🛡️ [18/11/2026 - ORE 16:28] · BLINDATURA INTERNA COMPLETA WEBSITE (PIZZERIA, SOCIAL STUDIO & FIX TYPESCRIPT ADMIN)
+- **Cosa abbiamo fatto:**
+  1. 🍕 **Blocco A — Isolamento Interno Pizzeria (`/pizze`, `/dining`, `/kitchen`)**:
+     - Esteso `tests/booking/compartment-boundaries.contract.test.ts` con il firewall AST interno tra Delivery Online, Sala Tavoli QR (`/dining`), Cucina KDS (`/kitchen`) e purezza del Layer Base Pizzeria.
+     - Creata la nuova suite offline `tests/booking/pizza-internal.contract.test.ts` (12 test) su `tableUtils.ts`, `validation.ts`, `distance.ts`, `dietary.ts`, `orderMetadata.ts` e `kdsExtraDictionary.ts`.
+  2. 📱 **Blocco B — Isolamento Interno Social Media Studio (`/social`)**:
+     - Bloccato via firewall AST qualsiasi import sperimentale dentro `TikTokAuditStudioPage.tsx` (Regola 5).
+     - Estratti nel layer motore puro `getVillageAccommodationTrajectory` / `VILLAGE_WEBSITE_TRAJECTORIES` (`visualMotionEngine.ts`, Regola 7) e `computePreFadeThumbnailTimestamp` (`autoCutLabEngine.ts`, Regola 14) mantenendo retrocompatibilità totale.
+     - Creata la suite offline `tests/booking/social-autocut-rules.contract.test.ts` (9 test) a protezione delle Regole 7, 8, 9, 12, 13 e 14 (zero bagni su tutti i 18 alloggi, integrità V2, zero bevande/insalate/Sold-Out, a capo semantico TH/EN, thumbnail pre-dissolvenza).
+  3. 🩺 **Blocco C — Pulizia Chirurgica 6 Disallineamenti TypeScript (`/social` e `/admin`)**:
+     - Rimossa la chiave duplicata `DS` in `autoCutRulesRegistry.ts`, ripristinata `fullCaption` in `autoCutIntelligence.ts`, aggiunti `isSoldOutTonight` e `upcomingOpenings` a `AutoCutTestRun` in `autoCutLabEngine.ts`, ristretto il union narrowing in `telegramStudioDispatcher.ts`, tipizzato `PromptPayProvider` in `usePaymentsAdminStore.ts` ed esportato `PizzaOrder` in `usePizzaAdminStore.ts`.
+  4. 🔒 **Sigillo Finale `App.tsx` & Contratto `/docs`**:
+     - Corretto il pulsante *"Riprova Caricamento"* dentro `ErrorBoundary` di `src/App.tsx` (`window.location.reload()` al posto del redirect fisso verso `/dining`), garantendo che nessun ospite del Villaggio o del Delivery venga mai dirottato sui tablet sala.
+     - Aggiunti 3 test contrattuali offline per il reparto **Web Reader `/docs`** (`escapeHtml`, `highlightSearch`, `formatServerContent` in `api/_handlers/reader.ts`).
+- **Verifica:** `npm run verify:all` (`api:check` + **58/58 test contrattuali verdi su 18 suite** + `vite build`) superato al 100% e rilasciato in produzione (`MARKDOWN-PROJECT`).
+- **Stato:** 🟢 COMPLETATO CON SUCCESSO.
+
+---
+
 ### 🔒 [18/11/2026 - ORE 15:20] · BLINDATURA INFRASTRUTTURA AL 100%: PRE-DEPLOY GATE, CONTRATTI PAGAMENTI/SOCIAL & FAULT BARRIER API
 - **Cosa abbiamo fatto:**
   1. 🛡️ **Anello 1 — Blocco Automatico Pre-Deploy & Post-Merge**: Inseriti `npm run api:check` e `npm run test:booking` direttamente dentro `scripts/project-sync.mjs` e `scripts/branch-merge.mjs` così che nessun deploy verso `staging` o `main` possa mai partire se un contratto o un confine di reparto risulta violato.

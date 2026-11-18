@@ -247,4 +247,131 @@ describe("Firewall Architetturale & Compartimenti Stagni", () => {
     // Anche il resto dei target su src/non-social verifica zero import verso social fuori dal router principale
     assert.deepEqual(violations, []);
   });
+
+  it("Isolamento Sotto-Reparti Interni Pizzeria (Delivery vs Sala /dining vs Cucina /kitchen & Purezza Layer Base)", () => {
+    const deliveryFiles = [
+      "src/pizza/pages/DeliveryMenu.tsx",
+      "src/pizza/components/CheckoutFlow.tsx",
+      "src/pizza/store/locationStore.ts",
+      "src/pizza/utils/validation.ts",
+      "src/pizza/utils/distance.ts",
+      "src/pizza/utils/geofence.ts",
+      "src/pizza/services/firstOrderService.ts",
+      "src/pizza/services/omiseClient.ts",
+    ];
+    const diningFiles = [
+      "src/pizza/pages/DiningTabletSite.tsx",
+      "src/pizza/components/DiningCheckoutModal.tsx",
+      "src/pizza/components/DiningQrModal.tsx",
+      "src/pizza/components/TableSettlementModal.tsx",
+      "src/pizza/components/DiningAdminAuth.tsx",
+      "src/pizza/utils/tableUtils.ts",
+      "src/pizza/services/diningSessionService.ts",
+      "src/pizza/services/diningLiveCartService.ts",
+      "src/pizza/services/diningTablePresenceService.ts",
+    ];
+    const kitchenFiles = [
+      "src/admin/pizza/components/KitchenTabletKDS.tsx",
+      "src/admin/pizza/components/KitchenAdminAuth.tsx",
+      "src/admin/pizza/components/KitchenDishAvailabilityModal.tsx",
+      "src/admin/pizza/utils/kdsExtraDictionary.ts",
+      "src/admin/pizza/utils/kdsCatalogService.ts",
+      "src/admin/pizza/utils/kdsI18n.ts",
+      "src/admin/pizza/utils/kitchenAudioWakeLock.ts",
+    ];
+    const pizzaBaseLayerFiles = [
+      "src/pizza/utils/distance.ts",
+      "src/pizza/utils/geofence.ts",
+      "src/pizza/utils/validation.ts",
+      "src/pizza/utils/tableUtils.ts",
+      "src/pizza/utils/orderMetadata.ts",
+      "src/pizza/utils/dietary.ts",
+      "src/pizza/config/languages.ts",
+      "src/pizza/data/menuData.ts",
+      "src/pizza/data/wineData.tsx",
+    ];
+
+    const deliveryOnlyTargets = new Set([
+      "src/pizza/pages/DeliveryMenu",
+      "src/pizza/components/CheckoutFlow",
+      "src/pizza/store/locationStore",
+      "src/pizza/utils/validation",
+      "src/pizza/utils/distance",
+      "src/pizza/utils/geofence",
+      "src/pizza/services/firstOrderService",
+      "src/pizza/services/omiseClient",
+    ]);
+    const diningOnlyTargets = new Set([
+      "src/pizza/pages/DiningTabletSite",
+      "src/pizza/components/DiningCheckoutModal",
+      "src/pizza/components/DiningQrModal",
+      "src/pizza/components/TableSettlementModal",
+      "src/pizza/components/DiningAdminAuth",
+      "src/pizza/utils/tableUtils",
+      "src/pizza/services/diningSessionService",
+      "src/pizza/services/diningLiveCartService",
+      "src/pizza/services/diningTablePresenceService",
+      "src/admin/pizza/components/DiningTableQrStudio",
+    ]);
+    const diningUiTargets = new Set([
+      "src/pizza/pages/DiningTabletSite",
+      "src/pizza/components/DiningCheckoutModal",
+      "src/pizza/components/TableSettlementModal",
+    ]);
+    const kitchenOnlyTargets = new Set([
+      "src/admin/pizza/components/KitchenTabletKDS",
+      "src/admin/pizza/components/KitchenAdminAuth",
+      "src/admin/pizza/components/KitchenDishAvailabilityModal",
+      "src/admin/pizza/utils/kdsExtraDictionary",
+      "src/admin/pizza/utils/kdsCatalogService",
+      "src/admin/pizza/utils/kdsI18n",
+      "src/admin/pizza/utils/kitchenAudioWakeLock",
+    ]);
+
+    const violations: string[] = [];
+
+    for (const file of deliveryFiles) {
+      for (const imp of extractLocalImports(file)) {
+        if (diningOnlyTargets.has(imp) || kitchenOnlyTargets.has(imp)) {
+          violations.push(`${file} (Delivery) -> ${imp}`);
+        }
+      }
+    }
+
+    for (const file of diningFiles) {
+      for (const imp of extractLocalImports(file)) {
+        if (deliveryOnlyTargets.has(imp) || kitchenOnlyTargets.has(imp)) {
+          violations.push(`${file} (Dining) -> ${imp}`);
+        }
+      }
+    }
+
+    for (const file of kitchenFiles) {
+      for (const imp of extractLocalImports(file)) {
+        if (deliveryOnlyTargets.has(imp) || diningUiTargets.has(imp)) {
+          violations.push(`${file} (Kitchen) -> ${imp}`);
+        }
+      }
+    }
+
+    for (const file of pizzaBaseLayerFiles) {
+      for (const imp of extractLocalImports(file)) {
+        if (
+          imp.startsWith("src/pizza/pages/") ||
+          imp.startsWith("src/pizza/components/") ||
+          imp.startsWith("src/admin/") ||
+          imp.startsWith("src/pizza/store/")
+        ) {
+          violations.push(`${file} (Layer Base Pizzeria) -> ${imp}`);
+        }
+      }
+    }
+
+    assert.deepEqual(violations, []);
+  });
+
+  it("Isolamento Stagno TikTokAuditStudioPage.tsx (Regola 5 Social Studio)", () => {
+    const localImports = extractLocalImports("src/social/pages/TikTokAuditStudioPage.tsx");
+    assert.deepEqual(localImports, []);
+  });
 });

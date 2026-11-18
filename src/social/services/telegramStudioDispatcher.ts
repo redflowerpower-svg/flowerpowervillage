@@ -121,7 +121,7 @@ export async function dispatchPostToTelegramTopic(
     inlineKeyboard.push([
       {
         text: '🌐 Vai al Gruppo Koh Phayam',
-        url: topicConfig.targetFacebookGroupUrl,
+        url: TELEGRAM_STUDIO_CONFIG.topics.kohPhayamGroup.targetFacebookGroupUrl,
       },
     ]);
   } else if (payload.topic === 'tikTokStories') {

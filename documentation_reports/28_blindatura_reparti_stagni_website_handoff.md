@@ -2,7 +2,8 @@
 
 > **Origine**: Conversazione `29691d8d-c456-4fac-8a6e-a621042465e8`  
 > **Branch**: `staging` (allineato con `origin/main` commit `87ebbc9` e `origin/staging` commit `57e0b58`)  
-> **Data Checkpoint**: `18/11/2026`
+> **Data Checkpoint**: `18/11/2026`  
+> **Stato Attuale**: 🟢 **COMPLETATO (Blocco A + Blocco B + Blocco C + App ErrorBoundary Fix + Contratto /docs) — 58/58 test contrattuali verdi (`npm run verify:all`)**
 
 ---
 

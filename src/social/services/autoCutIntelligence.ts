@@ -695,6 +695,8 @@ export function generateFullAutoCutCampaign(): Array<{
     const c = item.concept;
     const isPizza = c.brand === 'pizza';
 
+    const fullCaption = `${c.descriptionTh}\n\n${c.descriptionEn}\n\n${c.tags.join(' ')}`;
+
     const y = postDate.getFullYear();
     const m = String(postDate.getMonth() + 1).padStart(2, '0');
     const d = String(postDate.getDate()).padStart(2, '0');

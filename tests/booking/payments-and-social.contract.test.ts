@@ -8,6 +8,11 @@ import {
   sanitizeSocialBullets,
 } from "../../src/social/services/autoCutCopywriterEngine.js";
 import type { AutoCutTestRun } from "../../src/social/services/autoCutLabEngine.js";
+import {
+  escapeHtml,
+  formatServerContent,
+  highlightSearch,
+} from "../../api/_handlers/reader.js";
 
 describe("Reparto /pagamenti — Motore Calcolo Totale & Commissioni (paymentCalculations.ts)", () => {
   it("applica solo VAT 7% e 0% commissioni su bank_transfer e cash", () => {
@@ -107,5 +112,31 @@ describe("Reparto /social — Regole Inviolabili Copywriter & Bandiere Bilingue"
     for (const forbidden of ["napoletana", "wood-fired", "forno a legna", "เตาฟืน"]) {
       assert.equal(combined.includes(forbidden), false, `Trovato termine vietato: ${forbidden}`);
     }
+  });
+});
+
+describe("Reparto /docs — Web Reader HTML Sicuro & Ricerca (reader.ts)", () => {
+  it("neutralizza tag XSS e caratteri speciali in escapeHtml", () => {
+    const raw = `<script>alert("xss")</script> & 'test'`;
+    assert.equal(
+      escapeHtml(raw),
+      "&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt; &amp; &#039;test&#039;"
+    );
+  });
+
+  it("evidenzia i termini cercati con <mark> mantenendo l'escaping HTML in highlightSearch", () => {
+    const out = highlightSearch("<b>Pizza</b> Margherita Ranong", "Margherita");
+    assert.equal(out.includes("<b>"), false);
+    assert.equal(out.includes("&lt;b&gt;Pizza&lt;/b&gt;"), true);
+    assert.equal(out.includes("<mark "), true);
+    assert.equal(out.includes(">Margherita</mark>"), true);
+  });
+
+  it("formatta pagine vuote e tabelle pipe-separated in formatServerContent", () => {
+    assert.equal(formatServerContent("", "").includes("[Pagina vuota]"), true);
+    const tableHtml = formatServerContent("Room | Rate\nPenthouse | 1490", "Penthouse");
+    assert.equal(tableHtml.includes("<table"), true);
+    assert.equal(tableHtml.includes(">Penthouse</mark>"), true);
+    assert.equal(tableHtml.includes("1490"), true);
   });
 });

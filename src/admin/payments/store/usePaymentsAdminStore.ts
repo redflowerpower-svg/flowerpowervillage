@@ -96,7 +96,7 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
         if (sRes.ok) {
           const sData = await sRes.json();
           if (sData && sData.active_promptpay_provider) {
-            const normalizedProvider = sData.active_promptpay_provider === 'omise' ? 'omise' : 'kbank';
+            const normalizedProvider: PromptPayProvider = sData.active_promptpay_provider === 'omise' ? 'omise' : 'kbank';
             const merged: PaymentSettings = {
               ...DEFAULT_SETTINGS,
               ...sData,
@@ -119,7 +119,7 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
         .maybeSingle();
 
       if (!error && data) {
-        const normalizedProvider = data.active_promptpay_provider === 'omise' ? 'omise' : 'kbank';
+        const normalizedProvider: PromptPayProvider = data.active_promptpay_provider === 'omise' ? 'omise' : 'kbank';
         const merged: PaymentSettings = {
           id: 'singleton',
           active_primary_gateway: data.active_primary_gateway || 'ksher',
@@ -141,7 +141,7 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
       if (cached) {
         try {
           const parsed = JSON.parse(cached);
-          const normalizedProvider = parsed.active_promptpay_provider === 'omise' ? 'omise' : 'kbank';
+          const normalizedProvider: PromptPayProvider = parsed.active_promptpay_provider === 'omise' ? 'omise' : 'kbank';
           set({ settings: { ...DEFAULT_SETTINGS, ...parsed, active_promptpay_provider: normalizedProvider }, loading: false });
           return;
         }
@@ -166,7 +166,7 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
   },
 
   updatePromptPayProvider: (provider) => {
-    const normalized = provider === 'omise' ? 'omise' : 'kbank';
+    const normalized: PromptPayProvider = provider === 'omise' ? 'omise' : 'kbank';
     const current = get().settings;
     const newSettings = { ...current, active_promptpay_provider: normalized };
     try {
