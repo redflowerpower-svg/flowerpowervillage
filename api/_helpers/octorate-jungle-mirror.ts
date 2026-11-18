@@ -12,166 +12,37 @@
  */
 
 import { toThailandDateStr } from './date-formatter.js';
-
-export type JungleSourceStructureId = '807324' | '366879';
-
-export interface JungleTwinRoom {
-  key: 'jv' | 'jvl' | 'jvr' | 'pl';
-  name: string;
-  jungleName: string;
-  jungleStructureId: '807324';
-  jungleMotherId: number;
-  fpvName: string;
-  fpvStructureId: '366879';
-  fpvMotherId: number;
-}
-
-export const JUNGLE_TWIN_ROOMS: JungleTwinRoom[] = [
-  {
-    key: 'jv',
-    name: 'Jungle Villa',
-    jungleName: 'Jungle Villa 2',
-    jungleStructureId: '807324',
-    jungleMotherId: 529773,
-    fpvName: 'Jungle Villa',
-    fpvStructureId: '366879',
-    fpvMotherId: 960389
-  },
-  {
-    key: 'jvl',
-    name: 'Jungle Villa Left',
-    jungleName: 'Jungle Villa Left 2',
-    jungleStructureId: '807324',
-    jungleMotherId: 495795,
-    fpvName: 'Jungle Villa Left',
-    fpvStructureId: '366879',
-    fpvMotherId: 960385
-  },
-  {
-    key: 'jvr',
-    name: 'Jungle Villa Right',
-    jungleName: 'Jungle Villa Right 2',
-    jungleStructureId: '807324',
-    jungleMotherId: 495796,
-    fpvName: 'Jungle Villa Right',
-    fpvStructureId: '366879',
-    fpvMotherId: 960387
-  },
-  {
-    key: 'pl',
-    name: 'Peace & Love Villa',
-    jungleName: 'Peace & Love Villa 2',
-    jungleStructureId: '807324',
-    jungleMotherId: 494840,
-    fpvName: 'Peace & Love Villa',
-    fpvStructureId: '366879',
-    fpvMotherId: 960383
-  }
-];
-
-export interface JungleRatePair {
-  key: JungleTwinRoom['key'];
-  label: string;
-  jungleId: number;
-  fpvId: number;
-  isMother: boolean;
-  isClosedAc: boolean;
-  isBe?: boolean;
-  isStandard7d?: boolean;
-}
-
-/**
- * Mappa esatta verificata Live su Octorate: tutte le 52 coppie (4 Madri + 48 Derivate Sacro Graal).
- */
-export const JUNGLE_RATE_PAIRS: JungleRatePair[] = [
-  // ── 1. Peace & Love Villa (pl) ──────────────────────────────────────────────
-  { key: 'pl', label: 'P&L Mother', jungleId: 494840, fpvId: 960383, isMother: true, isClosedAc: false },
-  { key: 'pl', label: 'P&L BE', jungleId: 495566, fpvId: 960391, isMother: false, isClosedAc: false, isBe: true },
-  { key: 'pl', label: 'P&L 7d', jungleId: 495549, fpvId: 960392, isMother: false, isClosedAc: false, isStandard7d: true },
-  { key: 'pl', label: 'P&L Main bnb-7d', jungleId: 495575, fpvId: 960393, isMother: false, isClosedAc: false },
-  { key: 'pl', label: 'P&L Main bnb-14d', jungleId: 495580, fpvId: 960394, isMother: false, isClosedAc: false },
-  { key: 'pl', label: 'P&L AGD AC-7d', jungleId: 921874, fpvId: 960395, isMother: false, isClosedAc: true },
-  { key: 'pl', label: 'P&L AGD AC-14d', jungleId: 921875, fpvId: 960396, isMother: false, isClosedAc: true },
-  { key: 'pl', label: 'P&L AirBnB', jungleId: 495569, fpvId: 960397, isMother: false, isClosedAc: false },
-  { key: 'pl', label: 'P&L AirBnB AC', jungleId: 495609, fpvId: 960398, isMother: false, isClosedAc: true },
-  { key: 'pl', label: 'P&L AC7d', jungleId: 495552, fpvId: 960399, isMother: false, isClosedAc: true },
-  { key: 'pl', label: 'P&L AC14d', jungleId: 495565, fpvId: 960400, isMother: false, isClosedAc: true },
-  { key: 'pl', label: 'P&L AC bnb-7d', jungleId: 495587, fpvId: 960401, isMother: false, isClosedAc: true },
-  { key: 'pl', label: 'P&L AC bnb-14d', jungleId: 495593, fpvId: 960402, isMother: false, isClosedAc: true },
-
-  // ── 2. Jungle Villa (jv) ────────────────────────────────────────────────────
-  { key: 'jv', label: 'JV Mother', jungleId: 529773, fpvId: 960389, isMother: true, isClosedAc: false },
-  { key: 'jv', label: 'JV BE', jungleId: 529784, fpvId: 960403, isMother: false, isClosedAc: false, isBe: true },
-  { key: 'jv', label: 'JV 7d', jungleId: 529778, fpvId: 960404, isMother: false, isClosedAc: false, isStandard7d: true },
-  { key: 'jv', label: 'JV Main bnb-7d', jungleId: 529788, fpvId: 960405, isMother: false, isClosedAc: false },
-  { key: 'jv', label: 'JV Main bnb-14d', jungleId: 529792, fpvId: 960406, isMother: false, isClosedAc: false },
-  { key: 'jv', label: 'JV AGD AC-7d', jungleId: 921868, fpvId: 960407, isMother: false, isClosedAc: true },
-  { key: 'jv', label: 'JV AGD AC-14d', jungleId: 921869, fpvId: 960408, isMother: false, isClosedAc: true },
-  { key: 'jv', label: 'JV AirBnB', jungleId: 529783, fpvId: 960409, isMother: false, isClosedAc: false },
-  { key: 'jv', label: 'JV AirBnB AC', jungleId: 529813, fpvId: 960410, isMother: false, isClosedAc: true },
-  { key: 'jv', label: 'JV AC7d', jungleId: 529780, fpvId: 960411, isMother: false, isClosedAc: true },
-  { key: 'jv', label: 'JV AC14d', jungleId: 529781, fpvId: 960412, isMother: false, isClosedAc: true },
-  { key: 'jv', label: 'JV AC bnb-7d', jungleId: 916816, fpvId: 960413, isMother: false, isClosedAc: true },
-  { key: 'jv', label: 'JV AC bnb-14d', jungleId: 529801, fpvId: 960414, isMother: false, isClosedAc: true },
-
-  // ── 3. Jungle Villa Left (jvl) ──────────────────────────────────────────────
-  { key: 'jvl', label: 'JVL Mother', jungleId: 495795, fpvId: 960385, isMother: true, isClosedAc: false },
-  { key: 'jvl', label: 'JVL BE', jungleId: 495807, fpvId: 960415, isMother: false, isClosedAc: false, isBe: true },
-  { key: 'jvl', label: 'JVL 7d', jungleId: 495803, fpvId: 960416, isMother: false, isClosedAc: false, isStandard7d: true },
-  { key: 'jvl', label: 'JVL Main bnb-7d', jungleId: 496001, fpvId: 960417, isMother: false, isClosedAc: false },
-  { key: 'jvl', label: 'JVL Main bnb-14d', jungleId: 496009, fpvId: 960418, isMother: false, isClosedAc: false },
-  { key: 'jvl', label: 'JVL AGD AC-7d', jungleId: 921870, fpvId: 960419, isMother: false, isClosedAc: true },
-  { key: 'jvl', label: 'JVL AGD AC-14d', jungleId: 921871, fpvId: 960420, isMother: false, isClosedAc: true },
-  { key: 'jvl', label: 'JVL AirBnB', jungleId: 495810, fpvId: 960421, isMother: false, isClosedAc: false },
-  { key: 'jvl', label: 'JVL AirBnB AC', jungleId: 496057, fpvId: 960422, isMother: false, isClosedAc: true },
-  { key: 'jvl', label: 'JVL AC7d', jungleId: 495805, fpvId: 960423, isMother: false, isClosedAc: true },
-  { key: 'jvl', label: 'JVL AC14d', jungleId: 495806, fpvId: 960424, isMother: false, isClosedAc: true },
-  { key: 'jvl', label: 'JVL AC bnb-7d', jungleId: 496022, fpvId: 960425, isMother: false, isClosedAc: true },
-  { key: 'jvl', label: 'JVL AC bnb-14d', jungleId: 496031, fpvId: 960426, isMother: false, isClosedAc: true },
-
-  // ── 4. Jungle Villa Right (jvr) ─────────────────────────────────────────────
-  { key: 'jvr', label: 'JVR Mother', jungleId: 495796, fpvId: 960387, isMother: true, isClosedAc: false },
-  { key: 'jvr', label: 'JVR BE', jungleId: 495980, fpvId: 960427, isMother: false, isClosedAc: false, isBe: true },
-  { key: 'jvr', label: 'JVR 7d', jungleId: 495976, fpvId: 960428, isMother: false, isClosedAc: false, isStandard7d: true },
-  { key: 'jvr', label: 'JVR Main bnb-7d', jungleId: 496002, fpvId: 960429, isMother: false, isClosedAc: false },
-  { key: 'jvr', label: 'JVR Main bnb-14d', jungleId: 496010, fpvId: 960430, isMother: false, isClosedAc: false },
-  { key: 'jvr', label: 'JVR AGD AC-7d', jungleId: 921872, fpvId: 960431, isMother: false, isClosedAc: true },
-  { key: 'jvr', label: 'JVR AGD AC-14d', jungleId: 921873, fpvId: 960432, isMother: false, isClosedAc: true },
-  { key: 'jvr', label: 'JVR AirBnB', jungleId: 495982, fpvId: 960433, isMother: false, isClosedAc: false },
-  { key: 'jvr', label: 'JVR AirBnB AC', jungleId: 496056, fpvId: 960434, isMother: false, isClosedAc: true },
-  { key: 'jvr', label: 'JVR AC7d', jungleId: 495978, fpvId: 960435, isMother: false, isClosedAc: true },
-  { key: 'jvr', label: 'JVR AC14d', jungleId: 495979, fpvId: 960436, isMother: false, isClosedAc: true },
-  { key: 'jvr', label: 'JVR AC bnb-7d', jungleId: 496021, fpvId: 960437, isMother: false, isClosedAc: true },
-  { key: 'jvr', label: 'JVR AC bnb-14d', jungleId: 496030, fpvId: 960438, isMother: false, isClosedAc: true }
-];
-
-const RATE_PAIR_BY_ID = new Map<number, JungleRatePair>();
-for (const p of JUNGLE_RATE_PAIRS) {
-  RATE_PAIR_BY_ID.set(p.jungleId, p);
-  RATE_PAIR_BY_ID.set(p.fpvId, p);
-}
-
-export function getJungleTwinPairByRateId(id: number | string | null | undefined): JungleRatePair | null {
-  const num = Number(id);
-  if (!num) return null;
-  return RATE_PAIR_BY_ID.get(num) || null;
-}
-
-export function getCompanionRateId(id: number | string | null | undefined): number | null {
-  const num = Number(id);
-  if (!num) return null;
-  const pair = RATE_PAIR_BY_ID.get(num);
-  if (!pair) return null;
-  return pair.jungleId === num ? pair.fpvId : pair.jungleId;
-}
-
-export function getJungleTwinRateIds(structureId: JungleSourceStructureId): number[] {
-  return JUNGLE_RATE_PAIRS.map(p => (structureId === '366879' ? p.fpvId : p.jungleId));
-}
-
-export function getJungleTwinDerivedIds(structureId: JungleSourceStructureId): number[] {
-  return JUNGLE_RATE_PAIRS.filter(p => !p.isMother).map(p => (structureId === '366879' ? p.fpvId : p.jungleId));
-}
+import { postOctorateCalendarBulkWithRetry, parseOctorateTimestampMs } from './octorate-client.js';
+import {
+  JungleSourceStructureId,
+  JungleTwinRoom,
+  JUNGLE_TWIN_ROOMS,
+  JungleRatePair,
+  JUNGLE_RATE_PAIRS,
+  getJungleTwinPairByRateId,
+  getCompanionRateId,
+  getJungleTwinRateIds,
+  getJungleTwinDerivedIds,
+  MIRROR_TAG,
+  isMirrorReservation,
+  resolveTwinByProductOrName
+} from './octorate-catalog.js';
+export {
+  postOctorateCalendarBulkWithRetry,
+  parseOctorateTimestampMs,
+  JungleSourceStructureId,
+  JungleTwinRoom,
+  JUNGLE_TWIN_ROOMS,
+  JungleRatePair,
+  JUNGLE_RATE_PAIRS,
+  getJungleTwinPairByRateId,
+  getCompanionRateId,
+  getJungleTwinRateIds,
+  getJungleTwinDerivedIds,
+  MIRROR_TAG,
+  isMirrorReservation,
+  resolveTwinByProductOrName
+};
 
 /**
  * Restituisce true SOLO per il mese di Luglio (01 Luglio -> 31 Luglio),
@@ -275,76 +146,6 @@ export function expandMinStayEntryWithStandbyKeepAlive(
   return segments;
 }
 
-/**
- * Invia in sequenza chunk verso /calendar/bulk con pausa inter-batch e retry
- * automatico su risposte HTTP 403/429 / API_QUOTA_EXCEEDED di Octorate.
- */
-export async function postOctorateCalendarBulkWithRetry(
-  headers: Record<string, string>,
-  chunks: any[][],
-  options?: {
-    interBatchDelayMs?: number;
-    quotaRetryDelayMs?: number;
-    maxQuotaRetries?: number;
-    logPrefix?: string;
-  }
-): Promise<{ lastStatus: number; succeededItems: number }> {
-  const interBatchDelayMs = options?.interBatchDelayMs ?? 1200;
-  const quotaRetryDelayMs = options?.quotaRetryDelayMs ?? 2500;
-  const maxQuotaRetries = options?.maxQuotaRetries ?? 2;
-  const logPrefix = options?.logPrefix || '[OCTORATE BULK]';
-  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-  let lastStatus = 200;
-  let succeededItems = 0;
-
-  for (let idx = 0; idx < chunks.length; idx++) {
-    const chunk = chunks[idx];
-    if (idx > 0 && interBatchDelayMs > 0) {
-      await sleep(interBatchDelayMs);
-    }
-
-    for (let attempt = 0; attempt <= maxQuotaRetries; attempt++) {
-      const bulkRes = await fetch('https://api.octorate.com/connect/rest/v1/calendar/bulk', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(chunk)
-      });
-      lastStatus = bulkRes.status;
-      const bulkText = await bulkRes.text().catch(() => '');
-      let bulkJson: any = null;
-      try {
-        bulkJson = bulkText ? JSON.parse(bulkText) : null;
-      } catch {
-        // risposta non JSON
-      }
-
-      if (bulkRes.ok && bulkJson?.success !== false) {
-        succeededItems += chunk.length;
-        console.log(`${logPrefix} Bulk batch ${idx + 1}/${chunks.length} sent (${chunk.length} items, HTTP ${bulkRes.status}).`);
-        break;
-      }
-
-      const isQuotaError =
-        bulkRes.status === 403 ||
-        bulkRes.status === 429 ||
-        bulkText.includes('API_QUOTA_EXCEEDED');
-
-      if (isQuotaError && attempt < maxQuotaRetries) {
-        console.warn(`${logPrefix} Quota Octorate (HTTP ${bulkRes.status}) su batch ${idx + 1}/${chunks.length}, attendo ${quotaRetryDelayMs}ms e riprovo (${attempt + 1}/${maxQuotaRetries})...`);
-        await sleep(quotaRetryDelayMs);
-        continue;
-      }
-
-      console.error(`${logPrefix} Errore batch ${idx + 1}/${chunks.length} (HTTP ${bulkRes.status}): ${bulkText.slice(0, 200)}`);
-      break;
-    }
-  }
-
-  return { lastStatus, succeededItems };
-}
-
-export const MIRROR_TAG = '[MIRROR_SYNC]';
 const ACTIVE_SOURCE_CONFIG_ID = 'active_jungle_source_v1';
 const STANDBY_SYNC_LOCK_ID = 'standby_calendar_sync_lock_v1';
 const STANDBY_SYNC_COOLDOWN_MS = 15 * 60 * 1000;
@@ -364,45 +165,6 @@ async function markStandbySyncCompleted(supabaseAdmin: any): Promise<void> {
   } catch (err) {
     console.warn('[JUNGLE MIRROR] Standby sync lock upsert warning:', err);
   }
-}
-
-export function isMirrorReservation(booking: any): boolean {
-  if (!booking) return false;
-  const hay = [
-    booking.privateNotes,
-    booking.notes,
-    booking.refer,
-    booking.channelName,
-    booking.guestName
-  ]
-    .filter(Boolean)
-    .join(' ');
-  return hay.includes(MIRROR_TAG) || String(booking.refer || '').startsWith('MIRROR-');
-}
-
-export function resolveTwinByProductOrName(
-  productId?: number | string | null,
-  roomName?: string | null
-): JungleTwinRoom | null {
-  const pair = getJungleTwinPairByRateId(productId);
-  if (pair) {
-    return JUNGLE_TWIN_ROOMS.find(r => r.key === pair.key) || null;
-  }
-  const s = String(roomName || '').toLowerCase();
-  if (!s) return null;
-  if (s.includes('peace') || s.includes('love') || s.includes('p&l')) {
-    return JUNGLE_TWIN_ROOMS.find(r => r.key === 'pl') || null;
-  }
-  if (s.includes('left') || s.includes('jvl')) {
-    return JUNGLE_TWIN_ROOMS.find(r => r.key === 'jvl') || null;
-  }
-  if (s.includes('right') || s.includes('jvr')) {
-    return JUNGLE_TWIN_ROOMS.find(r => r.key === 'jvr') || null;
-  }
-  if (s.includes('jungle') || s.includes('jv')) {
-    return JUNGLE_TWIN_ROOMS.find(r => r.key === 'jv') || null;
-  }
-  return null;
 }
 
 export async function getActiveJungleSource(supabaseAdmin: any): Promise<JungleSourceStructureId> {
@@ -2126,13 +1888,6 @@ async function verifyStructureCalendarState(
     checkedEntries: targets.length,
     mismatches: lastMismatches
   };
-}
-
-export function parseOctorateTimestampMs(raw?: string | null): number {
-  if (!raw) return 0;
-  const cleaned = String(raw).trim().replace(/\[[^\]]+\]$/, '');
-  const ms = Date.parse(cleaned);
-  return Number.isNaN(ms) ? 0 : ms;
 }
 
 interface TwinReservationLite {

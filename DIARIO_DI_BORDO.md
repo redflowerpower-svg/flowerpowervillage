@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🛡️ [18/11/2026 - ORE 15:08] · COMPLETAMENTO FASE 2 & FASE 3: LAYER BASE OCTORATE & FIREWALL COMPARTIMENTI STAGNI
+- **Cosa abbiamo fatto:**
+  1. 🧱 **Fase 2 — Disaccoppiamento Layer Base Octorate**:
+     - Creato `api/_helpers/octorate-client.ts` (trasporto puro `postOctorateCalendarBulkWithRetry` e parser timestamp `parseOctorateTimestampMs`, zero dipendenze di dominio).
+     - Creato `api/_helpers/octorate-catalog.ts` (catalogo unico 18 alloggi, coppie gemelle Jungle/FPV, piani reali/test, ID madri).
+     - Creato `api/_helpers/octorate-minstay.ts` (motore puro offline-testabile `calculateServerDynamicMinStay` e `DynamicMinStayUpdate`).
+     - Mantenuti i re-export di retrocompatibilità su `octorate-jungle-mirror.ts`, `octorate-webhook.ts`, `update-restriction.ts`, `resort-sentinel.ts` e rimosse le dipendenze incrociate tra handler (`resort-sentinel.ts` non importa più nulla da `octorate-webhook.ts` né da `update-restriction.ts`).
+  2. 🔒 **Fase 3 — Firewall Automatico Compartimenti Stagni & Contratto Pizzeria**:
+     - Creato `tests/booking/compartment-boundaries.contract.test.ts`: verifica automaticamente ad ogni `npm run verify:all` l'isolamento orizzontale tra macro-reparti (`/villaggio`, `/pizze`, `/social`, `/docs`) su Backend e Frontend (con congelamento esplicito del ponte read-only vini di `VillageWineManager.tsx`), il divieto di import `helper -> handler` e la purezza del Layer Base Octorate.
+     - Creato `tests/booking/pizza-compartment.contract.test.ts`: blinda il geofence a 10 vertici di Ranong (`geofence.ts`).
+  3. 📖 **Aggiornamento Regole Operative**: Estesa la Regola 25 in `.agents/AGENTS.md`.
+- **Verifica:** `npm run verify:all` (`api:check` + 26 test contrattuali + `vite build`) superato al 100%.
+- **Stato:** 🟢 COMPLETATO CON SUCCESSO.
+
+---
+
 ### 🟢 [18/11/2026 - ORE 13:55] · ESECUZIONE CLOUD UFFICIALE SLOT 08:00 & CONSEGNA POST + VIDEO LM1 SU TELEGRAM TOPIC 2
 - **Cosa abbiamo fatto:**
   1. 🎬 **Rendering Serverless LM1 con le 5 Stanze Future Reali**:

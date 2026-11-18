@@ -1,6 +1,6 @@
 import { sendDepartmentTelegramMessage } from "./telegram.js";
 import { formatDateDMY, toThailandDateStr } from "./date-formatter.js";
-import { isMirrorReservation } from "./octorate-jungle-mirror.js";
+import { isMirrorReservation } from "./octorate-catalog.js";
 
 export interface CanonicalAccommodation {
   key: string;

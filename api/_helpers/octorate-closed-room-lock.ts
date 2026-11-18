@@ -10,7 +10,7 @@
  *   su Madre e su TUTTE le tariffe derivate.
  * - Viene eseguito in tempo reale dal Webhook Octorate e verificato periodicamente da Resort Sentinel.
  */
-import { postOctorateCalendarBulkWithRetry } from "./octorate-jungle-mirror.js";
+import { postOctorateCalendarBulkWithRetry } from "./octorate-client.js";
 
 export const CLOSED_ROOM_LOCKS_ROW_ID = "resort_closed_room_locks_v1";
 
