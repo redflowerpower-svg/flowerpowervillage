@@ -578,6 +578,31 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
     ));
   }
 
+  if (mode === 'V3_SOLDOUT' || mode === 'V1_SOLDOUT') {
+    return sanitizeSocialBullets(applyUnicodeBoldHook(
+      `🇬🇧 Pure island serenity at Buffalo Bay, Koh Phayam! 🌴✨\n\n` +
+      `We are grateful to announce that Flower Power Village is fully booked for tonight! 🌺🙏\n\n` +
+      `▫️ Charming wooden bungalows nestled in a lush tropical garden 🌿\n` +
+      `▫️ King size beds, private hammocks & high-speed Wi-Fi 📶\n` +
+      `▫️ Authentic Italian restaurant & scooter rental on-site 🍝🛵\n\n` +
+      `Enjoy this video tour of our resort accommodations! Planning your next tropical getaway? Explore our rooms and reserve your stay in advance with direct booking.\n\n` +
+      `🏝️ Direct Booking & Details: flowerpowervillage.com\n` +
+      `💬 WhatsApp Concierge: +66 (0)95.882.5573\n` +
+      `📍 Buffalo Bay, Koh Phayam Island\n` +
+      `@flowerpowerphayam\n\n` +
+      `🇹🇭 สัมผัสความเงียบสงบในธรรมชาติที่อ่าวเขาควาย เกาะพยาม 🌴✨\n\n` +
+      `คืนนี้ที่พัก Flower Power Village เต็มทุกห้องแล้วนะครับ ขอขอบคุณลูกค้าทุกท่านที่ให้การสนับสนุนเป็นอย่างดีครับ! 🌺🙏\n\n` +
+      `▫️ บังกะโลไม้ส่วนตัวท่ามกลางสวนทรอปิคอลเขียวขจี 🌿\n` +
+      `▫️ เตียงคิงไซส์ เปลญวนพักผ่อน และอินเทอร์เน็ตความเร็วสูง 📶\n` +
+      `▫️ ร้านอาหารอิตาเลียนแท้ และบริการเช่ามอเตอร์ไซค์ 🍝🛵\n\n` +
+      `ชมบรรยากาศบ้านพักแต่ละแบบในคลิปนี้ได้เลยครับ! วางแผนพักผ่อนรอบถัดไป จองตรงล่วงหน้ากับเราได้ตลอดเวลานะครับ\n\n` +
+      `🏝️ จองตรงสะดวกและรวดเร็ว: flowerpowervillage.com\n` +
+      `💬 ติดต่อสอบถามทาง WhatsApp: +66 (0)95.882.5573\n` +
+      `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
+      `#KohPhayam #PhayamBungalow #KohPhayamResort #BuffaloBay #TropicalEscape #ThailandTravel #เกาะพยาม #ที่พักเกาะพยาม #อ่าวเขาควาย`
+    ));
+  }
+
   if (mode === 'LM1') {
     return sanitizeSocialBullets(applyUnicodeBoldHook(
       `🇬🇧 Looking for peaceful bungalows surrounded by tropical greenery in Koh Phayam? 🌴✨\n\n` +
@@ -603,11 +628,11 @@ function getBilingualPostCopy(mode, brand, officialCopy) {
   if (!isPizza) {
     // Villaggio: V1, V2, V3 (1° Inglese, 2° Thai, Zero Sunset/Tramonto, Zero Italiano)
     return sanitizeSocialBullets(applyUnicodeBoldHook(
-      `🇬🇧 Pure island serenity at Buffalo Bay, Koh Phayam! 🌴 Gentle sea breeze, lush tropical garden, king size beds and quiet peace. Escape the ordinary and unwind in nature. 🌊🌿\n\n` +
+      `🇬🇧 Pure island serenity at Buffalo Bay, Koh Phayam! 🌴 Lush tropical greenery, king size beds and peaceful nature. Escape the ordinary and unwind in comfort. 🌿✨\n\n` +
       `🏝️ Direct booking: flowerpowervillage.com\n` +
       `📍 Buffalo Bay, Koh Phayam Island\n` +
       `@flowerpowerphayam\n\n` +
-      `🇹🇭 ความสุขที่แท้จริงคือความเงียบสงบในธรรมชาติ เกาะพยาม 🌴 พักผ่อนในสวนทรอปิคอลเขียวขจี อ่าวเขาควาย ลมทะเลพัดเย็นสบายและความสงบสุข 🌊🌿✨\n\n` +
+      `🇹🇭 ความสุขที่แท้จริงคือความเงียบสงบในธรรมชาติ เกาะพยาม 🌴 พักผ่อนในสวนทรอปิคอลเขียวขจี อ่าวเขาควาย บรรยากาศร่มรื่นและความสงบสุข 🌿✨\n\n` +
       `🏝️ จองตรงราคาดีที่สุด: flowerpowervillage.com\n` +
       `📍 อ่าวเขาควาย เกาะพยาม จ.ระนอง\n\n` +
       `#KohPhayam #BuffaloBay #PhayamIsland #TropicalResort #RanongTravel #เกาะพยาม #อ่าวเขาควาย #เที่ยวระนอง`
@@ -1358,6 +1383,25 @@ async function renderVideoMode(mode, maxAttempts = 2) {
 
     const res = spawnSync('node', runArgs, { stdio: 'inherit' });
     if (res.status === 0) {
+      // Verifica se il formato è andato in Sold Out (es. LM1 con 0 alloggi liberi su Octorate)
+      const soldOutFile = path.join(outDir, `${mode}.soldout.json`);
+      if (fs.existsSync(soldOutFile)) {
+        try {
+          const soData = JSON.parse(fs.readFileSync(soldOutFile, 'utf8'));
+          if (soData.fullyBooked) {
+            console.log(`[scheduler-dispatch] ℹ️ Formato ${mode}: Resort 100% Sold Out (0 alloggi disponibili oggi).`);
+            return {
+              fullyBooked: true,
+              count: 0,
+              filePath: null,
+              copy: null
+            };
+          }
+        } catch (soErr) {
+          console.warn('[scheduler-dispatch] Errore lettura soldout JSON:', soErr.message);
+        }
+      }
+
       // Verifica presenza video
       const candidates = [
         path.join(outDir, `${mode}.dispatch.mp4`),
@@ -1480,30 +1524,62 @@ async function run() {
 
     // 3. Reel Gruppo Facebook Koh Phayam: LM1 Alloggi Liberi Oggi (Topic 2: video + scheda bilingue 🇬🇧+🇹🇭)
     const lm1Res = await renderVideoMode('LM1');
-    const lm1Text = getBilingualPostCopy('LM1', 'village', lm1Res.copy);
 
-    await sendOfficialTelegramPost({
-      topicId: TOPIC_KOH_PHAYAM_GROUP,
-      title: 'Alloggi Disponibili Oggi a Koh Phayam · Reel & Post Community',
-      format: 'LM1',
-      brand: 'village',
-      priceBadge: 'Sconto Cascata Live',
-      copyText: lm1Text,
-      filePath: lm1Res.filePath
-    });
+    if (lm1Res && lm1Res.fullyBooked) {
+      console.log(`🌴 [08:00 BANGKOK] Resort 100% Sold Out oggi su Koh Phayam (0 alloggi liberi su Octorate).`);
+      console.log(`👉 Fallback elegante: rendering ed invio video Villaggio V3 (senza prezzi) a Topic 2 per il Gruppo Facebook.`);
 
-    await sendPublishedLog({
-      brand: 'village',
-      channel: '👥 Gruppo Facebook Koh Phayam + 🎵 TikTok/IG Stories',
-      format: 'LM1 / P1 / V1',
-      title: 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
-      details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Post Alloggi LM1 su Topic 2 con testo bilingue 🇬🇧+🇹🇭 e tasti interattivi'
-    });
-    executedSummary = {
-      brand: 'flowerpower',
-      title: 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
-      details: 'Consegnate 2 Stories su Topic 3 e 1 Post Alloggi LM1 su Topic 2'
-    };
+      const v3Res = await renderVideoMode('V3');
+      const soldOutText = getBilingualPostCopy('V3_SOLDOUT', 'village', v3Res.copy);
+
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_KOH_PHAYAM_GROUP,
+        title: 'Tour Alloggi nel Verde a Koh Phayam · Post Community (Sold Out Tonight)',
+        format: 'V3',
+        brand: 'village',
+        copyText: soldOutText,
+        filePath: v3Res.filePath
+      });
+
+      await sendPublishedLog({
+        brand: 'village',
+        channel: '👥 Gruppo Facebook Koh Phayam + 🎵 TikTok/IG Stories',
+        format: 'V3 / P1 / V1 (LM1 Sold Out)',
+        title: 'Stories Mattutine Ranong & Phayam + Tour Alloggi V3 (Resort Sold Out)',
+        details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Reel V3 senza prezzi su Topic 2 per il Gruppo Facebook (Resort 100% Sold Out per stanotte)'
+      });
+
+      executedSummary = {
+        brand: 'flowerpower',
+        title: 'Stories Mattutine Ranong & Phayam + Tour Alloggi V3 (Sold Out)',
+        details: 'Consegnate 2 Stories su Topic 3 e 1 Post Alloggi V3 senza prezzi su Topic 2'
+      };
+    } else {
+      const lm1Text = getBilingualPostCopy('LM1', 'village', lm1Res.copy);
+
+      await sendOfficialTelegramPost({
+        topicId: TOPIC_KOH_PHAYAM_GROUP,
+        title: 'Alloggi Disponibili Oggi a Koh Phayam · Reel & Post Community',
+        format: 'LM1',
+        brand: 'village',
+        priceBadge: 'Sconto Cascata Live',
+        copyText: lm1Text,
+        filePath: lm1Res.filePath
+      });
+
+      await sendPublishedLog({
+        brand: 'village',
+        channel: '👥 Gruppo Facebook Koh Phayam + 🎵 TikTok/IG Stories',
+        format: 'LM1 / P1 / V1',
+        title: 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
+        details: 'Consegnate 2 Stories 9:16 su Topic 3 (P1 Pizza + V1 Villaggio) e 1 Post Alloggi LM1 su Topic 2 con testo bilingue 🇬🇧+🇹🇭 e tasti interattivi'
+      });
+      executedSummary = {
+        brand: 'flowerpower',
+        title: 'Stories Mattutine Ranong & Phayam + Post Alloggi LM1',
+        details: 'Consegnate 2 Stories su Topic 3 e 1 Post Alloggi LM1 su Topic 2'
+      };
+    }
   } else if (is0930) {
     console.log(`🌿 [09:30 BANGKOK] Slot Story Mattino — PUBBLICAZIONE INSTAGRAM STORIES V1`);
     const storyRes = await renderVideoMode('V1');
