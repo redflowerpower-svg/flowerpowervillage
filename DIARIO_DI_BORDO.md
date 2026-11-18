@@ -3,6 +3,28 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟢 [18/11/2026 - ORE 13:55] · ESECUZIONE CLOUD UFFICIALE SLOT 08:00 & CONSEGNA POST + VIDEO LM1 SU TELEGRAM TOPIC 2
+- **Cosa abbiamo fatto:**
+  1. 🎬 **Rendering Serverless LM1 con le 5 Stanze Future Reali**:
+     - Eseguito con successo il runner cloud [GitHub Actions Run #1229](https://github.com/redflowerpower-svg/flowerpowervillage/actions/runs/44254035724) per lo slot 08:00.
+     - Playwright ha interrogato Octorate su 7 giorni, rilevato il sold-out per stasera e generato il video LM1 con le **5 sistemazioni future reali** in perfetto ordine cronologico:
+       1) *Internal Room* (Tomorrow 19 Nov: 468 ฿)
+       2) *Villa Penthouse* (Tomorrow 19 Nov: 1,060 ฿)
+       3) *Green Bungalow* (20 Nov: 852 ฿)
+       4) *Lagoon Tent* (21 Nov: 580 ฿)
+       5) *Red Bungalow* (21 Nov: 949 ฿)
+  2. 🎨 **Layout LM1 Sincronizzato 1:1 con il Post**:
+     - Ciascuna scena include il badge data in alto (`✦ 📅 FROM TOMORROW 19 NOV`, `✦ 📅 FROM 20 NOV`, ecc.), il titolo dell'alloggio, il sottotitolo, la descrizione Thai e il box giallo in basso a sinistra con il prezzo reale scontato.
+     - Muxing audio offline locale FFmpeg con colonna sonora del Villaggio e archiviazione su Google Drive 5TB (Zero Supabase Egress).
+  3. 📲 **Consegna Completa su Telegram Topic 2 (Koh Phayam Group)**:
+     - Recapitato il video Full HD 9:16 `LM1.dispatch.mp4` (13.2 MB).
+     - Recapitato il testo bilingue conciso con lo sconto 10% sul sito e pulsante per aprire il Gruppo Facebook.
+     - Registrato il lock di completamento su Neon Database (`id: 132`, slot `08:00`, `completed`).
+- **File di Riferimento:** `scripts/social-scheduler-dispatch.mjs`, `src/social/services/autoCutLabEngine.ts`, `walkthrough.md`.
+- **Stato:** 🟢 COMPLETATO CON SUCCESSO.
+
+---
+
 ### 🔍 [18/11/2026 - ORE 12:18] · APPROFONDIMENTO CANCELLAZIONE AGODA & SBLOCCO JUNGLE VILLA RIGHT
 - **Cosa abbiamo fatto:**
   1. 🔎 **Identificazione Prenotazione Agoda Cancellata (Jeroen Vuyk)**:
