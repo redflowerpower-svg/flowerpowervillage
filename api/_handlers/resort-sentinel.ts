@@ -1,8 +1,18 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
-import { REAL_PRODUCTS_BY_PLAN } from "./update-restriction.js";
-import { calculateServerDynamicMinStay, ALL_ACCOMMODATIONS_MAP } from "./octorate-webhook.js";
+import { calculateServerDynamicMinStay } from "../_helpers/octorate-minstay.js";
+import {
+  ALL_ACCOMMODATIONS_MAP,
+  FAKE_BUNGALOW_MOTHER_IDS,
+  getCompanionRateId,
+  getJungleTwinPairByRateId,
+  isMirrorReservation,
+  JUNGLE_RATE_PAIRS,
+  MOTHER_ROOM_INFOS,
+  REAL_PRODUCTS_BY_PLAN
+} from "../_helpers/octorate-catalog.js";
+export { MOTHER_ROOM_INFOS, FAKE_BUNGALOW_MOTHER_IDS };
 import { checkAndSyncCascadeLastMinute, loadCascadeLedger, getThailandTodayStr } from "../_helpers/octorate-cascade-sync.js";
 import { ALL_OCTORATE_STRUCTURE_IDS } from "../_helpers/octorate-structures.js";
 import { clearOctorateGridCache } from "./octorate.js";
@@ -11,16 +21,12 @@ import {
   loadClosedRoomLocks,
   resolveLockableRoom
 } from "../_helpers/octorate-closed-room-lock.js";
+import { postOctorateCalendarBulkWithRetry } from "../_helpers/octorate-client.js";
 import {
   collectOccupiedDatesByTwinKey,
   expandMinStayEntryWithStandbyKeepAlive,
   getActiveJungleSource,
-  getCompanionRateId,
-  getJungleTwinPairByRateId,
-  isMirrorReservation,
   isTwinKeyOccupiedOnDate,
-  JUNGLE_RATE_PAIRS,
-  postOctorateCalendarBulkWithRetry,
   shouldTwinRateStayClosedOnDate,
   syncActiveToStandbyCalendar
 } from "../_helpers/octorate-jungle-mirror.js";
@@ -30,33 +36,6 @@ function getSupabaseAdmin() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
   return (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl, serviceRoleKey) : null;
 }
-
-export const MOTHER_ROOM_INFOS: Record<number, { name: string; basePrice: number }> = {
-  529773: { name: 'Jungle Villa 2', basePrice: 2290 },
-  495795: { name: 'Jungle Villa Left 2', basePrice: 1290 },
-  495796: { name: 'Jungle Villa Right 2', basePrice: 1290 },
-  494840: { name: 'Peace & Love Villa 2', basePrice: 1290 },
-  960389: { name: 'Jungle Villa', basePrice: 2290 },
-  960385: { name: 'Jungle Villa Left', basePrice: 1290 },
-  960387: { name: 'Jungle Villa Right', basePrice: 1290 },
-  960383: { name: 'Peace & Love Villa', basePrice: 1290 },
-  421511: { name: 'Penthouse Villa', basePrice: 1290 },
-  293957: { name: 'Yellow Bungalow', basePrice: 990 },
-  293954: { name: 'Red Bungalow', basePrice: 790 },
-  293962: { name: 'Green Bungalow', basePrice: 790 },
-  293965: { name: 'Camel Tent', basePrice: 430 },
-  293955: { name: 'Lagoon Tent', basePrice: 430 },
-  293942: { name: 'Internal room', basePrice: 430 },
-  293963: { name: 'Room 1', basePrice: 790 },
-  293959: { name: 'Room 2', basePrice: 790 },
-  293948: { name: 'Room 3', basePrice: 790 },
-  293945: { name: 'Room 4', basePrice: 790 },
-  293943: { name: 'Room 5', basePrice: 790 },
-  293951: { name: 'Lodge 1', basePrice: 890 },
-  883795: { name: 'Lodge 2', basePrice: 890 }
-};
-
-export const FAKE_BUNGALOW_MOTHER_IDS = [649669, 921799] as const;
 
 export interface SentinelAuditResult {
   timestamp: string;

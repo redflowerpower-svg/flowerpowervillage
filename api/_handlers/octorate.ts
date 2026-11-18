@@ -6,6 +6,7 @@ import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
 import { executeOctorateMove } from "../_helpers/octorate-move.js";
+import { postOctorateCalendarBulkWithRetry } from "../_helpers/octorate-client.js";
 import {
   computeStandbyKeepAlivePrice,
   expandMinStayEntryWithStandbyKeepAlive,
@@ -13,7 +14,6 @@ import {
   getCompanionRateId,
   getJungleTwinPairByRateId,
   isLowSeasonKeepAliveDate,
-  postOctorateCalendarBulkWithRetry,
   switchActiveJungleStructure,
   syncActiveToStandbyCalendar,
   JungleSourceStructureId
