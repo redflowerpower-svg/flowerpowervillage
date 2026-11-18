@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { sendDepartmentTelegramMessage } from './telegram.js';
-import { formatDateDMY } from './date-formatter.js';
+import { formatDateDMY, toThailandDateStr } from './date-formatter.js';
 
 /**
  * Identifica se una prenotazione Octorate è DIRETTA:
@@ -264,8 +264,8 @@ export async function handleDirectReservationCancellation(booking: any): Promise
   const guestName = (booking.guestName || `${booking.firstName || ''} ${booking.lastName || ''}`).trim() || 'Ospite';
   const guestEmail = (booking.guestMailAddress || booking.email || booking.customerEmail || '').trim();
   const roomName = booking.roomName || booking.room?.name || 'Alloggio Flower Power';
-  const checkIn = (booking.checkin || booking.checkIn || '').slice(0, 10);
-  const checkOut = (booking.checkout || booking.checkOut || '').slice(0, 10);
+  const checkIn = toThailandDateStr(booking.checkin || booking.checkIn);
+  const checkOut = toThailandDateStr(booking.checkout || booking.checkOut);
   const channelName = booking.channelName || (booking.channelId === 233 ? 'Sito Web Diretto' : 'Octorate Diretto');
 
   // Detect language: IT, EN, TH, DE

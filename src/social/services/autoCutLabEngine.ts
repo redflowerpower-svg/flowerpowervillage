@@ -1284,8 +1284,8 @@ export function generateV3Test(): AutoCutTestRun {
       titleSecondary: lodging.nameTh, // 🇹🇭 Traduzione secca in Thai
       lodgingTitle: lodging.lodgingTitle,
       lodgingSubtitle: lodging.lodgingSubtitle,
-      priceLabel: `Last Minute Price: ${lodging.octoratePrice.toLocaleString('en-US')} ฿`,
-      priceValue: lodging.octoratePrice,
+      priceLabel: '',
+      priceValue: 0,
       trajectory: TRAJECTORIES_SEQUENCE[idx % TRAJECTORIES_SEQUENCE.length],
       badgeCategory: lodging.category,
       sourceName: lodging.nameEn

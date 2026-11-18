@@ -287,7 +287,16 @@ async function main() {
     const lm1Count = await page.evaluate(() => window.__autoCutLm1Count);
     log(`Disponibilità live LM1 caricata: ${lm1Count ?? 'N/D'} alloggi reali liberi oggi.`);
     if (lm1Count === 0) {
-      throw new Error('LM1: 0 alloggi disponibili oggi su Octorate (Flower Power Village, Jungle Villas, Hubitat).');
+      log('ℹ️ [LM1] 0 alloggi disponibili oggi su Octorate: Resort 100% Sold Out per stanotte.');
+      const soldOutFile = path.join(outDir, `${mode}.soldout.json`);
+      fs.writeFileSync(soldOutFile, JSON.stringify({
+        fullyBooked: true,
+        count: 0,
+        timestamp: new Date().toISOString()
+      }, null, 2));
+      await browser.close();
+      log('Chiusura pulita processo Playwright (Sold Out gestito con successo).');
+      process.exit(0);
     }
     await page.waitForTimeout(600);
     await page.waitForFunction(() => typeof window.__autoCutGetVideo === 'function', null, { timeout: 30000 });

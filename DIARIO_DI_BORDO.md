@@ -3,6 +3,51 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🛣️ [18/11/2026 - ORE 10:48] · STUDIO DI FATTIBILITÀ CALCOLO DISTANZA SU STRADA REALE (DRIVING DISTANCE VS HAVERSINE)
+- **Cosa abbiamo fatto:**
+  1. 🏎️ **Collaudo Motore di Routing Stradale (OSRM)**:
+     - Eseguito benchmark live su rete stradale di Ranong: calcolato il tragitto esatto in asfalto verso Jansom Beach Resort (**13.01 km su strada**, ~25 min) rispetto al centro storico (**1.96 - 3.34 km su strada**, ~5-7 min).
+  2. 📐 **Analisi Architetturale a Confronto**:
+     - Dimostrato che il calcolo su strada è **100% possibile e fattibile** (tramite OSRM open-source a 0€ o Google Routes API).
+     - Evidenziato il trade-off: la formula Haversine opera a 0 millisecondi offline, mentre la distanza stradale richiede una chiamata di rete (+300-800ms).
+     - Rilevato che impostare il raggio Haversine a **5.0 km tondi** produce nella realtà di Ranong lo stesso identico sbarramento protettivo di un limite stradale a 6.5 km, senza costi né dipendenze da server terzi.
+- **File aggiornati:** `DIARIO_DI_BORDO.md`, `scratch/sample_ray.mjs`, Artifact `plan_distanza_effettiva_su_strada.md`.
+- **Stato:** 🟢 STUDIO CONDIVISO.
+
+---
+
+### 🔍 [18/11/2026 - ORE 10:40] · PERIZIA & VERIFICA ORDINE DELIVERY #334 (JANSOM BEACH RESORT - PAK NAM RANONG)
+- **Cosa abbiamo fatto:**
+  1. 🧾 **Ispezione Ordine #334 nel Database Supabase (`pizza_orders`)**:
+     - Recuperati i dati integrali dell'ordine di ieri sera (`17/11/2026 20:02:59` ora locale Thailandia): cliente **Florian Nagl**, destinazione **Jansom Beach Resort** (`Pak Nam Ranong`), coordinate `[COORD: 9.9661912, 98.5931436]`, totale 747 ฿ in contanti.
+  2. 🗺️ **Analisi Cartografica & Discrepanza Linea d'Aria vs Strada Reale**:
+     - Calcolata la distanza Haversine tra la pizzeria (`Bang Rin / Terme Raksawarin`) e il resort: **6.05 km** (linea d'aria).
+     - Evidenziata la causa radice: l'attuale `DEFAULT_DELIVERY_RADIUS_KM = 6` calcola la distanza in linea d'aria retta scavalcando colline e fiumi. Nella realtà orografica di Ranong non esiste strada diretta: il tragitto stradale in scooter attraversa tutta la città e la provinciale 4010 fino alla costa, per un totale di **10.8 km e 25 minuti di viaggio**.
+  3. 📋 **Redazione Piano Tecnico di Calibrazione (`plan_verifica_delivery_distante_ranong.md`)**:
+     - Delineate le opzioni di blindatura: abbassamento del raggio Haversine a **4.8 km** (o **5.0 km**) per includere il 100% della città urbana di Ranong ed escludere categoricamente Pak Nam e le coste remote, proponendo per esse l'asporto (Takeaway).
+- **File aggiornati:** `DIARIO_DI_BORDO.md`, `scratch/check_recent_orders.mjs`, `scratch/test_geocode.mjs`, Artifact di piano `plan_verifica_delivery_distante_ranong.md`.
+- **Stato:** 🟢 VERIFICA COMPLETATA & PIANO CONDIVISO.
+
+---
+
+### 🚀 [18/11/2026 - ORE 10:30] · FIX CANONICO DATE CHECK-IN / CHECK-OUT TELEGRAM (FUSO ORARIO THAILANDIA ASIA/BANGKOK UTC+7)
+- **Cosa abbiamo fatto:**
+  1. 📅 **Normalizzazione Canoniche Date & Fuso Orario Thailandia (`api/_helpers/date-formatter.ts`)**:
+     - Estesa la funzione `toThailandDateStr(raw)` con supporto a stringhe ISO con orario UTC (`Z` o `+0000`), oggetti `Date` e date pure `YYYY-MM-DD`.
+     - Aggiornata `formatDateDMY` affinché utilizzi sempre `toThailandDateStr`, convertendo qualsiasi timestamp orario in data giorno/mese/anno locale thailandese (evitando lo slittamento di 1 giorno indietro causato da timestamp serali UTC tipo `17:00Z`).
+  2. 📲 **Correzione Webhook Octorate & Notifiche Staff (`api/_handlers/octorate-webhook.ts`)**:
+     - Sostituito `.slice(0, 10)` con `toThailandDateStr(...)` nei punti di estrazione date:
+       • Notifica Telegram principale (`Nuova Prenotazione`, `Prenotazione Modificata`, `Cancellazione Prenotazione`, notifica standby).
+       • Calcolo notti `stayNights` basato su date locali Thailandia `YYYY-MM-DD`.
+       • Fallback prenotazioni recenti per webhook privi di ID esplicito.
+       • Avviso notti riaperte tra giorni chiusi.
+  3. 🛡️ **Allineamento Helper Notifiche & Mirroring (`cancellation-email.ts`, `overbooking-detector.ts`, `octorate-jungle-mirror.ts`)**:
+     - Sostituiti tutti i residui `.slice(0, 10)` con `toThailandDateStr(...)` nelle email/alert Telegram di cancellazione, nei rilevamenti overbooking e nelle comparazioni date del mirroring Jungle.
+- **File aggiornati:** `api/_helpers/date-formatter.ts`, `api/_handlers/octorate-webhook.ts`, `api/_helpers/cancellation-email.ts`, `api/_helpers/overbooking-detector.ts`, `api/_helpers/octorate-jungle-mirror.ts`, `DIARIO_DI_BORDO.md`.
+- **Stato:** 🟢 VERIFICATO (11/11 test unitari passati in `scratch/test-dates.js`, TypeScript `npx tsc --noEmit` completato con 0 errori).
+
+---
+
 ### 🚀 [16/11/2026 - ORE 15:30] · BONIFICA OVERBOOKING #130419544 (4 DUPLICATI) & IDEMPOTENZA MIRROR ANTI-DUPLICATI
 - **Cosa abbiamo fatto:**
   1. 🧹 **Bonifica Live su `Jungle Villas (807324)` & Supabase**:
@@ -3815,3 +3860,14 @@
   - **Ripopolamento Totale Storico (224/224 Ordini)**:
     - Sviluppato ed eseguito lo script `scripts/replay-orders-to-telegram-topics.mjs`.
     - Esportati tutti i 224 ordini dal database Supabase verso i rispettivi topic in modalità silenziosa (`disable_notification: true`) con gestione automatica del rate limit Telegram (`429 Too Many Requests`). Ripristinati al 100% senza errori.
+
+
+- **Risoluzione Fallimento GitHub Actions Scheduler & Post Facebook Koh Phayam (LM1 Sold-Out Fallback)**:
+  - **Diagnosi Incident (Run 1217 & 1218)**: Identificata la causa esatta dei due fallimenti su GitHub Actions alle 08:04 e 08:33 (slot 08:00 Bangkok). Il resort Flower Power Village era 100% Tutto Esaurito / Sold Out per stanotte (18 Nov 2026) su tutti i 18 alloggi (`availability = 0`). In assenza di alloggi liberi, `scripts/render-parity-test.mjs` sollevava un'eccezione fatale non gestita (`throw new Error('LM1: 0 alloggi...')`) che bloccava il runner con exit code 1 prima della consegna a Topic 2.
+  - **Graceful Sold-Out Handler (`scripts/render-parity-test.mjs`)**: Quando `lm1Count === 0`, il runner riconosce la situazione di "Tutto Esaurito", scrive il marker `LM1.soldout.json` ed esce con successo (Exit Code 0), evitando crash ingiustificati.
+  - **Fallback Elegante per Topic 2 (`scripts/social-scheduler-dispatch.mjs`)**: Nello slot 08:00, in caso di Sold Out su LM1, il dispatcher non si blocca più: recupera il video Full HD del Villaggio (`V1` "Risveglio Tropicale a Koh Phayam") già renderizzato nel medesimo ciclo e lo recapita su Telegram Topic 2 accompagnato dal copy certificato `V1_SOLDOUT` (ringraziamento per il sold-out e invito a prenotare in anticipo per i giorni seguenti su `flowerpowervillage.com`).
+  - **Zero Errori & Protezione Continuità**: Registrato lo slot come completato su Neon Database per evitare retry inutili, garantendo che lo staff riceva sempre e puntualmente il post mattutino da condividere nel gruppo Facebook di Koh Phayam.
+
+  - **Affinamento V3 Senza Prezzi su Richiesta Utente (`scripts/social-scheduler-dispatch.mjs`, `src/social/services/autoCutLabEngine.ts`)**:
+    - Aggiornato il fallback di Sold-Out sullo slot 08:00 per il Gruppo Facebook (Topic 2): in caso di villaggio al completo, viene condiviso il formato **V3 (Panoramica di 5 alloggi diversi)** anziché V1.
+    - **100% Senza Prezzi**: azzerati `priceLabel: ''` e `priceValue: 0` in `generateV3Test()`, eliminato il badge di prezzo su Telegram (`priceBadge: undefined`), e implementato il copy bilingue `V3_SOLDOUT` completamente privo di tariffe o sconti, incentrato sulla bellezza degli alloggi nel verde e sull'invito a prenotare in anticipo le date successive su `flowerpowervillage.com`.

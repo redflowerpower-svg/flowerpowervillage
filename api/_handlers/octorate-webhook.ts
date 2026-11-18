@@ -5,7 +5,7 @@ import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync
 import { handleDirectReservationCancellation } from "../_helpers/cancellation-email.js";
 import { checkAndNotifyOverbookings } from "../_helpers/overbooking-detector.js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
-import { formatDateDMY } from "../_helpers/date-formatter.js";
+import { formatDateDMY, toThailandDateStr } from "../_helpers/date-formatter.js";
 import { clearOctorateGridCache } from "./octorate.js";
 import { ALL_OCTORATE_STRUCTURE_IDS, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
 import {
@@ -211,28 +211,6 @@ const WEBHOOK_MIN_STAY_TIMELINE = [
   { dateFrom: '2027-01-16', dateTo: '2027-03-31', minStay: 3 },
   { dateFrom: '2027-04-01', dateTo: '2027-10-31', minStay: 2 }
 ];
-
-function toThailandDateStr(raw: any): string {
-  if (!raw) return '';
-  const s = String(raw).trim();
-  if (!s) return '';
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  const d = new Date(s);
-  if (isNaN(d.getTime())) return s.slice(0, 10);
-  try {
-    return new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Bangkok',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).format(d);
-  } catch (e) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
-}
 
 function getBaselineMinStay(dateStr: string): number {
   if (!dateStr || typeof dateStr !== 'string') return 2;
@@ -1262,8 +1240,8 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
             for (const { booking: cand, cMs, uMs } of recentNonMirrors) {
               const candId = String(cand.id);
-              const candIn = String(cand.checkin || cand.checkIn || cand.check_in || cand.startDate || '').slice(0, 10);
-              const candOut = String(cand.checkout || cand.checkOut || cand.check_out || cand.endDate || '').slice(0, 10);
+              const candIn = toThailandDateStr(cand.checkin || cand.checkIn || cand.check_in || cand.startDate);
+              const candOut = toThailandDateStr(cand.checkout || cand.checkOut || cand.check_out || cand.endDate);
               const candStatus = String(cand.status || '').toUpperCase().trim();
               const candCancelled =
                 candStatus === 'CANCELLED' ||
@@ -1304,8 +1282,8 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           }
 
           if (targetBooking) {
-            const rawIn = String(targetBooking.checkin || targetBooking.checkIn || targetBooking.check_in || targetBooking.startDate || targetBooking.rooms?.[0]?.checkin || targetBooking.rooms?.[0]?.startDate || '').slice(0, 10);
-            const rawOut = String(targetBooking.checkout || targetBooking.checkOut || targetBooking.check_out || targetBooking.endDate || targetBooking.rooms?.[0]?.checkout || targetBooking.rooms?.[0]?.endDate || '').slice(0, 10);
+            const rawIn = toThailandDateStr(targetBooking.checkin || targetBooking.checkIn || targetBooking.check_in || targetBooking.startDate || targetBooking.rooms?.[0]?.checkin || targetBooking.rooms?.[0]?.startDate);
+            const rawOut = toThailandDateStr(targetBooking.checkout || targetBooking.checkOut || targetBooking.check_out || targetBooking.endDate || targetBooking.rooms?.[0]?.checkout || targetBooking.rooms?.[0]?.endDate);
 
             // Filtro anti-falsi allarmi: invia notifiche solo se le date sono reali e valide (lunghezza 10: YYYY-MM-DD)
             if (rawIn.length === 10 && rawOut.length === 10 && !rawIn.includes('undefined') && !rawOut.includes('undefined')) {
@@ -1318,8 +1296,8 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
               // Calcolo durata esatta in notti
               let stayNights = 1;
               try {
-                const dIn = new Date(rawIn);
-                const dOut = new Date(rawOut);
+                const dIn = new Date(`${rawIn}T00:00:00Z`);
+                const dOut = new Date(`${rawOut}T00:00:00Z`);
                 if (!isNaN(dIn.getTime()) && !isNaN(dOut.getTime())) {
                   stayNights = Math.max(1, Math.round((dOut.getTime() - dIn.getTime()) / (1000 * 60 * 60 * 24)));
                 }
@@ -1557,8 +1535,8 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                 eventType.toUpperCase().includes('UPDATE');
 
               if (isTargetCancelledOrMod) {
-                const tIn = String(preResolvedTargetBooking.checkin || preResolvedTargetBooking.checkIn || '').slice(0, 10);
-                const tOut = String(preResolvedTargetBooking.checkout || preResolvedTargetBooking.checkOut || '').slice(0, 10);
+                const tIn = toThailandDateStr(preResolvedTargetBooking.checkin || preResolvedTargetBooking.checkIn);
+                const tOut = toThailandDateStr(preResolvedTargetBooking.checkout || preResolvedTargetBooking.checkOut);
                 const tProd = preResolvedTargetBooking.product || preResolvedTargetBooking.pmsProduct || preResolvedTargetBooking.accommodation_id || preResolvedTargetBooking.roomId;
                 const tRoom = resolveLockableRoom(tProd) || resolveLockableRoom(preResolvedTargetBooking.roomName || preResolvedTargetBooking.accommodation_name);
 

@@ -1,5 +1,5 @@
 import { sendDepartmentTelegramMessage } from "./telegram.js";
-import { formatDateDMY } from "./date-formatter.js";
+import { formatDateDMY, toThailandDateStr } from "./date-formatter.js";
 import { isMirrorReservation } from "./octorate-jungle-mirror.js";
 
 export interface CanonicalAccommodation {
@@ -118,8 +118,8 @@ export async function checkAndNotifyOverbookings(
     const canonical = resolveCanonicalAccommodation(b, accommodationsMap);
     if (!canonical) continue;
 
-    const cin = String(b.checkin || b.checkIn || '').slice(0, 10);
-    const cout = String(b.checkout || b.checkOut || '').slice(0, 10);
+    const cin = toThailandDateStr(b.checkin || b.checkIn);
+    const cout = toThailandDateStr(b.checkout || b.checkOut);
     if (!cin || !cout) continue;
 
     const bookerGuest = (b.guests || []).find((g: any) => g.type === 'BOOKER') || b.guests?.[0];

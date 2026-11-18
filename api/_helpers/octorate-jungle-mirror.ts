@@ -11,6 +11,8 @@
  *        con mirroring bidirezionale se arrivasse una prenotazione a prezzo raddoppiato.
  */
 
+import { toThailandDateStr } from './date-formatter.js';
+
 export type JungleSourceStructureId = '807324' | '366879';
 
 export interface JungleTwinRoom {
@@ -823,8 +825,8 @@ export async function mirrorReservationToStandby(params: MirrorParams): Promise<
     if (checkRes && checkRes.ok) {
       const existingData: any = await checkRes.json().catch(() => ({}));
       const exStatus = String(existingData?.status || '').toUpperCase();
-      const exIn = String(existingData?.checkin || '').slice(0, 10);
-      const exOut = String(existingData?.checkout || '').slice(0, 10);
+      const exIn = toThailandDateStr(existingData?.checkin);
+      const exOut = toThailandDateStr(existingData?.checkout);
       const exProd = Number(existingData?.product || 0);
       const exCh = Number(existingData?.channelId || 233);
       const exColor = String(existingData?.color || '').trim().toLowerCase();
@@ -1925,8 +1927,8 @@ async function fetchTwinActiveReservations(
       const twin = resolveTwinByProductOrName(productId, roomName);
       if (!twin) continue;
 
-      const checkIn = String(r.checkin || r.checkIn || '').slice(0, 10);
-      const checkOut = String(r.checkout || r.checkOut || '').slice(0, 10);
+      const checkIn = toThailandDateStr(r.checkin || r.checkIn);
+      const checkOut = toThailandDateStr(r.checkout || r.checkOut);
       if (!checkIn || !checkOut) continue;
 
       const notesStr = String(r.privateNotes || '');
@@ -2098,10 +2100,10 @@ export async function syncManualMirrorEditToCounterpart(params: {
     };
   }
 
-  const newIn = String(mirrorData.checkin || mirrorData.checkIn || '').slice(0, 10);
-  const newOut = String(mirrorData.checkout || mirrorData.checkOut || '').slice(0, 10);
-  const origIn = String(origData.checkin || origData.checkIn || '').slice(0, 10);
-  const origOut = String(origData.checkout || origData.checkOut || '').slice(0, 10);
+  const newIn = toThailandDateStr(mirrorData.checkin || mirrorData.checkIn);
+  const newOut = toThailandDateStr(mirrorData.checkout || mirrorData.checkOut);
+  const origIn = toThailandDateStr(origData.checkin || origData.checkIn);
+  const origOut = toThailandDateStr(origData.checkout || origData.checkOut);
 
   if (!newIn || !newOut || (origIn === newIn && origOut === newOut)) {
     return {
@@ -2150,8 +2152,8 @@ export async function syncManualMirrorEditToCounterpart(params: {
     { headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' } }
   ).catch(() => null);
   const verifyOrigData: any = verifyOrigRes && verifyOrigRes.ok ? await verifyOrigRes.json().catch(() => null) : null;
-  const verifiedIn = String(verifyOrigData?.checkin || '').slice(0, 10);
-  const verifiedOut = String(verifyOrigData?.checkout || '').slice(0, 10);
+  const verifiedIn = toThailandDateStr(verifyOrigData?.checkin);
+  const verifiedOut = toThailandDateStr(verifyOrigData?.checkout);
 
   if (verifiedIn === newIn && verifiedOut === newOut) {
     if (supabaseAdmin) {
