@@ -635,6 +635,7 @@ import QRCode from 'qrcode';
 import { useCartStore } from '../store/cartStore';
 import { useLocationStore, RESTAURANT_LAT, RESTAURANT_LNG } from '../store/locationStore';
 import { calculateDistance } from '../utils/distance';
+import { RANONG_DELIVERY_POLYGON } from '../utils/geofence';
 import { supabase } from '../../lib/supabase';
 import { 
   X, 
@@ -763,9 +764,9 @@ const translations = {
     trackerTakeawayReady: 'IL TUO ORDINE È PRONTO!',
     trackerTakeawayReadyDesc: 'Le tue pizze sono state appena sfornate calde! Ti aspettiamo al banco della nostra pizzeria a Ranong Hot Springs per il ritiro.',
     supportNotice: "Non esitare a contattarci per qualunque informazione o modifica all'ordine",
-    deliveryBeyond6kmNotice: (dist: number) => `La consegna a domicilio è attiva fino a 6 km (la tua posizione è a ${dist.toFixed(1)} km). Puoi ordinare con Ritiro al Locale (Takeaway) e venire a ritirare la tua pizza calda da noi a Ranong Hot Springs!`,
+    deliveryBeyond6kmNotice: (dist: number) => `La consegna a domicilio è attiva nell'area urbana di Ranong (la tua posizione è fuori zona, ~${dist.toFixed(1)} km). Puoi ordinare con Ritiro al Locale (Takeaway) e venire a ritirare la tua pizza calda da noi a Ranong Hot Springs!`,
     switchToTakeawayBtn: 'Passa a Ritiro al Locale (Takeaway)',
-    outOfRangeTakeawayNotice: "L'ordinazione online è attiva per i clienti a Ranong (fino a 6 km a domicilio, fino a 25 km per asporto). La tua posizione attuale è a oltre 25 km. Puoi comunque consultare liberamente il nostro menu!",
+    outOfRangeTakeawayNotice: "L'ordinazione online è attiva per i clienti a Ranong (area urbana a domicilio, fino a 25 km per asporto). La tua posizione attuale è a oltre 25 km. Puoi comunque consultare liberamente il nostro menu!",
     outOfRangeTitle: 'Sei Fuori Zona di Ordinazione',
     trackerDeliveryDetails: (dist: number, mins: number) => `Distanza dalla pizzeria: ${dist.toFixed(1)} km — Tempo stimato di viaggio: ~${mins} minuti`,
   },
@@ -791,10 +792,10 @@ const translations = {
     addressPlaceholder: 'Delivery Address',
     verifyLoc: 'Verify Location',
     verifyingLoc: 'Verifying...',
-    outOfRange: (dist: number, max: number) => `We are sorry, your location is ${dist.toFixed(1)} km away. We deliver up to ${max} km max.`,
-    deliveryBeyond6kmNotice: (dist: number) => `Home delivery is available up to 6 km (your location is ${dist.toFixed(1)} km away). You can order with Takeaway and come pick up your hot pizza from us at Ranong Hot Springs!`,
+    outOfRange: (dist: number, max: number) => `We are sorry, your location is outside our delivery zone (~${dist.toFixed(1)} km away).`,
+    deliveryBeyond6kmNotice: (dist: number) => `Home delivery is available within Ranong urban area (your location is outside the delivery zone, ~${dist.toFixed(1)} km). You can order with Takeaway and come pick up your hot pizza from us at Ranong Hot Springs!`,
     switchToTakeawayBtn: 'Switch to Takeaway',
-    outOfRangeTakeawayNotice: 'Online ordering is available for customers in Ranong (up to 6 km for delivery, up to 25 km for takeaway). Your current location is over 25 km away. You can still browse our menu freely!',
+    outOfRangeTakeawayNotice: 'Online ordering is available for customers in Ranong (urban area for delivery, up to 25 km for takeaway). Your current location is over 25 km away. You can still browse our menu freely!',
     outOfRangeTitle: 'You Are Outside the Ordering Area',
     simLoc: 'Simulate location (Test)',
     continueBtn: 'Continue',
@@ -870,10 +871,10 @@ const translations = {
     addressPlaceholder: 'ที่อยู่จัดส่ง',
     verifyLoc: 'ตรวจสอบตำแหน่ง',
     verifyingLoc: 'กำลังตรวจสอบ...',
-    outOfRange: (dist: number, max: number) => `ขออภัย ตำแหน่งของคุณอยู่ห่างออกไป ${dist.toFixed(1)} กม. เราจัดส่งได้ไม่เกิน ${max} กม.`,
-    deliveryBeyond6kmNotice: (dist: number) => `บริการจัดส่งถึงบ้านมีให้บริการในรัศมีไม่เกิน 6 กม. (ตำแหน่งของคุณอยู่ที่ ${dist.toFixed(1)} กม.) คุณสามารถสั่งซื้อแบบรับที่ร้าน (Takeaway) และมารับพิซซ่าร้อน ๆ จากเราได้ที่ Ranong Hot Springs!`,
+    outOfRange: (dist: number, max: number) => `ขออภัย ตำแหน่งของคุณอยู่นอกพื้นที่จัดส่ง (~${dist.toFixed(1)} กม.)`,
+    deliveryBeyond6kmNotice: (dist: number) => `บริการจัดส่งถึงบ้านมีให้บริการในเขตเมืองระนอง (ตำแหน่งของคุณอยู่นอกพื้นที่จัดส่ง ~${dist.toFixed(1)} กม.) คุณสามารถสั่งซื้อแบบรับที่ร้าน (Takeaway) และมารับพิซซ่าร้อน ๆ จากเราได้ที่ Ranong Hot Springs!`,
     switchToTakeawayBtn: 'เปลี่ยนเป็นรับที่ร้าน (Takeaway)',
-    outOfRangeTakeawayNotice: 'การสั่งซื้อออนไลน์มีให้บริการสำหรับลูกค้าในระนอง (จัดส่งถึงบ้านไม่เกิน 6 กม. รับที่ร้านไม่เกิน 25 กม.) ตำแหน่งปัจจุบันของคุณอยู่ไกลกว่า 25 กม. แต่คุณยังสามารถดูเมนูของเราได้ตามอัธยาศัย!',
+    outOfRangeTakeawayNotice: 'การสั่งซื้อออนไลน์มีให้บริการสำหรับลูกค้าในระนอง (จัดส่งในเขตเมือง รับที่ร้านไม่เกิน 25 กม.) ตำแหน่งปัจจุบันของคุณอยู่ไกลกว่า 25 กม. แต่คุณยังสามารถดูเมนูของเราได้ตามอัธยาศัย!',
     outOfRangeTitle: 'คุณอยู่นอกพื้นที่สั่งซื้อ',
     simLoc: 'จำลองตำแหน่ง (ทดสอบ)',
     continueBtn: 'ดำเนินการต่อ',
@@ -949,10 +950,10 @@ const translations = {
     addressPlaceholder: 'Lieferadresse',
     verifyLoc: 'Standort verifizieren',
     verifyingLoc: 'Überprüfung...',
-    outOfRange: (dist: number, max: number) => `Es tut uns leid, Ihr Standort ist ${dist.toFixed(1)} km entfernt. Wir liefern bis maximal ${max} km.`,
-    deliveryBeyond6kmNotice: (dist: number) => `Die Lieferung nach Hause ist bis 6 km aktiv (deine Position ist ${dist.toFixed(1)} km entfernt). Du kannst mit Selbstabholung (Takeaway) bestellen und deine heiße Pizza bei uns in Ranong Hot Springs abholen!`,
+    outOfRange: (dist: number, max: number) => `Es tut uns leid, Ihr Standort liegt außerhalb unseres Liefergebiets (~${dist.toFixed(1)} km).`,
+    deliveryBeyond6kmNotice: (dist: number) => `Die Lieferung nach Hause ist im Stadtgebiet von Ranong aktiv (deine Position liegt außerhalb der Lieferzone, ~${dist.toFixed(1)} km). Du kannst mit Selbstabholung (Takeaway) bestellen und deine heiße Pizza bei uns in Ranong Hot Springs abholen!`,
     switchToTakeawayBtn: 'Wechsle zur Selbstabholung (Takeaway)',
-    outOfRangeTakeawayNotice: 'Die Online-Bestellung ist für Kunden in Ranong aktiv (bis 6 km Lieferung nach Hause, bis 25 km Selbstabholung). Deine aktuelle Position ist über 25 km entfernt. Du kannst trotzdem gerne unser Menü ansehen!',
+    outOfRangeTakeawayNotice: 'Die Online-Bestellung ist für Kunden in Ranong aktiv (Lieferung im Stadtgebiet, bis zu 25 km für Takeaway). Deine aktuelle Position ist über 25 km entfernt. Du kannst trotzdem gerne unser Menü ansehen!',
     outOfRangeTitle: 'Du bist außerhalb des Bestellbereichs',
     simLoc: 'Standort simulieren (Test)',
     continueBtn: 'Weiter',
@@ -1028,10 +1029,10 @@ const translations = {
     addressPlaceholder: 'ပို့ဆောင်ရမည့် လိပ်စာ',
     verifyLoc: 'တည်နေရာ စစ်ဆေးရန်',
     verifyingLoc: 'စစ်ဆေးနေပါသည်...',
-    outOfRange: (dist: number, max: number) => `တောင်းပန်ပါသည်၊ သင့်တည်နေရာသည် ${dist.toFixed(1)} km အကွာတွင် ရှိနေပါသည်။ ကျွန်ုပ်တို့သည် အများဆုံး ${max} km အထိသာ ပို့ဆောင်ပေးပါသည်။`,
-    deliveryBeyond6kmNotice: (dist: number) => `အိမ်အရောက်ပို့ဆောင်မှုကို ၆ ကီလိုမီတာအထိ ဆောင်ရွက်ပေးပါသည် (သင့်တည်နေရာသည် ${dist.toFixed(1)} ကီလိုမီတာ အကွာအဝေးတွင် ရှိပါသည်)။ သင်သည် ဆိုင်မှပြန်ယူခြင်း (Takeaway) ဖြင့် မှာယူနိုင်ပြီး Ranong Hot Springs ရှိ ကျွန်ုပ်တို့ထံမှ သင့်ပီဇာပူပူကို လာရောက်ယူဆောင်နိုင်ပါသည်။`,
+    outOfRange: (dist: number, max: number) => `တောင်းပန်ပါသည်၊ သင့်တည်နေရာသည် ပို့ဆောင်ရေးဧရိယာပြင်ပ (~${dist.toFixed(1)} km) တွင် ရှိနေပါသည်။`,
+    deliveryBeyond6kmNotice: (dist: number) => `အိမ်အရောက်ပို့ဆောင်မှုကို Ranong မြို့တွင်းဧရိယာတွင် ဆောင်ရွက်ပေးပါသည် (သင့်တည်နေရာသည် ပို့ဆောင်ရေးဧရိယာပြင်ပ ~${dist.toFixed(1)} ကီလိုမီတာတွင် ရှိပါသည်)။ သင်သည် ဆိုင်မှပြန်ယူခြင်း (Takeaway) ဖြင့် မှာယူနိုင်ပြီး Ranong Hot Springs ရှိ ကျွန်ုပ်တို့ထံမှ သင့်ပီဇာပူပူကို လာရောက်ယူဆောင်နိုင်ပါသည်။`,
     switchToTakeawayBtn: 'ဆိုင်မှပြန်ယူခြင်း (Takeaway) သို့ ပြောင်းရန်',
-    outOfRangeTakeawayNotice: 'အွန်လိုင်းမှာယူခြင်းကို Ranong ရှိ ဖောက်သည်များအတွက် ဆောင်ရွက်ပေးပါသည် (အိမ်အရောက်ပို့ဆောင်မှု ၆ ကီလိုမီတာအထိ၊ ဆိုင်မှပြန်ယူခြင်းအတွက် ၂၅ ကီလိုမီတာအထိ)။ သင့်လက်ရှိတည်နေရာသည် ၂၅ ကီလိုမီတာအထက် ကျော်လွန်နေပါသည်။ သို့သော် ကျွန်ုပ်တို့၏ မီနူးကို လွတ်လပ်စွာ ကြည့်ရှုနိုင်ပါသည်။',
+    outOfRangeTakeawayNotice: 'အွန်လိုင်းမှာယူခြင်းကို Ranong ရှိ ဖောက်သည်များအတွက် ဆောင်ရွက်ပေးပါသည် (မြို့တွင်း အိမ်အရောက်ပို့ဆောင်မှု၊ ဆိုင်မှပြန်ယူခြင်းအတွက် ၂၅ ကီလိုမီတာအထိ)။ သင့်လက်ရှိတည်နေရာသည် ၂၅ ကီလိုမီတာအထက် ကျော်လွန်နေပါသည်။ သို့သော် ကျွန်ုပ်တို့၏ မီနူးကို လွတ်လပ်စွာ ကြည့်ရှုနိုင်ပါသည်။',
     outOfRangeTitle: 'သင်သည် မှာယူနိုင်သောဇုန်ပြင်ပတွင် ရှိနေပါသည်',
     simLoc: 'တည်နေရာ စမ်းသပ်မှု (Test)',
     continueBtn: 'ဆက်လက်လုပ်ဆောင်ရန်',
@@ -1107,10 +1108,10 @@ const translations = {
     addressPlaceholder: "Dirección de entrega",
     verifyLoc: "Verificar ubicación",
     verifyingLoc: "Verificando...",
-    outOfRange: (dist, max) => `Lo sentimos, tu ubicación está a ${dist.toFixed(1)} km. Realizamos entregas hasta un máximo de ${max} km.`,
-    deliveryBeyond6kmNotice: (dist) => `La entrega a domicilio está disponible hasta 6 km (tu ubicación está a ${dist.toFixed(1)} km). Puedes pedir para llevar y recoger tu pizza caliente en Ranong Hot Springs.`,
+    outOfRange: (dist, max) => `Lo sentimos, tu ubicación está fuera de nuestra zona de entrega (~${dist.toFixed(1)} km).`,
+    deliveryBeyond6kmNotice: (dist) => `La entrega a domicilio está disponible en el área urbana de Ranong (tu ubicación está fuera de la zona de entrega, ~${dist.toFixed(1)} km). Puedes pedir para llevar y recoger tu pizza caliente en Ranong Hot Springs.`,
     switchToTakeawayBtn: "Cambiar a para llevar (Takeaway)",
-    outOfRangeTakeawayNotice: "El pedido en línea está disponible para clientes en Ranong (hasta 6 km para entrega, hasta 25 km para recogida). Tu ubicación actual está a más de 25 km. ¡Aún puedes explorar nuestro menú libremente!",
+    outOfRangeTakeawayNotice: "El pedido en línea está disponible para clientes en Ranong (área urbana para entrega, hasta 25 km para recogida). Tu ubicación actual está a más de 25 km. ¡Aún puedes explorar nuestro menú libremente!",
     outOfRangeTitle: "Estás fuera del área de pedidos",
     simLoc: "Simular ubicación (Test)",
     continueBtn: "Continuar",
@@ -1186,10 +1187,10 @@ const translations = {
     addressPlaceholder: "Adresse de livraison",
     verifyLoc: "Vérifier la localisation",
     verifyingLoc: "Vérification...",
-    outOfRange: (dist, max) => `Nous sommes désolés, votre localisation est à ${dist.toFixed(1)} km. Nous livrons jusqu'à ${max} km maximum.`,
-    deliveryBeyond6kmNotice: (dist) => `La livraison à domicile est disponible jusqu'à 6 km (votre position est à ${dist.toFixed(1)} km). Vous pouvez commander à emporter et venir récupérer votre pizza chaude chez nous à Ranong Hot Springs !`,
+    outOfRange: (dist, max) => `Nous sommes désolés, votre localisation est hors de notre zone de livraison (~${dist.toFixed(1)} km).`,
+    deliveryBeyond6kmNotice: (dist) => `La livraison à domicile est disponible dans la zone urbaine de Ranong (votre position est hors zone de livraison, ~${dist.toFixed(1)} km). Vous pouvez commander à emporter et venir récupérer votre pizza chaude chez nous à Ranong Hot Springs !`,
     switchToTakeawayBtn: "Passer à emporter (Takeaway)",
-    outOfRangeTakeawayNotice: "La commande en ligne est disponible pour les clients à Ranong (jusqu'à 6 km pour la livraison, jusqu'à 25 km pour le retrait). Votre position actuelle est à plus de 25 km. Vous pouvez toujours parcourir notre menu librement !",
+    outOfRangeTakeawayNotice: "La commande en ligne est disponible pour les clients à Ranong (zone urbaine pour la livraison, jusqu'à 25 km pour le retrait). Votre position actuelle est à plus de 25 km. Vous pouvez toujours parcourir notre menu librement !",
     outOfRangeTitle: "Vous êtes en dehors de la zone de commande",
     simLoc: "Simuler position (Test)",
     continueBtn: "Continuer",
@@ -1265,10 +1266,10 @@ const translations = {
     addressPlaceholder: "Адрес доставки",
     verifyLoc: "Проверить местоположение",
     verifyingLoc: "Проверка...",
-    outOfRange: (dist, max) => `Извините, ваше местоположение на расстоянии ${dist.toFixed(1)} км. Мы доставляем максимум до ${max} км.`,
-    deliveryBeyond6kmNotice: (dist) => `Доставка на дом доступна до 6 км (ваше местоположение: ${dist.toFixed(1)} км). Вы можете заказать самовывоз и забрать горячую пиццу в Ranong Hot Springs!`,
+    outOfRange: (dist, max) => `Извините, ваше местоположение вне зоны доставки (~${dist.toFixed(1)} км).`,
+    deliveryBeyond6kmNotice: (dist) => `Доставка на дом доступна в пределах города Ранонг (ваше местоположение вне зоны доставки: ~${dist.toFixed(1)} км). Вы можете заказать самовывоз и забрать горячую пиццу в Ranong Hot Springs!`,
     switchToTakeawayBtn: "Переключиться на самовывоз",
-    outOfRangeTakeawayNotice: "Онлайн-заказ доступен для клиентов в Ранонге (до 6 км для доставки, до 25 км для самовывоза). Ваше текущее местоположение находится более чем в 25 км. Вы всё ещё можете свободно просматривать наше меню!",
+    outOfRangeTakeawayNotice: "Онлайн-заказ доступен для клиентов в Ранонге (городская зона для доставки, до 25 км для самовывоза). Ваше текущее местоположение находится более чем в 25 км. Вы всё ещё можете свободно просматривать наше меню!",
     outOfRangeTitle: "Вы вне зоны заказа",
     simLoc: "Симуляция позиции (Тест)",
     continueBtn: "Продолжить",
@@ -1344,10 +1345,10 @@ const translations = {
     addressPlaceholder: "配送地址",
     verifyLoc: "验证位置",
     verifyingLoc: "验证中...",
-    outOfRange: (dist, max) => `很抱歉，您的位置在 ${dist.toFixed(1)} 公里外。我们最远配送 ${max} 公里。`,
-    deliveryBeyond6kmNotice: (dist) => `外卖配送最远6公里（您当前位置为 ${dist.toFixed(1)} 公里）。您可以选择外带，来 Ranong Hot Springs 取您热腾腾的披萨！`,
+    outOfRange: (dist, max) => `很抱歉，您的位置超出外卖配送范围（约 ${dist.toFixed(1)} 公里）。`,
+    deliveryBeyond6kmNotice: (dist) => `外卖配送仅限拉廊市区服务区（您当前位置超出配送范围，约 ${dist.toFixed(1)} 公里）。您可以选择外带，来 Ranong Hot Springs 取您热腾腾的披萨！`,
     switchToTakeawayBtn: "切换到外带 (Takeaway)",
-    outOfRangeTakeawayNotice: "在线订购适用于拉廊府的顾客（配送最远6公里，外带最远25公里）。您当前位置超过25公里。您仍然可以自由浏览我们的菜单！",
+    outOfRangeTakeawayNotice: "在线订购适用于拉廊府的顾客（市区内可外卖配送，最远25公里可外带）。您当前位置超过25公里。您仍然可以自由浏览我们的菜单！",
     outOfRangeTitle: "您不在订购区域内",
     simLoc: "模拟位置（测试）",
     continueBtn: "继续",
@@ -1441,6 +1442,28 @@ function MapCircle({ center, radius }: { center: { lat: number; lng: number }; r
       circle.setMap(null);
     };
   }, [map, center, radius]);
+  return null;
+}
+
+// React component to draw custom road-accessible delivery zone polygon (clickable: false so clicks hit the map)
+function MapDeliveryPolygon({ paths }: { paths: { lat: number; lng: number }[] }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!map || typeof google === 'undefined' || !google.maps) return;
+    const polygon = new google.maps.Polygon({
+      map,
+      paths,
+      fillColor: '#059669', // Emerald/Green for delivery zone
+      fillOpacity: 0.12,
+      strokeColor: '#059669',
+      strokeOpacity: 0.7,
+      strokeWeight: 2,
+      clickable: false
+    });
+    return () => {
+      polygon.setMap(null);
+    };
+  }, [map, paths]);
   return null;
 }
 
@@ -1897,7 +1920,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     return final;
   }, [orderType, address, thaiAddress, lang, markerPos, email, notes, deviceId, activePromoCode, discountAmount, isHotelGuest]);
 
-  const isDeliveryBeyond6km = distanceKm !== null && distanceKm > maxRadiusKm && distanceKm <= maxTakeawayRadiusKm;
+  const isDeliveryBeyond6km = distanceKm !== null && !isDeliverable && distanceKm <= maxTakeawayRadiusKm;
   const isBeyond25km = distanceKm !== null && distanceKm > maxTakeawayRadiusKm;
   const outOfRange = orderType === 'delivery'
     ? (distanceKm !== null && !isDeliverable)
@@ -2976,7 +2999,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                       }}
                     >
                       <MapController center={markerPos} />
-                      <MapCircle center={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }} radius={maxRadiusKm * 1000} />
+                      <MapDeliveryPolygon paths={RANONG_DELIVERY_POLYGON} />
                       
                       <Marker
                         position={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG + 0.00005 }}

@@ -45,10 +45,11 @@ export const MOTHER_RATES: MotherRateInfo[] = [
   { motherId: 921799, roomName: 'Fake Bungalow 2', shortName: 'Fake Bung. 2', line1: 'Fake Bung.', line2: '2', category: 'Bungalow', isTest: true }
 ];
 
-// 9 Periodi Stagionali Ufficiali da Foglio Excel
+// 10 Periodi Stagionali Ufficiali da Foglio Excel (con Promo Ville 25-30 Nov)
 export const DEFAULT_PERIODS: SeasonalPeriod[] = [
   { id: 'p1', name: 'High Season Level 1', dateFrom: '2026-11-01', dateTo: '2026-11-14', label: 'High Season' },
-  { id: 'p2', name: 'High Season Level 2', dateFrom: '2026-11-15', dateTo: '2026-11-30', label: 'High Season' },
+  { id: 'p2a', name: 'High Season Level 2A', dateFrom: '2026-11-15', dateTo: '2026-11-24', label: 'High Season' },
+  { id: 'p2b', name: 'High Season Level 2B', dateFrom: '2026-11-25', dateTo: '2026-11-30', label: 'High Season' },
   { id: 'p3', name: 'High Season Level 3', dateFrom: '2026-12-01', dateTo: '2026-12-10', label: 'High Season' },
   { id: 'p4', name: 'High Season Level 4', dateFrom: '2026-12-11', dateTo: '2026-12-20', label: 'High Season' },
   { id: 'p5', name: 'High Season Level 5', dateFrom: '2026-12-21', dateTo: '2027-01-15', label: 'Peak Season' },
@@ -69,7 +70,25 @@ export const DEFAULT_PRICES_MATRIX: Record<string, Record<number, number>> = {
     293943: 490, 293951: 990, 883795: 990 
   },
 
-  // High Season Level 2 (15-nov -> 30-nov)
+  // High Season Level 2A (15-nov -> 24-nov)
+  p2a: { 
+    649669: 1490, 921799: 1490, 
+    529773: 3590, 495795: 1990, 495796: 1990, 494840: 1990, 421511: 1990, 
+    293957: 1490, 293954: 1290, 293962: 1290, 293955: 790, 293965: 790, 
+    293942: 790, 293963: 790, 293959: 990, 293948: 990, 293945: 990, 
+    293943: 690, 293951: 1090, 883795: 1090 
+  },
+
+  // High Season Level 2B (25-nov -> 30-nov) - Promo Ville
+  p2b: { 
+    649669: 1490, 921799: 1490, 
+    529773: 2990, 495795: 1490, 495796: 1490, 494840: 1490, 421511: 1490, 
+    293957: 1490, 293954: 1290, 293962: 1290, 293955: 790, 293965: 790, 
+    293942: 790, 293963: 790, 293959: 990, 293948: 990, 293945: 990, 
+    293943: 690, 293951: 1090, 883795: 1090 
+  },
+
+  // Alias retrocompatibile p2
   p2: { 
     649669: 1490, 921799: 1490, 
     529773: 3590, 495795: 1990, 495796: 1990, 494840: 1990, 421511: 1990, 
@@ -394,8 +413,8 @@ export const useSeasonalRateStore = create<SeasonalRateExcelStoreState>()(
       }
     }),
     {
-      name: 'flower-power-seasonal-rate-excel-store-v8',
-      version: 8,
+      name: 'flower-power-seasonal-rate-excel-store-v9',
+      version: 9,
       migrate: () => {
         return {
           testMode: true,

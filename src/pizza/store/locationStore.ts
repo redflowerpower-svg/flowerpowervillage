@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { calculateDistance } from '../utils/distance';
+import { isPointInRanongDeliveryZone } from '../utils/geofence';
 
 // Coordinate ufficiali Flower Power - Ranong terraferma (vicino terme Raksawarin)
 export let RESTAURANT_LAT = 9.9579545;
@@ -14,7 +15,7 @@ if (typeof window !== 'undefined') {
   }
 }
 
-export const DEFAULT_DELIVERY_RADIUS_KM = 6;
+export const DEFAULT_DELIVERY_RADIUS_KM = 5;
 export const DEFAULT_TAKEAWAY_RADIUS_KM = 25;
 
 interface LocationState {
@@ -63,7 +64,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
           userLat: latitude,
           userLng: longitude,
           distanceKm: distance,
-          isDeliverable: distance <= get().maxRadiusKm,
+          isDeliverable: isPointInRanongDeliveryZone(latitude, longitude),
           isTakeawayAllowed: distance <= get().maxTakeawayRadiusKm,
           isLoading: false,
           error: null
@@ -107,7 +108,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
       userLat: lat,
       userLng: lng,
       distanceKm: distance,
-      isDeliverable: distance <= get().maxRadiusKm,
+      isDeliverable: isPointInRanongDeliveryZone(lat, lng),
       isTakeawayAllowed: distance <= get().maxTakeawayRadiusKm,
       isLoading: false,
       error: null
