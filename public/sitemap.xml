@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <!-- ======================================================== -->
   <!-- 🌿 FLOWER POWER FARM VILLAGE & SPA (KOH PHAYAM)          -->
@@ -9,293 +8,173 @@
   <!-- 1. Homepage & Core Hub -->
   <url>
     <loc>https://www.flowerpowervillage.com/</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/" />
   </url>
 
   <!-- 2. Live Calendar & Direct Booking Engine (Miglior Prezzo Garantito) -->
   <url>
     <loc>https://www.flowerpowervillage.com/calendar</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>always</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/calendar" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/calendar?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/calendar?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/calendar?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/calendar" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/village</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/village" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/village?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/village?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/village?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/village" />
   </url>
 
   <!-- 3. Ferry, Speedboat Timetable & How to Reach Koh Phayam -->
   <url>
     <loc>https://www.flowerpowervillage.com/ferry</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/ferry" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/ferry?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/ferry?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/ferry?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/ferry" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/directions</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/directions" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/directions?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/directions?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/directions?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/directions" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/wine-list</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/wine-list" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/wine-list?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/wine-list?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/wine-list?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/wine-list" />
   </url>
 
   <!-- 4. I 18 Alloggi Ufficiali (Pagine Reali Dedicate) -->
   <url>
     <loc>https://www.flowerpowervillage.com/52-jungle-villa</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/52-jungle-villa" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/52-jungle-villa?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/52-jungle-villa?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/52-jungle-villa?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/52-jungle-villa" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/53-jungle-villa-left</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/53-jungle-villa-left" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/53-jungle-villa-left?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/53-jungle-villa-left?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/53-jungle-villa-left?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/53-jungle-villa-left" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/54-jungle-villa-right</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/54-jungle-villa-right" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/54-jungle-villa-right?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/54-jungle-villa-right?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/54-jungle-villa-right?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/54-jungle-villa-right" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/51-villa-peace-love</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/51-villa-peace-love" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/51-villa-peace-love?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/51-villa-peace-love?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/51-villa-peace-love?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/51-villa-peace-love" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/22-villa-penthouse</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/22-villa-penthouse" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/22-villa-penthouse?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/22-villa-penthouse?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/22-villa-penthouse?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/22-villa-penthouse" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/11-yellow-bungalow</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/11-yellow-bungalow" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/11-yellow-bungalow?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/11-yellow-bungalow?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/11-yellow-bungalow?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/11-yellow-bungalow" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/12-red-bungalow</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/12-red-bungalow" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/12-red-bungalow?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/12-red-bungalow?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/12-red-bungalow?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/12-red-bungalow" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/13-green-bungalow</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/13-green-bungalow" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/13-green-bungalow?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/13-green-bungalow?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/13-green-bungalow?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/13-green-bungalow" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/23-camel-tent</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/23-camel-tent" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/23-camel-tent?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/23-camel-tent?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/23-camel-tent?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/23-camel-tent" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/21-lagoon-tent</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/21-lagoon-tent" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/21-lagoon-tent?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/21-lagoon-tent?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/21-lagoon-tent?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/21-lagoon-tent" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/31-room-1</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/31-room-1" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/31-room-1?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/31-room-1?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/31-room-1?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/31-room-1" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/32-room-2</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/32-room-2" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/32-room-2?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/32-room-2?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/32-room-2?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/32-room-2" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/33-room-3</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/33-room-3" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/33-room-3?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/33-room-3?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/33-room-3?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/33-room-3" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/34-room-4</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/34-room-4" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/34-room-4?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/34-room-4?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/34-room-4?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/34-room-4" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/35-room-5</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/35-room-5" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/35-room-5?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/35-room-5?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/35-room-5?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/35-room-5" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/36-lodge-1</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/36-lodge-1" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/36-lodge-1?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/36-lodge-1?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/36-lodge-1?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/36-lodge-1" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/36-lodge-2</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/36-lodge-2" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/36-lodge-2?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/36-lodge-2?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/36-lodge-2?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/36-lodge-2" />
   </url>
 
   <url>
     <loc>https://www.flowerpowervillage.com/41-room-internal</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.flowerpowervillage.com/41-room-internal" />
-    <xhtml:link rel="alternate" hreflang="it" href="https://www.flowerpowervillage.com/41-room-internal?lang=it" />
-    <xhtml:link rel="alternate" hreflang="th" href="https://www.flowerpowervillage.com/41-room-internal?lang=th" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.flowerpowervillage.com/41-room-internal?lang=de" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.flowerpowervillage.com/41-room-internal" />
   </url>
 
 </urlset>
