@@ -750,6 +750,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
       DE: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
     };
 
+    const MAX_SEASON_DATE = '2027-10-31';
     const curMonthName = monthNames[lang]?.[month] || monthNames['IT'][month];
 
     const prevMonth = () => {
@@ -757,6 +758,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     };
 
     const nextMonth = () => {
+      if (year >= 2027 && month >= 9) return;
       setCalendarMonth(new Date(year, month + 1, 1));
     };
 
@@ -777,7 +779,9 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-      const isDisabled = minDateStr ? (dateStr < minDateStr) : false;
+      // L'ultimo giorno prenotabile è il 31 ottobre 2027. Dal 1° novembre è tutto chiuso.
+      const isPastMaxSeason = type === 'in' ? dateStr >= MAX_SEASON_DATE : dateStr > MAX_SEASON_DATE;
+      const isDisabled = (minDateStr ? (dateStr < minDateStr) : false) || isPastMaxSeason;
       const isSelected = selectedDateStr === dateStr;
       const isCheckInMarker = type === 'out' && checkIn === dateStr;
       const isRangeDay = checkIn && checkOut && dateStr > checkIn && dateStr < checkOut;
@@ -809,10 +813,13 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               const y = nextDate.getFullYear();
               const m = String(nextDate.getMonth() + 1).padStart(2, '0');
               const d = String(nextDate.getDate()).padStart(2, '0');
-              const nextCheckOutStr = `${y}-${m}-${d}`;
+              let nextCheckOutStr = `${y}-${m}-${d}`;
+              if (nextCheckOutStr > MAX_SEASON_DATE) {
+                nextCheckOutStr = MAX_SEASON_DATE;
+              }
               if (!checkOut || checkOut < nextCheckOutStr) {
                 setCheckOut(nextCheckOutStr);
-                setCheckOutCalendarMonth(nextDate);
+                setCheckOutCalendarMonth(parseLocalDate(nextCheckOutStr));
               }
             }
             onClose();
@@ -848,7 +855,12 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           <button
             type="button"
             onClick={nextMonth}
-            className="p-1.5 hover:bg-stone-200 rounded-lg text-stone-600 transition-colors font-bold"
+            disabled={year >= 2027 && month >= 9}
+            className={`p-1.5 rounded-lg font-bold transition-colors ${
+              year >= 2027 && month >= 9
+                ? 'text-stone-300 cursor-not-allowed opacity-30'
+                : 'hover:bg-stone-200 text-stone-600'
+            }`}
           >
             →
           </button>
@@ -1239,7 +1251,8 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                   } else if (checkIn) {
                     const date = parseLocalDate(checkIn);
                     date.setDate(date.getDate() + 2);
-                    setCheckOutCalendarMonth(date);
+                    const maxDate = parseLocalDate('2027-10-31');
+                    setCheckOutCalendarMonth(date > maxDate ? maxDate : date);
                   }
                 }
                 setIsCheckOutOpen(!isCheckOutOpen);

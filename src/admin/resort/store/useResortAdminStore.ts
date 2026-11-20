@@ -1241,21 +1241,11 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   },
 
   autoAdvanceDailyLastMinute: async () => {
-    // 1. Proietta istantaneamente gli sconti aggiornati alla data odierna sul Calendario
+    // 1. Proietta istantaneamente gli sconti aggiornati alla data odierna sul Calendario (solo preview locale)
     get().recalculateLastMinuteItems();
-
-    const { isLastMinuteActive, executionMode, lastMinuteRunning } = get();
-    if (!isLastMinuteActive || executionMode === 'simulation' || lastMinuteRunning) {
-      return;
-    }
-
-    const todayStr = toThailandDateStr(new Date());
-    const lastSyncDate = typeof window !== 'undefined' ? localStorage.getItem('fp_last_minute_sync_date') : '';
-
-    if (todayStr && todayStr !== lastSyncDate) {
-      console.log(`[useResortAdminStore] 🔄 Daily Auto-Advance detected: Shifting cascade window to ${todayStr} (Last sync: ${lastSyncDate}). Triggering full Production execution...`);
-      await get().executeLastMinuteStrategy();
-    }
+    // L'avanzamento giornaliero reale verso Octorate PMS è affidato esclusivamente
+    // al motore serverless 24/7 (api/_helpers/octorate-cascade-sync.ts) per evitare
+    // sovrascritture dai listini di fallback lato browser.
   },
 
   setPromoCodes: (promoCodes) => {

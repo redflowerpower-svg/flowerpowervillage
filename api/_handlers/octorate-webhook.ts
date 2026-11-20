@@ -53,7 +53,7 @@ import {
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || "";
   return (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl, serviceRoleKey) : null;
 }
 
@@ -290,7 +290,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
         if (!hasInlineBookingData) {
           console.log(`[OCTORATE WEBHOOK 24/7] Evento non-prenotazione '${eventType}': eseguo solo sync leggero protetto da cooldown.`);
           try {
-            await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin);
+            await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin, false, 'octorate-webhook-light');
           } catch (cascadeErr) {
             console.warn('[OCTORATE WEBHOOK] Light cascade sync warning:', cascadeErr);
           }
@@ -1172,7 +1172,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
           // ⚡ [CASCADE LAST-MINUTE 24/7] Verifica e rinnovo automatico finestra 7 giorni sconti a cascata
           try {
-            await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin);
+            await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin, false, 'octorate-webhook');
           } catch (cascadeErr) {
             console.warn('[OCTORATE WEBHOOK] Cascade sync non-fatal warning:', cascadeErr);
           }

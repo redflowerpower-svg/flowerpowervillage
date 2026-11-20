@@ -24,7 +24,7 @@ on:
 
 jobs:
   parity:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -34,16 +34,75 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Font (Thai, Liberation) e ffmpeg di sistema
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg fonts-liberation fonts-thai-tlwg fonts-dejavu-core
+      - name: Cache dipendenze NPM
+        id: cache-nm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-nm-v1-${{ hashFiles('package-lock.json') }}
 
       - name: Install NPM
+        if: steps.cache-nm.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts || npm install --include=dev --ignore-scripts
 
+      - name: Cache binario FFmpeg
+        id: cache-ffmpeg
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/fp-ffmpeg
+          key: ubuntu24-ffmpeg-v1
+
+      - name: Prepara e Certifica FFmpeg
+        run: |
+          mkdir -p "$HOME/.cache/fp-ffmpeg"
+          if [ ! -x "$HOME/.cache/fp-ffmpeg/ffmpeg" ]; then
+            node node_modules/ffmpeg-static/install.js || true
+            if [ -x "node_modules/ffmpeg-static/ffmpeg" ]; then
+              cp node_modules/ffmpeg-static/ffmpeg "$HOME/.cache/fp-ffmpeg/ffmpeg"
+              chmod +x "$HOME/.cache/fp-ffmpeg/ffmpeg"
+            fi
+          fi
+          if [ ! -x "$HOME/.cache/fp-ffmpeg/ffmpeg" ]; then
+            timeout 90 sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout="15"
+            timeout 90 sudo apt-get install -y -qq --fix-missing --no-install-recommends ffmpeg
+            cp /usr/bin/ffmpeg "$HOME/.cache/fp-ffmpeg/ffmpeg"
+            chmod +x "$HOME/.cache/fp-ffmpeg/ffmpeg"
+          fi
+          "$HOME/.cache/fp-ffmpeg/ffmpeg" -version | head -n 1
+          echo "FFMPEG_PATH=$HOME/.cache/fp-ffmpeg/ffmpeg" >> "$GITHUB_ENV"
+
+      - name: Cache Font Thai e Liberation
+        id: cache-fonts
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/fonts
+          key: ubuntu24-thai-fonts-v1
+
+      - name: Font (Thai, Liberation, DejaVu)
+        run: |
+          mkdir -p "$HOME/.local/share/fonts"
+          if [ -z "$(find "$HOME/.local/share/fonts" -maxdepth 3 -type f 2>/dev/null | head -n 1)" ]; then
+            (
+              timeout 60 sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout="15" &&
+              timeout 60 sudo apt-get install -y -qq --no-install-recommends fonts-liberation fonts-thai-tlwg fonts-dejavu-core &&
+              cp -rn /usr/share/fonts/truetype/tlwg /usr/share/fonts/truetype/liberation /usr/share/fonts/truetype/dejavu "$HOME/.local/share/fonts/" 2>/dev/null
+            ) || true
+          fi
+          fc-cache -f "$HOME/.local/share/fonts" 2>/dev/null || true
+
+      - name: Cache Chromium headless (Playwright)
+        id: cache-pw
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ubuntu24-pw-v1-${{ hashFiles('package-lock.json') }}
+
       - name: Install Chromium (Playwright)
-        run: npx playwright install --with-deps chromium
+        run: |
+          if [ "${{ steps.cache-pw.outputs.cache-hit }}" != "true" ]; then
+            npx playwright install chromium
+          fi
+          node -e "import('playwright').then(async p => { const b = await p.chromium.launch({headless:true,args:['--no-sandbox']}); await b.close(); })" || timeout 120 npx playwright install-deps chromium
 
       - name: Avvia app (vite) in locale sul runner
         env:
@@ -61,7 +120,6 @@ jobs:
         env:
           CI: 'true'
           PARITY_TAG: cloud
-          FFMPEG_PATH: /usr/bin/ffmpeg
         run: |
           MODE="${{ inputs.mode }}"
           ARGS="--mode=$MODE --base=http://127.0.0.1:3000 --api=${{ inputs.api_base }}"

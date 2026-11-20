@@ -104,8 +104,14 @@ export function computeDiscountedPrice(basePrice: number, discountPct: number): 
   return Math.round(basePrice * (1 - discountPct / 100));
 }
 
-export async function loadCascadeLedger(supabaseAdmin: any): Promise<CascadeLedger> {
-  if (!supabaseAdmin) return {};
+export type CascadeLedgerLoadResult =
+  | { ok: true; ledger: CascadeLedger; rowExists: boolean }
+  | { ok: false; error: string };
+
+export async function loadCascadeLedgerStrict(supabaseAdmin: any): Promise<CascadeLedgerLoadResult> {
+  if (!supabaseAdmin) {
+    return { ok: false, error: 'supabaseAdmin_missing' };
+  }
   try {
     const { data, error } = await supabaseAdmin
       .from('telegram_config')
@@ -113,29 +119,69 @@ export async function loadCascadeLedger(supabaseAdmin: any): Promise<CascadeLedg
       .eq('id', CASCADE_LEDGER_ROW_ID)
       .maybeSingle();
 
-    if (error || !data?.bot_token) return {};
+    if (error) {
+      return { ok: false, error: error.message || 'supabase_select_error' };
+    }
+    if (!data?.bot_token) {
+      return { ok: true, ledger: {}, rowExists: false };
+    }
     const parsed = JSON.parse(data.bot_token);
-    return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
-  } catch (err) {
-    console.warn('[Cascade Ledger Load Warning]:', err);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { ok: false, error: 'invalid_ledger_shape' };
+    }
+    return { ok: true, ledger: parsed as CascadeLedger, rowExists: true };
+  } catch (err: any) {
+    return { ok: false, error: err?.message || 'ledger_load_exception' };
+  }
+}
+
+export async function loadCascadeLedger(supabaseAdmin: any): Promise<CascadeLedger> {
+  const res = await loadCascadeLedgerStrict(supabaseAdmin);
+  if (!res.ok) {
+    console.warn('[Cascade Ledger Load Warning]:', res.error);
     return {};
   }
+  return res.ledger;
 }
 
 export async function saveCascadeLedger(
   supabaseAdmin: any,
   ledger: CascadeLedger,
-  todayStr: string = getThailandTodayStr()
-): Promise<void> {
-  if (!supabaseAdmin) return;
+  todayStr: string = getThailandTodayStr(),
+  options?: { allowEmpty?: boolean }
+): Promise<boolean> {
+  if (!supabaseAdmin) return false;
   try {
     // Pulizia automatica chiavi passate per mantenere compatto il record JSON
     const pruned: CascadeLedger = {};
+    let hadExpiredEntries = false;
     for (const [key, entry] of Object.entries(ledger)) {
       const sepIdx = key.lastIndexOf('_');
       const datePart = sepIdx >= 0 ? key.slice(sepIdx + 1) : '';
       if (datePart >= todayStr && entry && typeof entry.basePrice === 'number') {
         pruned[key] = entry;
+      } else if (datePart && datePart < todayStr) {
+        hadExpiredEntries = true;
+      }
+    }
+
+    // Scudo anti-cancellazione accidentale: non sovrascrivere un ledger popolato con {}
+    if (Object.keys(pruned).length === 0 && !hadExpiredEntries && !options?.allowEmpty) {
+      const { data: existingRow } = await supabaseAdmin
+        .from('telegram_config')
+        .select('bot_token')
+        .eq('id', CASCADE_LEDGER_ROW_ID)
+        .maybeSingle();
+      if (existingRow?.bot_token) {
+        try {
+          const parsedExisting = JSON.parse(existingRow.bot_token);
+          if (parsedExisting && typeof parsedExisting === 'object' && Object.keys(parsedExisting).length > 0) {
+            console.warn('[Cascade Ledger Save Guard] Rifiutata sovrascrittura di un ledger esistente non vuoto con {}.');
+            return false;
+          }
+        } catch {
+          // ignore parse error
+        }
       }
     }
 
@@ -147,9 +193,12 @@ export async function saveCascadeLedger(
     });
     if (upsertErr) {
       console.warn('[Cascade Ledger Save Error]:', upsertErr);
+      return false;
     }
+    return true;
   } catch (err) {
     console.warn('[Cascade Ledger Save Warning]:', err);
+    return false;
   }
 }
 
@@ -157,7 +206,7 @@ async function tryAcquireDistributedCascadeLock(
   supabaseAdmin: any,
   force: boolean
 ): Promise<boolean> {
-  if (!supabaseAdmin) return true;
+  if (!supabaseAdmin) return false;
   const nowMs = Date.now();
   try {
     if (!force) {
@@ -167,7 +216,12 @@ async function tryAcquireDistributedCascadeLock(
         .eq('id', CASCADE_SYNC_LOCK_ROW_ID)
         .maybeSingle();
 
-      if (!error && data) {
+      if (error) {
+        console.warn('[Cascade Lock Select Error - Fail Closed]:', error);
+        return false;
+      }
+
+      if (data) {
         let lockedUntilMs = 0;
         if (data.bot_token) {
           try {
@@ -198,12 +252,13 @@ async function tryAcquireDistributedCascadeLock(
       updated_at: new Date(nowMs).toISOString()
     });
     if (lockUpsertErr) {
-      console.warn('[Cascade Lock Upsert Warning]:', lockUpsertErr);
+      console.warn('[Cascade Lock Upsert Error - Fail Closed]:', lockUpsertErr);
+      return false;
     }
     return true;
   } catch (err) {
-    console.warn('[Cascade Lock Warning]:', err);
-    return true;
+    console.warn('[Cascade Lock Warning - Fail Closed]:', err);
+    return false;
   }
 }
 
@@ -218,7 +273,12 @@ export async function invalidateCascadeLedgerEntries(
   if (!supabaseAdmin || !Array.isArray(updates) || updates.length === 0) return;
   try {
     const todayStr = getThailandTodayStr();
-    const ledger = await loadCascadeLedger(supabaseAdmin);
+    const loaded = await loadCascadeLedgerStrict(supabaseAdmin);
+    if (!loaded.ok) {
+      console.warn('[Cascade Ledger Invalidate Aborted - Fail Closed]:', loaded.error);
+      return;
+    }
+    const ledger = loaded.ledger;
     let changed = false;
 
     for (const u of updates) {
@@ -237,7 +297,7 @@ export async function invalidateCascadeLedgerEntries(
     }
 
     if (changed) {
-      await saveCascadeLedger(supabaseAdmin, ledger, todayStr);
+      await saveCascadeLedger(supabaseAdmin, ledger, todayStr, { allowEmpty: true });
     }
   } catch (err) {
     console.warn('[Cascade Ledger Invalidate Warning]:', err);
@@ -257,7 +317,12 @@ export async function applyManualCascadeOverrides(
   try {
     const todayStr = getThailandTodayStr();
     const windowEndStr = addDaysToDate(todayStr, 8);
-    const ledger = await loadCascadeLedger(supabaseAdmin);
+    const loaded = await loadCascadeLedgerStrict(supabaseAdmin);
+    if (!loaded.ok) {
+      console.warn('[Cascade Manual Override Aborted - Fail Closed]:', loaded.error);
+      return;
+    }
+    const ledger = loaded.ledger;
     const nowIso = new Date().toISOString();
     let changed = false;
 
@@ -273,7 +338,8 @@ export async function applyManualCascadeOverrides(
       while (cur <= end) {
         const key = `${rId}_${cur}`;
         const existing = ledger[key];
-        const basePrice = existing?.basePrice || roomCfg?.basePrice || price;
+        const seasonalCanonical = getSeasonalCanonicalBasePrice(rId, cur);
+        const basePrice = existing?.basePrice || seasonalCanonical || roomCfg?.basePrice || price;
         ledger[key] = {
           basePrice,
           discountPct: existing?.discountPct ?? 0,
@@ -349,21 +415,159 @@ export interface CascadeSyncPlanOutput {
 const KNOWN_CASCADE_STAGE_PCTS = [0, 2.5, 5, 10];
 const NON_ZERO_STAGE_PCTS = [2.5, 5, 10];
 
+const FPV_TO_CANONICAL_MOTHER_ID: Record<number, number> = {
+  960389: 529773,
+  960385: 495795,
+  960387: 495796,
+  960383: 494840
+};
+
+const SEASONAL_CANONICAL_PERIODS: Array<{
+  dateFrom: string;
+  dateTo: string;
+  prices: Record<number, number>;
+}> = [
+  {
+    dateFrom: '2026-11-01',
+    dateTo: '2026-11-14',
+    prices: {
+      649669: 1190, 921799: 1190,
+      529773: 3290, 495795: 1790, 495796: 1790, 494840: 1790, 421511: 1790,
+      293957: 1190, 293954: 990, 293962: 990, 293955: 590, 293965: 590,
+      293942: 590, 293963: 590, 293959: 890, 293948: 890, 293945: 890,
+      293943: 490, 293951: 990, 883795: 990
+    }
+  },
+  {
+    dateFrom: '2026-11-15',
+    dateTo: '2026-11-24',
+    prices: {
+      649669: 1490, 921799: 1490,
+      529773: 3590, 495795: 1990, 495796: 1990, 494840: 1990, 421511: 1990,
+      293957: 1490, 293954: 1290, 293962: 1290, 293955: 790, 293965: 790,
+      293942: 790, 293963: 790, 293959: 990, 293948: 990, 293945: 990,
+      293943: 690, 293951: 1090, 883795: 1090
+    }
+  },
+  {
+    dateFrom: '2026-11-25',
+    dateTo: '2026-11-30',
+    prices: {
+      649669: 1490, 921799: 1490,
+      529773: 2990, 495795: 1490, 495796: 1490, 494840: 1490, 421511: 1490,
+      293957: 1490, 293954: 1290, 293962: 1290, 293955: 790, 293965: 790,
+      293942: 790, 293963: 790, 293959: 990, 293948: 990, 293945: 990,
+      293943: 690, 293951: 1090, 883795: 1090
+    }
+  },
+  {
+    dateFrom: '2026-12-01',
+    dateTo: '2026-12-10',
+    prices: {
+      649669: 1990, 921799: 1990,
+      529773: 4290, 495795: 2390, 495796: 2390, 494840: 2390, 421511: 2390,
+      293957: 1990, 293954: 1590, 293962: 1590, 293955: 820, 293965: 820,
+      293942: 820, 293963: 890, 293959: 1190, 293948: 1190, 293945: 1190,
+      293943: 690, 293951: 1590, 883795: 1590
+    }
+  },
+  {
+    dateFrom: '2026-12-11',
+    dateTo: '2026-12-20',
+    prices: {
+      649669: 2390, 921799: 2390,
+      529773: 4990, 495795: 2790, 495796: 2790, 494840: 2790, 421511: 2790,
+      293957: 2390, 293954: 1990, 293962: 1990, 293955: 890, 293965: 890,
+      293942: 890, 293963: 990, 293959: 1490, 293948: 1490, 293945: 1490,
+      293943: 790, 293951: 1990, 883795: 1990
+    }
+  },
+  {
+    dateFrom: '2026-12-21',
+    dateTo: '2027-01-15',
+    prices: {
+      649669: 2990, 921799: 2990,
+      529773: 5790, 495795: 3190, 495796: 3190, 494840: 3190, 421511: 3190,
+      293957: 2990, 293954: 2490, 293962: 2490, 293955: 990, 293965: 990,
+      293942: 990, 293963: 1190, 293959: 1990, 293948: 1990, 293945: 1990,
+      293943: 890, 293951: 2490, 883795: 2490
+    }
+  },
+  {
+    dateFrom: '2027-01-16',
+    dateTo: '2027-03-31',
+    prices: {
+      649669: 2490, 921799: 2490,
+      529773: 5190, 495795: 2890, 495796: 2890, 494840: 2890, 421511: 2890,
+      293957: 2490, 293954: 1990, 293962: 1990, 293955: 890, 293965: 890,
+      293942: 890, 293963: 990, 293959: 1690, 293948: 1690, 293945: 1690,
+      293943: 790, 293951: 1990, 883795: 1990
+    }
+  },
+  {
+    dateFrom: '2027-04-01',
+    dateTo: '2027-04-30',
+    prices: {
+      649669: 2090, 921799: 2090,
+      529773: 3990, 495795: 2290, 495796: 2290, 494840: 2290, 421511: 2290,
+      293957: 2090, 293954: 1590, 293962: 1590, 293955: 790, 293965: 790,
+      293942: 790, 293963: 890, 293959: 1590, 293948: 1590, 293945: 1590,
+      293943: 690, 293951: 1590, 883795: 1590
+    }
+  },
+  {
+    dateFrom: '2027-05-01',
+    dateTo: '2027-05-31',
+    prices: {
+      649669: 1290, 921799: 1290,
+      529773: 3190, 495795: 1790, 495796: 1790, 494840: 1790, 421511: 1790,
+      293957: 1290, 293954: 1090, 293962: 1090, 293955: 620, 293965: 620,
+      293942: 620, 293963: 790, 293959: 990, 293948: 990, 293945: 990,
+      293943: 590, 293951: 1190, 883795: 1190
+    }
+  },
+  {
+    dateFrom: '2027-06-01',
+    dateTo: '2027-10-31',
+    prices: {
+      649669: 990, 921799: 990,
+      529773: 2290, 495795: 1290, 495796: 1290, 494840: 1290, 421511: 1290,
+      293957: 990, 293954: 790, 293962: 790, 293955: 490, 293965: 490,
+      293942: 490, 293963: 690, 293959: 890, 293948: 890, 293945: 890,
+      293943: 590, 293951: 990, 883795: 990
+    }
+  }
+];
+
+export function getSeasonalCanonicalBasePrice(motherId: number, dateStr: string): number | null {
+  const canonicalId = FPV_TO_CANONICAL_MOTHER_ID[motherId] ?? motherId;
+  for (const period of SEASONAL_CANONICAL_PERIODS) {
+    if (dateStr >= period.dateFrom && dateStr <= period.dateTo) {
+      const price = period.prices[canonicalId];
+      return typeof price === 'number' && price > 0 ? price : null;
+    }
+  }
+  return null;
+}
+
+function matchesDiscountOfBase(candidateBase: number, livePrice: number): boolean {
+  for (const pct of NON_ZERO_STAGE_PCTS) {
+    const step1 = computeDiscountedPrice(candidateBase, pct);
+    if (step1 === livePrice) return true;
+    for (const pct2 of NON_ZERO_STAGE_PCTS) {
+      if (computeDiscountedPrice(step1, pct2) === livePrice) return true;
+    }
+  }
+  return false;
+}
+
 function isKnownCascadeOrBasePrice(existing: CascadeLedgerEntry, livePrice: number): boolean {
   if (livePrice === existing.basePrice) return true;
   if (existing.previousDiscountedPrice !== undefined && livePrice === existing.previousDiscountedPrice) {
     return true;
   }
-  // 1-step cascade discounts from existing.basePrice
-  for (const pct of KNOWN_CASCADE_STAGE_PCTS) {
-    const step1 = computeDiscountedPrice(existing.basePrice, pct);
-    if (step1 === livePrice) return true;
-    // 2-step compounded discounts (accidental double-discount on top of step1)
-    if (pct > 0) {
-      for (const pct2 of NON_ZERO_STAGE_PCTS) {
-        if (computeDiscountedPrice(step1, pct2) === livePrice) return true;
-      }
-    }
+  if (matchesDiscountOfBase(existing.basePrice, livePrice)) {
+    return true;
   }
   // 2-step compounded discount on top of existing.discountedPrice
   for (const pct2 of NON_ZERO_STAGE_PCTS) {
@@ -569,14 +773,29 @@ export function buildDynamicCascadeSyncPlan(input: CascadeSyncPlanInput): Cascad
         ledgerChanged = true;
       } else {
         // Nuova data fuori ledger o offset >= 9:
-        // Se Octorate ha già lo sconto esatto sul basePrice canonico della stanza,
-        // riconosciamo quel basePrice anche se nel ledger era presente un prezzo precedente diverso.
+        // Scudo anti-accumulo: verifica se il prezzo live coincide già con un listino canonico/ancora d+9
+        // oppure se è uno sconto (1-step o 2-step) di un prezzo di listino noto (ancora d+9, matrice stagionale, fallback).
         let basePrice = livePrice;
-        if (
-          targetDiscountPct > 0 &&
-          livePrice === computeDiscountedPrice(room.basePrice, targetDiscountPct)
-        ) {
-          basePrice = room.basePrice;
+        if (targetDiscountPct > 0) {
+          const seasonalCanonical = getSeasonalCanonicalBasePrice(room.motherId, targetDateStr);
+          const d9AnchorPrice = livePriceMap.get(`${room.motherId}_${addDaysToDate(todayStr, 9)}`);
+          const isExactCanonicalBase =
+            (seasonalCanonical !== null && livePrice === seasonalCanonical) ||
+            (d9AnchorPrice !== undefined && d9AnchorPrice > 0 && livePrice === d9AnchorPrice);
+
+          if (!isExactCanonicalBase) {
+            const candidateSet = new Set<number>();
+            if (d9AnchorPrice !== undefined && d9AnchorPrice > 0) candidateSet.add(d9AnchorPrice);
+            if (seasonalCanonical !== null && seasonalCanonical > 0) candidateSet.add(seasonalCanonical);
+            if (room.basePrice > 0) candidateSet.add(room.basePrice);
+
+            for (const candBase of candidateSet) {
+              if (candBase !== livePrice && matchesDiscountOfBase(candBase, livePrice)) {
+                basePrice = candBase;
+                break;
+              }
+            }
+          }
         }
 
         const newDiscounted = computeDiscountedPrice(basePrice, targetDiscountPct);
@@ -709,10 +928,14 @@ async function fetchLiveMotherPricesWindow(
 export async function checkAndSyncCascadeLastMinute(
   accessToken: string,
   supabaseAdmin?: any,
-  force: boolean = false
+  force: boolean = false,
+  source: string = 'unknown'
 ): Promise<{ synced: boolean; message: string; updatesCount?: number }> {
   if (!accessToken) {
     return { synced: false, message: 'Access token mancante per sync sconti a cascata.' };
+  }
+  if (!supabaseAdmin) {
+    return { synced: false, message: 'Configurazione Supabase mancante per sync sconti a cascata (fail-closed).' };
   }
 
   const nowMs = Date.now();
@@ -723,6 +946,12 @@ export async function checkAndSyncCascadeLastMinute(
   const lockAcquired = await tryAcquireDistributedCascadeLock(supabaseAdmin, force);
   if (!lockAcquired) {
     return { synced: false, message: 'Sync sconti a cascata in cooldown distribuito (30 min).' };
+  }
+
+  const ledgerLoad = await loadCascadeLedgerStrict(supabaseAdmin);
+  if (!ledgerLoad.ok) {
+    console.error(`❌ [CASCADE LAST-MINUTE] Abort fail-closed: impossibile leggere ledger (${ledgerLoad.error}).`);
+    return { synced: false, message: `Abort sync sconti a cascata: errore lettura ledger (${ledgerLoad.error}).` };
   }
 
   const todayStr = getThailandTodayStr();
@@ -740,15 +969,21 @@ export async function checkAndSyncCascadeLastMinute(
     return { synced: false, message: 'Nessun prezzo live restituito da Octorate per la finestra a cascata.' };
   }
 
-  const activeJungleSource = supabaseAdmin ? await getActiveJungleSource(supabaseAdmin) : '807324';
-  const ledger = await loadCascadeLedger(supabaseAdmin);
+  const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
   const { bulkPayload, nextLedger, ledgerChanged } = buildDynamicCascadeSyncPlan({
     rooms: CASCADE_MOTHER_ROOMS,
     todayStr,
     livePriceMap,
-    ledger,
+    ledger: ledgerLoad.ledger,
     activeJungleSource
   });
+
+  const ledgerEntryCount = Object.keys(ledgerLoad.ledger).length;
+  if (bulkPayload.length > 0 || ledgerEntryCount === 0) {
+    console.log(
+      `[CASCADE LAST-MINUTE] source=${source} | today=${todayStr} | ledgerEntries=${ledgerEntryCount} | rowExists=${ledgerLoad.rowExists} | updates=${bulkPayload.length}`
+    );
+  }
 
   if (bulkPayload.length === 0) {
     if (ledgerChanged) {
@@ -758,9 +993,21 @@ export async function checkAndSyncCascadeLastMinute(
     return { synced: false, message: `Octorate live già allineato con gli sconti a cascata (${todayStr}).` };
   }
 
+  // Write-Ahead Ledger (WAL): persiste il registro su Supabase PRIMA di inviare modifiche a Octorate
+  if (ledgerChanged || !ledgerLoad.rowExists) {
+    const walSaved = await saveCascadeLedger(supabaseAdmin, nextLedger, todayStr);
+    if (!walSaved) {
+      console.error('❌ [CASCADE LAST-MINUTE] Abort: salvataggio Write-Ahead Ledger fallito prima della scrittura Octorate.');
+      return {
+        synced: false,
+        message: 'Abort sync sconti a cascata: impossibile persistere il ledger su Supabase prima della scrittura Octorate.'
+      };
+    }
+  }
+
   console.log(`⚡ [CASCADE LAST-MINUTE 24/7] Avvio sincronizzazione dinamica (${bulkPayload.length} celle) per ${todayStr}...`);
 
-  const BATCH_SIZE = 25;
+  const BATCH_SIZE = 100;
   const chunks: Array<typeof bulkPayload> = [];
   for (let i = 0; i < bulkPayload.length; i += BATCH_SIZE) {
     chunks.push(bulkPayload.slice(i, i + BATCH_SIZE));
@@ -795,7 +1042,6 @@ export async function checkAndSyncCascadeLastMinute(
 
   if (totalSuccessful > 0) {
     lastSyncTimestampMs = Date.now();
-    await saveCascadeLedger(supabaseAdmin, nextLedger, todayStr);
     console.log(`✅ [CASCADE LAST-MINUTE 24/7] Sincronizzazione completata: ${totalSuccessful} tariffe scritte su Octorate PMS.`);
 
     if (supabaseAdmin) {

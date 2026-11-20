@@ -167,6 +167,11 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    // 🛑 BLINDATURA STAGIONALE ASSOLUTA: Nessuna prenotazione permessa oltre il 31 Ottobre 2027
+    if (checkIn > '2027-10-31' || checkOut > '2027-10-31') {
+      return res.status(400).json({ error: "Season ended on 2027-10-31. No bookings allowed beyond this date." });
+    }
+
     const room = MOCK_ACCOMMODATIONS.find((a) => 
       a.id === Number(accommodationId) || 
       (a as any).slug === String(accommodationId || '').toLowerCase() ||
