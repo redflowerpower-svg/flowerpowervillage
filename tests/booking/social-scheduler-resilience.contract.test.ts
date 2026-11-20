@@ -12,6 +12,7 @@ import {
   TOPIC_TIKTOK_STORIES,
   analyzeSlotHistory,
   buildDelayNoticeMessage,
+  buildFiniteAudioMuxArgs,
   buildResolvedNoticeMessage,
   buildSubTopicNoticeMessage,
   computeNextRetryHint,
@@ -431,5 +432,103 @@ describe("Reparto /social — Integrità Static Workflow GitHub Actions", () => 
       .find((line) => line.includes("apt-get install") && line.includes(" ffmpeg"));
     assert.ok(aptInstallFfmpegLine, "Manca il fallback apt-get install ffmpeg");
     assert.equal(aptInstallFfmpegLine.includes("|| true"), false);
+
+    assert.equal(yml.includes("apad=whole_dur="), true);
+    assert.equal(yml.includes("timeout-minutes: 12"), true);
+  });
+
+  it("genera argomenti FFmpeg finiti senza apad infinito/duration=longest e con timeout in render-parity-test.mjs", () => {
+    const args = buildFiniteAudioMuxArgs({
+      rawPath: "/tmp/in.mp4",
+      bgPath: "/tmp/bg.mp3",
+      sfxPath: "/tmp/sfx.wav",
+      delayMs: 8200,
+      durationSec: 12.2,
+      outPath: "/tmp/out.mp4",
+    });
+    const joined = args.join(" ");
+    assert.equal(args.includes("-nostdin"), true);
+    assert.equal(args.includes("-t"), true);
+    assert.equal(args.includes("12.200"), true);
+    assert.equal(args.includes("-shortest"), false);
+    assert.equal(joined.includes("apad=whole_dur=12.70"), true);
+    assert.equal(joined.includes("atrim=0:12.200"), true);
+    assert.equal(joined.includes("amix=inputs=2:duration=first"), true);
+    assert.equal(joined.includes("apad[bg]"), false);
+    assert.equal(joined.includes("duration=longest"), false);
+
+    const paritySrc = fs.readFileSync(
+      path.resolve("scripts/render-parity-test.mjs"),
+      "utf8"
+    );
+    assert.equal(paritySrc.includes("apad[bg]"), false);
+    assert.equal(paritySrc.includes("duration=longest"), false);
+    assert.equal(paritySrc.includes("timeout: 90000"), true);
+  });
+
+  it("non conta due volte l'in_progress del run corrente quando esclude runId (1/3 -> 2/3 -> 3/3, mai 4/3)", () => {
+    const nowMs = Date.now();
+    // Run 1 andato in timeout dopo 24 minuti: in Neon c'e solo l'in_progress di run1 (vecchio > 18 min)
+    const run1Rows = [
+      ...priorCompletedRows("16:00", nowMs),
+      {
+        id: 1,
+        slot: "16:00",
+        status: "in_progress",
+        copy_text: serializeRetryMeta({ attempt: 1, runId: "run-111", topic301MsgId: null }),
+        created_at: new Date(nowMs - 24 * 60_000).toISOString(),
+      },
+    ];
+    const h1 = analyzeSlotHistory(run1Rows, nowMs, { excludeRunId: "run-111" });
+    assert.equal(h1["16:00"].failedAttempts, 0);
+    const attemptAfterRun1 = Math.min(MAX_SLOT_ATTEMPTS, h1["16:00"].failedAttempts + 1);
+    assert.equal(attemptAfterRun1, 1);
+
+    // Run 2 andato anch'esso in timeout dopo 24 minuti
+    const run2Rows = [
+      ...run1Rows,
+      {
+        id: 2,
+        slot: "16:00",
+        status: "retry_pending",
+        copy_text: serializeRetryMeta({ attempt: 1, runId: "run-111", topic301MsgId: 894 }),
+        created_at: new Date(nowMs - 23 * 60_000).toISOString(),
+      },
+      {
+        id: 3,
+        slot: "16:00",
+        status: "in_progress",
+        copy_text: serializeRetryMeta({ attempt: 2, runId: "run-222", topic301MsgId: 894 }),
+        created_at: new Date(nowMs - 22 * 60_000).toISOString(),
+      },
+    ];
+    const h2 = analyzeSlotHistory(run2Rows, nowMs, { excludeRunId: "run-222" });
+    assert.equal(h2["16:00"].failedAttempts, 1);
+    assert.equal(h2["16:00"].lastNotice.topic301MsgId, 894);
+    const attemptAfterRun2 = Math.min(MAX_SLOT_ATTEMPTS, Math.max(2, h2["16:00"].failedAttempts + 1));
+    assert.equal(attemptAfterRun2, 2);
+
+    // Run 3 fallito: deve risultare tentativo 3/3 (mai 4/3)
+    const run3Rows = [
+      ...run2Rows,
+      {
+        id: 4,
+        slot: "16:00",
+        status: "retry_pending",
+        copy_text: serializeRetryMeta({ attempt: 2, runId: "run-222", topic301MsgId: 894 }),
+        created_at: new Date(nowMs - 21 * 60_000).toISOString(),
+      },
+      {
+        id: 5,
+        slot: "16:00",
+        status: "in_progress",
+        copy_text: serializeRetryMeta({ attempt: 3, runId: "run-333", topic301MsgId: 894 }),
+        created_at: new Date(nowMs - 20 * 60_000).toISOString(),
+      },
+    ];
+    const h3 = analyzeSlotHistory(run3Rows, nowMs, { excludeRunId: "run-333" });
+    assert.equal(h3["16:00"].failedAttempts, 2);
+    const attemptAfterRun3 = Math.min(MAX_SLOT_ATTEMPTS, Math.max(3, h3["16:00"].failedAttempts + 1));
+    assert.equal(attemptAfterRun3, 3);
   });
 });

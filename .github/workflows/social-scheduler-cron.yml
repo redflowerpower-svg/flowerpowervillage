@@ -124,6 +124,7 @@ jobs:
             chmod +x "$HOME/.cache/fp-ffmpeg/ffmpeg"
           fi
           "$HOME/.cache/fp-ffmpeg/ffmpeg" -version | head -n 1
+          timeout 15 "$HOME/.cache/fp-ffmpeg/ffmpeg" -nostdin -y -v error -f lavfi -i color=c=black:s=160x90:d=1 -f lavfi -i sine=frequency=440:duration=0.5 -f lavfi -i sine=frequency=880:duration=0.3 -filter_complex "[1:a]volume=1.0,apad=whole_dur=1.5,atrim=0:1.000[bg];[2:a]adelay=500|500,volume=1.8,atrim=0:1.000[sfx];[bg][sfx]amix=inputs=2:duration=first:dropout_transition=2,atrim=0:1.000[a]" -map 0:v -map "[a]" -c:v libx264 -c:a aac -t 1.000 -f null -
           echo "FFMPEG_PATH=$HOME/.cache/fp-ffmpeg/ffmpeg" >> "$GITHUB_ENV"
 
       - name: Cache Font Thai e Liberation
@@ -175,6 +176,7 @@ jobs:
 
       - name: Esegui Social Scheduler Dispatcher
         if: steps.preflight.outputs.should_run == 'true'
+        timeout-minutes: 12
         env:
           CI: 'true'
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}

@@ -130,7 +130,7 @@ async function main() {
         WHERE (created_at AT TIME ZONE 'Asia/Bangkok')::date = (NOW() AT TIME ZONE 'Asia/Bangkok')::date
         ORDER BY created_at ASC;
       `;
-      const history = analyzeSlotHistory(todayRows || []);
+      const history = analyzeSlotHistory(todayRows || [], Date.now(), { excludeRunId: runId });
       slotState = history[targetSlot] || null;
     } catch (e) {
       console.warn('[emergency-alert] Avviso analisi storico Neon:', e.message);
@@ -138,8 +138,8 @@ async function main() {
   }
 
   const attempt = targetSlot
-    ? Math.max(rawAttempt, (slotState?.failedAttempts || 0) + 1)
-    : Math.max(rawAttempt, MAX_SLOT_ATTEMPTS);
+    ? Math.min(MAX_SLOT_ATTEMPTS, Math.max(rawAttempt, (slotState?.failedAttempts || 0) + 1))
+    : MAX_SLOT_ATTEMPTS;
 
   const slotMeta = targetSlot ? (SLOT_METADATA[targetSlot] || { label: `Slot ${targetSlot}`, brand: 'flowerpower', items: ['MAIN'], itemTopics: {} }) : null;
 
