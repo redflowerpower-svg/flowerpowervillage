@@ -141,6 +141,97 @@ describe("Sconti a Cascata Last-Minute (3 stadi)", () => {
     assert.equal(res.nextLedger["293954_2026-11-22"]?.manualOverride, true);
   });
 
+  it("congela la modifica manuale effettuata direttamente su Octorate dentro la finestra, la specchia sulla gemella standby e non la sovrascrive al cambio stadio", () => {
+    const rooms: CascadeRoomConfig[] = [
+      { motherId: 529773, name: "Jungle Villa 2", basePrice: 2290 },
+      { motherId: 960389, name: "Jungle Villa", basePrice: 2290 },
+      { motherId: 293954, name: "Red Bungalow", basePrice: 790 },
+    ];
+
+    // Fase 1: Il ledger ha Red Bungalow a sconto calcolato 751 (-5% su 790) al 2026-11-23.
+    // L'utente entra su Octorate e scrive manualmente 600 THB.
+    const initialLedger: CascadeLedger = {
+      "293954_2026-11-23": {
+        basePrice: 790,
+        discountPct: 5,
+        discountedPrice: 751,
+        updatedAt: "2026-11-20T01:00:00.000Z",
+      },
+      "529773_2026-11-23": {
+        basePrice: 2290,
+        discountPct: 5,
+        discountedPrice: 2176,
+        updatedAt: "2026-11-20T01:00:00.000Z",
+      },
+      "960389_2026-11-23": {
+        basePrice: 2290,
+        discountPct: 5,
+        discountedPrice: 2176,
+        updatedAt: "2026-11-20T01:00:00.000Z",
+      },
+    };
+
+    // Octorate restituisce 600 THB per Red Bungalow e 1800 THB per Jungle Villa 2 (attiva),
+    // mentre Jungle Villa standby è ancora a 2176.
+    const livePriceMap1 = new Map<string, number>([
+      ["293954_2026-11-23", 600],
+      ["529773_2026-11-23", 1800],
+      ["960389_2026-11-23", 2176],
+    ]);
+
+    const run1 = buildDynamicCascadeSyncPlan({
+      rooms,
+      todayStr: "2026-11-20", // 2026-11-23 è offset 3
+      livePriceMap: livePriceMap1,
+      ledger: initialLedger,
+      nowIso: "2026-11-20T06:00:00.000Z",
+      activeJungleSource: "807324",
+    });
+
+    // Red Bungalow (293954) e Jungle Villa 2 (529773) NON devono essere sovrascritti su Octorate
+    assert.equal(run1.bulkPayload.some((p) => p.room === 293954 && p.dateFrom === "2026-11-23"), false);
+    assert.equal(run1.bulkPayload.some((p) => p.room === 529773 && p.dateFrom === "2026-11-23"), false);
+
+    // La gemella in standby (960389) riceve invece l'aggiornamento a 1800 THB per allinearsi all'override
+    assert.deepEqual(
+      run1.bulkPayload.find((p) => p.room === 960389 && p.dateFrom === "2026-11-23")?.values.price,
+      1800
+    );
+
+    // Entrambi gli alloggi ora hanno manualOverride: true nel ledger con il prezzo scelto dall'utente
+    assert.equal(run1.nextLedger["293954_2026-11-23"]?.manualOverride, true);
+    assert.equal(run1.nextLedger["293954_2026-11-23"]?.discountedPrice, 600);
+    assert.equal(run1.nextLedger["529773_2026-11-23"]?.manualOverride, true);
+    assert.equal(run1.nextLedger["529773_2026-11-23"]?.discountedPrice, 1800);
+    assert.equal(run1.nextLedger["960389_2026-11-23"]?.manualOverride, true);
+    assert.equal(run1.nextLedger["960389_2026-11-23"]?.discountedPrice, 1800);
+
+    // Fase 2: Il giorno successivo (oggi = 2026-11-21), la data 2026-11-23 diventa offset 2 (stadio 1: -10%).
+    // Con la cascata standard il prezzo di Red Bungalow diventerebbe 711 THB.
+    // Con manualOverride: true, il motore DEVE MANTENERE 600 THB e non generare riscritture.
+    const livePriceMap2 = new Map<string, number>([
+      ["293954_2026-11-23", 600],
+      ["529773_2026-11-23", 1800],
+      ["960389_2026-11-23", 1800],
+    ]);
+
+    const run2 = buildDynamicCascadeSyncPlan({
+      rooms,
+      todayStr: "2026-11-21", // 2026-11-23 ora è offset 2 (-10%)
+      livePriceMap: livePriceMap2,
+      ledger: run1.nextLedger,
+      nowIso: "2026-11-21T06:00:00.000Z",
+      activeJungleSource: "807324",
+    });
+
+    // Zero riscritture generate: il prezzo bloccato vince sullo sconto del 10%!
+    assert.equal(run2.bulkPayload.length, 0);
+    assert.equal(run2.nextLedger["293954_2026-11-23"]?.discountedPrice, 600);
+    assert.equal(run2.nextLedger["293954_2026-11-23"]?.manualOverride, true);
+    assert.equal(run2.nextLedger["529773_2026-11-23"]?.discountedPrice, 1800);
+    assert.equal(run2.nextLedger["529773_2026-11-23"]?.manualOverride, true);
+  });
+
   it("mantiene il rigore del listino iniziale su 9 giorni consecutivi senza mai moltiplicare gli sconti", () => {
     const rooms: CascadeRoomConfig[] = [{ motherId: 293957, name: "Yellow Bungalow", basePrice: 990 }];
     const livePriceMap = new Map<string, number>();

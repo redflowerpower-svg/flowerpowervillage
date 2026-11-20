@@ -1665,7 +1665,7 @@ async function renderVideoMode(mode, maxAttempts = 3) {
       `--tag=dispatch`
     ];
 
-    const res = spawnSync('node', runArgs, { stdio: 'inherit' });
+    const res = spawnSync('node', runArgs, { stdio: 'inherit', timeout: 300000 });
     if (res.status === 0) {
       // Verifica se il formato è andato in Sold Out (es. LM1 con 0 alloggi liberi su Octorate)
       const soldOutFile = path.join(outDir, `${mode}.soldout.json`);
@@ -1718,6 +1718,8 @@ async function renderVideoMode(mode, maxAttempts = 3) {
         };
       }
       lastError = new Error(`Video non generato per ${mode} nonostante exit code 0`);
+    } else if (res.error?.code === 'ETIMEDOUT' || res.signal === 'SIGTERM') {
+      lastError = new Error(`Rendering scaduto per timeout (>5 min) su ${mode}`);
     } else {
       lastError = new Error(`Rendering fallito per ${mode} (exit code ${res.status})`);
     }

@@ -169,7 +169,8 @@ export function serializeRetryMeta(meta) {
   return JSON.stringify(meta || {});
 }
 
-export function analyzeSlotHistory(todayRows = [], nowMs = Date.now()) {
+export function analyzeSlotHistory(todayRows = [], nowMs = Date.now(), options = {}) {
+  const excludeRunId = options?.excludeRunId ? String(options.excludeRunId) : '';
   const state = {};
   const masterRowsBySlot = {};
 
@@ -200,11 +201,18 @@ export function analyzeSlotHistory(todayRows = [], nowMs = Date.now()) {
   }
 
   for (const s of OFFICIAL_SLOTS) {
-    const rows = masterRowsBySlot[s].slice().sort((a, b) => {
+    const allRows = masterRowsBySlot[s].slice().sort((a, b) => {
       const ta = a?.created_at ? new Date(a.created_at).getTime() : 0;
       const tb = b?.created_at ? new Date(b.created_at).getTime() : 0;
       return ta - tb;
     });
+
+    const rows = excludeRunId
+      ? allRows.filter((row) => {
+          if (String(row?.status || '') !== 'in_progress') return true;
+          return parseRetryMeta(row?.copy_text).runId !== excludeRunId;
+        })
+      : allRows;
 
     const st = state[s];
     let failedAttempts = 0;
@@ -246,11 +254,11 @@ export function analyzeSlotHistory(todayRows = [], nowMs = Date.now()) {
 
     st.failedAttempts = failedAttempts;
 
-    // Estrae l'ultimo topic301MsgId e tutte le extraNotices univoche dai log dello slot
+    // Estrae l'ultimo topic301MsgId e tutte le extraNotices univoche da tutti i log dello slot
     let latestTopic301MsgId = null;
     const noticeMap = new Map();
-    for (let i = rows.length - 1; i >= 0; i--) {
-      const meta = parseRetryMeta(rows[i]?.copy_text);
+    for (let i = allRows.length - 1; i >= 0; i--) {
+      const meta = parseRetryMeta(allRows[i]?.copy_text);
       if (latestTopic301MsgId == null && meta.topic301MsgId != null) {
         latestTopic301MsgId = meta.topic301MsgId;
       }
@@ -462,4 +470,34 @@ export function resolveFfmpegBinary({
     } catch { }
   }
   return null;
+}
+
+export function buildFiniteAudioMuxArgs({
+  rawPath,
+  bgPath,
+  sfxPath,
+  delayMs,
+  durationSec,
+  outPath
+}) {
+  const safeDur = Number.isFinite(Number(durationSec)) && Number(durationSec) > 0.5
+    ? Number(durationSec)
+    : 15;
+  const exactDur = safeDur.toFixed(3);
+  const padDur = (safeDur + 0.5).toFixed(2);
+  const safeDelay = Math.max(0, Math.round(Number(delayMs) || 0));
+
+  return [
+    '-nostdin', '-y', '-v', 'warning',
+    '-i', rawPath,
+    '-i', bgPath,
+    '-i', sfxPath,
+    '-filter_complex',
+    `[1:a]volume=1.0,apad=whole_dur=${padDur},atrim=0:${exactDur}[bg];[2:a]adelay=${safeDelay}|${safeDelay},volume=1.8,atrim=0:${exactDur}[sfx];[bg][sfx]amix=inputs=2:duration=first:dropout_transition=2,atrim=0:${exactDur}[a]`,
+    '-map', '0:v', '-map', '[a]',
+    '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k',
+    '-movflags', '+faststart',
+    '-t', exactDur,
+    outPath
+  ];
 }

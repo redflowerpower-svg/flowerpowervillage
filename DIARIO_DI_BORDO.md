@@ -3,6 +3,36 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🔧 [20/11/2026 - ORE 17:29] · FIX DEFINITIVO HANG INFINITO FFMPEG 7.0.2 & CONTATORE TENTATIVI SOCIAL STUDIO
+- **Cosa abbiamo fatto:**
+  1. 🔎 **Diagnosi Definitiva dei Timeout di Oggi (`11:30`, `12:00`, `12:30`, `13:00`, `16:00`, `16:30`, `17:00`)**:
+     - Verificato sui log dei runner cloud (`#1343`–`#1355`) che il setup con cache dura ormai solo **~38 secondi** e il video muto esce dal browser in **~38 secondi**, ma il comando di montaggio audio `FFmpeg 7.0.2-static` restava bloccato all'infinito per **24 minuti** fino al taglio forzato di GitHub Actions.
+     - Causa esatta: il filtro audio combinato (`apad` infinito + `amix duration=longest` + `-shortest`) manda in loop infinito di silenzio la versione Linux `7.0.2` di FFmpeg; inoltre mancavano `-nostdin` e un timeout sul processo.
+     - Scoperto anche un bug off-by-one nel contatore di emergenza (`scripts/social-emergency-alert.mjs`), che contava due volte il job appena interrotto mostrando `2/3` al primo giro e `4/3` al secondo (saltando il 3° tentativo).
+  2. ⚡ **Fix Chirurgico Audio Finito + Timeout di Sicurezza**:
+     - Aggiunta in [social-scheduler-core.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/social-scheduler-core.mjs) la funzione `buildFiniteAudioMuxArgs()` con durata finita esatta (`apad=whole_dur=...`, `atrim=0:...`, `amix duration=first`, `-nostdin`, `-t <durata>`) applicata a entrambi i rami di [render-parity-test.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/render-parity-test.mjs) con timeout di `90s`.
+     - Aggiunto timeout di `5 minuti` per singolo tentativo in [social-scheduler-dispatch.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/social-scheduler-dispatch.mjs) e `timeout-minutes: 12` nello step cloud di [social-scheduler-cron.yml](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/.github/workflows/social-scheduler-cron.yml), più test di controllo FFmpeg a fine setup su entrambi i workflow.
+  3. 🔁 **Contatore Tentativi Allineato `1/3 -> 2/3 -> 3/3`**:
+     - Aggiornato `analyzeSlotHistory(..., { excludeRunId })` e [social-emergency-alert.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/social-emergency-alert.mjs) per non ricontare il tentativo in corso ed eseguire esattamente tutti e 3 i tentativi reali.
+- **Verifica:** Test reale locale con `buildFiniteAudioMuxArgs` su traccia audio del progetto (`475ms`, durata esatta `12.20s` con video+audio), `node --check` su tutti gli script (`0` errori), `npm run verify:all` (`api:check` + tutti i test contrattuali verdi inclusi 3 nuovi test su FFmpeg finito e `excludeRunId` + `vite build`) e `node scratch/security-audit.mjs` (`0 SECRETS DETECTED`).
+- **Stato:** 🟡 PRONTO IN LOCALE SU `staging` — **Da pubblicare subito su `main` con `MARKDOWN-PROJECT` / `MARKDOWN-WEBSITE`** per sbloccare immediatamente i prossimi slot serali (`18:00`, `18:30`, `19:30`, `20:00`, `21:00`) e il recupero delle `17:00`.
+
+---
+
+### 🛡️ [20/11/2026 - ORE 11:24] · CERTIFICAZIONE & BLINDATURA TEST "MANUAL OVERRIDE" (PREZZI BLOCCATI NEI 9 GIORNI LAST-MINUTE)
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Audit Completo Funzionalità Prezzi Bloccati**:
+     - Confermato il perfetto funzionamento della logica `manualOverride` sia via Dashboard Admin (`applyManualCascadeOverrides` su `/api/update-prices-stagionale`) sia via modifica diretta dal calendario Octorate PMS (ramo linee 761–774 di `api/_helpers/octorate-cascade-sync.ts`).
+     - Verificato che una tariffa personalizzata viene congelata nel ledger Supabase con `manualOverride: true`, non subisce ulteriori sconti percentuali (anche se il giorno avanza di stadio da -5% a -10%) e viene specchiata sulla gemella standby.
+     - Al compimento del 9° giorno (offset $\ge 9$), il sistema ripristina automaticamente il listino base originale (`basePrice`) e rimuove l'override.
+  2. 🧪 **Nuovo Test di Contratto End-to-End (`tests/booking/cascade-sync.contract.test.ts`)**:
+     - Aggiunto il test *"congela la modifica manuale effettuata direttamente su Octorate dentro la finestra, la specchia sulla gemella standby e non la sovrascrive al cambio stadio"*.
+     - Il test valida: 1) rilevamento modifica su PMS Octorate, 2) zero riscritture della camera madre, 3) specchiatura immediata sulla gemella standby, 4) congelamento permanente al cambio di data e di stadio di sconto, 5) ripristino automatico a listino all'uscita dalla finestra.
+- **Verifica:** `npm run test:booking` (72/72 test contrattuali verdi) e `npm run verify:all` (`api:check` + test contrattuali + `vite build` completata al 100%).
+- **Stato:** 🟢 COMPLETATO E CERTIFICATO IN LOCALE SU `staging`.
+
+---
+
 ### 🔍 [20/11/2026 - ORE 10:57] · SCOPERTA PROVA REGINA RICADUTA NOTTURNA, BLINDATURA ADMIN & RIPRISTINO PREZZI 20–28 NOV
 - **Cosa abbiamo fatto:**
   1. 🕵️ **Identificata la Causa Esatta della Ricaduta Notturna (`75998c8` + Freeze-Thaw Vercel)**:

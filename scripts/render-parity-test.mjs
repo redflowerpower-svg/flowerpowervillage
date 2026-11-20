@@ -21,7 +21,7 @@ import { createRequire } from 'module';
 import { execFileSync, spawnSync } from 'child_process';
 import { chromium } from 'playwright';
 import ffmpegStatic from 'ffmpeg-static';
-import { resolveFfmpegBinary } from './social-scheduler-core.mjs';
+import { buildFiniteAudioMuxArgs, resolveFfmpegBinary } from './social-scheduler-core.mjs';
 
 const require = createRequire(import.meta.url);
 
@@ -77,6 +77,14 @@ log(`FFmpeg certificato: ${ffmpeg}`);
 const annotate = (level, msg) => {
   if (process.env.GITHUB_ACTIONS) console.log('::' + level + ' title=parity::' + String(msg).replace(/\r?\n/g, ' ').slice(0, 400));
 };
+
+function probeVideoDurationSec(filePath, fallbackSec = 15) {
+  const probe = spawnSync(ffmpeg, ['-nostdin', '-i', filePath], { encoding: 'utf8', timeout: 15000 });
+  const m = /Duration:\s*(\d+):(\d+):([\d.]+)/.exec(probe.stderr || '');
+  if (!m) return fallbackSec;
+  const secs = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]);
+  return Number.isFinite(secs) && secs > 0.5 ? secs : fallbackSec;
+}
 
 let lastMuxedAudioPath = null;
 
@@ -240,15 +248,20 @@ async function main() {
           ? Math.round(outro_start_time * 1000)
           : 8850;
 
-        const ffArgs = [
-          '-y', '-i', tmpV, '-i', bgPath, '-i', sfxPath,
-          '-filter_complex', `[1:a]volume=1.0,apad[bg];[2:a]adelay=${delay}|${delay},volume=1.8[sfx];[bg][sfx]amix=inputs=2:duration=longest:dropout_transition=2[a]`,
-          '-map', '0:v', '-map', '[a]',
-          '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k',
-          '-movflags', '+faststart',
-          '-shortest', tmpOut
-        ];
-        execFileSync(ffmpeg, ffArgs);
+        const videoDurSec = probeVideoDurationSec(tmpV, 15);
+        const ffArgs = buildFiniteAudioMuxArgs({
+          rawPath: tmpV,
+          bgPath,
+          sfxPath,
+          delayMs: delay,
+          durationSec: videoDurSec,
+          outPath: tmpOut
+        });
+        execFileSync(ffmpeg, ffArgs, {
+          timeout: 90000,
+          stdio: ['ignore', 'pipe', 'pipe'],
+          maxBuffer: 10 * 1024 * 1024
+        });
         lastMuxedAudioPath = tmpOut;
         log(`Master audio creato con successo con FFmpeg: ${tmpOut} (${(fs.statSync(tmpOut).size / 1e6).toFixed(1)} MB)`);
 
@@ -503,22 +516,26 @@ async function main() {
       }
     } else if (isVillage) {
       // Fallback protetto Villaggio (outro dura 3.8s)
-      const rawInfo = spawnSync(ffmpeg, ['-i', rawPath], { encoding: 'utf8' }).stderr || '';
-      const mDur = /Duration:\s*(\d+):(\d+):([\d.]+)/.exec(rawInfo);
-      const rawSecs = mDur ? (+mDur[1]) * 3600 + (+mDur[2]) * 60 + parseFloat(mDur[3]) : 25;
+      const rawSecs = probeVideoDurationSec(rawPath, 25);
       delay = Math.round(Math.max(4.0, rawSecs - 3.8) * 1000);
       log(`[Zero-Egress Shield] Ritardo SFX Outro fallback Villaggio da durata video grezzo (${rawSecs.toFixed(1)}s): ${delay}ms`);
     }
 
-    const ffArgs = [
-      '-y', '-i', rawPath, '-i', bgPath, '-i', sfxPath,
-      '-filter_complex', `[1:a]volume=1.0,apad[bg];[2:a]adelay=${delay}|${delay},volume=1.8[sfx];[bg][sfx]amix=inputs=2:duration=longest:dropout_transition=2[a]`,
-      '-map', '0:v', '-map', '[a]',
-      '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k',
-      '-movflags', '+faststart',
-      '-shortest', videoPath
-    ];
-    execFileSync(ffmpeg, ffArgs);
+    const fallbackDur = (typeof result?.totalDuration === 'number' && result.totalDuration > 0) ? result.totalDuration : 15;
+    const videoDurSec = probeVideoDurationSec(rawPath, fallbackDur);
+    const ffArgs = buildFiniteAudioMuxArgs({
+      rawPath,
+      bgPath,
+      sfxPath,
+      delayMs: delay,
+      durationSec: videoDurSec,
+      outPath: videoPath
+    });
+    execFileSync(ffmpeg, ffArgs, {
+      timeout: 90000,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 10 * 1024 * 1024
+    });
     try { fs.unlinkSync(rawPath); } catch {}
     const sz = fs.statSync(videoPath).size;
     log(`[Zero-Egress Shield] Master audio muxato con successo in locale (Zero Supabase): ${videoPath} (${(sz / 1e6).toFixed(1)} MB, ${((Date.now() - t0) / 1000).toFixed(0)}s)`);
@@ -528,7 +545,7 @@ async function main() {
   }
 
   // Metriche + frame di controllo con ffmpeg
-  const info = spawnSync(ffmpeg, ['-i', videoPath], { encoding: 'utf8' }).stderr || '';
+  const info = spawnSync(ffmpeg, ['-nostdin', '-i', videoPath], { encoding: 'utf8', timeout: 15000 }).stderr || '';
   const dur = /Duration:\s*(\d+):(\d+):([\d.]+)/.exec(info);
   const seconds = dur ? (+dur[1]) * 3600 + (+dur[2]) * 60 + parseFloat(dur[3]) : 0;
   const res = /(\d{3,4})x(\d{3,4})/.exec(info.split('Video:')[1] || '');
@@ -550,7 +567,10 @@ async function main() {
     for (const [label, ts] of [['start', 0.05], ['mid', seconds / 2], ['end', Math.max(0, seconds - 0.2)]]) {
       try {
         const fp = path.join(outDir, `${mode}.${tag}.${label}.png`);
-        execFileSync(ffmpeg, ['-y', '-v', 'error', '-ss', String(ts), '-i', videoPath, '-frames:v', '1', fp]);
+        execFileSync(ffmpeg, ['-nostdin', '-y', '-v', 'error', '-ss', String(ts), '-i', videoPath, '-frames:v', '1', fp], {
+          timeout: 20000,
+          stdio: ['ignore', 'pipe', 'pipe']
+        });
         if (fs.existsSync(fp)) {
           const size = fs.statSync(fp).size;
           checks.push({ name: `frame ${label} non nero (png ${Math.round(size / 1024)} KB)`, ok: size > 40_000 });
@@ -568,9 +588,9 @@ async function main() {
       fs.writeFileSync(cmpPath, Buffer.from(await (await fetch(compare)).arrayBuffer()));
       log(`Baseline scaricata: ${cmpPath}`);
     }
-    const r = spawnSync(ffmpeg, ['-i', videoPath, '-i', cmpPath, '-lavfi',
+    const r = spawnSync(ffmpeg, ['-nostdin', '-i', videoPath, '-i', cmpPath, '-lavfi',
       '[0:v]scale=540:960,setpts=PTS-STARTPTS[a];[1:v]scale=540:960,setpts=PTS-STARTPTS[b];[a][b]ssim', '-f', 'null', '-'],
-      { encoding: 'utf8' });
+      { encoding: 'utf8', timeout: 60000 });
     const m = /All:([\d.]+)/.exec(r.stderr || '');
     const ssim = m ? parseFloat(m[1]) : 0;
     log(`SSIM vs ${compare}: ${ssim}`);
