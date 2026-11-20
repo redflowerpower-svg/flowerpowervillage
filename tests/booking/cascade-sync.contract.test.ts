@@ -2,9 +2,12 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  addDaysToDate,
   buildDynamicCascadeSyncPlan,
+  checkAndSyncCascadeLastMinute,
   computeDiscountedPrice,
   getStageDiscountPctForOffset,
+  type CascadeLedger,
   type CascadeRoomConfig,
 } from "../../api/_helpers/octorate-cascade-sync.js";
 
@@ -136,5 +139,130 @@ describe("Sconti a Cascata Last-Minute (3 stadi)", () => {
     ]);
     assert.equal(res.nextLedger["293954_2026-11-29"], undefined);
     assert.equal(res.nextLedger["293954_2026-11-22"]?.manualOverride, true);
+  });
+
+  it("mantiene il rigore del listino iniziale su 9 giorni consecutivi senza mai moltiplicare gli sconti", () => {
+    const rooms: CascadeRoomConfig[] = [{ motherId: 293957, name: "Yellow Bungalow", basePrice: 990 }];
+    const livePriceMap = new Map<string, number>();
+    for (let d = 0; d <= 18; d++) {
+      livePriceMap.set(`293957_${addDaysToDate("2026-11-20", d)}`, 1490);
+    }
+
+    let ledger: CascadeLedger = {};
+    const targetDate = "2026-11-28";
+
+    for (let dayIdx = 0; dayIdx < 9; dayIdx++) {
+      const todayStr = addDaysToDate("2026-11-20", dayIdx);
+      const plan = buildDynamicCascadeSyncPlan({
+        rooms,
+        todayStr,
+        livePriceMap,
+        ledger,
+        nowIso: `${todayStr}T01:05:00.000Z`,
+        activeJungleSource: "366879",
+      });
+
+      for (const item of plan.bulkPayload) {
+        livePriceMap.set(`${item.room}_${item.dateFrom}`, item.values.price);
+      }
+      ledger = plan.nextLedger;
+
+      const offsetForTarget = 8 - dayIdx;
+      const expectedPct = getStageDiscountPctForOffset(offsetForTarget);
+      const expectedPrice = computeDiscountedPrice(1490, expectedPct);
+
+      assert.equal(ledger[`293957_${targetDate}`]?.basePrice, 1490);
+      assert.equal(ledger[`293957_${targetDate}`]?.discountPct, expectedPct);
+      assert.equal(livePriceMap.get(`293957_${targetDate}`), expectedPrice);
+    }
+  });
+
+  it("riconosce un prezzo alta stagione già scontato (o doppio-scontato) anche a ledger perso", () => {
+    const rooms: CascadeRoomConfig[] = [{ motherId: 293957, name: "Yellow Bungalow", basePrice: 990 }];
+
+    // Caso A: ledger vuoto, 2026-11-27 (offset 8 -> -2.5%) già scontato a 1453 e d+9 (2026-11-28) a 1490
+    const resSingle = buildDynamicCascadeSyncPlan({
+      rooms,
+      todayStr: "2026-11-19",
+      livePriceMap: new Map([
+        ["293957_2026-11-27", 1453],
+        ["293957_2026-11-28", 1490],
+      ]),
+      ledger: {},
+      nowIso: "2026-11-19T05:00:00.000Z",
+      activeJungleSource: "366879",
+    });
+
+    assert.equal(resSingle.nextLedger["293957_2026-11-27"]?.basePrice, 1490);
+    assert.equal(resSingle.nextLedger["293957_2026-11-27"]?.discountedPrice, 1453);
+    assert.equal(resSingle.bulkPayload.length, 0);
+
+    // Caso B: ledger vuoto, prezzo già doppio-scontato a 1417 (1453 * 0.975): guarisce a 1453 invece di scendere a 1382
+    const resDouble = buildDynamicCascadeSyncPlan({
+      rooms,
+      todayStr: "2026-11-19",
+      livePriceMap: new Map([
+        ["293957_2026-11-27", 1417],
+        ["293957_2026-11-28", 1490],
+      ]),
+      ledger: {},
+      nowIso: "2026-11-19T05:00:00.000Z",
+      activeJungleSource: "366879",
+    });
+
+    assert.equal(resDouble.nextLedger["293957_2026-11-27"]?.basePrice, 1490);
+    assert.equal(resDouble.nextLedger["293957_2026-11-27"]?.discountedPrice, 1453);
+    assert.deepEqual(resDouble.bulkPayload, [
+      { room: 293957, dateFrom: "2026-11-27", dateTo: "2026-11-27", values: { price: 1453 } },
+    ]);
+  });
+
+  it("fail-closed: checkAndSyncCascadeLastMinute si arresta con 0 scritture Octorate se Supabase fallisce", async () => {
+    let fetchCalled = false;
+    const origFetch = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      fetchCalled = true;
+      throw new Error("Octorate fetch should not be called on ledger read failure");
+    }) as typeof fetch;
+
+    let ledgerWriteAttempted = false;
+    const mockSupabase = {
+      from(table: string) {
+        assert.equal(table, "telegram_config");
+        return {
+          select() {
+            return {
+              eq(_col: string, _val: string) {
+                return {
+                  async maybeSingle() {
+                    return { data: null, error: { message: "simulated DB outage" } };
+                  },
+                };
+              },
+            };
+          },
+          async upsert(row: { id?: string }) {
+            if (row?.id === "cascade_price_ledger_v1") {
+              ledgerWriteAttempted = true;
+            }
+            return { error: null };
+          },
+        };
+      },
+    };
+
+    try {
+      const resNull = await checkAndSyncCascadeLastMinute("fake-token", null, true);
+      assert.equal(resNull.synced, false);
+      assert.equal(fetchCalled, false);
+
+      const resDbErr = await checkAndSyncCascadeLastMinute("fake-token", mockSupabase, true);
+      assert.equal(resDbErr.synced, false);
+      assert.match(resDbErr.message, /errore lettura ledger/i);
+      assert.equal(fetchCalled, false);
+      assert.equal(ledgerWriteAttempted, false);
+    } finally {
+      globalThis.fetch = origFetch;
+    }
   });
 });

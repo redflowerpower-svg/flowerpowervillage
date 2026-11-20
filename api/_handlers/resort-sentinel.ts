@@ -17,6 +17,7 @@ import { checkAndSyncCascadeLastMinute, loadCascadeLedger, getThailandTodayStr }
 import { ALL_OCTORATE_STRUCTURE_IDS } from "../_helpers/octorate-structures.js";
 import { clearOctorateGridCache } from "./octorate.js";
 import {
+  ensurePerpetualPostSeasonClosure,
   isDateLockedForRoom,
   loadClosedRoomLocks,
   resolveLockableRoom
@@ -33,7 +34,7 @@ import {
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || "";
   return (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl, serviceRoleKey) : null;
 }
 
@@ -141,7 +142,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
 
   // Sincronizza preventivamente la finestra mobile a cascata sui prezzi reali di Octorate
   try {
-    await checkAndSyncCascadeLastMinute(token, supabaseAdmin);
+    await checkAndSyncCascadeLastMinute(token, supabaseAdmin, false, 'resort-sentinel');
   } catch (cascadeErr) {
     console.warn('[Resort Sentinel] Cascade pre-sync warning:', cascadeErr);
   }
@@ -151,6 +152,13 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
     await syncActiveToStandbyCalendar(supabaseAdmin, token, { daysAhead: 60 });
   } catch (mirrorSyncErr) {
     console.warn('[Resort Sentinel] Standby calendar auto-sync warning (non-blocking):', mirrorSyncErr);
+  }
+
+  // Blindatura perpetua post-stagione (chiusura all'infinito dal 01/11/2027 su tutto l'orizzonte mobile PMS)
+  try {
+    await ensurePerpetualPostSeasonClosure(token, supabaseAdmin, { clientId });
+  } catch (closureErr) {
+    console.warn('[Resort Sentinel] Perpetual closure warning (non-blocking):', closureErr);
   }
 
   const cascadeLedger = await loadCascadeLedger(supabaseAdmin);

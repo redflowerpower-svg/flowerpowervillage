@@ -59,7 +59,7 @@ function splitRangeWithKeepAlive(
 }
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || "";
 const supabaseAdmin = (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl, serviceRoleKey) : (null as any);
 
 export const FAKE_BUNGALOW_MOTHER_IDS = [649669, 921799];
@@ -274,7 +274,7 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
       if (shortManualUpdates.length > 0) {
         await applyManualCascadeOverrides(supabaseAdmin, shortManualUpdates);
       }
-      await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin, true);
+      await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin, true, 'update-prices-stagionale');
     } catch (cascadeErr) {
       console.warn('[update-prices-stagionale] Cascade re-sync warning:', cascadeErr);
     }

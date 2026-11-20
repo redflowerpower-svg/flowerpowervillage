@@ -15,10 +15,15 @@
  * il robot serve l'app in locale sul runner e NON serve alcun bypass esposto al pubblico.
  */
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
+import { createRequire } from 'module';
 import { execFileSync, spawnSync } from 'child_process';
 import { chromium } from 'playwright';
 import ffmpegStatic from 'ffmpeg-static';
+import { resolveFfmpegBinary } from './social-scheduler-core.mjs';
+
+const require = createRequire(import.meta.url);
 
 const env = { ...process.env };
 if (fs.existsSync('.env')) {
@@ -41,16 +46,34 @@ const testRunFile = getArg('testRunFile');
 const compare = getArg('compare');
 const channel = getArg('channel');
 const apiBase = (getArg('api') || 'https://www.flowerpowerpizza.com').replace(/\/$/, '');
-let ffmpegCandidate = env.FFMPEG_PATH || process.env.FFMPEG_PATH;
-if (ffmpegCandidate && !fs.existsSync(ffmpegCandidate)) {
-  console.warn(`[parity] FFMPEG_PATH specificato non esistente (${ffmpegCandidate}), fallback automatico su ffmpeg-static.`);
-  ffmpegCandidate = null;
+
+let ffmpegInstallerPath = '';
+try {
+  const installer = require('@ffmpeg-installer/ffmpeg');
+  if (installer?.path) ffmpegInstallerPath = installer.path;
+} catch { }
+
+let ffmpeg = resolveFfmpegBinary({
+  envPath: env.FFMPEG_PATH || process.env.FFMPEG_PATH || '',
+  homeDir: os.homedir(),
+  ffmpegStaticPath: ffmpegStatic || '',
+  ffmpegInstallerPath,
+  existsSyncFn: fs.existsSync
+});
+if (!ffmpeg) {
+  const pathCheck = spawnSync('ffmpeg', ['-version'], { stdio: 'ignore' });
+  if (pathCheck.status === 0) ffmpeg = 'ffmpeg';
 }
-const ffmpeg = ffmpegCandidate || ffmpegStatic || 'ffmpeg';
+if (!ffmpeg) {
+  console.error('🚨 [parity] ERRORE FATALE: nessun binario ffmpeg eseguibile trovato su disco (FFMPEG_PATH, cache, ffmpeg-static, @ffmpeg-installer/ffmpeg, /usr/bin/ffmpeg).');
+  process.exit(2);
+}
+
 const tag = getArg('tag', env.PARITY_TAG || (env.CI ? 'cloud' : 'local'));
 fs.mkdirSync(outDir, { recursive: true });
 
 const log = (...m) => console.log('[parity]', ...m);
+log(`FFmpeg certificato: ${ffmpeg}`);
 const annotate = (level, msg) => {
   if (process.env.GITHUB_ACTIONS) console.log('::' + level + ' title=parity::' + String(msg).replace(/\r?\n/g, ' ').slice(0, 400));
 };
@@ -63,7 +86,16 @@ async function main() {
     ...(channel ? { channel } : {}),
     args: ['--no-sandbox', '--disable-dev-shm-usage', '--autoplay-policy=no-user-gesture-required']
   });
-  const context = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
+
+  let result;
+  let currentTest = null;
+  let caps = { videoEncoder: false, h264: false, mediaRecorder: false };
+  const consoleLog = [];
+  let videoPath;
+  let ext;
+
+  try {
+    const context = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
 
   // Seed dello stato (stesso montaggio => confronto identico). Niente chiamate AI.
   let seeded = null;
@@ -109,7 +141,7 @@ async function main() {
       const cleanUrl = url.split('?')[0];
       const cdnUrl = `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&output=webp&q=80`;
       try {
-        const cdnRes = await fetch(cdnUrl);
+        const cdnRes = await fetch(cdnUrl, { signal: AbortSignal.timeout(15000) });
         if (cdnRes.ok) {
           const buf = Buffer.from(await cdnRes.arrayBuffer());
           await route.fulfill({
@@ -119,6 +151,7 @@ async function main() {
           });
           return;
         }
+        log(`CDN wsrv.nl HTTP ${cdnRes.status}, fallback diretto su immagine originale`);
       } catch (cdnErr) {
         log('Avviso CDN proxy:', cdnErr.message);
       }
@@ -258,7 +291,6 @@ async function main() {
       await route.continue();
     }
   });
-  const consoleLog = [];
   page.on('console', msg => {
     const text = msg.text();
     consoleLog.push({ type: msg.type(), text });
@@ -267,6 +299,11 @@ async function main() {
     }
   });
   page.on('pageerror', err => log('ERRORE PAGINA:', err.message));
+  page.on('response', res => {
+    if (res.status() === 429 || res.status() >= 500) {
+      log('HTTP WARN', res.status(), res.url().split('?')[0]);
+    }
+  });
 
   // Protezione anti-leak dei token nei log CI
   page.on('request', r => {
@@ -281,6 +318,8 @@ async function main() {
   const navTimeout = isCloudOrLong ? 180000 : 120000;
   await page.goto(`${base}/social-studio?mode=${mode}`, { waitUntil: 'domcontentloaded', timeout: navTimeout });
   await page.waitForFunction(() => typeof window.__autoCutGetVideo === 'function', null, { timeout: navTimeout });
+  await page.waitForFunction(() => !!document.querySelector('canvas'), null, { timeout: 30000 }).catch(() => {});
+  await page.waitForTimeout(400);
   if (mode === 'LM1') {
     log('Attendo verifica live disponibilità Octorate sulle 3 strutture (LM1)...');
     await page.waitForFunction(() => window.__autoCutLm1Ready === true, null, { timeout: 60000 });
@@ -321,7 +360,7 @@ async function main() {
   }
 
   // Capacità del browser (decisiva per il cloud)
-  const caps = await page.evaluate(async () => {
+  caps = await page.evaluate(async () => {
     const out = { videoEncoder: typeof VideoEncoder !== 'undefined', h264: false, mediaRecorder: typeof MediaRecorder !== 'undefined' };
     if (out.videoEncoder) {
       try {
@@ -334,7 +373,7 @@ async function main() {
   log('Capacità browser:', JSON.stringify(caps));
 
   // Salva il montaggio effettivo per rendere il test riproducibile
-  const currentTest = await page.evaluate((m) => {
+  currentTest = await page.evaluate((m) => {
     const cur = localStorage.getItem('autocut_current_test');
     if (cur) return cur;
     try {
@@ -364,7 +403,7 @@ async function main() {
   // Esportazione con la funzione ufficiale del player
   log('Esportazione video (può richiedere alcuni minuti)...');
   const t0 = Date.now();
-  const result = await page.evaluate(async () => {
+  const runExportInPage = () => page.evaluate(async () => {
     const url = await window.__autoCutGetVideo((pct, _i, label) => {
       window.__parityProgress = `${Math.round(pct)}% ${label || ''}`;
     });
@@ -382,6 +421,14 @@ async function main() {
     });
     return { type: blob.type, size: blob.size, b64, outroStartTime, totalDuration, audioTrack };
   });
+
+  result = await runExportInPage();
+  if (result.error === 'nessun video restituito') {
+    log('Canvas non ancora pronto al primo tentativo, attendo 1500ms e riprovo esportazione...');
+    await page.waitForFunction(() => !!document.querySelector('canvas'), null, { timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(1500);
+    result = await runExportInPage();
+  }
   if (result.error) throw new Error(result.error);
   if (result.remoteUrl) {
     log(`Il player ha restituito URL master: ${result.remoteUrl}`);
@@ -399,8 +446,8 @@ async function main() {
     }
   }
 
-  const ext = /webm/.test(result.type) ? 'webm' : 'mp4';
-  const videoPath = path.join(outDir, `${mode}.${tag}.${ext}`);
+  ext = /webm/.test(result.type) ? 'webm' : 'mp4';
+  videoPath = path.join(outDir, `${mode}.${tag}.${ext}`);
 
   if (lastMuxedAudioPath && fs.existsSync(lastMuxedAudioPath)) {
     fs.copyFileSync(lastMuxedAudioPath, videoPath);
@@ -476,7 +523,9 @@ async function main() {
     const sz = fs.statSync(videoPath).size;
     log(`[Zero-Egress Shield] Master audio muxato con successo in locale (Zero Supabase): ${videoPath} (${(sz / 1e6).toFixed(1)} MB, ${((Date.now() - t0) / 1000).toFixed(0)}s)`);
   }
-  await browser.close();
+  } finally {
+    await browser.close().catch(() => {});
+  }
 
   // Metriche + frame di controllo con ffmpeg
   const info = spawnSync(ffmpeg, ['-i', videoPath], { encoding: 'utf8' }).stderr || '';

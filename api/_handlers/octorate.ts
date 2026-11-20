@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync.js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES, getOctorateStructureByRoomId } from "../_helpers/octorate-structures.js";
 import { executeOctorateMove } from "../_helpers/octorate-move.js";
@@ -383,11 +382,6 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
 
     let octorateReservations: any[] = [];
     if (tokenData?.access_token) {
-      // ⚡ [CASCADE LAST-MINUTE 24/7] Auto-Roll: verifica e allinea la finestra 7gg sconti a cascata su Octorate
-      checkAndSyncCascadeLastMinute(tokenData.access_token, supabaseAdmin).catch(err => {
-        console.warn('[octorate-bookings] Cascade sync non-fatal warning:', err);
-      });
-
       try {
         const pageSize = 50;
         const maxPages = 30;
@@ -771,11 +765,6 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
           console.warn('[OCTORATE GRID] Standby twin price auto-align warning:', alignErr);
         }
       }
-
-      // ⚡ [CASCADE LAST-MINUTE 24/7] Auto-Roll in background per la finestra mobile 7 giorni
-      checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin).catch(err => {
-        console.warn('[octorate-grid] Cascade sync non-fatal warning:', err);
-      });
     }
     const visibleItems = allFetchedItems.filter((item: any) => {
       const idNum = Number(item.id);

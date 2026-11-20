@@ -3,6 +3,130 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🔍 [20/11/2026 - ORE 10:57] · SCOPERTA PROVA REGINA RICADUTA NOTTURNA, BLINDATURA ADMIN & RIPRISTINO PREZZI 20–28 NOV
+- **Cosa abbiamo fatto:**
+  1. 🕵️ **Identificata la Causa Esatta della Ricaduta Notturna (`75998c8` + Freeze-Thaw Vercel)**:
+     - Verificato che le modifiche di ieri erano rimaste solo in locale sul branch `staging` e **non erano ancora state pubblicate in produzione (`main`)**: i server Vercel stavano ancora eseguendo il vecchio codice `75998c8`.
+     - Ricostruita la meccanica esatta del bug sul vecchio codice: l'endpoint di lettura `/api/octorate-grid` lanciava la sincronizzazione a cascata in background senza attendere; Vercel congelava il container durante la lettura da Supabase e lo risvegliava 5 minuti dopo sull'heartbeat del tablet pizzeria (`/api/network-auth` al secondo `:X1:20.8xx` — `08:41:20.901` ieri e `01:21:20.888` stanotte). Con la connessione scaduta, il vecchio codice interpretava il registro come vuoto, ri-scontava tutte le 216 celle e sovrascriveva il registro.
+  2. 🛡️ **Blindatura Finale Audit & Browser Admin**:
+     - Disattivato in [useResortAdminStore.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/resort/store/useResortAdminStore.ts) l'auto-invio automatico verso Octorate lato browser (`autoAdvanceDailyLastMinute` resta solo anteprima locale), lasciando il solo motore serverless come unica autorità.
+     - Aggiunto tracciamento esplicito della sorgente chiamante (`source`: `resort-sentinel`, `octorate-webhook`, `octorate-webhook-light`, `update-prices-stagionale`) nei log di [octorate-cascade-sync.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/octorate-cascade-sync.ts).
+  3. 💶 **Ripristino Immediato Live (`20–28 Nov 2026`, riferimento Domenica `29 Nov`)**:
+     - Ripristinati tutti i **216 nodi** su Supabase (Write-Ahead Ledger) e su Octorate (`72` intervalli `HTTP 200`): `20–22 Nov` a `-10%`, `23–25 Nov` a `-5%`, `26–28 Nov` a `-2,5%` (es. Jungle Villa da `1.962 ฿` a **`2.691 ฿`**, Yellow/Ville Left-Right-P&L-Penthouse da `977 ฿` a **`1.341 ฿`**, Red/Green da `847 ฿` a **`1.161 ฿`**, Tende/Internal/Room 1 da `518 ฿` a **`711 ฿`**).
+     - Rilettura live post-intervento: **0 disallineamenti** su tutte e 24 le tariffe madri e **0 modifiche residue** al controllo dell'algoritmo.
+- **Verifica:** `npm run verify:all` (`api:check` + **71/71 test contrattuali verdi** su 23 suite + `vite build` completata) e verifica live Octorate (`216/216` nodi conformi).
+- **Stato:** 🟡 PRONTO IN LOCALE SU `staging` — **Urgente pubblicazione su `main` con `MARKDOWN-WEBSITE` / `MARKDOWN-PROJECT` per sostituire il vecchio codice online**.
+
+---
+
+### 🛡️ [19/11/2026 - ORE 20:17] · SISTEMA "ZERO PENSIERI" SOCIAL STUDIO: DIAGNOSI ERRORI 17:00/19:30 & AUTO-RECUPERO A 3 TENTATIVI
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Diagnosi Completa Log Cloud (Ultime 400 Esecuzioni)**:
+     - **Slot delle 17:00 (`#1296` e `#1297`)**: il runner su `ubuntu-latest` (Ubuntu 26.04) è rimasto bloccato **22 minuti** a scaricare FFmpeg/font andando in timeout (`cancelled`) senza avvisare Telegram. Nel recupero delle **17:30**, il workflow non passava lo slot scelto dal Pre-Flight allo script finale: dopo 15 minuti di installazione, alle 17:46 la finestra 17:00 era scaduta ed è uscito con spunta verde **senza pubblicare nulla**.
+     - **Slot delle 19:30 (`#1302`)**: il download di FFmpeg da Ubuntu è fallito e il comando aveva `|| true` nascosto; il video pizza è stato creato ma il muxing audio è andato in crash per assenza di FFmpeg.
+  2. ⚙️ **Runner Cloud Stabilizzato & 10x Più Veloce (`.github/workflows/social-scheduler-cron.yml`, `social-render-parity.yml`)**:
+     - Passaggio a **`ubuntu-24.04` LTS**, cache permanente GitHub per `node_modules`, Chromium Playwright, font e binario statico **FFmpeg** (scaricato dal CDN GitHub con controllo obbligatorio `ffmpeg -version`), passaggio esplicito dello slot bloccato `--slot` e `--attempt`, copertura allarmi anche su timeout (`if: failure() || cancelled()`).
+  3. 🔁 **Auto-Retry a 3 Livelli & Isolamento per Singolo Contenuto (`scripts/social-scheduler-core.mjs`, `scripts/social-scheduler-dispatch.mjs`)**:
+     - **Livello 1 (Rete & Render)**: fino a **3 tentativi automatici** con timeout e pause progressive su Telegram, Meta Facebook/Instagram, TikTok, Google Drive e rendering video; verifica rigorosa errori `sendVideo` e upload binari Meta.
+     - **Livello 2 (Zero Duplicati su 08:00 e 17:00)**: ogni post (`P1`, `V1`/`V3`, `LM1`/`R1`) gira isolato e si salva su Neon; se uno fallisce, i primi partono subito e il retry recupera **solo** quello mancante.
+     - **Livello 3 (Coda Auto-Recupero fino a 3 Giri Cloud entro 3 Ore)**: se uno slot fallisce o va in timeout, `cron-job.org` lo riprende in automatico al giro successivo (fino a **3 tentativi completi**).
+  4. 💬 **Avvisi Cortesi "Zero Ansia" su Telegram (`scripts/social-scheduler-dispatch.mjs`, `scripts/social-emergency-alert.mjs`)**:
+     - Ai tentativi 1/3 e 2/3 invia un messaggio giallo calmo `⏳` su **Topic 301** (e nei Topic 2/3 se mancanti) rassicurando che il sistema si è già attivato; appena il recupero riesce, aggiorna il messaggio in `✅ RISOLTO IN AUTOMATICO` ed elimina l'avviso temporaneo dai Topic operativi. L'allarme rosso scatta solo al 3° fallimento definitivo o per token scaduto, senza mai duplicarsi.
+  5. 🩺 **Watchdog Mattutino Token & Hardening Motore Video (`scripts/render-parity-test.mjs`)**:
+     - Alle 08:00 verifica automatica Meta, Telegram, Google Drive e rinnovo preventivo di **entrambi** i token TikTok (`pizza` + `village`); fix crash `canvas` non pronto e fallback `wsrv.nl` su errore `429`.
+- **Verifica:** `node --check` su tutti gli script (`0` errori), `npm run verify:all` (`api:check` + **71/71 test contrattuali verdi** inclusi 10 nuovi test di resilienza + `vite build` riuscito), `node scratch/security-audit.mjs` (`0 SECRETS DETECTED`), e `--preflight --dry-run` (ha subito individuato in coda di recupero lo slot delle `19:30`).
+- **Stato:** 🟢 COMPLETATO IN LOCALE SU `staging` (pronto per eventuale `MARKDOWN-PROJECT` / `MARKDOWN-WEBSITE`).
+
+---
+
+### ℹ️ [19/11/2026 - ORE 12:10] · AUDIT EMAIL AUTOMATICA NEON TECH ("PRODUCTION CHECKLIST")
+- **Cosa abbiamo fatto:**
+  1. 📧 **Analisi dell'Email Ricevuta da `product@email.neon.tech`**:
+     - Verificato che il messaggio con oggetto *"Project flower-power-social-studio Production Checklist"* **NON è un errore, NON è un'anomalia e NON segnala alcun problema di sistema**.
+     - Si tratta di una comunicazione commerciale automatica inviata da Neon quando rileva traffico regolare (generato dai nostri controlli schedulati del Social Studio su GitHub Actions).
+     - Neon propone una checklist per consigliare il passaggio a un piano enterprise a pagamento (disabilitare lo spegnimento automatico, aggiungere database di replica, aumentare lo storico backup).
+  2. 🛡️ **Verifica Stato del Servizio Gratuito**:
+     - Il nostro database serverless gratuito per il Social Studio funziona in modo impeccabile a zero euro: si attiva in pochi millisecondi al passaggio del cron e va a riposo senza consumare risorse né generare costi.
+     - **Nessuna azione richiesta**: l'offerta a pagamento non serve e l'email può essere tranquillamente archiviata o ignorata.
+- **Stato:** 🟢 VERIFICA COMPLETATA — NESSUN INTERVENTO NECESSARIO.
+
+---
+
+### 🛡️ [19/11/2026 - ORE 12:03] · FIX DEFINITIVO SCONTI A CASCATA LAST-MINUTE & RIPRISTINO PREZZI LIVE SU OCTORATE
+- **Cosa abbiamo fatto:**
+  1. 🔍 **Diagnosi Completa su Octorate e Registro Supabase**:
+     - Verificato che gli sconti a cascata dei prossimi 9 giorni (`19–27 Novembre`) si stavano sommando giorno dopo giorno uno sull'altro (fino a -52% / -64%, es. Jungle Villa scesa a `1.722 ฿` invece di `2.691 ฿`, Yellow Bungalow a `716 ฿` invece di `1.341 ฿`, Red/Green a `620 ฿` invece di `1.161 ฿`).
+     - Isolate le cause: chiamate in background non attese sugli endpoint di lettura (`octorate-grid` / `octorate-bookings`) che venivano interrotte prima di salvare il registro su Supabase, lettura registro non bloccante in caso di errore, e assenza del listino stagionale completo e di salvataggio preventivo Write-Ahead.
+  2. 🔒 **Blindatura Motore & Rimozione Rischi di Doppio Sconto**:
+     - Aggiornato [octorate-cascade-sync.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/octorate-cascade-sync.ts): ora salva il registro su Supabase **prima** di inviare qualsiasi aggiornamento prezzi a Octorate (Write-Ahead Ledger), si blocca a zero scritture se il database non risponde (`fail-closed`), integra la matrice dei prezzi stagionali ufficiali + ancoraggio al 10° giorno come scudo anti-accumulo, e invia batch più rapidi.
+     - Rimosse le chiamate in background dagli endpoint di lettura in [octorate.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/octorate.ts) (resta attiva la sincronizzazione sicura sul cron giornaliero, sul salvataggio prezzi dalla Dashboard e sul webhook) e rimosso il fallback alla chiave anonima in `resort-sentinel.ts`, `octorate-webhook.ts` e `api-update-prices-stagionale.ts`.
+  3. 💶 **Ripristino Live Immediato dal Listino di Domenica 29 Novembre (`19–27 Nov 2026`)**:
+     - Letti live da Octorate i listini di riferimento di **Domenica 29 Novembre 2026** su tutte e 3 le strutture (`366879`, `807324`, `619403`) per tutti i 24 alloggi/tariffe madri (es. Jungle Villa `2.990 ฿`, Ville Left/Right/P&L/Penthouse/Yellow `1.490 ฿`, Red/Green `1.290 ฿`, Tende/Internal/Room 1 `790 ฿`, Room 2-4 `990 ฿`, Room 5 `690 ฿`, Lodge 1-2 `1.090 ฿`, Fake Bungalows `1.000 ฿`).
+     - Ripuliti e allineati tutti i 216 nodi giornalieri (`19–21 Nov` a `-10%`, `22–24 Nov` a `-5%`, `25–27 Nov` a `-2,5%`) sia nel registro Supabase sia su Octorate (`0` discrepanze rilevate in verifica live).
+- **Verifica:** `npm run verify:all` (`api:check` + **61/61 test contrattuali verdi** inclusi 3 nuovi test su 9 giorni consecutivi, recupero alta stagione e blocco fail-closed + `vite build`) e verifica live post-ripristino su Octorate (`216/216` celle allineate, `0` ri-sconti residui).
+- **Stato:** 🟢 COMPLETATO CON SUCCESSO.
+
+---
+
+### ♾️ [19/11/2026 - ORE 11:58] · CHIUSURA PERPETUA "ALL'INFINITO" DAL 1° NOVEMBRE 2027 (TRIPLO SCUDO PMS + SENTINEL + BACKEND)
+- **Cosa abbiamo fatto:**
+  1. 🔄 **Auto-Estensione Perpetua nel Resort Sentinel (`api/_helpers/octorate-closed-room-lock.ts` & `api/_handlers/resort-sentinel.ts`)**:
+     - Creata la funzione `ensurePerpetualPostSeasonClosure()`: agganciata al controllo automatico di Resort Sentinel.
+     - Calcola continuamente l'orizzonte mobile massimo supportato da Octorate PMS (720 giorni / 2 anni).
+     - Man mano che i giorni e i mesi avanzano, sigilla istantaneamente qualsiasi nuova data che entri nel radar futuro con `stopSells: true`, `closed: true`, `availability: 0`, `closeToArrival: true`, `closeToDeparture: true` e `price: 10000 ฿`.
+     - Risultato: chiusura perpetua automatica "all'infinito" su tutte le OTA (Airbnb, Booking.com, Agoda, Expedia) a zero manutenzione manuale.
+  2. 🔒 **Scudo Difensivo Backend Checkout (`api/_handlers/checkout.ts`)**:
+     - Inserito il blocco server tassativo: se una richiesta di pagamento/checkout presenta `checkIn` o `checkOut` successivi al 31 Ottobre 2027, l'API respinge la transazione restituendo immediatamente errore `400 Bad Request`.
+  3. 🛡️ **Blindatura Totale a 3 Livelli Completata**:
+     - *Livello 1*: Octorate PMS sigillato su tutti i 207 piani tariffari.
+     - *Livello 2*: Resort Sentinel estende la chiusura continuamente nel futuro.
+     - *Livello 3*: Booking Engine del sito sigillato sia sul selettore visivo React sia al momento del checkout serverless.
+- **Verifica:** `npm run test:booking` (58/58 test verdi), `npm run api:check` superato, `npx tsc --noEmit` superato al 100% senza errori.
+- **Stato:** 🟢 COMPLETATO CON SUCCESSO.
+
+---
+
+### 🔒 [19/11/2026 - ORE 11:53] · BLINDATURA STAGIONALE AL 31 OTTOBRE & CHIUSURA TOTALE 100% CANALI DAL 1° NOVEMBRE
+- **Cosa abbiamo fatto:**
+  1. 🛑 **Chiusura Totale su Octorate PMS (207 Piani Tariffari & Alloggi)**:
+     - Eseguita la blindatura in blocco su tutti i 207 rate plans di entrambe le strutture (`366879` e `807324`) per l'intero arco temporale dal **01/11/2027 al 31/10/2028**.
+     - Impostati contemporaneamente:
+       * `availability: 0` (zero disponibilità)
+       * `bookable: false` (non prenotabile)
+       * `stopSells: true` (blocco totale OTA)
+       * `closed: true` (chiusura)
+       * `closeToArrival: true` e `cta: true` (nessun check-in permesso)
+       * `closeToDeparture: true` e `ctd: true` (nessun check-out permesso)
+       * `price: 10000` (prezzo di sicurezza superiore al minimo di 340 ฿ richiesto da Airbnb, azzerando l'errore di sincronizzazione).
+  2. 🌐 **Blindatura Booking Engine Sito Web (`src/booking/components/booking-engine.tsx`)**:
+     - Configurato il tetto massimo stagionale `MAX_SEASON_DATE = '2027-10-31'`:
+       * Disabilitata la navigazione del calendario oltre Ottobre 2027.
+       * Bloccata la selezione di qualsiasi data dal 1° Novembre 2027 in poi (`isPastMaxSeason = true`).
+       * Limitato il check-in massimo entro il 30 Ottobre per soggiorni che si concludono al 31 Ottobre 2027.
+  3. 🧪 **Verifica Completa di Rete & Calendario**:
+     - Effettuato il collaudo di lettura su Octorate: verificato che il 31 Ottobre 2027 rimane normalmente aperto e prenotabile, mentre dal 1° Novembre 2027 ogni singola camera è rigorosamente sigillata a disponibilità 0 con Stop-Sell e Close-to-Arrival attivi.
+- **Verifica:** `npm run test:booking` (58/58 test verdi), `npm run api:check` superato, `npx tsc --noEmit` superato al 100% senza errori.
+- **Stato:** 🟢 COMPLETATO CON SUCCESSO.
+
+---
+
+### 🔍 [19/11/2026 - ORE 11:38] · DIAGNOSI ERRORE SINCRONIZZAZIONE OCTORATE - AIRBNB (AIRBNB VALIDATION EXCEPTION)
+- **Cosa abbiamo fatto:**
+  1. 🧪 **Verifica Approfondita dell'Integrità del Sistema**:
+     - Effettuata una scansione a 365 giorni su tutte le tariffe e gli alloggi collegati ad Airbnb (struttura principale `366879` e Jungle Villa `807324`).
+     - Verificato che il nostro software (booking engine, sconti a cascata last-minute su 9 giorni, sentinella del resort) non ha generato alcun errore, non ha modificato le tariffe oltre i 9 giorni e non ha mai impostato prezzi a ฿0.
+  2. 🎯 **Individuazione Causa Radice (Fine Stagione 31/10/2027)**:
+     - Dal **19/11/2026 al 31/10/2027** tutti i prezzi su Octorate sono validi, conformi e hanno zero violazioni.
+     - A partire dal **1° Novembre 2027** il listino prezzi stagionale di Octorate termina: le date risultano a **฿0** con vendite aperte (`stopSell = false`).
+     - Poiché Octorate sincronizza verso Airbnb una finestra mobile di 12 mesi (fino a metà Novembre 2027), tenta di trasmettere le notti di Novembre 2027 a ฿0.
+     - Airbnb rifiuta la sincronizzazione perché sul mercato Thailandia impone un prezzo minimo inderogabile di **340 THB** (`AirbnbValidationException: Your daily price is too low. The minimum is 340.`).
+  3. 📋 **Predisposizione Piano di Risoluzione**:
+     - Documentata la strategia di blindatura in Stop-Sell o prezzo segnaposto per le date dal 01/11/2027 in poi nell'Artifact IDE `/plan`.
+- **Verifica:** Scansione Octorate API a 365 giorni completata con successo (400 violazioni isolate esclusivamente nel range 01/11/2027 - 20/11/2027; zero anomalie prima del 01/11/2027).
+- **Stato:** 🟢 DIAGNOSI COMPLETATA & PIANO CONDIVISO.
+
+---
+
 ### 🛡️ [18/11/2026 - ORE 16:28] · BLINDATURA INTERNA COMPLETA WEBSITE (PIZZERIA, SOCIAL STUDIO & FIX TYPESCRIPT ADMIN)
 - **Cosa abbiamo fatto:**
   1. 🍕 **Blocco A — Isolamento Interno Pizzeria (`/pizze`, `/dining`, `/kitchen`)**:

@@ -3,14 +3,14 @@ name: Social Media Studio Scheduler (24/7 Serverless)
 # Reparto Stagno Social Media Studio (/social)
 # Scheduler serverless 100% gratuito per Pizzeria Ranong e Villaggio Koh Phayam.
 # Esegue i compiti orari secondo il fuso di Bangkok (UTC+7):
-# - 08:00 Bangkok (01:00 UTC): 2 Stories TikTok/IG su Topic 3 + 1 Post LM1 su Topic 2
+# - 08:00 Bangkok (01:00 UTC): 2 Stories TikTok/IG su Topic 3 + 1 Post LM1 su Topic 2 (+ Token Watchdog)
 # - 09:30 Bangkok (02:30 UTC): Instagram Story Mattino (V1/CC1)
 # - 11:30 Bangkok (04:30 UTC): Pranzo Ranong Pasta Fresca (SOLO Facebook Pagina)
 # - 12:30 Bangkok (05:30 UTC): Facebook Story Pranzo (P1/CC1)
 # - 16:00 Bangkok (09:00 UTC): Pomeriggio Relax Alloggi Phayam (SOLO Instagram Reel)
 # - 17:00 Bangkok (10:00 UTC): 2 Stories TikTok/IG su Topic 3 + 1 Post R1 su Topic 2
 # - 18:00 Bangkok (11:00 UTC): Instagram Story Golden Hour (V3/CC1)
-# - 18:30 Bangkok (11:30 UTC): Post Feed TikTok 9:16 (API, se attivo)
+# - 18:30 Bangkok (11:30 UTC): Post Feed TikTok 9:16 (Bozza Inbox)
 # - 19:30 Bangkok (12:30 UTC): Cena Ranong Pizza Tradizionale (SOLO Facebook Pagina Reel)
 # - 20:00 Bangkok (13:00 UTC): Facebook Story Serale (P3/CC1)
 # - 21:00 Bangkok (14:00 UTC): Notte Tropical Escape Phayam (SOLO Instagram Reel)
@@ -57,7 +57,7 @@ concurrency:
 
 jobs:
   dispatch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -72,11 +72,21 @@ jobs:
           MASTER_VAULT_KEY: ${{ secrets.MASTER_VAULT_KEY }}
         run: node scratch/vault-sync.mjs decrypt --no-deps
 
+      - name: Cache dipendenze NPM
+        id: cache-nm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-nm-v1-${{ hashFiles('package-lock.json') }}
+
       - name: Installa dipendenze NPM
+        if: steps.cache-nm.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts || npm install --include=dev --ignore-scripts
 
-      - name: Pre-Flight Check Slot Attivo & Idempotenza
+      - name: Pre-Flight Check Slot Attivo, Recovery & Idempotenza
         id: preflight
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         run: |
           SLOT_ARG=""
           if [ "${{ inputs.slot }}" != "" ] && [ "${{ inputs.slot }}" != "auto" ]; then
@@ -88,16 +98,70 @@ jobs:
           fi
           node scripts/social-scheduler-dispatch.mjs --preflight $SLOT_ARG $DRY_ARG
 
-      - name: Installa Font (Thai, Liberation) e FFmpeg di sistema
+      - name: Cache binario FFmpeg
+        id: cache-ffmpeg
+        if: steps.preflight.outputs.should_run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/fp-ffmpeg
+          key: ubuntu24-ffmpeg-v1
+
+      - name: Prepara e Certifica FFmpeg
         if: steps.preflight.outputs.should_run == 'true'
         run: |
-          export DEBIAN_FRONTEND=noninteractive
-          sudo apt-get update -qq -o Acquire::Retries=3 -o Acquire::http::Timeout="15" || true
-          sudo apt-get install -y -qq --no-install-recommends ffmpeg fonts-liberation fonts-thai-tlwg fonts-dejavu-core || true
+          mkdir -p "$HOME/.cache/fp-ffmpeg"
+          if [ ! -x "$HOME/.cache/fp-ffmpeg/ffmpeg" ]; then
+            node node_modules/ffmpeg-static/install.js || true
+            if [ -x "node_modules/ffmpeg-static/ffmpeg" ]; then
+              cp node_modules/ffmpeg-static/ffmpeg "$HOME/.cache/fp-ffmpeg/ffmpeg"
+              chmod +x "$HOME/.cache/fp-ffmpeg/ffmpeg"
+            fi
+          fi
+          if [ ! -x "$HOME/.cache/fp-ffmpeg/ffmpeg" ]; then
+            timeout 90 sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout="15"
+            timeout 90 sudo apt-get install -y -qq --fix-missing --no-install-recommends ffmpeg
+            cp /usr/bin/ffmpeg "$HOME/.cache/fp-ffmpeg/ffmpeg"
+            chmod +x "$HOME/.cache/fp-ffmpeg/ffmpeg"
+          fi
+          "$HOME/.cache/fp-ffmpeg/ffmpeg" -version | head -n 1
+          echo "FFMPEG_PATH=$HOME/.cache/fp-ffmpeg/ffmpeg" >> "$GITHUB_ENV"
 
-      - name: Installa Chromium headless (Playwright)
+      - name: Cache Font Thai e Liberation
+        id: cache-fonts
         if: steps.preflight.outputs.should_run == 'true'
-        run: npx playwright install --with-deps chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/fonts
+          key: ubuntu24-thai-fonts-v1
+
+      - name: Prepara Font di sistema (Thai, Liberation, DejaVu)
+        if: steps.preflight.outputs.should_run == 'true'
+        run: |
+          mkdir -p "$HOME/.local/share/fonts"
+          if [ -z "$(find "$HOME/.local/share/fonts" -maxdepth 3 -type f 2>/dev/null | head -n 1)" ]; then
+            (
+              timeout 60 sudo apt-get update -qq -o Acquire::Retries=2 -o Acquire::http::Timeout="15" &&
+              timeout 60 sudo apt-get install -y -qq --no-install-recommends fonts-liberation fonts-thai-tlwg fonts-dejavu-core &&
+              cp -rn /usr/share/fonts/truetype/tlwg /usr/share/fonts/truetype/liberation /usr/share/fonts/truetype/dejavu "$HOME/.local/share/fonts/" 2>/dev/null
+            ) || true
+          fi
+          fc-cache -f "$HOME/.local/share/fonts" 2>/dev/null || true
+
+      - name: Cache Chromium headless (Playwright)
+        id: cache-pw
+        if: steps.preflight.outputs.should_run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ubuntu24-pw-v1-${{ hashFiles('package-lock.json') }}
+
+      - name: Installa e Verifica Chromium headless (Playwright)
+        if: steps.preflight.outputs.should_run == 'true'
+        run: |
+          if [ "${{ steps.cache-pw.outputs.cache-hit }}" != "true" ]; then
+            npx playwright install chromium
+          fi
+          node -e "import('playwright').then(async p => { const b = await p.chromium.launch({headless:true,args:['--no-sandbox']}); await b.close(); })" || timeout 120 npx playwright install-deps chromium
 
       - name: Avvia app Vite in locale sul runner
         if: steps.preflight.outputs.should_run == 'true'
@@ -113,22 +177,29 @@ jobs:
         if: steps.preflight.outputs.should_run == 'true'
         env:
           CI: 'true'
-          FFMPEG_PATH: /usr/bin/ffmpeg
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           TELEGRAM_SOCIAL_BOT_TOKEN: ${{ secrets.TELEGRAM_SOCIAL_BOT_TOKEN }}
           NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         run: |
-          SLOT_ARG=""
+          RESOLVED_SLOT="${{ steps.preflight.outputs.target_slot }}"
           if [ "${{ inputs.slot }}" != "" ] && [ "${{ inputs.slot }}" != "auto" ]; then
-            SLOT_ARG="--slot=${{ inputs.slot }}"
+            RESOLVED_SLOT="${{ inputs.slot }}"
+          fi
+          SLOT_ARG=""
+          if [ "$RESOLVED_SLOT" != "" ]; then
+            SLOT_ARG="--slot=$RESOLVED_SLOT"
+          fi
+          ATTEMPT_ARG=""
+          if [ "${{ steps.preflight.outputs.attempt }}" != "" ]; then
+            ATTEMPT_ARG="--attempt=${{ steps.preflight.outputs.attempt }}"
           fi
           DRY_ARG=""
           if [ "${{ inputs.dry_run }}" == "true" ]; then
             DRY_ARG="--dry-run"
           fi
-          node scripts/social-scheduler-dispatch.mjs --base=http://127.0.0.1:3000 $SLOT_ARG $DRY_ARG
+          node scripts/social-scheduler-dispatch.mjs --base=http://127.0.0.1:3000 $SLOT_ARG $ATTEMPT_ARG $DRY_ARG
 
       - name: Archivia video e log generati
         if: steps.preflight.outputs.should_run == 'true' && always()
@@ -140,8 +211,12 @@ jobs:
             vite.log
           retention-days: 7
 
-      - name: Allarme Emergenza Runner Cloud su Telegram Topic 301
-        if: failure()
+      - name: Allarme & Auto-Recupero Emergenza Runner Cloud (Topic 301)
+        if: failure() || cancelled()
         env:
           NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          TELEGRAM_SOCIAL_BOT_TOKEN: ${{ secrets.TELEGRAM_SOCIAL_BOT_TOKEN }}
+          TARGET_SLOT: ${{ steps.preflight.outputs.target_slot }}
+          ATTEMPT: ${{ steps.preflight.outputs.attempt }}
+          JOB_STATUS: ${{ job.status }}
         run: node scripts/social-emergency-alert.mjs

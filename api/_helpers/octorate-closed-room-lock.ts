@@ -425,3 +425,141 @@ export async function sealLockedRoomRangeOnOctorate(params: {
     lastStatus
   };
 }
+
+/**
+ * Catalogo globale dei 207 Product ID Octorate (strutture 366879 e 807324)
+ * per la blindatura post-stagione continua.
+ */
+export const ALL_OCTORATE_PRODUCT_IDS: number[] = [
+  960411, 960412, 960409, 960410, 960407, 960408, 960405, 960406, 960403, 960404,
+  960401, 960402, 960399, 960400, 960397, 960398, 960427, 960428, 960425, 960426,
+  960423, 960424, 960421, 960422, 960419, 960420, 960417, 960418, 960415, 960416,
+  960413, 960414, 960437, 960438, 960435, 960436, 960433, 960434, 960431, 960432,
+  960429, 960430, 960395, 960396, 960393, 960394, 960391, 960392, 960389, 960387,
+  932251, 921883, 932252, 932249, 921881, 932250, 921882, 932247, 921879, 932248,
+  921880, 921877, 932246, 921878, 449422, 932243, 932244, 921876, 422422, 932267,
+  921899, 932268, 932265, 932266, 921898, 932263, 932264, 932261, 932262, 932259,
+  932260, 932257, 932255, 932256, 932253, 932254, 422445, 649669, 449348, 921799,
+  449742, 916838, 916840, 449385, 872182, 449668, 449675, 960385, 449674, 960383,
+  331922, 331921, 331924, 421522, 331923, 421520, 340367, 421532, 332057, 332060,
+  421530, 421527, 332054, 421525, 332055, 332066, 421533, 332074, 332070, 332072,
+  332081, 332084, 332077, 332089, 422325, 297025, 297027, 297021, 297022, 297023,
+  297024, 332105, 330964, 422351, 293965, 332109, 330970, 340196, 340198, 340200,
+  422131, 421998, 422147, 332036, 422402, 332035, 332030, 332029, 421516, 421511,
+  293954, 293955, 293962, 293957, 293942, 529813, 921875, 921873, 921874, 921871,
+  921872, 921869, 496022, 921870, 496021, 496031, 496030, 495796, 495795, 495803,
+  496057, 496056, 495810, 495552, 495807, 495806, 495805, 495569, 495566, 495565,
+  495580, 495575, 916816, 495587, 495980, 495979, 495978, 495593, 495976, 529781,
+  529783, 529784, 495982, 529788, 529773, 495609, 529778, 529780, 921868, 496002,
+  496001, 529801, 496010, 529792, 496009, 495549, 494840
+];
+
+const PERPETUAL_CLOSURE_LOCK_ID = 'post_season_perpetual_closure_lock_v1';
+const PERPETUAL_CHECK_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // 7 giorni cooldown
+
+/**
+ * 🛑 Blindatura Perpetua Post-Stagione (Chiusura "All'Infinito" dal 1° Novembre 2027)
+ * Assicura che l'intero orizzonte mobile PMS (fino a 720 giorni / 2 anni nel futuro)
+ * sia costantemente sigillato in stop-sell, non prenotabile, con disponibilità 0
+ * e prezzo di protezione 10.000 ฿ (per evitare AirbnbValidationException).
+ */
+export async function ensurePerpetualPostSeasonClosure(
+  accessToken: string,
+  supabaseAdmin?: any,
+  options?: { clientId?: string; force?: boolean }
+): Promise<{ sealedCount: number; horizonEndStr: string; skipped: boolean }> {
+  const force = options?.force === true;
+  const clientId = options?.clientId || process.env.VITE_OCTORATE_CLIENT_ID || process.env.OCTORATE_CLIENT_ID || '';
+  const nowMs = Date.now();
+
+  // Calcola data limite mobile Octorate (today + 720 giorni)
+  const today = new Date();
+  const horizonDate = new Date(today.getTime() + 720 * 24 * 60 * 60 * 1000);
+  const horizonEndStr = horizonDate.toISOString().slice(0, 10);
+
+  // Se l'orizzonte mobile non ha ancora superato la data di inizio chiusura, non serve fare nulla
+  if (horizonEndStr <= '2027-11-01') {
+    return { sealedCount: 0, horizonEndStr, skipped: true };
+  }
+
+  // Verifica lock periodico su Supabase
+  if (supabaseAdmin && !force) {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('telegram_config')
+        .select('bot_token, updated_at')
+        .eq('id', PERPETUAL_CLOSURE_LOCK_ID)
+        .maybeSingle();
+
+      if (!error && data?.updated_at) {
+        const lastRunMs = Date.parse(data.updated_at);
+        let lastHorizon = '';
+        if (data.bot_token) {
+          try {
+            const parsed = JSON.parse(data.bot_token);
+            lastHorizon = parsed.horizonEndStr || '';
+          } catch {}
+        }
+        if (nowMs - lastRunMs < PERPETUAL_CHECK_INTERVAL_MS && lastHorizon === horizonEndStr) {
+          return { sealedCount: 0, horizonEndStr, skipped: true };
+        }
+      }
+    } catch (lockErr) {
+      console.warn('[Perpetual Closure] Lock check warning:', lockErr);
+    }
+  }
+
+  // Costruzione payload di chiusura totale per tutti i 207 rate plans
+  const payloadItems = ALL_OCTORATE_PRODUCT_IDS.map((pid) => ({
+    room: pid,
+    dateFrom: '2027-11-01',
+    dateTo: horizonEndStr,
+    values: {
+      availability: 0,
+      stopSells: true,
+      closed: true,
+      closedArrival: true,
+      closedDeparture: true,
+      closeToArrival: true,
+      closeToDeparture: true,
+      cta: true,
+      ctd: true,
+      price: 10000
+    }
+  }));
+
+  const chunks: any[][] = [];
+  const chunkSize = 50;
+  for (let i = 0; i < payloadItems.length; i += chunkSize) {
+    chunks.push(payloadItems.slice(i, i + chunkSize));
+  }
+
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+    Accept: 'application/json'
+  };
+  if (clientId) headers['Octorate-Api-Key'] = clientId;
+
+  const { succeededItems } = await postOctorateCalendarBulkWithRetry(headers, chunks, {
+    interBatchDelayMs: 1200,
+    quotaRetryDelayMs: 2500,
+    maxQuotaRetries: 2,
+    logPrefix: '[PERPETUAL CLOSURE]'
+  });
+
+  if (supabaseAdmin) {
+    try {
+      await supabaseAdmin.from('telegram_config').upsert({
+        id: PERPETUAL_CLOSURE_LOCK_ID,
+        bot_token: JSON.stringify({ horizonEndStr, succeededItems }),
+        chat_id: 'perpetual_closure',
+        updated_at: new Date(nowMs).toISOString()
+      });
+    } catch (saveErr) {
+      console.warn('[Perpetual Closure] Save lock error:', saveErr);
+    }
+  }
+
+  return { sealedCount: succeededItems, horizonEndStr, skipped: false };
+}
