@@ -3,6 +3,19 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🛡️ [21/11/2026 - ORE 11:05] · MESSA IN SICUREZZA COMPLETA `MARKDOWN-TRANSFER` & CLONAZIONE CHAT PINNATE (KOH PHAYAM ↔ RANONG)
+- **Cosa abbiamo fatto:**
+  1. 🔒 **Protezione Totale Chat Pinnate in [history-clean.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/history-clean.mjs)**:
+     - Bloccata l'eliminazione automatica di qualsiasi chat pinnata (unione di `annotations/*.pbtxt` e `pinned_conversations_order` in `state.vscdb`) o attiva (`.db-wal` non vuoto) e recuperati i titoli salvati nelle annotazioni (salvando *TikTok API Access Token Error* e *Restrizioni Supabase* dalla cancellazione).
+  2. 📦 **Export Pulito & Upload Resumable Blindato ([gdrive-handoff.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/gdrive-handoff.mjs))**:
+     - Snapshot consistente a caldo con `VACUUM INTO` (zero blocchi e zero file `.wal`/`.shm` nello ZIP), filtro selettivo solo per le chat pinnate valide (scartando ID fantasma), inclusione di `chapter_titles/`, verifica integrità ZIP, e blocco rigoroso se un blocco da 5 MB verso Google Drive fallisce.
+  3. 🔄 **Ripristino Bidirezionale, `project_id` & Percorsi ([gdrive-handoff-pull.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/gdrive-handoff-pull.mjs), [RIPRISTINA_TUTTO.bat](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/RIPRISTINA_TUTTO.bat), [project-transfer.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/project-transfer.mjs))**:
+     - Aggiunto controllo preventivo anti-sovrascrittura se Antigravity IDE è ancora aperto, fusione incrementale di `brain/`, protezione dei PIN locali in `annotations/`, riallineamento automatico di `project_id` e URI con `%20` / WorkTree della postazione di arrivo, pulizia stale `-wal`/`-shm` e URL Supabase aggiornato.
+- **Verifica:** `node --check` su tutti gli script (`0` errori), `node scripts/history-clean.mjs --dry-run` (`10` ID pinnati protetti), test end-to-end isolato in area temporanea (`9` chat pinnate esportate in `42,60 MB` e ripristinate su ambiente Ranong simulato con `10` PIN validi uniti, titoli e `project_id` riallineati al 100%), `node scratch/security-audit.mjs` (`0 SECRETS DETECTED`), `npm run api:check` e `npm run test:booking` (`74/74` verdi).
+- **Stato:** 🟢 COMPLETATO E CERTIFICATO IN LOCALE SU `staging` — Pronto per eseguire `MARKDOWN-TRANSFER`.
+
+---
+
 ### 🔧 [20/11/2026 - ORE 17:29] · FIX DEFINITIVO HANG INFINITO FFMPEG 7.0.2 & CONTATORE TENTATIVI SOCIAL STUDIO
 - **Cosa abbiamo fatto:**
   1. 🔎 **Diagnosi Definitiva dei Timeout di Oggi (`11:30`, `12:00`, `12:30`, `13:00`, `16:00`, `16:30`, `17:00`)**:

@@ -95,8 +95,10 @@ try {
   console.log('===========================================================');
   console.log('1. Codice e Vercel: Staging e Main aggiornati su GitHub');
   console.log(`2. Worktree:        ${activeWorktrees.length} salvati e sincronizzati`);
-  console.log('3. Google Drive:    Pacchetto Handoff leggero caricato in Cloud');
-  console.log('4. All\'arrivo:     Doppio click su "RIPRISTINA_TUTTO.bat"');
+  console.log('3. Google Drive:    Pacchetto Handoff (chat pinnate + PIN) caricato in Cloud');
+  console.log('4. All\'arrivo (Koh Phayam <-> Ranong):');
+  console.log('   - Chiudi completamente Antigravity IDE prima del ripristino');
+  console.log('   - Fai doppio click su "RIPRISTINA_TUTTO.bat"');
   console.log('===========================================================\n');
 } catch (err) {
   console.error('\n❌ ERRORE DURANTE IL TRASFERIMENTO POSTAZIONE:', err.message);

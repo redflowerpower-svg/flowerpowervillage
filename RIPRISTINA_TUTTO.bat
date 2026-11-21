@@ -8,6 +8,12 @@ echo   (Ranong ^<--^> Koh Phayam via Google Drive 5TB)
 echo ===========================================================
 echo.
 
+:: 0. Verifica preventiva che Antigravity IDE sia completamente chiuso
+tasklist /FI "IMAGENAME eq Antigravity IDE.exe" /FO CSV /NH 2>NUL | find /I "Antigravity IDE.exe">NUL
+if "%ERRORLEVEL%"=="0" goto :ANTIGRAVITY_OPEN
+tasklist /FI "IMAGENAME eq Antigravity.exe" /FO CSV /NH 2>NUL | find /I "Antigravity.exe">NUL
+if "%ERRORLEVEL%"=="0" goto :ANTIGRAVITY_OPEN
+
 :: 1. Rileva automaticamente dove si trova la cartella del progetto su questo PC
 set "PROJ_DIR="
 
@@ -37,6 +43,23 @@ echo.
 echo [2/3] Allineamento codice da GitHub (git pull origin staging)...
 git checkout staging >nul 2>&1
 git pull origin staging
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo [RETRY] Primo tentativo git pull non riuscito, riprovo tra 2 secondi...
+    timeout /t 2 /nobreak >nul
+    git pull origin staging
+)
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo ===========================================================
+    echo   ERRORE durante git pull origin staging!
+    echo   Possibili modifiche locali non salvate o problema di rete.
+    echo   Controlla i messaggi sopra prima di riprovare.
+    echo ===========================================================
+    echo.
+    pause
+    exit /b 1
+)
 
 :: 3. Download pacchetto, ripristino chat, PIN e credenziali da Google Drive 5TB
 echo.
@@ -57,8 +80,23 @@ if %ERRORLEVEL% NEQ 0 (
 echo.
 echo ===========================================================
 echo   🎉 RIPRISTINO COMPLETATO CON SUCCESSO AL 100%!
-echo   Ora puoi aprire Antigravity: troverai tutto allineato.
+echo   Ora puoi aprire Antigravity IDE: troverai tutto allineato.
 echo ===========================================================
 echo.
 echo Premi un tasto per chiudere questa finestra...
 pause >nul
+exit /b 0
+
+:ANTIGRAVITY_OPEN
+echo ===========================================================
+echo   ATTENZIONE: ANTIGRAVITY IDE E' ANCORA APERTO!
+echo ===========================================================
+echo   Chiudi completamente Antigravity IDE prima di continuare,
+echo   altrimenti i database delle chat resteranno bloccati e
+echo   alla chiusura l'IDE sovrascrivera' i PIN appena importati.
+echo.
+echo   Chiudi Antigravity IDE e poi rilancia RIPRISTINA_TUTTO.bat.
+echo ===========================================================
+echo.
+pause
+exit /b 1
