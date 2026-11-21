@@ -2632,8 +2632,11 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       cParams.append("access_token", pageToken);
       cParams.append("media_type", isStory ? "STORIES" : "REELS");
       cParams.append("video_url", videoUrl);
-      if (!isStory && caption) {
-        cParams.append("caption", caption.slice(0, 2200));
+      if (!isStory) {
+        cParams.append("share_to_feed", "true");
+        if (caption) {
+          cParams.append("caption", caption.slice(0, 2200));
+        }
       }
 
       const cRes = await fetch(`https://graph.facebook.com/v19.0/${igId}/media`, {

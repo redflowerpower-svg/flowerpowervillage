@@ -9,6 +9,7 @@ import {
   MIN_SCENES_BY_MODE,
   OFFICIAL_SLOTS,
   RECOVERY_WINDOW_MINUTES,
+  SLOT_METADATA,
   STALE_IN_PROGRESS_MINUTES,
   TOPIC_KOH_PHAYAM_GROUP,
   TOPIC_TIKTOK_STORIES,
@@ -18,6 +19,7 @@ import {
   buildResolvedNoticeMessage,
   buildSubTopicNoticeMessage,
   computeNextRetryHint,
+  getSlotMaxDelayMinutes,
   isPermanentError,
   resolveFfmpegBinary,
   resolveScheduledSlot,
@@ -40,13 +42,29 @@ function priorCompletedRows(beforeSlot: string, nowMs: number) {
 }
 
 describe("Reparto /social — Scheduler Slot Window & Anti-Drift", () => {
-  it("identifica correttamente tutti gli 11 slot ufficiali e rispetta la finestra oraria", () => {
-    assert.equal(OFFICIAL_SLOTS.length, 11);
+  it("identifica correttamente tutti i 15 slot ufficiali e rispetta la finestra oraria senza sovrapposizioni", () => {
+    assert.equal(OFFICIAL_SLOTS.length, 15);
     assert.equal(resolveScheduledSlot("", { hour: 17, min: 1 }), "17:00");
     assert.equal(resolveScheduledSlot("", { hour: 17, min: 31 }), "17:00");
     assert.equal(resolveScheduledSlot("", { hour: 17, min: 46 }), null);
+    assert.equal(resolveScheduledSlot("", { hour: 10, min: 40 }), "10:30");
+    assert.equal(resolveScheduledSlot("", { hour: 13, min: 45 }), "13:30");
+    assert.equal(resolveScheduledSlot("", { hour: 15, min: 15 }), "15:00");
+    assert.equal(resolveScheduledSlot("", { hour: 20, min: 35 }), "20:30");
     assert.equal(resolveScheduledSlot("19:30", { hour: 20, min: 10 }), "19:30");
     assert.equal(resolveScheduledSlot("99:99", { hour: 12, min: 0 }), null);
+
+    // Zero sovrapposizioni matematiche fra finestre consecutive [slot - 5m, slot + maxDelay]
+    for (let i = 0; i < OFFICIAL_SLOTS.length - 1; i++) {
+      const s1 = OFFICIAL_SLOTS[i];
+      const s2 = OFFICIAL_SLOTS[i + 1];
+      const end1 = timeToMinutes(s1) + getSlotMaxDelayMinutes(s1);
+      const start2 = timeToMinutes(s2) - 5;
+      assert.ok(
+        end1 < start2,
+        `Sovrapposizione finestra rilevata tra ${s1} (chiude a ${end1}) e ${s2} (apre a ${start2})`
+      );
+    }
   });
 
   it("salta lo slot se già completato oggi e supporta dryRun / forceRun", () => {
@@ -276,11 +294,12 @@ describe("Reparto /social — Coda Auto-Recupero (3 Tentativi & Finestra 3 Ore)"
 
     const pastWindowIdle = selectSlotToExecute({
       rawSlot: "",
-      bkTime: { hour: 20, min: 35 },
+      bkTime: { hour: 20, min: 52 },
       nowMs,
       todayRows: [
         ...rowsBefore2000,
         { id: 32, slot: "20:00", status: "completed", copy_text: "ok", created_at: new Date(nowMs).toISOString() },
+        { id: 33, slot: "20:30", status: "completed", copy_text: "ok", created_at: new Date(nowMs).toISOString() },
       ],
     });
     assert.equal(pastWindowIdle.slot, null);
@@ -588,5 +607,43 @@ describe("Reparto /social — Firewall Anti-Contaminazione Format/Brand & Isolam
     assert.equal(block1930.includes("TOPIC_KOH_PHAYAM_GROUP"), false);
     assert.equal(block1130.includes("TOPIC_TIKTOK_STORIES"), true);
     assert.equal(block1930.includes("TOPIC_TIKTOK_STORIES"), true);
+  });
+
+  it("garantisce i 4 nuovi slot Instagram Pizzeria, share_to_feed su Meta e ID certificati nel Vault", () => {
+    const newPizzaIgSlots = [
+      { slot: "10:30", cron: "'30 3 * * *'", startMark: "else if (is1030)", endMark: "else if (is1130)" },
+      { slot: "13:30", cron: "'30 6 * * *'", startMark: "else if (is1330)", endMark: "else if (is1500)" },
+      { slot: "15:00", cron: "'0 8 * * *'", startMark: "else if (is1500)", endMark: "else if (is1600)" },
+      { slot: "20:30", cron: "'30 13 * * *'", startMark: "else if (is2030)", endMark: "else if (is2100)" },
+    ];
+
+    const yml = fs.readFileSync(path.resolve(".github/workflows/social-scheduler-cron.yml"), "utf8");
+    const dispatchSrc = fs.readFileSync(path.resolve("scripts/social-scheduler-dispatch.mjs"), "utf8");
+    const publisherSrc = fs.readFileSync(path.resolve("api/_handlers/social-publisher.ts"), "utf8");
+    const vaultSrc = fs.readFileSync(path.resolve("scratch/vault-sync.mjs"), "utf8");
+
+    for (const item of newPizzaIgSlots) {
+      assert.equal(OFFICIAL_SLOTS.includes(item.slot), true);
+      assert.equal(SLOT_METADATA[item.slot]?.brand, "pizza");
+      assert.equal(yml.includes(item.cron), true, `Cron mancante per ${item.slot}: ${item.cron}`);
+
+      const block = dispatchSrc.slice(
+        dispatchSrc.indexOf(item.startMark),
+        dispatchSrc.indexOf(item.endMark)
+      );
+      assert.ok(block.length > 50, `Blocco mancante in dispatch per ${item.slot}`);
+      assert.equal(block.includes("publishToInstagram"), true);
+      assert.equal(block.includes("brand: 'pizza'"), true);
+      assert.equal(block.includes("TOPIC_TIKTOK_STORIES"), true);
+      assert.equal(block.includes("TOPIC_KOH_PHAYAM_GROUP"), false);
+    }
+
+    assert.equal(dispatchSrc.includes("share_to_feed"), true);
+    assert.equal(publisherSrc.includes("share_to_feed"), true);
+
+    assert.equal(vaultSrc.includes("META_PIZZA_IG_ID=17841468753633265"), true);
+    assert.equal(vaultSrc.includes("META_VILLAGE_IG_ID=17841404137072110"), true);
+    assert.equal(vaultSrc.includes("17841469176521344"), false);
+    assert.equal(vaultSrc.includes("17841444373676743"), false);
   });
 });

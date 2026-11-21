@@ -798,6 +798,7 @@ async function main() {
       'api_credentials_report.md.enc': '.secret_docs/api_credentials_report.md.enc',
       'RIPRISTINA_TUTTO.bat': 'RIPRISTINA_TUTTO.bat',
       'gdrive-handoff-pull.mjs': 'scripts/gdrive-handoff-pull.mjs',
+      'update-agy-binaries.mjs': 'scripts/update-agy-binaries.mjs',
       'worktrees_info.json': 'scratch/worktrees_info.json'
     };
 
@@ -934,6 +935,19 @@ async function main() {
       console.warn('⚠️ Avviso durante sincronizzazione vault:', e.message);
     }
 
+    // 8b. Verifica e aggiornamento automatico binari Antigravity (CLI + IDE interno, con IDE chiuso)
+    console.log('\n🔄 Passo 6: Verifica & Aggiornamento Automatico Antigravity (CLI + IDE)...');
+    try {
+      const updaterPath = path.resolve(process.cwd(), 'scripts/update-agy-binaries.mjs');
+      if (fs.existsSync(updaterPath)) {
+        const { pathToFileURL } = await import('url');
+        const { updateAllAgyBinaries } = await import(pathToFileURL(updaterPath).href);
+        updateAllAgyBinaries();
+      }
+    } catch (agyErr) {
+      console.warn('⚠️ Avviso aggiornamento automatico Antigravity (non bloccante):', agyErr.message);
+    }
+
     // 9. Pulizia scratch locale
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
@@ -942,10 +956,11 @@ async function main() {
     console.log('\n===========================================================');
     console.log('🎉 POSTAZIONE RIPRISTINATA E ALLINEATA CON SUCCESSO!');
     console.log('===========================================================');
-    console.log(`- Pacchetto Cloud:   [${targetFolder.name}]`);
-    console.log(`- Codice Progetto:   Aggiornato al 100%`);
-    console.log(`- Password & Vault:  Decifrati e attivi (.env pronto)`);
-    console.log(`- Antigravity IDE:   Cronologia Chat e PIN ripristinati!`);
+    console.log(`- Pacchetto Cloud:    [${targetFolder.name}]`);
+    console.log(`- Codice Progetto:    Aggiornato al 100%`);
+    console.log(`- Password & Vault:   Decifrati e attivi (.env pronto)`);
+    console.log(`- Antigravity IDE:    Cronologia Chat e PIN ripristinati!`);
+    console.log(`- Antigravity Engine: Binari CLI & IDE verificati/aggiornati`);
     console.log('-----------------------------------------------------------');
     console.log('🚀 ORA PUOI APRIRE TRANQUILLAMENTE ANTIGRAVITY IDE E LAVORARE.');
     console.log('===========================================================\n');

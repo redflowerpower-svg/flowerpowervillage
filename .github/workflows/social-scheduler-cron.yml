@@ -4,16 +4,20 @@ name: Social Media Studio Scheduler (24/7 Serverless)
 # Scheduler serverless 100% gratuito per Pizzeria Ranong e Villaggio Koh Phayam.
 # Esegue i compiti orari secondo il fuso di Bangkok (UTC+7):
 # - 08:00 Bangkok (01:00 UTC): 2 Stories TikTok/IG su Topic 3 + 1 Post LM1 su Topic 2 (+ Token Watchdog)
-# - 09:30 Bangkok (02:30 UTC): Instagram Story Mattino (V1/CC1)
-# - 11:30 Bangkok (04:30 UTC): Pranzo Ranong Pasta Fresca (SOLO Facebook Pagina)
-# - 12:30 Bangkok (05:30 UTC): Facebook Story Pranzo (P1/CC1)
-# - 16:00 Bangkok (09:00 UTC): Pomeriggio Relax Alloggi Phayam (SOLO Instagram Reel)
+# - 09:30 Bangkok (02:30 UTC): Instagram Story Mattino (V1/CC1) [Village]
+# - 10:30 Bangkok (03:30 UTC): Instagram Story Pre-Pranzo (P3) [Pizza]
+# - 11:30 Bangkok (04:30 UTC): Pranzo Ranong Pasta Fresca (SOLO Facebook Pagina P2)
+# - 12:30 Bangkok (05:30 UTC): Facebook Story Pranzo (P1/CC1) [Pizza]
+# - 13:30 Bangkok (06:30 UTC): Instagram Reel/Post Pranzo Mix (P3) [Pizza]
+# - 15:00 Bangkok (08:00 UTC): Instagram Story Pomeriggio (P1) [Pizza]
+# - 16:00 Bangkok (09:00 UTC): Pomeriggio Relax Alloggi Phayam (SOLO Instagram Reel V2)
 # - 17:00 Bangkok (10:00 UTC): 2 Stories TikTok/IG su Topic 3 + 1 Post R1 su Topic 2
-# - 18:00 Bangkok (11:00 UTC): Instagram Story Golden Hour (V3/CC1)
-# - 18:30 Bangkok (11:30 UTC): Post Feed TikTok 9:16 (Bozza Inbox)
-# - 19:30 Bangkok (12:30 UTC): Cena Ranong Pizza Tradizionale (SOLO Facebook Pagina Reel)
-# - 20:00 Bangkok (13:00 UTC): Facebook Story Serale (P3/CC1)
-# - 21:00 Bangkok (14:00 UTC): Notte Tropical Escape Phayam (SOLO Instagram Reel)
+# - 18:00 Bangkok (11:00 UTC): Instagram Story Golden Hour (V3/CC1) [Village]
+# - 18:30 Bangkok (11:30 UTC): Post Feed TikTok 9:16 (Bozza Inbox P1)
+# - 19:30 Bangkok (12:30 UTC): Cena Ranong Pizza Tradizionale (SOLO Facebook Pagina Reel P1)
+# - 20:00 Bangkok (13:00 UTC): Facebook Story Serale (P3/CC1) [Pizza]
+# - 20:30 Bangkok (13:30 UTC): Instagram Reel/Post Cena Categoria (P2) [Pizza]
+# - 21:00 Bangkok (14:00 UTC): Notte Tropical Escape Phayam (SOLO Instagram Reel V3)
 
 on:
   schedule:
@@ -21,10 +25,16 @@ on:
     - cron: '0 1 * * *'
     # 09:30 Bangkok = 02:30 UTC
     - cron: '30 2 * * *'
+    # 10:30 Bangkok = 03:30 UTC
+    - cron: '30 3 * * *'
     # 11:30 Bangkok = 04:30 UTC
     - cron: '30 4 * * *'
     # 12:30 Bangkok = 05:30 UTC
     - cron: '30 5 * * *'
+    # 13:30 Bangkok = 06:30 UTC
+    - cron: '30 6 * * *'
+    # 15:00 Bangkok = 08:00 UTC
+    - cron: '0 8 * * *'
     # 16:00 Bangkok = 09:00 UTC
     - cron: '0 9 * * *'
     # 17:00 Bangkok = 10:00 UTC
@@ -37,12 +47,14 @@ on:
     - cron: '30 12 * * *'
     # 20:00 Bangkok = 13:00 UTC
     - cron: '0 13 * * *'
+    # 20:30 Bangkok = 13:30 UTC
+    - cron: '30 13 * * *'
     # 21:00 Bangkok = 14:00 UTC
     - cron: '0 14 * * *'
   workflow_dispatch:
     inputs:
       slot:
-        description: 'Slot orario da eseguire (es. 08:00, 09:30, 11:30, 12:30, 16:00, 17:00, 18:00, 18:30, 19:30, 20:00, 21:00 oppure auto)'
+        description: 'Slot orario da eseguire (es. 08:00, 09:30, 10:30, 11:30, 12:30, 13:30, 15:00, 16:00, 17:00, 18:00, 18:30, 19:30, 20:00, 20:30, 21:00 oppure auto)'
         required: true
         default: 'auto'
       dry_run:
