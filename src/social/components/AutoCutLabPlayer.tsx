@@ -2656,6 +2656,15 @@ export function AutoCutLabPlayer({
         (window as any).__autoCutAbortRequested = true;
       };
 
+      // 🏷️ Metadata live del montaggio attivo (per verifica contratto formato/brand Playwright)
+      (window as any).__autoCutCurrentMeta = {
+        mode: testRun.mode,
+        brand: testRun.brand,
+        sceneCount: testRun.scenes.length,
+        isEmptyShowcase: !!testRun.isEmptyShowcase,
+        titles: testRun.scenes.map(s => (s.sourceName || s.titlePrimary || '').replace(/\s+/g, ' ').trim())
+      };
+
       // 📝 Generatore Copy Ufficiale Bilingue Sincronizzato con il Montaggio Effettivo
       (window as any).__autoCutGeneratePostCopy = (proverbSeed?: number): PostCopyResult => {
         return generatePostCopy(testRun, proverbSeed ?? 0);

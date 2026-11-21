@@ -21,7 +21,12 @@ import { createRequire } from 'module';
 import { execFileSync, spawnSync } from 'child_process';
 import { chromium } from 'playwright';
 import ffmpegStatic from 'ffmpeg-static';
-import { buildFiniteAudioMuxArgs, resolveFfmpegBinary } from './social-scheduler-core.mjs';
+import {
+  EXPECTED_BRAND_BY_MODE,
+  buildFiniteAudioMuxArgs,
+  resolveFfmpegBinary,
+  validateRenderedModeContract
+} from './social-scheduler-core.mjs';
 
 const require = createRequire(import.meta.url);
 
@@ -97,6 +102,7 @@ async function main() {
 
   let result;
   let currentTest = null;
+  let playerMeta = null;
   let caps = { videoEncoder: false, h264: false, mediaRecorder: false };
   const consoleLog = [];
   let videoPath;
@@ -372,6 +378,31 @@ async function main() {
     await page.waitForFunction(() => typeof window.__autoCutGetVideo === 'function', null, { timeout: 30000 });
   }
 
+  // 🛡️ Gate race-free: attende la stabilizzazione completa del montaggio prima di leggere stato o esportare
+  await page.waitForFunction(
+    (expectedMode) =>
+      window.__autoCutReady === true &&
+      typeof window.__autoCutGetVideo === 'function' &&
+      typeof window.__autoCutGeneratePostCopy === 'function' &&
+      window.__autoCutCurrentMeta?.mode === expectedMode,
+    mode,
+    { timeout: 60000 }
+  );
+  await page.waitForTimeout(300);
+
+  playerMeta = await page.evaluate(() => window.__autoCutCurrentMeta || null);
+  const metaCheck = validateRenderedModeContract({
+    requestedMode: mode,
+    actualMode: playerMeta?.mode,
+    actualBrand: playerMeta?.brand,
+    sceneCount: playerMeta?.sceneCount,
+    isEmptyShowcase: !!playerMeta?.isEmptyShowcase
+  });
+  if (!metaCheck.ok) {
+    throw new Error(`[CONTRACT VIOLATION] ${metaCheck.reason} (meta=${JSON.stringify(playerMeta)})`);
+  }
+  log(`✅ Contratto formato/brand certificato: mode=${playerMeta.mode}, brand=${playerMeta.brand}, scene=${playerMeta.sceneCount}`);
+
   // Capacità del browser (decisiva per il cloud)
   caps = await page.evaluate(async () => {
     const out = { videoEncoder: typeof VideoEncoder !== 'undefined', h264: false, mediaRecorder: typeof MediaRecorder !== 'undefined' };
@@ -407,6 +438,14 @@ async function main() {
     }
     return null;
   }, Date.now());
+  const copyCheck = validateRenderedModeContract({
+    requestedMode: mode,
+    actualMode: officialCopy?.mode,
+    actualBrand: officialCopy?.brand
+  });
+  if (!copyCheck.ok) {
+    throw new Error(`[COPY CONTRACT VIOLATION] ${copyCheck.reason}`);
+  }
   if (officialCopy) {
     const cpPath = path.join(outDir, `${mode}.copy.json`);
     fs.writeFileSync(cpPath, JSON.stringify(officialCopy, null, 2));
@@ -552,6 +591,16 @@ async function main() {
   log(`Durata ${seconds.toFixed(2)}s, risoluzione ${res ? res[0] : '?'}`);
 
   const checks = [];
+  checks.push({
+    name: `coerenza formato e brand (${mode}/${EXPECTED_BRAND_BY_MODE[mode]})`,
+    ok: !!playerMeta && validateRenderedModeContract({
+      requestedMode: mode,
+      actualMode: playerMeta.mode,
+      actualBrand: playerMeta.brand,
+      sceneCount: playerMeta.sceneCount,
+      isEmptyShowcase: !!playerMeta.isEmptyShowcase
+    }).ok
+  });
   const usedWebCodecs = !!result.remoteUrl || (!/webm/.test(result.type) && result.size > 500000);
   checks.push({ name: 'percorso deterministico WebCodecs (no fallback MediaRecorder)', ok: usedWebCodecs });
   if (!usedWebCodecs) annotate('error', 'Il player e caduto sul fallback MediaRecorder (tempo reale): video NON deterministico. Vedi righe console/HTTP sopra.');
@@ -603,7 +652,7 @@ async function main() {
   const hasValidVideo = fs.existsSync(videoPath) && fs.statSync(videoPath).size > 100_000;
   const isDispatchMode = tag === 'dispatch' || process.env.PARITY_TAG === 'dispatch';
   const ok = (checks.every(c => c.ok) && caps.videoEncoder !== undefined) || (isDispatchMode && hasValidVideo);
-  fs.writeFileSync(path.join(outDir, `${mode}.${tag}.report.json`), JSON.stringify({ mode, caps, seconds, size: fs.statSync(videoPath).size, type: result.type, usedWebCodecs, checks, consoleLog }, null, 2));
+  fs.writeFileSync(path.join(outDir, `${mode}.${tag}.report.json`), JSON.stringify({ mode, playerMeta, caps, seconds, size: fs.statSync(videoPath).size, type: result.type, usedWebCodecs, checks, consoleLog }, null, 2));
   process.exit(ok ? 0 : 1);
 }
 

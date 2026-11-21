@@ -1,5 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 
 import {
   VILLAGE_WEBSITE_TRAJECTORIES,
@@ -22,6 +24,8 @@ import {
   isDishAvailableInKitchen,
   isExcludedBeverageCategory,
   isExcludedSaladCategory,
+  resolveInitialAutoCutMode,
+  shouldRegenerateModeAfterKitchenLoad,
 } from "../../src/social/services/autoCutLabEngine.js";
 import type { MenuItem } from "../../src/pizza/data/menuData.js";
 
@@ -184,5 +188,39 @@ describe("Reparto /social — Regole 13 & 14: Titoli Bilingue Semantici & Thumbn
         `thumbnailTimestamp (${thumbnailTimestamp}) deve precedere transitionThreshold (${transitionThreshold})`
       );
     }
+  });
+});
+
+describe("Reparto /social — Protezione Anti-Contaminazione Format/Brand al Mount", () => {
+  it("resolveInitialAutoCutMode dà priorità assoluta a ?mode= rispetto a localStorage e fallback P1", () => {
+    assert.equal(resolveInitialAutoCutMode("?mode=V1", "P1"), "V1");
+    assert.equal(resolveInitialAutoCutMode("?mode=v2", null), "V2");
+    assert.equal(resolveInitialAutoCutMode("?mode=R1", "P1"), "R1");
+    assert.equal(resolveInitialAutoCutMode("?mode=lm1", "V3"), "LM1");
+    assert.equal(resolveInitialAutoCutMode("", "V3"), "V3");
+    assert.equal(resolveInitialAutoCutMode("?mode=INVALID", null), "P1");
+    assert.equal(resolveInitialAutoCutMode("", null), "P1");
+  });
+
+  it("shouldRegenerateModeAfterKitchenLoad blocca qualsiasi rigenerazione su V1/V2/V3/LM1 e preserva Regola 21", () => {
+    for (const villageMode of ["V1", "V2", "V3", "LM1"] as const) {
+      assert.equal(shouldRegenerateModeAfterKitchenLoad(villageMode, false), false);
+      assert.equal(shouldRegenerateModeAfterKitchenLoad(villageMode, true), false);
+    }
+    for (const foodMode of ["P1", "P2", "P3", "R1", "DS"] as const) {
+      assert.equal(shouldRegenerateModeAfterKitchenLoad(foodMode, false), true);
+      assert.equal(shouldRegenerateModeAfterKitchenLoad(foodMode, true), false);
+    }
+  });
+
+  it("AutoCutLabView.tsx non contiene più il fallback hardcoded generateAutoCutTestByMode('P1') dopo il caricamento cucina", () => {
+    const viewSrc = fs.readFileSync(
+      path.resolve("src/social/components/AutoCutLabView.tsx"),
+      "utf8"
+    );
+    assert.equal(viewSrc.includes("const initialP1 = generateAutoCutTestByMode('P1')"), false);
+    assert.equal(viewSrc.includes("resolveInitialAutoCutMode"), true);
+    assert.equal(viewSrc.includes("shouldRegenerateModeAfterKitchenLoad"), true);
+    assert.equal(viewSrc.includes("__autoCutReady"), true);
   });
 });

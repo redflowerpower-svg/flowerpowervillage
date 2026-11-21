@@ -501,3 +501,74 @@ export function buildFiniteAudioMuxArgs({
     outPath
   ];
 }
+
+export const EXPECTED_BRAND_BY_MODE = {
+  P1: 'pizza',
+  P2: 'pizza',
+  P3: 'pizza',
+  DS: 'pizza',
+  V1: 'village',
+  V2: 'village',
+  V3: 'village',
+  LM1: 'village',
+  R1: 'village'
+};
+
+export const MIN_SCENES_BY_MODE = {
+  P1: 1,
+  P2: 2,
+  P3: 2,
+  DS: 1,
+  V1: 1,
+  V2: 4,
+  V3: 4,
+  LM1: 1,
+  R1: 3
+};
+
+/**
+ * Valida il contratto formato/brand/scene contro ogni contaminazione cross-reparto prima di esportare o pubblicare.
+ */
+export function validateRenderedModeContract({
+  requestedMode,
+  actualMode,
+  actualBrand,
+  sceneCount,
+  isEmptyShowcase = false
+} = {}) {
+  const req = String(requestedMode || '').toUpperCase();
+  const expectedBrand = EXPECTED_BRAND_BY_MODE[req];
+  if (!expectedBrand) {
+    return { ok: false, reason: `Formato richiesto sconosciuto: "${requestedMode}"` };
+  }
+
+  const actMode = String(actualMode || '').toUpperCase();
+  if (actMode !== req) {
+    return {
+      ok: false,
+      reason: `Contaminazione formato: richiesto ${req}, generato ${actMode || 'N/D'}`
+    };
+  }
+
+  const actBrand = String(actualBrand || '').toLowerCase();
+  if (actBrand !== expectedBrand) {
+    return {
+      ok: false,
+      reason: `Contaminazione brand su ${req}: atteso "${expectedBrand}", generato "${actBrand || 'N/D'}"`
+    };
+  }
+
+  if (sceneCount !== undefined && sceneCount !== null) {
+    const minScenes = MIN_SCENES_BY_MODE[req] || 1;
+    const countNum = Number(sceneCount);
+    const allowEmptyDs = req === 'DS' && !!isEmptyShowcase;
+    if (!allowEmptyDs && (!Number.isFinite(countNum) || countNum < minScenes)) {
+      return {
+        ok: false,
+        reason: `Scene insufficienti per ${req}: attese >= ${minScenes}, trovate ${sceneCount}`
+      };
+    }
+  }
+
+  return { ok: true, expectedBrand };
+}

@@ -8,6 +8,7 @@ import { MenuItem } from '../../pizza/data/menuData';
 import { 
   AutoCutLabMode, 
   AutoCutTestRun, 
+  FOOD_AUTOCUT_MODES,
   generateAutoCutTestByMode,
   fetchLiveLastMinuteRooms,
   generateLM1Test,
@@ -15,7 +16,9 @@ import {
   getLiveDailySpecialDishes,
   fetchLiveDailySpecials,
   generateDSTest,
-  isLm1SoldOutTonight
+  isLm1SoldOutTonight,
+  resolveInitialAutoCutMode,
+  shouldRegenerateModeAfterKitchenLoad
 } from '../services/autoCutLabEngine';
 import { AUTOCUT_RULES_REGISTRY } from '../services/autoCutRulesRegistry';
 import { AutoCutLabPlayer } from './AutoCutLabPlayer';
@@ -28,13 +31,10 @@ export function AutoCutLabView() {
   const [activeMode, setActiveMode] = useState<AutoCutLabMode>(() => {
     if (typeof window !== 'undefined') {
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const qMode = urlParams.get('mode')?.toUpperCase() as AutoCutLabMode | null;
-        if (qMode && ['P1', 'P2', 'P3', 'DS', 'R1', 'LM1', 'V1', 'V2', 'V3'].includes(qMode)) {
-          return qMode;
-        }
-        const saved = localStorage.getItem('autocut_active_mode') as AutoCutLabMode | null;
-        if (saved) return saved;
+        return resolveInitialAutoCutMode(
+          window.location.search,
+          localStorage.getItem('autocut_active_mode')
+        );
       } catch (e) {}
     }
     return 'P1';
@@ -47,6 +47,32 @@ export function AutoCutLabView() {
     instagram: 'reels'
   });
   const [liveCaptions, setLiveCaptions] = useState<PostCaptionsBundle | null>(null);
+  const [currentTest, setCurrentTest] = useState<AutoCutTestRun>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasExplicitQueryMode = !!urlParams.get('mode');
+        const savedByModeRaw = localStorage.getItem('autocut_tests_by_mode');
+        if (savedByModeRaw) {
+          const parsed = JSON.parse(savedByModeRaw);
+          const candidate = parsed?.[activeMode];
+          if (candidate && candidate.mode === activeMode && (candidate.scenes?.length > 0 || candidate.isEmptyShowcase)) {
+            return candidate;
+          }
+        }
+        if (!hasExplicitQueryMode) {
+          const savedCurrent = localStorage.getItem('autocut_current_test');
+          if (savedCurrent) {
+            const parsed = JSON.parse(savedCurrent);
+            if (parsed && parsed.mode === activeMode && (parsed.scenes?.length > 0 || parsed.isEmptyShowcase)) {
+              return parsed;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+    return generateAutoCutTestByMode(activeMode);
+  });
   const [testsByMode, setTestsByMode] = useState<Partial<Record<AutoCutLabMode, AutoCutTestRun>>>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -57,37 +83,11 @@ export function AutoCutLabView() {
         }
       } catch (e) {}
     }
-    const init = generateAutoCutTestByMode('P1');
-    return { P1: init };
+    return { [activeMode]: currentTest };
   });
-  const [currentTest, setCurrentTest] = useState<AutoCutTestRun>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const qMode = urlParams.get('mode')?.toUpperCase() as AutoCutLabMode | null;
-        if (qMode && ['P1', 'P2', 'P3', 'DS', 'R1', 'LM1', 'V1', 'V2', 'V3'].includes(qMode)) {
-          const saved = localStorage.getItem('autocut_tests_by_mode');
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            if (parsed && parsed[qMode]) return parsed[qMode];
-          }
-          return generateAutoCutTestByMode(qMode);
-        }
-        const savedCurrent = localStorage.getItem('autocut_current_test');
-        if (savedCurrent) {
-          const parsed = JSON.parse(savedCurrent);
-          if (parsed && parsed.scenes && parsed.scenes.length > 0) return parsed;
-        }
-        const savedMode = (localStorage.getItem('autocut_active_mode') as AutoCutLabMode | null) || 'P1';
-        const saved = localStorage.getItem('autocut_tests_by_mode');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed && parsed[savedMode]) return parsed[savedMode];
-        }
-      } catch (e) {}
-    }
-    return generateAutoCutTestByMode('P1');
-  });
+  const [isInitialDataReady, setIsInitialDataReady] = useState<boolean>(
+    () => !FOOD_AUTOCUT_MODES.has(activeMode) && activeMode !== 'LM1'
+  );
   const [shuffleKey, setShuffleKey] = useState(0);
   const [dailySpecialDishes, setDailySpecialDishes] = useState<MenuItem[]>(() => getLiveDailySpecialDishes());
   const [isGenerating, setIsGenerating] = useState(false);
@@ -114,18 +114,37 @@ export function AutoCutLabView() {
   };
 
   // 🛡️ REGOLA 21 AGENTS.MD: PERSISTENZA AL REFRESH (ZERO RIGENERAZIONE AL RICARICAMENTO DELLA PAGINA)
-  // Non rigenera il video né brucia token al semplice refresh: mantiene quello salvato nel browser!
+  // Non rigenera il video né brucia token al semplice refresh e NON contamina mai un formato con P1!
   React.useEffect(() => {
-    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-    const qMode = urlParams?.get('mode')?.toUpperCase();
-    const isLm1Initial = qMode === 'LM1' || activeMode === 'LM1';
+    let isCancelled = false;
+    const search = typeof window !== 'undefined' ? window.location.search : '';
+    const targetMode = resolveInitialAutoCutMode(search, activeMode);
 
+    let hasSavedTestForTarget = false;
     if (typeof window !== 'undefined') {
-      (window as any).__autoCutLm1Ready = !isLm1Initial;
+      try {
+        const savedRaw = localStorage.getItem('autocut_tests_by_mode');
+        if (savedRaw) {
+          const parsed = JSON.parse(savedRaw);
+          const savedEntry = parsed?.[targetMode];
+          hasSavedTestForTarget = Boolean(
+            savedEntry &&
+            savedEntry.mode === targetMode &&
+            ((Array.isArray(savedEntry.scenes) && savedEntry.scenes.length > 0) || savedEntry.isEmptyShowcase)
+          );
+        }
+      } catch (e) {}
     }
 
-    if (isLm1Initial) {
+    if (typeof window !== 'undefined') {
+      (window as any).__autoCutExpectedMode = targetMode;
+      (window as any).__autoCutLm1Ready = targetMode !== 'LM1';
+      (window as any).__autoCutReady = false;
+    }
+
+    if (targetMode === 'LM1') {
       fetchLiveLastMinuteRooms().then((rooms) => {
+        if (isCancelled) return;
         if (typeof window !== 'undefined') {
           (window as any).__autoCutLm1Count = rooms.length;
           (window as any).__autoCutLm1SoldOut = isLm1SoldOutTonight;
@@ -139,38 +158,89 @@ export function AutoCutLabView() {
             try {
               localStorage.setItem('autocut_tests_by_mode', JSON.stringify(updated));
               localStorage.setItem('autocut_current_test', JSON.stringify(liveLm1));
+              localStorage.setItem('autocut_active_mode', 'LM1');
             } catch (e) {}
             return updated;
           });
           setShuffleKey(k => k + 1);
         }
       }).finally(() => {
+        if (isCancelled) return;
         if (typeof window !== 'undefined') {
           (window as any).__autoCutLm1Ready = true;
         }
+        setIsInitialDataReady(true);
       });
+
+      fetchLiveKitchenAvailability().then(() => {
+        if (isCancelled) return;
+        setDailySpecialDishes(getLiveDailySpecialDishes());
+      });
+
+      return () => {
+        isCancelled = true;
+      };
     }
 
+    // Formati alloggi Villaggio (V1, V2, V3): indipendenti da Kitchen Monitor, mai sovrascritti da P1
+    if (!FOOD_AUTOCUT_MODES.has(targetMode)) {
+      if (!hasSavedTestForTarget && currentTest.mode === targetMode && typeof window !== 'undefined') {
+        try {
+          const nextByMode = { ...testsByMode, [targetMode]: currentTest };
+          localStorage.setItem('autocut_tests_by_mode', JSON.stringify(nextByMode));
+          localStorage.setItem('autocut_current_test', JSON.stringify(currentTest));
+          localStorage.setItem('autocut_active_mode', targetMode);
+        } catch (e) {}
+      }
+      setIsInitialDataReady(true);
+
+      fetchLiveKitchenAvailability().then(() => {
+        if (isCancelled) return;
+        setDailySpecialDishes(getLiveDailySpecialDishes());
+      });
+
+      return () => {
+        isCancelled = true;
+      };
+    }
+
+    // Formati Food (P1, P2, P3, R1, DS): attende disponibilità cucina reale e rigenera SOLO targetMode se non già salvato
     fetchLiveKitchenAvailability().then(() => {
+      if (isCancelled) return;
       const liveSpecials = getLiveDailySpecialDishes();
       setDailySpecialDishes(liveSpecials);
 
-      const hasSavedTests = typeof window !== 'undefined' && localStorage.getItem('autocut_tests_by_mode');
-      if (!hasSavedTests && !isLm1Initial) {
-        const initialP1 = generateAutoCutTestByMode('P1');
-        setCurrentTest(initialP1);
+      if (shouldRegenerateModeAfterKitchenLoad(targetMode, hasSavedTestForTarget)) {
+        const freshTest = targetMode === 'DS'
+          ? generateDSTest(liveSpecials)
+          : generateAutoCutTestByMode(targetMode);
+        setCurrentTest(freshTest);
         setTestsByMode(prev => {
-          const updated = { ...prev, P1: initialP1 };
+          const updated = { ...prev, [targetMode]: freshTest };
           try {
             localStorage.setItem('autocut_tests_by_mode', JSON.stringify(updated));
-            localStorage.setItem('autocut_active_mode', 'P1');
+            localStorage.setItem('autocut_current_test', JSON.stringify(freshTest));
+            localStorage.setItem('autocut_active_mode', targetMode);
           } catch (e) {}
           return updated;
         });
         setShuffleKey(k => k + 1);
       }
+    }).finally(() => {
+      if (isCancelled) return;
+      setIsInitialDataReady(true);
     });
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__autoCutReady = isInitialDataReady && currentTest.mode === activeMode;
+    }
+  }, [isInitialDataReady, currentTest, activeMode]);
 
   // Switch di modalità: visualizza il video già pronto in memoria senza rigenerare!
   const handleSelectMode = async (mode: AutoCutLabMode) => {
