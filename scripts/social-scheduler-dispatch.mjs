@@ -44,7 +44,8 @@ import {
   isPermanentError,
   buildDelayNoticeMessage,
   buildSubTopicNoticeMessage,
-  buildResolvedNoticeMessage
+  buildResolvedNoticeMessage,
+  validateRenderedModeContract
 } from './social-scheduler-core.mjs';
 
 const env = { ...process.env };
@@ -1711,13 +1712,50 @@ async function renderVideoMode(mode, maxAttempts = 3) {
           }
         }
 
-        return {
-          filePath: found,
-          copy,
-          toString: () => found
-        };
+        let testrun = null;
+        const trFile = path.join(outDir, `${mode}.testrun.json`);
+        if (fs.existsSync(trFile)) {
+          try {
+            testrun = JSON.parse(fs.readFileSync(trFile, 'utf8'));
+          } catch (e) {
+            console.warn('[scheduler-dispatch] Errore lettura testrun JSON:', e.message);
+          }
+        }
+
+        if (!copy) {
+          try { fs.unlinkSync(found); } catch { }
+          lastError = new Error(`Copy ufficiale mancante per ${mode}: impossibile validare formato/brand prima dell'invio`);
+        } else {
+          const copyCheck = validateRenderedModeContract({
+            requestedMode: mode,
+            actualMode: copy.mode,
+            actualBrand: copy.brand
+          });
+          const trCheck = testrun
+            ? validateRenderedModeContract({
+                requestedMode: mode,
+                actualMode: testrun.mode,
+                actualBrand: testrun.brand,
+                sceneCount: Array.isArray(testrun.scenes) ? testrun.scenes.length : undefined,
+                isEmptyShowcase: !!testrun.isEmptyShowcase
+              })
+            : null;
+
+          if (!copyCheck.ok || (trCheck && !trCheck.ok)) {
+            const reason = !copyCheck.ok ? copyCheck.reason : trCheck.reason;
+            try { fs.unlinkSync(found); } catch { }
+            lastError = new Error(`[FIREWALL ANTI-CONTAMINAZIONE] Render rifiutato per ${mode}: ${reason}`);
+          } else {
+            return {
+              filePath: found,
+              copy,
+              toString: () => found
+            };
+          }
+        }
+      } else {
+        lastError = new Error(`Video non generato per ${mode} nonostante exit code 0`);
       }
-      lastError = new Error(`Video non generato per ${mode} nonostante exit code 0`);
     } else if (res.error?.code === 'ETIMEDOUT' || res.signal === 'SIGTERM') {
       lastError = new Error(`Rendering scaduto per timeout (>5 min) su ${mode}`);
     } else {
@@ -2208,13 +2246,13 @@ async function run() {
         brand: 'pizza',
         isStory: false
       }),
-      fallbackTopicId: TOPIC_KOH_PHAYAM_GROUP,
+      fallbackTopicId: TOPIC_TIKTOK_STORIES,
       fallbackTitle: 'Pranzo Pasta Fresca Ranong · Reel Pagina Facebook',
       fallbackCopyText: p2Caption,
       filePath: p2Res.filePath,
       attempt: currentAttempt,
       lastNotice: currentLastNotice,
-      fallbackActionText: 'Video master e testo bilingue recapitati su Telegram Topic 2 con link diretto per pubblicazione staff.'
+      fallbackActionText: 'Video master recapitato su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
     });
   } else if (is1230) {
     console.log(`🍕 [12:30 BANGKOK] Slot Story Pranzo — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK STORIES`);
@@ -2423,13 +2461,13 @@ async function run() {
         brand: 'pizza',
         isStory: false
       }),
-      fallbackTopicId: TOPIC_KOH_PHAYAM_GROUP,
+      fallbackTopicId: TOPIC_TIKTOK_STORIES,
       fallbackTitle: 'Cena Pizza Tradizionale Ranong 48h · Reel Pagina Facebook',
       fallbackCopyText: p1Caption,
       filePath: p1Res.filePath,
       attempt: currentAttempt,
       lastNotice: currentLastNotice,
-      fallbackActionText: 'Video master e testo bilingue recapitati su Telegram Topic 2 con link diretto per pubblicazione staff.'
+      fallbackActionText: 'Video master recapitato su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
     });
   } else if (is2000) {
     console.log(`☕ [20:00 BANGKOK] Slot Story Serale — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK STORIES`);

@@ -5,6 +5,51 @@ import { fetchCloudMenuOverrides } from '../../pizza/data/pizzaMenuCloudService'
 
 export type AutoCutLabMode = 'P1' | 'P2' | 'P3' | 'V1' | 'V2' | 'V3' | 'R1' | 'LM1' | 'DS';
 
+export const VALID_AUTOCUT_MODES: readonly AutoCutLabMode[] = [
+  'P1', 'P2', 'P3', 'DS', 'R1', 'LM1', 'V1', 'V2', 'V3'
+] as const;
+
+export const FOOD_AUTOCUT_MODES: ReadonlySet<AutoCutLabMode> = new Set<AutoCutLabMode>([
+  'P1', 'P2', 'P3', 'R1', 'DS'
+]);
+
+/** Verifica se un valore corrisponde a uno dei 9 formati ufficiali AutoCut. */
+export function isValidAutoCutMode(value: unknown): value is AutoCutLabMode {
+  if (typeof value !== 'string') return false;
+  return (VALID_AUTOCUT_MODES as readonly string[]).includes(value.toUpperCase());
+}
+
+/** Risolve il formato iniziale dando priorità assoluta a `?mode=` rispetto a `localStorage` e al fallback `P1`. */
+export function resolveInitialAutoCutMode(search: string = '', savedMode: string | null = null): AutoCutLabMode {
+  try {
+    const qMode = new URLSearchParams(search || '').get('mode')?.toUpperCase();
+    if (isValidAutoCutMode(qMode)) {
+      return qMode;
+    }
+  } catch { }
+
+  const normalizedSaved = typeof savedMode === 'string' ? savedMode.toUpperCase() : '';
+  if (isValidAutoCutMode(normalizedSaved)) {
+    return normalizedSaved;
+  }
+
+  return 'P1';
+}
+
+/**
+ * Decide se rigenerare il montaggio dopo `fetchLiveKitchenAvailability()`:
+ * - Sempre `false` per i formati alloggi Villaggio (`V1`, `V2`, `V3`, `LM1`)
+ * - `false` se esiste già un montaggio salvato per il formato (Regola 21)
+ * - `true` solo per formati food non ancora salvati/seedati (`P1`, `P2`, `P3`, `R1`, `DS`)
+ */
+export function shouldRegenerateModeAfterKitchenLoad(
+  targetMode: AutoCutLabMode,
+  hasSavedTestForMode: boolean
+): boolean {
+  if (hasSavedTestForMode) return false;
+  return FOOD_AUTOCUT_MODES.has(targetMode);
+}
+
 /**
  * 🏨 Calcolo Prezzo Ufficiale Octorate Certificato alla Data Odierna (new Date())
  * Interroga la matrice stagionale ufficiale registrata nel sistema (Low Season / High Season).

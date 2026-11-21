@@ -42,6 +42,10 @@ cd /d "%PROJ_DIR%"
 echo.
 echo [2/3] Allineamento codice da GitHub (git pull origin staging)...
 git checkout staging >nul 2>&1
+
+:: Auto-bonifica preventiva: scarta eventuali modifiche sporche sui file di sincronizzazione lasciate da precedenti handoff
+git checkout -- scripts/gdrive-handoff-pull.mjs scripts/gdrive-handoff.mjs scripts/project-transfer.mjs scripts/project-sync.mjs scripts/history-clean.mjs RIPRISTINA_TUTTO.bat .agents/AGENTS.md >nul 2>&1
+
 git pull origin staging
 if %ERRORLEVEL% NEQ 0 (
     echo.

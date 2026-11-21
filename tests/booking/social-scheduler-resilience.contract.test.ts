@@ -4,7 +4,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
+  EXPECTED_BRAND_BY_MODE,
   MAX_SLOT_ATTEMPTS,
+  MIN_SCENES_BY_MODE,
   OFFICIAL_SLOTS,
   RECOVERY_WINDOW_MINUTES,
   STALE_IN_PROGRESS_MINUTES,
@@ -22,6 +24,7 @@ import {
   selectSlotToExecute,
   serializeRetryMeta,
   timeToMinutes,
+  validateRenderedModeContract,
 } from "../../scripts/social-scheduler-core.mjs";
 
 function priorCompletedRows(beforeSlot: string, nowMs: number) {
@@ -530,5 +533,60 @@ describe("Reparto /social — Integrità Static Workflow GitHub Actions", () => 
     assert.equal(h3["16:00"].failedAttempts, 2);
     const attemptAfterRun3 = Math.min(MAX_SLOT_ATTEMPTS, Math.max(3, h3["16:00"].failedAttempts + 1));
     assert.equal(attemptAfterRun3, 3);
+  });
+});
+
+describe("Reparto /social — Firewall Anti-Contaminazione Format/Brand & Isolamento Topic 2", () => {
+  it("accetta tutti i 9 formati quando mode, brand e numero scene rispettano il contratto", () => {
+    for (const [mode, expectedBrand] of Object.entries(EXPECTED_BRAND_BY_MODE)) {
+      const minScenes = MIN_SCENES_BY_MODE[mode];
+      const check = validateRenderedModeContract({
+        requestedMode: mode,
+        actualMode: mode,
+        actualBrand: expectedBrand,
+        sceneCount: minScenes,
+      });
+      assert.equal(check.ok, true, `Contratto fallito inattesamente per ${mode}: ${check.reason}`);
+    }
+    const emptyDs = validateRenderedModeContract({
+      requestedMode: "DS",
+      actualMode: "DS",
+      actualBrand: "pizza",
+      sceneCount: 0,
+      isEmptyShowcase: true,
+    });
+    assert.equal(emptyDs.ok, true);
+  });
+
+  it("blocca categoricamente ogni contaminazione food/bungalow e scene troncate", () => {
+    const regressions = [
+      { requestedMode: "V1", actualMode: "P1", actualBrand: "pizza", sceneCount: 1 },
+      { requestedMode: "V2", actualMode: "P1", actualBrand: "pizza", sceneCount: 1 },
+      { requestedMode: "V3", actualMode: "P1", actualBrand: "pizza", sceneCount: 1 },
+      { requestedMode: "R1", actualMode: "P1", actualBrand: "pizza", sceneCount: 1 },
+      { requestedMode: "P2", actualMode: "P1", actualBrand: "pizza", sceneCount: 1 },
+      { requestedMode: "V2", actualMode: "V2", actualBrand: "village", sceneCount: 1 },
+      { requestedMode: "LM1", actualMode: "LM1", actualBrand: "pizza", sceneCount: 3 },
+    ];
+    for (const bad of regressions) {
+      const res = validateRenderedModeContract(bad);
+      assert.equal(res.ok, false, `Doveva bloccare ${JSON.stringify(bad)}`);
+    }
+  });
+
+  it("garantisce il gate anti-contaminazione in render-parity-test.mjs e l'isolamento Topic 2 in social-scheduler-dispatch.mjs", () => {
+    const paritySrc = fs.readFileSync(path.resolve("scripts/render-parity-test.mjs"), "utf8");
+    assert.equal(paritySrc.includes("__autoCutReady"), true);
+    assert.equal(paritySrc.includes("validateRenderedModeContract"), true);
+
+    const dispatchSrc = fs.readFileSync(path.resolve("scripts/social-scheduler-dispatch.mjs"), "utf8");
+    assert.equal(dispatchSrc.includes("validateRenderedModeContract"), true);
+
+    const block1130 = dispatchSrc.slice(dispatchSrc.indexOf("else if (is1130)"), dispatchSrc.indexOf("else if (is1230)"));
+    const block1930 = dispatchSrc.slice(dispatchSrc.indexOf("else if (is1930)"), dispatchSrc.indexOf("else if (is2000)"));
+    assert.equal(block1130.includes("TOPIC_KOH_PHAYAM_GROUP"), false);
+    assert.equal(block1930.includes("TOPIC_KOH_PHAYAM_GROUP"), false);
+    assert.equal(block1130.includes("TOPIC_TIKTOK_STORIES"), true);
+    assert.equal(block1930.includes("TOPIC_TIKTOK_STORIES"), true);
   });
 });
