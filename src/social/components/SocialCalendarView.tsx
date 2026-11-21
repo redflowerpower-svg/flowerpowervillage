@@ -154,6 +154,8 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
     const villageAsset = villageAssets[rot % villageAssets.length];
     const pizzaItem = realFoodDatabase[rot % realFoodDatabase.length];
     const pastaItem = realFoodDatabase[(rot % 2 === 0 ? 2 : 3)]; // Spaghetti allo scoglio o Tagliatelle al nero
+    const igMixItem = realFoodDatabase[(rot + 4) % realFoodDatabase.length];
+    const igAltItem = realFoodDatabase[(rot + 5) % realFoodDatabase.length];
 
     // Alternanze CC1 differenziate per slot: presenza bilanciata e costante ogni giorno per eliminare qualsiasi monotonia
     const isCc1_0800_Village = (rot % 2 === 1);           // 08:00 TikTok Story Village alternata con CC1
@@ -284,6 +286,25 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       });
     }
 
+    // 5b. ORE 10:30 · 📸 Instagram Story Pre-Pranzo Pizza: Anteprima Menù Ranong (P3)
+    routinePosts.push({
+      id: `routine_ig_pizza_story_morning_${dateStr}`,
+      brand: 'pizza',
+      platforms: ['instagram'],
+      format: 'story',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T10:30:00`,
+      title: `P3 IG Story Pre-Pranzo: ${igMixItem.name}`,
+      caption: `Anteprima pranzo da Flower Power Pizza Ranong! Autentica cucina italiana consegnata calda a casa tua su flowerpowerpizza.com 🍕✨ #Ranong #FlowerPowerPizza`,
+      media_url: igMixItem.image,
+      source_item_id: igMixItem.id,
+      price: igMixItem.price,
+      status: 'scheduled',
+      tags: ['P3', 'story', 'PizzaRanong', 'InstagramStory'],
+      cta_url: 'https://flowerpowerpizza.com',
+      badge: '🍕 IG STORY PIZZA 10:30'
+    });
+
     // 6. ORE 11:30 · 🎬 Facebook REEL: Pranzo Pasta Fresca Ranong (SOLO FACEBOOK PAGINA)
     routinePosts.push({
       id: `routine_fb_lunch_${dateStr}`,
@@ -322,6 +343,45 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       tags: isCc1_1230_FbStory ? ['CC1', 'CapCut', 'story', 'Kitchen', 'facebookPageApi'] : ['P1', 'story', 'PizzaTradizionale', 'facebookPageApi'],
       cta_url: 'https://flowerpowerpizza.com',
       badge: isCc1_1230_FbStory ? '🎬 CC1 PIZZA STORY' : '🍕 FORNO TRADIZIONALE'
+    });
+
+    // 7b. ORE 13:30 · 📸 Instagram REEL/Post Pranzo Mix Pizza: P3 3 Categorie Diverse (SOLO INSTAGRAM)
+    routinePosts.push({
+      id: `routine_ig_pizza_reel_lunch_${dateStr}`,
+      brand: 'pizza',
+      platforms: ['instagram'],
+      format: 'reel',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T13:30:00`,
+      title: `P3 IG Reel Pranzo Mix: ${igMixItem.name}`,
+      caption: `Tre specialità italiane da tre categorie diverse per il tuo pranzo a Ranong! Ordina su flowerpowerpizza.com 🍕🍝🛵 #FlowerPowerPizza #RanongFood`,
+      media_url: igMixItem.image,
+      source_item_id: igMixItem.id,
+      price: igMixItem.price,
+      status: 'scheduled',
+      tags: ['P3', 'reel', 'InstagramOnly', 'PizzaRanong'],
+      cta_url: 'https://flowerpowerpizza.com',
+      title_en: igMixItem.name,
+      badge: '📸 IG REEL PIZZA 13:30'
+    });
+
+    // 7c. ORE 15:00 · 📸 Instagram Story Pomeriggio Pizza: P1 Specialità del Giorno (SOLO INSTAGRAM)
+    routinePosts.push({
+      id: `routine_ig_pizza_story_afternoon_${dateStr}`,
+      brand: 'pizza',
+      platforms: ['instagram'],
+      format: 'story',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T15:00:00`,
+      title: `P1 IG Story Pomeriggio: ${igAltItem.name}`,
+      caption: `Pausa golosa o aperitivo anticipato a Ranong! Ordina caldo a domicilio su flowerpowerpizza.com 🍕🔥 #RanongDelivery #FlowerPowerPizza`,
+      media_url: igAltItem.image,
+      source_item_id: igAltItem.id,
+      price: igAltItem.price,
+      status: 'scheduled',
+      tags: ['P1', 'story', 'PizzaRanong', 'InstagramStory'],
+      cta_url: 'https://flowerpowerpizza.com',
+      badge: '🍕 IG STORY PIZZA 15:00'
     });
 
     // 8. ORE 16:00 · 🎬 Instagram REEL: V2 Suite Tour / Relax Pomeridiano Phayam (SOLO INSTAGRAM - Alternanza con CC1)
@@ -483,6 +543,26 @@ export function generateOfficialRoutineRange(startDate: Date, daysCount: number)
       tags: isCc1_2000_FbStory ? ['CC1', 'CapCut', 'story', 'Dinner', 'facebookPageApi'] : ['P3', 'Dessert', 'story', 'FacebookStory', 'facebookPageApi'],
       cta_url: 'https://flowerpowerpizza.com',
       badge: isCc1_2000_FbStory ? '🎬 CC1 EVENING STORY' : '☕ SERATA DOLCI FB'
+    });
+
+    // 15b. ORE 20:30 · 📸 Instagram REEL/Post Cena Categoria Pizza: P2 3 Piatti Stessa Categoria (SOLO INSTAGRAM)
+    routinePosts.push({
+      id: `routine_ig_pizza_reel_dinner_${dateStr}`,
+      brand: 'pizza',
+      platforms: ['instagram'],
+      format: 'reel',
+      editorial_format: 'video_reel',
+      scheduled_for: `${dateStr}T20:30:00`,
+      title: `P2 IG Reel Cena Categoria: ${igAltItem.name}`,
+      caption: `Stasera a Ranong scegli tra i nostri grandi classici della tradizione italiana! Impasto 48h e consegna veloce su flowerpowerpizza.com 🍕🛵 #FlowerPowerPizza #RanongDinner`,
+      media_url: igAltItem.image,
+      source_item_id: igAltItem.id,
+      price: igAltItem.price,
+      status: 'scheduled',
+      tags: ['P2', 'reel', 'InstagramOnly', 'PizzaRanong'],
+      cta_url: 'https://flowerpowerpizza.com',
+      title_en: igAltItem.name,
+      badge: '📸 IG REEL PIZZA 20:30'
     });
 
     // 16. ORE 21:00 · 🌙 Instagram REEL: V3 Tropical Escape Villaggio Koh Phayam (SOLO INSTAGRAM - Alternanza con CC1)

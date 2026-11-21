@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate as useRRNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Menu, X, Globe, ChevronDown, Clock, Phone, Mail, MapPin, Instagram, Facebook, Star, ShoppingCart, ShieldCheck, Truck, RotateCcw, Building2, Wheat, UtensilsCrossed, Waves, Users, Sparkles, HeartHandshake, Leaf, MessageSquare } from 'lucide-react';
 import DeliveryMenu from '../pizza/pages/DeliveryMenu';
-import { GloriaFoodLanding } from '../pizza/pages/GloriaFoodLanding';
 import { useCartStore } from '../pizza/store/cartStore';
 import PizzaSlideshow from '../components/PizzaSlideshow';
 import { fetchPizzeriaStatus, usePizzeriaStatus, DEFAULT_PIZZERIA_STATUS } from '../pizza/services/pizzaServiceStatus';
@@ -99,16 +98,12 @@ const getNavItems = (lang: Language) => [
 function PizzaNav({ 
   activePage, 
   onNavigate,
-  pizzaMode,
-  onToggleMode,
-  showSwitcher = true,
+  currentLang,
   onOpenReservation
 }: { 
   activePage: PizzaPage; 
   onNavigate: (p: PizzaPage) => void;
-  pizzaMode: 'custom' | 'legacy';
-  onToggleMode: (mode: 'custom' | 'legacy') => void;
-  showSwitcher?: boolean;
+  currentLang?: 'IT' | 'EN' | 'TH' | 'DE';
   onOpenReservation?: () => void;
 }) {
   const rrNavigate = useRRNavigate();
@@ -164,36 +159,6 @@ function PizzaNav({
                 FLOWER POWER <span className="font-light italic text-[#f87171]">Pizza</span>
               </span>
             </button>
-
-            {/* Switcher Sito Nuovo vs Sito Vecchio (Visibile solo in Staging / Sviluppo, Nascosto sui Domini Ufficiali) */}
-            {showSwitcher && (
-              <div className="hidden sm:flex items-center bg-stone-900/80 p-0.5 rounded-xl border border-stone-700/80 shadow-inner ml-2">
-                <button
-                  type="button"
-                  onClick={() => onToggleMode('custom')}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer ${
-                    pizzaMode === 'custom'
-                      ? 'bg-[#8B1E1E] text-white shadow-sm font-black'
-                      : 'text-stone-400 hover:text-stone-200'
-                  }`}
-                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-                >
-                  Sito Nuovo
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onToggleMode('legacy')}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer ${
-                    pizzaMode === 'legacy'
-                      ? 'bg-amber-600 text-white shadow-sm font-black'
-                      : 'text-stone-400 hover:text-stone-200'
-                  }`}
-                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-                >
-                  Sito Vecchio
-                </button>
-              </div>
-            )}
           </div>
 
           <div className="hidden md:flex items-center gap-5">
@@ -1217,16 +1182,16 @@ export default function PizzaSite() {
   };
 
   const [activePage, setActivePage] = useState<PizzaPage>(getPageFromPath);
-  const [pizzaMode, setPizzaMode] = useState<'custom' | 'legacy'>(() => {
-    const saved = localStorage.getItem('flower_power_pizza_mode');
-    return (saved === 'legacy' || saved === 'custom') ? saved : 'custom';
-  });
   const [policyModalOpen, setPolicyModalOpen] = useState(false);
   const [policyTab, setPolicyTab] = useState<PolicyTab>('delivery');
   const [isReservationOpen, setIsReservationOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState<'IT' | 'EN' | 'TH' | 'DE'>('EN');
 
   useEffect(() => {
+    // Clear any stale legacy mode from client storage
+    try {
+      localStorage.removeItem('flower_power_pizza_mode');
+    } catch (_) {}
     const detect = () => {
       const attr = document.documentElement.getAttribute('data-lang');
       if (attr && ['IT', 'EN', 'TH', 'DE'].includes(attr)) {
@@ -1242,11 +1207,6 @@ export default function PizzaSite() {
   const openPolicy = (tab: PolicyTab) => {
     setPolicyTab(tab);
     setPolicyModalOpen(true);
-  };
-
-  const handleToggleMode = (mode: 'custom' | 'legacy') => {
-    setPizzaMode(mode);
-    localStorage.setItem('flower_power_pizza_mode', mode);
   };
 
   useEffect(() => {
@@ -1271,9 +1231,6 @@ export default function PizzaSite() {
   };
 
   const renderPage = () => {
-    if (pizzaMode === 'legacy') {
-      return <GloriaFoodLanding onSwitchToCustom={() => handleToggleMode('custom')} />;
-    }
     switch (activePage) {
       case 'order': return <DeliveryMenu />;
       case 'about': return <PizzaAboutPage onNavigate={navigate} />;
@@ -1282,30 +1239,12 @@ export default function PizzaSite() {
     }
   };
 
-  const isOfficialDomain = (() => {
-    if (typeof window === 'undefined') return false;
-    const host = window.location.hostname.toLowerCase();
-    return host.includes('flowerpowerpizza.com') || host.includes('flowerpowervillage.com');
-  })();
-
-  const showSwitcher = (() => {
-    if (typeof window === 'undefined') return false;
-    if (isOfficialDomain) {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('switcher') === 'true'; // Hidden on official production domain
-    }
-    return true; // Visible in staging / local dev
-  })();
-
   return (
     <div className="min-h-screen" style={{ background: '#1c1917' }}>
       <PizzaStructuredData />
       <PizzaNav 
         activePage={activePage} 
         onNavigate={navigate}
-        pizzaMode={pizzaMode}
-        onToggleMode={handleToggleMode}
-        showSwitcher={showSwitcher}
         currentLang={currentLang}
         onOpenReservation={() => setIsReservationOpen(true)}
       />

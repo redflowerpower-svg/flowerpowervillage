@@ -536,7 +536,8 @@ async function main() {
       { src: '.secret_docs/api_credentials_report.md.enc', dest: 'api_credentials_report.md.enc' },
       { src: 'RIPRISTINA_TUTTO.bat', dest: 'RIPRISTINA_TUTTO.bat' },
       { src: 'scratch/worktrees_info.json', dest: 'worktrees_info.json' },
-      { src: 'scripts/gdrive-handoff-pull.mjs', dest: 'gdrive-handoff-pull.mjs' }
+      { src: 'scripts/gdrive-handoff-pull.mjs', dest: 'gdrive-handoff-pull.mjs' },
+      { src: 'scripts/update-agy-binaries.mjs', dest: 'update-agy-binaries.mjs' }
     ];
 
     for (const item of copyList) {

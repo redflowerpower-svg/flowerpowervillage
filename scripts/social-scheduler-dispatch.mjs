@@ -6,20 +6,36 @@
  *     1. Story Pizzeria (P1/DS) -> Telegram Topic 3 (TikTok/IG Stories)
  *     2. Story Villaggio (V1)   -> Telegram Topic 3 (TikTok/IG Stories)
  *     3. Post Alloggi LM1       -> Telegram Topic 2 (Gruppo Facebook Koh Phayam)
+ * - 09:30 Bangkok:
+ *     4. Instagram Story Villaggio (V1)
+ * - 10:30 Bangkok:
+ *     5. Instagram Story Pre-Pranzo Pizzeria (P3)
  * - 11:30 Bangkok:
- *     4. Facebook Only: Pranzo Pasta Fresca Ranong (P2)
+ *     6. Facebook Only: Pranzo Pasta Fresca Ranong (P2)
+ * - 12:30 Bangkok:
+ *     7. Facebook Story Pranzo Pizzeria (P1)
+ * - 13:30 Bangkok:
+ *     8. Instagram Reel/Post Pranzo Mix Pizzeria (P3)
+ * - 15:00 Bangkok:
+ *     9. Instagram Story Pomeriggio Pizzeria (P1)
  * - 16:00 Bangkok:
- *     5. Instagram Only: Relax Pomeridiano & Suite Tour (V2/CC1)
+ *    10. Instagram Only: Relax Pomeridiano & Suite Tour (V2)
  * - 17:00 Bangkok:
- *     6. Story Pizzeria (P1/P3) -> Telegram Topic 3
- *     7. Story Villaggio (V3)   -> Telegram Topic 3
- *     8. Post Ristorante R1     -> Telegram Topic 2 (Gruppo Facebook Koh Phayam)
+ *    11. Story Pizzeria (P1) -> Telegram Topic 3
+ *    12. Story Villaggio (V3) -> Telegram Topic 3
+ *    13. Post Ristorante R1 -> Telegram Topic 2 (Gruppo Facebook Koh Phayam)
+ * - 18:00 Bangkok:
+ *    14. Instagram Story Serale Villaggio (V3)
  * - 18:30 Bangkok:
- *     9. TikTok Feed API: Post Feed 9:16 (in attesa approvazione API, verificato da switch)
+ *    15. TikTok Feed API: Post Feed 9:16 (Bozza P1)
  * - 19:30 Bangkok:
- *     10. Facebook Only: Cena Pizza Tradizionale Ranong 48h (P1)
+ *    16. Facebook Only: Cena Pizza Tradizionale Ranong 48h (P1)
+ * - 20:00 Bangkok:
+ *    17. Facebook Story Serale Dessert Pizzeria (P3)
+ * - 20:30 Bangkok:
+ *    18. Instagram Reel/Post Cena Categoria Pizzeria (P2)
  * - 21:00 Bangkok:
- *     11. Instagram Only: Notte Koh Phayam Tropical Escape (V3)
+ *    19. Instagram Only: Notte Koh Phayam Tropical Escape (V3)
  *
  * Uso:
  *   node scripts/social-scheduler-dispatch.mjs [--slot=08:00] [--dry-run] [--base=http://localhost:3000]
@@ -1311,7 +1327,10 @@ async function publishToInstagram({ videoUrl, videoBuffer, caption = '', brand =
         rParams.append('access_token', pageToken);
         rParams.append('upload_type', 'resumable');
         rParams.append('media_type', isStory ? 'STORIES' : 'REELS');
-        if (!isStory && caption) rParams.append('caption', caption.slice(0, 2200));
+        if (!isStory) {
+          rParams.append('share_to_feed', 'true');
+          if (caption) rParams.append('caption', caption.slice(0, 2200));
+        }
         return { method: 'POST', body: rParams };
       }, { maxAttempts: 3, timeoutMs: 45000, label: 'IG Resumable Session' });
       const rData = await rRes.json();
@@ -1352,7 +1371,10 @@ async function publishToInstagram({ videoUrl, videoBuffer, caption = '', brand =
       cParams.append('access_token', pageToken);
       cParams.append('media_type', isStory ? 'STORIES' : 'REELS');
       cParams.append('video_url', videoUrl);
-      if (!isStory && caption) cParams.append('caption', caption.slice(0, 2200));
+      if (!isStory) {
+        cParams.append('share_to_feed', 'true');
+        if (caption) cParams.append('caption', caption.slice(0, 2200));
+      }
       return { method: 'POST', body: cParams };
     }, { maxAttempts: 3, timeoutMs: 45000, label: 'IG URL Container' });
     const cData = await cRes.json();
@@ -1779,10 +1801,10 @@ async function runDailyTokenHealthCheck() {
   const issues = [];
   console.log('🛡️ [watchdog] Avvio verifica mattutina salute Token (Meta, TikTok, Telegram, Google Drive)...');
 
-  // 1. Meta Page Tokens (Pizza + Village)
-  for (const [label, tok] of [
-    ['Meta Facebook/IG Pizzeria', env.META_PIZZA_PAGE_TOKEN],
-    ['Meta Facebook/IG Villaggio', env.META_VILLAGE_PAGE_TOKEN]
+  // 1. Meta Page Tokens & Instagram Business Link (Pizza + Village)
+  for (const [label, tok, pageId] of [
+    ['Meta Facebook/IG Pizzeria', env.META_PIZZA_PAGE_TOKEN, env.META_PIZZA_PAGE_ID || '410856732111386'],
+    ['Meta Facebook/IG Villaggio', env.META_VILLAGE_PAGE_TOKEN, env.META_VILLAGE_PAGE_ID || '106883044573670']
   ]) {
     if (!tok) {
       issues.push(`${label}: token mancante nelle variabili d'ambiente`);
@@ -1790,13 +1812,15 @@ async function runDailyTokenHealthCheck() {
     }
     try {
       const r = await fetchWithRetry(
-        `https://graph.facebook.com/v19.0/me?fields=id,name&access_token=${encodeURIComponent(tok)}`,
+        `https://graph.facebook.com/v19.0/${pageId}?fields=id,name,instagram_business_account&access_token=${encodeURIComponent(tok)}`,
         () => ({}),
         { maxAttempts: 2, timeoutMs: 15000, label: `Watchdog ${label}` }
       );
       const d = await r.json().catch(() => ({}));
       if (!r.ok || d.error) {
         issues.push(`${label}: ${d.error?.message || `HTTP ${r.status}`}`);
+      } else if (!d?.instagram_business_account?.id) {
+        issues.push(`${label}: account Instagram Business scollegato dalla Pagina Facebook (${pageId})`);
       }
     } catch (e) {
       issues.push(`${label}: errore rete (${e.message})`);
@@ -2024,14 +2048,18 @@ async function run() {
 
   const is0800 = targetSlot === '08:00';
   const is0930 = targetSlot === '09:30';
+  const is1030 = targetSlot === '10:30';
   const is1130 = targetSlot === '11:30';
   const is1230 = targetSlot === '12:30';
+  const is1330 = targetSlot === '13:30';
+  const is1500 = targetSlot === '15:00';
   const is1600 = targetSlot === '16:00';
   const is1700 = targetSlot === '17:00';
   const is1800 = targetSlot === '18:00';
   const is1830 = targetSlot === '18:30';
   const is1930 = targetSlot === '19:30';
   const is2000 = targetSlot === '20:00';
+  const is2030 = targetSlot === '20:30';
   const is2100 = targetSlot === '21:00';
   let executedSummary = null;
 
@@ -2227,6 +2255,24 @@ async function run() {
       lastNotice: currentLastNotice,
       fallbackActionText: 'Video master recapitato su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
     });
+  } else if (is1030) {
+    console.log(`🍕 [10:30 BANGKOK] Slot Story Pre-Pranzo Pizza — PUBBLICAZIONE INSTAGRAM STORIES P3`);
+    const p3StoryRes = await renderVideoMode('P3');
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(p3StoryRes.filePath);
+    executedSummary = await runAutomatedChannelSlot({
+      slot: '10:30',
+      brand: 'pizza',
+      channel: '📸 Instagram Stories (Pizza Pre-Pranzo)',
+      format: 'P3',
+      title: 'Anteprima Menù Ranong · Pizzeria 48h',
+      publishFn: () => publishToInstagram({ videoUrl, videoBuffer: buffer, brand: 'pizza', isStory: true }),
+      fallbackTopicId: TOPIC_TIKTOK_STORIES,
+      fallbackTitle: 'P3 Storia Pre-Pranzo Pizzeria Ranong',
+      filePath: p3StoryRes.filePath,
+      attempt: currentAttempt,
+      lastNotice: currentLastNotice,
+      fallbackActionText: 'Video master recapitato su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
+    });
   } else if (is1130) {
     console.log(`🍝 [11:30 BANGKOK] Slot Pranzo Ranong — PUBBLICAZIONE 100% AUTOMATICA FACEBOOK REEL`);
     const p2Res = await renderVideoMode('P2');
@@ -2272,6 +2318,50 @@ async function run() {
       }),
       fallbackTopicId: TOPIC_TIKTOK_STORIES,
       fallbackTitle: 'P1 Story Pranzo Pizzeria Ranong',
+      filePath: p1StoryRes.filePath,
+      attempt: currentAttempt,
+      lastNotice: currentLastNotice,
+      fallbackActionText: 'Video master recapitato su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
+    });
+  } else if (is1330) {
+    console.log(`🍕 [13:30 BANGKOK] Slot Pranzo Mix Pizza — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM REEL P3`);
+    const p3Res = await renderVideoMode('P3');
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(p3Res.filePath);
+    const p3Caption = getBilingualPostCopy('P3', 'pizza', p3Res.copy);
+    executedSummary = await runAutomatedChannelSlot({
+      slot: '13:30',
+      brand: 'pizza',
+      channel: '📸 Instagram Reels (Pizza Pranzo Mix)',
+      format: 'P3',
+      title: 'Pranzo Mix 3 Specialità Ranong',
+      publishFn: () => publishToInstagram({
+        videoUrl,
+        videoBuffer: buffer,
+        caption: p3Caption,
+        brand: 'pizza',
+        isStory: false
+      }),
+      fallbackTopicId: TOPIC_TIKTOK_STORIES,
+      fallbackTitle: 'P3 Reel Pranzo Mix Pizzeria Ranong · Instagram',
+      fallbackCopyText: p3Caption,
+      filePath: p3Res.filePath,
+      attempt: currentAttempt,
+      lastNotice: currentLastNotice,
+      fallbackActionText: 'Video master recapitato su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
+    });
+  } else if (is1500) {
+    console.log(`🍕 [15:00 BANGKOK] Slot Story Pomeriggio Pizza — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM STORIES P1`);
+    const p1StoryRes = await renderVideoMode('P1');
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(p1StoryRes.filePath);
+    executedSummary = await runAutomatedChannelSlot({
+      slot: '15:00',
+      brand: 'pizza',
+      channel: '📸 Instagram Stories (Pizza Pomeriggio)',
+      format: 'P1',
+      title: 'Specialità del Giorno Ranong 48h',
+      publishFn: () => publishToInstagram({ videoUrl, videoBuffer: buffer, brand: 'pizza', isStory: true }),
+      fallbackTopicId: TOPIC_TIKTOK_STORIES,
+      fallbackTitle: 'P1 Storia Pomeriggio Pizzeria Ranong',
       filePath: p1StoryRes.filePath,
       attempt: currentAttempt,
       lastNotice: currentLastNotice,
@@ -2491,6 +2581,32 @@ async function run() {
       attempt: currentAttempt,
       lastNotice: currentLastNotice,
       fallbackActionText: 'Video master recapitato su Telegram Topic 3 per pubblicazione immediata con 1 tocco dello staff.'
+    });
+  } else if (is2030) {
+    console.log(`🍝 [20:30 BANGKOK] Slot Cena Categoria Pizza — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM REEL P2`);
+    const p2Res = await renderVideoMode('P2');
+    const { videoUrl, buffer } = await ensureCloudVideoUrl(p2Res.filePath);
+    const p2Caption = getBilingualPostCopy('P2', 'pizza', p2Res.copy);
+    executedSummary = await runAutomatedChannelSlot({
+      slot: '20:30',
+      brand: 'pizza',
+      channel: '📸 Instagram Reels (Pizza Cena Categoria)',
+      format: 'P2',
+      title: 'Cena Italiana Ranong · 3 Piatti Stessa Categoria',
+      publishFn: () => publishToInstagram({
+        videoUrl,
+        videoBuffer: buffer,
+        caption: p2Caption,
+        brand: 'pizza',
+        isStory: false
+      }),
+      fallbackTopicId: TOPIC_TIKTOK_STORIES,
+      fallbackTitle: 'P2 Reel Cena Pizzeria Ranong · Instagram',
+      fallbackCopyText: p2Caption,
+      filePath: p2Res.filePath,
+      attempt: currentAttempt,
+      lastNotice: currentLastNotice,
+      fallbackActionText: 'Video master recapitato su Telegram Topic 3 per pubblicazione manuale con 1 tocco dello staff.'
     });
   } else if (is2100) {
     console.log(`🌙 [21:00 BANGKOK] Slot Notte — PUBBLICAZIONE 100% AUTOMATICA INSTAGRAM REEL`);

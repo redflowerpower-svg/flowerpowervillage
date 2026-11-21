@@ -506,8 +506,10 @@ Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi
    - Pulizia rami remoti eliminati (`git fetch --all --prune`).
    - Ritorno automatico su `staging` (o sul branch di partenza).
    - **Upload Handoff su Google Drive 5TB (scripts/gdrive-handoff.mjs)**: Carica la cartella HANDOFF_POSTAZIONI_FP [timestamp] contenente codice, vault, archivio chat/brain e il launcher RIPRISTINA_TUTTO.bat.
+   - **Auto-Update Antigravity (scripts/update-agy-binaries.mjs)**: Al termine del trasferimento verifica e aggiorna in modo non-bloccante entrambi i binari locali di Antigravity (`agy.exe` CLI + `.gemini\bin\agy.exe` interno IDE).
 3. **Fase 3 - Ripristino a 1 Click sull'Altra Postazione (RIPRISTINA_TUTTO.bat / gdrive-handoff-pull.mjs)**:
    - Sull'altra postazione in arrivo, basta fare doppio click su RIPRISTINA_TUTTO.bat.
+   - Esegue inoltre l'**aggiornamento automatico non-bloccante dei binari `agy.exe` (CLI + IDE interno)** tramite `scripts/update-agy-binaries.mjs` mentre Antigravity IDE è ancora chiuso.
    - Esegue in automatico il download cloud, la decifratura del vault (ault-sync.mjs), l'allineamento librerie (pm install se necessario) e la **fusione relazionale SQLite bidirezionale su conversation_summaries.db** (somma tutte le chat locali e remote preservando i pin e azzerando ogni rischio di sovrascrittura).
 4. **Fase 4 - Report Handoff a 5 Punti per Gemini Notebook**:
    - Emissione del report compatto per il taccuino Gemini e conferma dell'allineamento globale.

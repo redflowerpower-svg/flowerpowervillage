@@ -12,9 +12,8 @@
 import path from 'path';
 
 export const OFFICIAL_SLOTS = [
-  '08:00', '09:30', '11:30', '12:30',
-  '16:00', '17:00', '18:00', '18:30',
-  '19:30', '20:00', '21:00'
+  '08:00', '09:30', '10:30', '11:30', '12:30', '13:30', '15:00',
+  '16:00', '17:00', '18:00', '18:30', '19:30', '20:00', '20:30', '21:00'
 ];
 
 export const MAX_SLOT_ATTEMPTS = 3;
@@ -43,6 +42,12 @@ export const SLOT_METADATA = {
     items: ['MAIN'],
     itemTopics: {}
   },
+  '10:30': {
+    label: 'Instagram Story Pre-Pranzo Pizza (P3)',
+    brand: 'pizza',
+    items: ['MAIN'],
+    itemTopics: {}
+  },
   '11:30': {
     label: 'Facebook Reel Pranzo Pasta (P2)',
     brand: 'pizza',
@@ -51,6 +56,18 @@ export const SLOT_METADATA = {
   },
   '12:30': {
     label: 'Facebook Story Pranzo (P1)',
+    brand: 'pizza',
+    items: ['MAIN'],
+    itemTopics: {}
+  },
+  '13:30': {
+    label: 'Instagram Reel Pranzo Mix Pizza (P3)',
+    brand: 'pizza',
+    items: ['MAIN'],
+    itemTopics: {}
+  },
+  '15:00': {
+    label: 'Instagram Story Pomeriggio Pizza (P1)',
     brand: 'pizza',
     items: ['MAIN'],
     itemTopics: {}
@@ -95,6 +112,12 @@ export const SLOT_METADATA = {
     items: ['MAIN'],
     itemTopics: {}
   },
+  '20:30': {
+    label: 'Instagram Reel Cena Categoria Pizza (P2)',
+    brand: 'pizza',
+    items: ['MAIN'],
+    itemTopics: {}
+  },
   '21:00': {
     label: 'Instagram Reel Notte (V3)',
     brand: 'village',
@@ -111,8 +134,9 @@ export function timeToMinutes(str) {
 
 export function getSlotMaxDelayMinutes(slot) {
   if (slot === '21:00' || slot === '08:00') return 50;
-  if (['11:30', '16:00', '17:00'].includes(slot)) return 35;
-  if (['18:00', '19:30'].includes(slot)) return 20;
+  if (['11:30', '13:30', '16:00', '17:00'].includes(slot)) return 35;
+  if (slot === '15:00') return 30;
+  if (['18:00', '19:30', '20:00', '20:30'].includes(slot)) return 20;
   return 25;
 }
 

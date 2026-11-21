@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import { updateAllAgyBinaries } from './update-agy-binaries.mjs';
 
 function run(command) {
   console.log(`\n⚙️  Esecuzione: ${command}`);
@@ -90,13 +91,22 @@ try {
   console.log('\n☁️ Passo 3: Creazione Pacchetto Leggero & Upload Google Drive 5TB...');
   run('node scripts/gdrive-handoff.mjs');
 
+  // 4. Verifica e aggiornamento automatico binari Antigravity (CLI + IDE interno)
+  console.log('\n🔄 Passo 4: Verifica & Aggiornamento Automatico Antigravity (CLI + IDE)...');
+  try {
+    updateAllAgyBinaries();
+  } catch (agyErr) {
+    console.warn('⚠️ Avviso aggiornamento automatico Antigravity (non bloccante):', agyErr.message);
+  }
+
   console.log('\n===========================================================');
   console.log('🎉 TRASFERIMENTO POSTAZIONE PRONTO AL 100%!');
   console.log('===========================================================');
   console.log('1. Codice e Vercel: Staging e Main aggiornati su GitHub');
   console.log(`2. Worktree:        ${activeWorktrees.length} salvati e sincronizzati`);
   console.log('3. Google Drive:    Pacchetto Handoff (chat pinnate + PIN) caricato in Cloud');
-  console.log('4. All\'arrivo (Koh Phayam <-> Ranong):');
+  console.log('4. Antigravity:     Binari CLI e IDE verificati/aggiornati');
+  console.log('5. All\'arrivo (Koh Phayam <-> Ranong):');
   console.log('   - Chiudi completamente Antigravity IDE prima del ripristino');
   console.log('   - Fai doppio click su "RIPRISTINA_TUTTO.bat"');
   console.log('===========================================================\n');
