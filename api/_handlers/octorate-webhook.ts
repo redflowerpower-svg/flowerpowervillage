@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { executeAutoShieldForReservation } from "../_helpers/octorate-auto-shield.js";
 import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync.js";
 import { handleDirectReservationCancellation } from "../_helpers/cancellation-email.js";
+import { classifyBookingTelegramEvent, isCancelledBookingEvent } from "../_helpers/octorate-booking-routing.js";
 import { checkAndNotifyOverbookings } from "../_helpers/overbooking-detector.js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 import { formatDateDMY, toThailandDateStr } from "../_helpers/date-formatter.js";
@@ -817,36 +818,49 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
             for (const { booking: cand, cMs, uMs } of recentNonMirrors) {
               const candId = String(cand.id);
-              const candIn = toThailandDateStr(cand.checkin || cand.checkIn || cand.check_in || cand.startDate);
-              const candOut = toThailandDateStr(cand.checkout || cand.checkOut || cand.check_out || cand.endDate);
-              const candStatus = String(cand.status || '').toUpperCase().trim();
-              const candCancelled =
-                candStatus === 'CANCELLED' ||
-                candStatus === 'CANCELED' ||
-                candStatus === 'DELETED' ||
-                candStatus === 'VOID' ||
-                candStatus === 'REJECTED' ||
-                upperEventType.includes('CANCEL');
-              const isCandUpdatedAfterCreate = uMs > 0 && cMs > 0 && uMs > cMs + 5000;
-              const candModified =
-                !candCancelled &&
-                (upperEventType.includes('CHANGE') ||
-                  upperEventType.includes('MODIF') ||
-                  upperEventType.includes('UPDATE') ||
-                  isCandUpdatedAfterCreate);
-              const candKey = candCancelled
-                ? `res_cancelled_${candId}`
-                : (candModified ? `res_modified_${candId}_${candIn}_${candOut}` : `res_notified_${candId}`);
+              const candIn = toThailandDateStr(cand.checkin || cand.checkIn || cand.check_in || cand.startDate || cand.rooms?.[0]?.checkin || cand.rooms?.[0]?.startDate);
+              const candOut = toThailandDateStr(cand.checkout || cand.checkOut || cand.check_out || cand.endDate || cand.rooms?.[0]?.checkout || cand.rooms?.[0]?.endDate);
+              if (candIn.length !== 10 || candOut.length !== 10) continue;
 
-              const { data: existingNotifyRow } = await supabaseAdmin
+              const candRoomId = cand.product || cand.pmsProduct || cand.accommodation_id || cand.roomId || cand.roomTypeId || '';
+              const candTotalGross = cand.totalGross ?? cand.roomGross ?? cand.total ?? cand.totalPrice ?? 0;
+
+              const { data: existingNotifiedRow } = await supabaseAdmin
                 .from('telegram_config')
-                .select('id')
-                .eq('id', candKey)
+                .select('id, bot_token')
+                .eq('id', `res_notified_${candId}`)
                 .maybeSingle();
 
-              if (!existingNotifyRow) {
+              const candRouting = classifyBookingTelegramEvent({
+                reservationId: candId,
+                eventType,
+                booking: cand,
+                checkIn: candIn,
+                checkOut: candOut,
+                roomId: candRoomId,
+                totalGross: candTotalGross,
+                createTimeMs: cMs,
+                updateTimeMs: uMs,
+                existingNotifiedRow
+              });
+
+              if (candRouting.kind === 'skip') continue;
+
+              let alreadyNotifiedThisKey = false;
+              if (candRouting.notificationKey === `res_notified_${candId}`) {
+                alreadyNotifiedThisKey = Boolean(existingNotifiedRow);
+              } else {
+                const { data: existingNotifyRow } = await supabaseAdmin
+                  .from('telegram_config')
+                  .select('id')
+                  .eq('id', candRouting.notificationKey)
+                  .maybeSingle();
+                alreadyNotifiedThisKey = Boolean(existingNotifyRow);
+              }
+
+              if (!alreadyNotifiedThisKey) {
                 targetBooking = cand;
-                console.log(`[OCTORATE WEBHOOK] Fallback ID da webhook senza payload ID: selezionata prenotazione recente #${candId} (${candKey}).`);
+                console.log(`[OCTORATE WEBHOOK] Fallback ID da webhook senza payload ID: selezionata prenotazione recente #${candId} (${candRouting.notificationKey}, ${candRouting.reason}).`);
                 break;
               }
             }
@@ -887,8 +901,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                 ? totalGross.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
                 : String(totalGross);
 
-              const isCancelled = st === 'CANCELLED' || st === 'CANCELED' || st === 'DELETED' || st === 'VOID' || st === 'REJECTED' || eventType.toUpperCase().includes('CANCEL');
-              const isModified = !isCancelled && (eventType.toUpperCase().includes('CHANGE') || eventType.toUpperCase().includes('MODIF') || eventType.toUpperCase().includes('UPDATE'));
+              const isCancelled = isCancelledBookingEvent(targetBooking, eventType);
 
               // 🏷️ MULTI-STRUTTURA: Riconoscimento resort di appartenenza per badge Telegram
               const roomRawId = targetBooking.product || targetBooking.pmsProduct || targetBooking.accommodation_id || targetBooking.roomId || targetBooking.roomTypeId || '';
@@ -901,107 +914,140 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                 console.log(`[OCTORATE WEBHOOK] Prenotazione specchio [MIRROR_SYNC] #${reservationId} ignorata per anti-eco e anti-loop.`);
               } else {
                 // 📲 1. Notifica Telegram Immediata allo Staff del Villaggio (Strict AWAIT per evitare Context Freeze di Vercel)
-                let alreadySent: any = null;
+                let alreadySent = false;
                 try {
                   let tgMessage = '';
-                  let targetTopicKey: 'BOOKINGS' | 'MODIFICATIONS_CANCELLATIONS' = 'BOOKINGS';
 
-                  // Verifica se già notificata come nuova prenotazione per evitare spam
-                  const notificationKey = isCancelled ? `res_cancelled_${reservationId}` : (isModified ? `res_modified_${reservationId}_${rawIn}_${rawOut}` : `res_notified_${reservationId}`);
-                  const { data: alreadySentRow } = await supabaseAdmin
+                  const cMs = parseOctorateTimestampMs(targetBooking.createTime);
+                  const uMs = parseOctorateTimestampMs(targetBooking.updateTime);
+                  const notifiedRowId = `res_notified_${reservationId}`;
+                  const { data: existingNotifiedRow } = await supabaseAdmin
                     .from('telegram_config')
-                    .select('id')
-                    .eq('id', notificationKey)
+                    .select('id, bot_token')
+                    .eq('id', notifiedRowId)
                     .maybeSingle();
-                  alreadySent = alreadySentRow;
 
-                  if (!alreadySent) {
-                    const twinPairForNotify = getJungleTwinPairByRateId(roomRawId);
-                    const twinStructId = twinPairForNotify
-                      ? (twinPairForNotify.jungleId === Number(roomRawId) ? '807324' : '366879')
-                      : String(resortConfig.id);
-                    const isTwinStandbyBooking =
-                      Boolean(twinPairForNotify) &&
-                      twinStructId !== String(activeJungleSource);
+                  const routing = classifyBookingTelegramEvent({
+                    reservationId,
+                    eventType,
+                    booking: targetBooking,
+                    checkIn: rawIn,
+                    checkOut: rawOut,
+                    roomId: roomRawId,
+                    totalGross,
+                    createTimeMs: cMs,
+                    updateTimeMs: uMs,
+                    existingNotifiedRow
+                  });
 
-                    if (isCancelled) {
-                      targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
-                      tgMessage = `🔴 ${resortBadge} <b>CANCELLAZIONE PRENOTAZIONE</b>\n` +
-                        `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
-                        `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                        `🌐 <b>Canale:</b> ${channelName}\n` +
-                        `📅 <b>Periodo Annullato:</b> <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
-                        `💰 <b>Importo Rilasciato:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                        `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-                    } else if (isModified) {
-                      targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
-                      tgMessage = `🟡 ${resortBadge} <b>PRENOTAZIONE MODIFICATA</b>\n` +
-                        `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
-                        `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                        `🌐 <b>Canale:</b> ${channelName}\n` +
-                        `📅 <b>Nuovo Periodo:</b> <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
-                        `💰 <b>Totale Aggiornato:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                        `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-                    } else {
-                      targetTopicKey = 'BOOKINGS';
-                      tgMessage = `🟢 ${resortBadge} <b>NUOVA PRENOTAZIONE RICEVUTA</b>\n` +
-                        `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
-                        `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                        `🌐 <b>Canale:</b> ${channelName}\n` +
-                        `📅 <b>Check-in:</b> <code>${formatDateDMY(rawIn)}</code>\n` +
-                        `🛫 <b>Check-out:</b> <code>${formatDateDMY(rawOut)}</code>\n` +
-                        `🌙 <b>Durata:</b> <b>${stayNights} notti</b>\n` +
-                        `💰 <b>Totale:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                        `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-                    }
-
-                    if (isTwinStandbyBooking && !isCancelled) {
-                      tgMessage =
-                        `🚨 <b>[PRENOTAZIONE KEEP-ALIVE SU STRUTTURA IN STANDBY!]</b>\n` +
-                        `🛡️ <i>Ricevuta su ${resortConfig.name} (in Standby con filtro 14+ notti / prezzo 2x). Clonata automaticamente sulla struttura principale e date chiuse su entrambe!</i>\n\n` +
-                        tgMessage;
-                    }
-
-                    const tgRes = await sendDepartmentTelegramMessage('village', tgMessage, { topic: targetTopicKey });
-                    console.log(`[OCTORATE WEBHOOK] Inviata notifica Telegram per prenotazione #${reservationId}:`, tgRes);
-
-                    if (isTwinStandbyBooking && !isCancelled) {
-                      await sendDepartmentTelegramMessage(
-                        'village',
-                        `🚨 <b>PRENOTAZIONE RICEVUTA SU STRUTTURA IN STANDBY (${resortConfig.name})</b>\n` +
-                        `🏨 <b>${roomName}</b> • 👤 <b>${guestName}</b>\n` +
-                        `📅 <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
-                        `💰 <b>${formattedTotal} ${currency}</b> (<code>#${reservationId}</code>)\n\n` +
-                        `✅ <i>La prenotazione è già stata clonata in automatico sulla struttura principale. Usa il pulsante qui sotto se desideri verificare o fare lo switch tra le strutture:</i>`,
-                        {
-                          topic: 'BOOKING_EDITOR',
-                          replyMarkup: {
-                            inline_keyboard: [
-                              [{ text: '🔄 Apri Pannello /switchvillas', callback_data: 'swv:menu' }]
-                            ]
-                          }
-                        }
-                      );
-                    }
-
-                    // Memorizzazione chiave notifica inviata per non duplicare
-                    await supabaseAdmin.from('telegram_config').upsert({
-                      id: notificationKey,
-                      bot_token: 'notified',
-                      chat_id: String(reservationId),
-                      updated_at: new Date().toISOString()
-                    });
-
-                    if (notificationKey !== `res_notified_${reservationId}`) {
+                  if (routing.kind === 'skip') {
+                    alreadySent = true;
+                    if (routing.shouldPersistNotifiedFingerprint) {
                       await supabaseAdmin.from('telegram_config').upsert({
-                        id: `res_notified_${reservationId}`,
-                        bot_token: 'notified',
+                        id: notifiedRowId,
+                        bot_token: routing.fingerprint,
                         chat_id: String(reservationId),
                         updated_at: new Date().toISOString()
                       });
                     }
-                  } else {
-                    console.log(`[OCTORATE WEBHOOK] Notifica Telegram per prenotazione #${reservationId} (${notificationKey}) già inviata in precedenza. Ignorata per evitare duplicati.`);
+                    console.log(`[OCTORATE WEBHOOK] Notifica Telegram per prenotazione #${reservationId} saltata (${routing.reason}).`);
+                  } else if (routing.topic) {
+                    if (routing.notificationKey !== notifiedRowId) {
+                      const { data: alreadySentRow } = await supabaseAdmin
+                        .from('telegram_config')
+                        .select('id')
+                        .eq('id', routing.notificationKey)
+                        .maybeSingle();
+                      alreadySent = Boolean(alreadySentRow);
+                    } else {
+                      alreadySent = Boolean(existingNotifiedRow);
+                    }
+
+                    if (!alreadySent) {
+                      const twinPairForNotify = getJungleTwinPairByRateId(roomRawId);
+                      const twinStructId = twinPairForNotify
+                        ? (twinPairForNotify.jungleId === Number(roomRawId) ? '807324' : '366879')
+                        : String(resortConfig.id);
+                      const isTwinStandbyBooking =
+                        Boolean(twinPairForNotify) &&
+                        twinStructId !== String(activeJungleSource);
+
+                      if (routing.kind === 'cancelled') {
+                        tgMessage = `🔴 ${resortBadge} <b>CANCELLAZIONE PRENOTAZIONE</b>\n` +
+                          `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                          `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                          `🌐 <b>Canale:</b> ${channelName}\n` +
+                          `📅 <b>Periodo Annullato:</b> <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
+                          `💰 <b>Importo Rilasciato:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                          `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                      } else if (routing.kind === 'modified') {
+                        tgMessage = `🟡 ${resortBadge} <b>PRENOTAZIONE MODIFICATA</b>\n` +
+                          `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                          `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                          `🌐 <b>Canale:</b> ${channelName}\n` +
+                          `📅 <b>Nuovo Periodo:</b> <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
+                          `💰 <b>Totale Aggiornato:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                          `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                      } else {
+                        tgMessage = `🟢 ${resortBadge} <b>NUOVA PRENOTAZIONE RICEVUTA</b>\n` +
+                          `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                          `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                          `🌐 <b>Canale:</b> ${channelName}\n` +
+                          `📅 <b>Check-in:</b> <code>${formatDateDMY(rawIn)}</code>\n` +
+                          `🛫 <b>Check-out:</b> <code>${formatDateDMY(rawOut)}</code>\n` +
+                          `🌙 <b>Durata:</b> <b>${stayNights} notti</b>\n` +
+                          `💰 <b>Totale:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                          `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                      }
+
+                      if (isTwinStandbyBooking && routing.kind !== 'cancelled') {
+                        tgMessage =
+                          `🚨 <b>[PRENOTAZIONE KEEP-ALIVE SU STRUTTURA IN STANDBY!]</b>\n` +
+                          `🛡️ <i>Ricevuta su ${resortConfig.name} (in Standby con filtro 14+ notti / prezzo 2x). Clonata automaticamente sulla struttura principale e date chiuse su entrambe!</i>\n\n` +
+                          tgMessage;
+                      }
+
+                      const tgRes = await sendDepartmentTelegramMessage('village', tgMessage, { topic: routing.topic });
+                      console.log(`[OCTORATE WEBHOOK] Inviata notifica Telegram (${routing.kind} -> ${routing.topic}) per prenotazione #${reservationId}:`, tgRes);
+
+                      if (isTwinStandbyBooking && routing.kind !== 'cancelled') {
+                        await sendDepartmentTelegramMessage(
+                          'village',
+                          `🚨 <b>PRENOTAZIONE RICEVUTA SU STRUTTURA IN STANDBY (${resortConfig.name})</b>\n` +
+                          `🏨 <b>${roomName}</b> • 👤 <b>${guestName}</b>\n` +
+                          `📅 <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
+                          `💰 <b>${formattedTotal} ${currency}</b> (<code>#${reservationId}</code>)\n\n` +
+                          `✅ <i>La prenotazione è già stata clonata in automatico sulla struttura principale. Usa il pulsante qui sotto se desideri verificare o fare lo switch tra le strutture:</i>`,
+                          {
+                            topic: 'BOOKING_EDITOR',
+                            replyMarkup: {
+                              inline_keyboard: [
+                                [{ text: '🔄 Apri Pannello /switchvillas', callback_data: 'swv:menu' }]
+                              ]
+                            }
+                          }
+                        );
+                      }
+
+                      // Memorizzazione chiave notifica inviata per non duplicare
+                      await supabaseAdmin.from('telegram_config').upsert({
+                        id: routing.notificationKey,
+                        bot_token: routing.kind === 'new' ? routing.fingerprint : 'notified',
+                        chat_id: String(reservationId),
+                        updated_at: new Date().toISOString()
+                      });
+
+                      if (routing.shouldPersistNotifiedFingerprint && routing.notificationKey !== notifiedRowId) {
+                        await supabaseAdmin.from('telegram_config').upsert({
+                          id: notifiedRowId,
+                          bot_token: routing.fingerprint,
+                          chat_id: String(reservationId),
+                          updated_at: new Date().toISOString()
+                        });
+                      }
+                    } else {
+                      console.log(`[OCTORATE WEBHOOK] Notifica Telegram per prenotazione #${reservationId} (${routing.notificationKey}) già inviata in precedenza. Ignorata per evitare duplicati.`);
+                    }
                   }
                 } catch (notifyErr) {
                   console.warn('[OCTORATE WEBHOOK] Errore creazione/invio notifica Telegram:', notifyErr);
@@ -1025,11 +1071,11 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                   } else {
                     console.log(`[OCTORATE WEBHOOK] Auto-Shield per #${reservationId} già sigillato in precedenza. Ignorato per evitare loop.`);
                   }
-                } else {
-                  // ✉️ Gestione Cancellazione: Solo per prenotazioni dirette (Sito Web o Octorate interno)
+                } else if (!alreadySent) {
+                  // ✉️ Gestione Cancellazione: Solo per prenotazioni dirette (Sito Web o Octorate interno), senza doppia notifica Telegram
                   try {
                     console.log(`[OCTORATE WEBHOOK] Rilevata cancellazione per prenotazione #${targetBooking.id || targetResId} (${targetBooking.channelName || targetBooking.channelId}). Avvio gestione diretta...`);
-                    await handleDirectReservationCancellation(targetBooking);
+                    await handleDirectReservationCancellation(targetBooking, { skipTelegram: true });
                   } catch (cancelErr) {
                     console.warn('[OCTORATE WEBHOOK] Errore gestione cancellazione:', cancelErr);
                   }
@@ -1098,7 +1144,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                     `🏨 <b>Alloggio:</b> <b>${lock.roomName}</b>\n` +
                     `📅 <b>Periodo Protetto:</b> <code>${formatDateDMY(lock.dateFrom)} ➔ ${formatDateDMY(lock.dateTo)}</code>\n` +
                     `🔒 Rilevate <b>${sealRes.sealedDatesCount}</b> notti riaperte da Octorate (es. dopo cancellazione/riduzione): riportate istantaneamente a <code>avail=0</code> + <code>StopSell=ON</code> su Madre e tutte le derivate.`;
-                  await sendDepartmentTelegramMessage('village', lockAlertMsg, { topic: 'MODIFICATIONS_CANCELLATIONS' });
+                  await sendDepartmentTelegramMessage('village', lockAlertMsg, { topic: 'ALERTS_OVERBOOKING' });
                 }
               }
             }
@@ -1153,7 +1199,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                         `🏨 <b>Alloggio:</b> <b>${tRoom.name}</b>\n` +
                         `📅 <b>Periodo liberato:</b> <code>${formatDateDMY(tIn)} ➔ ${formatDateDMY(tOut)}</code>\n` +
                         `🔎 I giorni prima e dopo risultano chiusi, ma la cancellazione/modifica ha riaperto queste notti su Octorate. Se la stanza deve restare chiusa, attiva il <b>Lock Stanze Chiuse</b> dalla Dashboard.`,
-                        { topic: 'MODIFICATIONS_CANCELLATIONS' }
+                        { topic: 'ALERTS_OVERBOOKING' }
                       );
                       await supabaseAdmin.from('telegram_config').upsert({
                         id: warnKey,

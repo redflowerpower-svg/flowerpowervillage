@@ -234,7 +234,10 @@ export function generateCancellationEmailHTML(params: {
  * 1. Invia email personalizzata all'ospite tramite SMTP Gmail (flowerpowerphayam@gmail.com)
  * 2. Invia alert immediato sul gruppo Telegram del Villaggio (Koh Phayam)
  */
-export async function handleDirectReservationCancellation(booking: any): Promise<{
+export async function handleDirectReservationCancellation(
+  booking: any,
+  options?: { skipTelegram?: boolean }
+): Promise<{
   processed: boolean;
   emailSent: boolean;
   telegramNotified: boolean;
@@ -244,20 +247,24 @@ export async function handleDirectReservationCancellation(booking: any): Promise
     return { processed: false, emailSent: false, telegramNotified: false, reason: 'Nessun dato prenotazione' };
   }
 
+  const skipTelegram = Boolean(options?.skipTelegram);
+
   // 1. Verifica se è una prenotazione diretta (nostro sito o Octorate interno)
   if (!isDirectReservation(booking)) {
     console.log(`[Cancellation] Prenotazione #${booking.id} è da OTA (${booking.channelName || booking.channelId}). Nessuna email cliente inviata (Regola Solo Prenotazioni Dirette).`);
     
-    // Invia comunque un alert informativo riservato allo STAFF su Telegram
-    const otaAlertMsg = `ℹ️ <b>[Cancellazione OTA da PMS]</b>\n` +
-      `Prenotazione: <b>#${booking.id}</b>\n` +
-      `Canale: <b>${booking.channelName || 'OTA'}</b>\n` +
-      `Ospite: <b>${booking.guestName || booking.firstName + ' ' + booking.lastName || 'N/D'}</b>\n` +
-      `Date: <code>${formatDateDMY(booking.checkin)} ➔ ${formatDateDMY(booking.checkout)}</code>\n` +
-      `🔒 <i>Nessuna email cliente inviata dal sito (gestita direttamente da ${booking.channelName || 'OTA'}).</i>`;
-    
-    sendDepartmentTelegramMessage('village', otaAlertMsg, { topic: 'MODIFICATIONS_CANCELLATIONS' }).catch(() => {});
-    return { processed: false, emailSent: false, telegramNotified: true, reason: 'Prenotazione OTA: email cliente esclusa' };
+    if (!skipTelegram) {
+      // Invia comunque un alert informativo riservato allo STAFF su Telegram
+      const otaAlertMsg = `ℹ️ <b>[Cancellazione OTA da PMS]</b>\n` +
+        `Prenotazione: <b>#${booking.id}</b>\n` +
+        `Canale: <b>${booking.channelName || 'OTA'}</b>\n` +
+        `Ospite: <b>${booking.guestName || booking.firstName + ' ' + booking.lastName || 'N/D'}</b>\n` +
+        `Date: <code>${formatDateDMY(booking.checkin)} ➔ ${formatDateDMY(booking.checkout)}</code>\n` +
+        `🔒 <i>Nessuna email cliente inviata dal sito (gestita direttamente da ${booking.channelName || 'OTA'}).</i>`;
+      
+      sendDepartmentTelegramMessage('village', otaAlertMsg, { topic: 'MODIFICATIONS_CANCELLATIONS' }).catch(() => {});
+    }
+    return { processed: false, emailSent: false, telegramNotified: !skipTelegram, reason: 'Prenotazione OTA: email cliente esclusa' };
   }
 
   const reservationId = booking.id;
@@ -318,22 +325,24 @@ export async function handleDirectReservationCancellation(booking: any): Promise
 
   // 3. Notifica Telegram al gruppo dello Staff del Villaggio
   let telegramNotified = false;
-  try {
-    const staffAlertMsg = `❌ <b>[Cancellazione Prenotazione Diretta]</b>\n` +
-      `Prenotazione: <b>#${reservationId}</b>\n` +
-      `Canale: <b>${channelName}</b>\n` +
-      `Ospite: <b>${guestName}</b>\n` +
-      `Alloggio: <b>${roomName}</b>\n` +
-      `Lingua ospite: <b>${guestLang}</b>\n` +
-      `Date: <code>${formatDateDMY(checkIn)} ➔ ${formatDateDMY(checkOut)}</code>\n` +
-      (emailSent 
-        ? `📧 <b>Email cliente inviata con successo a:</b> <code>${guestEmail}</code>` 
-        : `⚠️ <b>Email non inviata:</b> ${guestEmail ? 'Errore SMTP' : 'Email non presente'}`);
+  if (!skipTelegram) {
+    try {
+      const staffAlertMsg = `❌ <b>[Cancellazione Prenotazione Diretta]</b>\n` +
+        `Prenotazione: <b>#${reservationId}</b>\n` +
+        `Canale: <b>${channelName}</b>\n` +
+        `Ospite: <b>${guestName}</b>\n` +
+        `Alloggio: <b>${roomName}</b>\n` +
+        `Lingua ospite: <b>${guestLang}</b>\n` +
+        `Date: <code>${formatDateDMY(checkIn)} ➔ ${formatDateDMY(checkOut)}</code>\n` +
+        (emailSent 
+          ? `📧 <b>Email cliente inviata con successo a:</b> <code>${guestEmail}</code>` 
+          : `⚠️ <b>Email non inviata:</b> ${guestEmail ? 'Errore SMTP' : 'Email non presente'}`);
 
-    const tgRes = await sendDepartmentTelegramMessage('village', staffAlertMsg, { topic: 'MODIFICATIONS_CANCELLATIONS' });
-    telegramNotified = tgRes.success;
-  } catch (tgErr: any) {
-    console.warn(`[Cancellation Warning] Telegram alert fallito per #${reservationId}:`, tgErr);
+      const tgRes = await sendDepartmentTelegramMessage('village', staffAlertMsg, { topic: 'MODIFICATIONS_CANCELLATIONS' });
+      telegramNotified = tgRes.success;
+    } catch (tgErr: any) {
+      console.warn(`[Cancellation Warning] Telegram alert fallito per #${reservationId}:`, tgErr);
+    }
   }
 
   return {
