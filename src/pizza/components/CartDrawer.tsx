@@ -1898,6 +1898,11 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                                         (+{item.selectedVariant.priceModifier}฿)
                                       </span>
                                     )}
+                                    {item.selectedVariant.priceModifier < 0 && (
+                                      <span className="text-stone-500 font-semibold whitespace-nowrap">
+                                        ({item.selectedVariant.priceModifier}฿)
+                                      </span>
+                                    )}
                                   </p>
                                 )}
 

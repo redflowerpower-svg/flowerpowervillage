@@ -132,25 +132,46 @@ export const sanitizePizzaOrder = (rawOrder: any): PizzaOrder => {
   const sanitizedItems = parsedItems.map((item: any, idx: number) => {
     const rawName = item?.name || item?.nameIt || item?.sku;
     const nameStr = extractString(rawName) || 'Prodotto';
-    const variantStr = extractString(item?.selectedVariant);
+    const variantStr = extractString(item?.selectedVariant || item?.variant);
+    const quantity = typeof item?.quantity === 'number' && item.quantity > 0 ? item.quantity : 1;
+    const basePrice = typeof item?.price === 'number' ? item.price : (typeof item?.basePrice === 'number' ? item.basePrice : 0);
+    const rawExtras = Array.isArray(item?.selectedExtras) && item.selectedExtras.length > 0
+      ? item.selectedExtras
+      : (Array.isArray(item?.extras) ? item.extras : []);
+    const sanitizedExtras = rawExtras.map((e: any) => ({
+      id: String(e?.id || extractString(e?.name || e) || ''),
+      name: extractString(e?.name || e),
+      nameTh: extractString(e?.nameTh || e?.name_th || ''),
+      nameIt: extractString(e?.nameIt || e?.name_it || ''),
+      nameDe: extractString(e?.nameDe || e?.name_de || ''),
+      nameMm: extractString(e?.nameMm || e?.name_mm || ''),
+      price: typeof e?.price === 'number' ? e.price : (Number(e?.price) || 0)
+    }));
+    const extrasSum = sanitizedExtras.reduce((es: number, ex: any) => es + (Number(ex.price) || 0), 0);
+    const computedLineTotal = (basePrice + extrasSum) * quantity;
+    const lineTotal = (typeof item?.total === 'number' && item.total >= computedLineTotal)
+      ? item.total
+      : computedLineTotal;
 
     return {
-      id: String(item?.id || `item-${idx}`),
+      id: String(item?.id || item?.productId || `item-${idx}`),
+      productId: String(item?.productId || item?.id || `item-${idx}`),
       name: nameStr,
       nameTh: extractString(item?.nameTh || item?.name_th || ''),
-      quantity: typeof item?.quantity === 'number' ? item.quantity : 1,
-      price: typeof item?.price === 'number' ? item.price : (typeof item?.basePrice === 'number' ? item.basePrice : 0),
+      nameIt: extractString(item?.nameIt || item?.name_it || ''),
+      nameDe: extractString(item?.nameDe || item?.name_de || ''),
+      nameMm: extractString(item?.nameMm || item?.name_mm || ''),
+      quantity,
+      price: basePrice,
+      basePrice,
+      total: lineTotal,
+      itemTotal: lineTotal,
       selectedVariant: variantStr || null,
+      variantObject: typeof item?.selectedVariant === 'object' ? item.selectedVariant : null,
       selectedAddons: Array.isArray(item?.selectedAddons) ? item.selectedAddons : [],
-      selectedExtras: Array.isArray(item?.selectedExtras) 
-        ? item.selectedExtras.map((e: any) => ({
-            id: String(e?.id || ''),
-            name: extractString(e?.name || e),
-            nameTh: extractString(e?.nameTh || e?.name_th || ''),
-            nameIt: extractString(e?.nameIt || e?.name_it || ''),
-            price: typeof e?.price === 'number' ? e.price : 0
-          }))
-        : [],
+      selectedExtras: sanitizedExtras,
+      isHalalChicken: Boolean(item?.isHalalChicken),
+      lasagnaDate: item?.lasagnaDate ? String(item.lasagnaDate) : null,
       notes: typeof item?.notes === 'string' ? item.notes : ''
     };
   });

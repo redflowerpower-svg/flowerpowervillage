@@ -285,9 +285,16 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
   };
 
   const handleAdd = () => {
-    const finalItemBasePrice = (selectedVariant?.price != null && Number(selectedVariant.price) > 0)
-      ? Number(selectedVariant.price)
-      : item.price;
+    const finalItemBasePrice = (selectedVariant?.priceModifier !== undefined)
+      ? (item.price + selectedVariant.priceModifier)
+      : ((selectedVariant?.price != null && Number(selectedVariant.price) > 0)
+          ? Number(selectedVariant.price)
+          : item.price);
+
+    const syncedVariant = selectedVariant ? {
+      ...selectedVariant,
+      price: finalItemBasePrice
+    } : null;
 
     addItem({
       productId: item.id,
@@ -302,7 +309,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
       nameZh: item.nameZh,
       quantity,
       basePrice: finalItemBasePrice,
-      selectedVariant,
+      selectedVariant: syncedVariant,
       selectedExtras,
       image: item.image,
     });
@@ -478,9 +485,10 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
                       {item.variants.map((v) => {
                         const mod = v.priceModifier || 0;
                         const finalPrice = item.price + mod;
+                        const modText = mod > 0 ? ` (+${mod}฿)` : mod < 0 ? ` (${mod}฿)` : '';
                         return (
                           <option key={v.id} value={v.id} className="py-1 text-stone-800 font-medium">
-                            {getTranslatedName(v)} {finalPrice}฿
+                            {getTranslatedName(v)} {finalPrice}฿{modText}
                           </option>
                         );
                       })}
@@ -510,6 +518,12 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
                         {v.priceModifier > 0 && (
                           <span className="ml-1.5 text-stone-400 inline-flex items-baseline gap-0.5">
                             <span>+{v.priceModifier}</span>
+                            <span className="text-[10px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                          </span>
+                        )}
+                        {v.priceModifier < 0 && (
+                          <span className="ml-1.5 text-stone-400 inline-flex items-baseline gap-0.5">
+                            <span>{v.priceModifier}</span>
                             <span className="text-[10px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
                           </span>
                         )}
