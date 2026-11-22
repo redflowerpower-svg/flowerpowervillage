@@ -1430,6 +1430,11 @@ export function resolveVariantDisplayName(variant: any, targetLang: KdsLanguage)
  * Extracts all features (size, spiciness, sugar, fruit, sauces, halal, dates, toppings)
  * fully localized in the active kitchen monitor language.
  */
+export interface KdsExtraWithPrice {
+  name: string;
+  price: number;
+}
+
 export interface KdsItemDetails {
   variantLabel: string | null;
   isHalfHalf: boolean;
@@ -1439,16 +1444,21 @@ export interface KdsItemDetails {
   fruitBadge: string | null;
   sauces: string[];
   regularExtras: string[];
+  regularExtrasWithPrice: KdsExtraWithPrice[];
   isHalal: boolean;
   halalBadge: string | null;
   lasagnaDate: string | null;
+  unitBasePrice: number;
+  unitExtrasPrice: number;
+  unitTotal: number;
+  lineTotal: number;
 }
 
 export function parseKdsItemDetails(item: any, targetLang: KdsLanguage): KdsItemDetails {
   const langKey = targetLang === 'mm' ? 'mm' : targetLang === 'th' ? 'th' : targetLang === 'it' ? 'it' : targetLang === 'de' ? 'de' : 'en';
   
   // 1. Variant extraction
-  const rawVariant = item.selectedVariant || item.variant || null;
+  const rawVariant = item.variantObject || item.selectedVariant || item.variant || null;
   let variantLabel = rawVariant ? resolveVariantDisplayName(rawVariant, targetLang) : null;
 
   // 2. Half & Half detection
@@ -1490,8 +1500,8 @@ export function parseKdsItemDetails(item: any, targetLang: KdsLanguage): KdsItem
   // 4. Lasagna Pre-order Date
   const lasagnaDate = item.lasagnaDate ? String(item.lasagnaDate) : null;
 
-  // 5. Extras separation (Spicy, Sugar, Fruit, Sauce, Regular)
-  const rawExtras: any[] = Array.isArray(item.selectedExtras) 
+  // 5. Extras separation (Spicy, Sugar, Fruit, Sauce, Regular) + Price Extraction
+  const rawExtras: any[] = Array.isArray(item.selectedExtras) && item.selectedExtras.length > 0
     ? item.selectedExtras 
     : Array.isArray(item.extras) 
       ? item.extras 
@@ -1502,10 +1512,17 @@ export function parseKdsItemDetails(item: any, targetLang: KdsLanguage): KdsItem
   let fruitBadge: string | null = null;
   const sauces: string[] = [];
   const regularExtras: string[] = [];
+  const regularExtrasWithPrice: KdsExtraWithPrice[] = [];
+  let unitExtrasPrice = 0;
 
   rawExtras.forEach(ex => {
     const exId = typeof ex === 'object' ? String(ex.id || '').toLowerCase() : String(ex).toLowerCase();
     const exName = resolveExtraDisplayName(ex, targetLang);
+    const exPrice = typeof ex === 'object' && typeof ex.price === 'number'
+      ? ex.price
+      : (Number(ex?.price) || 0);
+
+    unitExtrasPrice += exPrice;
 
     if (exId.startsWith('spicy-') || exId.includes('piccante') || exId.includes('spicy')) {
       if (!spicyBadge) spicyBadge = exName;
@@ -1513,12 +1530,26 @@ export function parseKdsItemDetails(item: any, targetLang: KdsLanguage): KdsItem
       if (!sugarBadge) sugarBadge = exName;
     } else if (exId.startsWith('fruit-')) {
       if (!fruitBadge) fruitBadge = exName;
-    } else if (exId.startsWith('sauce-') || exId.includes('ketchup') || exId.includes('mayo') || exId.includes('chili')) {
-      sauces.push(exName);
+    } else if (exId.startsWith('sauce-') || exId.includes('ketchup') || exId.includes('mayo') || exId.includes('chili') || exId.includes('yogurt')) {
+      sauces.push(exPrice > 0 ? `${exName} (+${exPrice}฿)` : exName);
     } else {
-      if (exName) regularExtras.push(exName);
+      if (exName) {
+        regularExtras.push(exName);
+        regularExtrasWithPrice.push({ name: exName, price: exPrice });
+      }
     }
   });
+
+  const quantity = Math.max(1, Number(item.quantity) || 1);
+  const unitBasePrice = Number(item.basePrice ?? item.price ?? 0) || 0;
+  const computedUnitTotal = unitBasePrice + unitExtrasPrice;
+  const computedLineTotal = computedUnitTotal * quantity;
+  const lineTotal = (typeof item.total === 'number' && item.total >= computedLineTotal)
+    ? item.total
+    : (typeof item.itemTotal === 'number' && item.itemTotal >= computedLineTotal)
+      ? item.itemTotal
+      : computedLineTotal;
+  const unitTotal = quantity > 0 ? Math.round(lineTotal / quantity) : computedUnitTotal;
 
   return {
     variantLabel,
@@ -1529,9 +1560,14 @@ export function parseKdsItemDetails(item: any, targetLang: KdsLanguage): KdsItem
     fruitBadge,
     sauces,
     regularExtras,
+    regularExtrasWithPrice,
     isHalal,
     halalBadge,
-    lasagnaDate
+    lasagnaDate,
+    unitBasePrice,
+    unitExtrasPrice,
+    unitTotal,
+    lineTotal
   };
 }
 

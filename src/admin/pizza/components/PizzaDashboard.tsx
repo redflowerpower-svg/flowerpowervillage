@@ -578,18 +578,43 @@ export function PizzaDashboard() {
                           Pizze e Prodotti Ordinati:
                         </span>
                         <ul className="space-y-1.5">
-                          {(Array.isArray(order.items) ? order.items : []).map((item, idx) => {
+                          {(Array.isArray(order.items) ? order.items : []).map((item: any, idx) => {
                             const nameStr = typeof item.name === 'string' ? item.name : ((item.name as any)?.name || (item.name as any)?.nameIt || 'Prodotto');
                             const variantStr = typeof item.selectedVariant === 'string' ? item.selectedVariant : ((item.selectedVariant as any)?.name || '');
+                            const qty = Math.max(1, Number(item?.quantity) || 1);
+                            const baseP = Number(item?.price ?? item?.basePrice ?? 0) || 0;
+                            const extrasArr = Array.isArray(item?.selectedExtras) ? item.selectedExtras : [];
+                            const extrasSum = extrasArr.reduce((acc: number, ex: any) => acc + (Number(ex?.price) || 0), 0);
+                            const lineTotal = typeof item?.total === 'number' && item.total >= (baseP + extrasSum) * qty
+                              ? item.total
+                              : (baseP + extrasSum) * qty;
+                            const paidExtras = extrasArr.filter((ex: any) => (Number(ex?.price) || 0) > 0 || !String(ex?.id || '').startsWith('spicy-'));
+
                             return (
-                              <li key={idx} className="flex justify-between items-start text-stone-200 font-medium">
-                                <span>
-                                  <strong className="text-amber-400 font-bold">{item.quantity}x</strong> {nameStr}
-                                  {variantStr && <span className="text-stone-400 font-normal text-[11px]"> ({variantStr})</span>}
-                                </span>
-                                <span className="text-stone-400 font-mono text-[11px] ml-2">
-                                  ฿{( (item?.price ?? 0) * (item?.quantity ?? 1) ).toLocaleString('it-IT')}
-                                </span>
+                              <li key={idx} className="space-y-0.5 border-b border-stone-900/80 last:border-0 pb-1 last:pb-0">
+                                <div className="flex justify-between items-start text-stone-200 font-medium">
+                                  <span>
+                                    <strong className="text-amber-400 font-bold">{qty}x</strong> {nameStr}
+                                    {variantStr && <span className="text-stone-400 font-normal text-[11px]"> ({variantStr})</span>}
+                                  </span>
+                                  <span className="text-emerald-400 font-mono font-bold text-[11px] ml-2 shrink-0">
+                                    ฿{lineTotal.toLocaleString('it-IT')}
+                                  </span>
+                                </div>
+                                {paidExtras.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 pl-4">
+                                    {paidExtras.map((ex: any, eIdx: number) => {
+                                      const exLabel = ex?.nameIt || ex?.name || '';
+                                      const exP = Number(ex?.price) || 0;
+                                      if (!exLabel) return null;
+                                      return (
+                                        <span key={eIdx} className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold">
+                                          + {exLabel}{exP > 0 ? ` (+${exP}฿)` : ''}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                               </li>
                             );
                           })}

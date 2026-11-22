@@ -149,22 +149,46 @@ export const renderKdsDishItem = (item: any, idx: number, lang: KdsLanguage | 'e
   const displayName = getDishDisplayName(item, kLang);
   const subName = resolveDishSubtitle(item, kLang);
   const details = parseKdsItemDetails(item, kLang);
+  const qty = Math.max(1, Number(item.quantity) || 1);
+  const baseLabel = kLang === 'th' ? 'ฐาน' : kLang === 'mm' ? 'အခြေခံ' : 'Base';
 
   return (
     <div key={idx} className="border-b border-stone-800/80 last:border-0 pb-2.5 last:pb-0">
       <div className="flex items-baseline gap-2.5">
         <span className={`font-black ${compact ? 'text-lg' : 'text-xl lg:text-2xl'} text-amber-400 font-mono shrink-0`}>
-          {item.quantity}x
+          {qty}x
         </span>
         <div className="flex-1 min-w-0">
-          <span className={`font-black ${compact ? 'text-sm' : 'text-base lg:text-lg'} text-white leading-tight block`}>
-            {displayName}
-          </span>
-          {subName && (
-            <span className="text-xs font-semibold text-stone-400 block mt-0.5">
-              {subName}
-            </span>
-          )}
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <span className={`font-black ${compact ? 'text-sm' : 'text-base lg:text-lg'} text-white leading-tight block`}>
+                {displayName}
+              </span>
+              {subName && (
+                <span className="text-xs font-semibold text-stone-400 block mt-0.5">
+                  {subName}
+                </span>
+              )}
+            </div>
+
+            {/* Dish Line Subtotal & Base Breakdown */}
+            {details.lineTotal > 0 && (
+              <div className="text-right shrink-0 flex flex-col items-end">
+                <span className={`font-black font-mono ${compact ? 'text-sm' : 'text-base lg:text-lg'} text-emerald-400 leading-tight whitespace-nowrap`}>
+                  {details.lineTotal} ฿
+                </span>
+                {(details.unitExtrasPrice > 0 || qty > 1) && (
+                  <span className="text-[10.5px] font-mono font-bold text-stone-400 whitespace-nowrap mt-0.5">
+                    {qty > 1 && details.unitExtrasPrice > 0
+                      ? `${qty}× (${baseLabel} ${details.unitBasePrice}฿ +${details.unitExtrasPrice}฿)`
+                      : qty > 1
+                        ? `${qty} × ${details.unitBasePrice} ฿`
+                        : `${baseLabel}: ${details.unitBasePrice} ฿`}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Half & Half Special Box */}
           {details.isHalfHalf && details.halfHalfTitle && (
@@ -225,15 +249,20 @@ export const renderKdsDishItem = (item: any, idx: number, lang: KdsLanguage | 'e
             ))}
           </div>
 
-          {/* Extra Ingredients & Toppings */}
-          {details.regularExtras.length > 0 && (
+          {/* Extra Ingredients & Toppings with Individual Price */}
+          {details.regularExtrasWithPrice.length > 0 && (
             <div className="mt-1.5 flex flex-wrap gap-1">
-              {details.regularExtras.map((exName, exIdx) => (
+              {details.regularExtrasWithPrice.map((ex, exIdx) => (
                 <span 
                   key={exIdx}
-                  className="px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 font-black text-xs uppercase"
+                  className="px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 font-black text-xs uppercase inline-flex items-center gap-1"
                 >
-                  + {exName}
+                  <span>+ {ex.name}</span>
+                  {ex.price > 0 && (
+                    <span className="font-mono text-[11px] bg-stone-950/15 px-1 rounded">
+                      (+{ex.price} ฿)
+                    </span>
+                  )}
                 </span>
               ))}
             </div>

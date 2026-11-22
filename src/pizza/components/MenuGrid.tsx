@@ -1490,9 +1490,9 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       const secondHalfPrice = selectedSecondHalf ? selectedSecondHalf.price : customizingItem.price;
       modalUnitPrice = Math.round((customizingItem.price + secondHalfPrice) / 2);
     } else {
-      const variantBase = (selectedVariant?.price != null && Number(selectedVariant.price) > 0)
-        ? Number(selectedVariant.price)
-        : (customizingItem.price + (selectedVariant?.priceModifier ?? 0));
+      const variantBase = (selectedVariant?.priceModifier !== undefined)
+        ? (customizingItem.price + selectedVariant.priceModifier)
+        : ((selectedVariant?.price != null && Number(selectedVariant.price) > 0) ? Number(selectedVariant.price) : customizingItem.price);
       const activeExtrasPrice = selectedExtras.reduce((s, e) => s + e.price, 0);
       modalUnitPrice = variantBase + activeExtrasPrice;
     }
@@ -1778,14 +1778,14 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                           className="block text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-400 font-bold"
                           style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                         >
-                          {hasOptions ? t.startingAt : (lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo')}
+                          {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
                         </span>
                       </div>
                       {(() => {
-                        const minVariantPrice = (item.variants && item.variants.length > 0)
-                          ? Math.min(...item.variants.map(v => item.price + (v.priceModifier || 0)))
+                        const defaultCoverPrice = (item.variants && item.variants.length > 0)
+                          ? (item.price + (item.variants[0].priceModifier || 0))
                           : item.price;
-                        return renderFormattedPrice(minVariantPrice, {
+                        return renderFormattedPrice(defaultCoverPrice, {
                           numClass: "text-lg sm:text-xl font-extrabold text-stone-900",
                           symbolClass: "text-xs sm:text-sm font-black text-stone-900 select-none"
                         });
@@ -1952,9 +1952,10 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                           {customizingItem.variants.map((v) => {
                             const mod = v.priceModifier || 0;
                             const finalPrice = customizingItem.price + mod;
+                            const modText = mod > 0 ? ` (+${mod}฿)` : mod < 0 ? ` (${mod}฿)` : '';
                             return (
                               <option key={v.id} value={v.id} className="py-1 text-stone-800 font-medium">
-                                {getTranslatedName(v)} {finalPrice}฿
+                                {getTranslatedName(v)} {finalPrice}฿{modText}
                               </option>
                             );
                           })}
