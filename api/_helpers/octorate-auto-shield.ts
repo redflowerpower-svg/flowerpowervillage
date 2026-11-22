@@ -158,7 +158,7 @@ export async function sendAutoShieldTelegramAlert(
   message: string
 ): Promise<void> {
   try {
-    await sendDepartmentTelegramMessage('village', message, { topic: 'BOOKINGS' });
+    await sendDepartmentTelegramMessage('village', message, { topic: 'ALERTS_OVERBOOKING' });
   } catch (err) {
     console.warn('[Auto-Shield Telegram Alert Warning]:', err);
   }

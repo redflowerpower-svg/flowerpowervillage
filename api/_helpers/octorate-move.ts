@@ -1,5 +1,6 @@
 import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES, getOctorateStructureByRoomId } from "./octorate-structures.js";
 import { executeAutoShieldForReservation } from "./octorate-auto-shield.js";
+import { buildBookingNotificationFingerprint } from "./octorate-booking-routing.js";
 import { sendDepartmentTelegramMessage } from "./telegram.js";
 
 export interface MoveRoomOption {
@@ -454,6 +455,23 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
       supabaseAdmin
     }).catch(() => { });
 
+    if (supabaseAdmin?.from) {
+      try {
+        const movedFingerprint = buildBookingNotificationFingerprint({
+          checkIn,
+          checkOut,
+          roomId: targetProductId,
+          totalGross: roomGross
+        });
+        await supabaseAdmin.from('telegram_config').upsert({
+          id: `res_notified_${reservationId}`,
+          bot_token: movedFingerprint,
+          chat_id: String(reservationId),
+          updated_at: new Date().toISOString()
+        });
+      } catch { }
+    }
+
     sendDepartmentTelegramMessage('village',
       `🔄 <b>[Spostamento Alloggio Octorate]</b>\n` +
       `👤 Ospite: <b>${guestFullName}</b>\n` +
@@ -461,7 +479,7 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
       `🛏️ Da: <b>${origRoomName}</b> ➔ A: <b>${targetRoomName || targetProductId}</b>\n` +
       `📅 Date: <b>${checkIn} → ${checkOut}</b>\n` +
       `🆔 Prenotazione: <code>#${reservationId}</code>`,
-      { topic: 'BOOKINGS' }
+      { topic: 'MODIFICATIONS_CANCELLATIONS' }
     ).catch(() => { });
 
     return {
@@ -616,6 +634,36 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
     supabaseAdmin
   }).catch(() => { });
 
+  if (supabaseAdmin?.from) {
+    const nowIsoDb = new Date().toISOString();
+    if (newReservationId) {
+      try {
+        const movedFingerprint = buildBookingNotificationFingerprint({
+          checkIn,
+          checkOut,
+          roomId: targetProductId,
+          totalGross: roomGross
+        });
+        await supabaseAdmin.from('telegram_config').upsert({
+          id: `res_notified_${newReservationId}`,
+          bot_token: movedFingerprint,
+          chat_id: String(newReservationId),
+          updated_at: nowIsoDb
+        });
+      } catch { }
+    }
+    if (sourceAction === 'deleted_original') {
+      try {
+        await supabaseAdmin.from('telegram_config').upsert({
+          id: `res_cancelled_${reservationId}`,
+          bot_token: 'notified',
+          chat_id: String(reservationId),
+          updated_at: nowIsoDb
+        });
+      } catch { }
+    }
+  }
+
   sendDepartmentTelegramMessage('village',
     `🔀 <b>[Spostamento Cross-Struttura Octorate]</b>\n` +
     `👤 Ospite: <b>${guestFullName}</b>\n` +
@@ -623,7 +671,7 @@ export async function executeOctorateMove(params: ExecuteMoveParams, supabaseAdm
     `📥 A: <b>${targetStructName}</b> (${targetRoomName || targetProductId}) <code>#${newReservationId}</code>\n` +
     `📅 Date: <b>${checkIn} → ${checkOut}</b>\n` +
     `⚙️ Origine: <b>${sourceAction}</b>`,
-    { topic: 'BOOKINGS' }
+    { topic: 'MODIFICATIONS_CANCELLATIONS' }
   ).catch(() => { });
 
   return {
