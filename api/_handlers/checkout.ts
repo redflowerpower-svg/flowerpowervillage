@@ -173,13 +173,30 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
       return res.status(400).json({ error: "Season ended on 2027-10-31. No bookings allowed beyond this date." });
     }
 
-    const room = MOCK_ACCOMMODATIONS.find((a) => 
-      a.id === Number(accommodationId) || 
-      (a as any).slug === String(accommodationId || '').toLowerCase() ||
-      (a as any).slug === String(req.body.slug || '').toLowerCase() ||
-      a.name.toLowerCase() === String(req.body.roomName || accommodationId || '').toLowerCase() ||
-      String(req.body.roomName || '').toLowerCase().includes(a.name.toLowerCase())
-    ) || MOCK_ACCOMMODATIONS[0];
+    const JUNGLE_ALIAS_TO_CANONICAL_ID: Record<number, number> = {
+      529773: 529784, 960389: 529784, 960403: 529784, // Jungle Villa
+      495795: 495807, 960385: 495807, 960415: 495807, // Jungle Villa Left
+      495796: 495980, 960387: 495980, 960427: 495980, // Jungle Villa Right
+      494840: 495566, 960383: 495566, 960391: 495566  // Peace & Love Villa
+    };
+    const numericAccId = Number(accommodationId);
+    const canonicalAccId = JUNGLE_ALIAS_TO_CANONICAL_ID[numericAccId] || numericAccId;
+    const normalizedRoomName = String(req.body.roomName || '').toLowerCase().trim();
+    const normalizedAccStr = String(accommodationId || '').toLowerCase().trim();
+    const normalizedSlug = String(req.body.slug || '').toLowerCase().trim();
+
+    // Match strictly by canonical ID first, then exact name/slug (never greedy substring match that confuses "Jungle Villa Right" with "Jungle Villa")
+    const room =
+      MOCK_ACCOMMODATIONS.find((a) => a.id === canonicalAccId) ||
+      MOCK_ACCOMMODATIONS.find((a) =>
+        (normalizedRoomName && a.name.toLowerCase() === normalizedRoomName) ||
+        (normalizedAccStr && a.name.toLowerCase() === normalizedAccStr) ||
+        (normalizedSlug && (a as any).slug === normalizedSlug)
+      ) ||
+      [...MOCK_ACCOMMODATIONS]
+        .sort((a, b) => b.name.length - a.name.length)
+        .find((a) => normalizedRoomName && normalizedRoomName.includes(a.name.toLowerCase())) ||
+      MOCK_ACCOMMODATIONS[0];
 
     // Secure simulation check via SHA-256 hash (never exposes raw phrase to frontend or scrapers)
     const rawTrimmed = String(guestName || "").trim();
