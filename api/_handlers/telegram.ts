@@ -38,6 +38,10 @@ import {
   JungleSourceStructureId
 } from "../_helpers/octorate-jungle-mirror.js";
 import {
+  ALL_OCTORATE_STRUCTURE_IDS,
+  OCTORATE_STRUCTURES
+} from "../_helpers/octorate-structures.js";
+import {
   sendPizzaOrderEmail,
   extractOrderMetadata
 } from "../_helpers/pizza-order-email.js";
@@ -600,6 +604,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           if (cmdLower === '/start' || cmdLower === '/help' || cmdLower === '/menu' || cmdLower.startsWith('/start@') || cmdLower.startsWith('/help@') || cmdLower.startsWith('/menu@')) {
             await sendEditorMsg(
               `🛠️ <b>Booking Editor — Comandi Disponibili</b>\n\n` +
+              `• <b>/verifica Codice</b> — Verifica live su Octorate (3 strutture) camera, prezzo e ultimo aggiornamento di una prenotazione Booking/OTA\n` +
               `• <b>/sposta</b> — Sposta una prenotazione su un altro alloggio (anche tra strutture diverse)\n` +
               `• <b>/sposta Nome o ID</b> — Cerca subito la prenotazione\n` +
               `• <b>/switchvillas</b> — Verifica quale struttura è attiva e passa le 4 ville tra Jungle Villas (807324) e Flower Power Village (366879)\n` +
@@ -607,6 +612,127 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
               `• <b>/menu</b> — Mostra questo elenco di comandi`
             );
             return res.status(200).json({ status: 'booking_editor_help' });
+          }
+
+          if (cmdLower === '/verifica' || cmdLower.startsWith('/verifica ') || cmdLower.startsWith('/verifica@')) {
+            const verifyCode = msgText.replace(/^\/verifica(@\S+)?\s*/i, '').trim();
+            if (!verifyCode) {
+              await sendEditorMsg(`🔍 Usa: <code>/verifica 6397538413</code> (codice Booking.com, OTA o ID Octorate).`);
+              return res.status(200).json({ status: 'booking_editor_verifica_usage' });
+            }
+            const { octFetch } = await createOctClient(supabase);
+            const foundById = new Map<string, { item: any; structId: string }>();
+
+            await Promise.all(
+              ALL_OCTORATE_STRUCTURE_IDS.map(async (structId) => {
+                try {
+                  const resRef = await octFetch(`https://api.octorate.com/connect/rest/v1/reservation/${structId}?refer=${encodeURIComponent(verifyCode)}`);
+                  if (resRef.ok) {
+                    const j = await resRef.json();
+                    const list = Array.isArray(j?.data) ? j.data : (Array.isArray(j) ? j : []);
+                    for (const item of list) {
+                      const idStr = String(item?.id || '');
+                      if (!idStr) continue;
+                      const ownerId = item?.accommodation?.id ? String(item.accommodation.id) : structId;
+                      if (!foundById.has(idStr) || structId === ownerId) {
+                        foundById.set(idStr, { item, structId: ownerId });
+                      }
+                    }
+                  }
+                } catch { /* non-blocking */ }
+              })
+            );
+
+            if (foundById.size === 0 && /^\d{6,14}$/.test(verifyCode)) {
+              await Promise.all(
+                ALL_OCTORATE_STRUCTURE_IDS.map(async (structId) => {
+                  try {
+                    const resId = await octFetch(`https://api.octorate.com/connect/rest/v1/reservation/${structId}/${verifyCode}`);
+                    if (resId.ok) {
+                      const item = await resId.json();
+                      if (item?.id) {
+                        const ownerId = item?.accommodation?.id ? String(item.accommodation.id) : structId;
+                        foundById.set(String(item.id), { item, structId: ownerId });
+                      }
+                    }
+                  } catch { /* non-blocking */ }
+                })
+              );
+            }
+
+            const matches = Array.from(foundById.values()).slice(0, 5);
+            if (matches.length === 0) {
+              await sendEditorMsg(
+                `❌ Nessuna prenotazione trovata su Octorate per <code>${escapeHtml(verifyCode)}</code> su nessuna delle 3 strutture.`
+              );
+              return res.status(200).json({ status: 'booking_editor_verifica', found: 0 });
+            }
+
+            const formatThaiTimestamp = (raw?: string) => {
+              if (!raw) return 'N/D';
+              const clean = String(raw).replace(/\[.*?\]/g, '');
+              const d = new Date(clean);
+              if (isNaN(d.getTime())) return String(raw);
+              return new Intl.DateTimeFormat('it-IT', {
+                timeZone: 'Asia/Bangkok',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }).format(d) + ' (UTC+7)';
+            };
+
+            const cards = await Promise.all(matches.map(async ({ item, structId }) => {
+              const structCfg = OCTORATE_STRUCTURES.find(s => s.id === structId);
+              const structLabel = structCfg ? `${structCfg.badgeEmoji} ${structCfg.name}` : structId;
+              const guest = `${item.firstName || ''} ${item.lastName || ''}`.trim() || item.guestsList || 'Ospite';
+              const cin = toThailandDateStr(item.checkin);
+              const cout = toThailandDateStr(item.checkout);
+              const otaCode = item.channelRefer || item.refer || '-';
+              const amount = Number(item.totalGross ?? item.roomGross ?? 0);
+              const pmsProd = String(item.pmsProduct || item.product || '');
+
+              let overlapNote = '';
+              if (cin && cout && pmsProd && !['CANCELLED', 'CANCELED', 'DELETED', 'VOID', 'REJECTED'].includes(String(item.status || '').toUpperCase())) {
+                try {
+                  const ovRes = await octFetch(`https://api.octorate.com/connect/rest/v1/reservation/${structId}?type=STAY&startDate=${cin}&endDate=${cout}&size=50&page=0`);
+                  if (ovRes.ok) {
+                    const ovJson = await ovRes.json();
+                    const ovList = Array.isArray(ovJson?.data) ? ovJson.data : (Array.isArray(ovJson) ? ovJson : []);
+                    const conflicts = ovList.filter((other: any) => {
+                      if (String(other.id) === String(item.id)) return false;
+                      const st = String(other.status || '').toUpperCase();
+                      if (['CANCELLED', 'CANCELED', 'DELETED', 'VOID', 'REJECTED'].includes(st) || other.cancelled) return false;
+                      if (String(other.privateNotes || '').includes('[MIRROR_SYNC]') || String(other.refer || '').startsWith('MIRROR-')) return false;
+                      const otherPms = String(other.pmsProduct || other.product || '');
+                      if (otherPms !== pmsProd) return false;
+                      const oIn = toThailandDateStr(other.checkin);
+                      const oOut = toThailandDateStr(other.checkout);
+                      return oIn < cout && cin < oOut;
+                    });
+                    if (conflicts.length > 0) {
+                      overlapNote = `\n⚠️ <b>Sovrapposizione rilevata</b> con: ${conflicts.map((c: any) => `#${c.id} (${escapeHtml(`${c.firstName || ''} ${c.lastName || ''}`.trim() || 'Ospite')})`).join(', ')}`;
+                    }
+                  }
+                } catch { /* non-blocking */ }
+              }
+
+              return (
+                `🏨 <b>${escapeHtml(structLabel)}</b>\n` +
+                `👤 <b>${escapeHtml(guest)}</b> • Stato: <b>${escapeHtml(String(item.status || 'N/D'))}</b>\n` +
+                `🆔 Octorate: <code>#${item.id}</code> | OTA: <code>${escapeHtml(String(otaCode))}</code>\n` +
+                `🛏️ Alloggio: <b>${escapeHtml(String(item.roomName || '-'))}</b> (prod: <code>${escapeHtml(String(item.product || '-'))}</code>)\n` +
+                `📅 Date: <b>${formatDateDMY(cin)} → ${formatDateDMY(cout)}</b>\n` +
+                `💰 Totale Octorate: <b>${amount.toLocaleString('it-IT')} ${escapeHtml(String(item.currency || 'THB'))}</b>\n` +
+                `🕒 Ultimo agg. Octorate: <b>${escapeHtml(formatThaiTimestamp(item.updateTime))}</b>${overlapNote}`
+              );
+            }));
+
+            await sendEditorMsg(
+              `🔍 <b>Verifica Live Octorate</b> (<code>${escapeHtml(verifyCode)}</code>)\n\n${cards.join('\n\n──────────\n\n')}`
+            );
+            return res.status(200).json({ status: 'booking_editor_verifica', found: matches.length });
           }
 
           if (msgText === '/switchvillas' || msgText.startsWith('/switchvillas@') || msgText.startsWith('/switchvillas ')) {

@@ -64,6 +64,64 @@ export interface SentinelAuditResult {
     samples: Array<{ name: string; livePrice: number; basePrice: number; discountPct: number }>;
     details: string;
   };
+  otaConnections?: {
+    status: 'OK' | 'WARNING';
+    checkedCount: number;
+    warnings: string[];
+    details: string;
+  };
+}
+
+/**
+ * 4° Pilastro (Sola Lettura): verifica la salute delle connessioni OTA su Octorate
+ * senza mai alterare prenotazioni o disponibilità.
+ */
+async function auditOtaConnections(token: string): Promise<NonNullable<SentinelAuditResult['otaConnections']>> {
+  const warnings: string[] = [];
+  let checkedCount = 0;
+
+  await Promise.all(
+    ALL_OCTORATE_STRUCTURE_IDS.map(async (structId) => {
+      try {
+        const res = await fetch(`https://api.octorate.com/connect/rest/v1/connection?accommodation=${structId}`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
+        });
+        if (!res.ok) {
+          warnings.push(`Struttura ${structId}: HTTP ${res.status} su /connection`);
+          return;
+        }
+        const json = await res.json();
+        const conns = Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : []);
+        for (const conn of conns) {
+          const chName = String(conn.channelName || `Canale ${conn.channelId || '?'}`);
+          const status = String(conn.status || '').toUpperCase().trim();
+          checkedCount++;
+
+          if (status === 'ENABLED') {
+            if (conn.updateCalendar === false || conn.pullReservations === false) {
+              warnings.push(`Struttura ${structId} ${chName} (#${conn.id}): sync disattivato (updateCalendar=${String(conn.updateCalendar)}, pullReservations=${String(conn.pullReservations)})`);
+            }
+            if (Number(conn.channelId) === 142 && conn.pullMappedOnly === true) {
+              warnings.push(`Struttura ${structId} Booking.com (#${conn.id}): pullMappedOnly=true (rischio scarto silenzioso su upgrade/tariffe non mappate)`);
+            }
+          } else if (status && status !== 'DISABLED') {
+            warnings.push(`Struttura ${structId} ${chName} (#${conn.id}): stato anomalo ${status}`);
+          }
+        }
+      } catch (err: any) {
+        warnings.push(`Struttura ${structId}: errore verifica connessioni (${err?.message || 'rete'})`);
+      }
+    })
+  );
+
+  return {
+    status: warnings.length > 0 ? 'WARNING' : 'OK',
+    checkedCount,
+    warnings,
+    details: warnings.length > 0
+      ? `Rilevate ${warnings.length} avvertenze su ${checkedCount} connessioni OTA.`
+      : `Tutte le ${checkedCount} connessioni OTA verificate e attive.`
+  };
 }
 
 /**
@@ -1052,6 +1110,8 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
       : 'Tariffe Madri a prezzo pieno di listino (Nessuno sconto Last Minute applicato su Octorate).'
   };
 
+  const otaConnectionsResult = await auditOtaConnections(token);
+
   const allClear = anomalies.length === 0;
   const result: SentinelAuditResult = {
     timestamp: new Date().toISOString(),
@@ -1063,7 +1123,8 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
       ? "✅ Tutte le tariffe e restrizioni OTA risultano al 100% conformi al Sacro Graal. Nessuna anomalia."
       : `⚠️ Rilevate ${anomalies.length} anomalie: ${healedCount} blocchi/tariffe sono stati auto-riparati e risigillati immediatamente su Octorate.`,
     dynamicMinStay: dynamicMinStayResult,
-    lastMinute: lastMinuteResult
+    lastMinute: lastMinuteResult,
+    otaConnections: otaConnectionsResult
   };
 
   // -------------------------------------------------------------
@@ -1093,6 +1154,10 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
       gapSectionStr = `• Buchi Imminenti: <b>Nessun buco residuo sotto la baseline, calendario continuo</b>\n• MinStay Baseline: <b>${baselineNights} notti verificato su tutti gli alloggi</b>`;
     }
 
+    const otaSectionStr = otaConnectionsResult.warnings.length > 0
+      ? `🔌 <b>4. CONNESSIONI OTA (ATTENZIONE):</b>\n${otaConnectionsResult.warnings.slice(0, 5).map(w => `• ⚠️ ${w}`).join('\n')}`
+      : `🔌 <b>4. CONNESSIONI OTA:</b>\n• <b>${otaConnectionsResult.checkedCount}</b> connessioni verificate (Booking/OTA attive)`;
+
     if (!allClear) {
       const anomalyLines = anomalies.slice(0, 5).map(a => `• <b>${a.name}</b> (${a.id}): ${a.issue}`).join('\n');
       const extraNotice = anomalies.length > 5 ? `\n<i>...e altre ${anomalies.length - 5} anomalie rilevate.</i>` : '';
@@ -1103,6 +1168,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
         `Rilevate le seguenti discrepanze su Octorate:\n${anomalyLines}${extraNotice}\n\n` +
         `📏 <b>SOGGIORNO MINIMO DINAMICO (GAP-FILL):</b>\n${gapSectionStr}\n\n` +
         `⚡ <b>SISTEMA LAST MINUTE:</b>\n• Stato: <b>${detectedStage}</b>\n${sampleLines}\n\n` +
+        `${otaSectionStr}\n\n` +
         `${actionLine}`;
       await sendDepartmentTelegramMessage('village', alertMsg, { topic: 'ALERTS_OVERBOOKING' });
     } else if (options?.forceReport || allClear) {
@@ -1121,7 +1187,8 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
         `• Stadio Attivo Oggi: <b>${detectedStage}</b>\n` +
         `• Prezzi Live Tariffe Madri (Esempi):\n${sampleLines}\n` +
         `• Auto-Avanzamento Giornaliero: <b>Attivo e regolare</b>\n\n` +
-        `🎯 <b>ESITO SENTINEL: TUTTI I 3 SISTEMI OPERATIVI AL 100%</b>\n` +
+        `${otaSectionStr}\n\n` +
+        `🎯 <b>ESITO SENTINEL: TUTTI I PILASTRI VERIFICATI</b>\n` +
         `<i>Auto-Healer attivo 24/7. Notifica certificata alle ${new Date().toLocaleTimeString('it-IT')}.</i>`;
 
       await sendDepartmentTelegramMessage('village', okMsg, { topic: 'DAILY_REPORT' });
