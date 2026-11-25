@@ -5,7 +5,8 @@ import { signKsherPayload, getKsherAppId, getKsherPrivateKey } from "../_helpers
 import fs from "fs";
 import path from "path";
 import { getPayPalCredentials, getPayPalAccessToken } from "../_helpers/paypal.js";
-import { savePendingBooking } from "../_helpers/pending-bookings.js";
+import { savePendingBookingAsync } from "../_helpers/pending-bookings.js";
+import { resolveOctorateBookingTarget } from "../_helpers/octorate-booking-target.js";
 import { createClient } from "@supabase/supabase-js";
 
 function getSupabaseClient() {
@@ -226,7 +227,8 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
 
     if (tokenData?.access_token) {
       try {
-        const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
+        const octTarget = await resolveOctorateBookingTarget(accommodationId, supabase, room.name);
+        const structureId = octTarget.structureId;
         let targetRoom: any = null;
         let page = 1;
         const maxPages = 10;
@@ -247,7 +249,14 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
           const items = Array.isArray(octJson) ? octJson : (octJson.data || []);
           if (items.length === 0) break;
 
-          targetRoom = items.find((item: any) => item.id === Number(accommodationId) || item.room === Number(accommodationId));
+          targetRoom = items.find((item: any) =>
+            item.id === octTarget.productId ||
+            item.room === octTarget.productId ||
+            item.id === octTarget.motherId ||
+            item.room === octTarget.motherId ||
+            item.id === Number(accommodationId) ||
+            item.room === Number(accommodationId)
+          );
           if (targetRoom && targetRoom.days && targetRoom.days.length > 0) break;
 
           if (items.length < 50) break;
@@ -394,7 +403,7 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
       const ksherData = await ksherResponse.json();
 
       if (ksherData.code === 0 && (ksherData.data?.pay_content || ksherData.data?.pay_url)) {
-        savePendingBooking({
+        await savePendingBookingAsync({
           sessionId: orderNo,
           gateway: 'ksher',
           accommodationId: Number(accommodationId),
@@ -418,8 +427,11 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
           discountType: discountType || null,
           discountValue: discountValue || null,
           discountAmount: promoDiscountAmount || directDiscountAmount || 0,
+          lang: lang || 'EN',
+          origin: cleanOrigin,
+          status: 'pending',
           createdAt: Date.now()
-        });
+        }, supabase);
 
         return res.status(200).json({
           sessionId: orderNo,
