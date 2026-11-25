@@ -384,8 +384,14 @@ export async function generateConfirmationPDF(
       const t = LABELS[pdfLang];
 
       const accId = Number(metadata.accommodationId);
-      const roomInfo = ACCOMMODATION_DETAILS[accId];
-      const roomName = roomInfo?.name || metadata.accommodationName || `Room #${accId}`;
+      const rawRoomName = String(metadata.accommodationName || metadata.roomName || "").trim();
+      const roomInfo = ACCOMMODATION_DETAILS[accId] ||
+        (rawRoomName
+          ? Object.values(ACCOMMODATION_DETAILS).find(
+              (r) => r.name.toLowerCase() === rawRoomName.toLowerCase() || rawRoomName.toLowerCase().includes(r.name.toLowerCase())
+            )
+          : undefined);
+      const roomName = roomInfo?.name || rawRoomName || `Room #${accId}`;
       const roomDesc = roomInfo?.description || "";
       const roomFeatures = roomInfo?.features || [];
       
@@ -638,11 +644,18 @@ export function generateConfirmationEmailHTML(
   const t = LABELS[emailLang] || LABELS["EN"];
 
   const accId = Number(metadata.accommodationId);
-  const roomInfo = ACCOMMODATION_DETAILS[accId];
-  const roomName = roomInfo?.name || metadata.accommodationName || `Room #${accId}`;
+  const rawRoomName = String(metadata.accommodationName || metadata.roomName || "").trim();
+  const roomInfo = ACCOMMODATION_DETAILS[accId] ||
+    (rawRoomName
+      ? Object.values(ACCOMMODATION_DETAILS).find(
+          (r) => r.name.toLowerCase() === rawRoomName.toLowerCase() || rawRoomName.toLowerCase().includes(r.name.toLowerCase())
+        )
+      : undefined);
+  const roomName = roomInfo?.name || rawRoomName || `Room #${accId}`;
   const roomDesc = roomInfo?.description || "";
   const checkInDate = metadata.checkIn;
   const checkOutDate = metadata.checkOut;
+  const nights = getNightsCount(checkInDate, checkOutDate);
   const isKsher = metadata.gateway === "ksher" || metadata.stripeSessionId?.startsWith("FPBK");
   const bookingRef = octorateId || (isKsher ? `FP-${metadata.stripeSessionId?.substring(0, 12) || "CONFIRMED"}` : `ST-FALLBACK-${metadata.stripeSessionId?.substring(0, 10) || "UNKNOWN"}`);
   
@@ -1032,6 +1045,7 @@ export async function sendConfirmationEmail(
   const mailOptions = {
     from: process.env.SMTP_FROM || `"${RESORT_INFO.shortName}" <${smtpUser}>`,
     to: metadata.guestEmail,
+    bcc: RESORT_INFO.email,
     subject: `${t.emailSubject.replace("{ref}", bookingRef)}`,
     html: generateConfirmationEmailHTML(metadata, octorateId, websiteUrl),
     attachments: [

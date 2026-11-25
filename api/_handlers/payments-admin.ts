@@ -6,6 +6,8 @@ import { signKsherPayload, getKsherAppId, getKsherPrivateKey } from "../_helpers
 import { generatePromptPayPayload } from "../_helpers/promptpay.js";
 import { getPayPalCredentials, getPayPalAccessToken } from "../_helpers/paypal.js";
 import { retrieveOmiseCharge, createOmiseRefund } from "../_helpers/omise.js";
+import { getPendingBookingAsync } from "../_helpers/pending-bookings.js";
+import { finalizeWebsiteBooking } from "./verify.js";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -489,6 +491,103 @@ export async function handlePaymentsAdmin(req: VercelRequest, res: VercelRespons
 
       const queryData = await queryRes.json();
       return res.status(queryRes.ok ? 200 : 400).json(queryData);
+    }
+
+    // 6b. KSHER SERVER-TO-SERVER WEBHOOK NOTIFY (guarantees Octorate registration even if browser closes)
+    if (action === "ksher-notify" || req.query.action === "ksher-notify") {
+      try {
+        const bodyObj = (req.body && typeof req.body === "object") ? req.body : {};
+        const dataObj = (bodyObj.data && typeof bodyObj.data === "object") ? bodyObj.data : bodyObj;
+        const mchOrderNo = String(
+          dataObj.mch_order_no ||
+          bodyObj.mch_order_no ||
+          req.query.mch_order_no ||
+          ""
+        ).trim();
+
+        if (!mchOrderNo) {
+          console.warn("[Ksher Notify] Missing mch_order_no in webhook payload.");
+          return res.status(200).json({ result: "FAIL", msg: "Missing mch_order_no" });
+        }
+
+        // Verify payment status authoritatively with Ksher gateway_order_query
+        const appId = getKsherAppId();
+        const privateKey = getKsherPrivateKey();
+        const timeStamp = new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14);
+        const nonceStr = crypto.randomBytes(8).toString("hex");
+        const queryParams: any = {
+          appid: appId,
+          mch_order_no: mchOrderNo,
+          nonce_str: nonceStr,
+          time_stamp: timeStamp
+        };
+        queryParams.sign = signKsherPayload(queryParams, privateKey);
+
+        const queryRes = await fetch("https://gateway.ksher.com/api/gateway_order_query", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(queryParams).toString()
+        });
+        const queryData = await queryRes.json().catch(() => ({}));
+        const isPaid = queryData?.code === 0 && (
+          queryData?.data?.result === "SUCCESS" ||
+          queryData?.data?.trade_state === "SUCCESS" ||
+          queryData?.data?.status === "PAID"
+        );
+
+        if (!isPaid) {
+          console.log(`[Ksher Notify] Order ${mchOrderNo} not yet marked SUCCESS on Ksher query:`, queryData?.data?.result || queryData?.msg);
+          return res.status(200).json({ result: "SUCCESS", msg: "Not paid yet, acknowledged" });
+        }
+
+        const pending = await getPendingBookingAsync(mchOrderNo, supabase);
+        if (!pending) {
+          console.warn(`[Ksher Notify] Paid order ${mchOrderNo} has no pending booking metadata in Supabase.`);
+          return res.status(200).json({ result: "SUCCESS", msg: "No pending metadata found" });
+        }
+
+        if (pending.status === "confirmed" && pending.octorateReservationId) {
+          console.log(`[Ksher Notify] Order ${mchOrderNo} already confirmed (#${pending.octorateReservationId}).`);
+          return res.status(200).json({ result: "SUCCESS", msg: "Already processed" });
+        }
+
+        console.log(`[Ksher Notify] Finalizing paid order ${mchOrderNo} server-to-server...`);
+        await finalizeWebsiteBooking({
+          sessionId: mchOrderNo,
+          gateway: "ksher",
+          paymentIntentId: `KSHER-${mchOrderNo}`,
+          websiteUrl: pending.origin || "https://flowerpower-phayam.com",
+          metadata: {
+            accommodationId: String(pending.accommodationId),
+            accommodationName: pending.accommodationName,
+            checkIn: pending.checkIn,
+            checkOut: pending.checkOut,
+            nights: String(pending.nights),
+            guests: String(pending.guests),
+            guestName: pending.guestName,
+            guestEmail: pending.guestEmail,
+            guestPhone: pending.guestPhone,
+            extraBreakfast: String(pending.extraBreakfast),
+            extraAC: String(pending.extraAC),
+            grandTotal: String(pending.grandTotal),
+            totalPrice: String(pending.grandTotal),
+            depositAmount: String(pending.depositAmount),
+            depositPaid: String(pending.depositAmount),
+            balanceDue: String(pending.balanceDue),
+            promoCode: pending.promoCode || "",
+            discountType: String(pending.discountType || ""),
+            discountValue: String(pending.discountValue || ""),
+            discountAmount: String(pending.discountAmount || 0),
+            lang: pending.lang || "EN",
+            gateway: "ksher"
+          }
+        });
+
+        return res.status(200).json({ result: "SUCCESS", msg: "OK" });
+      } catch (notifyErr: any) {
+        console.error("[Ksher Notify] Exception:", notifyErr);
+        return res.status(200).json({ result: "FAIL", msg: notifyErr.message || "Error" });
+      }
     }
 
     // 7. KSHER REFUND ORDER

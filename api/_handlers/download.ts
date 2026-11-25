@@ -1,7 +1,8 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { stripe } from "../_helpers/stripe.js";
 import { generateConfirmationPDF } from "../_helpers/booking-confirmation.js";
-import { getPendingBooking } from "../_helpers/pending-bookings.js";
+import { getPendingBookingAsync } from "../_helpers/pending-bookings.js";
+import { ALL_OCTORATE_STRUCTURE_IDS } from "../_helpers/octorate-structures.js";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
@@ -42,41 +43,49 @@ export async function handleDownloadConfirmation(req: VercelRequest, res: Vercel
         if (accessToken) {
           let octResData: any = null;
 
-          if (octorateReservationId) {
-            const singleRes = await fetch(
-              `https://api.octorate.com/connect/rest/v1/reservation/${OCTORATE_STRUCTURE_ID}/${octorateReservationId}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                  Accept: "application/json"
+          if (octorateReservationId && /^\d+$/.test(octorateReservationId)) {
+            for (const sId of ALL_OCTORATE_STRUCTURE_IDS) {
+              const singleRes = await fetch(
+                `https://api.octorate.com/connect/rest/v1/reservation/${sId}/${octorateReservationId}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    Accept: "application/json"
+                  }
                 }
+              );
+              if (singleRes.ok) {
+                octResData = await singleRes.json();
+                break;
               }
-            );
-            if (singleRes.ok) {
-              octResData = await singleRes.json();
             }
           }
 
           if (!octResData) {
-            // Search recent reservations for this session_id
-            const listRes = await fetch(
-              `https://api.octorate.com/connect/rest/v1/reservation?size=25&page=0`,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                  Accept: "application/json"
+            // Search recent reservations across all 3 structures for this session_id
+            const startDate = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);
+            const endDate = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10);
+            for (const sId of ALL_OCTORATE_STRUCTURE_IDS) {
+              const listRes = await fetch(
+                `https://api.octorate.com/connect/rest/v1/reservation/${sId}?type=STAY&startDate=${startDate}&endDate=${endDate}&size=50&page=0`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    Accept: "application/json"
+                  }
                 }
-              }
-            );
-            if (listRes.ok) {
-              const listJson = await listRes.json();
-              const items = Array.isArray(listJson) ? listJson : (listJson.data || []);
-              octResData = items.find((item: any) =>
-                (item.refer && item.refer.includes(session_id)) ||
-                (item.channelRefer && item.channelRefer.includes(session_id)) ||
-                (item.privateNotes && item.privateNotes.includes(session_id)) ||
-                (octorateReservationId && String(item.id) === String(octorateReservationId))
               );
+              if (listRes.ok) {
+                const listJson = await listRes.json();
+                const items = Array.isArray(listJson) ? listJson : (listJson.data || []);
+                octResData = items.find((item: any) =>
+                  (item.refer && item.refer.includes(session_id)) ||
+                  (item.channelRefer && item.channelRefer.includes(session_id)) ||
+                  (item.privateNotes && item.privateNotes.includes(session_id)) ||
+                  (octorateReservationId && String(item.id) === String(octorateReservationId))
+                );
+                if (octResData) break;
+              }
             }
           }
 
@@ -99,6 +108,7 @@ export async function handleDownloadConfirmation(req: VercelRequest, res: Vercel
             const balanceDue = Number(grandTotal - depositAmount);
 
             metadata = {
+              accommodationId: octResData.product || undefined,
               guestName,
               guestEmail,
               guestPhone,
@@ -122,11 +132,15 @@ export async function handleDownloadConfirmation(req: VercelRequest, res: Vercel
         console.warn("[Download API] Octorate live fetch fallback notice:", octErr);
       }
 
-      // 2. Fallback to in-memory pending booking if Octorate data was missing
+      // 2. Fallback to persistent Supabase / in-memory pending booking if Octorate data was missing
       if (!metadata.guestName || !metadata.checkIn) {
-        const cached = getPendingBooking(session_id);
+        const cached = await getPendingBookingAsync(session_id, supabase);
         if (cached) {
+          if (cached.octorateReservationId && (!octorateReservationId || octorateReservationId.startsWith("KSHER-"))) {
+            octorateReservationId = cached.octorateReservationId;
+          }
           metadata = {
+            accommodationId: cached.accommodationId,
             guestName: cached.guestName,
             guestEmail: cached.guestEmail,
             guestPhone: cached.guestPhone,
@@ -141,6 +155,11 @@ export async function handleDownloadConfirmation(req: VercelRequest, res: Vercel
             depositAmount: String(cached.depositAmount || 0),
             depositPaid: String(cached.depositAmount || 0),
             balanceDue: String(cached.balanceDue || 0),
+            extraBreakfast: String(cached.extraBreakfast),
+            extraAC: String(cached.extraAC),
+            promoCode: cached.promoCode || "",
+            discountAmount: String(cached.discountAmount || 0),
+            lang: cached.lang || "EN",
             gateway: "ksher",
             stripeSessionId: session_id
           };

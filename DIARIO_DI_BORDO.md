@@ -4224,3 +4224,15 @@
   - **Consegna Completa Post Definitivo su Telegram Topic 2 (`Koh Phayam Group`)**:
     - **Video Streaming Full HD**: Inviato direttamente il filmato master del Villaggio (1080x1920, 7.24 MB) su Topic 2 via multipart streaming.
     - **Scheda Testo Sincronizzata**: Recapitato il riquadro interattivo con il copy bilingue approvato (`FULLY BOOKED TONIGHT! Hurry to book the next available rooms...`), il rimando allo sconto 10% su `flowerpowervillage.com` e il pulsante rapido per aprire direttamente il gruppo Facebook di Koh Phayam.
+
+---
+
+### 📅 26/11/2026 — Fix Definitivo Sincronizzazione Prenotazioni Sito Web → Octorate (Multi-Struttura + Webhook Ksher + Recupero Michelle Kamusin)
+- **Problema risolto**: Le prenotazioni dal sito web per le 4 **Jungle Villas** e le 7 camere **Hubitat** (11 alloggi su 18) venivano inviate sempre alla struttura Octorate `366879` con codici di `807324`/`619403`, venendo rigettate silenziosamente senza alert Telegram e senza Auto-Shield. Inoltre il webhook server-to-server Ksher (`ksher-notify`) non era implementato e la cache pending era solo in RAM.
+- **Interventi applicati**:
+  - Creato `api/_helpers/octorate-booking-target.ts` per risolvere automaticamente struttura (`366879`, `807324`, `619403`), prodotto BE e Mother ID di fallback su tutti i 18 alloggi (incluso switch dinamico `active_jungle_source_v1`).
+  - Aggiornato `api/_helpers/pending-bookings.ts` con persistenza serverless su Supabase e idempotenza anti-duplicati per Ksher.
+  - Aggiornati `api/_handlers/verify.ts`, `api/_handlers/checkout.ts`, `api/_handlers/payments-admin.ts` (`ksher-notify`), `api/_handlers/download.ts` e `api/_helpers/booking-confirmation.ts`: aggiunto mirror immediato Jungle, Auto-Shield garantito e **alert rosso Telegram (`ALERTS_OVERBOOKING`)** in caso di qualsiasi errore Octorate.
+- **Recupero live eseguito**: Registrata la prenotazione mancante di **Michelle Kamusin** (`KSHER-FPBK23004724`, Jungle Villa, `03/12/2026 → 10/12/2026`, Totale `30,240 ฿`, Caparra `9,435 ฿`, Saldo `21,168 ฿`) su Octorate `366879` con **ID `#130607217`**, mirror su `807324` e 10 tariffe derivate sigillate con Auto-Shield.
+- **Verifica**: `npx tsc --noEmit` (0 errori), `security-audit.mjs` (0 secrets), unit test routing 18/18 alloggi PASS.
+- **Verifica generale & Fix Bug #5 (Email conferma crashata)**: Dai log di produzione Vercel è emerso che **100% delle email di conferma** del sito fallivano con `ReferenceError: nights is not defined` in `api/_helpers/booking-confirmation.ts` (riga 668). Corretto definendo `nights = getNightsCount(...)`, aggiunto fallback lookup camera per nome e aggiunto `bcc: flowerpowerphayam@gmail.com` per avere sempre copia in casella. Verificato anche conflitto overbooking tra **Michelle Kamusin (#130607217, Jungle Villa 03–10/12)** e **Jacob Zonneveld (#130288812, Jungle Villa Left 30/11–05/12)**.
