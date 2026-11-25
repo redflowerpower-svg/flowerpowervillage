@@ -456,6 +456,10 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
           return {
             id: String(r.id || r.reservationId || Math.random()),
             refer: r.refer ? String(r.refer) : undefined,
+            channelRefer: r.channelRefer ? String(r.channelRefer) : undefined,
+            externalMappingReference: r.externalMappingReference ? String(r.externalMappingReference) : undefined,
+            createTime: r.createTime || undefined,
+            updateTime: r.updateTime || undefined,
             guest_name: r.guestName || r.guest_name || `${r.firstName || r.first_name || 'Ospite'} ${r.lastName || r.last_name || ''}`.trim(),
             guest_email: r.guestMailAddress || r.email || r.guestEmail || r.customerEmail || (r.guests && r.guests[0]?.email) || (r.guests && r.guests[0]?.mailAddress) || '',
             guest_phone: r.phone || (r.guests && r.guests[0]?.phone) || '',

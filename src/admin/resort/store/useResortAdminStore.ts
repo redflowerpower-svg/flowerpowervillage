@@ -31,6 +31,10 @@ export interface ResortBooking {
   status: 'confirmed' | 'pending' | 'cancelled';
   stripe_session_id?: string;
   octorate_reservation_id?: string;
+  refer?: string;
+  channelRefer?: string;
+  externalMappingReference?: string;
+  updateTime?: string;
   source_channel?: string;
   channelId?: number;
   structure_id?: string;

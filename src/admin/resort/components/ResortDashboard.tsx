@@ -678,12 +678,15 @@ export function ResortDashboard() {
   // Filter bookings (Excludes cancelled, test, and manually blacklisted bookings)
   const filteredBookings = (bookings || []).filter(b => {
     if (!isValidActiveBooking(b)) return false;
-    const searchLower = searchQuery.toLowerCase();
-    return !searchQuery || 
+    const searchLower = searchQuery.toLowerCase().trim();
+    return !searchLower ||
       (b.guest_name && b.guest_name.toLowerCase().includes(searchLower)) ||
       (b.guest_email && b.guest_email.toLowerCase().includes(searchLower)) ||
       (b.accommodation_name && b.accommodation_name.toLowerCase().includes(searchLower)) ||
-      (b.id && String(b.id).toLowerCase().includes(searchLower));
+      (b.id && String(b.id).toLowerCase().includes(searchLower)) ||
+      (b.refer && String(b.refer).toLowerCase().includes(searchLower)) ||
+      (b.channelRefer && String(b.channelRefer).toLowerCase().includes(searchLower)) ||
+      (b.octorate_reservation_id && String(b.octorate_reservation_id).toLowerCase().includes(searchLower));
   });
 
   // Filter rooms
@@ -2388,6 +2391,11 @@ export function ResortDashboard() {
                                   {b.octorate_reservation_id && (
                                     <div className="text-[10px] text-stone-400 font-mono">
                                       PMS ID: {b.octorate_reservation_id}
+                                    </div>
+                                  )}
+                                  {(b.channelRefer || b.refer) && (
+                                    <div className="text-[10px] text-sky-300/90 font-mono truncate" title={`OTA Ref: ${b.channelRefer || b.refer}`}>
+                                      OTA: {b.channelRefer || b.refer}
                                     </div>
                                   )}
                                 </div>
