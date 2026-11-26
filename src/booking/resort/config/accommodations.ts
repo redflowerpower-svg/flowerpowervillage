@@ -164,7 +164,7 @@ export const ACCOMMODATION_IDENTITIES: AccommodationIdentity[] = [
     legacySlug: '53-jungle-villa-left',
     legacyPath: '/53-jungle-villa-left',
     directUrl: 'https://www.flowerpowervillage.com/53-jungle-villa-left',
-    aliases: ['53-jungle-villa-left', 'jungle-villa-left'],
+    aliases: ['53-jungle-villa-left', 'jungle-villa-left', '42_jungle_villa_left'],
     octorateId: 495807,
     category: 'VILLE'
   },
@@ -174,7 +174,7 @@ export const ACCOMMODATION_IDENTITIES: AccommodationIdentity[] = [
     legacySlug: '54-jungle-villa-right',
     legacyPath: '/54-jungle-villa-right',
     directUrl: 'https://www.flowerpowervillage.com/54-jungle-villa-right',
-    aliases: ['54-jungle-villa-right', 'jungle-villa-right'],
+    aliases: ['54-jungle-villa-right', 'jungle-villa-right', '43_jungle_villa_right'],
     octorateId: 495980,
     category: 'VILLE'
   },
@@ -314,7 +314,7 @@ export const ACCOMMODATION_IDENTITIES: AccommodationIdentity[] = [
     legacySlug: '36-lodge-2',
     legacyPath: '/36-lodge-2',
     directUrl: 'https://www.flowerpowervillage.com/36-lodge-2',
-    aliases: ['36-lodge-2', 'lodge-2', 'lodge2', '36_lodge_2'],
+    aliases: ['36-lodge-2', 'lodge-2', 'lodge2', '36_lodge_2', '37_lodge_2'],
     octorateId: 923905,
     category: 'THE HUB GUESTHOUSE'
   },
@@ -324,7 +324,7 @@ export const ACCOMMODATION_IDENTITIES: AccommodationIdentity[] = [
     legacySlug: '41-room-internal',
     legacyPath: '/41-room-internal',
     directUrl: 'https://www.flowerpowervillage.com/41-room-internal',
-    aliases: ['41-room-internal', 'internal-room', 'room-internal', '41_room_internal'],
+    aliases: ['41-room-internal', 'internal-room', 'room-internal', '41_room_internal', '21_internal_room'],
     octorateId: 449742,
     category: 'THE HUB GUESTHOUSE'
   }
@@ -335,7 +335,7 @@ export function findAccommodationIdentity(rawSlugOrName?: string | null): Accomm
   const s = String(rawSlugOrName).toLowerCase().trim().replace(/^\/+/, '');
   const clean = s.replace(/^\d+[-_]/, '');
 
-  return ACCOMMODATION_IDENTITIES.find(acc => 
+  return ACCOMMODATION_IDENTITIES.find(acc =>
     acc.legacySlug.toLowerCase() === s ||
     acc.canonicalSlug.toLowerCase() === s ||
     acc.canonicalSlug.toLowerCase() === clean ||
@@ -441,7 +441,7 @@ export function formatAccommodationBeds(beds?: string | null, lang: string = 'IT
   if (!beds) return '';
   const trimmed = beds.trim();
   const normalizedLang = (lang || 'IT').toUpperCase();
-  
+
   if (BED_TRANSLATIONS[trimmed]?.[normalizedLang]) {
     return BED_TRANSLATIONS[trimmed][normalizedLang];
   }
@@ -452,7 +452,7 @@ export function formatAccommodationBeds(beds?: string | null, lang: string = 'IT
     if (BED_TRANSLATIONS[part]?.[normalizedLang]) {
       return BED_TRANSLATIONS[part][normalizedLang];
     }
-    
+
     const match = part.match(/^(\d+)\s+(.+)$/);
     if (!match) return part;
     const qty = parseInt(match[1], 10);

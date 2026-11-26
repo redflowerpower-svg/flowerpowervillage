@@ -3,6 +3,43 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🔧 [26/11/2026 - ORE 18:44] · RIPARAZIONE DEFINITIVA DI TUTTI I 36 LINK DIRETTI AGLI ALLOGGI (FIX 404 "ALLOGGIO NON TROVATO")
+- **Cosa abbiamo fatto:**
+  1. 🔎 **Diagnosi dei 3 Bug Sovrapposti (Segnalazione Jungle Villa Right)**:
+     - Scoperto che tutti i 18 link diretti (incluso `/54-jungle-villa-right` e `/jungle-villa-right`) davano **"404 — Alloggio non trovato"** in pagina per tre motivi combinati nel vecchio file [accommodationsData.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/data/accommodationsData.ts):
+       1. Cercava su Supabase la colonna inesistente `is_available` (mandando in errore ogni query).
+       2. Confrontava lo slug dell'URL (`54-jungle-villa-right`) direttamente con la colonna `slug` del database (che contiene invece il nome cartella Storage `43_jungle_villa_right`).
+       3. Non collegava i testi multilingua e trasformava le caratteristiche della camera in un oggetto non leggibile.
+  2. ⚡ **Riparazione Chirurgica ([accommodationsData.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/data/accommodationsData.ts), [AccommodationDetailPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pages/AccommodationDetailPage.tsx), [accommodations.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/resort/config/accommodations.ts))**:
+     - Collegata la scheda singolo alloggio al motore ufficiale del sito (`accommodationsService.ts` + `findAccommodationIdentity`), risolvendo istantaneamente sia i 18 link storici sia i 18 link canonici.
+     - Aggiunti i 4 alias cartella DB mancanti (`42_jungle_villa_left`, `43_jungle_villa_right`, `37_lodge_2`, `21_internal_room`).
+     - Attivate le traduzioni complete di titolo e descrizione in IT/EN/TH/DE, la lista pulita dei servizi inclusi e il collegamento diretto al calendario con l'alloggio già selezionato.
+- **Verifica:** Test end-to-end reale su Supabase (`36/36` link — 18 ufficiali + 18 canonici — tutti verdi con foto, prezzi, servizi e 4 lingue), controllo TypeScript (`0` errori) e build di produzione (`vite build` verde).
+- **Stato:** 🟡 PRONTO IN LOCALE SU `staging` — **Da pubblicare in produzione (`main`)** affinché i link online su `flowerpowervillage.com` si sblocchino subito.
+
+---
+
+### 🍕 [26/11/2026 - ORE 18:40] · SEPARAZIONE EXTRA "CIPOLLA" E "AGLIO" (20 ฿ CIASCUNO) SU MENU PIZZERIA & KDS
+- **Cosa abbiamo fatto:**
+  1. 🧅🧄 **Separazione Extra Affiancati nel Catalogo ([menuData.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/data/menuData.ts))**:
+     - Sostituita chirurgicamente la vecchia voce combinata `Onion/Garlic` (`Aglio/Cipolla`) in tutti i **37 piatti** interessati (34 pizze tradizionali + 3 Daily Specials) con due voci distinte e affiancate: **Cipolla** (`id: 10068`, `20 ฿`) e subito accanto **Aglio** (`id: ext-garlic`, `20 ฿`), complete di traduzioni in tutte le 9 lingue.
+  2. 🌍 **Mappa Traduzioni & Dizionario Cucina ([extrasTranslationMap.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/data/extrasTranslationMap.ts), [kdsExtraDictionary.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/pizza/utils/kdsExtraDictionary.ts))**:
+     - Aggiornata la mappa traduzioni extra (`10068` -> Cipolla/Onion, `ext-garlic` -> Aglio/Garlic in 9 lingue) e aggiunti gli alias `10068`, `onion`, `ext-garlic`, `garlic` nel dizionario KDS per le comande in cucina (IT, EN, TH, MM, DE).
+- **Verifica:** Script Node di controllo integrità (`0` residui `Onion/Garlic` / `Aglio/Cipolla`, esattamente `37` blocchi Cipolla e `37` blocchi Aglio a `20 ฿`) + `npx tsc --noEmit` (`0` errori).
+- **Stato:** 🟢 COMPLETATO IN LOCALE SU `staging`.
+
+---
+
+### 📋 [26/11/2026 - ORE 18:30] · ESTRAZIONE & CATALOGAZIONE COMPLETA LINK DIRETTI AI 18 ALLOGGI
+- **Cosa abbiamo fatto:**
+  1. 🔎 **Verifica Architettura di Routing ([src/App.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/App.tsx) & [accommodations.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/resort/config/accommodations.ts))**:
+     - Confermato il routing permanente per tutti i 18 alloggi del resort a Koh Phayam: ogni camera supporta sia l'URL storico/volantini (es. `/52-jungle-villa`, `/11-yellow-bungalow`) sia l'URL canonico semantico pulito (es. `/jungle-villa`, `/yellow-bungalow`) con redirect automatico.
+  2. 📑 **Creazione Documento Ufficiale Alloggi ([elenco_link_diretti_alloggi.md](file:///C:/Users/INTEL/.gemini/antigravity/brain/c8be7cf7-96ed-4294-b38b-f659b393f2c8/elenco_link_diretti_alloggi.md))**:
+     - Mappati in 4 categorie (Ville, Bungalow, Tende Glamping, The Hub Guesthouse) con relativi Octorate ID, capacità ospiti, configurazione letti e link web cliccabili pronti all'uso per campagne, messaggi WhatsApp o social.
+- **Stato:** 🟢 COMPLETATO — Consulta il report completo nell'Artifact IDE dedicato.
+
+---
+
 ### 🛡️ [21/11/2026 - ORE 11:05] · MESSA IN SICUREZZA COMPLETA `MARKDOWN-TRANSFER` & CLONAZIONE CHAT PINNATE (KOH PHAYAM ↔ RANONG)
 - **Cosa abbiamo fatto:**
   1. 🔒 **Protezione Totale Chat Pinnate in [history-clean.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/history-clean.mjs)**:

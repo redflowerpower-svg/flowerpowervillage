@@ -143,10 +143,25 @@ export default function AccommodationDetailPage({ slugOverride }: { slugOverride
 
   useEffect(() => {
     if (!slug) { setAccommodation(null); return; }
+    setAccommodation(undefined);
     fetchAccommodationBySlug(slug)
       .then(setAccommodation)
       .catch(() => setAccommodation(null));
   }, [slug]);
+
+  const localizedTitle = accommodation
+    ? (lang === 'TH' ? accommodation.title_th : lang === 'DE' ? accommodation.title_de : lang === 'EN' ? accommodation.title_en : accommodation.title_it) || accommodation.name
+    : '';
+
+  const localizedDescription = accommodation
+    ? (lang === 'TH' ? accommodation.description_th : lang === 'DE' ? accommodation.description_de : lang === 'EN' ? accommodation.description_en : accommodation.description_it) || accommodation.description
+    : '';
+
+  useEffect(() => {
+    if (localizedTitle) {
+      document.title = `${localizedTitle} · Flower Power Village Koh Phayam`;
+    }
+  }, [localizedTitle]);
 
   if (accommodation === undefined) {
     return (
@@ -234,11 +249,10 @@ export default function AccommodationDetailPage({ slugOverride }: { slugOverride
                           setLang(l.code);
                           setLangOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between cursor-pointer ${
-                          isSelected
+                        className={`w-full text-left px-4 py-3 text-sm transition-colors flex items-center justify-between cursor-pointer ${isSelected
                             ? 'bg-emerald-600 text-white font-black'
                             : 'text-stone-200 hover:bg-white/10 hover:text-white font-bold'
-                        }`}
+                          }`}
                       >
                         <span className="flex items-center gap-3">
                           <span className="text-xl leading-none">{l.flag}</span>
@@ -287,7 +301,7 @@ export default function AccommodationDetailPage({ slugOverride }: { slugOverride
                 className="text-stone-850"
                 style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif', fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, lineHeight: 1.1 }}
               >
-                {accommodation.name}
+                {localizedTitle}
               </h1>
             </div>
             {accommodation.price_per_night > 0 && (
@@ -336,7 +350,7 @@ export default function AccommodationDetailPage({ slugOverride }: { slugOverride
           {/* Left: description + features */}
           <div className="md:col-span-2 space-y-8">
             <p className="text-stone-600 leading-relaxed text-base" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}>
-              {accommodation.description}
+              {localizedDescription}
             </p>
             {(() => {
               const acConfig = getAccommodationAcConfig(accommodation.name || accommodation.slug);
@@ -349,10 +363,10 @@ export default function AccommodationDetailPage({ slugOverride }: { slugOverride
                     {lang === 'TH'
                       ? 'เครื่องปรับอากาศแบบเคลื่อนย้ายเปิดใช้งานได้เสมอ คิดตามจริง 40 บาท/kWh (~20 บาท/ชม.)'
                       : lang === 'DE'
-                      ? 'Mobiles Klimagerät jederzeit vor Ort nach Verbrauch nutzbar: 40 THB/kWh (~20 THB/Std.).'
-                      : lang === 'EN'
-                      ? 'Portable A/C always available pay-as-you-go at 40 THB/kWh (~20 THB/hour).'
-                      : 'Climatizzatore portatile sempre disponibile a consumo a 40 THB/kWh (~20 THB/ora).'}
+                        ? 'Mobiles Klimagerät jederzeit vor Ort nach Verbrauch nutzbar: 40 THB/kWh (~20 THB/Std.).'
+                        : lang === 'EN'
+                          ? 'Portable A/C always available pay-as-you-go at 40 THB/kWh (~20 THB/hour).'
+                          : 'Climatizzatore portatile sempre disponibile a consumo a 40 THB/kWh (~20 THB/ora).'}
                   </span>
                 </div>
               );
@@ -435,7 +449,7 @@ export default function AccommodationDetailPage({ slugOverride }: { slugOverride
               </Link>
 
               <Link
-                to={`/calendar?room=${slug}`}
+                to={`/calendar?room=${accommodation.canonicalSlug || slug}`}
                 className="block w-full py-3 bg-stone-900 text-amber-300 text-xs tracking-[0.1em] uppercase text-center font-black rounded-xl hover:bg-stone-850 border border-amber-400/40 transition-colors shadow-sm cursor-pointer flex items-center justify-center gap-2"
                 style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
               >
