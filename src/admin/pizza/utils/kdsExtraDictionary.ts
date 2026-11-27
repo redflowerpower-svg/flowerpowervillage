@@ -589,6 +589,20 @@ export const KDS_EXTRA_DICTIONARY: Record<string, ExtraTranslationEntry> = {
     mm: 'ကြက်သွန်နီကြီး',
     de: 'Zwiebel'
   },
+  'onion': {
+    it: 'Cipolla',
+    en: 'Onion',
+    th: 'หัวหอม',
+    mm: 'ကြက်သွန်နီ',
+    de: 'Zwiebel'
+  },
+  '10068': {
+    it: 'Cipolla',
+    en: 'Onion',
+    th: 'หัวหอม',
+    mm: 'ကြက်သွန်နီ',
+    de: 'Zwiebel'
+  },
   'cipolla rossa': {
     it: 'Cipolla Rossa di Tropea',
     en: 'Red Onion',
@@ -670,6 +684,20 @@ export const KDS_EXTRA_DICTIONARY: Record<string, ExtraTranslationEntry> = {
     it: 'Aglio',
     en: 'Garlic',
     th: 'กระเทียมสด',
+    mm: 'ကြက်သွန်ဖြူ',
+    de: 'Knoblauch'
+  },
+  'garlic': {
+    it: 'Aglio',
+    en: 'Garlic',
+    th: 'กระเทียม',
+    mm: 'ကြက်သွန်ဖြူ',
+    de: 'Knoblauch'
+  },
+  'ext-garlic': {
+    it: 'Aglio',
+    en: 'Garlic',
+    th: 'กระเทียม',
     mm: 'ကြက်သွန်ဖြူ',
     de: 'Knoblauch'
   },

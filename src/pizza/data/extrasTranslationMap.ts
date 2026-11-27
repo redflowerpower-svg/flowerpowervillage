@@ -22,15 +22,26 @@ export const EXTRAS_TRANSLATION_MAP: Record<string, Record<string, string>> = {
     "nameZh": "青酱"
   },
   "10068": {
-    "name": "Onion/Garlic",
-    "nameIt": "Aglio/Cipolla",
-    "nameTh": "หัวหอม/กระเทียม",
-    "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူ",
-    "nameDe": "Zwiebel/Knoblauch",
-    "nameEs": "Cebolla/Ajo",
-    "nameFr": "Oignon/Ail",
-    "nameRu": "Лук/Чеснок",
-    "nameZh": "洋葱/大蒜"
+    "name": "Onion",
+    "nameIt": "Cipolla",
+    "nameTh": "หัวหอม",
+    "nameMm": "ကြက်သွန်နီ",
+    "nameDe": "Zwiebel",
+    "nameEs": "Cebolla",
+    "nameFr": "Oignon",
+    "nameRu": "Лук",
+    "nameZh": "洋葱"
+  },
+  "ext-garlic": {
+    "name": "Garlic",
+    "nameIt": "Aglio",
+    "nameTh": "กระเทียม",
+    "nameMm": "ကြက်သွန်ဖြူ",
+    "nameDe": "Knoblauch",
+    "nameEs": "Ajo",
+    "nameFr": "Ail",
+    "nameRu": "Чеснок",
+    "nameZh": "大蒜"
   },
   "10086": {
     "name": "Sausage",
