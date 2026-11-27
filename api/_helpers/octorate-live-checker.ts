@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { ACCOMMODATIONS, ACCOMMODATION_IDENTITIES } from "../../src/booking/resort/config/accommodations.js";
+import { ALL_OCTORATE_STRUCTURE_IDS } from "./octorate-structures.js";
+import { getActiveJungleSource, getCompanionRateId } from "./octorate-jungle-mirror.js";
 
 export interface LiveRoomStatus {
   slug: string;
@@ -89,7 +91,8 @@ export async function checkOctorateLiveAvailability(params: {
   if (nights.length === 0) return defaultResult;
 
   const token = await getOctorateAccessToken();
-  const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
+  const sb = getSupabaseAdmin();
+  const activeJungleSource = await getActiveJungleSource(sb);
 
   if (!token) {
     console.warn("[OctorateLiveChecker] Nessun token Octorate disponibile.");
@@ -97,38 +100,62 @@ export async function checkOctorateLiveAvailability(params: {
   }
 
   try {
-    // Scarica la griglia per l'intervallo richiesto
-    const url = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${checkIn}&dateTo=${checkOut}&size=50&page=0`;
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/json"
-      }
-    });
+    // Scarica la griglia da tutte le strutture attive (366879, 807324, 619403) in parallelo
+    const ratePlans: any[] = [];
+    await Promise.all(
+      ALL_OCTORATE_STRUCTURE_IDS.map(async (structId) => {
+        if (activeJungleSource === '366879' && structId === '807324') return;
+        for (let page = 0; page < 10; page++) {
+          const url = `https://api.octorate.com/connect/rest/v1/calendar/${structId}?dateFrom=${checkIn}&dateTo=${checkOut}&size=50&page=${page}`;
+          const res = await fetch(url, {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Accept": "application/json"
+            }
+          });
+          if (!res.ok) break;
+          const json: any = await res.json();
+          const items: any[] = json?.data || (Array.isArray(json) ? json : []);
+          if (items.length === 0) break;
+          for (const it of items) {
+            const idNum = Number(it.id);
+            if (activeJungleSource === '807324' && structId === '366879' && idNum >= 960378 && idNum <= 960438) {
+              continue;
+            }
+            ratePlans.push(it);
+          }
+          if (items.length < 50) break;
+        }
+      })
+    );
 
-    if (!res.ok) {
-      console.warn(`[OctorateLiveChecker] Risposta Octorate API non ok: ${res.status}`);
+    if (ratePlans.length === 0) {
       return defaultResult;
     }
-
-    const json = await res.json();
-    const ratePlans: any[] = json?.data || (Array.isArray(json) ? json : []);
 
     // Mappa id octorate rate plan -> mappa date -> stato
     const ratePlanDayMap = new Map<number, Map<string, { available: boolean; stopSell: boolean; price: number }>>();
 
     for (const rp of ratePlans) {
-      const rpId = rp.id;
+      const rpId = Number(rp.id);
       const dayMap = new Map<string, { available: boolean; stopSell: boolean; price: number }>();
       if (Array.isArray(rp.days)) {
         for (const day of rp.days) {
-          const dStr = day.date;
-          const isAvail = day.available !== false && day.available !== 0 && !day.stopSell;
+          const dStr = String(day.date || "").slice(0, 10);
+          const priceNum = Number(day.price || 0);
+          const isAvail =
+            (day.availability === undefined || Number(day.availability) > 0) &&
+            day.available !== false &&
+            day.available !== 0 &&
+            !day.stopSell &&
+            !day.stopSells &&
+            !day.closed &&
+            priceNum < 10000;
           dayMap.set(dStr, {
             available: isAvail,
-            stopSell: Boolean(day.stopSell),
-            price: Number(day.price || 0)
+            stopSell: Boolean(day.stopSell || day.stopSells || day.closed),
+            price: priceNum
           });
         }
       }
@@ -138,9 +165,10 @@ export async function checkOctorateLiveAvailability(params: {
     const availableRooms: LiveRoomStatus[] = [];
     const occupiedRooms: LiveRoomStatus[] = [];
 
-    // Mappa ciascun alloggio canonico del resort
+    // Mappa ciascun alloggio canonico del resort (con supporto Twin Jungle + Fail-Closed)
     for (const ident of ACCOMMODATION_IDENTITIES) {
       const octorateId = ident.octorateId;
+      const companionId = octorateId ? getCompanionRateId(octorateId) : null;
       const roomConf = ACCOMMODATIONS.find(a => a.name.toLowerCase() === ident.name.toLowerCase() || a.octorateId === octorateId);
       const capacity = roomConf ? (roomConf.baseGuests + roomConf.maxExtraGuests) : 2;
 
@@ -148,8 +176,12 @@ export async function checkOctorateLiveAvailability(params: {
       const unavailableDates: string[] = [];
       let minPrice = roomConf ? roomConf.pricePerNight : 1800;
 
-      if (octorateId && ratePlanDayMap.has(octorateId)) {
-        const dMap = ratePlanDayMap.get(octorateId)!;
+      const dMap =
+        (octorateId && ratePlanDayMap.get(octorateId)) ||
+        (companionId && ratePlanDayMap.get(companionId)) ||
+        null;
+
+      if (dMap) {
         for (const night of nights) {
           const dInfo = dMap.get(night);
           if (!dInfo || !dInfo.available) {
@@ -160,8 +192,9 @@ export async function checkOctorateLiveAvailability(params: {
           }
         }
       } else {
-        // Se non mappato direttamente, consideriamo cautelativamente da verificare
-        isFullyFree = true;
+        // Fail-Closed: se non presente nei dati live Octorate, non dichiarare mai la camera libera
+        isFullyFree = false;
+        unavailableDates.push(...nights);
       }
 
       const statusItem: LiveRoomStatus = {

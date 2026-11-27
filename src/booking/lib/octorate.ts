@@ -524,6 +524,99 @@ const WHITELISTED_RATEPLAN_IDS: number[] = [
   449348, 449385, 449422, 449668, 449674, 449675, 449678, 449684,
   449699, 449724, 449730, 449736, 923905, 449742,
 ];
+
+/**
+ * Gruppi canonici di ID Octorate equivalenti per ciascun alloggio:
+ * gestisce in modo trasparente lo split dinamico Jungle Villas (807324) <-> Flower Power Village (366879)
+ * nonché il fallback tra tariffa BE e tariffa Madre.
+ */
+const EQUIVALENT_OCTORATE_ID_GROUPS: number[][] = [
+  [529784, 960403, 529773, 960389], // Jungle Villa (BE 807324, BE 366879, Mother 807324, Mother 366879)
+  [495807, 960415, 495795, 960385], // Jungle Villa Left
+  [495980, 960427, 495796, 960387], // Jungle Villa Right
+  [495566, 960391, 494840, 960383], // Peace & Love Villa
+  [449348, 421511], // Villa Penthouse
+  [449385, 293957], // Yellow Bungalow
+  [449422, 293954], // Red Bungalow
+  [449668, 293962], // Green Bungalow
+  [449675, 293965], // Camel Tent
+  [449674, 293955], // Lagoon Tent
+  [449678, 293963], // Room 1
+  [449684, 293959], // Room 2
+  [449699, 293948], // Room 3
+  [449724, 293945], // Room 4
+  [449730, 293943], // Room 5
+  [449736, 293951], // Lodge 1
+  [923905, 883795], // Lodge 2
+  [449742, 293942], // Internal Room
+];
+
+export function getEquivalentOctorateIds(octorateId: number | string | null | undefined): number[] {
+  const num = Number(octorateId);
+  if (!num || Number.isNaN(num)) return [];
+  for (const group of EQUIVALENT_OCTORATE_ID_GROUPS) {
+    if (group.includes(num)) return group;
+  }
+  return [num];
+}
+
+/**
+ * Trova l'item calendario Octorate corrispondente a un alloggio gestendo gli alias Twin Jungle (807324 <-> 366879)
+ * e dando priorità alle tariffe BE rispetto alle Madri.
+ */
+export function findMatchingOctorateRoom<T extends { id?: number | string }>(
+  octorateId: number | string | null | undefined,
+  roomsList: T[]
+): T | undefined {
+  const equivIds = getEquivalentOctorateIds(octorateId);
+  if (equivIds.length === 0 || !Array.isArray(roomsList) || roomsList.length === 0) return undefined;
+  for (const candidateId of equivIds) {
+    const found = roomsList.find((r) => Number(r?.id) === candidateId);
+    if (found) return found;
+  }
+  return undefined;
+}
+
+/**
+ * Risolve la disponibilità di un alloggio da `availabilityResults` gestendo gli alias Twin Jungle (807324 <-> 366879).
+ * Regola conservativa anti-overbooking: se sia la BE sia la Madre sono presenti e UNA delle due
+ * risulta fisicamente non disponibile, l'alloggio è considerato NON disponibile.
+ */
+export function findMatchingAvailability(
+  octorateId: number | string | null | undefined,
+  availabilityResults: AvailabilityResult[]
+): AvailabilityResult | undefined {
+  const equivIds = getEquivalentOctorateIds(octorateId);
+  if (equivIds.length === 0 || !Array.isArray(availabilityResults) || availabilityResults.length === 0) {
+    return undefined;
+  }
+
+  const matches: AvailabilityResult[] = [];
+  for (const candidateId of equivIds) {
+    const m = availabilityResults.find((a) => Number(a.accommodationId) === candidateId);
+    if (m) matches.push(m);
+  }
+  if (matches.length === 0) return undefined;
+
+  // Preferisce il primo match (BE ha priorità su Madre nell'ordine di EQUIVALENT_OCTORATE_ID_GROUPS)
+  const primary = matches[0];
+  const anyPhysicallyUnavailable = matches.some((m) => m.isPhysicallyAvailable === false);
+  const maxMinStay = Math.max(...matches.map((m) => Number(m.minStayRequired || 1)));
+
+  if (anyPhysicallyUnavailable) {
+    return {
+      ...primary,
+      available: false,
+      isPhysicallyAvailable: false,
+      minStayRequired: maxMinStay
+    };
+  }
+
+  return {
+    ...primary,
+    minStayRequired: maxMinStay
+  };
+}
 const PAGINATION_PARAM_NAME = "page";
 const PAGE_SIZE = 20;
 const MAX_PAGES_SAFETY_CAP = 30;
@@ -533,9 +626,10 @@ export async function checkAvailability(
   checkOut: string,
   guests: number
 ): Promise<AvailabilityResult[]> {
-  // 1. Try first via the optimized serverless backend endpoint (/api/resort/octorate-grid)
+  // 1. Try first via the optimized serverless backend endpoint (/api/octorate-grid?nocache=1)
+  // nocache=1 garantisce disponibilità sempre fresca (zero cache stantia di 5 minuti durante la ricerca date)
   try {
-    const gridRes = await fetch(`/api/octorate-grid?dateFrom=${checkIn}&dateTo=${checkOut}`);
+    const gridRes = await fetch(`/api/octorate-grid?dateFrom=${checkIn}&dateTo=${checkOut}&nocache=1`);
     if (gridRes.ok) {
       const payload = await gridRes.json();
       const items = payload && Array.isArray(payload.beGrid) && payload.beGrid.length > 0
@@ -650,11 +744,14 @@ function mapCalendarDataToAvailability(
         activeDaysCount++;
         totalPrice += day.price || 0;
         
-        // Accurately check availability from Octorate day indicators
+        // Accurately check availability from Octorate day indicators (inclusa regola chiusura >= 10.000 THB)
         if (day.availability !== undefined && day.availability <= 0) {
           isPhysicallyAvailable = false;
         }
         if (day.stopSells === true || day.stopSell === true || day.closed === true) {
+          isPhysicallyAvailable = false;
+        }
+        if (Number(day.price || 0) >= 10000) {
           isPhysicallyAvailable = false;
         }
         

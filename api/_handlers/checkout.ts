@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 import { getPayPalCredentials, getPayPalAccessToken } from "../_helpers/paypal.js";
 import { savePendingBookingAsync } from "../_helpers/pending-bookings.js";
-import { resolveOctorateBookingTarget } from "../_helpers/octorate-booking-target.js";
+import { verifyLiveAvailabilityForCheckout } from "../_helpers/octorate-availability-guard.js";
 import { createClient } from "@supabase/supabase-js";
 
 function getSupabaseClient() {
@@ -226,86 +226,43 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
       discount = 0.10;
     }
 
-    // Check Octorate Live Rates first
+    // 🛡️ BARRIERA 2 (HARD GATE FAIL-CLOSED): Verifica disponibilità live su Octorate
+    // Controlla calendario notte-per-notte (struttura attiva), prenotazioni reali (su entrambe le
+    // strutture gemelle per le 4 Jungle Villas + unità collegate JV <-> JVL/JVR) e soft-hold 15 min.
     let baseRoomPricePerNight = 0;
     let solvedFromOctorate = false;
 
-    // Load tokens from Supabase if available
     const supabase = getSupabaseClient();
-    let tokenData: any = null;
-    if (supabase) {
-      const res = await supabase
-        .from("octorate_tokens")
-        .select("access_token")
-        .eq("id", "singleton")
-        .maybeSingle();
-      tokenData = res.data;
-    }
 
-    if (tokenData?.access_token) {
-      try {
-        const octTarget = await resolveOctorateBookingTarget(accommodationId, supabase, room.name);
-        const structureId = octTarget.structureId;
-        let targetRoom: any = null;
-        let page = 1;
-        const maxPages = 10;
+    if (!isSimulatedTest) {
+      const guard = await verifyLiveAvailabilityForCheckout({
+        accommodationId,
+        roomNameHint: room.name,
+        checkIn,
+        checkOut,
+        lang: lang || "EN",
+        supabaseAdmin: supabase
+      });
 
-        while (page <= maxPages) {
-          const octUrl = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${checkIn}&dateTo=${checkOut}&page=${page}&size=50`;
-          const octRes = await fetch(octUrl, {
-            headers: {
-              "Authorization": `Bearer ${tokenData.access_token}`,
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            }
-          });
+      if (!guard.ok) {
+        console.warn(
+          `[Checkout API] 🛡️ BLOCKED (${guard.statusCode} ${guard.errorCode}) for ${room.name} (${accommodationId}) ${checkIn} -> ${checkOut}: ${guard.reason}`
+        );
+        return res.status(guard.statusCode).json({
+          error: guard.localizedMessage || guard.reason || "Accommodation unavailable for selected dates.",
+          errorCode: guard.errorCode,
+          unavailableDates: guard.unavailableDates,
+          minStayRequired: guard.minStayRequired
+        });
+      }
 
-          if (!octRes.ok) break;
-
-          const octJson = await octRes.json();
-          const items = Array.isArray(octJson) ? octJson : (octJson.data || []);
-          if (items.length === 0) break;
-
-          targetRoom = items.find((item: any) =>
-            item.id === octTarget.productId ||
-            item.room === octTarget.productId ||
-            item.id === octTarget.motherId ||
-            item.room === octTarget.motherId ||
-            item.id === Number(accommodationId) ||
-            item.room === Number(accommodationId)
-          );
-          if (targetRoom && targetRoom.days && targetRoom.days.length > 0) break;
-
-          if (items.length < 50) break;
-          page++;
-        }
-
-        if (targetRoom && targetRoom.days && targetRoom.days.length > 0) {
-          // Verify Octorate minStay restriction
-          let maxMinStayRequired = 1;
-          targetRoom.days.forEach((d: any) => {
-            const ms = Number(d.minStay || d.minstay || 1);
-            if (ms > maxMinStayRequired) maxMinStayRequired = ms;
-          });
-
-          if (nights < maxMinStayRequired) {
-            return res.status(400).json({
-              error: `Soggiorno minimo non rispettato. Questo alloggio richiede almeno ${maxMinStayRequired} notti.`
-            });
-          }
-
-          const totalPriceFromOct = targetRoom.days.reduce((acc: number, day: any) => acc + (day.price || 0), 0);
-          if (totalPriceFromOct > 0) {
-            baseRoomPricePerNight = Math.round(totalPriceFromOct / targetRoom.days.length);
-            solvedFromOctorate = true;
-          }
-        }
-      } catch (octErr) {
-        console.warn("[Stripe API] Octorate live rate fetch failed, falling back to local prices:", octErr);
+      if (guard.averageNightlyPrice && guard.averageNightlyPrice > 0) {
+        baseRoomPricePerNight = guard.averageNightlyPrice;
+        solvedFromOctorate = true;
       }
     }
 
-    // Fallback if Octorate was not available
+    // Fallback prezzo (solo per test simulato o se Octorate non restituisce prezzo > 0 pur confermando disponibilità)
     if (!solvedFromOctorate) {
       baseRoomPricePerNight = isLowSeason ? room.base_price_low : room.base_price_high;
     }

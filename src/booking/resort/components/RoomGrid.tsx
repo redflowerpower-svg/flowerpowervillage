@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Coffee, Wind, Image as ImageIcon, X, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { fetchAccommodations, EnrichedAccommodation } from '../../data/accommodationsService';
-import { checkAvailability } from '../../lib/octorate';
+import { checkAvailability, findMatchingAvailability, findMatchingOctorateRoom } from '../../lib/octorate';
 import { translations, Language } from '../../lib/translations';
 import { PRICE_CONFIG, findAccommodationIdentity, ACCOMMODATION_IDENTITIES, getAccommodationAcConfig, formatAccommodationCategory, formatAccommodationBeds } from '../config/accommodations';
 import { useResortAdminStore } from '../../../admin/resort/store/useResortAdminStore';
@@ -394,7 +394,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     let isLiveFromOctorate = false;
 
     if (room.octorateId) {
-      const octorateMatch = octorateRooms.find((r) => Number(r.id) === Number(room.octorateId));
+      const octorateMatch = findMatchingOctorateRoom(room.octorateId, octorateRooms);
       if (octorateMatch) {
         const days = Array.isArray(octorateMatch.days) ? octorateMatch.days : [];
         const validDays = days.filter((d: any) => d.price && d.price > 0);
@@ -434,17 +434,25 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     }
 
     // After availability check: hide rooms that are physically booked/blocked by Octorate.
-    // NOTE: If a room is physically free but requires more nights (minStay constraint),
-    // we KEEP it in filteredRooms so the guest sees the room with the minStay notice and extend button.
+    // FAIL-CLOSED + TWIN JUNGLE SUPPORT: se l'alloggio non compare nei dati live Octorate o risulta
+    // occupato (su 366879 o 807324), viene nascosto. Per Jungle Villa intera (529784) nasconde anche
+    // se una delle due metà collegate (JVL 495807 / JVR 495980) è occupata.
     if (availabilityChecked && !loadingAvailability && !isOctorateOffline && availabilityResults.length > 0 && room.octorateId) {
-      const availMatch = availabilityResults.find((a) => String(a.accommodationId) === String(room.octorateId));
-      if (availMatch) {
-        // If availMatch explicitly reports physically unavailable (booked/closed), filter it out
-        if (availMatch.isPhysicallyAvailable === false) {
-          return false;
-        }
-        // If neither available nor physically available (legacy fallback)
-        if (!availMatch.available && availMatch.isPhysicallyAvailable === undefined) {
+      const availMatch = findMatchingAvailability(room.octorateId, availabilityResults);
+      if (!availMatch) {
+        return false;
+      }
+      if (availMatch.isPhysicallyAvailable === false) {
+        return false;
+      }
+      if (!availMatch.available && availMatch.isPhysicallyAvailable === undefined) {
+        return false;
+      }
+      // Protezione unità collegate: Jungle Villa intera richiede libere sia JVL che JVR
+      if (Number(room.octorateId) === 529784) {
+        const jvlMatch = findMatchingAvailability(495807, availabilityResults);
+        const jvrMatch = findMatchingAvailability(495980, availabilityResults);
+        if (jvlMatch?.isPhysicallyAvailable === false || jvrMatch?.isPhysicallyAvailable === false) {
           return false;
         }
       }
@@ -467,7 +475,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
 
     // Use dynamic availability/price if Octorate is online and we have results
     if (!isOctorateOffline && availabilityResults.length > 0 && item.octorateId) {
-      const availMatch = availabilityResults.find((a) => String(a.accommodationId) === String(item.octorateId));
+      const availMatch = findMatchingAvailability(item.octorateId, availabilityResults);
       if (availMatch) {
         minStayRequired = availMatch.minStayRequired || 1;
         isPhysicallyAvailable = availMatch.isPhysicallyAvailable !== undefined ? availMatch.isPhysicallyAvailable : availMatch.available;
@@ -494,7 +502,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
 
     // Floor price check
     if (item.octorateId) {
-      const octorateMatch = octorateRooms.find((r) => r.id === item.octorateId);
+      const octorateMatch = findMatchingOctorateRoom(item.octorateId, octorateRooms);
       if (octorateMatch && octorateMatch.minimumSellingPrice) {
         if (usingDynamicPrice && basePrice < octorateMatch.minimumSellingPrice) {
           console.warn(`[Octorate Warning] Dynamic price (${basePrice} THB) for ${item.name} is lower than safety floor (${octorateMatch.minimumSellingPrice} THB). Forcing safety floor.`);

@@ -10,6 +10,8 @@ import {
 import { resolveOctorateBookingTarget } from "../_helpers/octorate-booking-target.js";
 import { mirrorReservationToStandby } from "../_helpers/octorate-jungle-mirror.js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
+import { verifyLiveAvailabilityForCheckout } from "../_helpers/octorate-availability-guard.js";
+import { clearOctorateGridCache } from "./octorate.js";
 import * as https from "https";
 
 // Robust HTTP POST using Node built-in https — avoids global fetch() issues in vercel dev on Windows
@@ -59,6 +61,7 @@ export interface FinalizeBookingInput {
 export interface FinalizeBookingResult {
   paid: boolean;
   alreadyProcessed?: boolean;
+  overbookingBlocked?: boolean;
   stripeSessionId: string;
   paymentIntentId: string;
   octorateReservationId: string | null;
@@ -185,6 +188,81 @@ export async function finalizeWebsiteBooking(input: FinalizeBookingInput): Promi
     sb,
     accommodationName || metadata?.roomName || ""
   );
+
+  // 1a. 🛡️ BARRIERA 3 (PRE-INSERT RACE CONDITION GATE):
+  // Verifica live su Octorate prima di forzare POST /reservation/{structureId}.
+  // Se un'OTA (Booking/Airbnb/Agoda) ha prenotato nei 2 minuti mentre il cliente pagava su Ksher/Stripe,
+  // blocca l'inserimento in overbooking e invia subito un allarme rosso critico allo staff.
+  const preInsertGuard = await verifyLiveAvailabilityForCheckout({
+    accommodationId,
+    roomNameHint: target.roomName || accommodationName || metadata?.roomName || "",
+    checkIn,
+    checkOut,
+    lang: metadata?.lang || "EN",
+    supabaseAdmin: sb,
+    excludeSessionId: sessionId,
+    skipSoftHoldCheck: true
+  });
+
+  if (!preInsertGuard.ok && preInsertGuard.statusCode === 409) {
+    const conflictDetail = preInsertGuard.conflictingReservation
+      ? `Conflitto con prenotazione #${preInsertGuard.conflictingReservation.id} (${preInsertGuard.conflictingReservation.channelName}, ${preInsertGuard.conflictingReservation.roomName}, ${preInsertGuard.conflictingReservation.checkIn} → ${preInsertGuard.conflictingReservation.checkOut} su struttura ${preInsertGuard.conflictingReservation.structureId})`
+      : (preInsertGuard.reason || "Date risultate occupate su Octorate durante il pagamento");
+
+    console.error(`[Verify API] 🚨 OVERBOOKING BLOCKED PRE-INSERT for session ${sessionId}: ${conflictDetail}`);
+
+    try {
+      const alertLines = [
+        `🚨 <b>OVERBOOKING BLOCCATO AUTOMATICO — PAGAMENTO GIA' INCASSATO!</b>`,
+        ``,
+        `🛡️ <b>Il sistema ha impedito la creazione della doppia prenotazione su Octorate.</b>`,
+        `⚠️ <b>AZIONE IMMEDIATA RICHIESTA:</b> Contattare subito l'ospite per rimborso o proposta di alloggio alternativo!`,
+        ``,
+        `👤 <b>Ospite:</b> ${guestName || "-"}`,
+        `📧 <b>Email:</b> ${guestEmail || "-"}`,
+        `📞 <b>Telefono:</b> ${guestPhone || "-"}`,
+        `🏡 <b>Alloggio richiesto:</b> ${target.roomName || accommodationName || `#${accommodationId}`} (Struttura ${target.structureId})`,
+        `📅 <b>Soggiorno:</b> ${checkIn} → ${checkOut}`,
+        `💰 <b>Caparra Incassata:</b> ${depositPaidAmt.toLocaleString("en")} ฿ | <b>Totale:</b> ${finalTotalAmt.toLocaleString("en")} ฿`,
+        `🧾 <b>Sessione Gateway:</b> <code>${sessionId}</code> (${isKsher ? "Ksher" : "Stripe"})`,
+        `⚡ <b>Motivo Blocco:</b> ${conflictDetail}`
+      ];
+      await sendDepartmentTelegramMessage("village", alertLines.join("\n"), { topic: "ALERTS_OVERBOOKING" });
+    } catch (tgErr) {
+      console.error("[Verify API] Failed to send overbooking-blocked Telegram alert:", tgErr);
+    }
+
+    if (isKsher && sb) {
+      await updatePendingBookingStatusAsync(
+        sessionId,
+        {
+          status: "overbooking_blocked",
+          octorateReservationId: null,
+          octorateStructureId: target.structureId,
+          octorateError: conflictDetail
+        },
+        sb
+      );
+    }
+
+    return {
+      paid: true,
+      overbookingBlocked: true,
+      stripeSessionId: sessionId,
+      paymentIntentId,
+      octorateReservationId: null,
+      octorateStructureId: target.structureId,
+      octorateProductId: target.productId,
+      octorateStatus: "overbooking_blocked",
+      octorateError: conflictDetail,
+      finalTotal: finalTotalAmt,
+      depositPaid: depositPaidAmt,
+      balanceDue: balanceDueAmt,
+      promoCode: promoCodeVal,
+      discountAmount: discountAmountVal,
+      bookingData: buildBookingData()
+    };
+  }
 
   let octorateReservationId: string | null = null;
   let octorateStatus: string | null = null;
@@ -360,6 +438,8 @@ export async function finalizeWebsiteBooking(input: FinalizeBookingInput): Promi
         const octData = JSON.parse(octRaw.body);
         octorateReservationId = String(octData.id || octData.reservationId || "") || null;
         octorateStatus = "confirmed";
+        // Invalida subito la cache in-memory della griglia Octorate così la camera sparisce immediatamente dal sito
+        try { clearOctorateGridCache(); } catch {}
         console.log(`[Verify API] Octorate reservation created: #${octorateReservationId} on structure ${target.structureId} (product ${usedProductId})`);
 
         if (octorateReservationId) {
