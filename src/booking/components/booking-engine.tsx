@@ -481,7 +481,20 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
       setPromoError(null);
 
       // Octorate reservation is now handled server-side in verify-checkout-session.ts
-      if (octorateReservationId && octorateStatus === "confirmed") {
+      if (verifyData.overbookingBlocked || octorateStatus === "overbooking_blocked") {
+        console.error("[Verify API] Overbooking blocked post-payment:", octorateError)
+        const msg =
+          lang === 'IT'
+            ? `Attenzione: mentre stavi completando il pagamento, questo alloggio è stato appena prenotato su un altro canale. Il tuo acconto è al sicuro e il nostro staff è già stato avvisato con priorità massima per offrirti un'alternativa immediata o il rimborso completo (rif. ${sessionId}).`
+            : lang === 'TH'
+              ? `ขออภัย ระหว่างที่คุณกำลังชำระเงิน ที่พักนี้เพิ่งถูกจองจากช่องทางอื่น เงินมัดจำของคุณปลอดภัยและทีมงานของเราได้รับแจ้งด่วนแล้วเพื่อติดต่อกลับเสนอที่พักทดแทนหรือคืนเงินเต็มจำนวน (อ้างอิง ${sessionId})`
+              : lang === 'DE'
+                ? `Hinweis: Während Sie die Zahlung abgeschlossen haben, wurde diese Unterkunft soeben über einen anderen Kanal gebucht. Ihre Anzahlung ist sicher und unser Team wurde sofort alarmiert, um Ihnen eine Alternative oder vollständige Rückerstattung anzubieten (Ref. ${sessionId}).`
+                : `Important: While you were completing payment, this accommodation was just booked on another channel. Your deposit is safe and our team has been alerted with top priority to arrange an alternative accommodation or full refund immediately (ref. ${sessionId}).`
+        alert(msg)
+        setSelectedRoom(null)
+        return null
+      } else if (octorateReservationId && octorateStatus === "confirmed") {
         setBookingId(octorateReservationId)
         setIsBooked(true)
         return octorateReservationId
@@ -1003,6 +1016,10 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
       }
 
       if (!response.ok) {
+        if (response.status === 409) {
+          // Camera non più disponibile / minStay / soft-hold: riporta alla griglia aggiornata
+          setSelectedRoom(null)
+        }
         throw new Error(session?.error || session?.message || "Impossibile avviare la sessione di pagamento.")
       }
 

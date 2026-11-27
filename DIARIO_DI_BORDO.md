@@ -4274,3 +4274,19 @@
 - **Verifica**: `npx tsc --noEmit` (0 errori), `security-audit.mjs` (0 secrets), unit test routing 18/18 alloggi PASS.
 - **Verifica generale & Fix Bug #5 (Email conferma crashata)**: Dai log di produzione Vercel è emerso che **100% delle email di conferma** del sito fallivano con `ReferenceError: nights is not defined` in `api/_helpers/booking-confirmation.ts` (riga 668). Corretto definendo `nights = getNightsCount(...)`, aggiunto fallback lookup camera per nome e aggiunto `bcc: flowerpowerphayam@gmail.com` per avere sempre copia in casella. Verificato anche conflitto overbooking tra **Michelle Kamusin (#130607217, Jungle Villa 03–10/12)** e **Jacob Zonneveld (#130288812, Jungle Villa Left 30/11–05/12)**.
 - **Spostamento Michelle Kamusin (#130607217) → Jungle Villa Right & Fix `checkout.ts`**: Spostata la prenotazione `#130607217` su `366879` a **Jungle Villa Right (`960427`)** e il mirror `#130607218` su `807324` a **Jungle Villa Right 2 (`495796`)** (`03/12/2026 → 10/12/2026`, Totale `15,120 ฿`, Acconto `9,435 ฿`, Saldo `5,685 ฿`, conflitto overbooking con Jacob Zonneveld risolto al 100%, 10 tariffe derivate `jvr` sigillate con Auto-Shield). Corretto inoltre il bug di matching in `api/_handlers/checkout.ts` che scambiava *Jungle Villa Right / Left* per *Jungle Villa*.
+
+
+---
+
+## 🛡️ 27 Novembre 2026 — Blindatura "Zero Overbooking Assoluto" (5 Barriere + Split 807324 ↔ 366879)
+
+- **Branch**: `staging`
+- **Causa forense individuata (caso `FPBK28247698` — Jungle Villa Left, 14–17 Gen 2027)**:
+  1. Con lo switch attivo su `366879`, la griglia `/village` cercava ancora il vecchio codice `495807` invece di `960415` e mostrava le 4 Jungle Villas come sempre libere (*fail-open*).
+  2. Il checkout backend (`checkout.ts`) controllava su Octorate solo `minStay` e prezzo, senza verificare disponibilità, `Stop Sell` o prenotazioni già confermate.
+  3. La conferma finale (`verify.ts`) scriveva su Octorate senza un controllo anti-race condition finale e senza svuotare subito la cache della griglia.
+- **Interventi consolidati**:
+  - Creato guard centrale [octorate-availability-guard.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/octorate-availability-guard.ts) con controllo calendario live notte-per-notte sulla struttura attiva, doppio controllo prenotazioni reali su **entrambe** le strutture gemelle (`366879` + `807324`) per le 4 Jungle Villas, controllo unità collegate (`Jungle Villa ↔ JVL / JVR`), Soft-Hold 15 minuti in [pending-bookings.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/pending-bookings.ts) e modalità *Fail-Closed* (`503`) se Octorate non risponde.
+  - Aggiornati [checkout.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/checkout.ts), [verify.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/verify.ts) e [octorate-live-checker.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/octorate-live-checker.ts) (incluso blocco pre-inserimento con allarme rosso Telegram `ALERTS_OVERBOOKING` e svuotamento immediato cache griglia).
+  - Aggiornati [octorate.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/lib/octorate.ts), [RoomGrid.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/resort/components/RoomGrid.tsx) e [booking-engine.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/components/booking-engine.tsx) con mappatura bidirezionale ID gemelli `807324 ↔ 366879`, bypass cache su ricerca date (`nocache=1`), regola chiusura `≥ 10.000 ฿` e *Fail-Closed* in UI.
+- **Verifiche eseguite**: `npx tsc --noEmit` (0 errori), 9/9 test forensi superati in `scratch/test_zero_overbooking.mjs`, `npm run api:check` e `vite build` completati con successo (`main.js` 211.7 kB).

@@ -5,6 +5,7 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
+import { getCanonicalAccommodation } from "./octorate-catalog.js";
 
 export interface PendingBookingRecord {
   sessionId: string;
@@ -32,7 +33,7 @@ export interface PendingBookingRecord {
   discountAmount?: number;
   lang?: string;
   origin?: string;
-  status?: 'pending' | 'processing' | 'confirmed' | 'octorate_failed';
+  status?: 'pending' | 'processing' | 'confirmed' | 'octorate_failed' | 'overbooking_blocked';
   octorateReservationId?: string | null;
   octorateStructureId?: string | null;
   octorateError?: string | null;
@@ -176,4 +177,73 @@ export async function updatePendingBookingStatusAsync(
 
   await savePendingBookingAsync(merged, supabaseAdmin);
   return merged;
+}
+
+const SOFT_HOLD_TTL_MS = 15 * 60 * 1000; // 15 minuti di blocco soft durante il pagamento
+
+/**
+ * Verifica se esiste già un checkout attivo (status 'pending' o 'processing' creato negli ultimi 15 minuti)
+ * per lo stesso alloggio o un'unità collegata (es. Jungle Villa <-> JVL/JVR) su date sovrapposte.
+ */
+export async function findConflictingPendingBookingsAsync(params: {
+  canonicalKey: string;
+  linkedKeys: string[];
+  checkIn: string;
+  checkOut: string;
+  excludeSessionId?: string;
+  supabaseAdmin?: any;
+}): Promise<PendingBookingRecord | null> {
+  const { canonicalKey, linkedKeys, checkIn, checkOut, excludeSessionId, supabaseAdmin } = params;
+  if (!canonicalKey || !checkIn || !checkOut) return null;
+
+  const client = supabaseAdmin || getDefaultSupabaseAdmin();
+  if (!client) return null;
+
+  const conflictKeys = new Set<string>([canonicalKey, ...linkedKeys]);
+  const cutoffIso = new Date(Date.now() - SOFT_HOLD_TTL_MS).toISOString();
+  const reqIn = String(checkIn).slice(0, 10);
+  const reqOut = String(checkOut).slice(0, 10);
+
+  try {
+    const { data: rows } = await client
+      .from("telegram_config")
+      .select("id, bot_token, chat_id, updated_at")
+      .like("id", `${PENDING_KEY_PREFIX}%`)
+      .in("chat_id", ["pending", "processing"])
+      .gte("updated_at", cutoffIso);
+
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+
+    for (const row of rows) {
+      if (!row?.bot_token) continue;
+      let rec: PendingBookingRecord | null = null;
+      try {
+        rec = JSON.parse(row.bot_token) as PendingBookingRecord;
+      } catch {
+        continue;
+      }
+      if (!rec?.sessionId) continue;
+      if (excludeSessionId && rec.sessionId === excludeSessionId) continue;
+      if (rec.status && rec.status !== "pending" && rec.status !== "processing") continue;
+
+      const ageMs = Date.now() - Number(rec.updatedAt || rec.createdAt || 0);
+      if (ageMs > SOFT_HOLD_TTL_MS) continue;
+
+      const recCanonical = getCanonicalAccommodation({
+        accommodation_id: rec.accommodationId,
+        roomName: rec.accommodationName
+      });
+      if (!recCanonical || !conflictKeys.has(recCanonical.key)) continue;
+
+      const rIn = String(rec.checkIn || "").slice(0, 10);
+      const rOut = String(rec.checkOut || "").slice(0, 10);
+      if (rIn && rOut && rIn < reqOut && reqIn < rOut) {
+        return rec;
+      }
+    }
+  } catch (err) {
+    console.warn("[PendingBookings] Soft-hold check warning:", err);
+  }
+
+  return null;
 }
