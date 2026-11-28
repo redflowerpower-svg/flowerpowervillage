@@ -15,11 +15,16 @@ const SECRET_REGEXES = [
   { name: 'Hardcoded Google App Password (4x4)', regex: /['"][a-z]{4}\s+[a-z]{4}\s+[a-z]{4}\s+[a-z]{4}['"]/ },
   { name: 'DeepSeek API Key', regex: /sk-[0-9a-zA-Z]{32,}/ },
   { name: 'Google Maps Key Literal in Backend', regex: /AIzaSy[0-9a-zA-Z_-]{33}/ },
+  { name: 'AWS Access Key ID', regex: /AKIA[0-9A-Z]{16}/ },
+  { name: 'GitHub Personal Access Token', regex: /(ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9_]{22,})/ },
+  { name: 'OpenAI / Anthropic API Key', regex: /sk-(proj|ant)-[a-zA-Z0-9_-]{20,}/ },
+  { name: 'Private Key Block (RSA/EC/SSH)', regex: /-----BEGIN (RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/ },
+  { name: 'Database URI with Plaintext Password', regex: /postgres(ql)?:\/\/[^:\s"']+:[^@\s"']+@/ },
 ];
 
 // Folders to scan
 const SCAN_DIRS = ['api', 'src', '.agents', 'documentation_reports', 'scripts'];
-const IGNORED_FILES = ['.secret_docs', 'package-lock.json', 'clean-jwt.mjs'];
+const IGNORED_FILES = ['.secret_docs', 'package-lock.json', 'clean-jwt.mjs', 'antigravity-secret-guard.mjs', 'security-audit.mjs'];
 
 function isIgnored(fileName) {
   return fileName.startsWith('.env') || fileName.endsWith('.enc') || IGNORED_FILES.includes(fileName);
@@ -93,4 +98,5 @@ if (issues.length === 0) {
     console.log(`❌ [${issue.rule}] in ${issue.file}:${issue.line}`);
     console.log(`   > ${issue.preview}\n`);
   }
+  process.exit(1);
 }
