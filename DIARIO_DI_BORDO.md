@@ -3,6 +3,28 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🛡️ [28/11/2026 - ORE 10:49] · SCUDO ANTI-LEAK NATIVO ANTIGRAVITY (100% OFFLINE) & POTENZIAMENTO AUDIT SEGRETI
+- **Cosa abbiamo fatto:**
+  1. 🔒 **Scudo Nativo Antigravity ([.agents/hooks.json](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/.agents/hooks.json) & [antigravity-secret-guard.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/antigravity-secret-guard.mjs))**:
+     - Attivato il controllo preventivo nativo `PreToolUse` (100% locale, zero account esterni, zero dipendenze, modalità *fail-safe*) che blocca all'istante qualsiasi lettura accidentale di `.env`, `.env.*` o `.secret_docs/*.md` in chiaro e qualsiasi comando terminale contenente chiavi API o segreti in chiaro.
+  2. 🔎 **Potenziamento Audit & Git Pre-Commit ([security-audit.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scratch/security-audit.mjs), [install-git-hooks.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/install-git-hooks.mjs))**:
+     - Aggiunti i pattern internazionali (AWS, GitHub Token, OpenAI/Anthropic, Chiavi Private RSA/SSH/PEM, URI Database con password) e uscita bloccante `exit(1)` in caso di anomalie. Installato l'hook locale `.git/hooks/pre-commit`.
+  3. 🚨 **Bonifica & Migrazione Completa Chiave Privata Ksher ([api/_helpers/ksher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/ksher.ts) → Vault + `.env` + Vercel)**:
+     - Al primo giro il nuovo audit ha individuato una **chiave privata RSA hardcoded** alla riga 40 di `ksher.ts`. Spostata automaticamente nel Vault cifrato (`.secret_docs/api_credentials_report.md.enc`), sincronizzata in `.env` e `.env.local`, e caricata come `Secret` su Vercel (**Production** e **Preview**). Rimossa definitivamente dal codice sorgente.
+- **Verifica:** Firma `RSA-MD5` Ksher letta da `.env` **100% identica a prima** + `9/9` test automatici verdi sullo scudo `antigravity-secret-guard.mjs` + test live di blocco reale `PreToolUse` su `Get-Content .env` + `node scratch/security-audit.mjs` (`0 SECRETS DETECTED`, exit `0`) + `npm run api:check` (`0` errori) + `.git/hooks/pre-commit` installato.
+- **Stato:** 🟢 COMPLETATO AL 100% E CERTIFICATO IN LOCALE SU `staging` & VERCEL CLOUD (zero azioni manuali richieste).
+
+---
+
+### 🔓 [27/11/2026 - ORE 17:41] · SBLOCCO CANCELLAZIONE MANCATA BOOKING.COM (#6679383468 — RED BUNGALOW 16-21 DICEMBRE)
+- **Cosa abbiamo fatto:**
+  1. 🔎 **Diagnosi Email Booking.com (*Cancellation missed*)**: Verificato Octorate in tempo reale sulla struttura `366879` (Flower Power Village): la prenotazione Booking.com `6679383468` (ID Octorate `#130555719`, ospite **Elina Fridman**, **Red Bungalow** `Red Main bnb-14d`, **16–21 Dicembre 2026**, `10,857.75 ฿`) risultava ancora `CONFIRMED`, bloccando 5 notti di alta stagione su tutti i canali.
+  2. ⚡ **Cancellazione Diretta su Octorate**: Eseguita cancellazione via API (`DELETE /reservation/366879/130555719` → HTTP 200 OK). Lo stato è passato immediatamente a `CANCELLED`.
+  3. 🛡️ **Verifica Riapertura Multi-Canale**: Confermato che su Octorate (`Red Bungalow` `293954`, `Red BE` `449422`, `Red Main bnb-14d` `332030`) e sul sito diretto `flowerpowervillage.com/api/octorate-grid` tutte e 5 le notti (`16, 17, 18, 19, 20 Dicembre 2026`) sono tornate **libere (`availability: 1`, `bookable: true`, `stopSells: false`, `minStay: 5`)**.
+- **Stato:** 🟢 COMPLETATO & VERIFICATO LIVE SU OCTORATE E SITO DIRETTO.
+
+---
+
 ### 🔧 [26/11/2026 - ORE 18:44] · RIPARAZIONE DEFINITIVA DI TUTTI I 36 LINK DIRETTI AGLI ALLOGGI (FIX 404 "ALLOGGIO NON TROVATO")
 - **Cosa abbiamo fatto:**
   1. 🔎 **Diagnosi dei 3 Bug Sovrapposti (Segnalazione Jungle Villa Right)**:
