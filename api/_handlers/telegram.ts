@@ -1947,6 +1947,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
           }
         );
         await sendSwitchNotice(
+          `❗️❗️❗️❗️❗️❗️❗️❗️❗️❗️\n` +
           `🚨 <b>AVVISO: Switch bloccato dal Cancello di Sicurezza!</b>\n` +
           `Controlla i dettagli nel messaggio qui sopra.`
         );

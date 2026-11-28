@@ -62,6 +62,9 @@ async function sendTelegramAlert(text) {
     console.warn('[sentinel] Token Telegram non disponibile per allerta');
     return;
   }
+  const finalText = String(text || '').trimStart().startsWith('❗️❗️❗️')
+    ? text
+    : `❗️❗️❗️❗️❗️❗️❗️❗️❗️❗️\n${text}`;
   try {
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
@@ -69,7 +72,7 @@ async function sendTelegramAlert(text) {
       body: JSON.stringify({
         chat_id: chatId,
         message_thread_id: TOPIC_FAILED,
-        text,
+        text: finalText,
         parse_mode: 'HTML'
       })
     });

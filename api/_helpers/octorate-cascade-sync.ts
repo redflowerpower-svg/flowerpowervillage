@@ -10,6 +10,7 @@
  *   eseguita sia dal portale Octorate sia dalla Dashboard.
  */
 import { formatDateDMY, formatAllDatesToDMY } from "./date-formatter.js";
+import { applyCriticalAlertBanner } from "./telegram.js";
 import { ALL_OCTORATE_STRUCTURE_IDS } from "./octorate-structures.js";
 import {
   computeStandbyKeepAlivePrice,
@@ -381,7 +382,7 @@ async function sendTelegramAlert(supabase: any, message: string): Promise<void> 
       return;
     }
 
-    const cleanMessage = formatAllDatesToDMY(message);
+    const cleanMessage = applyCriticalAlertBanner(formatAllDatesToDMY(message));
     await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

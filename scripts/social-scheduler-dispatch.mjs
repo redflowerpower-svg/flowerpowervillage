@@ -1618,8 +1618,16 @@ async function publishToTikTokDraft({ videoBuffer, brand = 'pizza' }) {
 
 // Invia messaggio di testo/foto a Telegram Topic (per post gruppi)
 async function sendMessageToTelegram({ topicId, text, photoUrl }) {
+  const isCriticalSocialAlert =
+    topicId === TOPIC_FAILED ||
+    /^\s*(?:<[^>]+>\s*)*🚨/.test(String(text || ''));
+  const finalText =
+    isCriticalSocialAlert && !String(text || '').trimStart().startsWith('❗️❗️❗️')
+      ? `❗️❗️❗️❗️❗️❗️❗️❗️❗️❗️\n${text}`
+      : text;
+
   if (dryRun) {
-    console.log(`[DRY-RUN] Messaggio su Telegram Topic ${topicId}:\n${text}`);
+    console.log(`[DRY-RUN] Messaggio su Telegram Topic ${topicId}:\n${finalText}`);
     return { ok: true, dryRun: true };
   }
 
@@ -1634,7 +1642,7 @@ async function sendMessageToTelegram({ topicId, text, photoUrl }) {
         chat_id: chatId,
         message_thread_id: topicId,
         photo: photoUrl,
-        caption: text
+        caption: finalText
       })
     }), { maxAttempts: 3, timeoutMs: 30000, label: 'Telegram sendPhoto' });
     return res.json();
@@ -1645,7 +1653,7 @@ async function sendMessageToTelegram({ topicId, text, photoUrl }) {
       body: JSON.stringify({
         chat_id: chatId,
         message_thread_id: topicId,
-        text: text,
+        text: finalText,
         parse_mode: 'HTML'
       })
     }), { maxAttempts: 3, timeoutMs: 30000, label: 'Telegram sendMessage' });
