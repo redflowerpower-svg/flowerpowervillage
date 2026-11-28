@@ -3,6 +3,19 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🛡️ [28/11/2026 - ORE 14:38] · FIX FALSI ALLARMI TELEGRAM STANDBY JUNGLE VILLAS & ESTENSIONE SENTINELLA GIORNALIERA
+- **Cosa abbiamo fatto:**
+  1. 🔎 **Diagnosi Avviso `#126153528` (Robyn Koopman)**: Verificato live su Octorate che tutte le **52/52 tariffe** di Jungle Villas (`807324`) sono chiuse al 100% (Stop Sell attivo). La prenotazione `#126153528` era stata creata il **13 settembre 2026** (2 mesi prima dello switch del 14 novembre) e solo modificata su Airbnb il 25 novembre (`16–21 Gen 2027`), generando un falso allarme rosso su Telegram.
+  2. 🔔 **Classificazione Intelligente Avvisi Standby ([octorate-jungle-mirror.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/octorate-jungle-mirror.ts) & [octorate-webhook.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/octorate-webhook.ts))**:
+     - Introdotto `getActiveJungleSourceWithMeta` + `classifyStandbyBookingAlert`: l'allarme rosso `🚨 PRENOTAZIONE RICEVUTA SU STRUTTURA IN STANDBY` ora scatta **solo ed esclusivamente** per **nuove prenotazioni create dopo lo switch** (o in modalità fail-safe se manca la data di creazione).
+     - Le modifiche a prenotazioni storiche pre-switch inviano invece una normale notifica `🟡 PRENOTAZIONE MODIFICATA` con una nota chiara che conferma la sincronizzazione automatica sulla struttura attiva, senza falsi allarmi nel pannello `/switchvillas`.
+  3. 🛡️ **Sentinella Giornaliera Simmetrica ([resort-sentinel.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/resort-sentinel.ts))**:
+     - Esteso il controllo automatico di auto-guarigione della sentinella anche quando in standby c'è **Jungle Villas (`807324`)**: qualsiasi tariffa trovata aperta fuori dalla finestra Keep-Alive di luglio viene segnalata e richiusa automaticamente (`Stop Sell ON`), preservando intatto il mese di luglio (`buildStandbyClosedRangesExcludingJuly`).
+- **Verifica:** `npx tsc --noEmit` (`0` errori) + `npm run api:check` (`0` errori) + `9/9` test automatici verdi su tutti gli scenari (modifica pre-switch, nuova prenotazione post-switch, fail-safe timestamp mancanti, cancellazioni, intervalli escluso luglio).
+- **Stato:** 🟢 COMPLETATO E VERIFICATO IN LOCALE SU `staging`.
+
+---
+
 ### 🛡️ [28/11/2026 - ORE 10:49] · SCUDO ANTI-LEAK NATIVO ANTIGRAVITY (100% OFFLINE) & POTENZIAMENTO AUDIT SEGRETI
 - **Cosa abbiamo fatto:**
   1. 🔒 **Scudo Nativo Antigravity ([.agents/hooks.json](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/.agents/hooks.json) & [antigravity-secret-guard.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scripts/antigravity-secret-guard.mjs))**:
@@ -4312,3 +4325,17 @@
   - Aggiornati [checkout.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/checkout.ts), [verify.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/verify.ts) e [octorate-live-checker.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/octorate-live-checker.ts) (incluso blocco pre-inserimento con allarme rosso Telegram `ALERTS_OVERBOOKING` e svuotamento immediato cache griglia).
   - Aggiornati [octorate.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/lib/octorate.ts), [RoomGrid.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/resort/components/RoomGrid.tsx) e [booking-engine.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/components/booking-engine.tsx) con mappatura bidirezionale ID gemelli `807324 ↔ 366879`, bypass cache su ricerca date (`nocache=1`), regola chiusura `≥ 10.000 ฿` e *Fail-Closed* in UI.
 - **Verifiche eseguite**: `npx tsc --noEmit` (0 errori), 9/9 test forensi superati in `scratch/test_zero_overbooking.mjs`, `npm run api:check` e `vite build` completati con successo (`main.js` 211.7 kB).
+
+### 🟩 [28/11/2026 - ORE 14:35] · RESORT SENTINEL: PULIZIA FALSI ALLARMI CONNESSIONI OTA SU TELEGRAM
+- **Rimozione Falsi Allarmi su Connessioni OTA (`api/_handlers/resort-sentinel.ts`)**:
+  - Rimosso il falso avviso `Booking.com: pullMappedOnly=true` (impostazione di fabbrica Octorate presente su tutti i canali; confermato che `14 Days Cancellation` non è più attiva su Booking.com).
+  - Ignorato il canale interno Octorate (`channelId: 233`) rimasto in bozza `WAITING` senza camere né sincronizzazione su Jungle Villas (`#236502`) e Hubitat (`#236510`).
+  - Mantenuto attivo al 100% il controllo su veri guasti di connessione, errori HTTP e sincronizzazione calendario/prenotazioni disattivata per Booking.com, Agoda, Expedia e Airbnb, con nomi struttura in chiaro (`FP Village`, `Jungle Villas`, `Hubitat`).
+- **Verifica**: Compilazione TypeScript (`npx tsc --noEmit`) superata con 0 errori.
+
+### 🟩 [28/11/2026 - ORE 14:41] · TELEGRAM: BANNER VISIVO UNIVERSALE PUNTI ESCLAMATIVI ROSSI (❗️) SU TUTTI I PROBLEMI SERI
+- **Testata Universale di Emergenza (`❗️❗️❗️❗️❗️❗️❗️❗️❗️❗️`) in Tutti i Reparti**:
+  - **Gateway Centrale Villaggio & Pizzeria (`api/_helpers/telegram.ts`)**: Introdotti `CRITICAL_ALERT_BANNER`, `isCriticalTelegramMessage()` e `applyCriticalAlertBanner()` dentro `sendDepartmentTelegramMessage()`. Ogni problema serio (topic `ALERTS_OVERBOOKING`, anomalie Sentinel, overbooking, fallimenti Octorate su pagamenti, connessioni OTA in `ATTENZIONE`, errori critici/blocchi) viene ora aperto automaticamente con una fila di 10 punti esclamativi rossi sulla primissima riga, senza duplicazioni e senza toccare ordini o report normali.
+  - **Motore Sconti Last Minute & Cancello Switch (`api/_helpers/octorate-cascade-sync.ts`, `api/_handlers/telegram.ts`)**: Agganciati alla medesima testata rossa per errori e blocchi di sicurezza.
+  - **Social Media Studio & Database Sentinel (`scripts/social-scheduler-dispatch.mjs`, `scripts/social-emergency-alert.mjs`, `scripts/supabase-sentinel.mjs`)**: Integrato il banner rosso in autonomia nei rispettivi reparti stagni per ogni avviso inviato al topic errori (`TOPIC_FAILED`) o con sirena critica.
+- **Verifica**: Compilazione TypeScript (`npx tsc --noEmit`), `node --check` su tutti gli script e test automatico sui 6 scenari critici/normali superati al 100%.

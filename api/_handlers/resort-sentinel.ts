@@ -14,7 +14,7 @@ import {
 } from "../_helpers/octorate-catalog.js";
 export { MOTHER_ROOM_INFOS, FAKE_BUNGALOW_MOTHER_IDS };
 import { checkAndSyncCascadeLastMinute, loadCascadeLedger, getThailandTodayStr } from "../_helpers/octorate-cascade-sync.js";
-import { ALL_OCTORATE_STRUCTURE_IDS } from "../_helpers/octorate-structures.js";
+import { ALL_OCTORATE_STRUCTURE_IDS, OCTORATE_STRUCTURES } from "../_helpers/octorate-structures.js";
 import { clearOctorateGridCache } from "./octorate.js";
 import {
   ensurePerpetualPostSeasonClosure,
@@ -24,9 +24,11 @@ import {
 } from "../_helpers/octorate-closed-room-lock.js";
 import { postOctorateCalendarBulkWithRetry } from "../_helpers/octorate-client.js";
 import {
+  buildStandbyClosedRangesExcludingJuly,
   collectOccupiedDatesByTwinKey,
   expandMinStayEntryWithStandbyKeepAlive,
   getActiveJungleSource,
+  isLowSeasonKeepAliveDate,
   isTwinKeyOccupiedOnDate,
   shouldTwinRateStayClosedOnDate,
   syncActiveToStandbyCalendar
@@ -82,34 +84,43 @@ async function auditOtaConnections(token: string): Promise<NonNullable<SentinelA
 
   await Promise.all(
     ALL_OCTORATE_STRUCTURE_IDS.map(async (structId) => {
+      const structLabel = OCTORATE_STRUCTURES.find(s => s.id === structId)?.shortLabel || structId;
       try {
         const res = await fetch(`https://api.octorate.com/connect/rest/v1/connection?accommodation=${structId}`, {
           headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
         });
         if (!res.ok) {
-          warnings.push(`Struttura ${structId}: HTTP ${res.status} su /connection`);
+          warnings.push(`${structLabel} (${structId}): HTTP ${res.status} su /connection`);
           return;
         }
         const json = await res.json();
         const conns = Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : []);
         for (const conn of conns) {
-          const chName = String(conn.channelName || `Canale ${conn.channelId || '?'}`);
+          const chId = Number(conn.channelId || 0);
+          const chName = String(conn.channelName || `Canale ${chId || '?'}`);
           const status = String(conn.status || '').toUpperCase().trim();
+
+          // Ignora il canale interno Octorate (233) rimasto in bozza WAITING senza camere né sync
+          const isInternalOctorateStub =
+            chId === 233 &&
+            status === 'WAITING' &&
+            conn.updateCalendar === false &&
+            conn.pullReservations === false &&
+            !conn.hasBasicRooms;
+          if (isInternalOctorateStub) continue;
+
           checkedCount++;
 
           if (status === 'ENABLED') {
             if (conn.updateCalendar === false || conn.pullReservations === false) {
-              warnings.push(`Struttura ${structId} ${chName} (#${conn.id}): sync disattivato (updateCalendar=${String(conn.updateCalendar)}, pullReservations=${String(conn.pullReservations)})`);
-            }
-            if (Number(conn.channelId) === 142 && conn.pullMappedOnly === true) {
-              warnings.push(`Struttura ${structId} Booking.com (#${conn.id}): pullMappedOnly=true (rischio scarto silenzioso su upgrade/tariffe non mappate)`);
+              warnings.push(`${structLabel} ${chName} (#${conn.id}): sync disattivato (updateCalendar=${String(conn.updateCalendar)}, pullReservations=${String(conn.pullReservations)})`);
             }
           } else if (status && status !== 'DISABLED') {
-            warnings.push(`Struttura ${structId} ${chName} (#${conn.id}): stato anomalo ${status}`);
+            warnings.push(`${structLabel} ${chName} (#${conn.id}): stato anomalo ${status}`);
           }
         }
       } catch (err: any) {
-        warnings.push(`Struttura ${structId}: errore verifica connessioni (${err?.message || 'rete'})`);
+        warnings.push(`${structLabel} (${structId}): errore verifica connessioni (${err?.message || 'rete'})`);
       }
     })
   );
@@ -341,6 +352,29 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
                 dateTo: '2027-10-31',
                 values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
               });
+            }
+            // Se Jungle Villas (807324) è in standby, tutte le sue 52 tariffe devono restare 100% chiuse fuori dalla finestra Keep-Alive di Luglio
+            if (
+              activeJungleSource === '366879' &&
+              twinPair?.jungleId === idNum &&
+              !isStopSell &&
+              !fullyClosedIds.has(idNum) &&
+              !isLowSeasonKeepAliveDate(ad.from)
+            ) {
+              anomalies.push({
+                id: idNum,
+                name,
+                issue: 'Tariffa gemella Jungle Villas (807324) in standby risultava APERTA fuori dalla finestra Keep-Alive di Luglio',
+                date: ad.from
+              });
+              for (const seg of buildStandbyClosedRangesExcludingJuly(todayStr, '2027-10-31')) {
+                healPayload.push({
+                  room: idNum,
+                  dateFrom: seg.dateFrom,
+                  dateTo: seg.dateTo,
+                  values: { stopSells: true, closed: true, closedArrival: true, closedDeparture: true }
+                });
+              }
             }
             continue;
           }

@@ -136,9 +136,57 @@ import { formatAllDatesToDMY } from "./date-formatter.js";
 
 export type VillageTopicKey = keyof typeof VILLAGE_TOPICS;
 
+export const CRITICAL_ALERT_BANNER = '❗️❗️❗️❗️❗️❗️❗️❗️❗️❗️';
+
+const CRITICAL_ALERT_PATTERNS: RegExp[] = [
+  /^\s*(?:<[^>]+>\s*)*🚨/,
+  /\bOVERBOOKING\b/i,
+  /\bANOMALIA RILEVATA\b/i,
+  /CONNESSIONI OTA\s*\(ATTENZIONE\)/i,
+  /\bERRORE CRITICO\b/i,
+  /\bCRITICAL\b/i,
+  /\bSTOP-?SELL VIOLAT/i,
+  /\bNON REGISTRAT[AE]\b/i,
+  /\bBLOCCAT[OA] DAL CANCELLO\b/i,
+  /\bSYNC DISATTIVATO\b/i,
+  /\bSTATO ANOMALO\b/i,
+  /\bERRORE VERIFICA\b/i,
+  /\bFALLIT[OA]\b/i,
+  /\bAUTO-HEALER NON HA POTUTO\b/i
+];
+
+/**
+ * Rileva se un messaggio Telegram segnala un problema serio.
+ */
+export function isCriticalTelegramMessage(
+  message: string,
+  options?: { isCritical?: boolean; topic?: VillageTopicKey }
+): boolean {
+  if (options?.isCritical === true) return true;
+  if (options?.isCritical === false) return false;
+  if (options?.topic === 'ALERTS_OVERBOOKING') return true;
+  const text = String(message || '');
+  return CRITICAL_ALERT_PATTERNS.some((rx) => rx.test(text));
+}
+
+/**
+ * Antepone una fila evidente di punti esclamativi rossi (❗️) all'inizio di qualsiasi
+ * messaggio Telegram che segnali un problema serio, evitando duplicazioni e falsi positivi.
+ */
+export function applyCriticalAlertBanner(
+  message: string,
+  options?: { isCritical?: boolean; topic?: VillageTopicKey }
+): string {
+  const text = String(message || '');
+  if (!isCriticalTelegramMessage(text, options)) return text;
+  if (text.trimStart().startsWith('❗️❗️❗️')) return text;
+  return `${CRITICAL_ALERT_BANNER}\n${text}`;
+}
+
 /**
  * Sends a Telegram message to a specific department ('pizza' or 'village').
- * Garantisce tassativamente che tutte le date siano espresse in formato giorno/mese/anno (DD/MM/YYYY).
+ * Garantisce tassativamente che tutte le date siano espresse in formato giorno/mese/anno (DD/MM/YYYY)
+ * e antepone la fila di punti esclamativi rossi (❗️) ai messaggi di problemi seri.
  */
 export async function sendDepartmentTelegramMessage(
   department: TelegramDepartment,
@@ -150,6 +198,7 @@ export async function sendDepartmentTelegramMessage(
     topic?: VillageTopicKey;
     replyMarkup?: any;
     replyToMessageId?: number;
+    isCritical?: boolean;
   }
 ): Promise<{ success: boolean; error?: string; result?: any }> {
   const { botToken, chatId } = await getTelegramCredentials(department);
@@ -159,7 +208,11 @@ export async function sendDepartmentTelegramMessage(
   }
 
   // 📅 Trasformazione universale: tutte le date inviate a Telegram diventano Giorno/Mese/Anno (DD/MM/YYYY)
-  const cleanMessage = formatAllDatesToDMY(message);
+  // ❗️ Evidenza immediata: fila di punti esclamativi rossi in testa per tutti i problemi seri
+  const cleanMessage = applyCriticalAlertBanner(formatAllDatesToDMY(message), {
+    isCritical: options?.isCritical,
+    topic: options?.topic
+  });
 
   const payload: any = {
     chat_id: chatId,

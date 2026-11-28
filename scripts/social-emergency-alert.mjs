@@ -55,13 +55,18 @@ async function getSocialBotToken() {
 }
 
 async function sendTelegramMessage(token, { topicId, text }) {
+  const finalText =
+    (topicId === TOPIC_FAILED || /^\s*(?:<[^>]+>\s*)*🚨/.test(String(text || ''))) &&
+    !String(text || '').trimStart().startsWith('❗️❗️❗️')
+      ? `❗️❗️❗️❗️❗️❗️❗️❗️❗️❗️\n${text}`
+      : text;
   const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: CHAT_ID,
       message_thread_id: topicId,
-      text,
+      text: finalText,
       parse_mode: 'HTML',
       disable_web_page_preview: true
     }),
