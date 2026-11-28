@@ -167,19 +167,101 @@ async function markStandbySyncCompleted(supabaseAdmin: any): Promise<void> {
   }
 }
 
-export async function getActiveJungleSource(supabaseAdmin: any): Promise<JungleSourceStructureId> {
-  if (!supabaseAdmin) return '807324';
+export async function getActiveJungleSourceWithMeta(supabaseAdmin: any): Promise<{
+  activeSource: JungleSourceStructureId;
+  switchedAtMs: number | null;
+}> {
+  if (!supabaseAdmin) return { activeSource: '807324', switchedAtMs: null };
   try {
     const { data } = await supabaseAdmin
       .from('telegram_config')
-      .select('bot_token')
+      .select('bot_token, updated_at')
       .eq('id', ACTIVE_SOURCE_CONFIG_ID)
       .maybeSingle();
-    if (data?.bot_token === '366879') return '366879';
+    const activeSource: JungleSourceStructureId = data?.bot_token === '366879' ? '366879' : '807324';
+    const parsedMs = data?.updated_at ? Date.parse(String(data.updated_at)) : NaN;
+    return {
+      activeSource,
+      switchedAtMs: Number.isNaN(parsedMs) ? null : parsedMs
+    };
   } catch {
     // fallback sicuro su Jungle Villas attiva
   }
-  return '807324';
+  return { activeSource: '807324', switchedAtMs: null };
+}
+
+export async function getActiveJungleSource(supabaseAdmin: any): Promise<JungleSourceStructureId> {
+  const { activeSource } = await getActiveJungleSourceWithMeta(supabaseAdmin);
+  return activeSource;
+}
+
+export type StandbyBookingAlertKind = 'none' | 'new_standby_alert' | 'legacy_pre_switch_update';
+
+/**
+ * Classifica l'avviso Telegram per una prenotazione su una delle 4 ville gemelle:
+ * - 'new_standby_alert': SOLO per NUOVE prenotazioni create dopo lo switch (o senza timestamp verificabile).
+ * - 'legacy_pre_switch_update': per modifiche o prenotazioni storiche create PRIMA dello switch
+ *   (evita falsi allarmi rossi quando un ospite modifica una vecchia prenotazione Airbnb/Booking pre-switch).
+ * - 'none': prenotazione sulla struttura attiva o cancellazione.
+ */
+export function classifyStandbyBookingAlert(params: {
+  isTwinStandby: boolean;
+  routingKind: 'new' | 'modified' | 'cancelled' | 'skip';
+  createTimeMs: number | null;
+  switchedAtMs: number | null;
+}): StandbyBookingAlertKind {
+  const { isTwinStandby, routingKind, createTimeMs, switchedAtMs } = params;
+  if (!isTwinStandby || routingKind === 'cancelled' || routingKind === 'skip') {
+    return 'none';
+  }
+  const isCreatedBeforeSwitch =
+    createTimeMs !== null &&
+    switchedAtMs !== null &&
+    Number.isFinite(createTimeMs) &&
+    Number.isFinite(switchedAtMs) &&
+    createTimeMs < switchedAtMs;
+
+  if (routingKind === 'modified' || isCreatedBeforeSwitch) {
+    return 'legacy_pre_switch_update';
+  }
+  return 'new_standby_alert';
+}
+
+/**
+ * Restituisce gli intervalli di chiusura (Stop Sell) per Jungle Villas (807324) in standby
+ * escludendo rigorosamente la finestra Keep-Alive di Luglio (01 Lug - 31 Lug).
+ */
+export function buildStandbyClosedRangesExcludingJuly(
+  dateFrom: string,
+  dateTo: string
+): Array<{ dateFrom: string; dateTo: string }> {
+  if (!dateFrom || !dateTo || dateFrom > dateTo) return [];
+  const startYear = Number(dateFrom.slice(0, 4));
+  const endYear = Number(dateTo.slice(0, 4));
+  if (Number.isNaN(startYear) || Number.isNaN(endYear)) {
+    return [{ dateFrom, dateTo }];
+  }
+
+  const segments: Array<{ dateFrom: string; dateTo: string }> = [];
+  let cursor = dateFrom;
+
+  for (let y = startYear; y <= endYear; y++) {
+    const julyStart = `${y}-07-01`;
+    const julyEnd = `${y}-07-31`;
+    if (julyEnd < cursor) continue;
+    if (julyStart > dateTo) break;
+
+    if (cursor < julyStart) {
+      segments.push({ dateFrom: cursor, dateTo: addDaysToIsoDate(julyStart, -1) });
+    }
+    cursor = addDaysToIsoDate(julyEnd, 1);
+  }
+
+  if (cursor <= dateTo) {
+    segments.push({ dateFrom: cursor, dateTo });
+  }
+
+  return segments;
 }
 
 export async function setActiveJungleSource(

@@ -44,8 +44,9 @@ export {
   resolveGuestName
 };
 import {
+  classifyStandbyBookingAlert,
   expandMinStayEntryWithStandbyKeepAlive,
-  getActiveJungleSource,
+  getActiveJungleSourceWithMeta,
   mirrorReservationToStandby,
   reopenFreedTwinDatesOnActiveStructure,
   syncActiveToStandbyCalendar,
@@ -503,19 +504,19 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
               resolveAccommodationName(preResolvedTargetBooking);
             const preIn = toThailandDateStr(
               preResolvedTargetBooking.checkin ||
-                preResolvedTargetBooking.checkIn ||
-                preResolvedTargetBooking.check_in ||
-                preResolvedTargetBooking.startDate ||
-                preResolvedTargetBooking.rooms?.[0]?.checkin ||
-                preResolvedTargetBooking.rooms?.[0]?.startDate
+              preResolvedTargetBooking.checkIn ||
+              preResolvedTargetBooking.check_in ||
+              preResolvedTargetBooking.startDate ||
+              preResolvedTargetBooking.rooms?.[0]?.checkin ||
+              preResolvedTargetBooking.rooms?.[0]?.startDate
             );
             const preOut = toThailandDateStr(
               preResolvedTargetBooking.checkout ||
-                preResolvedTargetBooking.checkOut ||
-                preResolvedTargetBooking.check_out ||
-                preResolvedTargetBooking.endDate ||
-                preResolvedTargetBooking.rooms?.[0]?.checkout ||
-                preResolvedTargetBooking.rooms?.[0]?.endDate
+              preResolvedTargetBooking.checkOut ||
+              preResolvedTargetBooking.check_out ||
+              preResolvedTargetBooking.endDate ||
+              preResolvedTargetBooking.rooms?.[0]?.checkout ||
+              preResolvedTargetBooking.rooms?.[0]?.endDate
             );
 
             const earlyTwinMatch = resolveTwinByProductOrName(preProd, preRoomName);
@@ -602,7 +603,8 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           console.warn('[OCTORATE WEBHOOK] Failed to fetch live calendar grid from Octorate:', calErr);
         }
 
-        const activeJungleSource = await getActiveJungleSource(supabaseAdmin);
+        const { activeSource: activeJungleSource, switchedAtMs: activeJungleSwitchedAtMs } =
+          await getActiveJungleSourceWithMeta(supabaseAdmin);
         const nonMirrorBookings = bookingsData.filter(b => !isMirrorReservation(b));
 
         // 🔓 Dopo cancellazione su villa gemella: riapre le date liberate sulla struttura attiva e patcha calendarItems in memoria a latenza zero
@@ -1000,17 +1002,27 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                           `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
                       }
 
-                      if (isTwinStandbyBooking && routing.kind !== 'cancelled') {
+                      const standbyAlertKind = classifyStandbyBookingAlert({
+                        isTwinStandby: isTwinStandbyBooking,
+                        routingKind: routing.kind,
+                        createTimeMs: cMs,
+                        switchedAtMs: activeJungleSwitchedAtMs
+                      });
+
+                      if (standbyAlertKind === 'new_standby_alert') {
                         tgMessage =
                           `🚨 <b>[PRENOTAZIONE KEEP-ALIVE SU STRUTTURA IN STANDBY!]</b>\n` +
                           `🛡️ <i>Ricevuta su ${resortConfig.name} (in Standby con filtro 14+ notti / prezzo 2x). Clonata automaticamente sulla struttura principale e date chiuse su entrambe!</i>\n\n` +
                           tgMessage;
+                      } else if (standbyAlertKind === 'legacy_pre_switch_update') {
+                        const activeLabel = activeJungleSource === '366879' ? 'Flower Power Village' : 'Jungle Villas';
+                        tgMessage += `\nℹ️ <i>Prenotazione storica su ${resortConfig.name} (creata prima dello switch): modifica già sincronizzata in automatico su ${activeLabel}.</i>`;
                       }
 
                       const tgRes = await sendDepartmentTelegramMessage('village', tgMessage, { topic: routing.topic });
                       console.log(`[OCTORATE WEBHOOK] Inviata notifica Telegram (${routing.kind} -> ${routing.topic}) per prenotazione #${reservationId}:`, tgRes);
 
-                      if (isTwinStandbyBooking && routing.kind !== 'cancelled') {
+                      if (standbyAlertKind === 'new_standby_alert') {
                         await sendDepartmentTelegramMessage(
                           'village',
                           `🚨 <b>PRENOTAZIONE RICEVUTA SU STRUTTURA IN STANDBY (${resortConfig.name})</b>\n` +
