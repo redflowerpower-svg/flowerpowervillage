@@ -3,6 +3,14 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🔧 [28/11/2026 - ORE 16:36] · SBLOCCO BUILD GITHUB & VERCEL (`staging` + `main`) — INCLUSIONE FILE STANDBY MIRROR & WEBHOOK
+- **Cosa abbiamo fatto:**
+  1. 🔎 **Diagnosi Fallimento Deploy (`b4a9297` / `b9d6046`)**: Individuato che nel rilascio precedente `resort-sentinel.ts` era stato caricato su GitHub senza i due file gemelli rimasti in locale ([octorate-jungle-mirror.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/octorate-jungle-mirror.ts) e [octorate-webhook.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/octorate-webhook.ts)), bloccando la compilazione API su GitHub Actions e Vercel.
+  2. ✅ **Verifica Completa & Pubblicazione (`MARKDOWN-PROJECT`)**: Validati `npm run verify:all` (`api:check` + `test:booking` + `vite build`) e audit segreti (`0 SECRETS DETECTED`), quindi inclusi entrambi i file e pubblicati su `staging` e `main`.
+- **Stato:** 🟢 PUBBLICATO SU `staging` E `main` (Vercel & GitHub Actions sbloccati).
+
+---
+
 ### 🛡️ [28/11/2026 - ORE 14:38] · FIX FALSI ALLARMI TELEGRAM STANDBY JUNGLE VILLAS & ESTENSIONE SENTINELLA GIORNALIERA
 - **Cosa abbiamo fatto:**
   1. 🔎 **Diagnosi Avviso `#126153528` (Robyn Koopman)**: Verificato live su Octorate che tutte le **52/52 tariffe** di Jungle Villas (`807324`) sono chiuse al 100% (Stop Sell attivo). La prenotazione `#126153528` era stata creata il **13 settembre 2026** (2 mesi prima dello switch del 14 novembre) e solo modificata su Airbnb il 25 novembre (`16–21 Gen 2027`), generando un falso allarme rosso su Telegram.
